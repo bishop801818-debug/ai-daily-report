@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>政策中心 · 锂电池产业链信息中台</title>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Noto+Sans+SC:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+:root {
+        --bg: #f5f7fa;
+        --surface: #ffffff;
+        --surface2: #f0f2f7;
+        --border: #e2e8f0;
+        --accent: #0891b2;
+        --accent-light: #ecfeff;
+        --text: #0f172a;
+        --text-mid: #475569;
+        --text-dim: #94a3b8;
+        --red: #dc2626;
+        --red-light: #fef2f2;
+        --orange: #ea580c;
+        --orange-light: #fff7ed;
+        --green: #16a34a;
+        --green-light: #f0fdf4;
+        --purple: #7c3aed;
+        --purple-light: #f5f3ff;
+        --gray: #64748b;
+        --topbar-h: 58px;
+        --radius: 14px;
+        --sidebar-w: 240px;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Noto Sans SC', sans-serif; background: var(--bg); color: var(--text); font-size: 17px; line-height: 1.85; }
+
+    /* ===== Layout ===== */
+    .layout { display: flex; min-height: 100vh; }
+
+    /* ===== Sidebar ===== */
+    .sidebar {
+        width: var(--sidebar-w);
+        min-width: var(--sidebar-w);
+        background: #ffffff;
+        position: sticky;
+        top: 0;
+        height: 100vh;
+        overflow-y: auto;
+        overflow-x: hidden;
+        display: flex;
+        flex-direction: column;
+        box-shadow: 2px 0 12px rgba(0,0,0,0.08);
+        border-right: 1px solid var(--border);
+        z-index: 100;
+        flex-shrink: 0;
+        scrollbar-width: thin;
+        scrollbar-color: var(--border) transparent;
+    }
+    .sidebar::-webkit-scrollbar { width: 4px; }
+    .sidebar::-webkit-scrollbar-track { background: transparent; }
+    .sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+    /* Sidebar Header */
+    .sidebar-header {
+        padding: 20px 18px 16px;
+        border-bottom: 1px solid var(--border);
+        flex-shrink: 0;
+    }
+    .sidebar-logo { font-size: 16px; font-weight: 700; color: var(--text); display: flex; align-items: center; gap: 7px; }
+    .sidebar-sub { font-size: 12px; color: var(--text-dim); margin-top: 4px; }
+
+    /* Stats Block */
+    .sidebar-stats { padding: 14px 18px; border-bottom: 1px solid var(--border); flex-shrink: 0; }
+    .stats-title { font-size: 11px; font-weight: 600; color: var(--text-dim); letter-spacing: 0.5px; margin-bottom: 10px; }
+    .stats-grid { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 6px; }
+    .stat-item { background: var(--surface2); border-radius: 8px; padding: 8px 6px; text-align: center; transition: background 0.2s; }
+    .stat-item:hover { background: var(--border); }
+    .stat-num { font-size: 20px; font-weight: 700; color: var(--accent); line-height: 1; }
+    .stat-num.green { color: var(--green); }
+    .stat-num.orange { color: var(--orange); }
+    .stat-num.purple { color: var(--purple); }
+    .stat-lbl { font-size: 10px; color: var(--text-dim); margin-top: 3px; }
+
+    /* Sidebar Sections */
+    .sidebar-section { padding: 14px 18px; border-bottom: 1px solid var(--border); flex-shrink: 0; }
+    .sidebar-section.flex { flex: 1; min-height: 0; }
+    .section-title { font-size: 11px; font-weight: 600; color: var(--text-dim); margin-bottom: 10px; display: flex; align-items: center; gap: 5px; }
+
+    /* Month Nav */
+    .month-nav { display: flex; flex-direction: column; gap: 4px; }
+    .month-btn {
+        display: flex; align-items: center;
+        padding: 7px 11px; border-radius: 8px;
+        background: var(--surface2); border: 1px solid var(--border);
+        color: var(--text-mid); font-size: 13px; font-weight: 600;
+        cursor: pointer; transition: all 0.2s;
+    }
+    .month-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-light); }
+    .month-btn.active { background: var(--accent); border-color: var(--accent); color: white; }
+
+    /* BU Filter */
+    .bu-list { display: flex; flex-direction: column; gap: 4px; }
+    .bu-item { display: flex; align-items: center; gap: 9px; padding: 6px 9px; border-radius: 7px; cursor: pointer; transition: background 0.2s; font-size: 13px; color: var(--text-mid); }
+    .bu-item:hover { background: var(--surface2); color: var(--text); }
+    .bu-item input[type="checkbox"] { width: 14px; height: 14px; accent-color: var(--accent); cursor: pointer; flex-shrink: 0; }
+    .bu-item label { cursor: pointer; flex: 1; font-weight: 500; }
+
+    /* ===== Main Content ===== */
+    .main-area { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+
+    /* Topbar */
+    .topbar {
+        position: sticky; top: 0;
+        background: linear-gradient(135deg, #0d1b3e 0%, #1a3a6b 55%, #0a2d5c 100%);
+        color: white; padding: 0 24px; height: var(--topbar-h);
+        display: flex; align-items: center; gap: 14px;
+        z-index: 200; box-shadow: 0 4px 20px rgba(0,0,0,0.25); flex-shrink: 0;
+    }
+    .back-btn {
+        background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.25);
+        color: white; padding: 6px 14px; border-radius: 8px; font-size: 15px;
+        font-weight: 600; text-decoration: none; transition: background 0.15s;
+    }
+    .back-btn:hover { background: rgba(255,255,255,0.22); }
+    .topbar-title { font-family: 'Syne', sans-serif; font-size: 17px; font-weight: 700; color: white; }
+    .topbar-right { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+    .total-badge { background: var(--accent-light); border: 1px solid rgba(8,145,178,0.25); color: var(--accent); padding: 4px 14px; border-radius: 20px; font-size: 13px; font-weight: 600; }
+
+    /* Container */
+    .container { max-width: 1140px; margin: 0 auto; padding: 24px 28px 80px; width: 100%; }
+
+    /* Filter */
+    .filter-bar { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 24px; }
+    .filter-btn {
+        padding: 8px 18px; border: 2px solid var(--border); background: var(--surface);
+        border-radius: 20px; cursor: pointer; font-size: 14px; transition: all 0.2s; font-weight: 600;
+    }
+    .filter-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .filter-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
+
+    /* Timeline */
+    .timeline { position: relative; padding-left: 44px; }
+    .timeline::before {
+        content: '';
+        position: absolute; left: 16px; top: 0; bottom: 0; width: 2px;
+        background: linear-gradient(to bottom, var(--accent), var(--purple));
+        box-shadow: 0 0 8px rgba(8,145,178,0.4);
+    }
+
+    /* Month Marker */
+    .month-marker {
+        position: relative; margin-bottom: 4px; margin-top: 22px;
+    }
+    .month-marker:first-child { margin-top: 0; }
+    .month-marker::before {
+        content: '';
+        position: absolute; left: -36px; top: 4px;
+        width: 20px; height: 20px;
+        background: var(--accent);
+        border: 3px solid var(--bg);
+        border-radius: 50%;
+        box-shadow: 0 0 0 3px rgba(8,145,178,0.3), 0 0 14px rgba(8,145,178,0.5);
+        z-index: 2;
+    }
+    .month-marker-label {
+        display: inline-flex; align-items: center; gap: 7px;
+        background: var(--accent);
+        color: white;
+        font-size: 14px; font-weight: 600;
+        padding: 5px 12px; border-radius: 6px;
+        box-shadow: 0 2px 8px rgba(8,145,178,0.35);
+        transition: all 0.2s; cursor: default;
+    }
+    .month-marker-label:hover {
+        box-shadow: 0 0 0 3px rgba(8,145,178,0.2), 0 2px 12px rgba(8,145,178,0.5);
+        transform: translateX(2px);
+    }
+
+    .timeline-item {
+        position: relative; margin-bottom: 16px; cursor: pointer;
+        animation: fadeSlideIn 0.4s ease both;
+    }
+    @keyframes fadeSlideIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+    .timeline-item::before {
+        content: ''; position: absolute; left: -36px; top: 26px; width: 10px; height: 10px;
+        background: var(--surface); border: 2.5px solid var(--accent); border-radius: 50%;
+        box-shadow: 0 0 0 3px rgba(8,145,178,0.18);
+        transition: all 0.2s; z-index: 2;
+    }
+    .timeline-item:hover::before { background: var(--accent); box-shadow: 0 0 0 3px rgba(8,145,178,0.38); }
+
+    .item-card {
+        background: var(--surface); border-radius: var(--radius);
+        padding: 18px 22px; box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+        border-left: 5px solid var(--accent);
+        transition: all 0.3s;
+    }
+    .item-card:hover { transform: translateX(6px); box-shadow: 0 8px 24px rgba(0,0,0,0.11); border-left-color: var(--orange); }
+
+    .item-header { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; flex-wrap: wrap; }
+    .item-date { font-size: 14px; font-weight: 700; color: var(--accent); }
+    .item-badges { display: flex; gap: 5px; flex-wrap: wrap; }
+    .badge { font-size: 12px; padding: 3px 9px; border-radius: 6px; font-weight: 600; }
+    .badge.central { background: var(--accent-light); color: var(--accent); }
+    .badge.local { background: var(--green-light); color: var(--green); }
+    .badge.overseas { background: var(--purple-light); color: var(--purple); }
+    .badge.bu { background: var(--surface2); color: var(--gray); border: 1px solid var(--border); }
+
+    .item-title { font-size: 17px; font-weight: 700; color: var(--text); margin-bottom: 7px; line-height: 1.5; }
+    .item-summary { font-size: 14px; color: var(--text-mid); line-height: 1.8; margin-bottom: 10px; }
+    .item-meta { font-size: 13px; color: var(--text-dim); }
+
+    .collect-btn {
+        margin-left: auto;
+        background: none;
+        border: none;
+        cursor: pointer;
+        font-size: 16px;
+        padding: 2px 6px;
+        border-radius: 4px;
+        transition: all 0.15s;
+        opacity: 0;
+        color: var(--orange);
+        flex-shrink: 0;
+    }
+    .timeline-item:hover .collect-btn { opacity: 0.5; }
+    .collect-btn:hover { opacity: 1 !important; background: rgba(245,158,11,0.12); }
+    .collect-btn.collected { opacity: 1; color: var(--orange); }
+
+    .original-link { display: inline-flex; align-items: center; gap: 7px; background: var(--accent); color: white; padding: 7px 16px; border-radius: 8px; font-size: 14px; font-weight: 700; text-decoration: none; transition: background 0.2s; }
+    .original-link:hover { background: #0e7490; }
+    .media-link { display: inline-flex; align-items: center; gap: 7px; background: var(--orange-light); color: var(--orange); padding: 7px 16px; border-radius: 8px; font-size: 14px; font-weight: 700; text-decoration: none; border: 1.5px solid #fed7aa; transition: all 0.2s; }
+    .media-link:hover { background: var(--orange); color: white; border-color: var(--orange); }
+
+    /* Modal */
+    .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); z-index: 1000; }
+    .modal-overlay.active { display: block; }
+    .modal {
+        display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+        width: 95%; max-width: 900px; max-height: 92vh; background: var(--surface);
+        border-radius: 16px; z-index: 1001; overflow: hidden;
+    }
+    .modal.active { display: block; overflow-y: auto; }
+
+    .modal-header {
+        background: linear-gradient(135deg, #0d1b3e 0%, #1a3a6b 55%, #0a2d5c 100%);
+        color: white; padding: 18px 24px;
+        display: flex; justify-content: space-between; align-items: center;
+    }
+    .modal-header h2 { font-size: 18px; font-weight: 700; flex: 1; padding-right: 16px; }
+    .modal-close { background: rgba(255,255,255,0.15); border: none; color: white; width: 36px; height: 36px; border-radius: 50%; font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s; }
+    .modal-close:hover { background: rgba(255,255,255,0.25); }
+
+    .modal-body { padding: 24px 28px; }
+
+    .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 20px; }
+    @media (max-width: 768px) { .info-grid { grid-template-columns: 1fr; } }
+
+    .info-card { background: var(--surface2); border-radius: 10px; padding: 16px 20px; }
+    .info-card-header { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; padding-bottom: 10px; border-bottom: 2px solid var(--border); }
+    .info-card-icon { font-size: 18px; }
+    .info-card-title { font-size: 16px; font-weight: 700; color: var(--accent); }
+    .info-card-title.green { color: var(--green); }
+    .info-card-title.red { color: var(--red); }
+    .info-card-title.orange { color: var(--orange); }
+
+    .core-item { margin-bottom: 12px; }
+    .core-item:last-child { margin-bottom: 0; }
+    .core-phrase {
+        font-size: 15px; font-weight: 700; color: var(--text);
+        padding: 8px 12px; background: var(--surface); border-radius: 6px;
+        border-left: 3px solid var(--accent); margin-bottom: 5px;
+    }
+    .core-explain { font-size: 14px; color: var(--text-mid); line-height: 1.8; padding-left: 8px; }
+
+    .pos-block { margin-bottom: 14px; }
+    .pos-block:last-child { margin-bottom: 0; }
+    .pos-heading { font-size: 14px; font-weight: 700; color: var(--text-mid); margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
+    .pos-heading::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: var(--accent); }
+    .pos-text { font-size: 14px; color: var(--text-mid); line-height: 1.8; padding: 10px 14px; background: var(--surface2); border-radius: 6px; }
+
+    .seg-impact { margin-bottom: 10px; }
+    .seg-impact:last-child { margin-bottom: 0; }
+    .seg-name { font-size: 14px; font-weight: 700; color: var(--orange); margin-bottom: 4px; display: flex; align-items: center; gap: 6px; }
+    .seg-name::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--orange); }
+    .seg-impact-text { font-size: 14px; color: var(--text-mid); line-height: 1.7; padding-left: 14px; }
+
+    .risk-item { margin-bottom: 10px; }
+    .risk-item:last-child { margin-bottom: 0; }
+    .risk-header { display: flex; align-items: flex-start; gap: 6px; margin-bottom: 4px; }
+    .risk-dot { font-size: 14px; }
+    .risk-name { font-size: 14px; font-weight: 700; color: var(--red); }
+    .risk-body { font-size: 14px; color: var(--text-mid); line-height: 1.7; padding-left: 18px; }
+
+    /* Empty State */
+    .empty-state { text-align: center; padding: 60px 20px; color: var(--text-dim); }
+    .empty-state .icon { font-size: 48px; margin-bottom: 16px; opacity: 0.5; }
+    .empty-state p { font-size: 16px; }
+
+    /* Mobile toggle */
+    .mobile-toggle {
+        display: none;
+        background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.25);
+        color: white; padding: 6px 12px; border-radius: 8px; font-size: 15px;
+        cursor: pointer;
+    }
+
+    @media (max-width: 900px) {
+        .sidebar { transform: translateX(-100%); transition: transform 0.3s ease; position: fixed; left: 0; top: 0; }
+        .sidebar.open { transform: translateX(0); }
+        .main-area { width: 100%; }
+        .mobile-toggle { display: flex !important; align-items: center; gap: 6px; }
+        .layout { display: block; }
+        .topbar { padding-left: 12px; }
+    }
+    @media (max-width: 768px) {
+        .container { padding: 16px; }
+    }
+    </style>
+</head>
+<body>
+    <div class="layout">
+        <!-- ====== Sidebar ====== -->
+        <nav class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">📋 政策中心</div>
+                <div class="sidebar-sub">龙蟠科技 · 锂电池产业链</div>
+            </div>
+
+            <div class="sidebar-stats">
+                <div class="stats-title">政策统计</div>
+                <div class="stats-grid">
+                    <div class="stat-item"><div class="stat-num" id="stat-total">12</div><div class="stat-lbl">全部</div></div>
+                    <div class="stat-item"><div class="stat-num green" id="stat-central">6</div><div class="stat-lbl">中央</div></div>
+                    <div class="stat-item"><div class="stat-num orange" id="stat-local">4</div><div class="stat-lbl">地方</div></div>
+                    <div class="stat-item"><div class="stat-num purple" id="stat-overseas">2</div><div class="stat-lbl">海外</div></div>
+                </div>
+            </div>
+
+            <div class="sidebar-section">
+                <div class="section-title">月份</div>
+                <div class="month-nav" id="month-nav"></div>
+            </div>
+
+            <div class="sidebar-section flex">
+                <div class="section-title">涉及BU</div>
+                <div class="bu-list" id="bu-list"></div>
+            </div>
+        </nav>
+
+        <!-- ====== Main ====== -->
+        <div class="main-area">
+            <div class="topbar">
+                <button class="mobile-toggle" id="mobile-toggle" onclick="document.getElementById('sidebar').classList.toggle('open')">
+                    ☰ 导航
+                </button>
+                <a href="index_v3.html" class="back-btn">← 返回主页</a>
+                <span class="topbar-title">📋 政策中心 · 2026年政策时间轴</span>
+                <div class="topbar-right">
+                    <span class="total-badge" id="topbar-count">12 条政策</span>
+                </div>
+            </div>
+
+            <div class="container">
+                <div class="filter-bar">
+                    <button class="filter-btn active" data-filter="all">全部</button>
+                    <button class="filter-btn" data-filter="central">中央政策</button>
+                    <button class="filter-btn" data-filter="local">地方政策</button>
+                    <button class="filter-btn" data-filter="overseas">海外政策</button>
+                </div>
+
+                <div class="timeline" id="timeline"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal-overlay" id="modal-overlay"></div>
+    <div class="modal" id="modal">
+        <div class="modal-header">
+            <h2 id="modal-title"></h2>
+            <button class="modal-close" id="modal-close">×</button>
+        </div>
+        <div class="modal-body" id="modal-body"></div>
+    </div>
+
+    <script>
+    // ===== 数据加载（从 policies.json）=====
+    let policies = [];
+    const POLICY_JSON_URL = 'reports/policies.json';
+
+    async function loadPolicies() {
+        try {
+            const res = await fetch(`${POLICY_JSON_URL}?v=${Date.now()}`);
+            if (!res.ok) throw new Error('HTTP ' + res.status);
+            const json = await res.json();
+            policies = json.policies || [];
+            console.log('[政策中心] 加载政策', policies.length, '条');
+        } catch (err) {
+            console.error('[政策中心] 加载失败:', err);
+        }
+        return policies;
+    }
+
+    // ===== State =====
+    let currentTypeFilter = 'all';
+    let activeMonths = new Set();
+    let activeBUs = new Set();
+
+    const ALL_BUS = ['常州锂源', '龙蟠时代', '法恩莱特', '三金锂电', '山东美多', '铂源催化'];
+
+    // ===== Init =====
+    function initSidebar() {
+        // Stats
+        const total = policies.length;
+        const central = policies.filter(p => p.type === 'central').length;
+        const local = policies.filter(p => p.type === 'local').length;
+        const overseas = policies.filter(p => p.type === 'overseas').length;
+        document.getElementById('stat-total').textContent = total;
+        document.getElementById('stat-central').textContent = central;
+        document.getElementById('stat-local').textContent = local;
+        document.getElementById('stat-overseas').textContent = overseas;
+
+        // Month nav
+        const monthCounts = {};
+        policies.forEach(p => {
+            const m = p.date.substring(0, 7); // "2026-03"
+            monthCounts[m] = (monthCounts[m] || 0) + 1;
+        });
+        const sortedMonths = Object.keys(monthCounts).sort((a, b) => b.localeCompare(a));
+        const monthNav = document.getElementById('month-nav');
+        monthNav.innerHTML = sortedMonths.map(m => {
+            const label = m.replace('2026-', '').replace('-', '月');
+            return `<button class="month-btn" data-month="${m}">${label}</button>`;
+        }).join('');
+        // All months active by default
+        sortedMonths.forEach(m => activeMonths.add(m));
+
+        // BU filter
+        const buList = document.getElementById('bu-list');
+        buList.innerHTML = ALL_BUS.map(bu => `
+            <div class="bu-item" data-bu="${bu}">
+                <input type="checkbox" id="bu-${bu}" checked>
+                <label for="bu-${bu}">${bu}</label>
+            </div>
+        `).join('');
+        ALL_BUS.forEach(bu => activeBUs.add(bu));
+
+        // Month nav click → scroll to month marker
+        document.getElementById('month-nav').addEventListener('click', e => {
+            const btn = e.target.closest('.month-btn');
+            if (!btn) return;
+            const month = btn.dataset.month;
+            const marker = document.querySelector(`.month-marker[data-month="${month}"]`);
+            if (marker) {
+                marker.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                document.querySelectorAll('.month-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+            }
+        });
+
+        // BU filter change
+        document.getElementById('bu-list').addEventListener('change', e => {
+            if (e.target.type !== 'checkbox') return;
+            const bu = e.target.closest('.bu-item').dataset.bu;
+            if (e.target.checked) activeBUs.add(bu);
+            else activeBUs.delete(bu);
+            renderTimeline();
+        });
+    }
+
+    // ===== Render =====
+    function renderTimeline() {
+        const timeline = document.getElementById('timeline');
+        const sorted = [...policies].sort((a, b) => b.date.localeCompare(a.date));
+
+        // Filter
+        let filtered = sorted.filter(p => {
+            if (currentTypeFilter !== 'all' && p.type !== currentTypeFilter) return false;
+            const month = p.date.substring(0, 7);
+            if (!activeMonths.has(month)) return false;
+            const hasMatchingBU = p.bu.some(b => activeBUs.has(b));
+            if (!hasMatchingBU) return false;
+            return true;
+        });
+
+        // Update topbar count
+        document.getElementById('topbar-count').textContent = `${filtered.length} 条政策`;
+
+        if (filtered.length === 0) {
+            timeline.innerHTML = `
+                <div class="empty-state">
+                    <div class="icon">📭</div>
+                    <p>暂无符合条件的政策</p>
+                </div>`;
+            return;
+        }
+
+        // Group by month
+        const groups = {};
+        filtered.forEach(p => {
+            const month = p.date.substring(0, 7);
+            if (!groups[month]) groups[month] = [];
+            groups[month].push(p);
+        });
+
+        let html = '';
+        const sortedMonths = Object.keys(groups).sort((a, b) => b.localeCompare(a));
+        sortedMonths.forEach(month => {
+            const items = groups[month];
+            const label = month.replace('2026-', '').replace('-', '月');
+            html += `
+                <div class="month-marker" data-month="${month}">
+                    <div class="month-marker-label">${label}</div>
+                </div>`;
+            items.forEach(p => {
+                const typeLabel = p.type === 'central' ? '中央政策' : p.type === 'local' ? '地方政策' : '海外政策';
+                html += `
+                    <div class="timeline-item" onclick="showModal(${p.id})">
+                        <div class="item-card">
+                            <div class="item-header">
+                                <span class="item-date">${p.date}</span>
+                                <div class="item-badges">
+                                    <span class="badge ${p.type}">${typeLabel}</span>
+                                    ${p.bu.slice(0, 2).map(b => `<span class="badge bu">${b}</span>`).join('')}
+                                </div>
+                                <button class="collect-btn ${isCollected(p.id) ? 'collected' : ''}" onclick="event.stopPropagation(); toggleCollect(${p.id})" title="${isCollected(p.id) ? '取消收藏' : '收藏'}">${isCollected(p.id) ? '★' : '☆'}</button>
+                            </div>
+                            <div class="item-title">${p.title}</div>
+                            <div class="item-summary">${p.summary}</div>
+                            <div class="item-meta">发布：${p.issuer}</div>
+                        </div>
+                    </div>`;
+            });
+        });
+
+        timeline.innerHTML = html;
+    }
+
+    // ===== 收藏功能（localStorage 持久化）=====
+    const COLLECT_KEY = 'toolbox_collections';
+
+    function getCollections() {
+        try { return JSON.parse(localStorage.getItem(COLLECT_KEY) || '[]'); }
+        catch(e) { return []; }
+    }
+
+    function isCollected(id) {
+        return getCollections().some(function(x){ return x.id === 'policy_' + id; });
+    }
+
+    function toggleCollect(id) {
+        const key = 'policy_' + id;
+        const policy = policies.find(function(p){ return p.id === id; });
+        if (!policy) return;
+        let list = getCollections();
+        const idx = list.findIndex(function(x){ return x.id === key; });
+        if (idx >= 0) {
+            list.splice(idx, 1);
+            showToast('已取消收藏');
+        } else {
+            list.unshift({
+                id: key,
+                type: 'policy',
+                title: policy.title,
+                date: policy.date,
+                source: policy.issuer,
+                savedAt: new Date().toISOString()
+            });
+            showToast('已添加到收藏');
+        }
+        localStorage.setItem(COLLECT_KEY, JSON.stringify(list));
+        // 更新按钮状态（不用重新渲染整个时间轴，只更新按钮）
+        document.querySelectorAll('.collect-btn').forEach(function(btn){
+            var m = btn.getAttribute('onclick').match(/toggleCollect\((\d+)\)/);
+            if (m && parseInt(m[1]) === id) {
+                btn.textContent = isCollected(id) ? '★' : '☆';
+                btn.classList.toggle('collected', isCollected(id));
+            }
+        });
+    }
+
+    function showToast(msg) {
+        var t = document.getElementById('toast');
+        if (!t) {
+            t = document.createElement('div');
+            t.id = 'toast';
+            t.style.cssText = 'position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(20px);background:#1e3c72;color:white;padding:12px 24px;border-radius:10px;font-size:14px;font-weight:600;box-shadow:0 4px 20px rgba(30,60,114,0.3);opacity:0;transition:all 0.3s;z-index:9999;pointer-events:none;';
+            document.body.appendChild(t);
+        }
+        t.textContent = msg;
+        t.style.opacity = '1';
+        t.style.transform = 'translateX(-50%) translateY(0)';
+        clearTimeout(t._timer);
+        t._timer = setTimeout(function(){
+            t.style.opacity = '0';
+            t.style.transform = 'translateX(-50%) translateY(20px)';
+        }, 2500);
+    }
+
+    // ===== Modal =====
+    function showModal(id) {
+        const policy = policies.find(p => p.id === id);
+        if (!policy) return;
+
+        const coreHtml = policy.core.map((c, i) => `
+            <div class="core-item">
+                <div class="core-phrase">核心要点${i+1}：${c.title}</div>
+                <div class="core-explain">${c.content}</div>
+            </div>
+        `).join('');
+
+        const posHtml = `
+            <div class="pos-block">
+                <div class="pos-heading">纵向（与国家政策关系）</div>
+                <div class="pos-text">${policy.vertical}</div>
+            </div>
+            <div class="pos-block">
+                <div class="pos-heading">横向（与其他省份/地区对比）</div>
+                <div class="pos-text">${policy.horizontal}</div>
+            </div>`;
+
+        const impactRows = Object.entries(policy.impact).map(([seg, text]) =>
+            `<div class="seg-impact"><div class="seg-name">${seg}</div><div class="seg-impact-text">${text}</div></div>`
+        ).join('');
+
+        const riskHtml = `
+            <div class="risk-item"><div class="risk-header"><span class="risk-dot">⚠️</span><span class="risk-name">政策推进风险</span></div><div class="risk-body">${policy.risk.policy}</div></div>
+            <div class="risk-item"><div class="risk-header"><span class="risk-dot">⚠️</span><span class="risk-name">产业链风险</span></div><div class="risk-body">${policy.risk.industry}</div></div>`;
+
+        document.getElementById('modal-title').textContent = policy.title;
+        document.getElementById('modal-body').innerHTML = `
+            <div class="info-grid">
+                <div class="info-card">
+                    <div class="info-card-header"><span class="info-card-icon">📅</span><span class="info-card-title">基本信息</span></div>
+                    <p style="margin-bottom:8px"><strong style="color:var(--text-mid)">发布时间：</strong>${policy.date}</p>
+                    <p style="margin-bottom:8px"><strong style="color:var(--text-mid)">发布主体：</strong>${policy.issuer}</p>
+                    <p><strong style="color:var(--text-mid)">涉及BU：</strong>${policy.bu.join('、')}</p>
+                </div>
+                <div class="info-card">
+                    <div class="info-card-header"><span class="info-card-icon">📋</span><span class="info-card-title">政策摘要</span></div>
+                    <p style="font-size:14px;color:var(--text-mid);line-height:1.8">${policy.summary}</p>
+                </div>
+            </div>
+            <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap">
+                <a href="#" class="original-link" title="查看政策原文" style="cursor:pointer">📄 查看原文</a>
+                <a href="#" class="media-link" title="查看媒体报道" style="cursor:pointer">📰 媒体报道</a>
+            </div>
+            <div class="info-card" style="margin-bottom:16px">
+                <div class="info-card-header"><span class="info-card-icon">📌</span><span class="info-card-title green">核心要点</span></div>
+                ${coreHtml}
+            </div>
+            <div class="info-card" style="margin-bottom:16px">
+                <div class="info-card-header"><span class="info-card-icon">🎯</span><span class="info-card-title">政策定位</span></div>
+                ${posHtml}
+            </div>
+            <div class="info-card" style="margin-bottom:16px">
+                <div class="info-card-header"><span class="info-card-icon">📈</span><span class="info-card-title orange">政策影响（分环节）</span></div>
+                ${impactRows}
+            </div>
+            <div class="info-card">
+                <div class="info-card-header"><span class="info-card-icon">⚡</span><span class="info-card-title red">风险控制</span></div>
+                ${riskHtml}
+            </div>`;
+
+        document.getElementById('modal-overlay').classList.add('active');
+        document.getElementById('modal').classList.add('active');
+    }
+
+    function closeModal() {
+        document.getElementById('modal-overlay').classList.remove('active');
+        document.getElementById('modal').classList.remove('active');
+    }
+
+    // ===== Event listeners =====
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            currentTypeFilter = btn.dataset.filter;
+            renderTimeline();
+        });
+    });
+
+    document.getElementById('modal-close').addEventListener('click', closeModal);
+    document.getElementById('modal-overlay').addEventListener('click', closeModal);
+
+    // ===== Start =====
+    (async function start() {
+        await loadPolicies();
+        if (policies.length === 0) {
+            document.getElementById('timeline').innerHTML = '<div class=empty-state><div class=icon>📭</div><p>未找到政策数据</p></div>';
+            return;
+        }
+        initSidebar();
+        renderTimeline();
+    })();
+    </script>
+</body>
+</html>

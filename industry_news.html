@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="html-version" content="20260421a">
+<title>行业新闻 - 晨会指挥中心</title>
+<style>
+  :root {
+    --primary: #1e3c72;
+    --accent: #f39c12;
+    --bg: #f0f2f8;
+    --card-bg: #ffffff;
+    --text: #2c3e50;
+    --text-dim: #7f8c8d;
+    --border: #e0e6ef;
+    --shadow: 0 2px 12px rgba(30,60,114,0.08);
+    --shadow-hover: 0 6px 24px rgba(30,60,114,0.16);
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Microsoft YaHei','PingFang SC',Arial,sans-serif;
+          background:var(--bg); color:var(--text); min-height:100vh; }
+
+  /* ── 顶部导航 ── */
+  .topbar {
+    background: linear-gradient(135deg,#1e3c72 0%,#2a5298 100%);
+    padding:14px 30px; display:flex; align-items:center;
+    justify-content:space-between; box-shadow:0 2px 12px rgba(0,0,0,0.15);
+    position:sticky; top:0; z-index:100;
+  }
+  .topbar-title { color:#fff; font-size:20px; font-weight:700;
+                   display:flex; align-items:center; gap:10px; }
+  .topbar-title .icon { font-size:22px; }
+  .topbar-date { color:rgba(255,255,255,0.85); font-size:13px; }
+  .topbar-badge { background:var(--accent); color:#fff;
+                   font-size:11px; padding:2px 8px; border-radius:20px;
+                   font-weight:600; margin-left:8px; }
+  .topbar-back {
+    background:rgba(255,255,255,0.15); color:#fff; border:none;
+    padding:7px 16px; border-radius:8px; cursor:pointer; font-size:13px;
+    transition:background 0.2s; display:flex; align-items:center; gap:6px;
+  }
+  .topbar-back:hover { background:rgba(255,255,255,0.25); }
+
+  /* ── 页面容器 ── */
+  .page { max-width:1100px; margin:0 auto; padding:24px 16px 60px; }
+
+  /* ── 日期栏 ── */
+  .date-bar {
+    background:var(--card-bg); border-radius:12px; padding:16px 24px;
+    margin-bottom:16px; box-shadow:var(--shadow); display:flex;
+    align-items:center; justify-content:space-between;
+  }
+  .date-bar-left { font-size:18px; font-weight:700; color:var(--primary); }
+  .date-bar-right { font-size:12px; color:var(--text-dim); }
+
+  /* ── 维度Tab栏 ── */
+  .dim-tab-bar {
+    display:flex; gap:8px; margin-bottom:16px; flex-wrap:wrap;
+  }
+  .dim-tab-btn {
+    padding:8px 20px; border-radius:24px; border:2px solid var(--border);
+    cursor:pointer; font-size:14px; font-weight:600;
+    transition:all 0.2s; background:#fff; color:var(--text);
+    display:flex; align-items:center; gap:6px;
+  }
+  .dim-tab-btn:hover { border-color:var(--primary); color:var(--primary); }
+  .dim-tab-btn.active {
+    background:var(--primary); color:#fff; border-color:var(--primary);
+  }
+  .dim-tab-btn .tab-icon { font-size:15px; }
+  .dim-tab-btn .tab-count {
+    font-size:11px; padding:0 6px; border-radius:10px;
+    background:rgba(255,255,255,0.25); font-weight:700;
+  }
+  .dim-tab-btn:not(.active) .tab-count {
+    background:var(--bg); color:var(--text-dim);
+  }
+
+  /* ── 维度内容区 ── */
+  .dim-content { display:none; }
+  .dim-content.active { display:block; }
+
+  /* ── 统计条 ── */
+  .dim-stats {
+    display:flex; gap:16px; margin-bottom:14px; flex-wrap:wrap;
+  }
+  .stat-chip {
+    font-size:12px; padding:4px 12px; border-radius:20px;
+    background:#fff; border:1px solid var(--border);
+    color:var(--text-dim);
+  }
+  .stat-chip strong { color:var(--primary); }
+
+  /* ── 新闻卡片 ── */
+  .news-card {
+    background:var(--card-bg); border-radius:12px; padding:16px 20px;
+    margin-bottom:12px; box-shadow:var(--shadow);
+    border-left:4px solid var(--border);
+    transition:box-shadow 0.2s, border-color 0.2s;
+    cursor:pointer;
+  }
+  .news-card:hover { box-shadow:var(--shadow-hover); border-left-color:var(--primary); }
+  .news-card.p0 { border-left-color:#c0392b; }
+  .news-card.p1 { border-left-color:#e67e22; }
+  .news-card.p2 { border-left-color:#27ae60; }
+
+  .card-top {
+    display:flex; align-items:center; gap:8px; flex-wrap:wrap;
+    margin-bottom:8px;
+  }
+  .bu-tag {
+    font-size:11px; font-weight:700; padding:2px 10px;
+    border-radius:20px; color:#fff;
+  }
+  .priority-tag {
+    font-size:10px; font-weight:700; padding:2px 7px;
+    border-radius:3px; color:#fff;
+  }
+  .priority-tag.p0 { background:#c0392b; }
+  .priority-tag.p1 { background:#e67e22; }
+  .priority-tag.p2 { background:#27ae60; }
+
+  .card-title {
+    font-size:15px; font-weight:700; color:var(--primary);
+    line-height:1.5; margin-bottom:6px;
+  }
+  .card-content {
+    font-size:13px; color:var(--text-dim); line-height:1.8;
+    display:-webkit-box; -webkit-line-clamp:2;
+    -webkit-box-orient:vertical; overflow:hidden;
+    transition:max-height 0.3s ease;
+  }
+  .news-card.expanded .card-content {
+    display:block; -webkit-line-clamp:unset; overflow:visible;
+  }
+  .card-arrow {
+    font-size:11px; color:var(--text-dim); margin-top:4px;
+    transition:transform 0.2s;
+  }
+  .news-card.expanded .card-arrow { transform:rotate(180deg); }
+
+  .card-footer {
+    margin-top:8px; display:flex; align-items:center;
+    gap:12px; flex-wrap:wrap;
+  }
+  .card-source { font-size:11px; color:var(--text-dim); }
+  .card-link {
+    font-size:11px; color:#3498db; text-decoration:none;
+  }
+  .card-link:hover { text-decoration:underline; }
+
+  /* ── 加载状态 ── */
+  #pageLoader { text-align:center; padding:80px 0; color:#888; }
+  #pageLoader .loader-icon { font-size:40px; margin-bottom:14px; }
+  #pageLoader .loader-msg { font-size:15px; }
+  .page-error { text-align:center; padding:60px 20px; color:#888; font-size:14px; }
+
+  /* ── 空状态 ── */
+  .empty-state {
+    text-align:center; padding:60px 20px; color:#aaa;
+    font-size:14px; background:var(--card-bg); border-radius:12px;
+    box-shadow:var(--shadow);
+  }
+
+  @media (max-width:640px) {
+    .topbar { padding:12px 16px; }
+    .topbar-title { font-size:16px; }
+    .dim-tab-btn { padding:6px 14px; font-size:13px; }
+    .news-card { padding:12px 14px; }
+  }
+
+  /* ── 政策卡片（独立样式）─ */
+  .policy-card {
+    background:var(--card-bg); border-radius:12px; padding:16px 20px;
+    margin-bottom:12px; box-shadow:var(--shadow);
+    border-left:4px solid #1abc9c; cursor:pointer;
+    transition:box-shadow 0.2s;
+  }
+  .policy-card:hover { box-shadow:var(--shadow-hover); }
+  .policy-card.central { border-left-color:#0891b2; }
+  .policy-card.local   { border-left-color:#16a34a; }
+  .policy-card.overseas { border-left-color:#7c3aed; }
+
+  .pc-top {
+    display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:8px;
+  }
+  .pc-type-badge {
+    font-size:11px; font-weight:700; padding:2px 9px; border-radius:20px; color:#fff;
+  }
+  .pc-type-badge.central  { background:#0891b2; }
+  .pc-type-badge.local    { background:#16a34a; }
+  .pc-type-badge.overseas { background:#7c3aed; }
+  .pc-date { font-size:11px; color:var(--text-dim); }
+  .pc-title {
+    font-size:15px; font-weight:700; color:var(--primary); line-height:1.5; margin-bottom:6px;
+  }
+  .pc-summary {
+    font-size:13px; color:var(--text-dim); line-height:1.8;
+    display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;
+  }
+  .policy-card.expanded .pc-summary {
+    display:block; -webkit-line-clamp:unset; overflow:visible;
+  }
+  .pc-issuer { font-size:11px; color:var(--text-dim); margin-top:6px; }
+  .pc-arrow { font-size:11px; color:var(--text-dim); margin-top:4px; transition:transform 0.2s; }
+  .policy-card.expanded .pc-arrow { transform:rotate(180deg); }
+  .pc-bu-tags { display:flex; gap:5px; flex-wrap:wrap; margin-top:8px; }
+  .pc-bu-tag {
+    font-size:10px; padding:1px 8px; border-radius:20px; color:#fff;
+    background:rgba(30,60,114,0.4);
+  }
+  .pc-core { margin-top:10px; padding-top:10px; border-top:1px solid var(--border); }
+  .pc-core-title { font-size:12px; font-weight:700; color:#0891b2; margin-bottom:8px; }
+  .pc-core-item { font-size:12px; color:var(--text-mid); padding:4px 0; line-height:1.6; }
+</style>
+</head>
+<body>
+
+<!-- 顶部导航 -->
+<div class="topbar">
+  <div class="topbar-title">
+    <span class="icon">📰</span>
+    行业新闻
+    <span class="topbar-badge">今日更新</span>
+  </div>
+  <div class="topbar-date" id="topbarDate">加载中...</div>
+  <button class="topbar-back" onclick="history.back()">← 返回首页</button>
+</div>
+
+<!-- 页面 -->
+<div class="page">
+
+  <!-- 加载状态 -->
+  <div id="pageLoader">
+    <div class="loader-icon">⏳</div>
+    <div class="loader-msg">正在加载行业新闻...</div>
+  </div>
+
+  <!-- 真实内容（JS 渲染） -->
+  <div id="realPageContent" style="display:none">
+
+    <!-- 日期栏 -->
+    <div class="date-bar">
+      <div class="date-bar-left" id="dateBarLeft">📅 行业要闻</div>
+      <div class="date-bar-right" id="dateBarRight"></div>
+    </div>
+
+    <!-- 维度Tab -->
+    <div class="dim-tab-bar" id="dimTabBar"></div>
+
+    <!-- 维度内容区 -->
+    <div id="dimContentArea"></div>
+
+  </div>
+
+</div>
+
+<script>
+// ============================================================
+// 配置
+// ============================================================
+const REPORT_BASE = 'reports/';
+
+const DEPT_LIST = [
+  { id:'czly', name:'常州锂源',  color:'#1e3c72' },
+  { id:'sdmd', name:'山东美多',  color:'#d35400' },
+  { id:'sjld', name:'三金锂电',  color:'#34495e' },
+  { id:'lpsd', name:'龙蟠时代',  color:'#215732' },
+  { id:'felt', name:'法恩莱特',  color:'#7b2d8b' },
+  { id:'kls',  name:'可兰素',    color:'#8e44ad' },
+  { id:'lhy',  name:'润滑油',    color:'#c0392b' },
+  { id:'dhx',  name:'迪克化学',  color:'#2c3e50' },
+  { id:'bych', name:'铂源催化',  color:'#27ae60' },
+];
+
+// 维度Tab定义（固定5维，智能匹配section key）
+const DIM_TABS = [
+  { key:'政策', label:'政策', icon:'📋', color:'#1abc9c',
+    match: ['政策', '头条聚焦', '企业动态', '政策风向', '政策端'] },
+  { key:'竞品', label:'竞品', icon:'⚔️', color:'#e74c3c',
+    match: ['竞品', '竞争', '竞争动态', '公司动态', '竞争对手'] },
+  { key:'客户', label:'客户', icon:'🤝', color:'#3498db',
+    match: ['客户', '采购', '招标', '客户动态', '中标', '签约'] },
+  { key:'前沿', label:'前沿', icon:'🚀', color:'#9b59b6',
+    match: ['前沿', '技术', '研发', '新产品', '前沿与产品动态', '技术前沿', '新品', '新品及产品动态', '技术/产品'] },
+  { key:'市场', label:'市场', icon:'📊', color:'#f39c12',
+    match: ['市场', '价格', '原料', '库存', '行业数据', '市场数据', '行业动态', '原料行情', '行情'] },
+];
+
+// ============================================================
+// 工具函数
+// ============================================================
+const stripMd = s => String(s).replace(/\*\*/g,'');
+const safe = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+
+// 规范化文本（处理乱码）
+function norm(s) {
+  if (!s) return '';
+  try { return s.encode('latin1').decode('utf-8'); } catch(e) {}
+  try { return s.encode('iso-8859-1').decode('gbk'); } catch(e) {}
+  return s;
+}
+
+// 从 sections 中提取指定维度的条目
+function collectDimItems(sections, dimTab) {
+  const result = [];
+  if (!sections) return result;
+
+  for (const [rawKey, rawValue] of Object.entries(sections)) {
+    const key = norm(rawKey);
+    // 检查是否匹配当前维度
+    // 优先精确匹配 JSON key（如"竞品"直接等于 tab.key），其次模糊匹配
+    if (rawKey !== tab.key && !dimTab.match.some(m => rawKey.includes(m) || m.includes(rawKey))) continue;
+
+    const value = rawValue;
+    if (Array.isArray(value)) {
+      value.forEach(item => pushItem(item, result));
+    } else if (typeof value === 'object' && value !== null) {
+      // 子分类 dict：遍历所有子分类的数组
+      Object.values(value).forEach(arr => {
+        if (Array.isArray(arr)) arr.forEach(item => pushItem(item, result));
+      });
+    }
+  }
+  return result;
+}
+
+function pushItem(raw, result) {
+  const title = norm(raw.title || raw.event || raw.Title || '');
+  const content = norm(raw.content || raw.fact || raw.Content || '');
+  if (!title && !content) return;
+  result.push({
+    title: title.substring(0,120),
+    content: content,
+    priority: raw.priority || raw.Priority || 'P2',
+    source: raw.source || raw.source_name || '',
+    url: raw.url || raw.Url || '#',
+  });
+}
+
+// ============================================================
+// 渲染政策内容区
+// ============================================================
+function renderPolicyContent(policies) {
+  const area = document.getElementById('dimContentArea');
+  const total = policies.length;
+  const byType = {
+    central:  policies.filter(p => p.type === 'central').length,
+    local:    policies.filter(p => p.type === 'local').length,
+    overseas: policies.filter(p => p.type === 'overseas').length,
+  };
+
+  const statsHtml = `
+    <div class="dim-stats">
+      <div class="stat-chip"><strong>${total}</strong> 条政策</div>
+      <div class="stat-chip">中央 <strong>${byType.central}</strong> 条</div>
+      <div class="stat-chip">地方 <strong>${byType.local}</strong> 条</div>
+      <div class="stat-chip">海外 <strong>${byType.overseas}</strong> 条</div>
+    </div>`;
+
+  if (total === 0) {
+    area.innerHTML = `<div class="dim-content active">${statsHtml}<div class="empty-state"><div style="font-size:32px;margin-bottom:10px">📭</div><div>暂无政策数据</div></div></div>`;
+    return;
+  }
+
+  // 按日期倒序
+  const sorted = [...policies].sort((a, b) => b.date.localeCompare(a.date));
+  let cardsHtml = '';
+  for (const p of sorted) {
+    const typeLabel = { central:'中央政策', local:'地方政策', overseas:'海外政策' }[p.type] || p.type;
+    const shortSum = p.summary.length > 160 ? p.summary.substring(0,160) + '...' : p.summary;
+    const hasLong = p.summary.length > 160;
+    const coreHtml = p.core && p.core.length
+      ? `<div class="pc-core">
+           <div class="pc-core-title">📌 核心要点</div>
+           ${p.core.map(c => `<div class="pc-core-item"><strong>${safe(c.title)}：</strong>${safe(c.content)}</div>`).join('')}
+         </div>` : '';
+
+    cardsHtml += `
+    <div class="policy-card ${p.type}" onclick="togglePolicyCard(this)">
+      <div class="pc-top">
+        <span class="pc-type-badge ${p.type}">${typeLabel}</span>
+        <span class="pc-date">${p.date}</span>
+      </div>
+      <div class="pc-title">${safe(p.title)}</div>
+      <div class="pc-summary">${safe(shortSum)}</div>
+      ${hasLong ? '<div class="pc-arrow">▼ 点击展开摘要</div>' : ''}
+      <div class="pc-issuer">发布：${safe(p.issuer)}</div>
+      <div class="pc-bu-tags">
+        ${(p.bu || []).map(b => `<span class="pc-bu-tag">${safe(b)}</span>`).join('')}
+      </div>
+      ${coreHtml}
+    </div>`;
+  }
+
+  area.innerHTML = `<div class="dim-content active">${statsHtml}${cardsHtml}</div>`;
+}
+
+function togglePolicyCard(el) {
+  el.classList.toggle('expanded');
+  const arrow = el.querySelector('.pc-arrow');
+  if (arrow) arrow.textContent = el.classList.contains('expanded') ? '▲ 收起' : '▼ 点击展开摘要';
+}
+
+async function loadPolicies() {
+  try {
+    const res = await fetch(`${REPORT_BASE}policies.json?v=${Date.now()}`);
+    if (res.ok) {
+      const json = await res.json();
+      console.log('[行业新闻] 加载政策', json.policies?.length, '条');
+      return json.policies || [];
+    }
+  } catch(e) {}
+  return [];
+}
+
+async function loadAllReports() {
+  // 1. 获取可用日期列表
+  let availableDates = [];
+  try {
+    const idxRes = await fetch(`${REPORT_BASE}index.json?v=${Date.now()}`);
+    if (idxRes.ok) {
+      const idx = await idxRes.json();
+      availableDates = idx.available_dates || [];
+    }
+  } catch(e) {}
+
+  // 2. 如果 index.json 不可用，回退扫描reports/目录
+  if (availableDates.length === 0) {
+    const today = new Date();
+    for (let daysBack = 0; daysBack <= 60; daysBack++) {
+      const d = new Date(today.getTime() - daysBack * 86400000);
+      const ds = d.toISOString().slice(0,10);
+      try {
+        const r = await fetch(`${REPORT_BASE}${ds}.json`);
+        if (r.ok) { availableDates.push(ds); }
+      } catch(e) {}
+    }
+  }
+
+  // 3. 加载所有日期的JSON并合并
+  const mergedDepts = {};
+  const loadedDates = [];
+
+  for (const dateStr of availableDates) {
+    try {
+      const res = await fetch(`${REPORT_BASE}${dateStr}.json?v=${Date.now()}`);
+      if (!res.ok) continue;
+      const json = await res.json();
+      if (!json.departments) continue;
+
+      loadedDates.push(dateStr);
+      for (const [deptId, deptData] of Object.entries(json.departments)) {
+        if (!mergedDepts[deptId]) {
+          mergedDepts[deptId] = {
+            name: deptData.name || DEPT_LIST.find(d=>d.id===deptId)?.name || deptId,
+            subtitle: deptData.subtitle || '',
+            report_date: dateStr,
+            sections: { 政策:[], 竞品:[], 客户:[], 前沿:[], 市场:[] },
+            total_events: 0,
+          };
+        }
+        const target = mergedDepts[deptId];
+        // 更新最新有数据的日期
+        target.report_date = dateStr;
+        // 合并各维度条目
+        for (const tab of DIM_TABS) {
+          const dimKey = tab.key;
+          const rawSections = deptData.sections || {};
+          for (const [rawKey, rawArr] of Object.entries(rawSections)) {
+            const key = norm(rawKey);
+            if (rawKey !== tab.key && !tab.match.some(m => key.includes(m) || m.includes(key))) continue;
+            const items = Array.isArray(rawArr) ? rawArr
+              : (typeof rawArr === 'object' && rawArr !== null
+                ? Object.values(rawArr).flat() : []);
+            for (const raw of items) {
+              const title = norm(raw.title || raw.event || raw.Title || '');
+              const content = norm(raw.content || raw.fact || raw.Content || '');
+              if (!title && !content) continue;
+              // 简单去重（按title前60字）
+              const sig = title.substring(0,60);
+              if (!target._seen) target._seen = new Set();
+              if (target._seen.has(sig)) continue;
+              target._seen.add(sig);
+              target.sections[dimKey].push({
+                title: title.substring(0,120),
+                content,
+                priority: raw.priority || raw.Priority || 'P2',
+                source: raw.source || raw.source_name || '',
+                url: raw.url || raw.Url || '#',
+                _date: dateStr,
+              });
+            }
+          }
+        }
+      }
+    } catch(e) {}
+  }
+
+  loadedDates.sort();
+  const dateRange = loadedDates.length > 1
+    ? `${loadedDates[0]} ~ ${loadedDates[loadedDates.length-1]}`
+    : (loadedDates[0] || '');
+
+  console.log('[行业新闻] 聚合加载:', loadedDates.length, '期', loadedDates.join(', '));
+  return { data: mergedDepts, dateRange, loadedDates };
+}
+
+// ============================================================
+// Tab 切换
+// ============================================================
+let currentDim = '政策';
+let globalData = null;
+let globalPolicies = [];
+
+function switchTab(dimKey) {
+  currentDim = dimKey;
+  document.querySelectorAll('.dim-tab-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.dim === dimKey);
+  });
+  if (dimKey === '政策' && globalPolicies.length > 0) {
+    renderPolicyContent(globalPolicies);
+  } else {
+    renderDimContent(dimKey, globalData);
+  }
+  document.getElementById('dimContentArea').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// ============================================================
+// 渲染 Tab 栏
+// ============================================================
+function renderDimTabs(data) {
+  const bar = document.getElementById('dimTabBar');
+  let html = '';
+
+  for (const tab of DIM_TABS) {
+    const count = tab.key === '政策' ? _policyCount : collectDimItemsForCount(data, tab).length;
+    const isActive = tab.key === currentDim;
+    html += `<button class="dim-tab-btn${isActive ? ' active' : ''}"
+      data-dim="${tab.key}"
+      onclick="switchTab('${tab.key}')">
+      <span class="tab-icon">${tab.icon}</span>
+      <span>${tab.label}</span>
+      <span class="tab-count">${count}</span>
+    </button>`;
+  }
+
+  bar.innerHTML = html;
+}
+
+// 统计用（不重复push到全局结果）
+function collectDimItemsForCount(data, dimTab) {
+  const result = [];
+  const dimKey = dimTab.key;
+  for (const dept of DEPT_LIST) {
+    const deptData = data[dept.id];
+    if (!deptData || !deptData.sections) continue;
+    const items = deptData.sections[dimKey] || [];
+    items.forEach(item => result.push(item));
+  }
+  return result;
+}
+
+// 政策Tab计数用单独接口
+let _policyCount = 0;
+function getPolicyCount() { return _policyCount; }
+
+// ============================================================
+// 渲染维度内容区
+// ============================================================
+function renderDimContent(dimKey, data) {
+  const area = document.getElementById('dimContentArea');
+  const dimTab = DIM_TABS.find(t => t.key === dimKey) || DIM_TABS[4];
+
+  // 收集该维度的全部条目（mergedDepts.items 已按 dimKey 分类）
+  const allItems = [];
+  for (const dept of DEPT_LIST) {
+    const deptData = data[dept.id];
+    if (!deptData || !deptData.sections) continue;
+    const items = deptData.sections[dimKey] || [];
+    items.forEach(item => {
+      allItems.push({ ...item, deptId: dept.id, deptName: dept.name, deptColor: dept.color });
+    });
+  }
+
+  // 按优先级排序
+  const order = { P0: 0, P1: 1, P2: 2 };
+  allItems.sort((a, b) => (order[a.priority] ?? 2) - (order[b.priority] ?? 2));
+
+  // 统计
+  const statsHtml = `
+    <div class="dim-stats">
+      <div class="stat-chip"><strong>${allItems.length}</strong> 条相关动态</div>
+      <div class="stat-chip">头条 <strong>${allItems.filter(x=>x.priority==='P0').length}</strong> 条</div>
+      <div class="stat-chip">重点 <strong>${allItems.filter(x=>x.priority==='P1').length}</strong> 条</div>
+      <div class="stat-chip">涉及 <strong>${new Set(allItems.map(x=>x.deptId)).size}</strong> 个事业部</div>
+    </div>`;
+
+  if (allItems.length === 0) {
+    area.innerHTML = `
+      <div class="dim-content active">
+        ${statsHtml}
+        <div class="empty-state">
+          <div style="font-size:32px;margin-bottom:10px">📭</div>
+          <div>暂无"${dimKey}"维度数据</div>
+          <div style="margin-top:6px;font-size:12px">试试切换其他维度查看</div>
+        </div>
+      </div>`;
+    return;
+  }
+
+  // 生成卡片
+  let cardsHtml = '';
+  for (const item of allItems) {
+    const pClass = item.priority || 'P2';
+    const pText = pClass === 'P0' ? '头条' : pClass === 'P1' ? '重点' : '补充';
+    const displayTitle = item.title || '无标题';
+    const displayContent = item.content || '';
+    // 提取来源
+    let itemSource = item.source || '';
+    let itemDate = item.date || '';
+    if (!itemSource || !itemDate) {
+      const m = displayContent.match(/（来源：([^），,]+)[，,]\s*(\d{4}-\d{2}-\d{2})）/);
+      if (m) {
+        if (!itemSource) itemSource = m[1].trim();
+        if (!itemDate) itemDate = m[2].trim();
+        displayContent = displayContent.replace(/（来源：[^）]*）/, '').trim();
+      }
+    }
+    const source = itemSource;
+    const cleanContent = displayContent.replace(/\(（来源：([^）]+)）\s*$/, '').trim();
+    const shortContent = cleanContent.length > 200 ? cleanContent.substring(0,200) + '...' : cleanContent;
+    const hasLongContent = cleanContent.length > 200;
+
+    cardsHtml += `
+    <div class="news-card ${pClass}" onclick="toggleCard(this)">
+      <div class="card-top">
+        <span class="bu-tag" style="background:${item.deptColor}">${item.deptName}</span>
+        <span class="priority-tag ${pClass}">${pText}</span>
+      </div>
+      <div class="card-title">${safe(displayTitle)}</div>
+      <div class="card-content">${safe(shortContent)}</div>
+      ${hasLongContent ? '<div class="card-arrow">▼ 点击展开全文</div>' : ''}
+      <div class="card-footer">
+        ${item._date ? `<span class="card-source">📅 ${item._date}</span>` : ''}
+        ${itemDate ? `<span class="card-source">📰 ${itemDate}</span>` : ''}
+        ${source ? `<span class="card-source">来源：${safe(source)}</span>` : ''}
+        ${item.url && item.url !== '#' ? `<a class="card-link" href="${safe(item.url)}" target="_blank" onclick="event.stopPropagation()">查看原文 →</a>` : ''}
+      </div>
+    </div>`;
+  }
+
+  area.innerHTML = `<div class="dim-content active">${statsHtml}${cardsHtml}</div>`;
+}
+
+// 卡片展开/折叠
+function toggleCard(el) {
+  el.classList.toggle('expanded');
+  const arrow = el.querySelector('.card-arrow');
+  if (arrow) arrow.textContent = el.classList.contains('expanded') ? '▲ 收起' : '▼ 点击展开全文';
+}
+
+// ============================================================
+// 执行入口
+// ============================================================
+(async function init() {
+  const loader = document.getElementById('pageLoader');
+  const content = document.getElementById('realPageContent');
+
+  try {
+    const result = await loadAllReports();
+    if (!result || !result.data || result.loadedDates.length === 0) {
+      loader.innerHTML = `
+        <div class="loader-icon">📭</div>
+        <div class="loader-msg">未找到早报数据<br><br>
+          <span style="font-size:12px;color:#aaa">请先在首页点击"全员晨会汇报"生成今日早报</span>
+        </div>`;
+      return;
+    }
+
+    const { data, dateRange, loadedDates } = result;
+    globalData = data;
+
+    // 日期显示
+    const deptCount = new Set(Object.values(data).flatMap(d => [d.name])).size;
+    document.getElementById('topbarDate').textContent = dateRange || '加载中...';
+    document.getElementById('dateBarLeft').textContent = `📅 行业要闻（${loadedDates.length}期汇总）`;
+    document.getElementById('dateBarRight').textContent = `${dateRange} · ${deptCount}个事业部 · ${loadedDates.length}期早报`;
+    document.title = `行业新闻 - ${dateRange} 晨会指挥中心`;
+
+    // 渲染Tabs
+    renderDimTabs(data);
+
+    // 加载政策数据
+    const policies = await loadPolicies();
+    globalPolicies = policies;
+    _policyCount = policies.length;
+
+    // 重新渲染Tab栏（更新政策计数）
+    renderDimTabs(data);
+
+    // 渲染内容
+    if (currentDim === '政策' && policies.length > 0) {
+      renderPolicyContent(policies);
+    } else {
+      renderDimContent(currentDim, data);
+    }
+
+    loader.style.display = 'none';
+    content.style.display = 'block';
+
+  } catch(err) {
+    console.error('[行业新闻] 加载失败:', err);
+    loader.innerHTML = `
+      <div class="page-error">
+        <div style="font-size:28px;margin-bottom:10px">⚠️</div>
+        <div>加载失败：${err.message}</div>
+      </div>`;
+  }
+})();
+</script>
+
+</body>
+</html>

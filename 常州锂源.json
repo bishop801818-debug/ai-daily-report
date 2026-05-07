@@ -1,0 +1,29 @@
+{
+  "version": "v1",
+  "division_id": "czly",
+  "division_name": "常州锂源",
+  "display_name": "常州锂源事业部早报",
+  "industry": "磷酸铁锂正极材料",
+  "modules": {
+    "policy": {
+      "enabled": true,
+      "keywords": ["磷酸铁锂 政策", "动力电池 政策", "储能 政策", "新能源汽车 补贴", "LFP 标准"]
+    },
+    "competitor": {
+      "enabled": true,
+      "keywords": ["湖南裕能", "万润新能", "德方纳米", "江西升华", "友山科技", "国轩高科 正极材料"]
+    },
+    "customer": {
+      "enabled": true,
+      "keywords": ["宁德时代 磷酸铁锂", "吉利 电池供应链", "LG 新能源 LFP", "欣旺达 LFP", "瑞浦兰钧 LFP"]
+    },
+    "frontier": {
+      "enabled": true,
+      "keywords": ["高压实磷酸铁锂", "磷酸锰铁锂", "LMFP", "LFP 新品", "正极材料 工艺升级"]
+    },
+    "market": {
+      "enabled": true,
+      "keywords": ["磷酸铁锂 价格", "动力型磷酸铁锂 均价", "储能型磷酸铁锂 均价", "碳酸锂 价格", "LFP 开工率"]
+    }
+  }
+}

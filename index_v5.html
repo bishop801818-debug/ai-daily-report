@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="html-version" content="20260506">
+    <script>window.HTML_VERSION = document.querySelector('meta[name="html-version"]').content;</script>
+    <title>战略中心信息中台 - 每日早报</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Microsoft YaHei', 'PingFang SC', Arial, sans-serif;
+            background: #ffffff;
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+        .container { max-width: 1400px; margin: 0 auto; }
+        
+        .header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            border-radius: 16px;
+            padding: 20px 30px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 15px rgba(30, 60, 114, 0.2);
+        }
+        .logo {
+            display: flex; align-items: center; gap: 12px;
+            font-size: 24px; font-weight: bold; color: #fff;
+        }
+        .logo-icon { font-size: 28px; }
+        .header-right { text-align: right; color: rgba(255,255,255,0.9); }
+        .header-date { font-size: 13px; opacity: 0.8; margin-bottom: 4px; }
+        .header-time { font-size: 20px; font-weight: bold; }
+        
+        .main-nav-menu {
+            background: #f5f7fa;
+            border-radius: 12px;
+            padding: 10px 20px;
+            margin-bottom: 20px;
+            display: flex; gap: 8px; justify-content: center;
+            flex-wrap: wrap;
+            border: 1px solid #e0e0e0;
+        }
+        .main-nav-item {
+            padding: 8px 14px; border-radius: 8px; cursor: pointer;
+            transition: all 0.3s; color: #666; font-size: 14px;
+            border: 1px solid transparent;
+            display: flex; align-items: center; gap: 5px;
+        }
+        .main-nav-item:hover {
+            background: #e8f0fe;
+            color: #1e3c72;
+        }
+        .main-nav-item.active {
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            color: #fff;
+        }
+        
+        .dept-grid-container {
+            background: #fff;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid #e0e0e0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        .dept-grid-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 18px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        .dept-grid-title {
+            font-size: 18px; font-weight: bold; color: #333;
+            display: flex; align-items: center; gap: 8px;
+        }
+        .dept-grid-subtitle { font-size: 13px; color: #999; margin-left: 10px; }
+        
+        .start-all-btn {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: white; border: none; padding: 10px 22px; border-radius: 8px;
+            font-size: 14px; font-weight: bold; cursor: pointer;
+            display: inline-flex; align-items: center; gap: 8px;
+            transition: all 0.3s; box-shadow: 0 2px 12px rgba(99, 102, 241, 0.3);
+        }
+        .start-all-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(99, 102, 241, 0.4);
+        }
+        
+        .dept-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 15px;
+        }
+        
+        .dept-card {
+            background: #fafafa;
+            border-radius: 12px; padding: 15px;
+            text-align: center; cursor: pointer;
+            transition: all 0.3s; border: 1px solid #e8e8e8;
+            position: relative;
+        }
+        .dept-card:hover {
+            background: #e8f0fe;
+            border-color: #1e3c72;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(30, 60, 114, 0.15);
+        }
+        .dept-card.all-morning {
+            grid-column: span 1;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.1));
+            border-color: #6366f1;
+        }
+        .dept-card.all-morning:hover {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(139, 92, 246, 0.15));
+        }
+        .dept-icon {
+            width: 45px; height: 45px; margin: 0 auto 10px;
+            border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            background: white;
+            overflow: hidden;
+            border: 1px solid #e0e0e0;
+        }
+        .dept-icon img {
+            width: 100%; height: 100%;
+            object-fit: contain;
+            padding: 3px;
+        }
+        .dept-icon.all-icon {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: white;
+            font-size: 22px;
+            border: none;
+        }
+        .dept-name {
+            font-size: 12px; color: #333; font-weight: 500;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .dept-badge {
+            position: absolute; top: 8px; right: 8px;
+            width: 8px; height: 8px; border-radius: 50%;
+            background: #10b981;
+            box-shadow: 0 0 4px rgba(16, 185, 129, 0.6);
+        }
+        .dept-badge.pending { background: #f59e0b; box-shadow: 0 0 4px rgba(245, 158, 11, 0.6); }
+        
+        .market-monitor {
+            background: #fff;
+            border-radius: 16px;
+            padding: 20px;
+            border: 1px solid #e0e0e0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        .section-title {
+            font-size: 18px; font-weight: bold; color: #333;
+            margin-bottom: 20px; display: flex; align-items: center; gap: 10px;
+        }
+        .refresh-btn {
+            cursor: pointer; transition: transform 0.3s;
+            font-size: 16px;
+        }
+        .refresh-btn:hover { transform: rotate(180deg); }
+        
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        .chart-card {
+            background: #fafafa;
+            border-radius: 12px; padding: 20px;
+            border: 1px solid #e8e8e8;
+        }
+        .chart-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 15px;
+        }
+        .chart-title { font-size: 15px; font-weight: bold; color: #333; }
+        .chart-price { font-size: 20px; font-weight: bold; }
+        .chart-price.up { color: #ef4444; }
+        .chart-price.down { color: #10b981; }
+        .chart-container {
+            height: 180px;
+            position: relative;
+        }
+        .chart-legend {
+            display: flex; justify-content: center; gap: 15px;
+            margin-top: 12px;
+            font-size: 12px; color: #666;
+        }
+        
+        .market-summary {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+        }
+        .summary-card {
+            background: #fafafa;
+            border-radius: 10px; padding: 18px;
+            border-left: 4px solid;
+        }
+        .summary-card.lithium { border-left-color: #ef4444; }
+        .summary-card.lfp { border-left-color: #10b981; }
+        .summary-card.phosphate { border-left-color: #3b82f6; }
+        .summary-label { font-size: 12px; color: #999; margin-bottom: 8px; }
+        .summary-value { font-size: 24px; font-weight: bold; color: #333; }
+        .summary-unit { font-size: 11px; color: #999; margin-left: 4px; }
+        .summary-change {
+            font-size: 12px; font-weight: bold; margin-top: 5px;
+        }
+        .summary-change.up { color: #ef4444; }
+        .summary-change.down { color: #10b981; }
+        
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: none; justify-content: center; align-items: center;
+            z-index: 1000;
+        }
+        .modal-overlay.active { display: flex; }
+        .modal-content {
+            background: #fff;
+            border-radius: 16px; width: 90%; max-width: 800px;
+            max-height: 90vh; overflow-y: auto;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+        .modal-header {
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            padding: 20px 25px; border-radius: 16px 16px 0 0;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .modal-title { font-size: 20px; font-weight: bold; color: #fff; }
+        .close-btn {
+            background: rgba(255,255,255,0.2);
+            border: none; color: white; width: 32px; height: 32px;
+            border-radius: 50%; cursor: pointer; font-size: 18px;
+        }
+        .modal-body { padding: 25px; }
+        
+        @media (max-width: 1200px) {
+            .dept-grid { grid-template-columns: repeat(3, 1fr); }
+            .charts-grid { grid-template-columns: 1fr; }
+            .market-summary { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 768px) {
+            .header { flex-direction: column; gap: 12px; text-align: center; }
+            .header-right { text-align: center; }
+            .dept-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">
+                <span class="logo-icon">⚡</span>
+                <span>战略中心信息中台</span>
+            </div>
+            <div class="header-right">
+                <div class="header-date" id="currentDate"></div>
+                <div class="header-time" id="realTimeClock"></div>
+            </div>
+        </div>
+        
+        <div class="main-nav-menu">
+            <div class="main-nav-item active">🏠 首页</div>
+            <div class="main-nav-item" onclick="window.location.href='policy_center_v4.html'">📜 政策中心</div>
+            <div class="main-nav-item" onclick="window.location.href='industry_news.html'">📰 行业新闻</div>
+            <div class="main-nav-item" onclick="location.href='archive_v3.html'">📁 历史数据</div>
+            <div class="main-nav-item" onclick="window.location.href='database_hub.html'">📊 数据库</div>
+            <div class="main-nav-item" onclick="window.location.href='analysis_hub.html'">📊 分析报告</div>
+            <div class="main-nav-item" onclick="location.href='#market'">📊 市场行情</div>
+            <div class="main-nav-item" onclick="window.location.href='toolbox.html'">🛠️ 工具箱</div>
+            <div class="main-nav-item" onclick="window.location.href='help.html'">❓ 帮助中心</div>
+        </div>
+        
+        <div class="dept-grid-container">
+            <div class="dept-grid-header">
+                <div>
+                    <div class="dept-grid-title">🏢 事业部早报</div>
+                    <div class="dept-grid-subtitle">点击事业部卡片获取早报 | 点击全员晨会一键获取所有事业部汇报</div>
+                </div>
+            </div>
+            <div class="dept-grid">
+                <div class="dept-card all-morning" onclick="startAllReports()">
+                    <div class="dept-icon all-icon">▶</div>
+                    <div class="dept-name">全员晨会</div>
+                </div>
+                <div class="dept-card" onclick="openReport('lhy')">
+                    <div class="dept-icon"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAm0AAAF6CAIAAADEUvhXAAAACXBIWXMAAA7EAAAOxAGVKw4bAAAgAElEQVR4nOydd3xUVfr/n3PvnZ7eewKk0XsoIogoAq69rvsVe113dXXdottcV/2trmtZG6tiX1FRaSIK0nuHEEJIIL33TLvtnPP74065CQmGzBAwOe9XXtG5c9skYT7ztM9BlFJgMBgMBoPRJ7hzfQMMBoPBYPyEYTrKYDAYDEbfYTrKYDAYDEbfYTrKYDAYDEbfYTrKYDAYDEbfYTrKYDAYDEbfYTrKYDAYDEbfYTrKYDAYDEbfYTrKYDAYDEbfYTrKYDAYDEbfYTrKYDAYDEbfYTrKYDAYDEbfYTrKYDAYDEbfYTrKYDAYDEbfYTrKYDAYDEbfYTrKYDAYDEbfYTrKYDAYDEbfYTrKYDAYDEbfYTrKYDAYDEbfYTrKYDAYDEbfYTrKYDAYDEbfYTrKYDAYDEbfYTrKYDAYDEbfYTrKYDAYDEbfYTrKYDAYDEbfYTrKYDAYDEbfYTrKYDAYDEbfYTrKYDAYDEbfYTrKYDAYDEbfYTrKYDAYDEbfYTrKYDAYDEbfEc71DQxSZFVpFx2tboeM1SrR6SC4291STNYQXogw20JMljBzCIdQv98pg8FgME4H09GzjoJVUVVEVWl0tBypL9/XXHOytUFyO9rc9la3Q8Jqleh0E9Ltsckma6jg11FLaOT4yPgJ8WnDopNDLSFW3mAUBARMXBkMBuOcgSil5/oeBiYKVstb64+0NZysK91YcWx/Q4XL7VCwKmNVJhj69mNHnInnTbwgCMaEqIR5yZnjUnIyIuJyouJjbBEsWmUwGIz+h+loMMGEuBSpwdG6puTApvLCwoaKgrYGKotn8ZIclxgSmRMZn5WQsWDI6MmpObHWMCPP0gwMBoPRTzAdDQ4KVo81Ve2uLl55bM/O6pIO0eFWFID++9lyiLMIhqjwmJ/nTJ4xdMzE+PSksOh+uzqDwWAMWpiOBgShpNXtPFh7YvGRbbtLj5S01gPtvtLpByFAyMoLBk7gEMdzHJjMYLZ1syfG4LITrGBCVIIVgnuZEA61hIyLS5s9dPTPR80YGpXIwlMGg8E4ezAd7Tt19tZvj+99/9DGQ3Vl7ZL7RxRUMA4Li0y0RcRGxIWERl0YnTgkIjYxNDo+LAoAAdfDABIhLtld3d5Y3d5U1NaY397obG9ucLQebW9yuDpOr6kCx8eFRV03fMrPhk+bkTTMajQH+HoZDAaDcSpMR88YQkmjs2P18b0fHty4s6pIVJVud+M5ziIYTSbriNiUy4eOHhaXnh0RmxASERcSGcjV3YpUb28t6mhqaGs8UFPyfUVhVXOdU5HUHiZnAKGIkIjZ6SPunzDnoiFjWGzKYDAYwYXp6JnR7OpYUbhr0b61R+rLnYrU7T5mgyk3OnFCSvbcjJHT0keEmW02wSjwQtC7aSVVcanyiabqFcX791SXHK4rrbG39BCkolBryM9Hzbh57KwZSZkGpqYMBoMRJJiO9haHIm0vK3h19+oNJ/Nd3SmoiTeE2MJmZYy4ITdvSlLmkKjE/ry9DtF5qKFiX1Xx0sKdh+vK7JK7my4nhGLDYxaOmP7LKfMzIhPYlAyDwWAEDtPRH4dQeqyx4l87v/mqcGe7036qPiFemJI07IqcSTeMmJ4QFh1iMKEfG+UklEiKw6XYJdXlku0UiF1xKtSfmzVxBqtgMXJGs2CzGEMthlCjYPnRW8WEtEvOnZXH3ju8ZWflseq2xlN/vzzHj03IuHvyvJtGTIuyhJzJT4LBYDAYXWE6ejoogF10rTy+57mtXxfUlXV9GqEwkzU3edgDY2fPHzY2PjSqp/NgoqpElrHkEJur247XOSuaxVYL4gyIo5SI2E0obpc6JCJhoqpExVQVgAs1hho4o5E387xJpkAQn2JLTovI[...TRUNCATED...]"></div>
+                    <div class="dept-name">润滑油</div>
+                    <div class="dept-badge"></div>
+                </div>
+                <div class="dept-card" onclick="openReport('kls')">
+                    <div class="dept-icon"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAnIAAAFoCAIAAABc6YGiAAAACXBIWXMAAA7EAAAOxAGVKw4bAAAgAElEQVR4nOzdeXxU1fk/8HPuNvtksu8JJGEJhE32TUB2BKy1rdVqrVWrVduqv1q1BbVW6lbXVv1a12oFQUUti4oisod9TQJk3/dkJrPPvfec3x93ZjJJgEwmkwV83i9ebQgzd26C5DPnnOc8B1NKEQAAAADCgRnoGwAAAAAuHxCrAAAAQNhArAIAAABhA7EKAAAAhA3EKgAAABA2EKsAAABA2ECsAgAAAGEDsQoAAACEDcQqAAAAEDYQqwAAAEDYQKwCAAAAYQOxCgAAAIQNxCoAAAAQNhCrAAAAQNhArAIAAABhA7EKAAAAhA3EKgAAABA2EKsAAABA2ECsAgAAAGEDsQoAAACEDcQqAAAAEDYQqwAAAEDYQKwCAAAAYQOxCgAAAIQNxCoAAAAQNhCrAAAAQNhArAIAAABhA7EKAAAAhA3EKgAAABA2EKsAAABA2ECsAgAAAGEDsQoAAACEDcQqAAAAEDYQqwAAAEDYQKwCAAAAYQOxCgAAAIQNxCoAAAAQNhCrAAAAQNhArAIAAABhA7EKAAAAhA3EKgAAABA2EKsAAABA2ECsAgAAAGEDsQoAAACEDcQqAAAAEDYQqwAAAEDYQKwCAAAAYQOxCgAAAIQNxCoAAAAQNhCrAAAAQNhArAIAAABhA7EKAAAAhA3EKgAAABA2EKsAAABA2ECsAgAAAGEDsQoAAACEDcQqAAAAEDYQqwAAAEDYQKwCAAAAYQOxCgAAAIQNxCoAAAAQNtxA38Cg0GoTKfV+bNRyHIsH+IYAAABcmi7/WBVlKsnEKVFJJtXNrqoWd3Wbu7jNbXHLrXYPQohQaraJSqoyGBs03lg1aXmNwGUYhTSDkBKlTovVqHhGzTIci3nIXQAAAOdzecYqpajVJlaa3cWtzpI6x5l6x946W5PNI3lkmVCZUo9MKUIyoRe5CIMxxohjMIcRxzI8x8QZVFMTdCPitcMSdalG1ZBIdZSBZxmIWAAAAF6Y0otFyyVEItThkVvt0r4i87dllpJ6e6XZXd7mlmQS9tfiWCbVIKRHquOiNIuHRMzIiEiOUusEhoGIBQCAH7bLIVbtLrmg3n6ovG1rQcuhWqvdKTlEQvrn68JIwzIGNTc1xXhVlmlcunF8os6k5THEKwAA/CBdqrFKKXKJcm2bZ0dBy6YzzcdrbOVmV5DPxRhzDOIZzGDMXWB8KcqUIioRJFFKLjpXHHBZFK0TJibpFwyLWpETMyRareKh0BoAAH5YLslYtTqlIxXWT483fHqupc3qtovdT/PG6IQkHR9rEIw6Tq9TDdHzmUaVUc0lmVRdg1UitMbstrnlSpunzOYx2zxtDslsFyus7ga7SLtLWYFlovXCddnRC0dHT08zxhqFXn21AAAALh2XUqzKhDY5pO8KWtYdrz9QZmlwiBd6JMdgLc9o1dzYOP30VMPIZF1ihCpZJ8QYeIOG62mREaWozSG1OsSKNk91m7uiwXG0yra/us3sEO0iuchYNkLDTUo1Xjc27rqxsTF6HhZeAQDgsnfJxGpjm2dzQctruTVna602D7nQbadGqIbHarOTDMuzInNS9AYNq+IYgWXCuNgpydQjE6tbzq+0fVlsPl1jPVNvLze7L7Saq+LZ0Qn6X14R9+OxsalR6rDd[...TRUNCATED...]"></div>
+                    <div class="dept-name">可兰素</div>
+                    <div class="dept-badge"></div>
+                </div>
+                <div class="dept-card" onclick="openReport('czly')">
+                    <div class="dept-icon"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAksAAAFoCAIAAADIDyhQAAAACXBIWXMAAA7EAAAOxAGVKw4bAAAgAElEQVR4nOzdd3yT5d4/8CR39mjSJk0n3ZvRQRkd7L0qoCgiqDhQPCKKiDKOCHo8AiqCHkFEQHgQQUS2QNl0F+ii0KZ7N51Jmz3u+/dHzuHH4QA2yX1n9ft+Pa/n9TzQ+8olbfPJtb4XGcMwEgAAAOByKPbuAAAAAEAISDgAAACuCRIOAACAa4KEAwAA4Jog4QAAALgmSDgAAACuCRIOAACAa4KEAwAA4Jog4QAAALgmSDgAAACuCRIOAACAa4KEAwAA4Jog4QAAALgmSDgAAACuCRIOAACAa4KEAwAA4Jog4QAAALgmSDgAAACuCRIOAACAa4KEAwAA4Jog4QAAALgmSDgAAACuCRIOAACAa4KEAwAA4Jog4QAAALgmSDgAAACuiWrvDgDg9IwoqlIqMQzryxdTqVQ2m018pwAAkHCgf0NRFMMwo9GIYpjRYMAwzGAwGAwGnU7X1d2NGo1yuVze04OiqFwm6+roIJFIKIY1NDQ0NDbeb8RgMCiVqj6+Io32XwmHIMiggQN5XC6JRKIgiP+AAVQajUajiUQiOo3GYrP5fD6FTGYymaZ0JJHJVAQhk8kIghDw7wGASyH38YMnAC6gt7dXpVKp1eoeuVze09MqlSp6FXK5vKu7q7e3t6O9vVcub2purq2rI5FIRqMRw0gYhhqNRhKJZApCUztGo1Gv1+PVKwadTqb8e72ASqWSSKT/BBiZTCEjFAqDwYiLjWUymd4+PmwOR+zpyWKxPT1FHu7uAnd3Pp/PZDK5XC6LxTIFIQDABBIOuA5TCBmNRoNer9ZoNBpNS2tra2trS3NzQ3393Xv3ensVarVKrVb39vTI5XJpW5u9u2wVgUDgLhDw3NxYLJYp4bzE4piYGP8BA7y8vcVisUgoZDGZCJVKpVIRBKFQYN0d9C+QcMC5abTaHrlcJpO1tbXV1ddLW6UtrS0N9fWFhYWdnZ2mKUej0YiiqFartXdnCUcmkxkMBvIfbDY7Jjo6OCRkwIABXl7ePj7e/n5+HkKhu7s7h8OBwAMuDxIOOA29Xq/X63U6XW9vb31DQ1VFxb1790pKS+8nnFQqtXcfHRqbxfLz9/fw8BAI3Pl8t5EjRgQFB4dHRHh7ebHZbCqNRqNSyWSyvbsJAG4g4YBD0+p0HR0dba2tdfX1FZWVVZWVd0pKysrLTYMzU+DZu4/OislkIghCp9NFItGwxMSIyMgBAQHhYWG+vr5CkYjv5gZpB5wdJBxwIKYdHBqNpq2trby8vKiwoKCwqLm5WSqVNjc1aSHMiOft7e3r6ysUCkNCQlKSk8PCw4OCgvh8Pp1ON+2CAcCJQMIB+9NoNFKptKqysryiouzu3ZycnMqqKtP4rD8snjksNptNo9HEnp7Dhg2Li48PCwsLCw318fPzcHeHNTzgFCDhgB3o9XqtViuTycrKyjMzM/Ly86WtrTU1NV1dXfbuGngsFpMZGBTk6+s7MCZmxMiRMTExQUFBHA6HRqPBfCZwTJBwwHZMY7WKiorbt2/n5+VlZGaqVCqtVgsDNeeCIAiDwWAymREREWPHjYuLjY2KjPQPCPBwd4eoAw4FEg4QCMMwnU6nVCpramtv5edfvXZNIpHAWM3FMOj0wKCgAQMGJMTHjxo9OiE+QSj0oDMYMJMJ7A4SDhBCo9E0NTWVlJTk5eVdvnRJUlGh1Wo1Gg2KovbuGiAKlUplMpk+Pj5jx4wZmpgYHx8fGhYGAztgR5BwADcGg0GlUjU0Nubn5Z05c0YikUgkEo1GY+9+ATtAECQwICAkNHTo0KGTJ08eMmSIm5sbnU63d79A/wIJB3DQ1d1dXVWVl5d3MT09MytLqVQqlUp7dwo4BFNpleCgoBkzZ44YOTI+Pt7X[...TRUNCATED...]"></div>
+                    <div class="dept-name">常州锂源</div>
+                    <div class="dept-badge"></div>
+                </div>
+                <div class="dept-card" onclick="openReport('lpsd')">
+                    <div class="dept-icon"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAkkAAAFxCAIAAADoI6s+AAAACXBIWXMAAA7EAAAOxAGVKw4bAAAgAElEQVR4nOzdd1wUZ/4H8CnbWXZZehVEiiJWBOy9gQVbNIlGTc4YNaao8aJnLslZYssll/iL0RRbotHEhl2xa7BAFDsgKk162WV7mZnfH5sjHFJ2Z5cts9/36173isvOzCPuzmfmmef5PihFUQgAAADAIJi9GwAAAABYGWQbAAAApoFsAwAAwDSQbQAAAJgGsg0AAADTQLYBAABgGsg2AAAATAPZBgAAgGkg2wAAADANZBsAAACmgWwDAADANJBtAAAAmAayDQAAANNAtgEAAGAayDYAAABMA9kGAACAaSDbAAAAMA1kGwAAAKaBbAMAAMA0kG0AAACYBrINAAAA00C2AQAAYBrINgAAAEwD2QYAAIBpINsAAAAwDWQbAAAApoFsAwAAwDSQbQAAAJgGsg0AAADTQLYBAABgGsg2AAAATAPZBgAAgGkg2wAAADANZBsAAACmgWwDAADANJBtAAAAmAayDQAAANNAtgEAAGAayDYAAABMA9kGAACAaSDbAAAAMA1kGwAAAKaBbAMAAMA0kG0AAACYBrINAAAA00C2AQAAYBrINgAAAEwD2QYAAIBpINsAAAAwDWQbAAAApoFsAwAAwDSQbQAAAJgGsg0AAADTQLYBAABgGsg2AAAATAPZBgAAgGkg2wAAADANZBsAAACmYdm7AXbFw219RJJCdKStD2oVOIqwnf9KSEsglK2OxcEQDLXVwZwEQSH6tvz8c3GEYb9yA4kYbPaRZRQXzjYeS7DsZdRdYMtjkrXV2h1pZHGdLQ9qFazYMO7MEfZuhWX0JJlbQ9UZEMJAqWSUVk0qpERFJVWmtP4FBxvjzujN6hxr5d06OaLwuXZnGiXVWW2PYhbuL8F8/DF3CSrxxGMkCJ9ttZ3bHUXpr97WHc60dzuckutmGyYUu7/9MebtZcuDGp7d05+85ZTZFtlFtHitvVthJSRBKqWITk3W1RIVlWRxteHBH7o/bhqu55MyBaIlLD8CyuXwxk8QpPzNGs1lDm3mRV3qZQuzDeWzUZEbK6E9p09fdo+eeEgA5u2LCSWom4f1WuoYDHoF60vINnpcN9uA68JwzN0LQRDMK5jVHkESKWr8eEqjIp7laM6d1p1I19+4R8m19m4leAEPY3fvyJ08nDcqCQ+LRnlclMVFUIb1QgLrgGwDAEXZXJTNxbr2ZndJIGaU6NNvqg/9qj3+O1WlsnfbAIIgCOrGxnt0ELz+Ci8pGfcPQ1Dnf/QL2hhkGwANoBjuE4ynBHGHD9O+nKb8crvuaiaiMti7WS4NC/ISvD9d8OrruG8AwmLQ4zTQliDbAHgRirqJeaMmc+L6qA/+pvzyByKn1N5NckksjN0vWviPv3OHjELZXHu3BjgTuLUHoBkoivkEuc15W7zjK87YOIRt8xkjLg5FOMlx4i2beCPGQbABc8F9G3BgFIUQJvcHtlFvFc7m9h6GfxWgWLVBvfMYQjn0ZCNKq3LoFupN[...TRUNCATED...]"></div>
+                    <div class="dept-name">龙蟠时代</div>
+                    <div class="dept-badge"></div>
+                </div>
+                <div class="dept-card" onclick="openReport('sdmd')">
+                    <div class="dept-icon"><img src="data:image/png;base64,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[...TRUNCATED...]"></div>
+                    <div class="dept-name">山东美多</div>
+                    <div class="dept-badge pending"></div>
+                </div>
+                <div class="dept-card" onclick="openReport('sjld')">
+                    <div class="dept-icon"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAhwAAAGDCAIAAADvRF4gAAAACXBIWXMAAA7EAAAOxAGVKw4bAAAgAElEQVR4nOzdeZBc53YY9r5L79tM78vsOzA7QHADAYLggp0E+STn2ZEtS4olS+U4dipO2a6k6lWWcqlSzuYkiiNF0ZNsPT3picRKgAAJEiABkgCB2fd9pvd9777d994vfwwfHoiZ6fvNTHdPd8/51atX5OCb2wcDok/f+53vHAIhJAIAAAAKgdzrAAAAAFQPSCoAAAAKBpIKAACAgoGkAgAAoGAgqQAAACgYSCoAAAAKBpIKAACAgoGkAgAAoGAgqQAAACgYSCoAAAAKBpIKAACAgoGkAgAAoGAgqQAAACgYSCoAAAAKBpIKAACAgoGkAgAAoGAgqQAAACgYSCoAAAAKBpIKAACAgoGkAgAAoGAgqQAAACgYeq8DAKCMcNlUOupO+Bd5nqUlco2lS6o0EBT8NQEAF/xtAUAkEolECEXdk2tP/jbsGOWy6fWvSVV6c+eJuoH3JEr9XscHQGUgYEY9ACIRCjtGZj/7d4ngynO/QJCUqe3Vttd/X6Y27VFsAFQS2FMBQJSJ+xfv/1kitLrxlxDP+Re+Xnv8C57N7kVoAFQYSCpgv0M85564GXVNira4a+c51jP9ecQ5WvLQAKg8kFTAfhf3zXmm7iDE51mTTYXXhj5iM/ESxgVARYKkAvY1Lpd2TdxMRZyCKyPO8cDytyUJCoAKBkkF7Guh1Se+mbtbPfh6FsskHUOXMzFPSeICoFJBUgH7VzYZco19nMN+qBX3zbknbsGOPQB5QFIB+1dg4UF4bQR/Pc+x7snbydDzZccAgKcgqYB9KhV2OEavcbnMtr4rE/c5R6/BzQoAW4GkAvYjnsu5xq4nAkvb/UbEc77Ze6HVx/mrxQDYtyCpgP0o7p31zd1DPLeD781l4o7hy1BeDMCmIKmAfYfLpZ0jVzIx346vEHVN+ue/wqkZA2C/gaQC9hsUXHroW3iwm653bDblHL2WjrkLGhgA1QCSCthfmGTIMXLlaR/iHYt551xjN2DHHoDnQFIB+whCvH/uq6hrsiBX80x9mgwuF+RSAFQNSCpgH0mFVp2jV3kuV5CrMYmAY/gSl9vtTQ8A1QSSCtgveDbrHLu+cWLKJgiCIIX/aiCEfAsPgsuPYMcegKcgqYD9Iuqe9M9hlWzJVAZT21GSlgiuZDOJtScfMqlQgWIEoOJBUgH7AptNusauZ+J+wZUEQRrbj7W+9p+pDC04V4575/yz9woRIwDVAJIK2BcCC18HFrEa1yv1jfa+CzKttX7wIi1VCq7nWMY1fiMVXitEmABUPEgqoPqloy7nyFU2mxJcSVISW+8ZZW0dQZCGlpcNTUcIghD8rkRg2bn9NmIAVCVIKqDKIYR8c1/GvLM4i2vr+0xtx0QEIRKJaKnK3n9BotRhvATvnfki7sN6CQCqGyQVUOWSgUXX6HWcMmJaprL1nJGqjU+/orF0mTvfwHmVbDK8NnSJZRK7CxaAigdJBVQzjs04Rq6koxjjGgnC1H5M33Tk2a+RtNTWc1plaBL8boT40PJ3weVHO2tSCUDVgKQCqhiKrI345+/jtKmXayzWg+9QEsVzX1fqGm09ZyixVPAKbDblGLqUTUJ5MdjXIKmAqpXLJJyj17OpqOBKgiAtXSc0ls5Nf83cdVJj7sB5xbh/3jPzOYxaAfsZJBVQnRDi/fNfhVafiETCpx3VplZrz1mS2vy0o1iurR98n95wE7MRl2NcY9cT/oUdhQxANYCkAqpTJurGLPMlaam9/4JMY95qAUGQ+uaXje1HCZISvFoq7HSNf8yxUF4M9ilIKqAKIZ71znwR983jLNbV9xtbjxJEvr8LJC2p678oxSgvFolE/rmv4p4Z7GABqCqQVEAVivvmnWPXcQqxxDJ13cB7YrlWcKXK0GTuOpk/96xjkpG1Jx/mMjHseAGoHpBU[...TRUNCATED...]"></div>
+                    <div class="dept-name">三金锂电</div>
+                    <div class="dept-badge"></div>
+                </div>
+                <div class="dept-card" onclick="openReport('bych')">
+                    <div class="dept-icon"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAigAAAE1CAIAAABCz4wKAAAACXBIWXMAAA7EAAAOxAGVKw4bAAAgAElEQVR4nOzdZ1wU19oA8GnbG22BBaQjqBQpgsGu2E0UE1sssUaNvWLUWNIsibHEkuh9rzWWSOwFsXewd4ogVaqUZZftM/N+WMM1Jhpkz87u4vn//AC6nDnCMs+c9jwoTdMIBEEQBDEFs3QHIAiCoPcLDDwQBEEQo2DggSAIghgFAw8EQRDEKBh4IAiCIEbBwANBEAQxCgYeCIIgiFEw8EAQBEGMgoEHgiAIYhQMPBAEQRCjYOCBIAiCGAUDDwRBEMQoGHggCIIgRsHAA0EQBDEKBh4IgiCIUTDwQBAEQYyCgQeCIAhiFAw8EARBEKNg4IEgCIIYBQMPBEEQxCgYeCAIgiBGwcADQRAEMQoGHgiCIIhRMPBAEARBjIKBB4IgCGIUDDwQBEEQo2DggSAIghgFAw8EQRDEKBh4IAiCIEbBwANBEAQxCgYeCIIgiFEw8EAQBEGMgoEHgiAIYhQMPBAEQRCjYOCBIAiCGAUDDwRBEMQoGHggCIIgRsHAA0EQBDEKBh4IgiCIUTDwQBAEQYyCgQeCIAhiFAw8EARBEKNg4IEgCIIYBQMPBEEQxCgYeCAIgiBGwcADQRAEMQoGHgiCIIhRMPBAEARBjIKBB4IgCGIUDDwQBEEQo2DggSAIghgFAw8EQRDEKAJIK1RluSE/A0hTRiiGEwEtUJ4YYJsQBEGQNQATeHTnU6rHTgHSlBFmJ7I/soUV0hpgmxAEQZA1ABN4EJqmqxVgmkIQBEEoBKFJA8AGIQiCICsB13ggCIIgRsHAA0EQBDEKBh4IgiCIUTDwQBAEQYyCgQeCIAhiFAw8EARBEKNg4IEgCIIYBQMPBEEQxCgYeCAIgiBGwcADQRAEMQoGHgiCIIhRMPBAEARBjIKBB4IgCGIUDDwQBEEQo2DggSAIghgFAw8EQRDEKBh4IAiCIEYBqkBqhUgDbdDRej2iVNF6Oe7mj+Dv9p8lS3IQHYLa26MEgbLYCME2W18hCILeI40t8NB6LVmaR+YWkGnZ+mcP9GlpZGoh0dnf/tfdmFDyTk2p9m9TLd+D+TkQzb1Y/iFEUBge4Ia7+WAiB7N1H4IgqPFrFIHHoKNUtdTzHO3NS7oL9wyPM8jcArpMXffvtMK5Aa3Sei1VUU0VVRguP9UgZxA+gQfICDcfIjqQ0ymWFRyNiu1RFgfo/wSCIKjxs+3AQ6tq9FmP9JdTNMknDddzaJWKVusQijbLxVQG8n4Beb9Ae+aK6qddeIgbt0ccq/UHrJAQ3MUTQeFqGQRBUL3YZOCh9RqqskJ3/bTmQLIu5Q71tJzRy+spWq82XMtWXstGpTuJZk053WO5fT8iAoJRNhdBUEY7A0EQZGtsLfCQBv2zJ9pjh9V/HCcfFNK1GnONb+qHLlfpy+/pUx6qft3D6duJ+2FfdutYTGQPww8EQdCb2EzgobUqw7N09W+7NMfOkWnPER1l6R69QkdS+VXq9Qc0+5LZnVvzRw3ktIlDBWIYfiAIgv7OJgIPbXiWpt6zW73tIFnwAtEaLN2fN6ARukyp3XdGd/oap3csb9hwTtuOKE9o6W5BEARZF+sOPDRNvShRn0xUbdxpuJtjXaOcN6ERukKl2XlGl3yD06+TYOJ4VnAUguGW7hYEQZC1sOLAo9NozhytXf+r/tw9WqmxdG/eEY1QJTXqLUd0F2/wx3/KGzgEl/lYuk8QBEFWwVoDj16n/HmD/uxDqrjK0l0xAUmTacXKhT/rLl0XzPiCHdMJZXEt3ScIgiALs9LTJ3StVvv7FduOOn+ilTrtgWvVo2bUbvyJqipDEEtuw4MgCLI4Kw08CILYxopOvVFZ5coF6+SzphnS78PYA0HQ+8yKA0+jQ9fqNTtOV4+cpDmVSBt0[...TRUNCATED...]"></div>
+                    <div class="dept-name">铂源催化</div>
+                    <div class="dept-badge"></div>
+                </div>
+                <div class="dept-card" onclick="openReport('felt')">
+                    <div class="dept-icon"><img src="data:image/png;base64,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[...TRUNCATED...]"></div>
+                    <div class="dept-name">法恩莱特</div>
+                    <div class="dept-badge"></div>
+                </div>
+                <div class="dept-card" onclick="openReport('dhx')">
+                    <div class="dept-icon"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAq8AAAKRCAIAAAD1c9cXAAAACXBIWXMAAA7EAAAOxAGVKw4bAAAgAElEQVR4nOy9d4AkV3X2/Zxzb1WHSRu1klYBBEiAiAKLaJI/YwvbvC/ZNiYjQAQT/BpsgwELg41JxmDAYEwytgyIZHJG0ZIRQgIkFFlpJe0qrnZ3Zrq76t5zvj9uVacZ7eyupN1Zzfmp1NPTU90VurfvU+ee8xxSVRiGYRiGsYLh/b0DhmEYhmHsZ0wNGIZhGMZKx9SAYRiGYax0TA0YhmEYxkrH1IBhGIZhrHRMDRiGYRjGSsfUgGEYhmGsdEwNGIZhGMZKx9SAYRiGYax0TA0YhmEYxkrH1IBhGIZhrHRMDRiGYRjGSsfUgGEYhmGsdEwNGIZhGMZKx9SAYRiGYax0TA0YhmEYxkrH1IBhGIZhrHRMDRiGYRjGSsfUgGEYhmGsdEwNGIZhGMZKx9SAYRiGYax0TA0YhmEYxkrH1IBhGIZhrHRMDRiGYRjGSsfUgGEYhmGsdEwNGIZhGMZKx9SAYRiGYax0TA0YhmEYxkrH1IBhGIZhrHRMDRiGYRjGSsfUgGEYhmGsdEwNGIZhGMZKx9SAYRiGYax0TA0YhmEYxkrH1IBhGIZhrHRMDRiGYRjGSsfUgGEYhmGsdEwNGIZhGMZKx9SAYRiGYax0TA0YhmEYxkrH1IBhGIZhrHRMDRiGYRjGSsfUgGEYhmGsdEwNGIZhGMZKx9SAYRiGYax0TA0YhmEYxkrH1IBhGIZhrHRMDRiGYRjGSsfUgGEYhmGsdEwNGIZhGMZKx9SAYRiGYax0TA0YhmEYxkrH1IBhGIZhrHRMDRiGYRjGSsfUgGEYhmGsdEwNGIZhGMZKx9SAYRiGYax0TA0YhmEYxkrH1IBhGIZhrHRMDRiGYRjGSsfv7x0wDOM2UF3wEIFG1qh/0Mjv1apKkF1ugDD6cgsQrV6y/8LDvxLBVa+g9UsRoINXFXQBAhhwABNAo7toGMYywdSAYSxjNCmAavRdct1R+UC0xFOWCA0qeGj477+2DP7ef5CSIBjdcUARAQYYIOqLiF1v1TCM/QHpItcfhmEsD+rxc8G/UgWUdGg4p5FnpHt0Z/zjprH7Um90sDNaBwho+KHhJ1FfVdhkpWEsCyw2YBjLFBm93qbBY0MX5YM1aOTHIr/sOQuiDeN/p+GLicEkQv0gUxzdGervVVAIQGRqwDCWB6YGDGOZMjbDThAgEjRpgsHDhOFhduQ5KHb5+qS71AtMbjT+r9VCCy/+td681noFBA+44TQCDKIC/VcwDGNZYGrAMJYp6aq5HmIFiPUdqYdSBdWCQKm/6tjtbaGA7HIVD+GRWL8OvXC6k9WpCdoPXdQ7mfSGGxIq/edKnVpogQHDWC6YGjCMZYqGLjNrDOQ8SCECJqhCKhGgzks9zCpVJQhlQK+n3aIoinLH7Gy3252fn+91e2UInc68qsYoMUaRGEWCjhQdMLP3Ps/zPM995lvONbxvNButZqvZajTybHJqMs9zduQcmOC1P8ozSKhf3KAEFaAEJwXDAEQE5AgOYKgDoKpkesAwlgeWRWgYyxQNPaiQzzREchmIIeh2SyLXaLIS5gEiCLB9B6655oZNmzZvvf7Gq67afMWVm667bsuOHb2d2

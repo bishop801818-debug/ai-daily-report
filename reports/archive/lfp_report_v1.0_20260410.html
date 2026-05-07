@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>铁锂行业分析报告 - AI Daily Report</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Microsoft YaHei', 'PingFang SC', Arial, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        /* 顶部导航栏 */
+        .header {
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9ff 100%);
+            border-radius: 16px;
+            padding: 20px 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 20px rgba(30, 60, 114, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid rgba(30, 60, 114, 0.08);
+        }
+        
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        
+        .back-btn {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        
+        .back-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(30, 60, 114, 0.3);
+        }
+        
+        .title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #1e3c72;
+        }
+        
+        .refresh-btn {
+            background: linear-gradient(135deg, #2E75B6 0%, #1F3864 100%);
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        
+        .refresh-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(46, 117, 182, 0.3);
+        }
+        
+        /* 报告内容区域 */
+        .report-content {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 4px 20px rgba(30, 60, 114, 0.1);
+        }
+        
+        .report-content h1 {
+            color: #1e3c72;
+            font-size: 28px;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        
+        .report-meta {
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .report-content h2 {
+            color: #1e3c72;
+            font-size: 20px;
+            margin: 30px 0 15px 0;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #2E75B6;
+        }
+        
+        .report-content h3 {
+            color: #2E75B6;
+            font-size: 16px;
+            margin: 20px 0 10px 0;
+        }
+        
+        .report-content p {
+            line-height: 1.8;
+            margin: 10px 0;
+            color: #333;
+        }
+        
+        .report-content table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+            font-size: 14px;
+        }
+        
+        .report-content th {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 12px 15px;
+            text-align: left;
+            font-weight: bold;
+        }
+        
+        .report-content td {
+            padding: 10px 15px;
+            border: 1px solid #eee;
+        }
+        
+        .report-content tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+        
+        .report-content tr:hover {
+            background: #e8f4fc;
+        }
+        
+        .analysis-point {
+            background: #f0f7ff;
+            padding: 15px;
+            border-left: 4px solid #2E75B6;
+            margin: 15px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        
+        .analysis-point strong {
+            color: #1e3c72;
+        }
+        
+        .analysis-box {
+            background: #fffbea;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #ffe58f;
+            margin: 15px 0;
+        }
+        
+        .analysis-box ul {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+        
+        .analysis-box li {
+            margin: 8px 0;
+            line-height: 1.6;
+        }
+        
+        .report-content ul, .report-content ol {
+            margin: 10px 0;
+            padding-left: 25px;
+            line-height: 1.8;
+        }
+        
+        .report-content li {
+            margin: 8px 0;
+        }
+        
+        /* 加载状态 */
+        .loading {
+            text-align: center;
+            padding: 50px;
+            color: #666;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="header-left">
+                <button class="back-btn" onclick="window.location.href='index_logo_v2.html'">← 返回首页</button>
+                <div class="title">📊 铁锂行业分析报告</div>
+            </div>
+            <button class="refresh-btn" onclick="loadReport()">🔄 刷新数据</button>
+        </div>
+        
+        <div class="report-content" id="reportContainer">
+            <div class="loading">加载中...</div>
+        </div>
+    </div>
+    
+    <script>
+        async function loadReport() {
+            const container = document.getElementById('reportContainer');
+            container.innerHTML = '<div class="loading">加载中...</div>';
+            
+            try {
+                const response = await fetch('lfp_all_data.json?_t=' + Date.now());
+                const data = await response.json();
+                const html = generateAnalysisHTML(data);
+                container.innerHTML = html;
+            } catch (e) {
+                console.error('加载失败:', e);
+                container.innerHTML = '<div class="loading">数据加载失败，请刷新重试</div>';
+            }
+        }
+        
+        function generateAnalysisHTML(data) {
+            const tables = {};
+            data.tables.forEach(t => {
+                tables[t.table_name] = t.data;
+            });
+            
+            let html = '';
+            
+            // 标题
+            html += `<h1>磷酸铁锂行业数据周报（深度分析版）</h1>`;
+            html += `<p class="report-meta">数据更新时间: ${data.update_time} | 数据来源: 飞书多维表格-铁锂行业数据库</p>`;
+            
+            // 一、核心数据摘要
+            html += '<h2>一、核心数据摘要（2026年2月）</h2>';
+            
+            const lfpProd = tables['LFP-行业整体产量'] || [];
+            const sortedLfp = [...lfpProd].sort((a, b) => (b['月份'] || '').localeCompare(a['月份'] || ''));
+            const latestLfp = sortedLfp[0] || {};
+            const prevLfp = sortedLfp[1] || {};
+            
+            const fpProd = tables['FP-行业整体产量'] || [];
+            const sortedFp = [...fpProd].sort((a, b) => (b['月份'] || '').localeCompare(a['月份'] || ''));
+            const latestFp = sortedFp[0] || {};
+            
+            const priceData = tables['LFP现货市场价'] || [];
+            const dates = [...new Set(priceData.map(r => String(r['日期'] || '').split(' ')[0]))];
+            const latestDate = dates.sort().reverse()[0];
+            const latestPrices = priceData.filter(r => String(r['日期'] || '').startsWith(latestDate));
+            const powerPrices = latestPrices.filter(r => (r['规格'] || '').includes('动力') && (r['规格'] || '').includes('2.6'));
+            const avgPrice = powerPrices.length > 0 ? (powerPrices.reduce((sum, r) => sum + (parseFloat(r['均价（万元/吨）']) || 0), 0) / powerPrices.length).toFixed(2) : '-';
+            
+            html += `<table>
+                <tr><th>指标</th><th>数值</th><th>环比</th><th>分析说明</th></tr>
+                <tr><td>LFP行业产量</td><td>${parseInt(latestLfp['月度产量'] || 0).toLocaleString()} 吨</td><td>-7.8%</td><td>环比下降，受春节假期影响</td></tr>
+                <tr><td>LFP产能利用率</td><td>${latestLfp['产能利用率'] || '-'}</td><td>-1%</td><td>创近两年新低</td></tr>
+                <tr><td>FP行业产量</td><td>${parseInt(latestFp['月度产量'] || 0).toLocaleString()} 吨</td><td>-</td><td>磷酸铁供应充足</td></tr>
+                <tr><td>动力型LFP均价</td><td>${avgPrice} 万元/吨</td><td>明显下行</td><td>较2024年高位下跌超60%</td></tr>
+            </table>`;
+            
+            // 二、深度分析
+            html += '<h2>二、深度分析</h2>';
+            
+            // 2.1 产能利用率
+            html += '<h3>2.1 产能利用率：结构性分化明显</h3>';
+            html += `<p class="analysis-point"><strong>核心观点：</strong>2026年2月LFP行业产能利用率仅63%，环比下降7个百分点，创近两年新低。产能利用率呈现明显的结构性分化：</p>`;
+            
+            const companyProd = tables['LFP-分企业产量'] || [];
+            const feb2026 = companyProd.filter(r => r['月份'] === '2026-02');
+            const highUtil = feb2026.filter(r => parseFloat((r['产能利用率'] || '0%').replace('%', '')) >= 100);
+            const lowUtil = feb2026.filter(r => parseFloat((r['产能利用率'] || '0%').replace('%', '')) < 70);
+            
+            html += `<ul>
+                <li><strong>高负荷企业（利用率≥100%）</strong>：${highUtil.length}家，包括${highUtil[0]?.['企业名称'] || '-'}（${highUtil[0]?.['产能利用率'] || '-'}）等。凭借成本优势和质量稳定性维持高开工率。</li>
+                <li><strong>低负荷企业（利用率<70%）</strong>：${lowUtil.length}家，受价格下跌影响部分二三线企业被动减产。</li>
+                <li><strong>趋势判断</strong>：预计Q2头部企业利用率维持在85%以上，中小产能可能进一步降负荷，行业CR5集中度将提升至65%以上。</li>
+            </ul>`;
+            
+            // 2.2 价格分析
+            html += '<h3>2.2 价格走势：底部震荡，尚未见底</h3>';
+            html += `<p class="analysis-point"><strong>核心观点：</strong>LFP动力型价格已从2023年高点的18万元/吨下跌至当前${avgPrice}万元/吨，跌幅达68%。</p>`;
+            html += `<div class="analysis-box">
+                <p><strong>成本支撑分析</strong>（以主流规格为例）：</p>
+                <ul>
+                    <li>当前价格：${avgPrice} 万元/吨（动力型，粉体压实2.6-2.65）</li>
+                    <li>原材料成本：碳酸锂约占60%，当前碳酸锂价格约15.3万元/吨（期货），折LFP成本约4.5万元/吨</li>
+                    <li>加工成本：约0.8-1.0万元/吨</li>
+                    <li><strong>理论底部：约5.3-5.5万元/吨</strong>（基于当前碳酸锂价格）</li>
+                </ul>
+                <p><strong>价格预测：</strong>短期（Q2）价格可能在5.3-6.0万元/吨区间震荡，下半年随碳酸锂价格企稳有望小幅反弹。</p>
+            </div>`;
+            
+            // 2.3 竞争格局
+            html += '<h3>2.3 竞争格局：湖南裕能一骑绝尘</h3>';
+            const sortedCompany = feb2026.sort((a, b) => (parseFloat(b['产量'] || 0) || 0) - (parseFloat(a['产量'] || 0) || 0));
+            
+            html += `<p><strong>2026年2月LFP企业产量排名：</strong></p><ol>`;
+            sortedCompany.slice(0, 5).forEach((row, i) => {
+                html += `<li><strong>${row['企业名称']}</strong>：${parseInt(row['产量'] || 0).toLocaleString()} 吨，产能利用率 ${row['产能利用率']}</li>`;
+            });
+            html += `</ol>
+            <p><strong>竞争格局要点：</strong></p>
+            <ul>
+                <li>湖南裕能市场份额约22%，是第二名万润新能的2倍以上</li>
+                <li>头部5家企业合计市场份额约55%，CR5集中度较高</li>
+                <li>湖南裕能、万润新能、德方纳米三家企业合计供应宁德时代70%以上的LFP需求</li>
+                <li>二三线企业面临较大经营压力，行业洗牌加速</li>
+            </ul>`;
+            
+            // 2.4 客户结构
+            html += '<h3>2.4 客户结构：头部集中，绑定加深</h3>';
+            const competitor = tables['LFP竞对销量（客户采购量）'] || [];
+            const febComp = competitor.filter(r => r['月份'] && String(r['月份']).includes('2026-02'));
+            
+            if (febComp.length > 0) {
+                html += `<p><strong>头部LFP企业客户分布</strong>（2026年2月）：</p><ul>`;
+                febComp.slice(0, 5).forEach(row => {
+                    html += `<li><strong>${row['企业名称']}</strong>：CATL ${row['CATL'] || 0}吨 | BYD ${row['BYD'] || 0}吨 | 亿纬 ${row['亿纬'] || 0}吨 | 国轩 ${row['国轩'] || 0}吨</li>`;
+                });
+                html += `</ul>
+                <p><strong>客户结构分析：</strong></p>
+                <ul>
+                    <li>宁德时代（CATL）仍是最大买家，头部企业对其供货占比普遍超过40%</li>
+                    <li>比亚迪（BYD）采购量快速增长，已成第二大客户</li>
+                    <li>头部LFP企业与核心客户的绑定日益加深，供应链壁垒持续强化</li>
+                </ul>`;
+            }
+            
+            // 2.5 出口
+            html += '<h3>2.5 出口：触底反弹，量增价跌</h3>';
+            const exportData = tables['LFP-出口量'] || [];
+            const sortedExp = [...exportData].sort((a, b) => (b['月份'] || '').localeCompare(a['月份'] || ''));
+            const latestExp = sortedExp[0] || {};
+            
+            html += `<p><strong>2026年2月出口数据：</strong></p>
+            <ul>
+                <li>出口量：${parseFloat(latestExp['月度出口量'] || latestExp['出口量（吨）'] || 0).toLocaleString()} 吨</li>
+                <li>出口均价：${latestExp['出口均价（万元/吨）'] || '-'} 万元/吨</li>
+                <li>环比：${latestExp['环比变化'] || latestExp['环比'] || '-'}</li>
+                <li>同比：${latestExp['同比变化'] || latestExp['同比'] || '-'}</li>
+            </ul>
+            <p><strong>出口分析：</strong></p>
+            <ul>
+                <li>出口量较2025年低点显著回升（同比+995%），主要受益于海外储能需求增长</li>
+                <li>但出口均价仅为5.0万元/吨，低于国内价格，反映海外客户议价能力较强</li>
+                <li>主要出口目的地为亚洲（韩国、日本），欧美市场占比仍较低</li>
+            </ul>`;
+            
+            // 三、风险与机遇
+            html += '<h2>三、风险与机遇</h2>';
+            
+            html += `<h3>风险提示</h3>
+            <ol>
+                <li><strong>价格持续下行风险</strong>：碳酸锂价格仍未见底，成本支撑位可能继续下移</li>
+                <li><strong>产能过剩风险</strong>：行业规划产能仍处高位，2026年新增产能释放可能进一步加剧供需失衡</li>
+                <li><strong>应收账款恶化</strong>：下游电池厂付款周期延长，部分LFP企业现金流承压</li>
+                <li><strong>技术替代风险</strong>：三元材料技术进步可能挤压LFP在高端车型市场份额</li>
+            </ol>
+            
+            <h3>机遇展望</h3>
+            <ol>
+                <li><strong>储能市场增长</strong>：电化学储能需求快速增长，储能型LFP需求预计2026年增长30%+</li>
+                <li><strong>海外市场开拓</strong>：东南亚、欧洲新能源车市场快速增长，海外产能布局企业有望受益</li>
+                <li><strong>回收业务</strong>：磷酸铁锂电池回收技术进步，废旧电池利用成为新利润增长点</li>
+                <li><strong>钠电技术路线</strong>：钠离子电池产业化加速，部分企业已在积极布局</li>
+            </ol>`;
+            
+            // 四、结论
+            html += '<h2>四、结论与建议</h2>';
+            
+            html += `<p><strong>核心结论：</strong></p>
+            <ol>
+                <li>LFP行业进入"成本拼杀"阶段，5万元/吨以下将淘汰部分高成本产能</li>
+                <li>头部企业（湖南裕能、万润新能等）凭借规模优势和成本控制能力，市场地位稳固</li>
+                <li>短期内价格仍在底部震荡，下半年随碳酸锂价格企稳有望小幅反弹</li>
+                <li>储能需求是2026年最大亮点，动力市场需求增量有限</li>
+            </ol>
+            
+            <p><strong>企业建议：</strong></p>
+            <ul>
+                <li>一线企业：维持高开工率的同时，加快海外产能布局，锁定长期订单</li>
+                <li>二线企业：聚焦差异化产品（如高压实密度），避免价格战泥潭</li>
+                <li>关注点：重点跟踪碳酸锂价格走势、头部企业开工率、储能招标量</li>
+            </ul>`;
+            
+            return html;
+        }
+        
+        window.onload = loadReport;
+    </script>
+</body>
+</html>

@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>帮助中心 - 战略中心信息中台</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary: #1e3c72;
+            --primary-light: #4a6fa5;
+            --accent: #4facfe;
+            --bg: #f5f7fa;
+            --surface: #ffffff;
+            --border: #e0e6ed;
+            --text: #333;
+            --text-mid: #666;
+            --text-dim: #999;
+            --green: #10b981;
+            --orange: #f59e0b;
+            --shadow: 0 2px 12px rgba(30,60,114,0.08);
+        }
+        body {
+            font-family: 'Microsoft YaHei', 'PingFang SC', Arial, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+        }
+
+        /* 顶部导航 */
+        .header {
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9ff 100%);
+            padding: 0 30px;
+            box-shadow: 0 2px 12px rgba(30,60,114,0.08);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 1px solid var(--border);
+            height: 60px;
+        }
+        .header-left { display: flex; align-items: center; gap: 20px; }
+        .logo { font-size: 18px; font-weight: bold; color: var(--primary); cursor: pointer; display: flex; align-items: center; gap: 8px; }
+        .nav-links { display: flex; gap: 6px; }
+        .nav-links a {
+            color: var(--text-mid);
+            text-decoration: none;
+            font-size: 14px;
+            padding: 6px 12px;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+        .nav-links a:hover { background: rgba(30,60,114,0.06); color: var(--primary); }
+
+        /* 布局：左侧目录 + 右侧内容 */
+        .help-layout {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 30px 24px;
+            display: grid;
+            grid-template-columns: 220px 1fr;
+            gap: 30px;
+            align-items: start;
+        }
+        @media (max-width: 768px) {
+            .help-layout { grid-template-columns: 1fr; }
+            .help-toc { position: static !important; }
+        }
+
+        /* 左侧目录 */
+        .help-toc {
+            background: var(--surface);
+            border-radius: 14px;
+            padding: 20px 0;
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 80px;
+        }
+        .toc-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 0 20px 12px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 8px;
+        }
+        .toc-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            font-size: 14px;
+            color: var(--text-mid);
+            cursor: pointer;
+            transition: all 0.15s;
+            border-left: 3px solid transparent;
+        }
+        .toc-item:hover { color: var(--primary); background: rgba(30,60,114,0.04); }
+        .toc-item.active {
+            color: var(--primary);
+            background: rgba(79,172,254,0.08);
+            border-left-color: var(--accent);
+            font-weight: 700;
+        }
+
+        /* 右侧内容 */
+        .help-content { min-width: 0; }
+
+        /* 页面标题 */
+        .help-page-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 6px;
+        }
+        .help-page-sub {
+            font-size: 14px;
+            color: var(--text-dim);
+            margin-bottom: 28px;
+        }
+
+        /* 内容区块 */
+        .content-section {
+            background: var(--surface);
+            border-radius: 14px;
+            padding: 28px 30px;
+            box-shadow: var(--shadow);
+            margin-bottom: 20px;
+            border: 1px solid var(--border);
+        }
+        .content-section h2 {
+            font-size: 17px;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 16px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .content-section h3 {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--primary-light);
+            margin: 16px 0 8px;
+        }
+        .content-section p {
+            font-size: 14px;
+            color: var(--text-mid);
+            line-height: 1.8;
+            margin-bottom: 10px;
+        }
+        .content-section ul {
+            list-style: none;
+            margin-bottom: 12px;
+        }
+        .content-section ul li {
+            font-size: 14px;
+            color: var(--text-mid);
+            line-height: 1.8;
+            padding: 4px 0 4px 20px;
+            position: relative;
+        }
+        .content-section ul li::before {
+            content: '·';
+            color: var(--accent);
+            font-weight: bold;
+            position: absolute;
+            left: 6px;
+        }
+        .content-section ul li strong {
+            color: var(--text);
+            font-weight: 700;
+        }
+
+        /* 表格 */
+        .info-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            margin: 10px 0;
+        }
+        .info-table th {
+            background: rgba(30,60,114,0.06);
+            color: var(--primary);
+            font-weight: 700;
+            padding: 10px 14px;
+            text-align: left;
+            border-bottom: 2px solid var(--border);
+        }
+        .info-table td {
+            padding: 10px 14px;
+            border-bottom: 1px solid var(--border);
+            color: var(--text-mid);
+            vertical-align: top;
+        }
+        .info-table tr:last-child td { border-bottom: none; }
+        .info-table tr:hover td { background: rgba(79,172,254,0.03); }
+
+        /* 徽章 */
+        .badge {
+            display: inline-block;
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+        .badge-primary { background: rgba(30,60,114,0.1); color: var(--primary); }
+        .badge-green { background: rgba(16,185,129,0.1); color: var(--green); }
+        .badge-orange { background: rgba(245,158,11,0.1); color: var(--orange); }
+
+        /* 版本日志 */
+        .changelog-item {
+            border-left: 3px solid var(--accent);
+            padding: 14px 20px;
+            margin-bottom: 14px;
+            background: rgba(79,172,254,0.04);
+            border-radius: 0 8px 8px 0;
+        }
+        .changelog-date { font-size: 12px; color: var(--text-dim); margin-bottom: 4px; }
+        .changelog-title { font-size: 14px; font-weight: 700; color: var(--primary); margin-bottom: 6px; }
+        .changelog-body { font-size: 13px; color: var(--text-mid); line-height: 1.7; }
+        .changelog-body ul { margin-top: 6px; }
+        .changelog-body li::before { color: var(--accent); }
+
+        /* 折叠 */
+        .faq-item { margin-bottom: 0; }
+        .faq-q {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text);
+            padding: 14px 0;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+            user-select: none;
+        }
+        .faq-q:hover { color: var(--primary); }
+        .faq-q .arrow { transition: transform 0.2s; font-size: 12px; color: var(--text-dim); }
+        .faq-q.open .arrow { transform: rotate(180deg); }
+        .faq-a {
+            font-size: 13px;
+            color: var(--text-mid);
+            line-height: 1.8;
+            padding: 12px 0 14px;
+            display: none;
+            border-bottom: 1px solid var(--border);
+        }
+        .faq-a.open { display: block; }
+    </style>
+</head>
+<body>
+
+    <!-- 顶部导航 -->
+    <div class="header">
+        <div class="header-left">
+            <div class="logo" onclick="location.href='index_v3.html'">
+                <span>⚡</span>
+                <span>战略中心信息中台</span>
+            </div>
+        </div>
+        <div class="nav-links">
+            <a href="index_logo_v2.html">🏠 首页</a>
+            <a href="policy_center_v4.html">📜 政策中心</a>
+            <a href="toolbox.html">🛠️ 工具箱</a>
+            <a href="toolbox.html">❓ 帮助</a>
+        </div>
+    </div>
+
+    <div class="help-layout">
+        <!-- 左侧目录 -->
+        <div class="help-toc" id="helpToc">
+            <div class="toc-title">帮助目录</div>
+            <div class="toc-item active" onclick="scrollToSection('guide', this)">📖 使用指南</div>
+            <div class="toc-item" onclick="scrollToSection('sources', this)">📡 数据来源</div>
+            <div class="toc-item" onclick="scrollToSection('faq', this)">❓ 常见问题</div>
+            <div class="toc-item" onclick="scrollToSection('changelog', this)">📋 版本日志</div>
+            <div class="toc-item" onclick="scrollToSection('feedback', this)">💬 意见反馈</div>
+        </div>
+
+        <!-- 右侧内容 -->
+        <div class="help-content">
+
+            <div class="help-page-title">帮助中心</div>
+            <div class="help-page-sub">战略中心信息中台使用指南与常见问题解答</div>
+
+            <!-- 使用指南 -->
+            <div class="content-section" id="sec-guide">
+                <h2>📖 使用指南</h2>
+
+                <h3>首页 · 事业部早报</h3>
+                <p>首页展示龙蟠科技 9 个事业部的卡片网格，每个卡片包含：</p>
+                <ul>
+                    <li><strong>获取早报</strong> — 点击后由 AI 生成当日该事业部最新早报（需等待数秒）</li>
+                    <li><strong>详情页</strong> — 跳转至该事业部历史早报列表与前沿详情页</li>
+                    <li><strong>一键启动</strong> — 顶部橙色按钮，同时触发 9 个事业部早报生成</li>
+                </ul>
+
+                <h3>政策中心</h3>
+                <p>收录中央、地方、海外三类政策文件，支持：</p>
+                <ul>
+                    <li><strong>类型筛选</strong> — 顶部「中央 / 地方 / 海外」切换</li>
+                    <li><strong>月份导航</strong> — 左侧固定栏按月分组，点击跳转</li>
+                    <li><strong>BU 筛选</strong> — 仅显示与特定事业部相关的政策</li>
+                    <li><strong>收藏</strong> — 点击卡片右侧星标，加入我的收藏</li>
+                </ul>
+
+                <h3>数据看板</h3>
+                <p>基于飞书行业数据的可视化图表，共 4 个 Tab：</p>
+                <ul>
+                    <li><strong>概览</strong> — LFP/FP 产量走势、产能利用率、企业 TOP10</li>
+                    <li><strong>产量</strong> — LFP / FP 月度产量柱状图及企业分布饼图</li>
+                    <li><strong>价格</strong> — LFP 现货价格、磷矿石价格、原料价格对比</li>
+                    <li><strong>出口</strong> — 出口量与均价趋势、主要目的国、客户采购量</li>
+                </ul>
+
+                <h3>工具箱</h3>
+                <p>提供收藏管理、数据导出等实用工具：</p>
+                <ul>
+                    <li><strong>我的收藏</strong> — 集中查看所有已收藏的政策和早报，支持按类型筛选</li>
+                    <li><strong>数据导出</strong> — 将早报或政策导出为 Excel / Word 格式</li>
+                    <li><strong>价格预警 / 竞品追踪 / 关键词订阅</strong> — 功能开发中</li>
+                </ul>
+            </div>
+
+            <!-- 数据来源 -->
+            <div class="content-section" id="sec-sources">
+                <h2>📡 数据来源说明</h2>
+                <p>平台数据来自以下权威渠道，所有信息均标注来源：</p>
+                <table class="info-table">
+                    <thead>
+                        <tr>
+                            <th>数据类型</th>
+                            <th>主要来源</th>
+                            <th>备注</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>A股上市公司公告</td>
+                            <td>巨潮资讯（cninfo.com.cn）<br>上交所 / 深交所</td>
+                            <td>注明公司简称 + 代码</td>
+                        </tr>
+                        <tr>
+                            <td>互动易 / 上证 e 互动</td>
+                            <td>巨潮资讯 IRM<br>东方财富互动平台</td>
+                            <td>标注深交所 / 上交所</td>
+                        </tr>
+                        <tr>
+                            <td>机构调研纪要</td>
+                            <td>东方财富数据中心（jgdy）</td>
+                            <td>注明接待机构名称</td>
+                        </tr>
+                        <tr>
+                            <td>业绩说明会</td>
+                            <td>上交所 / 深交所业绩说明会专区</td>
+                            <td>注明平台</td>
+                        </tr>
+                        <tr>
+                            <td>产业信息</td>
+                            <td>中国储能网、盖世汽车、电池百人会、高工锂电等</td>
+                            <td>注明媒体名称</td>
+                        </tr>
+                        <tr>
+                            <td>市场数据</td>
+                            <td>飞书 · 行业整体产量 / LFP 现货市场价</td>
+                            <td>用于数据看板图表</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <p style="margin-top:14px;font-size:13px;color:var(--text-dim);">
+                    补充信源：Wind、财联社、华尔街见闻、行业微信群 / 公众号等。无明确来源的信息会标注 <span style="background:#f0f0f0;padding:1px 6px;border-radius:4px;">[来源待核实]</span> 标签。
+                </p>
+            </div>
+
+            <!-- 常见问题 -->
+            <div class="content-section" id="sec-faq">
+                <h2>❓ 常见问题</h2>
+
+                <div class="faq-item">
+                    <div class="faq-q" onclick="toggleFaq(this)">
+                        数据多久更新一次？
+                        <span class="arrow">▼</span>
+                    </div>
+                    <div class="faq-a">
+                        早报数据为实时生成（每次点击"获取早报"时由 AI 抓取最新数据）。政策中心收录的政策随时间累积，如有新政策入库会显示在最新月份。市场数据看板中的产量、价格数据来源于飞书表格，更新频率取决于飞书端的数据同步。
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-q" onclick="toggleFaq(this)">
+                        9 个事业部各自的定位是什么？
+                        <span class="arrow">▼</span>
+                    </div>
+                    <div class="faq-a">
+                        <table class="info-table" style="margin:0;">
+                            <tbody>
+                                <tr><td><strong>常州锂源</strong></td><td>磷酸铁锂正极材料（LFP），锂电中游</td></tr>
+                                <tr><td><strong>龙蟠时代</strong></td><td>碳酸锂 / 氢氧化锂，锂电产业链最上游</td></tr>
+                                <tr><td><strong>法恩莱特</strong></td><td>锂离子电池电解液，锂电中游</td></tr>
+                                <tr><td><strong>三金锂电</strong></td><td>三元正极材料（NCM），锂电中游</td></tr>
+                                <tr><td><strong>山东美多</strong></td><td>废旧动力电池回收，锂电下游</td></tr>
+                                <tr><td><strong>铂源催化</strong></td><td>氢燃料电池催化剂（Pt/C），新兴业务</td></tr>
+                                <tr><td><strong>可兰素</strong></td><td>车用尿素（AdBlue），配套业务</td></tr>
+                                <tr><td><strong>润滑油</strong></td><td>车用 / 工业润滑油，配套业务</td></tr>
+                                <tr><td><strong>迪克化学</strong></td><td>制动液、防冻液，配套业务</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-q" onclick="toggleFaq(this)">
+                        早报生成需要多长时间？
+                        <span class="arrow">▼</span>
+                    </div>
+                    <div class="faq-a">
+                        单个事业部早报通常在 10–30 秒内生成完毕，取决于当日数据量和网络状况。"一键启动"会依次触发 9 个事业部，约需 2–5 分钟。建议耐心等待，进度条会实时显示当前执行的事业部。
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-q" onclick="toggleFaq(this)">
+                        如何新增或调整事业部配置？
+                        <span class="arrow">▼</span>
+                    </div>
+                    <div class="faq-a">
+                        目前事业部的核心竞品名单、客户名单、主营产品等配置存储在提示词文件中（prompt_daily_report_v1.md）。如需新增 BU 或修改关键词，需同步更新该提示词文件，并重新运行早报生成流程。
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-q" onclick="toggleFaq(this)">
+                        导出的文件用什么软件打开？
+                        <span class="arrow">▼</span>
+                    </div>
+                    <div class="faq-a">
+                        导出格式为 <strong>CSV（UTF-8 带 BOM）</strong>，可用 Excel、WPS 表格直接打开，中文字符不会乱码。建议使用 Excel 2016 及以上版本或 WPS 表格打开。
+                    </div>
+                </div>
+            </div>
+
+            <!-- 版本日志 -->
+            <div class="content-section" id="sec-changelog">
+                <h2>📋 版本日志</h2>
+
+                <div class="changelog-item">
+                    <div class="changelog-date">2026-04-13</div>
+                    <div class="changelog-title">v4.1 — 工具箱 & 帮助中心上线</div>
+                    <div class="changelog-body">
+                        新增工具箱页面和帮助中心页面，优化首页导航体验。
+                        <ul>
+                            <li>工具箱：我的收藏（localStorage 持久化）、数据导出（CSV）</li>
+                            <li>帮助中心：使用指南、数据来源说明、常见问题（FAQ）、版本日志</li>
+                            <li>首页导航：工具箱 / 帮助中心直接跳转，不再是占位链接</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="changelog-item">
+                    <div class="changelog-date">2026-04-12</div>
+                    <div class="changelog-title">v4 — 政策中心 UI 全面升级</div>
+                    <div class="changelog-body">
+                        <ul>
+                            <li>新增左侧固定导航栏（月份分组快速跳转 + BU 筛选 + 统计摘要）</li>
+                            <li>时间轴左侧新增月份刻度标签（如"3月""4月"）</li>
+                            <li>整体视觉升级：浅色侧栏、卡片 hover 动效、fadeIn 入场动画</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="changelog-item">
+                    <div class="changelog-date">2026-04-08 ~ 2026-04-12</div>
+                    <div class="changelog-title">v1 ~ v3 — 平台初版上线</div>
+                    <div class="changelog-body">
+                        完成首页 9 个事业部卡片、一键晨会汇报、政策中心基础版、数据看板（ECharts 可视化）、早报详情页等功能。
+                    </div>
+                </div>
+            </div>
+
+            <!-- 意见反馈 -->
+            <div class="content-section" id="sec-feedback">
+                <h2>💬 意见反馈</h2>
+                <p>如果您发现平台问题或有功能建议，欢迎通过以下方式反馈：</p>
+                <ul>
+                    <li>在本平台 <a href="toolbox.html" style="color:var(--accent);text-decoration:none;">工具箱</a> 页面提交反馈（功能开发中）</li>
+                    <li>联系平台管理员（内部通讯工具）</li>
+                    <li>在企业微信群中反馈</li>
+                </ul>
+                <p style="margin-top:12px;font-size:13px;color:var(--text-dim);">
+                    反馈内容将纳入下一版本迭代计划，感谢您的支持！
+                </p>
+            </div>
+
+        </div>
+    </div>
+
+<script>
+    // 目录高亮 + 滚动联动
+    var sections = ['guide','sources','faq','changelog','feedback'];
+    function scrollToSection(id, el) {
+        var target = document.getElementById('sec-' + id);
+        if (target) {
+            var top = target.getBoundingClientRect().top + window.scrollY - 90;
+            window.scrollTo({ top: top, behavior: 'smooth' });
+        }
+        document.querySelectorAll('.toc-item').forEach(function(b){ b.classList.remove('active'); });
+        el.classList.add('active');
+    }
+
+    // FAQ 折叠
+    function toggleFaq(el) {
+        var wasOpen = el.classList.contains('open');
+        document.querySelectorAll('.faq-q').forEach(function(b){ b.classList.remove('open'); });
+        document.querySelectorAll('.faq-a').forEach(function(a){ a.classList.remove('open'); });
+        if (!wasOpen) {
+            el.classList.add('open');
+            el.nextElementSibling.classList.add('open');
+        }
+    }
+
+    // 滚动时高亮对应目录
+    window.addEventListener('scroll', function() {
+        var scrollY = window.scrollY + 120;
+        for (var i = sections.length - 1; i >= 0; i--) {
+            var el = document.getElementById('sec-' + sections[i]);
+            if (el && el.offsetTop <= scrollY) {
+                document.querySelectorAll('.toc-item').forEach(function(b){ b.classList.remove('active'); });
+                var tocItems = document.querySelectorAll('.toc-item');
+                if (tocItems[i]) tocItems[i].classList.add('active');
+                break;
+            }
+        }
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数据库 - 龙蟠科技行业数据库</title>
+    <meta name="html-version" content="20260424a">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #c1c1c1; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #a1a1a1; }
+
+        body {
+            font-family: 'Microsoft YaHei', 'PingFang SC', Arial, sans-serif;
+            background: #f0f2f5;
+            min-height: 100vh;
+        }
+
+        /* ========== 顶部导航 ========== */
+        .topbar {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: #fff;
+            padding: 0 30px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+        }
+        .topbar-left { display: flex; align-items: center; gap: 16px; }
+        .topbar-logo { font-size: 18px; font-weight: bold; display: flex; align-items: center; gap: 8px; }
+        .topbar-nav { display: flex; gap: 6px; }
+        .topbar-nav a {
+            color: rgba(255,255,255,0.8);
+            text-decoration: none;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            transition: all 0.2s;
+        }
+        .topbar-nav a:hover, .topbar-nav a.active {
+            background: rgba(255,255,255,0.2);
+            color: #fff;
+        }
+                .topbar-right { font-size: 13px; color: rgba(255,255,255,0.7); }
+
+        /* ========== 主内容区 ========== */
+        .main-content { padding: 28px 30px; max-width: 1400px; margin: 0 auto; }
+
+        /* 页面标题 */
+        .page-header { margin-bottom: 24px; }
+        .page-title { font-size: 22px; font-weight: 700; color: #1a1a2e; margin-bottom: 4px; }
+        .page-subtitle { font-size: 13px; color: #888; }
+
+        /* ========== 数据库卡片网格 ========== */
+        .db-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 18px;
+        }
+
+        .db-card {
+            background: #fff;
+            border-radius: 14px;
+            padding: 22px 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            border: 1px solid #eee;
+            transition: all 0.25s;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+        .db-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0;
+            width: 5px;
+            height: 100%;
+        }
+        .db-card:hover {
+            box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+        .db-card .card-top {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+        .db-card .card-icon-wrap {
+            width: 44px; height: 44px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+        }
+        .db-card .card-badge {
+            font-size: 11px;
+            padding: 3px 8px;
+            border-radius: 10px;
+            background: #f0f0f0;
+            color: #888;
+            font-weight: 500;
+        }
+        .db-card .card-badge.has-data { background: #e8f5e9; color: #2e7d32; }
+        .db-card .card-badge.building { background: #fff3e0; color: #e65100; }
+        .db-card .card-name { font-size: 17px; font-weight: 700; color: #1a1a2e; margin-bottom: 4px; }
+        .db-card .card-desc { font-size: 13px; color: #888; line-height: 1.6; margin-bottom: 16px; }
+        .db-card .card-stats {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 16px;
+            padding: 10px 0;
+            border-top: 1px solid #f0f0f0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .db-card .stat-item { text-align: center; flex: 1; }
+        .db-card .stat-val { font-size: 18px; font-weight: 700; color: #1e3c72; }
+        .db-card .stat-label { font-size: 11px; color: #aaa; margin-top: 2px; }
+
+        .db-card .card-actions {
+            display: flex;
+            gap: 8px;
+        }
+        .db-card .card-actions a {
+            flex: 1;
+            text-align: center;
+            padding: 8px 0;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+        }
+        .db-card .btn-data {
+            background: #1e3c72;
+            color: #fff;
+        }
+        .db-card .btn-data:hover { background: #2a5298; }
+        .db-card .btn-chart {
+            background: #f0f4ff;
+            color: #1e3c72;
+        }
+        .db-card .btn-chart:hover { background: #e0e8ff; }
+        .db-card .btn-analysis {
+            background: #f5f5f5;
+            color: #666;
+        }
+        .db-card .btn-analysis:hover { background: #eee; }
+        .db-card .btn-data.disabled,
+        .db-card .btn-chart.disabled,
+        .db-card .btn-analysis.disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        /* ========== 各库配色 ========== */
+        .db-card[data-db="lfp"]       { --db-color: #1e3c72; }
+        .db-card[data-db="ternary"]   { --db-color: #e67e22; }
+        .db-card[data-db="electrolyte"]{ --db-color: #8e44ad; }
+        .db-card[data-db="carbonate"] { --db-color: #27ae60; }
+        .db-card[data-db="recycling"] { --db-color: #d35400; }
+        .db-card[data-db="lithiumbat"]{ --db-color: #2c3e50; }
+        .db-card[data-db="automotive"]{ --db-color: #3498db; }
+
+        .db-card::before { background: var(--db-color); }
+        .db-card .card-icon-wrap { background: color-mix(in srgb, var(--db-color) 12%, white); }
+        .db-card .stat-val { color: var(--db-color); }
+        .db-card .btn-data { background: var(--db-color); }
+        .db-card .btn-data:hover { background: color-mix(in srgb, var(--db-color) 85%, black); }
+        .db-card .btn-chart { background: color-mix(in srgb, var(--db-color) 10%, white); color: var(--db-color); }
+        .db-card .btn-chart:hover { background: color-mix(in srgb, var(--db-color) 18%, white); }
+
+        /* ========== 统计总览区 ========== */
+        .overview-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 28px;
+        }
+        .overview-card {
+            background: #fff;
+            border-radius: 12px;
+            padding: 18px 20px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
+        .overview-icon {
+            width: 50px; height: 50px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 26px;
+        }
+        .overview-info .label { font-size: 12px; color: #aaa; margin-bottom: 4px; }
+        .overview-info .value { font-size: 26px; font-weight: 700; color: #1a1a2e; line-height: 1; }
+        .overview-info .sub { font-size: 12px; color: #888; margin-top: 3px; }
+
+        /* ========== 建设中遮罩 ========== */
+        .building-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(255,255,255,0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 14px;
+            font-size: 14px;
+            color: #e65100;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+
+<!-- 顶部导航 -->
+<div class="topbar">
+    <div class="topbar-left">
+        <div class="topbar-logo">
+            🔋 龙蟠行业数据库
+        </div>
+        <div class="topbar-nav">
+            <a href="index_v3.html">首页</a>
+            <a href="policy_center_v4.html">政策中心</a>
+            <a href="industry_news.html">行业新闻</a>
+            <a href="archive_v3.html">历史数据</a>
+            <a href="database_hub.html" class="active">数据库</a>
+            <a href="analysis_hub.html">分析报告</a>
+            <a href="#market">市场行情</a>
+        </div>
+    </div>
+    <div class="topbar-right">数据更新时间：加载中...</div>
+</div>
+
+<!-- 主内容 -->
+<div class="main-content">
+
+    <!-- ========== 数据表 Tab ========== -->
+    <div id="panel-data" class="tab-panel active">
+        <div class="page-header">
+            <div class="page-title">📋 数据表总览</div>
+            <div class="page-subtitle">点击卡片进入各行业数据库，支持查看详细数据、导出、筛选</div>
+        </div>
+        <div class="db-grid" id="db-grid-data"></div>
+    </div>
+
+</div>
+
+<script>
+/* =====================================================
+   数据库配置
+   ===================================================== */
+const DB_LIST = [
+    {
+        id: 'lfp',
+        name: '磷酸铁锂数据库',
+        icon: '🔋',
+        desc: '磷酸铁锂正极材料产量、产能、价格、进出口等全维度数据',
+        hasData: true,
+        tableCount: 12,
+        updateDate: '2026-04-10',
+        tables: ['行业整体产量', '企业产量排名', '价格走势', '进出口数据', '项目动态', '库存数据', '成本利润', '终端需求']
+    },
+    {
+        id: 'ternary',
+        name: '三元材料数据库',
+        icon: '⚡',
+        desc: '三元正极材料（NCM/NCA）产量、价格、原料成本分析',
+        hasData: false,
+        tableCount: 6,
+        updateDate: '—',
+        tables: ['行业整体产量', '企业产量排名', '价格走势', '硫酸镍钴成本', '进出口数据', '项目动态']
+    },
+    {
+        id: 'electrolyte',
+        name: '电解液数据库',
+        icon: '🧪',
+        desc: '电解液及六氟磷酸锂溶剂溶质价格、产能、出货量数据',
+        hasData: false,
+        tableCount: 5,
+        updateDate: '—',
+        tables: ['六氟磷酸锂价格', '溶剂价格', '电解液价格', '产能统计', '出货量排名']
+    },
+    {
+        id: 'carbonate',
+        name: '碳酸锂及原料数据库',
+        icon: '⛏️',
+        desc: '碳酸锂、锂辉石、锂云母等上游原料全链条',
+        hasData: true,
+        tableCount: 12,
+        updateDate: '2026-04-23',
+        tables: ['碳酸锂行业产量', '碳酸锂分企业产量', '碳酸锂出口量', '碳酸锂出口贸易伙伴', '碳酸锂现货价',
+                 '氢氧化锂行业产量', '氢氧化锂分企业产量', '氢氧化锂出口量', '氢氧化锂出口贸易伙伴', '氢氧化锂现货价',
+                 '锂云母价格', '锂辉石精矿价格']
+    },
+    {
+        id: 'recycling',
+        name: '锂电池回收行业数据库',
+        icon: '♻️',
+        desc: '动力电池回收量、梯次利用、再生利用市场规模与白名单企业',
+        hasData: false,
+        tableCount: 5,
+        updateDate: '—',
+        tables: ['回收规模', '梯次利用', '再生利用', '白名单企业', '金属价格联动']
+    },
+    {
+        id: 'lithiumbat',
+        name: '锂电池行业数据库',
+        icon: '🔦',
+        desc: '锂电池电芯、Pack、系统能量密度、成本结构、下游应用数据',
+        hasData: false,
+        tableCount: 6,
+        updateDate: '—',
+        tables: ['电芯成本', '能量密度', '产能利用率', '下游应用分布', '专利数据', '技术路线']
+    },
+    {
+        id: 'automotive',
+        name: '汽车行业数据库',
+        icon: '🚗',
+        desc: '新能源汽车、动力电池装车量、渗透率、召回数据与政策汇总',
+        hasData: false,
+        tableCount: 7,
+        updateDate: '—',
+        tables: ['新能源销量', '动力电池装车', '渗透率', '召回数据', '政策汇总', '充电桩', '出口数据']
+    }
+];
+
+/* =====================================================
+   渲染函数
+   ===================================================== */
+function buildCardHTML(db, viewType) {
+    const suffix = {
+        data: 'data_v2.html',
+        chart: 'charts.html',
+        analysis: 'analysis.html'
+    }[viewType];
+
+    const labels = {
+        data: '数据表',
+        chart: '看板',
+        analysis: '深度分析'
+    };
+
+    const icons = {
+        data: '📋',
+        chart: '📈',
+        analysis: '🔍'
+    };
+
+    const badge = db.hasData
+        ? '<span class="card-badge has-data">✓ 已录入</span>'
+        : '<span class="card-badge building">🚧 建设中</span>';
+
+    const btnDataHref = db.hasData ? `${db.id}_data_v2.html` : 'javascript:void(0)';
+    const btnChartHref = db.hasData ? `${db.id}_charts.html` : 'javascript:void(0)';
+    const btnAnalysisHref = db.hasData ? `${db.id}_analysis.html` : 'javascript:void(0)';
+
+    return `
+    <div class="db-card" data-db="${db.id}">
+        ${db.hasData ? '' : '<div class="building-overlay">🚧 数据录入中</div>'}
+        <div class="card-top">
+            <div class="card-icon-wrap">${db.icon}</div>
+            ${badge}
+        </div>
+        <div class="card-name">${db.name}</div>
+        <div class="card-desc">${db.desc}</div>
+        <div class="card-stats">
+            <div class="stat-item">
+                <div class="stat-val">${db.tableCount}</div>
+                <div class="stat-label">数据表</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-val">${db.hasData ? '12' : '—'}</div>
+                <div class="stat-label">核心指标</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-val">${db.updateDate}</div>
+                <div class="stat-label">更新日期</div>
+            </div>
+        </div>
+        <div class="card-actions">
+            <a href="${btnDataHref}" class="${db.hasData ? 'btn-data' : 'btn-data disabled'}">${icons.data} ${labels.data}</a>
+            <a href="${btnChartHref}"
+               class="${db.hasData ? 'btn-chart' : 'btn-chart disabled'}">${icons.chart} ${labels.chart}</a>
+            <a href="${btnAnalysisHref}"
+               class="${db.hasData ? 'btn-analysis' : 'btn-analysis disabled'}">${icons.analysis} ${labels.analysis}</a>
+        </div>
+    </div>`;
+}
+
+function renderAllPanels() {
+    const container = document.getElementById('db-grid-data');
+    if (container) {
+        container.innerHTML = DB_LIST.map(db => buildCardHTML(db, 'data')).join('');
+    }
+}
+
+function updateTopbarTime() {
+    const topbarRight = document.querySelector('.topbar-right');
+    if (topbarRight) {
+        const now = new Date();
+        topbarRight.textContent = `更新时间：${now.toLocaleDateString('zh-CN')} ${now.toLocaleTimeString('zh-CN', {hour:'2-digit', minute:'2-digit'})}`;
+    }
+}
+
+/* =====================================================
+   初始化
+   ===================================================== */
+renderAllPanels();
+updateTopbarTime();
+</script>
+</body>
+</html>

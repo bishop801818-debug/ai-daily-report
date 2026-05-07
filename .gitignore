@@ -1,0 +1,33 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Temp / debug files
+_do_*.py
+_check_*.js
+_czly_*.txt
+_debug*.txt
+_direct_*.txt
+_emoji*.py
+_do_emoji*.py
+_do_range_test.py
+_do_test*.py
+_do_final*.py
+_do_czly*.py
+
+# Old backup dirs (legacy)
+_backup_*/
+backup_YYYYMMDD/
+
+# Backup system (never commit)
+backups/
+_tmp_*/
+
+# Generated / temp
+reports/*.json
+embedded/
+
+# OS
+.DS_Store
+Thumbs.db

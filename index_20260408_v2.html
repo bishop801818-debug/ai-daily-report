@@ -1,0 +1,2081 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>晨会指挥中心 - 每日早报</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Microsoft YaHei', 'PingFang SC', Arial, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        /* 顶部导航栏 */
+        .header {
+            background: white;
+            border-radius: 12px;
+            padding: 20px 30px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+        
+        .header-left {
+            display: flex;
+            align-items: center;
+        }
+        
+        .header-right {
+            color: #999;
+            font-size: 14px;
+            position: absolute;
+            right: 30px;
+        }
+        
+        .logo {
+            font-size: 32px;
+            font-weight: bold;
+            color: #1e3c72;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        /* 主导航菜单 */
+        .main-nav-menu {
+            background: white;
+            border-radius: 12px;
+            padding: 15px 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+        
+        .main-nav-item {
+            padding: 10px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: #666;
+            font-size: 16px;
+            font-weight: 500;
+            border: 2px solid transparent;
+            background: transparent;
+        }
+        
+        .main-nav-item:hover {
+            background: #1e3c72;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(30, 60, 114, 0.2);
+        }
+        
+        .main-nav-item.active {
+            background: #1e3c72;
+            color: white;
+        }
+        
+        /* 一键启动区域 */
+        .quick-start-section {
+            background: white;
+            border-radius: 12px;
+            padding: 25px 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+            text-align: center;
+        }
+        
+        .quick-start-title {
+            font-size: 18px;
+            color: #1e3c72;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .quick-start-desc {
+            color: #999;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+        
+        .start-all-btn {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .start-all-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(30, 60, 114, 0.3);
+        }
+        
+        .get-report-btn {
+            background: #1e3c72;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+        
+        .get-report-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        
+        .detail-btn {
+            background: white;
+            color: #1e3c72;
+            border: 2px solid #1e3c72;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.3s;
+            white-space: nowrap;
+            margin-left: 8px;
+        }
+        
+        .detail-btn:hover {
+            background: #1e3c72;
+            color: white;
+        }
+        
+        /* 事业部卡片网格 */
+        .business-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+            justify-content: center;
+        }
+        
+        .business-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            transition: all 0.3s;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid #e0e0e0;
+            border-left: 4px solid #1e3c72;
+        }
+        
+        .business-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+        }
+        
+        .card-icon {
+            width: 70px;
+            height: 70px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            position: relative;
+            overflow: hidden;
+            background: #f8f9fa;
+            border: 2px solid #e0e0e0;
+            transition: all 0.3s;
+        }
+        
+        .business-card:hover .card-icon {
+            transform: scale(1.05);
+            border-color: #1e3c72;
+        }
+        
+        .card-icon svg {
+            width: 50px;
+            height: 50px;
+        }
+        
+        .card-info {
+            flex: 1;
+        }
+        
+        .card-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+        
+        .card-subtitle {
+            font-size: 13px;
+            color: #999;
+        }
+        
+        .card-actions {
+            display: flex;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+        
+        /* 市场热度监控 */
+        .market-monitor {
+            background: white;
+            border-radius: 12px;
+            padding: 25px 30px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+            text-align: center;
+        }
+        
+        .section-title {
+            font-size: 20px;
+            color: #1e3c72;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e9ecef;
+            display: inline-block;
+        }
+        
+        .monitor-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        
+        .monitor-card {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 10px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+        
+        .monitor-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+            border-color: #1e3c72;
+        }
+        
+        .monitor-icon {
+            font-size: 36px;
+            flex-shrink: 0;
+        }
+        
+        .monitor-info {
+            flex: 1;
+        }
+        
+        .monitor-label {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 5px;
+        }
+        
+        .monitor-value {
+            font-size: 20px;
+            font-weight: bold;
+            color: #1e3c72;
+            margin-bottom: 3px;
+        }
+        
+        .unit {
+            font-size: 12px;
+            font-weight: normal;
+            color: #999;
+            margin-left: 2px;
+        }
+        
+        .monitor-change {
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        .monitor-change.up {
+            color: #d32f2f;
+        }
+        
+        .monitor-change.down {
+            color: #388e3c;
+        }
+        
+        .monitor-change.stable {
+            color: #1e3c72;
+        }
+        
+        /* 弹窗样式 */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.6);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            backdrop-filter: blur(4px);
+        }
+        
+        .modal-overlay.active {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 1200px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: modalSlideIn 0.3s ease-out;
+        }
+        
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .modal-header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 25px 30px;
+            border-radius: 16px 16px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        
+        .modal-title {
+            font-size: 24px;
+            font-weight: bold;
+        }
+        
+        .modal-date {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-top: 5px;
+        }
+        
+        .close-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            font-size: 24px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .close-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: rotate(90deg);
+        }
+        
+        .modal-body {
+            padding: 30px;
+        }
+        
+        /* 早报内容样式 */
+        .report-section {
+            margin-bottom: 25px;
+        }
+        
+        .report-section-title {
+            font-size: 18px;
+            color: #1e3c72;
+            margin-bottom: 12px;
+            padding-left: 10px;
+            border-left: 3px solid #1e3c72;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: bold;
+        }
+        
+        .report-item {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin-bottom: 10px;
+            transition: all 0.3s;
+            border-left: 3px solid transparent;
+        }
+        
+        .report-item:hover {
+            background: #f0f4ff;
+            border-left-color: #1e3c72;
+            transform: translateX(3px);
+        }
+        
+        .report-item-title {
+            font-size: 15px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .report-item-content {
+            font-size: 13px;
+            color: #666;
+            line-height: 1.6;
+        }
+        
+        .tag {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            margin-right: 5px;
+            font-weight: normal;
+        }
+        
+        .tag-hot {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a6f);
+            color: white;
+        }
+        
+        .tag-new {
+            background: linear-gradient(135deg, #4ecdc4, #44a085);
+            color: white;
+        }
+        
+        .tag-important {
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            color: white;
+        }
+        
+        .tag-A {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+        
+        .tag-B {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: white;
+        }
+        
+        /* 市场行情卡片 */
+        .market-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .market-card {
+            background: #f8f9ff;
+            padding: 12px;
+            border-radius: 8px;
+            border-left: 3px solid #667eea;
+        }
+        
+        .market-card-title {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 6px;
+        }
+        
+        .market-card-value {
+            font-size: 16px;
+            font-weight: bold;
+            color: #1e3c72;
+        }
+        
+        .market-card-trend {
+            font-size: 11px;
+            margin-top: 4px;
+        }
+        
+        .trend-up {
+            color: #10b981;
+        }
+        
+        .trend-down {
+            color: #ef4444;
+        }
+        
+        /* 行动建议卡片 */
+        .action-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+            margin-top: 10px;
+        }
+        
+        .action-card {
+            padding: 12px;
+            border-radius: 8px;
+            border: 2px solid;
+        }
+        
+        .action-opportunity {
+            background: #f0fdf4;
+            border-color: #10b981;
+        }
+        
+        .action-risk {
+            background: #fef2f2;
+            border-color: #ef4444;
+        }
+        
+        .action-card-title {
+            font-size: 13px;
+            font-weight: bold;
+            margin-bottom: 6px;
+        }
+        
+        .action-card-text {
+            font-size: 12px;
+            line-height: 1.5;
+            color: #555;
+        }
+        
+        /* 今日主线 */
+        .lead-judgment {
+            background: #f8f9ff;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            border-radius: 8px;
+            line-height: 1.6;
+            color: #333;
+            font-size: 14px;
+        }
+        
+        /* 自动播放进度条 */
+        .progress-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #1e3c72, #2a5298);
+            width: 0%;
+            z-index: 1001;
+            transition: width 0.1s linear;
+        }
+        
+        .auto-play-controls {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            justify-content: center;
+        }
+        
+        .control-btn {
+            padding: 8px 16px;
+            border: 2px solid #1e3c72;
+            background: white;
+            color: #1e3c72;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        
+        .control-btn:hover {
+            background: #1e3c72;
+            color: white;
+        }
+        
+        .control-btn.active {
+            background: #1e3c72;
+            color: white;
+        }
+        
+        /* 事业部指示器 */
+        .dept-indicator {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .indicator-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #e0e0e0;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .indicator-dot.active {
+            background: #1e3c72;
+            transform: scale(1.2);
+        }
+        
+        .indicator-dot:hover {
+            background: #2a5298;
+        }
+        
+        /* 历史早报弹窗样式 */
+        .history-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.6);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            backdrop-filter: blur(4px);
+        }
+        
+        .history-modal.active {
+            display: flex;
+        }
+        
+        .history-modal-content {
+            background: white;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 1000px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: modalSlideIn 0.3s ease-out;
+        }
+        
+        .history-modal-header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 25px 30px;
+            border-radius: 16px 16px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .history-modal-title {
+            font-size: 24px;
+            font-weight: bold;
+        }
+        
+        .view-switcher {
+            display: flex;
+            gap: 10px;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 5px;
+            border-radius: 8px;
+        }
+        
+        .view-btn {
+            padding: 8px 16px;
+            border: none;
+            background: transparent;
+            color: white;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        
+        .view-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .view-btn.active {
+            background: white;
+            color: #1e3c72;
+        }
+        
+        .history-modal-body {
+            padding: 30px;
+        }
+        
+        /* 日历选择器 */
+        .calendar-picker {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .calendar-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #1e3c72;
+        }
+        
+        .calendar-nav {
+            background: #1e3c72;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .calendar-nav:hover {
+            background: #2a5298;
+        }
+        
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px;
+        }
+        
+        .calendar-day-header {
+            text-align: center;
+            font-size: 12px;
+            color: #999;
+            padding: 5px;
+        }
+        
+        .calendar-day {
+            text-align: center;
+            padding: 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+        
+        .calendar-day:hover {
+            background: #e9ecef;
+        }
+        
+        .calendar-day.has-report {
+            background: #1e3c72;
+            color: white;
+        }
+        
+        .calendar-day.has-report:hover {
+            background: #2a5298;
+        }
+        
+        .calendar-day.today {
+            border: 2px solid #1e3c72;
+            font-weight: bold;
+        }
+        
+        .calendar-day.empty {
+            cursor: default;
+            background: transparent;
+        }
+        
+        /* 最近 7 天快速访问 */
+        .recent-days {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            overflow-x: auto;
+            padding: 10px 0;
+        }
+        
+        .recent-day-card {
+            min-width: 120px;
+            padding: 15px;
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+        }
+        
+        .recent-day-card:hover {
+            border-color: #1e3c72;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .recent-day-card.active {
+            background: #1e3c72;
+            color: white;
+            border-color: #1e3c72;
+        }
+        
+        .recent-day-date {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .recent-day-weekday {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+        
+        /* 历史列表 */
+        .history-list {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+        }
+        
+        .history-list-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #1e3c72;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .history-item {
+            background: white;
+            border-radius: 8px;
+            padding: 15px 20px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+        
+        .history-item:hover {
+            border-color: #1e3c72;
+            transform: translateX(5px);
+        }
+        
+        .history-item.active {
+            background: #1e3c72;
+            color: white;
+        }
+        
+        .history-item-date {
+            font-size: 16px;
+            font-weight: bold;
+        }
+        
+        .history-item-info {
+            font-size: 13px;
+            opacity: 0.8;
+            margin-top: 4px;
+        }
+        
+        .history-item-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .history-action-btn {
+            padding: 6px 12px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.3s;
+        }
+        
+        .history-action-btn.view {
+            background: #1e3c72;
+            color: white;
+        }
+        
+        .history-action-btn.view:hover {
+            background: #2a5298;
+        }
+        
+        .history-action-btn.detail {
+            background: white;
+            color: #1e3c72;
+            border: 2px solid #1e3c72;
+        }
+        
+        .history-action-btn.detail:hover {
+            background: #1e3c72;
+            color: white;
+        }
+        
+        /* 分类视图 */
+        .category-view {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+        
+        .category-card {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 20px;
+            transition: all 0.3s;
+        }
+        
+        .category-card:hover {
+            border-color: #1e3c72;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .category-card-header {
+            font-size: 18px;
+            font-weight: bold;
+            color: #1e3c72;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        
+        .category-item {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 10px;
+            transition: all 0.3s;
+        }
+        
+        .category-item:hover {
+            background: #f0f4ff;
+            transform: translateX(5px);
+        }
+        
+        .category-item-title {
+            font-size: 14px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 6px;
+        }
+        
+        .category-item-dept {
+            font-size: 12px;
+            color: #1e3c72;
+            margin-bottom: 4px;
+        }
+        
+        .category-item-content {
+            font-size: 13px;
+            color: #666;
+            line-height: 1.6;
+        }
+        
+        .impact-tag {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            margin-top: 6px;
+        }
+        
+        .impact-tag.high {
+            background: #fee;
+            color: #c00;
+        }
+        
+        .impact-tag.medium {
+            background: #ffa50022;
+            color: #ffa500;
+        }
+        
+        .impact-tag.low {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+        
+        @media (max-width: 768px) {
+            .category-view {
+                grid-template-columns: 1fr;
+            }
+            
+            .business-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .nav-menu {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 顶部导航栏 -->
+        <div class="header">
+            <div class="header-left">
+                <div class="logo">
+                    ⚡ 战略中心信息中台
+                </div>
+            </div>
+            <div class="header-right">
+                等待首次汇报
+            </div>
+        </div>
+        
+        <!-- 主导航菜单 -->
+        <div class="main-nav-menu">
+            <div class="main-nav-item active">首页</div>
+            <div class="main-nav-item">市场行情</div>
+            <div class="main-nav-item">政策中心</div>
+            <div class="main-nav-item">历史数据</div>
+        </div>
+        
+        <!-- 一键启动区域 -->
+        <div class="quick-start-section">
+            <div class="quick-start-title">
+                ⚡ 一键启动全员晨会汇报
+            </div>
+            <div class="quick-start-desc">
+                9 位 AI 员工依次输出今日工作内容
+            </div>
+            <button class="start-all-btn" onclick="startAllReports()">
+                ▶ 全员晨会汇报
+            </button>
+        </div>
+        
+        <!-- 事业部卡片网格 -->
+        <div class="business-grid">
+            <!-- 卡片 1: 润滑油 - 龙蟠绿 Logo -->
+            <div class="business-card" data-dept="lhy">
+                <div class="card-icon" style="background: #00A651;">
+                    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                        <text x="50" y="70" font-size="50" font-weight="bold" fill="white" text-anchor="middle" font-family="Arial">L</text>
+                    </svg>
+                </div>
+                <div class="card-info">
+                    <div class="card-title">润滑油</div>
+                    <div class="card-subtitle">Lubricant Division | 主营业务：润滑油</div>
+                </div>
+                <div class="card-actions">
+                    <button class="get-report-btn" onclick="openReport('lhy')">获取早报</button>
+                    <button class="detail-btn" onclick="openHistory('lhy')">详情页</button>
+                </div>
+            </div>
+            
+            <!-- 卡片 2: 可兰素 - 蓝色 Logo -->
+            <div class="business-card" data-dept="kls">
+                <div class="card-icon" style="background: #0066CC;">
+                    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                        <text x="50" y="70" font-size="45" font-weight="bold" fill="white" text-anchor="middle" font-family="Arial">K</text>
+                    </svg>
+                </div>
+                <div class="card-info">
+                    <div class="card-title">可兰素</div>
+                    <div class="card-subtitle">Kelasen Division | 主营业务：车用尿素、车用养护品</div>
+                </div>
+                <div class="card-actions">
+                    <button class="get-report-btn" onclick="openReport('kls')">获取早报</button>
+                    <button class="detail-btn" onclick="openHistory('kls')">详情页</button>
+                </div>
+            </div>
+            
+            <!-- 卡片 3: 常州锂源 - 深蓝色 Logo -->
+            <div class="business-card" data-dept="czy">
+                <div class="card-icon" style="background: #1A3A5C;">
+                    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                        <text x="50" y="70" font-size="45" font-weight="bold" fill="white" text-anchor="middle" font-family="Arial">LBM</text>
+                    </svg>
+                </div>
+                <div class="card-info">
+                    <div class="card-title">常州锂源</div>
+                    <div class="card-subtitle">Changzhou Liyuan | 主营业务：磷酸铁锂正极材料</div>
+                </div>
+                <div class="card-actions">
+                    <button class="get-report-btn" onclick="openReport('czy')">获取早报</button>
+                    <button class="detail-btn" onclick="openHistory('czy')">详情页</button>
+                </div>
+            </div>
+            
+            <!-- 卡片 4: 龙蟠时代 - 龙蟠绿 Logo -->
+            <div class="business-card" data-dept="lpsd">
+                <div class="card-icon" style="background: #00A651;">
+                    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                        <text x="50" y="70" font-size="45" font-weight="bold" fill="white" text-anchor="middle" font-family="Arial">LOPAL</text>
+                    </svg>
+                </div>
+                <div class="card-info">
+                    <div class="card-title">龙蟠时代</div>
+                    <div class="card-subtitle">Lopan Times | 主营业务：碳酸锂</div>
+                </div>
+                <div class="card-actions">
+                    <button class="get-report-btn" onclick="openReport('lpsd')">获取早报</button>
+                    <button class="detail-btn" onclick="openHistory('lpsd')">详情页</button>
+                </div>
+            </div>
+            
+            <!-- 卡片 5: 山东美多 - 绿色 Logo -->
+            <div class="business-card" data-dept="sdmd">
+                <div class="card-icon" style="background: #28A745;">
+                    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                        <text x="50" y="70" font-size="40" font-weight="bold" fill="white" text-anchor="middle" font-family="Arial">美多</text>
+                    </svg>
+                </div>
+                <div class="card-info">
+                    <div class="card-title">山东美多</div>
+                    <div class="card-subtitle">Shandong Meiduo | 主营业务：电池回收</div>
+                </div>
+                <div class="card-actions">
+                    <button class="get-report-btn" onclick="openReport('sdmd')">获取早报</button>
+                    <button class="detail-btn" onclick="openHistory('sdmd')">详情页</button>
+                </div>
+            </div>
+            
+            <!-- 卡片 6: 三金锂电 - 金色 Logo -->
+            <div class="business-card" data-dept="sjld">
+                <div class="card-icon" style="background: #D4AF37;">
+                    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                        <text x="50" y="70" font-size="40" font-weight="bold" fill="white" text-anchor="middle" font-family="Arial">3METAL</text>
+                    </svg>
+                </div>
+                <div class="card-info">
+                    <div class="card-title">三金锂电</div>
+                    <div class="card-subtitle">Sanjin Lithium | 主营业务：三元材料及三元前驱体</div>
+                </div>
+                <div class="card-actions">
+                    <button class="get-report-btn" onclick="openReport('sjld')">获取早报</button>
+                    <button class="detail-btn" onclick="openHistory('sjld')">详情页</button>
+                </div>
+            </div>
+            
+            <!-- 卡片 7: 铂源催化 - 铂金色 Logo -->
+            <div class="business-card" data-dept="bych">
+                <div class="card-icon" style="background: linear-gradient(135deg, #E5E4E2 0%, #BCC6CC 100%);">
+                    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                        <text x="50" y="70" font-size="40" font-weight="bold" fill="#2C3539" text-anchor="middle" font-family="Arial">铂源</text>
+                    </svg>
+                </div>
+                <div class="card-info">
+                    <div class="card-title">铂源催化</div>
+                    <div class="card-subtitle">Boyuan Catalyst | 主营业务：氢燃料电池催化剂</div>
+                </div>
+                <div class="card-actions">
+                    <button class="get-report-btn" onclick="openReport('bych')">获取早报</button>
+                    <button class="detail-btn" onclick="openHistory('bych')">详情页</button>
+                </div>
+            </div>
+            
+            <!-- 卡片 8: 法恩莱特 - 深蓝色 Logo -->
+            <div class="business-card" data-dept="felt">
+                <div class="card-icon" style="background: #003366;">
+                    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                        <text x="50" y="70" font-size="40" font-weight="bold" fill="white" text-anchor="middle" font-family="Arial">F&LET</text>
+                    </svg>
+                </div>
+                <div class="card-info">
+                    <div class="card-title">法恩莱特</div>
+                    <div class="card-subtitle">Fine Lithium | 主营业务：电解液</div>
+                </div>
+                <div class="card-actions">
+                    <button class="get-report-btn" onclick="openReport('felt')">获取早报</button>
+                    <button class="detail-btn" onclick="openHistory('felt')">详情页</button>
+                </div>
+            </div>
+            
+            <!-- 卡片 9: 迪克化学 - 蓝绿色 Logo -->
+            <div class="business-card" data-dept="dhx">
+                <div class="card-icon" style="background: #008B8B;">
+                    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                        <text x="50" y="70" font-size="45" font-weight="bold" fill="white" text-anchor="middle" font-family="Arial">Dike</text>
+                    </svg>
+                </div>
+                <div class="card-info">
+                    <div class="card-title">迪克化学</div>
+                    <div class="card-subtitle">Dike Chemical | 主营业务：制动液、防冻液、洗窗液</div>
+                </div>
+                <div class="card-actions">
+                    <button class="get-report-btn" onclick="openReport('dhx')">获取早报</button>
+                    <button class="detail-btn" onclick="openHistory('dhx')">详情页</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 市场热度监控 -->
+        <div class="market-monitor">
+            <div class="section-title">🔥 市场热度监控</div>
+            <div class="monitor-grid">
+                <div class="monitor-card">
+                    <div class="monitor-icon">📈</div>
+                    <div class="monitor-info">
+                        <div class="monitor-label">碳酸锂现货</div>
+                        <div class="monitor-value">167,500 <span class="unit">元/吨</span></div>
+                        <div class="monitor-change up">↑ +3.17%</div>
+                    </div>
+                </div>
+                <div class="monitor-card">
+                    <div class="monitor-icon">🔋</div>
+                    <div class="monitor-info">
+                        <div class="monitor-label">LFP 动力型</div>
+                        <div class="monitor-value">5.81 <span class="unit">万元/吨</span></div>
+                        <div class="monitor-change up">↑ +1,800</div>
+                    </div>
+                </div>
+                <div class="monitor-card">
+                    <div class="monitor-icon">⚡</div>
+                    <div class="monitor-info">
+                        <div class="monitor-label">储能出货量</div>
+                        <div class="monitor-value">84.8 <span class="unit">GWh</span></div>
+                        <div class="monitor-change up">↑ +108.9%</div>
+                    </div>
+                </div>
+                <div class="monitor-card">
+                    <div class="monitor-icon">🏭</div>
+                    <div class="monitor-info">
+                        <div class="monitor-label">行业产能利用率</div>
+                        <div class="monitor-value">63.1 <span class="unit">%</span></div>
+                        <div class="monitor-change stable">→ 环比 -4.6%</div>
+                    </div>
+                </div>
+                <div class="monitor-card">
+                    <div class="monitor-icon">📊</div>
+                    <div class="monitor-info">
+                        <div class="monitor-label">宁德时代份额</div>
+                        <div class="monitor-value">50.1 <span class="unit">%</span></div>
+                        <div class="monitor-change up">↑ +2.3%</div>
+                    </div>
+                </div>
+                <div class="monitor-card">
+                    <div class="monitor-icon">🌍</div>
+                    <div class="monitor-info">
+                        <div class="monitor-label">LFP 装车占比</div>
+                        <div class="monitor-value">81.2 <span class="unit">%</span></div>
+                        <div class="monitor-change up">↑ +6.6%</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 进度条 -->
+    <div class="progress-bar" id="progressBar"></div>
+    
+    <!-- 弹窗容器 -->
+    <div class="modal-overlay" id="reportModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div>
+                    <div class="modal-title" id="modalTitle">事业部早报</div>
+                    <div class="modal-date" id="modalDate">2026 年 4 月 3 日</div>
+                </div>
+                <button class="close-btn" onclick="closeReport()">×</button>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <!-- 动态加载内容 -->
+            </div>
+        </div>
+    </div>
+    
+    <!-- 历史早报弹窗 -->
+    <div class="history-modal" id="historyModal">
+        <div class="history-modal-content">
+            <div class="history-modal-header">
+                <div>
+                    <div class="history-modal-title" id="historyModalTitle">事业部 - 历史早报</div>
+                    <div class="modal-date" style="opacity: 0.9; margin-top: 5px;">查看历史汇报记录</div>
+                </div>
+                <div style="display: flex; gap: 15px; align-items: center;">
+                    <div class="view-switcher">
+                        <button class="view-btn active" onclick="switchView('list')">📋 列表视图</button>
+                        <button class="view-btn" onclick="switchView('category')">📊 分类视图</button>
+                    </div>
+                    <button class="close-btn" onclick="closeHistory()">×</button>
+                </div>
+            </div>
+            <div class="history-modal-body" id="historyModalBody">
+                <!-- 动态加载内容 -->
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // 事业部列表
+        const deptList = ['lhy', 'kls', 'czy', 'lpsd', 'sdmd', 'sjld', 'bych', 'felt', 'dhx'];
+        
+        // 自动播放变量
+        let autoPlayTimer = null;
+        let currentDeptIndex = 0;
+        let isPaused = false;
+        let autoPlayDuration = 8000; // 每个事业部展示 8 秒
+        let progressTimer = null;
+        
+        // 早报内容数据
+        const reportData = {
+            'lhy': {
+                title: '润滑油',
+                subtitle: 'Lubricant Division',
+                content: `
+                    <div class="report-section">
+                        <div class="report-section-title">🔥 头条聚焦</div>
+                        <div class="report-item">
+                            <div class="report-item-title"><span class="tag tag-hot">热门</span>润滑油市场需求稳步增长</div>
+                            <div class="report-item-content">
+                                2026 年 Q1 润滑油市场需求持续增长，工业润滑油和车用润滑油双轮驱动，高端产品占比提升。
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="report-section">
+                        <div class="report-section-title">📊 市场动态</div>
+                        <div class="report-item">
+                            <div class="report-item-title">润滑油价格保持稳定</div>
+                            <div class="report-item-content">
+                                基础油价格企稳，润滑油成品价格保持稳定，毛利率维持在合理区间。
+                            </div>
+                        </div>
+                    </div>
+                `
+            },
+            'kls': {
+                title: '可兰素',
+                subtitle: 'Kelasen Division',
+                content: `
+                    <div class="report-section">
+                        <div class="report-section-title">🔥 头条聚焦</div>
+                        <div class="report-item">
+                            <div class="report-item-title"><span class="tag tag-hot">热门</span>车用尿素需求爆发</div>
+                            <div class="report-item-content">
+                                国六排放标准全面实施，车用尿素需求大幅增长，2026 年 Q1 销量同比增长 85%。
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="report-section">
+                        <div class="report-section-title">📊 市场动态</div>
+                        <div class="report-item">
+                            <div class="report-item-title">车用养护品市场扩张</div>
+                            <div class="report-item-content">
+                                汽车后市场规模扩大，车用养护品需求持续增长，渠道网络不断完善。
+                            </div>
+                        </div>
+                    </div>
+                `
+            },
+            'czy': {
+                title: '常州锂源',
+                subtitle: 'Changzhou Liyuan',
+                date: '2026 年 4 月 8 日',
+                content: `
+                    <div class="report-section">
+                        <div class="report-section-title">🔥 头条聚焦</div>
+                        <div class="report-item">
+                            <div class="report-item-title"><span class="tag tag-A">A 级</span>宁德时代 M3P 电池"上车"首发，LMFP 商业化加速</div>
+                            <div class="report-item-content">
+                                华为奇瑞智界 S7 将于 Q3 发布，首搭宁德时代 M3P 电池。LMFP 技术从实验室走向市场，高压实 LFP 溢价窗口收窄，需加速 LMFP 中试线布局。
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="report-section">
+                        <div class="report-section-title">📋 今日主线</div>
+                        <div class="lead-judgment">
+                            <strong>核心变化:</strong> LMFP 产业化加速 + 碳酸锂反弹至 15.85 万元/吨（+0.95 万），LFP 价格传导顺畅，"量价齐升"。需加快 LMFP 产业化，避免高端市场被超越。
+                        </div>
+                    </div>
+                    
+                    <div class="report-section">
+                        <div class="report-section-title">📊 市场行情</div>
+                        <div class="market-grid">
+                            <div class="market-card">
+                                <div class="market-card-title">电池级碳酸锂</div>
+                                <div class="market-card-value">15.85 万元/吨</div>
+                                <div class="market-card-trend trend-up">↑ +0.95 万</div>
+                            </div>
+                            <div class="market-card">
+                                <div class="market-card-title">动力型 LFP</div>
+                                <div class="market-card-value">3.86-4.16 万/吨</div>
+                                <div class="market-card-trend trend-up">↑ 均价 4.01 万</div>
+                            </div>
+                            <div class="market-card">
+                                <div class="market-card-title">100Ah 储能电芯</div>
+                                <div class="market-card-value">+0.004 元/Wh</div>
+                                <div class="market-card-trend trend-up">↑ 上调</div>
+                            </div>
+                            <div class="market-card">
+                                <div class="market-card-title">行业开工率</div>
+                                <div class="market-card-value">54%</div>
+                                <div class="market-card-trend trend-up">↑ 最高近 80%</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="report-section">
+                        <div class="report-section-title">⚔️ 竞品动态</div>
+                        <div class="report-item">
+                            <div class="report-item-title"><span class="tag tag-B">B 级</span>德方纳米第四代高压密 LFP 批量出货</div>
+                            <div class="report-item-content">
+                                液相法工艺 LFP 综合优势显著，超高压密新产品验证顺利。竞品持续追赶，需保持技术领先。
+                            </div>
+                        </div>
+                        <div class="report-item">
+                            <div class="report-item-title"><span class="tag tag-A">A 级</span>容百科技高压实 LMFP 处于小试阶段</div>
+                            <div class="report-item-content">
+                                投入 568.97 万元研发高压实 LMFP 材料。竞品技术储备加速，LMFP 产业化进度需提速。
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="report-section">
+                        <div class="report-section-title">🎯 行动建议</div>
+                        <div class="action-grid">
+                            <div class="action-card action-opportunity">
+                                <div class="action-card-title">💹 锁定 Q2 加工费</div>
+                                <div class="action-card-text">
+                                    储能出货 652GWh（+76%），碳酸锂涨价传导顺畅。本周内与核心客户确认 Q2 采购量，争取锁价。
+                                </div>
+                            </div>
+                            <div class="action-card action-opportunity">
+                                <div class="action-card-title">💹 加速高压实认证</div>
+                                <div class="action-card-text">
+                                    三代半/四代仅 4-6 家稳定生产，窗口期 6-12 个月。本月内完成 2-3 家客户验证，Q3 批量供货。
+                                </div>
+                            </div>
+                            <div class="action-card action-risk">
+                                <div class="action-card-title">⚠️ LMFP 商业化加速</div>
+                                <div class="action-card-text">
+                                    宁德时代 Q3 首发，2026 或成 LMFP 元年。本周与技术团队对齐中试线状态，确认量产时间表。
+                                </div>
+                            </div>
+                            <div class="action-card action-risk">
+                                <div class="action-card-title">⚠️ 低价竞争加剧</div>
+                                <div class="action-card-text">
+                                    行业 CR5 降至 54.8%，三、四梯队以价换量。评估原料采购节奏，确认客户份额稳定性。
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `
+            },
+            'lpsd': {
+                title: '龙蟠时代',
+                subtitle: 'Lopan Times',
+                content: `
+                    <div class="report-section">
+                        <div class="report-section-title">🔥 头条聚焦</div>
+                        <div class="report-item">
+                            <div class="report-item-title"><span class="tag tag-hot">热门</span>碳酸锂价格强势反弹</div>
+                            <div class="report-item-content">
+                                碳酸锂现货价格 2026 年 3 月 30 日升至 167,500 元/吨，较 2025 年 6 月低点累计上涨超 140%。
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="report-section">
+                        <div class="report-section-title">📊 市场动态</div>
+                        <div class="report-item">
+                            <div class="report-item-title">锂资源供应紧张</div>
+                            <div class="report-item-content">
+                                津巴布韦暂停锂精矿出口，国内锂盐企业库存低位，供应紧张推动价格上涨。
+                            </div>
+                        </div>
+                    </div>
+                `
+            },
+            'sdmd': {
+                title: '山东美多',
+                subtitle: 'Shandong Meiduo',
+                content: `
+                    <div class="report-section">
+                        <div class="report-section-title">🔥 头条聚焦</div>
+                        <div class="report-item">
+                            <div class="report-item-title"><span class="tag tag-important">政策</span>动力电池回收新规实施</div>
+                            <div class="report-item-content">
+                                4 月 1 日起，《新能源汽车废旧动力电池回收和综合利用管理暂行办法》正式实施，行业迎来强制规范时代。
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="report-section">
+                        <div class="report-section-title">♻️ 市场动态</div>
+                        <div class="report-item">
+                            <div class="report-item-title">回收修复型 LFP 价格</div>
+                            <div class="report-item-content">
+                                截至 2026 年 3 月 31 日，回收修复型 LFP 均价 3.92 万元/吨，较原生材料价差约 1.7 万元/吨。
+                            </div>
+                        </div>
+                    </div>
+                `
+            },
+            'sjld': {
+                title: '三金锂电',
+                subtitle: 'Sanjin Lithium',
+                content: `
+                    <div class="report-section">
+                        <div class="report-section-title">🔥 头条聚焦</div>
+                        <div class="report-item">
+                            <div class="report-item-title"><span class="tag tag-hot">热门</span>高镍三元材料需求回暖</div>
+                            <div class="report-item-content">
+                                2026 年 Q1 高端车型需求拉动高镍三元材料订单增长，811 体系产品供不应求，加工费上调 15-20%。
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="report-section">
+                        <div class="report-section-title">📊 市场动态</div>
+                        <div class="report-item">
+                            <div class="report-item-title">三元材料市场份额保持稳定</div>
+                            <div class="report-item-content">
+                                2025 年三元材料出货占比约 22%，虽被 LFP 挤压但在高端乘用车市场仍具优势。
+                            </div>
+                        </div>
+                    </div>
+                `
+            },
+            'bych': {
+                title: '铂源催化',
+                subtitle: 'Boyuan Catalyst',
+                content: `
+                    <div class="report-section">
+                        <div class="report-section-title">🔥 头条聚焦</div>
+                        <div class="report-item">
+                            <div class="report-item-title"><span class="tag tag-new">技术</span>氢燃料电池催化剂研发突破</div>
+                            <div class="report-item-content">
+                                2026 年氢燃料电池催化剂技术取得重大突破，成本下降 30%，性能提升 25%，推动氢能产业化进程。
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="report-section">
+                        <div class="report-section-title">⛽ 市场动态</div>
+                        <div class="report-item">
+                            <div class="report-item-title">氢能产业政策支持</div>
+                            <div class="report-item-content">
+                                国家氢能产业发展规划持续推进，燃料电池汽车示范应用城市群扩大，催化剂需求增长。
+                            </div>
+                        </div>
+                    </div>
+                `
+            },
+            'felt': {
+                title: '法恩莱特',
+                subtitle: 'Fine Lithium',
+                content: `
+                    <div class="report-section">
+                        <div class="report-section-title">🔥 头条聚焦</div>
+                        <div class="report-item">
+                            <div class="report-item-title"><span class="tag tag-new">新品</span>新型锂盐 LiFSI 产能扩张</div>
+                            <div class="report-item-content">
+                                2026 年国内 LiFSI 规划产能超 10 万吨，头部企业加速布局，成本下降推动渗透率提升。
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="report-section">
+                        <div class="report-section-title">📊 市场动态</div>
+                        <div class="report-item">
+                            <div class="report-item-title">电解液价格企稳回升</div>
+                            <div class="report-item-content">
+                                2026 年 3 月电解液价格同比上涨 10-20%，六氟磷酸锂价格反弹带动成本端上涨。
+                            </div>
+                        </div>
+                    </div>
+                `
+            },
+            'dhx': {
+                title: '迪克化学',
+                subtitle: 'Dike Chemical',
+                content: `
+                    <div class="report-section">
+                        <div class="report-section-title">🔥 头条聚焦</div>
+                        <div class="report-item">
+                            <div class="report-item-title"><span class="tag tag-hot">热门</span>制动液防冻液需求增长</div>
+                            <div class="report-item-content">
+                                2026 年 Q1 汽车养护化学品需求稳步增长，制动液、防冻液、洗窗液销量同比提升 25%。
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="report-section">
+                        <div class="report-section-title">📊 市场动态</div>
+                        <div class="report-item">
+                            <div class="report-item-title">产品价格保持稳定</div>
+                            <div class="report-item-content">
+                                主要原材料价格稳定，产品毛利率维持在合理水平，渠道网络持续优化。
+                            </div>
+                        </div>
+                    </div>
+                `
+            }
+        };
+        
+        // 打开报告弹窗
+        function openReport(deptId, autoPlay = false) {
+            const data = reportData[deptId];
+            if (!data) return;
+            
+            document.getElementById('modalTitle').textContent = data.title + '事业部早报';
+            document.getElementById('modalDate').textContent = data.subtitle + ' | ' + (data.date || '2026 年 4 月 3 日');
+            
+            let contentHtml = data.content;
+            if (autoPlay) {
+                contentHtml += '<div class="auto-play-controls" id="autoPlayControls" style="margin-top: 20px; padding-top: 20px; border-top: 2px solid #f0f0f0;">';
+                contentHtml += '<button class="control-btn" onclick="previousDept()">◀ 上一个</button>';
+                contentHtml += '<button class="control-btn" id="pauseBtn" onclick="togglePause()">暂停</button>';
+                contentHtml += '<button class="control-btn" onclick="nextDept()">下一个 ▶</button>';
+                contentHtml += '<button class="control-btn" onclick="stopAutoPlay()">停止播放</button>';
+                contentHtml += '</div>';
+            }
+            
+            document.getElementById('modalBody').innerHTML = contentHtml;
+            document.getElementById('reportModal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+            
+            if (autoPlay) {
+                startAutoPlay();
+            }
+        }
+        
+        // 关闭报告弹窗
+        function closeReport() {
+            stopAutoPlay();
+            document.getElementById('reportModal').classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+        
+        // 一键启动所有报告
+        function startAllReports() {
+            currentDeptIndex = 0;
+            isPaused = false;
+            openReport(deptList[0], true);
+        }
+        
+        // 开始自动播放
+        function startAutoPlay() {
+            if (autoPlayTimer) clearInterval(autoPlayTimer);
+            if (progressTimer) clearInterval(progressTimer);
+            
+            autoPlayTimer = setInterval(() => {
+                if (!isPaused) {
+                    nextDept();
+                }
+            }, autoPlayDuration);
+            
+            let progress = 0;
+            const progressBar = document.getElementById('progressBar');
+            progressTimer = setInterval(() => {
+                if (!isPaused) {
+                    progress += 100 / (autoPlayDuration / 100);
+                    progressBar.style.width = progress + '%';
+                    if (progress >= 100) {
+                        progress = 0;
+                    }
+                }
+            }, 100);
+        }
+        
+        // 下一个事业部
+        function nextDept() {
+            currentDeptIndex = (currentDeptIndex + 1) % deptList.length;
+            openReport(deptList[currentDeptIndex], true);
+        }
+        
+        // 上一个事业部
+        function previousDept() {
+            currentDeptIndex = (currentDeptIndex - 1 + deptList.length) % deptList.length;
+            openReport(deptList[currentDeptIndex], true);
+        }
+        
+        // 切换暂停/继续
+        function togglePause() {
+            isPaused = !isPaused;
+            const btn = document.getElementById('pauseBtn');
+            if (isPaused) {
+                btn.textContent = '继续';
+                btn.classList.add('active');
+                document.getElementById('progressBar').style.opacity = '0.5';
+            } else {
+                btn.textContent = '暂停';
+                btn.classList.remove('active');
+                document.getElementById('progressBar').style.opacity = '1';
+            }
+        }
+        
+        // 停止自动播放
+        function stopAutoPlay() {
+            if (autoPlayTimer) clearInterval(autoPlayTimer);
+            if (progressTimer) clearInterval(progressTimer);
+            autoPlayTimer = null;
+            progressTimer = null;
+            document.getElementById('progressBar').style.width = '0%';
+            document.getElementById('autoPlayControls').style.display = 'none';
+        }
+        
+        // ========== 历史早报功能 ==========
+        let currentDept = 'lhy';
+        let currentDate = '2026-04-03';
+        let currentView = 'list';
+        let historyData = null;
+        
+        // 打开历史记录
+        function openHistory(deptId) {
+            currentDept = deptId;
+            currentDate = '2026-04-03';
+            
+            const deptName = reportData[deptId].title;
+            document.getElementById('historyModalTitle').textContent = deptName + ' - 历史早报';
+            
+            loadHistoryData();
+            
+            document.getElementById('historyModal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+        
+        // 关闭历史记录
+        function closeHistory() {
+            document.getElementById('historyModal').classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+        
+        // 加载历史数据
+        async function loadHistoryData() {
+            try {
+                const response = await fetch('reports/index.json');
+                const indexData = await response.json();
+                historyData = indexData;
+                
+                renderCalendar();
+                renderRecentDays();
+                renderHistoryList();
+            } catch (error) {
+                console.error('加载历史数据失败:', error);
+            }
+        }
+        
+        // 渲染日历
+        function renderCalendar() {
+            const today = new Date('2026-04-03');
+            const year = today.getFullYear();
+            const month = today.getMonth();
+            
+            const firstDay = new Date(year, month, 1);
+            const lastDay = new Date(year, month + 1, 0);
+            const startDay = firstDay.getDay();
+            const totalDays = lastDay.getDate();
+            
+            const monthNames = ['一月', '二月', '三月', '四月', '五月', '六月', 
+                               '七月', '八月', '九月', '十月', '十一月', '十二月'];
+            
+            let calendarHtml = `
+                <div class="calendar-picker">
+                    <div class="calendar-header">
+                        <button class="calendar-nav" onclick="previousMonth()">◀ 上月</button>
+                        <div class="calendar-title">${year}年 ${monthNames[month]}</div>
+                        <button class="calendar-nav" onclick="nextMonth()">下月 ▶</button>
+                    </div>
+                    <div class="calendar-grid">
+                        <div class="calendar-day-header">日</div>
+                        <div class="calendar-day-header">一</div>
+                        <div class="calendar-day-header">二</div>
+                        <div class="calendar-day-header">三</div>
+                        <div class="calendar-day-header">四</div>
+                        <div class="calendar-day-header">五</div>
+                        <div class="calendar-day-header">六</div>
+            `;
+            
+            for (let i = 0; i < startDay; i++) {
+                calendarHtml += '<div class="calendar-day empty"></div>';
+            }
+            
+            for (let day = 1; day <= totalDays; day++) {
+                const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                const hasReport = historyData.available_dates.includes(dateStr);
+                const isToday = dateStr === '2026-04-03';
+                
+                let classes = 'calendar-day';
+                if (hasReport) classes += ' has-report';
+                if (isToday) classes += ' today';
+                
+                calendarHtml += `
+                    <div class="${classes}" onclick="selectDate('${dateStr}')">
+                        ${day}
+                    </div>
+                `;
+            }
+            
+            calendarHtml += '</div></div>';
+            
+            let container = document.getElementById('historyModalBody');
+            let existingCalendar = container.querySelector('.calendar-picker');
+            if (existingCalendar) {
+                existingCalendar.remove();
+            }
+            container.insertAdjacentHTML('afterbegin', calendarHtml);
+        }
+        
+        // 渲染最近 7 天
+        function renderRecentDays() {
+            const recentDates = historyData.available_dates.slice(0, 7);
+            const weekdays = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
+            
+            let html = '<div class="recent-days">';
+            recentDates.forEach((date, index) => {
+                const dateObj = new Date(date);
+                const weekday = weekdays[dateObj.getDay()];
+                const isActive = date === currentDate;
+                
+                html += `
+                    <div class="recent-day-card ${isActive ? 'active' : ''}" onclick="selectDate('${date}')">
+                        <div class="recent-day-date">${date.slice(5)}</div>
+                        <div class="recent-day-weekday">${weekday}</div>
+                    </div>
+                `;
+            });
+            html += '</div>';
+            
+            let container = document.getElementById('historyModalBody');
+            let existing = container.querySelector('.recent-days');
+            if (existing) {
+                existing.remove();
+            }
+            container.insertAdjacentHTML('afterbegin', html);
+        }
+        
+        // 渲染历史列表
+        function renderHistoryList() {
+            const html = `
+                <div class="history-list">
+                    <div class="history-list-title">📋 历史早报列表</div>
+                    ${historyData.available_dates.map(date => {
+                        const isToday = date === '2026-04-03';
+                        const isActive = date === currentDate;
+                        return `
+                            <div class="history-item ${isActive ? 'active' : ''}" onclick="selectDate('${date}')">
+                                <div>
+                                    <div class="history-item-date">${date} ${isToday ? '(今日)' : ''}</div>
+                                    <div class="history-item-info">点击查看详情</div>
+                                </div>
+                                <div class="history-item-actions">
+                                    <button class="history-action-btn detail" onclick="event.stopPropagation(); viewReport('${date}')">详情页</button>
+                                </div>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+            `;
+            
+            let container = document.getElementById('historyModalBody');
+            let existing = container.querySelector('.history-list');
+            if (existing) {
+                existing.remove();
+            }
+            container.insertAdjacentHTML('beforeend', html);
+        }
+        
+        // 选择日期
+        function selectDate(date) {
+            currentDate = date;
+            renderRecentDays();
+            renderHistoryList();
+            viewReport(date);
+        }
+        
+        // 查看早报
+        function viewReport(date) {
+            fetch(`reports/${date}.json`)
+                .then(response => response.json())
+                .then(data => {
+                    const deptData = data.departments[currentDept];
+                    if (!deptData) {
+                        alert('该日期暂无此事业部的早报');
+                        return;
+                    }
+                    
+                    let contentHtml = `<div style="margin-bottom: 20px; padding: 15px; background: #f0f4ff; border-radius: 8px;">
+                        <strong>📅 日期：</strong>${date}
+                    </div>`;
+                    
+                    deptData.sections.forEach(section => {
+                        contentHtml += `<div class="report-section">
+                            <div class="report-section-title">${section.title}</div>`;
+                        
+                        section.items.forEach(item => {
+                            contentHtml += `<div class="report-item">`;
+                            if (item.title) {
+                                contentHtml += `<div class="report-item-title">`;
+                                if (item.tags && item.tags.length > 0) {
+                                    item.tags.forEach(tag => {
+                                        let tagClass = 'tag-new';
+                                        if (tag === '热门') tagClass = 'tag-hot';
+                                        if (tag === '重要' || tag === '政策') tagClass = 'tag-important';
+                                        contentHtml += `<span class="tag ${tagClass}">${tag}</span>`;
+                                    });
+                                }
+                                contentHtml += `${item.title}</div>`;
+                            }
+                            contentHtml += `<div class="report-item-content">${item.content}</div></div>`;
+                        });
+                        
+                        contentHtml += `</div>`;
+                    });
+                    
+                    document.getElementById('modalTitle').textContent = deptData.name;
+                    document.getElementById('modalDate').textContent = deptData.subtitle + ' | ' + date;
+                    document.getElementById('modalBody').innerHTML = contentHtml;
+                    
+                    closeHistory();
+                    document.getElementById('reportModal').classList.add('active');
+                })
+                .catch(error => {
+                    console.error('加载早报失败:', error);
+                    alert('加载早报失败，请稍后重试');
+                });
+        }
+        
+        // 切换视图
+        function switchView(view) {
+            currentView = view;
+            
+            document.querySelectorAll('.view-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            if (view === 'list') {
+                renderHistoryList();
+            } else if (view === 'category') {
+                renderCategoryView();
+            }
+        }
+        
+        // 渲染分类视图
+        function renderCategoryView() {
+            fetch(`reports/${currentDate}.json`)
+                .then(response => response.json())
+                .then(data => {
+                    const categories = data.categories;
+                    
+                    let html = '<div class="category-view">';
+                    
+                    for (const key in categories) {
+                        const category = categories[key];
+                        html += `
+                            <div class="category-card">
+                                <div class="category-card-header">
+                                    <span>${category.icon}</span>
+                                    <span>${category.name}</span>
+                                </div>
+                        `;
+                        
+                        category.items.forEach(item => {
+                            html += `
+                                <div class="category-item">
+                                    <div class="category-item-title">${item.title}</div>
+                                    <div class="category-item-dept">📍 ${item.department}</div>
+                                    <div class="category-item-content">${item.content}</div>
+                                    <span class="impact-tag ${item.impact === '高' ? 'high' : item.impact === '中' ? 'medium' : 'low'}">
+                                        影响程度：${item.impact}
+                                    </span>
+                                </div>
+                            `;
+                        });
+                        
+                        html += '</div>';
+                    }
+                    
+                    html += '</div>';
+                    document.getElementById('historyModalBody').innerHTML = html;
+                    
+                    renderCalendar();
+                    renderRecentDays();
+                })
+                .catch(error => {
+                    console.error('加载分类视图失败:', error);
+                    alert('加载分类视图失败');
+                });
+        }
+        
+        // 上月
+        function previousMonth() {
+            alert('月份切换功能开发中...');
+        }
+        
+        // 下月
+        function nextMonth() {
+            alert('月份切换功能开发中...');
+        }
+        
+        // 点击历史弹窗外部关闭
+        document.getElementById('historyModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeHistory();
+            }
+        });
+        
+        // ESC 键关闭历史弹窗
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeHistory();
+            }
+        });
+        
+        // 点击弹窗外部关闭
+        document.getElementById('reportModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeReport();
+            }
+        });
+        
+        // ESC 键关闭弹窗
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeReport();
+            }
+        });
+    </script>
+</body>
+</html>

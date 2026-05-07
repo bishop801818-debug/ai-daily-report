@@ -1,0 +1,8 @@
+Input: '🏗️'
+Codepoints: ['0x1f3d7', '0xfe0f']
+  '🏗' = U+1F3D7 BUILDING CONSTRUCTION
+  '️' = U+FE0F VARIATION SELECTOR-16
+After sub(F000-10FFFF+space): 'X_️'
+  match: '🏗'
+After sub(F000-10FFFF no space): 'X_️'
+  match: '🏗'

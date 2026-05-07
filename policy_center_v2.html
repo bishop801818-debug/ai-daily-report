@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>政策中心 - 2026年锂电政策时间轴</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background: #f5f7fa; padding: 20px; }
+        
+        .header { background: linear-gradient(135deg, #1F3864 0%, #2E75B6 100%); color: white; padding: 24px; border-radius: 12px; margin-bottom: 24px; }
+        .header h1 { font-size: 24px; margin-bottom: 8px; }
+        .header p { opacity: 0.9; font-size: 14px; }
+        
+        .filter-bar { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; }
+        .filter-btn { padding: 8px 16px; border: 2px solid #ddd; background: white; border-radius: 20px; cursor: pointer; font-size: 14px; transition: all 0.2s; }
+        .filter-btn.active { background: #1F3864; color: white; border-color: #1F3864; }
+        
+        .timeline { position: relative; padding-left: 30px; }
+        .timeline::before { content: ''; position: absolute; left: 10px; top: 0; bottom: 0; width: 2px; background: linear-gradient(to bottom, #1F3864, #2E75B6); }
+        
+        .timeline-item { position: relative; margin-bottom: 30px; padding: 20px; background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); cursor: pointer; transition: all 0.3s; }
+        .timeline-item:hover { transform: translateX(4px); box-shadow: 0 4px 16px rgba(0,0,0,0.12); }
+        .timeline-item::before { content: ''; position: absolute; left: -24px; top: 24px; width: 12px; height: 12px; background: #1F3864; border: 3px solid white; border-radius: 50%; box-shadow: 0 0 0 2px #1F3864; }
+        
+        .item-date { font-size: 12px; color: #1F3864; font-weight: 600; margin-bottom: 6px; }
+        .item-title { font-size: 16px; font-weight: 600; color: #1a1a1a; margin-bottom: 8px; }
+        .item-issuer { font-size: 13px; color: #666; margin-bottom: 10px; }
+        .item-badges { display: flex; gap: 6px; flex-wrap: wrap; }
+        .badge { padding: 4px 10px; background: #e8f0fe; color: #1F3864; font-size: 12px; border-radius: 4px; }
+        
+        /* 弹窗 */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; }
+        .modal-overlay.active { display: block; }
+        .modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 90%; max-width: 700px; max-height: 85vh; background: white; border-radius: 16px; z-index: 1001; overflow: hidden; }
+        .modal.active { display: block; overflow-y: auto; }
+        .modal-header { background: linear-gradient(135deg, #1F3864 0%, #2E75B6 100%); color: white; padding: 20px 24px; display: flex; justify-content: space-between; align-items: center; }
+        .modal-header h2 { font-size: 18px; flex: 1; }
+        .modal-close { background: none; border: none; color: white; font-size: 24px; cursor: pointer; padding: 4px 8px; }
+        
+        .modal-body { padding: 24px; }
+        .modal-section { margin-bottom: 20px; }
+        .modal-section h3 { font-size: 14px; color: #1F3864; margin-bottom: 10px; padding-bottom: 6px; border-bottom: 2px solid #e8f0fe; }
+        .modal-label { font-weight: 600; margin-right: 8px; color: #333; }
+        
+        .core-point { background: #f8f9fa; padding: 12px; border-radius: 8px; margin-bottom: 10px; border-left: 3px solid #1F3864; }
+        .core-point-title { font-weight: 600; color: #1F3864; margin-bottom: 6px; }
+        .core-point-content { color: #555; font-size: 14px; line-height: 1.6; }
+        
+        .impact-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        .impact-table th, .impact-table td { padding: 10px; border: 1px solid #e0e0e0; text-align: left; }
+        .impact-table th { background: #f5f7fa; font-weight: 600; color: #1F3864; }
+        
+        .risk-item { padding: 8px 12px; background: #fff5f5; border-left: 3px solid #dc3545; margin-bottom: 8px; border-radius: 4px; }
+        .risk-item.policy { background: #fff8e6; border-left-color: #ffc107; }
+        
+        .position-tag { display: inline-block; padding: 4px 10px; background: #e8f5e9; color: #2e7d32; font-size: 12px; border-radius: 4px; margin-right: 6px; }
+        
+        @media (max-width: 768px) {
+            body { padding: 12px; }
+            .header, .filter-bar, .timeline, .modal-body { padding-left: 16px; padding-right: 16px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>📋 政策中心 <span id="policy-count" style="opacity:0.7;font-weight:normal;font-size:14px;"></span></h1>
+        <p>2026年1月-4月 · 锂电及相关行业政策时间轴</p>
+    </div>
+    
+    <div class="filter-bar">
+        <button class="filter-btn active" data-filter="all">全部</button>
+        <button class="filter-btn" data-filter="central">中央政策</button>
+        <button class="filter-btn" data-filter="local">地方政策</button>
+        <button class="filter-btn" data-filter="overseas">海外政策</button>
+    </div>
+    
+    <div class="timeline" id="timeline"></div>
+    
+    <!-- 详情弹窗 -->
+    <div class="modal-overlay" id="modal-overlay"></div>
+    <div class="modal" id="modal">
+        <div class="modal-header">
+            <h2 id="modal-title"></h2>
+            <button class="modal-close" id="modal-close">&times;</button>
+        </div>
+        <div class="modal-body" id="modal-body"></div>
+    </div>
+    
+    <script>
+    // 政策数据（只保留锂电相关政策）
+    const policies = [
+        // 中央政策
+        {
+            id: 1,
+            title: '新能源汽车废旧动力电池回收和综合利用管理暂行办法',
+            date: '2026-01-16',
+            issuer: '工业和信息化部、国家发展改革委、生态环境部、交通运输部、商务部、市场监管总局',
+            type: 'central',
+            bu: ['山东美多', '常州锂源'],
+            core: [
+                { title: '要求汽车企业落实回收主体责任', content: '汽车生产企业承担废旧动力电池回收的主要责任，需建立回收服务网点' },
+                { title: '建立"数字身份证"制度', content: '对动力电池生产、销售、使用、报废全生命周期进行信息追溯' },
+                { title: '明确综合利用准入门槛', content: '明确综合利用企业的资质要求和技术规范' }
+            ],
+            vertical: '落实《新能源汽车产业发展规划》要求，建立回收体系',
+            horizontal: '全国首部废旧电池回收专项管理办法',
+            impact: { '上游材料': '促进锂、钴、镍资源循环利用', '中游制造': '推动电池制造企业建立回收机制', '下游应用': '提升新能源汽车用户回收意识', '回收环节': '规范回收行业发展' },
+            risk: { '政策': '地方执行力度不一，监管难度大', '行业': '回收成本高，企业积极性不足' }
+        },
+        {
+            id: 2,
+            title: '关于开展氢能综合应用试点工作的通知',
+            date: '2026-03-16',
+            issuer: '工业和信息化部、财政部、国家发展改革委',
+            type: 'central',
+            bu: ['铂源催化'],
+            core: [
+                { title: '试点目标：2030年燃料电池汽车达10万辆', content: '全��燃料电池汽车保有量较2025年翻一番' },
+                { title: '奖励机制：单个城市群最高16亿元', content: '采用"以奖代补"方式，中央财政支持5个城市群' },
+                { title: '六大应用场景', content: '燃料电池汽车、绿色氨醇、氢基化工原料、氢冶金、掺氢燃烧、创新应用' }
+            ],
+            vertical: '落实"十五五"氢能产业发展规划',
+            horizontal: '全国首部氢能综合应用试点政策',
+            impact: { '上游材料': '推动绿氢制备产业发展', '中游制造': '燃料电池和储氢设备需求增加', '下游应用': '燃料电池汽车推广应用', '回收环节': '促进氢能产业链完善' },
+            risk: { '政策': '氢能基础设施不完善，加氢站审批难', '行业': '氢气成本高，经济性待验证' }
+        },
+        {
+            id: 3,
+            title: '四部门联合召开动力及储能电池行业企业座谈会',
+            date: '2026-04-09',
+            issuer: '工业和信息化部、国家发展改革委、市场监管总局、国家能源局',
+            type: 'central',
+            bu: ['常州锂源', '龙蟠时代', '法恩莱特', '三金锂电', '山东美多'],
+            core: [
+                { title: '持续深入推进产能预警调控', content: '完善产能监测预警机制，遏制盲目扩张，推动产能利用率回归合理区间' },
+                { title: '规范价格竞争秩序', content: '坚决抵制低价销售、虚假宣传等不正当竞争行为' },
+                { title: '治理"内卷外化"', content: '规范企业海外竞争行为，引导企业合理有序"出海"' }
+            ],
+            vertical: '落实国家锂电池行业规范管理，整治"内卷式"竞争',
+            horizontal: '四大部门联合部署，力度空前',
+            impact: { '上游材料': '抑制盲目扩产，产能出清加速', '中游制造': '行业集中度提升，头部企业受益', '下游应用': '产品质量得到保障', '回收环节': '打击假冒伪劣产品' },
+            risk: { '政策': '执行监督难度大', '行业': '部分中小企业面临淘汰' }
+        },
+        {
+            id: 4,
+            title: '关于进一步加强电动自行车锂离子电池回收利用体系建设的通知',
+            date: '2026-03-28',
+            issuer: '工业和信息化部、供销合作总社',
+            type: 'central',
+            bu: ['山东美多'],
+            core: [
+                { title: '发挥供销合作社回收网络作用', content: '整合用好现有4万余个再生资源回收站点、600余个区域分拣中心' },
+                { title: '建立完善回收利用网络', content: '覆盖城乡的锂电池回收利用网络' },
+                { title: '定期调度机制', content: '工信部、供销合作总社定期调度回收利用体系建设情况' }
+            ],
+            vertical: '落实《电动自行车安全隐患全链条整治行动方案》',
+            horizontal: '两部门联合推动，属创新举措',
+            impact: { '上游材料': '促进锂电池材料回收', '中游制造': '影响有限', '下游应用': '规范电动自行车锂电池使用', '回收环节': '完善回收体系' },
+            risk: { '政策': '涉及部门多，协调难度大', '行业': '回收成本较高' }
+        },
+        {
+            id: 5,
+            title: '《节能装备高质量发展实施方案（2026—2028年）》',
+            date: '2026-03-20',
+            issuer: '工信部、国家发改委、国务院国资委、国家能源局',
+            type: 'central',
+            bu: ['常州锂源', '龙蟠时代'],
+            core: [
+                { title: '推动高效节能装备研发', content: '提升重点行业能效水平' },
+                { title: '完善标准体系', content: '强化监督管��' },
+                { title: '三年行动计划', content: '2026-2028年持续推进' }
+            ],
+            vertical: '落实"双碳"目标，推动节能降碳',
+            horizontal: '首个多部门联合节能装备专项行动方案',
+            impact: { '上游材料': '节能材料需求增加', '中游制造': '推动锂电装备节能改造', '下游应用': '储能节能系统', '回收环节': '促进节能装备回收' },
+            risk: { '政策': '企业技改意愿不足', '行业': '部分节能技术成熟度不够' }
+        },
+        {
+            id: 6,
+            title: '关于印发《2026年能源行业标准计划立项指南》的通知',
+            date: '2026-03-24',
+            issuer: '国家能源局综合司',
+            type: 'central',
+            bu: ['常州锂源', '龙蟠时代', '法恩莱特', '三金锂电'],
+            core: [
+                { title: '重点领域：新型储能', content: '新型储能、氢能、智慧能源' },
+                { title: '标准制修订计划', content: '部署2026年能源行业标准' },
+                { title: '强化标准引领', content: '完善标准体系' }
+            ],
+            vertical: '能源行业标准顶层设计',
+            horizontal: '年度能源标准体系指南',
+            impact: { '上游材料': '锂电池材料标准完善', '中游制造': '生产流程标准化', '下游应用': '储能系统、并网标准统一', '回收环节': '电池回收标准统一' },
+            risk: { '政策': '标准制定周期长', '行业': '部分细分领域标准缺失' }
+        },
+        
+        // 地方政策
+        {
+            id: 7,
+            title: '关于公开征求推动绿电直连发展有关事项通知意见的公告',
+            date: '2026-03-19',
+            issuer: '安徽省发改委',
+            type: 'local',
+            bu: ['常州锂源', '龙蟠时代'],
+            core: [
+                { title: '推动绿电直连试点', content: '明确绿电直连项目准入条件' },
+                { title: '完善价格机制', content: '建立绿电价格形成机制' }
+            ],
+            vertical: '落实国家绿电发展战略',
+            horizontal: '安徽领先开展绿电直连试点',
+            impact: { '上游材料': '促进清洁能源材料使用', '中游制造': '绿电制造企业受益', '下游应用': '推动储能系统应用', '回收环节': '促进绿色循环' },
+            risk: { '政策': '电网接入技术复杂', '行业': '电价机制不完善' }
+        },
+        {
+            id: 8,
+            title: '关于印发《广东省加快应用场景创新工作方案》的通知',
+            date: '2026-03-23',
+            issuer: '广东省发展改革委',
+            type: 'local',
+            bu: ['常州锂源', '龙蟠时代', '法恩莱特'],
+            core: [
+                { title: '开放首批应用场景清单', content: '提供场景落地支持政策' },
+                { title: '建立场景供需对接', content: '促进技术与场景匹配' }
+            ],
+            vertical: '落实国家应用场景创新试点',
+            horizontal: '全国首个省级应用场景创新方案',
+            impact: { '上游材料': '带动新材料应用', '中游制造': '储能、机器人等应用场景扩大', '下游应用': '新能源汽车、储能规模化应用', '回收环节': '促进电池回收场景创新' },
+            risk: { '政策': '场景落地难度大', '行业': '商业模式待验证' }
+        },
+        {
+            id: 9,
+            title: '关于印发《山东省促进虚拟电厂高质量发展方案》的通知',
+            date: '2026-03-26',
+            issuer: '山东省能源局',
+            type: 'local',
+            bu: ['常州锂源', '龙蟠时代'],
+            core: [
+                { title: '明确虚拟电厂准入标准', content: '完善辅助服务市场机制' },
+                { title: '推动聚合商参与', content: '聚合商参与电力市场' }
+            ],
+            vertical: '落实国家虚拟电厂试点',
+            horizontal: '全国首个省级虚拟电厂专项方案',
+            impact: { '上游材料': '影响有限', '中游制造': '储能聚合系统需求增加', '下游应用': '推动用户侧储能应用', '回收环节': '促进分布式储能整合' },
+            risk: { '政策': '技术标准待统一', '行业': '盈利模式不清晰' }
+        },
+        {
+            id: 10,
+            title: '关于印发《推动河南省新型储能高质量发展的若干措施》的通知',
+            date: '2026-03-22',
+            issuer: '河南省发展和改革委员会',
+            type: 'local',
+            bu: ['常州锂源', '龙蟠时代'],
+            core: [
+                { title: '明确储能发展目标', content: '推动多元化应用' },
+                { title: '完善价格机制', content: '建立储能价格机制' }
+            ],
+            vertical: '落实国家新型储能战略',
+            horizontal: '中西部省份储能政策引领',
+            impact: { '上游材料': '带动正负极材料需求', '中游制造': '储能产能布局加速', '下游应用': '电网侧、用户侧储能发展', '回收环节': '储能电池回收体系建设' },
+            risk: { '政策': '电力辅助服务市场不成熟', '行业': '产能过剩风险' }
+        },
+        
+        // 海外政策
+        {
+            id: 11,
+            title: '欧盟电池法规（EU Battery Regulation）全面实施',
+            date: '2026-02-18',
+            issuer: '欧盟委员会',
+            type: 'overseas',
+            bu: ['常州锂源', '龙蟠时代', '法恩莱特', '三金锂电', '山东美多'],
+            core: [
+                { title: '电池碳足迹声明要求', content: '动力电池需提供碳足迹声明' },
+                { title: '回收物质最低含量', content: '2031年起钴12%/锂4%/镍4%' },
+                { title: '���池护照', content: '2027年起动力电池需配备数字护照' }
+            ],
+            vertical: '欧盟绿色协议组成部分',
+            horizontal: '全球最严格的电池法规',
+            impact: { '上游材料': '低碳材料需求增加', '中游制造': '出口欧洲成本增加', '下游应用': '产品须符合标准', '回收环节': '回收要求严格' },
+            risk: { '政策': '合规成本高', '行业': '中小企业出口困难' }
+        },
+        {
+            id: 12,
+            title: '美国《通胀削减法案》（IRA）电池材料本地化要求',
+            date: '2026-01-01',
+            issuer: '美国财政部、能源部',
+            type: 'overseas',
+            bu: ['常州锂源', '三金锂电'],
+            core: [
+                { title: '电池材料本地化', content: '2024年起关键矿物需美国本土或盟友国家提炼' },
+                { title: '电池组件本地化', content: '2024年起电池组件需北美制造' },
+                { title: '补贴门槛', content: '符合条件可获7500美元/车补贴' }
+            ],
+            vertical: '美国清洁能源补贴核心条款',
+            horizontal: '全球最具吸引力新能源补贴政策',
+            impact: { '上游材料': '倒逼海外产能布局', '中游制造': '北美建厂需求增加', '下游应用': '美国新能源汽车市场扩张', '回收环节': '建立本地回收体系' },
+            risk: { '政策': '政策不确定性', '行业': '地缘政治风险' }
+        }
+    ];
+    
+    // 渲染时间轴
+    function renderTimeline(filter = 'all') {
+        const timeline = document.getElementById('timeline');
+        const filtered = filter === 'all' ? policies : policies.filter(p => p.type === filter);
+        
+        timeline.innerHTML = filtered.map(p => `
+            <div class="timeline-item" onclick="showModal(${p.id})">
+                <div class="item-date">${p.date}</div>
+                <div class="item-title">${p.title}</div>
+                <div class="item-issuer">${p.issuer}</div>
+                <div class="item-badges">
+                    <span class="badge">${p.type === 'central' ? '中央政策' : p.type === 'local' ? '地方政策' : '海外政策'}</span>
+                    ${p.bu.map(b => `<span class="badge">${b}</span>`).join('')}
+                </div>
+            </div>
+        `).join('');
+        
+        document.getElementById('policy-count').textContent = `（${filtered.length}条）`;
+    }
+    
+    // 显示弹窗
+    function showModal(id) {
+        const policy = policies.find(p => p.id === id);
+        if (!policy) return;
+        
+        const coreHtml = policy.core.map((c, i) => `
+            <div class="core-point">
+                <div class="core-point-title">核心要点${i+1}：${c.title}</div>
+                <div class="core-point-content">${c.content}</div>
+            </div>
+        `).join('');
+        
+        const impactRows = Object.entries(policy.impact).map(([seg, text]) => 
+            `<tr><td>${seg}</td><td>${text}</td></tr>`
+        ).join('');
+        
+        const riskHtml = `
+            <div class="risk-item policy"><strong>政策推进风险：</strong>${policy.risk.policy}</div>
+            <div class="risk-item"><strong>产业链风险：</strong>${policy.risk.industry}</div>
+        `;
+        
+        document.getElementById('modal-title').textContent = policy.title;
+        document.getElementById('modal-body').innerHTML = `
+            <div class="modal-section">
+                <h3>基本信息</h3>
+                <p><span class="modal-label">发布时间：</span>${policy.date}</p>
+                <p><span class="modal-label">发布主体：</span>${policy.issuer}</p>
+                <p><span class="modal-label">涉及BU：</span>${policy.bu.join('、')}</p>
+            </div>
+            <div class="modal-section">
+                <h3>核心要点</h3>
+                ${coreHtml}
+            </div>
+            <div class="modal-section">
+                <h3>政策定位</h3>
+                <p><span class="position-tag">纵向</span>${policy.vertical}</p>
+                <p><span class="position-tag">横向</span>${policy.horizontal}</p>
+            </div>
+            <div class="modal-section">
+                <h3>政策影响（分环节）</h3>
+                <table class="impact-table">
+                    <thead><tr><th>产业环节</th><th>具体影响</th></tr></thead>
+                    <tbody>${impactRows}</tbody>
+                </table>
+            </div>
+            <div class="modal-section">
+                <h3>风险控制</h3>
+                ${riskHtml}
+            </div>
+        `;
+        
+        document.getElementById('modal-overlay').classList.add('active');
+        document.getElementById('modal').classList.add('active');
+    }
+    
+    // 关闭弹窗
+    function closeModal() {
+        document.getElementById('modal-overlay').classList.remove('active');
+        document.getElementById('modal').classList.remove('active');
+    }
+    
+    // 筛选按钮
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            renderTimeline(btn.dataset.filter);
+        });
+    });
+    
+    // 弹窗关闭
+    document.getElementById('modal-close').addEventListener('click', closeModal);
+    document.getElementById('modal-overlay').addEventListener('click', closeModal);
+    
+    // 初始化
+    renderTimeline();
+    </script>
+</body>
+</html>

@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数据库 - 铁锂行业数据</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Microsoft YaHei', 'PingFang SC', Arial, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        /* 顶部导航栏 */
+        .header {
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9ff 100%);
+            border-radius: 16px;
+            padding: 20px 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 20px rgba(30, 60, 114, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid rgba(30, 60, 114, 0.08);
+        }
+        
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        
+        .back-btn {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        
+        .back-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(30, 60, 114, 0.3);
+        }
+        
+        .title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #1e3c72;
+        }
+        
+        .update-time {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        /* 数据标签切换 */
+        .data-tabs {
+            background: white;
+            border-radius: 16px;
+            padding: 15px 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 20px rgba(30, 60, 114, 0.1);
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .data-tab {
+            padding: 10px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 14px;
+            color: #666;
+            background: #f5f7fa;
+            transition: all 0.3s;
+            border: 1px solid transparent;
+        }
+        
+        .data-tab:hover {
+            background: #e9ecef;
+        }
+        
+        .data-tab.active {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+        }
+        
+        /* 内容区域 */
+        .content-section {
+            display: none;
+        }
+        
+        .content-section.active {
+            display: block;
+        }
+        
+        /* 关键指标 */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .metric-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(30, 60, 114, 0.1);
+            text-align: center;
+        }
+        
+        .metric-label {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+        
+        .metric-value {
+            color: #1e3c72;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        
+        .metric-unit {
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .metric-trend {
+            font-size: 12px;
+            margin-top: 5px;
+            color: #666;
+        }
+        
+        .trend-up {
+            color: #4caf50;
+        }
+        
+        .trend-down {
+            color: #f44336;
+        }
+        
+        /* 数据表格 */
+        .data-card {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 20px rgba(30, 60, 114, 0.1);
+        }
+        
+        .card-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #1e3c72;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #2E75B6;
+        }
+        
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+        
+        .data-table th {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 12px 15px;
+            text-align: left;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+        
+        .data-table td {
+            padding: 10px 15px;
+            border: 1px solid #eee;
+            max-width: 200px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        
+        .data-table tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+        
+        .data-table tr:hover {
+            background: #e8f4fc;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 30px;
+            color: #666;
+        }
+        
+        .rank-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 3px 8px;
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="header-left">
+                <button class="back-btn" onclick="window.location.href='index_v3.html'">← 返回首页</button>
+                <button class="back-btn" style="background:#4caf50" onclick="loadAllData()">🔄 强制刷新数据</button>
+                <div class="title">📊 数据库 - 铁锂行业数据</div>
+            </div>
+            <div class="update-time">数据来源：飞书多维表格 | 更新于 <span id="updateTime">加载中...</span></div>
+        </div>
+        
+        <!-- 数据标签切换 - 12个模块 -->
+        <div class="data-tabs">
+            <div class="data-tab active" onclick="showTab('lfp-industry', event)">📈 LFP行业产量</div>
+            <div class="data-tab" onclick="showTab('lfp-company', event)">🏭 LFP分企业产量</div>
+            <div class="data-tab" onclick="showTab('lfp-competitor', event)">⚔️ LFP竞对销量</div>
+            <div class="data-tab" onclick="showTab('lfp-export', event)">🚢 LFP出口量</div>
+            <div class="data-tab" onclick="showTab('lfp-export-partner', event)">🌏 LFP出口贸易伙伴</div>
+            <div class="data-tab" onclick="showTab('lfp-price', event)">💰 LFP现货市场价</div>
+            <div class="data-tab" onclick="showTab('fp-industry', event)">📈 FP行业产量</div>
+            <div class="data-tab" onclick="showTab('fp-company', event)">🏭 FP分企业产量</div>
+            <div class="data-tab" onclick="showTab('fp-price', event)">💰 FP现货市场价</div>
+            <div class="data-tab" onclick="showTab('price-density', event)">📊 现货价(分压实密度)</div>
+            <div class="data-tab" onclick="showTab('phosphate', event)">🧪 磷酸盐价格数据</div>
+            <div class="data-tab" onclick="showTab('raw-material', event)">🔧 非磷原料价格数据</div>
+        </div>
+        
+        <!-- LFP行业整体产量 -->
+        <div id="lfp-industry" class="content-section active">
+            <div class="metrics-grid" id="lfp-metrics"></div>
+            <div class="data-card">
+                <div class="card-title">📈 LFP行业整体产量明细</div>
+                <table class="data-table" id="lfp-industry-table">
+                    <thead>
+                        <tr><th>月份</th><th>产量(吨)</th><th>产能(吨)</th><th>产能利用率</th></tr>
+                    </thead>
+                    <tbody id="lfp-industry-body"><tr><td colspan="4" class="loading">加载中...</td></tr></tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- LFP分企业产量 -->
+        <div id="lfp-company" class="content-section">
+            <div class="data-card">
+                <div class="card-title">🏭 LFP分企业产量（2026年2月）</div>
+                <table class="data-table" id="lfp-company-table">
+                    <thead>
+                        <tr><th>排名</th><th>企业</th><th>产能(吨)</th><th>产量(吨)</th><th>利用率</th><th>环比</th></tr>
+                    </thead>
+                    <tbody id="lfp-company-body"><tr><td colspan="6" class="loading">加载中...</td></tr></tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- LFP竞对销量 -->
+        <div id="lfp-competitor" class="content-section">
+            <div class="data-card">
+                <div class="card-title">⚔️ LFP竞对销量（2026年2月）</div>
+                <table class="data-table" id="lfp-competitor-table">
+                    <thead>
+                        <tr><th>企业</th><th>CATL</th><th>BYD</th><th>中航</th><th>亿纬</th><th>国轩</th><th>欣旺达</th><th>蜂巢</th><th>远景</th><th>天合</th></tr>
+                    </thead>
+                    <tbody id="lfp-competitor-body"><tr><td colspan="10" class="loading">加载中...</td></tr></tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- LFP出口量 -->
+        <div id="lfp-export" class="content-section">
+            <div class="data-card">
+                <div class="card-title">🚢 LFP出口量</div>
+                <table class="data-table" id="lfp-export-table">
+                    <thead>
+                        <tr><th>月份</th><th>出口量(吨)</th><th>均价(万元/吨)</th><th>环比</th><th>同比</th></tr>
+                    </thead>
+                    <tbody id="lfp-export-body"><tr><td colspan="5" class="loading">加载中...</td></tr></tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- LFP出口贸易伙伴 -->
+        <div id="lfp-export-partner" class="content-section">
+            <div class="data-card">
+                <div class="card-title">🌏 LFP出口贸易伙伴（最新）</div>
+                <table class="data-table" id="lfp-export-partner-table">
+                    <thead>
+                        <tr><th>月份</th><th>贸易伙伴</th><th>出口量(吨)</th><th>出口额(万元)</th><th>均价(万元/吨)</th></tr>
+                    </thead>
+                    <tbody id="lfp-export-partner-body"><tr><td colspan="5" class="loading">加载中...</td></tr></tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- LFP现货市场价 -->
+        <div id="lfp-price" class="content-section">
+            <div class="data-card">
+                <div class="card-title">💰 LFP现货市场价（最新）</div>
+                <table class="data-table" id="lfp-price-table">
+                    <thead>
+                        <tr><th>日期</th><th>规格</th><th>均价</th><th>最低</th><th>最高</th></tr>
+                    </thead>
+                    <tbody id="lfp-price-body"><tr><td colspan="5" class="loading">加载中...</td></tr></tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- FP行业整体产量 -->
+        <div id="fp-industry" class="content-section">
+            <div class="data-card">
+                <div class="card-title">📈 FP磷酸铁行业整体产量</div>
+                <table class="data-table" id="fp-industry-table">
+                    <thead>
+                        <tr><th>月份</th><th>产量(吨)</th><th>产能(吨)</th><th>产能利用率</th></tr>
+                    </thead>
+                    <tbody id="fp-industry-body"><tr><td colspan="4" class="loading">加载中...</td></tr></tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- FP分企业产量 -->
+        <div id="fp-company" class="content-section">
+            <div class="data-card">
+                <div class="card-title">🏭 FP分企业产量（2026年2月）</div>
+                <table class="data-table" id="fp-company-table">
+                    <thead>
+                        <tr><th>排名</th><th>企业</th><th>产能(吨)</th><th>产量(吨)</th><th>利用率</th><th>环比</th></tr>
+                    </thead>
+                    <tbody id="fp-company-body"><tr><td colspan="6" class="loading">加载中...</td></tr></tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- FP现货市场价 -->
+        <div id="fp-price" class="content-section">
+            <div class="data-card">
+                <div class="card-title">💰 FP磷酸铁现货市场价</div>
+                <table class="data-table" id="fp-price-table">
+                    <thead>
+                        <tr><th>日期</th><th>最高价</th><th>最低价</th><th>均价</th></tr>
+                    </thead>
+                    <tbody id="fp-price-body"><tr><td colspan="4" class="loading">加载中...</td></tr></tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- 现货价(分压实密度) -->
+        <div id="price-density" class="content-section">
+            <div class="data-card">
+                <div class="card-title">📊 现货市场价（分压实密度）</div>
+                <table class="data-table" id="price-density-table">
+                    <thead>
+                        <tr><th>日期</th><th>类型</th><th>压实密度</th><th>最低价</th><th>最高价</th><th>均价</th></tr>
+                    </thead>
+                    <tbody id="price-density-body"><tr><td colspan="6" class="loading">加载中...</td></tr></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 磷酸盐价格数据 -->
+        <div id="phosphate" class="content-section">
+            <div class="data-card">
+                <div class="card-title">🧪 磷酸盐价格数据</div>
+                <table class="data-table" id="phosphate-table">
+                    <thead>
+                        <tr><th>日期</th><th>规格</th><th>最低价</th><th>最高价</th><th>均价</th></tr>
+                    </thead>
+                    <tbody id="phosphate-body"><tr><td colspan="5" class="loading">加载中...</td></tr></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 非磷原料价格数据 -->
+        <div id="raw-material" class="content-section">
+            <div class="data-card">
+                <div class="card-title">🔧 非磷原料价格数据</div>
+                <table class="data-table" id="raw-material-table">
+                    <thead>
+                        <tr><th>日期</th><th>规格</th><th>最低价</th><th>最高价</th><th>均价</th></tr>
+                    </thead>
+                    <tbody id="raw-material-body"><tr><td colspan="5" class="loading">加载中...</td></tr></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 全局错误捕获
+        window.onerror = function(msg, url, line, col, error) {
+            alert('JavaScript错误: ' + msg + '\n行号: ' + line);
+            return true;
+        };
+        
+        let allData = {};
+        
+        function showTab(tabId, event) {
+            console.log('showTab called:', tabId);
+            document.querySelectorAll('.content-section').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.data-tab').forEach(el => el.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            if (event && event.target) {
+                event.target.classList.add('active');
+            }
+        }
+        
+        async function loadAllData() {
+            alert('开始加载数据...');
+            console.log('开始加载数据...');
+            try {
+                const response = await fetch('lfp_all_data.json?_t=' + Date.now());
+                console.log('HTTP状态:', response.status);
+                const data = await response.json();
+                console.log('数据加载成功, 表数量:', data.tables.length);
+                
+                document.getElementById('updateTime').textContent = data.update_time;
+                
+                // 整理数据到allData
+                data.tables.forEach(t => {
+                    console.log('表:', t.table_name, '数据条数:', t.data.length);
+                    allData[t.table_name] = t.data;
+                });
+                
+                // 渲染所有表格
+                renderLFPIndustry();
+                renderLFPCompany();
+                renderLFPCompetitor();
+                renderLFPExport();
+                renderLFPExportPartner();
+                renderLFPPrice();
+                renderFPIndustry();
+                renderFPCompany();
+                renderFPPrice();
+                renderPriceDensity();
+                renderPhosphate();
+                renderRawMaterial();
+                
+                console.log('所有表格渲染完成');
+                
+            } catch (e) {
+                console.error('加载失败:', e);
+                alert('数据加载失败: ' + e.message);
+            }
+        }
+        
+        // LFP行业产量
+        function renderLFPIndustry() {
+            const data = allData['LFP-行业整体产量'] || [];
+            const sorted = [...data].sort((a, b) => (b['月份'] || '').localeCompare(a['月份'] || ''));
+            
+            // 关键指标
+            const latest = sorted[0] || {};
+            const prev = sorted[1] || {};
+            const lfpProd = parseFloat(latest['月度产量']) || 0;
+            const fpLatest = (allData['FP-行业整体产量']||[])[0] || {};
+            const fpProd = parseFloat(fpLatest['月度产量']) || 0;
+            document.getElementById('lfp-metrics').innerHTML = `
+                <div class="metric-card">
+                    <div class="metric-label">LFP月度产量（${latest['月份'] || '-'}）</div>
+                    <div class="metric-value">${(lfpProd/10000).toFixed(2)}<span class="metric-unit">万吨</span></div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">LFP产能利用率</div>
+                    <div class="metric-value">${latest['产能利用率'] || '-'}</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">FP月度产量（${fpLatest['月份']||'-'}）</div>
+                    <div class="metric-value">${(fpProd/10000).toFixed(2)}<span class="metric-unit">万吨</span></div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">FP产能利用率</div>
+                    <div class="metric-value">${fpLatest['产能利用率'] || '-'}</div>
+                </div>
+            `;
+            
+            // 表格
+            let html = sorted.slice(0, 24).map(d => `
+                <tr>
+                    <td>${d['月份'] || '-'}</td>
+                    <td>${(parseFloat(d['月度产量'])||0).toLocaleString()}</td>
+                    <td>${(parseFloat(d['月度产能'])||0).toLocaleString()}</td>
+                    <td>${d['产能利用率'] || '-'}</td>
+                </tr>
+            `).join('');
+            document.getElementById('lfp-industry-body').innerHTML = html;
+        }
+        
+        // LFP分企业产量
+        function renderLFPCompany() {
+            const data = allData['LFP-分企业产量'] || [];
+            const feb = data.filter(d => d['月份'] === '2026-02');
+            const sorted = [...feb].sort((a, b) => (parseFloat(b['产量']||0) - parseFloat(a['产量']||0)));
+
+            let html = sorted.slice(0, 20).map((d, i) => `
+                <tr>
+                    <td><span class="rank-badge">${i+1}</span></td>
+                    <td>${d['企业名称'] || '-'}</td>
+                    <td>${(parseFloat(d['产能'])||0).toLocaleString()}</td>
+                    <td>${(parseFloat(d['产量'])||0).toLocaleString()}</td>
+                    <td>${d['产能利用率'] || '-'}</td>
+                    <td>${d['环比'] || '-'}</td>
+                </tr>
+            `).join('');
+            document.getElementById('lfp-company-body').innerHTML = html;
+        }
+        
+        // LFP竞对销量
+        function renderLFPCompetitor() {
+            const data = allData['LFP竞对销量（客户采购量）'] || [];
+            const sorted = [...data].sort((a, b) => String(b['月份']||'').localeCompare(String(a['月份']||'')));
+            
+            let html = sorted.slice(0, 50).map(d => `
+                <tr>
+                    <td><strong>${d['企业名称']}</strong></td>
+                    <td>${d['CATL'] || '-'}</td>
+                    <td>${d['BYD'] || '-'}</td>
+                    <td>${d['中航'] || '-'}</td>
+                    <td>${d['亿纬'] || '-'}</td>
+                    <td>${d['国轩'] || '-'}</td>
+                    <td>${d['欣旺达'] || '-'}</td>
+                    <td>${d['蜂巢'] || '-'}</td>
+                    <td>${d['远景'] || '-'}</td>
+                    <td>${d['天合'] || '-'}</td>
+                </tr>
+            `).join('');
+            document.getElementById('lfp-competitor-body').innerHTML = html;
+        }
+        
+        // LFP出口量
+        function renderLFPExport() {
+            const data = allData['LFP-出口量'] || [];
+            const sorted = [...data].sort((a, b) => (b['月度']||'').localeCompare(a['月度']||''));
+            
+            let html = sorted.map(d => `
+                <tr>
+                    <td>${d['月度'] || '-'}</td>
+                    <td>${(parseFloat(d['出口量（吨）'])||0).toLocaleString()}</td>
+                    <td>${d['出口均价（万元/吨）'] || '-'}</td>
+                    <td>${d['环比变化'] || '-'}</td>
+                    <td>${d['同比变化'] || '-'}</td>
+                </tr>
+            `).join('');
+            document.getElementById('lfp-export-body').innerHTML = html;
+        }
+        
+        // LFP出口贸易伙伴 - 显示全部历史数据
+        function renderLFPExportPartner() {
+            const data = allData['LFP-出口贸易伙伴'] || [];
+            const sorted = [...data].sort((a, b) => (b['月份']||'').localeCompare(a['月份']||''));
+
+            let html = sorted.slice(0, 100).map(d => `
+                <tr>
+                    <td>${d['月份'] || '-'}</td>
+                    <td>${d['贸易伙伴名称'] || '-'}</td>
+                    <td>${d['出口量（吨）'] || '-'}</td>
+                    <td>${d['出口价格（万元）'] || '-'}</td>
+                    <td>${d['出口均价（万元/吨）'] || '-'}</td>
+                </tr>
+            `).join('');
+            document.getElementById('lfp-export-partner-body').innerHTML = html;
+        }
+        
+        // LFP现货市场价 - 显示最近10天的数据
+        function renderLFPPrice() {
+            const data = allData['LFP现货市场价'] || [];
+            if (!data.length) {
+                document.getElementById('lfp-price-body').innerHTML = '<tr><td colspan="5" class="loading">暂无数据</td></tr>';
+                return;
+            }
+            const grouped = {};
+            data.forEach(d => {
+                const date = String(d['日期']||'').split(' ')[0];
+                if(!grouped[date]) grouped[date] = [];
+                grouped[date].push(d);
+            });
+            const dates = Object.keys(grouped).sort().reverse();
+            const recentDates = dates.slice(0, 10); // 最近10天
+
+            let html = '';
+            recentDates.forEach(date => {
+                const dayData = grouped[date];
+                dayData.slice(0, 5).forEach(d => { // 每天显示5条
+                    html += `
+                        <tr>
+                            <td>${date}</td>
+                            <td>${(d['规格']||'-').substring(0,25)}</td>
+                            <td>${(parseFloat(d['均价（万元/吨）'])||0).toFixed(2)}</td>
+                            <td>${(parseFloat(d['最低价（万元/吨）'])||0).toFixed(2)}</td>
+                            <td>${(parseFloat(d['最高价（万元/吨）'])||0).toFixed(2)}</td>
+                        </tr>
+                    `;
+                });
+            });
+            document.getElementById('lfp-price-body').innerHTML = html;
+        }
+        
+        // FP行业产量
+        function renderFPIndustry() {
+            const data = allData['FP-行业整体产量'] || [];
+            if (!data.length) {
+                document.getElementById('fp-industry-body').innerHTML = '<tr><td colspan="4" class="loading">暂无数据</td></tr>';
+                return;
+            }
+            const sorted = [...data].sort((a, b) => (b['月份']||'').localeCompare(a['月份']||''));
+            
+            let html = sorted.slice(0, 24).map(d => `
+                <tr>
+                    <td>${d['月份'] || '-'}</td>
+                    <td>${(parseFloat(d['月度产量'])||0).toLocaleString()}</td>
+                    <td>${(parseFloat(d['月度产能'])||0).toLocaleString()}</td>
+                    <td>${d['产能利用率'] || '-'}</td>
+                </tr>
+            `).join('');
+            document.getElementById('fp-industry-body').innerHTML = html;
+        }
+        
+        // FP分企业产量
+        function renderFPCompany() {
+            const data = allData['FP-分企业产量'] || [];
+            if (!data.length) {
+                document.getElementById('fp-company-body').innerHTML = '<tr><td colspan="6" class="loading">暂无数据</td></tr>';
+                return;
+            }
+            const feb = data.filter(d => d['月份'] === '2026-02');
+            const sorted = [...feb].sort((a, b) => (parseFloat(b['产量']||0) - parseFloat(a['产量']||0)));
+
+            let html = sorted.slice(0, 20).map((d, i) => `
+                <tr>
+                    <td><span class="rank-badge">${i+1}</span></td>
+                    <td>${d['企业名称'] || '-'}</td>
+                    <td>${(parseFloat(d['产能'])||0).toLocaleString()}</td>
+                    <td>${(parseFloat(d['产量'])||0).toLocaleString()}</td>
+                    <td>${d['产能利用率'] || '-'}</td>
+                    <td>${d['环比'] || '-'}</td>
+                </tr>
+            `).join('');
+            document.getElementById('fp-company-body').innerHTML = html;
+        }
+        
+        // FP现货市场价 - 显示最近30天的数据
+        function renderFPPrice() {
+            const data = allData['FP现货市场价'] || [];
+            if (!data.length) {
+                document.getElementById('fp-price-body').innerHTML = '<tr><td colspan="4" class="loading">暂无数据</td></tr>';
+                return;
+            }
+            const grouped = {};
+            data.forEach(d => {
+                const date = String(d['日期']||'').split(' ')[0];
+                if(!grouped[date]) grouped[date] = [];
+                grouped[date].push(d);
+            });
+            const dates = Object.keys(grouped).sort().reverse();
+            const recentDates = dates.slice(0, 30); // 最近30天
+
+            let html = '';
+            recentDates.forEach(date => {
+                const dayData = grouped[date];
+                dayData.slice(0, 3).forEach(d => { // 每天显示3条
+                    html += `
+                        <tr>
+                            <td>${date}</td>
+                            <td>${d['今日最高价'] || '-'}</td>
+                            <td>${d['今日最低价'] || '-'}</td>
+                            <td>${d['今日均价'] || '-'}</td>
+                        </tr>
+                    `;
+                });
+            });
+            document.getElementById('fp-price-body').innerHTML = html;
+        }
+        
+        // 现货价(分压实密度) - 宽表格式，行0=类型(动力/储能)，行1=压实密度/价格类型，行2+=数据
+        function renderPriceDensity() {
+            const data = allData['现货市场价（分压实密度）'] || [];
+            if (!data.length) {
+                document.getElementById('price-density-body').innerHTML = '<tr><td colspan="5" class="loading">暂无数据</td></tr>';
+                return;
+            }
+
+            // 行0=类型(动力型/储能型), 行1=压实密度/最低价/最高价/均价, 行2+=数据
+            const typeRow = data[0];
+            const headerRow = data[1];
+            const priceData = data.slice(2);
+
+            // 找出所有压实密度列及其对应的价格列
+            const cols = Object.keys(headerRow).filter(k => k !== '列40' && k !== '正磷酸铁' && !k.startsWith('正磷酸铁'));
+            const result = [];
+
+            cols.forEach(col => {
+                const val = headerRow[col];
+                if (!val || !val.includes('g/mAh')) return;
+
+                const colNum = parseInt(col.match(/（(\d+)）/)[1]);
+                const minCol = `磷酸铁锂（${colNum + 6}）`;
+                const maxCol = `磷酸铁锂（${colNum + 9}）`;
+                const avgCol = `磷酸铁锂（${colNum + 15}）`;
+
+                // 从数据行获取所有日期的价格
+                priceData.forEach(row => {
+                    if (row[col] && row[col].includes('/')) {
+                        result.push({
+                            date: row[col],
+                            type: typeRow[col] || typeRow['磷酸铁锂'] || '-',
+                            density: val,
+                            min: row[minCol] || '-',
+                            max: row[maxCol] || '-',
+                            avg: row[avgCol] || '-'
+                        });
+                    }
+                });
+            });
+
+            // 按日期倒序排列
+            result.sort((a, b) => (b.date||'').localeCompare(a.date||''));
+
+            // 显示所有历史数据（最多100条）
+            let html = result.slice(0, 100).map(r => `
+                <tr>
+                    <td>${r.date}</td>
+                    <td>${r.type}</td>
+                    <td>${r.density}</td>
+                    <td>${r.min}</td>
+                    <td>${r.max}</td>
+                    <td>${r.avg}</td>
+                </tr>
+            `).join('');
+
+            // 更新表头以包含日期列
+            document.getElementById('price-density-table').querySelector('thead tr').innerHTML =
+                '<th>日期</th><th>类型</th><th>压实密度</th><th>最低价</th><th>最高价</th><th>均价</th>';
+
+            document.getElementById('price-density-body').innerHTML = html;
+        }
+        
+        // 磷酸盐价格数据 - 显示最近20天的数据
+        function renderPhosphate() {
+            const data = allData['磷酸盐价格数据'] || [];
+            if (!data.length) {
+                document.getElementById('phosphate-body').innerHTML = '<tr><td colspan="5" class="loading">暂无数据</td></tr>';
+                return;
+            }
+            const grouped = {};
+            data.forEach(d => {
+                const date = String(d['日期']||'').split(' ')[0];
+                if(!grouped[date]) grouped[date] = [];
+                grouped[date].push(d);
+            });
+            const dates = Object.keys(grouped).sort().reverse();
+            const recentDates = dates.slice(0, 20); // 最近20天
+
+            let html = '';
+            recentDates.forEach(date => {
+                const dayData = grouped[date];
+                dayData.slice(0, 5).forEach(d => { // 每天显示5条
+                    html += `
+                        <tr>
+                            <td>${date}</td>
+                            <td>${d['规格'] || '-'}</td>
+                            <td>${(parseFloat(d['今日最低价格（万元/吨）'])||0).toFixed(3)}</td>
+                            <td>${(parseFloat(d['今日最高价格（万元/吨）'])||0).toFixed(3)}</td>
+                            <td>${(parseFloat(d['今日均价（万元/吨）'])||0).toFixed(3)}</td>
+                        </tr>
+                    `;
+                });
+            });
+            document.getElementById('phosphate-body').innerHTML = html;
+        }
+
+        // 非磷原料价格数据 - 显示最近20天的数据
+        function renderRawMaterial() {
+            const data = allData['非磷原料价格数据'] || [];
+            if (!data.length) {
+                document.getElementById('raw-material-body').innerHTML = '<tr><td colspan="5" class="loading">暂无数据</td></tr>';
+                return;
+            }
+            const grouped = {};
+            data.forEach(d => {
+                const date = String(d['日期']||'').split(' ')[0];
+                if(!grouped[date]) grouped[date] = [];
+                grouped[date].push(d);
+            });
+            const dates = Object.keys(grouped).sort().reverse();
+            const recentDates = dates.slice(0, 20); // 最近20天
+
+            let html = '';
+            recentDates.forEach(date => {
+                const dayData = grouped[date];
+                dayData.slice(0, 5).forEach(d => { // 每天显示5条
+                    html += `
+                        <tr>
+                            <td>${date}</td>
+                            <td>${d['规格'] || '-'}</td>
+                            <td>${(parseFloat(d['今日最低价格'])||0).toLocaleString()}</td>
+                            <td>${(parseFloat(d['今日最高价格'])||0).toLocaleString()}</td>
+                            <td>${(parseFloat(d['今日均价'])||0).toLocaleString()}</td>
+                        </tr>
+                    `;
+                });
+            });
+            document.getElementById('raw-material-body').innerHTML = html;
+        }
+        
+        loadAllData();
+    </script>
+</body>
+</html>
