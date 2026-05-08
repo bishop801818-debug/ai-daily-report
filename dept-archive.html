@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="html-version" content="20260423e">
+<meta name="html-version" content="20260507a">
 <title>事业部历史存档</title>
 <script>
   // 每次修改此文件后，将 content 值改为今天日期（如 20260420）
@@ -435,7 +435,10 @@ async function checkDateForBU(date, buId) {
     const resp = await fetch(`reports/${date}.json?v=${HTML_VERSION}`);
     const data = await resp.json();
     const dept = data.departments ? data.departments[buId] : null;
-    const hasSections = dept && dept.sections && Object.values(dept.sections).some(v => Array.isArray(v) && v.length > 0);
+    const hasSections = dept && dept.sections && (
+      (Array.isArray(dept.sections) && dept.sections.some(sec => Array.isArray(sec.items) && sec.items.length > 0)) ||
+      Object.values(dept.sections).some(v => Array.isArray(v) && v.length > 0)
+    );
     const hasContent = dept && (
       (dept._raw_content && dept._raw_content.trim()) ||
       (dept.headline && dept.headline.trim()) ||
@@ -464,7 +467,10 @@ async function openReportModal(date, buId, embed) {
       return;
     }
 
-    const hasSections = dept.sections && Object.values(dept.sections).some(v => Array.isArray(v) && v.length > 0);
+    const hasSections = dept.sections && (
+      (Array.isArray(dept.sections) && dept.sections.some(sec => Array.isArray(sec.items) && sec.items.length > 0)) ||
+      Object.values(dept.sections).some(v => Array.isArray(v) && v.length > 0)
+    );
     let contentHtml = '';
     if (dept._raw_content && dept._raw_content.trim()) {
       contentHtml = dept._raw_content;
@@ -567,29 +573,62 @@ function buildSectionsHTML(dept) {
   };
 
   let html = '';
-  if (dept.headline) html += `<div class="report-headline">${safe(dept.headline)}</div>`;
-  if (dept.lead)     html += `<div class="report-lead">${safe(dept.lead)}</div>`;
+  // 新格式（数组）：不单独渲染 headline/lead，由 sectionsToHTML 统一处理
+  if (dept.sections && !Array.isArray(dept.sections)) {
+    if (dept.headline) html += `<div class="report-headline">${safe(dept.headline)}</div>`;
+    if (dept.lead)     html += `<div class="report-lead">${safe(dept.lead)}</div>`;
+  }
   if (dept.sections) {
-    for (const [key, items] of Object.entries(dept.sections)) {
-      if (!items) continue;
-      // 跳过"综合"
-      if (key === '综合') continue;
-
-      html += `<div class="report-section"><h4>【${safe(key)}】</h4>`;
-
-      // 小结 → 纯文本，不拆卡片
-      if (key === '小结') {
-        if (Array.isArray(items)) {
-          html += `<div class="report-summary">${items.map(i => typeof i === 'string' ? safe(i) : '').join('<br>')}</div>`;
-        } else if (typeof items === 'string') {
-          html += `<div class="report-summary">${safe(items)}</div>`;
+    // 新格式：sections 是有序数组 [{dim, title, items}, ...]
+    if (Array.isArray(dept.sections)) {
+      for (const sec of dept.sections) {
+        const isTopnews = sec.dim === 'topnews';
+        const items = sec.items || [];
+        if (!items.length) continue;
+        if (isTopnews) {
+          html += `<div class="report-section"><h4>📌 ${safe(sec.title || '今日要报')}</h4>`;
+          items.forEach((item, i) => {
+            const title = safe(item.title || '');
+            const body = safe(item.content || '');
+            const source = safe(item.source || '');
+            const itemDate = safe(item.date || '');
+            html += `<div class="report-item">
+  <div class="report-item-title" style="display:flex;gap:8px;align-items:baseline">
+    <span style="color:#e74c3c;font-weight:bold">${i+1}.</span>
+    <span>${title}</span>
+  </div>
+  ${body ? `<div class="report-item-content" style="margin-top:4px">${body}</div>\n` : ''}
+  ${source || itemDate ? `<div style="font-size:12px;color:#888;margin-top:4px">来源：${source}${source && itemDate ? '，' : ''}${itemDate}</div>` : ''}
+</div>`;
+          });
+          html += `</div>`;
+        } else {
+          html += `<div class="report-section"><h4>【${safe(sec.title || sec.dim)}】</h4>`;
+          items.forEach(item => { html += renderItem(item); });
+          html += `</div>`;
         }
-      } else {
-        const arr = Array.isArray(items) ? items : [items];
-        arr.forEach(item => { html += renderItem(item); });
       }
+    } else {
+      // 旧dict格式
+      for (const [key, items] of Object.entries(dept.sections)) {
+        if (!items) continue;
+        if (key === '综合') continue;
 
-      html += `</div>`;
+        html += `<div class="report-section"><h4>【${safe(key)}】</h4>`;
+
+        if (key === '小结') {
+          if (Array.isArray(items)) {
+            html += `<div class="report-summary">${items.map(i => typeof i === 'string' ? safe(i) : '').join('<br>')}</div>`;
+          } else if (typeof items === 'string') {
+            html += `<div class="report-summary">${safe(items)}</div>`;
+          }
+        } else {
+          const arr = Array.isArray(items) ? items : [items];
+          arr.forEach(item => { html += renderItem(item); });
+        }
+
+        html += `</div>`;
+      }
     }
   }
   if (dept.risk)       html += `<div class="report-risk">⚠️ 风险提示：${safe(dept.risk)}</div>`;

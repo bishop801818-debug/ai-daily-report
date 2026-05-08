@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="html-version" content="20260421a">
+<meta name="html-version" content="20260507a">
 <title>行业新闻 - 晨会指挥中心</title>
 <style>
   :root {
@@ -307,11 +307,21 @@ function collectDimItems(sections, dimTab) {
   const result = [];
   if (!sections) return result;
 
+  // 新格式：sections 是有序数组 [{dim, title, items}, ...]
+  if (Array.isArray(sections)) {
+    for (const sec of sections) {
+      if (sec.dim !== dimTab.key) continue;
+      const items = sec.items || [];
+      items.forEach(item => pushItem(item, result));
+    }
+    return result;
+  }
+
+  // 旧dict格式
   for (const [rawKey, rawValue] of Object.entries(sections)) {
     const key = norm(rawKey);
     // 检查是否匹配当前维度
-    // 优先精确匹配 JSON key（如"竞品"直接等于 tab.key），其次模糊匹配
-    if (rawKey !== tab.key && !dimTab.match.some(m => rawKey.includes(m) || m.includes(rawKey))) continue;
+    if (rawKey !== dimTab.key && !dimTab.match.some(m => rawKey.includes(m) || m.includes(rawKey))) continue;
 
     const value = rawValue;
     if (Array.isArray(value)) {
@@ -468,29 +478,54 @@ async function loadAllReports() {
         for (const tab of DIM_TABS) {
           const dimKey = tab.key;
           const rawSections = deptData.sections || {};
-          for (const [rawKey, rawArr] of Object.entries(rawSections)) {
-            const key = norm(rawKey);
-            if (rawKey !== tab.key && !tab.match.some(m => key.includes(m) || m.includes(key))) continue;
-            const items = Array.isArray(rawArr) ? rawArr
-              : (typeof rawArr === 'object' && rawArr !== null
-                ? Object.values(rawArr).flat() : []);
-            for (const raw of items) {
-              const title = norm(raw.title || raw.event || raw.Title || '');
-              const content = norm(raw.content || raw.fact || raw.Content || '');
-              if (!title && !content) continue;
-              // 简单去重（按title前60字）
-              const sig = title.substring(0,60);
-              if (!target._seen) target._seen = new Set();
-              if (target._seen.has(sig)) continue;
-              target._seen.add(sig);
-              target.sections[dimKey].push({
-                title: title.substring(0,120),
-                content,
-                priority: raw.priority || raw.Priority || 'P2',
-                source: raw.source || raw.source_name || '',
-                url: raw.url || raw.Url || '#',
-                _date: dateStr,
-              });
+          // 新格式：sections 是有序数组 [{dim, title, items}, ...]
+          if (Array.isArray(rawSections)) {
+            for (const sec of rawSections) {
+              if (sec.dim !== dimKey) continue;
+              const items = sec.items || [];
+              for (const raw of items) {
+                const title = norm(raw.title || raw.event || raw.Title || '');
+                const content = norm(raw.content || raw.fact || raw.Content || '');
+                if (!title && !content) continue;
+                const sig = title.substring(0,60);
+                if (!target._seen) target._seen = new Set();
+                if (target._seen.has(sig)) continue;
+                target._seen.add(sig);
+                target.sections[dimKey].push({
+                  title: title.substring(0,120),
+                  content,
+                  priority: raw.priority || raw.Priority || 'P2',
+                  source: raw.source || raw.source_name || '',
+                  url: raw.url || raw.Url || '#',
+                  _date: dateStr,
+                });
+              }
+            }
+          } else {
+            // 旧dict格式
+            for (const [rawKey, rawArr] of Object.entries(rawSections)) {
+              const key = norm(rawKey);
+              if (rawKey !== tab.key && !tab.match.some(m => key.includes(m) || m.includes(key))) continue;
+              const items = Array.isArray(rawArr) ? rawArr
+                : (typeof rawArr === 'object' && rawArr !== null
+                  ? Object.values(rawArr).flat() : []);
+              for (const raw of items) {
+                const title = norm(raw.title || raw.event || raw.Title || '');
+                const content = norm(raw.content || raw.fact || raw.Content || '');
+                if (!title && !content) continue;
+                const sig = title.substring(0,60);
+                if (!target._seen) target._seen = new Set();
+                if (target._seen.has(sig)) continue;
+                target._seen.add(sig);
+                target.sections[dimKey].push({
+                  title: title.substring(0,120),
+                  content,
+                  priority: raw.priority || raw.Priority || 'P2',
+                  source: raw.source || raw.source_name || '',
+                  url: raw.url || raw.Url || '#',
+                  _date: dateStr,
+                });
+              }
             }
           }
         }
