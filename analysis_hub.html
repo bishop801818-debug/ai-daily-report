@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>分析报告 - 龙蟠行业数据库</title>
-    <meta name="html-version" content="20260424c">
+    <meta name="html-version" content="20260509a">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         ::-webkit-scrollbar { width: 6px; height: 6px; }
@@ -294,11 +294,14 @@ const REPORT_LIST = [
     {
         id: 'lithiumbat',
         name: '锂电池数据库',
-        icon: '🔦',
-        desc: '锂电池电芯成本、能量密度、产能利用率、下游应用与技术路线展望',
-        done: false,
-        tabs: '6个Tab（规划中）',
-        charts: '图表（规划中）',
+        icon: '🔋',
+        desc: '锂电池产量、产能利用率、分企业竞争格局与排产预测，五表全景分析',
+        done: true,
+        reportHref: 'lib_battery_analysis.html',
+        dataHref: 'lib_battery_data_v2.html',
+        chartHref: 'lib_battery_charts.html',
+        tabs: '5个Tab',
+        charts: '5个图表',
     },
     {
         id: 'automotive',

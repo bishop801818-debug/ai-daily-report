@@ -171,7 +171,7 @@
         .db-card[data-db="electrolyte"]{ --db-color: #8e44ad; }
         .db-card[data-db="carbonate"] { --db-color: #27ae60; }
         .db-card[data-db="recycling"] { --db-color: #d35400; }
-        .db-card[data-db="lithiumbat"]{ --db-color: #2c3e50; }
+        .db-card[data-db="lib_battery"]{ --db-color: #e74c3c; }
         .db-card[data-db="automotive"]{ --db-color: #3498db; }
 
         .db-card::before { background: var(--db-color); }
@@ -318,14 +318,16 @@ const DB_LIST = [
         tables: ['回收规模', '梯次利用', '再生利用', '白名单企业', '金属价格联动']
     },
     {
-        id: 'lithiumbat',
+        id: 'lib_battery',
         name: '锂电池行业数据库',
-        icon: '🔦',
-        desc: '锂电池电芯、Pack、系统能量密度、成本结构、下游应用数据',
-        hasData: false,
-        tableCount: 6,
-        updateDate: '—',
-        tables: ['电芯成本', '能量密度', '产能利用率', '下游应用分布', '专利数据', '技术路线']
+        icon: '🔋',
+        desc: '锂电池产量、产能、分企业数据、电池排产预测等全维度数据',
+        hasData: true,
+        tableCount: 5,
+        updateDate: '2026-05-09',
+        tables: ['行业产量（分规格）', '行业产量产能', '分企业产量（分规格）', '分企业产量产能', '电池排产预测'],
+        charts: 'lib_battery_charts.html',
+        analysis: 'lib_battery_analysis.html'
     },
     {
         id: 'automotive',
