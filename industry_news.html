@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="html-version" content="20260508a">
+<meta name="html-version" content="20260507a">
 <title>行业新闻 - 晨会指挥中心</title>
 <style>
   :root {
@@ -433,15 +433,10 @@ async function loadAllReports() {
     if (idxRes.ok) {
       const idx = await idxRes.json();
       availableDates = idx.available_dates || [];
-      console.log('[行业新闻] index.json loaded, dates:', availableDates.length, availableDates.slice(0,3));
-    } else {
-      console.warn('[行业新闻] index.json HTTP', idxRes.status);
     }
-  } catch(e) {
-    console.error('[行业新闻] index.json fetch failed', e);
-  }
+  } catch(e) {}
 
-  // 2. 如果 index.json 不可用，回退扫描 reports/ 目录
+  // 2. 如果 index.json 不可用，回退扫描reports/目录
   if (availableDates.length === 0) {
     const today = new Date();
     for (let daysBack = 0; daysBack <= 60; daysBack++) {
@@ -454,136 +449,96 @@ async function loadAllReports() {
     }
   }
 
-  if (availableDates.length === 0) {
-    console.warn('[行业新闻] no available dates found');
-    return { data: {}, dateRange: '', loadedDates: [] };
-  }
-
-  // 3. 加载并合并所有日期的数据
+  // 3. 加载所有日期的JSON并合并
   const mergedDepts = {};
   const loadedDates = [];
 
   for (const dateStr of availableDates) {
-    let json;
     try {
       const res = await fetch(`${REPORT_BASE}${dateStr}.json?v=${Date.now()}`);
-      if (!res.ok) { console.warn('[行业新闻] skip', dateStr, res.status); continue; }
-      json = await res.json();
-    } catch(e) {
-      console.warn('[行业新闻] failed to fetch', dateStr, e);
-      continue;
-    }
-    if (!json || !json.departments) { console.warn('[行业新闻] no departments in', dateStr); continue; }
+      if (!res.ok) continue;
+      const json = await res.json();
+      if (!json.departments) continue;
 
-    loadedDates.push(dateStr);
-    for (const [deptId, deptData] of Object.entries(json.departments)) {
-      // 获取该BU名（兼容新旧两种 sections 格式）
-      const deptName = deptData.name || DEPT_LIST.find(d => d.id === deptId)?.name || deptId;
-
-      if (!mergedDepts[deptId]) {
-        mergedDepts[deptId] = {
-          name: deptName,
-          subtitle: deptData.subtitle || '',
-          report_date: dateStr,
-          sections: { 政策: [], 竞品: [], 客户: [], 前沿: [], 市场: [] },
-          sectionsByDim: deptData.sectionsByDim || null,  // 保留原始 sectionsByDim 供兜底用
-          total_events: 0,
-          _seen: new Set(),
-        };
-      }
-
-      const target = mergedDepts[deptId];
-      target.report_date = dateStr;
-
-      // 优先使用 sectionsByDim（新格式）
-      if (deptData.sectionsByDim) {
-        for (const dimKey of Object.keys(deptData.sectionsByDim)) {
-          if (!target.sections[dimKey]) target.sections[dimKey] = [];
-          const srcItems = deptData.sectionsByDim[dimKey] || [];
-          for (const raw of srcItems) {
-            const title   = norm(raw.title || raw.event || '');
-            const content = norm(raw.content || '');
-            if (!title && !content) continue;
-            const sig = title.substring(0, 60);
-            if (target._seen.has(sig)) continue;
-            target._seen.add(sig);
-            target.sections[dimKey].push({
-              title: title.substring(0, 120),
-              content,
-              priority: raw.priority || 'P2',
-              source:  raw.source || '',
-              url:     raw.url || '#',
-              _date:   dateStr,
-            });
-          }
+      loadedDates.push(dateStr);
+      for (const [deptId, deptData] of Object.entries(json.departments)) {
+        if (!mergedDepts[deptId]) {
+          mergedDepts[deptId] = {
+            name: deptData.name || DEPT_LIST.find(d=>d.id===deptId)?.name || deptId,
+            subtitle: deptData.subtitle || '',
+            report_date: dateStr,
+            sections: { 政策:[], 竞品:[], 客户:[], 前沿:[], 市场:[] },
+            total_events: 0,
+          };
         }
-        // 继续用 sections 数组兜底（处理 sectionsByDim 之外的维度）
-        if (Array.isArray(deptData.sections)) {
-          for (const sec of deptData.sections) {
-            if (!sec.dim || target.sections[sec.dim]) continue; // 已由 sectionsByDim 处理
-            target.sections[sec.dim] = [];
-            for (const raw of (sec.items || [])) {
-              const title   = norm(raw.title || raw.event || '');
-              const content = norm(raw.content || '');
-              if (!title && !content) continue;
-              const sig = title.substring(0, 60);
-              if (target._seen.has(sig)) continue;
-              target._seen.add(sig);
-              target.sections[sec.dim].push({
-                title: title.substring(0, 120),
-                content,
-                priority: raw.priority || 'P2',
-                source:  raw.source || '',
-                url:     raw.url || '#',
-                _date:   dateStr,
-              });
+        const target = mergedDepts[deptId];
+        // 更新最新有数据的日期
+        target.report_date = dateStr;
+        // 合并各维度条目
+        for (const tab of DIM_TABS) {
+          const dimKey = tab.key;
+          const rawSections = deptData.sections || {};
+          // 新格式：sections 是有序数组 [{dim, title, items}, ...]
+          if (Array.isArray(rawSections)) {
+            for (const sec of rawSections) {
+              if (sec.dim !== dimKey) continue;
+              const items = sec.items || [];
+              for (const raw of items) {
+                const title = norm(raw.title || raw.event || raw.Title || '');
+                const content = norm(raw.content || raw.fact || raw.Content || '');
+                if (!title && !content) continue;
+                const sig = title.substring(0,60);
+                if (!target._seen) target._seen = new Set();
+                if (target._seen.has(sig)) continue;
+                target._seen.add(sig);
+                target.sections[dimKey].push({
+                  title: title.substring(0,120),
+                  content,
+                  priority: raw.priority || raw.Priority || 'P2',
+                  source: raw.source || raw.source_name || '',
+                  url: raw.url || raw.Url || '#',
+                  _date: dateStr,
+                });
+              }
+            }
+          } else {
+            // 旧dict格式
+            for (const [rawKey, rawArr] of Object.entries(rawSections)) {
+              const key = norm(rawKey);
+              if (rawKey !== tab.key && !tab.match.some(m => key.includes(m) || m.includes(key))) continue;
+              const items = Array.isArray(rawArr) ? rawArr
+                : (typeof rawArr === 'object' && rawArr !== null
+                  ? Object.values(rawArr).flat() : []);
+              for (const raw of items) {
+                const title = norm(raw.title || raw.event || raw.Title || '');
+                const content = norm(raw.content || raw.fact || raw.Content || '');
+                if (!title && !content) continue;
+                const sig = title.substring(0,60);
+                if (!target._seen) target._seen = new Set();
+                if (target._seen.has(sig)) continue;
+                target._seen.add(sig);
+                target.sections[dimKey].push({
+                  title: title.substring(0,120),
+                  content,
+                  priority: raw.priority || raw.Priority || 'P2',
+                  source: raw.source || raw.source_name || '',
+                  url: raw.url || raw.Url || '#',
+                  _date: dateStr,
+                });
+              }
             }
           }
         }
-        continue; // sectionsByDim 路径结束
       }
-
-      // 旧格式：sections 是数组 [{dim, title, items}]
-      if (Array.isArray(deptData.sections)) {
-        for (const sec of deptData.sections) {
-          const dimKey = sec.dim;
-          if (!dimKey || !target.sections[dimKey]) continue;
-          for (const raw of (sec.items || [])) {
-            const title   = norm(raw.title || raw.event || '');
-            const content = norm(raw.content || '');
-            if (!title && !content) continue;
-            const sig = title.substring(0, 60);
-            if (target._seen.has(sig)) continue;
-            target._seen.add(sig);
-            target.sections[dimKey].push({
-              title: title.substring(0, 120),
-              content,
-              priority: raw.priority || 'P2',
-              source:  raw.source || '',
-              url:     raw.url || '#',
-              _date:   dateStr,
-            });
-          }
-        }
-      }
-      // 旧 dict 格式兜底（不再维护，仅防御性处理）
-    }
-  }
-
-  // 清理临时字段
-  for (const dept of Object.values(mergedDepts)) {
-    delete dept._seen;
+    } catch(e) {}
   }
 
   loadedDates.sort();
   const dateRange = loadedDates.length > 1
-    ? `${loadedDates[0]} ~ ${loadedDates[loadedDates.length - 1]}`
+    ? `${loadedDates[0]} ~ ${loadedDates[loadedDates.length-1]}`
     : (loadedDates[0] || '');
 
-  const totalItems = Object.values(mergedDepts).reduce((s, d) =>
-    s + Object.values(d.sections).reduce((a, arr) => a + arr.length, 0), 0);
-  console.log('[行业新闻] 聚合完成:', loadedDates.length, '期,',
-    Object.keys(mergedDepts).length, '个事业部,', totalItems, '条条目');
+  console.log('[行业新闻] 聚合加载:', loadedDates.length, '期', loadedDates.join(', '));
   return { data: mergedDepts, dateRange, loadedDates };
 }
 
@@ -629,18 +584,15 @@ function renderDimTabs(data) {
   bar.innerHTML = html;
 }
 
-// 统计用（遍历所有已加载的 BU，不依赖 DEPT_LIST 白名单）
+// 统计用（不重复push到全局结果）
 function collectDimItemsForCount(data, dimTab) {
   const result = [];
   const dimKey = dimTab.key;
-  for (const [deptId, deptData] of Object.entries(data)) {
+  for (const dept of DEPT_LIST) {
+    const deptData = data[dept.id];
     if (!deptData || !deptData.sections) continue;
-    // 优先取 sections[dimKey]；若无则从 sectionsByDim 兜底重建
-    let items = deptData.sections[dimKey];
-    if ((!items || items.length === 0) && deptData.sectionsByDim) {
-      items = deptData.sectionsByDim[dimKey] || [];
-    }
-    if (items) items.forEach(item => result.push(item));
+    const items = deptData.sections[dimKey] || [];
+    items.forEach(item => result.push(item));
   }
   return result;
 }
@@ -649,28 +601,21 @@ function collectDimItemsForCount(data, dimTab) {
 let _policyCount = 0;
 function getPolicyCount() { return _policyCount; }
 
+// ============================================================
 // 渲染维度内容区
 // ============================================================
 function renderDimContent(dimKey, data) {
   const area = document.getElementById('dimContentArea');
   const dimTab = DIM_TABS.find(t => t.key === dimKey) || DIM_TABS[4];
 
-  // 收集该维度的全部条目（遍历所有已加载 BU）
+  // 收集该维度的全部条目（mergedDepts.items 已按 dimKey 分类）
   const allItems = [];
-  const deptColorMap = {};
-  for (const d2 of DEPT_LIST) deptColorMap[d2.id] = { name: d2.name, color: d2.color };
-
-  for (const [deptId, deptData] of Object.entries(data)) {
+  for (const dept of DEPT_LIST) {
+    const deptData = data[dept.id];
     if (!deptData || !deptData.sections) continue;
-    // 优先从 sections[dimKey] 取，兜底从 sectionsByDim 取
-    let items = deptData.sections[dimKey];
-    if ((!items || items.length === 0) && deptData.sectionsByDim) {
-      items = deptData.sectionsByDim[dimKey] || [];
-    }
-    if (!items || items.length === 0) continue;
-    const deptInfo = deptColorMap[deptId] || { name: deptData.name || deptId, color: '#666' };
+    const items = deptData.sections[dimKey] || [];
     items.forEach(item => {
-      allItems.push({ ...item, deptId, deptName: deptInfo.name, deptColor: deptInfo.color });
+      allItems.push({ ...item, deptId: dept.id, deptName: dept.name, deptColor: dept.color });
     });
   }
 
