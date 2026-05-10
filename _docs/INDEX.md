@@ -102,6 +102,7 @@ py -3.12 embedded\gen_embedded_all.py
 
 ## 下一步
 
+- **首次接手本平台** → 阅读 `HANDOVER.md`（完整交接文档，涵盖所有日常维护场景）
 - 调整页面布局 → 阅读 `MAP.md` 了解页面结构
 - 修改数据格式 → 阅读 `MD_SPEC.md` 了解输入输出规范
 - 理解关键技术 → 阅读 `TECH_SPEC.md`
