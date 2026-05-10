@@ -140,8 +140,8 @@ D:\trae\AI Daily report\*.py（除外 md_to_json.py / gen_embedded_all.py）
 ## 五、状态文件路径
 
 ```
-D:\trae\AI Daily report\reports\collab_status.json   # 协调状态
-D:\trae\AI Daily report\CHANGELOG.md                  # 变更记录（每次更新后追加）
+D:\trae\AI Daily report\reports\collab_status.json   # 实时协调状态
+D:\trae\AI Daily report\TODO.md                       # 任务队列（共享待办清单）
 ```
 
 ---
