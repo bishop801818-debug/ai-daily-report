@@ -1,0 +1,1154 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>晨会指挥中心 - 事业部矩阵</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=Noto+Sans+SC:wght@300;400;500;600&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --navy: #0d1b2e;
+            --navy-mid: #152339;
+            --navy-light: #1e3356;
+            --gold: #c9a84c;
+            --gold-light: #e8c96a;
+            --cream: #f8f4ec;
+            --white: #ffffff;
+            --text-dark: #1a2535;
+            --text-mid: #4a5568;
+            --text-light: #718096;
+            --d1: #1a6b9e;
+            --d2: #2e7d5a;
+            --d3: #7b4fa8;
+            --d4: #c0572a;
+            --d5: #b5862a;
+            --d6: #2a6b7c;
+            /* 弹窗 — 浅色科技风（与主页一致） */
+            --panel-bg: rgba(230,238,250,0.97);
+            --panel-surface: rgba(240,245,255,0.85);
+            --panel-border: rgba(30,60,114,0.1);
+            --panel-text: #1e3c72;
+            --panel-muted: rgba(30,60,114,0.45);
+            --panel-accent: #1e3c72;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Noto Sans SC', 'Microsoft YaHei', 'PingFang SC', Arial, sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+            color: var(--text-dark);
+        }
+
+        /* ── 科技感底层（保留原背景）── */
+        .tech-stage {
+            position: fixed; inset: 0; z-index: 0;
+            background: linear-gradient(135deg, #e8edf5 0%, #d5dde8 50%, #c8d2e0 100%);
+        }
+        .bg-atmo {
+            position: fixed; top: 0; left: 0; right: 0; height: 30%;
+            z-index: 0; pointer-events: none;
+            background:
+                radial-gradient(ellipse 70% 50% at 50% -5%, rgba(30,60,114,0.08) 0%, transparent 70%),
+                radial-gradient(ellipse 50% 35% at 80% 0%, rgba(138,43,226,0.05) 0%, transparent 60%),
+                radial-gradient(ellipse 40% 30% at 15% 0%, rgba(0,120,200,0.04) 0%, transparent 55%);
+        }
+        .perspective-grid {
+            position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+            width: 300vw; height: 55vh;
+            z-index: 1; overflow: hidden;
+            perspective: 500px; perspective-origin: 50% 100%;
+        }
+        .grid-plane {
+            width: 100%; height: 100%;
+            transform: rotateX(70deg);
+            transform-origin: 50% 0%;
+            background:
+                linear-gradient(rgba(30,60,114,0.2) 1.5px, transparent 1.5px),
+                linear-gradient(90deg, rgba(30,60,114,0.2) 1.5px, transparent 1.5px);
+            background-size: 70px 70px;
+            animation: gridDrift 16s linear infinite;
+            mask-image: linear-gradient(transparent 0%, rgba(200,210,225,0.5) 55%, rgba(200,210,225,0.92) 100%);
+            -webkit-mask-image: linear-gradient(transparent 0%, rgba(200,210,225,0.5) 55%, rgba(200,210,225,0.92) 100%);
+        }
+        @keyframes gridDrift {
+            0% { background-position: 0 0; }
+            100% { background-position: 70px 70px; }
+        }
+        .grid-fade {
+            position: absolute; top: 0; left: 0; right: 0; height: 45%;
+            background: linear-gradient(180deg, #d5dde8 0%, transparent 100%);
+        }
+        #particleCanvas {
+            position: fixed; inset: 0; z-index: 2;
+            pointer-events: none; opacity: 0.7;
+        }
+        .data-core-wrap {
+            position: fixed; top: 15%; left: 50%; transform: translateX(-50%);
+            z-index: 3; pointer-events: none;
+            display: flex; flex-direction: column; align-items: center;
+        }
+        .data-core-label {
+            font-size: 0.52rem; color: rgba(30,60,114,0.4);
+            letter-spacing: 3px; margin-bottom: 6px; font-weight: 700;
+        }
+        .data-core-svg { animation: coreGlow 4s ease-in-out infinite; }
+        @keyframes coreGlow {
+            0%, 100% { filter: drop-shadow(0 0 6px rgba(30,60,114,0.35)) drop-shadow(0 0 2px rgba(30,60,114,0.2)); }
+            50% { filter: drop-shadow(0 0 14px rgba(138,43,226,0.45)) drop-shadow(0 0 4px rgba(138,43,226,0.25)); }
+        }
+
+        /* ── 页面主内容 ── */
+        .page-content {
+            position: relative; z-index: 20;
+            max-width: 1400px; margin: 0 auto;
+            padding: 28px 30px 0;
+        }
+        .top-bar {
+            background: rgba(230,235,245,0.95);
+            border-radius: 14px; padding: 14px 28px; margin-bottom: 18px;
+            box-shadow: 0 2px 16px rgba(30,60,114,0.1), 0 1px 0 rgba(255,255,255,0.8) inset;
+            display: flex; justify-content: space-between; align-items: center;
+            border: 1px solid rgba(30,60,114,0.08); position: relative; overflow: hidden;
+        }
+        .top-bar::before {
+            content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
+            background: linear-gradient(180deg, #00d4ff, #1e3c72, #00d4ff);
+            border-radius: 14px 0 0 14px;
+        }
+        .top-bar-title {
+            font-size: 1.2rem; font-weight: 700;
+            background: linear-gradient(90deg, #1e3c72, #00d4ff);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text; letter-spacing: 1px;
+        }
+        .top-bar-nav { display: flex; gap: 6px; }
+        .top-bar-nav a {
+            padding: 6px 14px; border-radius: 10px;
+            color: #556; text-decoration: none; font-size: 0.8rem; font-weight: 600;
+            transition: all 0.2s; border: 1px solid transparent;
+        }
+        .top-bar-nav a:hover { background: rgba(0,212,255,0.08); color: #1e3c72; }
+        .top-bar-nav a.active { background: rgba(0,212,255,0.12); color: #1e3c72; border-color: rgba(0,212,255,0.2); }
+        .cat-header { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; }
+        .cat-pill {
+            padding: 5px 16px; border-radius: 20px;
+            font-size: 0.78rem; font-weight: 700; letter-spacing: 0.5px; flex-shrink: 0;
+        }
+        .cat-pill-li { background: rgba(0,212,255,0.1); border: 1px solid rgba(0,212,255,0.3); color: #1e3c72; }
+        .cat-pill-chem { background: rgba(138,43,226,0.08); border: 1px solid rgba(138,43,226,0.2); color: #6a1b9a; }
+        .bu-card {
+            border-radius: 14px; padding: 18px 16px 14px;
+            cursor: pointer; position: relative; overflow: hidden;
+            border: 1px solid rgba(30,60,114,0.1);
+            background: rgba(240,244,250,0.92);
+            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+            box-shadow: 0 2px 12px rgba(30,60,114,0.08);
+            transition: transform 0.35s cubic-bezier(0.25,0.46,0.45,0.94),
+                        box-shadow 0.35s ease, border-color 0.25s ease;
+            -webkit-user-select: none; user-select: none; min-height: 118px;
+        }
+        .bu-card::before {
+            content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+            background: linear-gradient(90deg, transparent, var(--card-accent), transparent);
+            opacity: 0; transition: opacity 0.3s;
+        }
+        .bu-card:hover, .bu-card.hover-active {
+            transform: translateY(-4px) scale(1.02);
+            border-color: var(--card-accent);
+            box-shadow: 0 8px 28px rgba(30,60,114,0.15), 0 0 18px var(--card-accent-glow),
+                        inset 0 0 16px rgba(255,255,255,0.5);
+            background: rgba(255,255,255,0.96);
+        }
+        .bu-card:hover::before, .bu-card.hover-active::before { opacity: 1; }
+        .bu-card::after {
+            content: ''; position: absolute; top: -40px; right: -40px;
+            width: 100px; height: 100px;
+            background: radial-gradient(circle, var(--card-accent-glow) 0%, transparent 70%);
+            opacity: 0; transition: opacity 0.4s; pointer-events: none;
+        }
+        .bu-card:hover::after, .bu-card.hover-active::after { opacity: 0.18; }
+        .hover-progress {
+            position: absolute; bottom: 0; left: 0; height: 2.5px;
+            width: 0%; background: var(--card-accent);
+            transition: none; opacity: 0.85;
+            box-shadow: 0 0 8px var(--card-accent-glow);
+        }
+        .card-logo-wrap { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+        .card-logo-placeholder {
+            width: 52px; height: 52px; border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.8rem; font-weight: 800;
+            flex-shrink: 0; letter-spacing: 0.5px;
+        }
+        .card-logo-img {
+            width: 52px; height: 52px; border-radius: 10px;
+            object-fit: contain; flex-shrink: 0;
+            filter: drop-shadow(0 2px 4px rgba(30,60,114,0.12));
+            transition: filter 0.3s;
+        }
+        .bu-card:hover .card-logo-img, .bu-card.hover-active .card-logo-img {
+            filter: drop-shadow(0 2px 8px var(--card-accent-glow));
+        }
+        .card-name-block { flex: 1; min-width: 0; }
+        .card-fullname {
+            font-size: 0.9rem; font-weight: 800; color: #1e3c72;
+            margin-bottom: 2px; letter-spacing: 0.3px;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .card-tag {
+            display: inline-block; padding: 2px 8px; border-radius: 20px;
+            font-size: 0.6rem; font-weight: 600;
+            background: rgba(30,60,114,0.05); border: 1px solid rgba(30,60,114,0.1);
+            color: var(--card-accent);
+        }
+        .card-glow-line {
+            height: 1.5px; width: 24px;
+            background: linear-gradient(90deg, var(--card-accent), transparent);
+            border-radius: 2px; margin-bottom: 7px; opacity: 0.5;
+        }
+        .card-meta {
+            font-size: 0.66rem; color: rgba(30,60,114,0.45); line-height: 1.55;
+            display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+        }
+        .card-hint {
+            position: absolute; top: 10px; right: 10px; font-size: 0.58rem;
+            color: rgba(30,60,114,0.28); opacity: 0; transform: scale(0.85) translateY(-3px);
+            transition: opacity 0.3s; white-space: nowrap;
+        }
+        .bu-card:hover .card-hint { opacity: 1; transform: scale(1) translateY(0); }
+        .page-bottom { height: 80px; }
+
+        /* ── 卡片网格布局 ── */
+        .hub-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            align-items: start;
+        }
+        .li-col, .chem-col {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 14px;
+        }
+
+        /* ── 右侧滑入面板（浅色科技风）── */
+        .panel-overlay { position: fixed; inset: 0; z-index: 200; pointer-events: none; }
+        .panel-overlay.active { pointer-events: all; }
+        .panel-backdrop {
+            position: absolute; inset: 0;
+            background: rgba(180,200,230,0.55);
+            -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+            opacity: 0; transition: opacity 0.4s ease;
+        }
+        .panel-overlay.active .panel-backdrop { opacity: 1; }
+        .panel-drawer {
+            position: absolute; top: 0; right: 0; bottom: 0;
+            width: 640px; max-width: 98vw;
+            background: var(--panel-bg);
+            border-left: 1px solid var(--panel-border);
+            -webkit-backdrop-filter: blur(20px) saturate(150%);
+            backdrop-filter: blur(20px) saturate(150%);
+            box-shadow: -12px 0 48px rgba(30,60,114,0.18), 0 0 0 1px rgba(30,60,114,0.06);
+            transform: translateX(100%);
+            transition: transform 0.45s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            display: flex; flex-direction: column; overflow: hidden;
+            border-radius: 18px 0 0 18px;
+        }
+        .panel-overlay.active .panel-drawer { transform: translateX(0); }
+
+        .drawer-topbar {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--panel-border);
+            flex-shrink: 0;
+            background: var(--panel-surface);
+            backdrop-filter: blur(12px);
+        }
+        .drawer-bu-info { display: flex; align-items: center; gap: 14px; }
+        .drawer-logo-img {
+            width: 44px; height: 44px; border-radius: 10px; object-fit: contain;
+            background: rgba(30,60,114,0.06); border: 1.5px solid rgba(30,60,114,0.12);
+            padding: 4px; flex-shrink: 0;
+        }
+        .drawer-logo-placeholder {
+            width: 44px; height: 44px; border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.85rem; font-weight: 800;
+            background: rgba(30,60,114,0.06); border: 1.5px solid rgba(30,60,114,0.12);
+            flex-shrink: 0; letter-spacing: 0.5px;
+        }
+        #drawerLogoWrap { display: flex; align-items: center; }
+        .drawer-name { font-family: 'Noto Serif SC', serif; font-size: 1.1rem; font-weight: 700; color: var(--panel-text); }
+        .drawer-tag {
+            display: inline-block; padding: 2px 10px; border-radius: 20px;
+            font-size: 0.62rem; font-weight: 600;
+            color: var(--panel-accent);
+            background: rgba(30,60,114,0.06); border: 1px solid rgba(30,60,114,0.12);
+            margin-top: 3px;
+        }
+        .drawer-close {
+            background: rgba(30,60,114,0.05); border: 1px solid rgba(30,60,114,0.1);
+            border-radius: 8px; width: 34px; height: 34px;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; color: var(--panel-muted); font-size: 0.9rem; transition: all 0.2s;
+        }
+        .drawer-close:hover { background: rgba(30,60,114,0.12); color: var(--panel-text); border-color: rgba(30,60,114,0.25); }
+
+        /* ── 面板主体（浅色）── */
+        .drawer-body {
+            flex: 1; overflow-y: auto; overflow-x: hidden;
+            scrollbar-width: thin; scrollbar-color: rgba(30,60,114,0.15) transparent;
+        }
+        .drawer-body::-webkit-scrollbar { width: 4px; }
+        .drawer-body::-webkit-scrollbar-thumb { background: rgba(30,60,114,0.15); border-radius: 2px; }
+
+        /* ── 综合评分区（浅色卡片）── */
+        .hexa-summary {
+            background: var(--panel-surface);
+            border-bottom: 1px solid var(--panel-border);
+            padding: 18px 24px;
+            display: flex; align-items: center; gap: 20px;
+            backdrop-filter: blur(12px);
+        }
+        .hexa-score-block { text-align: center; flex-shrink: 0; }
+        .hexa-score-num {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.4rem; font-weight: 700;
+            background: linear-gradient(135deg, #1e3c72, #00d4ff);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1;
+        }
+        .hexa-score-label { font-size: 0.62rem; color: var(--panel-muted); margin-top: 3px; letter-spacing: 0.05em; }
+        .hexa-divider { width: 1px; height: 48px; background: var(--panel-border); flex-shrink: 0; }
+        .hexa-grade {
+            font-family: 'Playfair Display', serif; font-size: 2rem; font-weight: 700;
+            line-height: 1; margin-bottom: 4px;
+        }
+        .hexa-grade-label { font-size: 0.62rem; color: var(--panel-muted); }
+        .hexa-meta { flex: 1; display: flex; flex-direction: column; gap: 6px; }
+        .hexa-meta-row { display: flex; align-items: center; gap: 8px; }
+        .hexa-meta-key { font-size: 0.65rem; color: var(--panel-muted); width: 44px; flex-shrink: 0; }
+        .hexa-meta-val { font-size: 0.72rem; font-weight: 600; color: var(--panel-text); }
+        .hexa-badge {
+            display: inline-block; padding: 2px 10px; border-radius: 12px;
+            font-size: 0.6rem; font-weight: 700; letter-spacing: 0.05em;
+        }
+
+        /* ── 主内容区：雷达 + 维度（浅色）── */
+        .hexa-main {
+            display: flex; gap: 0; padding: 20px 0;
+        }
+        .hexa-radar-col {
+            width: 220px; flex-shrink: 0;
+            display: flex; flex-direction: column; align-items: center; gap: 12px;
+            padding: 0 16px;
+            border-right: 1px solid var(--panel-border);
+        }
+        .hexa-radar-wrap {
+            width: 190px; height: 190px; position: relative;
+        }
+        .hexa-legend { width: 100%; display: flex; flex-direction: column; gap: 4px; }
+        .hexa-leg-item {
+            display: flex; align-items: center; gap: 6px;
+            font-size: 0.6rem; color: var(--panel-muted);
+        }
+        .hexa-leg-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+        .hexa-rank-note { font-size: 0.6rem; color: var(--panel-muted); text-align: center; margin-top: 4px; }
+
+        /* ── 维度打分条（浅色）── */
+        .hexa-dims-col { flex: 1; padding: 0 20px; display: flex; flex-direction: column; gap: 8px; overflow-y: auto; max-height: calc(100vh - 300px); }
+        .hexa-dim-row {
+            border-radius: 8px; overflow: hidden;
+            border: 1px solid rgba(30,60,114,0.08);
+            background: rgba(240,245,255,0.6);
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .hexa-dim-row:hover { border-color: rgba(0,212,255,0.3); box-shadow: 0 2px 8px rgba(30,60,114,0.06); }
+        .hexa-dim-row.open { border-color: rgba(0,212,255,0.4); background: rgba(230,242,255,0.8); box-shadow: 0 2px 12px rgba(30,60,114,0.08); }
+        .hexa-dim-header {
+            display: flex; align-items: center; gap: 10px;
+            padding: 10px 14px; cursor: pointer;
+        }
+        .hexa-dim-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+        .hexa-dim-num { font-size: 0.62rem; color: var(--panel-muted); font-weight: 600; width: 22px; flex-shrink: 0; }
+        .hexa-dim-name { font-size: 0.78rem; color: var(--panel-text); flex: 1; font-weight: 500; }
+        .hexa-dim-weight { font-size: 0.62rem; color: var(--panel-muted); margin-right: 4px; }
+        .hexa-dim-bar-wrap { flex: 1; max-width: 100px; height: 5px; background: rgba(30,60,114,0.06); border-radius: 3px; overflow: hidden; }
+        .hexa-dim-bar { height: 100%; border-radius: 3px; transition: width 0.6s cubic-bezier(0.34,1.2,0.64,1); }
+        .hexa-dim-score { font-size: 0.85rem; font-weight: 700; color: var(--panel-text); width: 30px; text-align: right; flex-shrink: 0; }
+        .hexa-dim-pts { font-size: 0.65rem; color: var(--panel-muted); width: 36px; text-align: right; flex-shrink: 0; }
+        .hexa-dim-chevron { color: var(--panel-muted); transition: transform 0.25s; flex-shrink: 0; font-size: 0.65rem; }
+        .hexa-dim-row.open .hexa-dim-chevron { transform: rotate(180deg); }
+
+        /* KPI 展开面板（浅色） */
+        .hexa-dim-kpi { display: none; padding: 0 14px 12px 44px; }
+        .hexa-dim-row.open .hexa-dim-kpi { display: block; }
+        .hexa-kpi-item {
+            display: flex; align-items: center; gap: 8px;
+            padding: 7px 10px; margin-bottom: 4px;
+            background: rgba(30,60,114,0.04); border-radius: 6px;
+        }
+        .hexa-kpi-name { font-size: 0.7rem; color: var(--panel-muted); flex: 1; }
+        .hexa-kpi-bar-wrap { width: 60px; height: 4px; background: rgba(30,60,114,0.06); border-radius: 2px; overflow: hidden; }
+        .hexa-kpi-bar { height: 100%; border-radius: 2px; }
+        .hexa-kpi-score { font-size: 0.68rem; font-weight: 600; color: var(--panel-text); width: 22px; text-align: right; flex-shrink: 0; }
+
+        /* ── 全部BU横向排名（浅色）── */
+        .hexa-all-section { padding: 16px 24px 24px; border-top: 1px solid var(--panel-border); }
+        .hexa-all-title {
+            font-size: 0.65rem; font-weight: 600; color: var(--panel-muted);
+            letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 12px;
+        }
+        .hexa-all-bars { display: flex; flex-direction: column; gap: 6px; }
+        .hexa-all-row {
+            display: flex; align-items: center; gap: 10px;
+            font-size: 0.7rem;
+        }
+        .hexa-all-rank { color: var(--panel-muted); width: 18px; text-align: right; flex-shrink: 0; font-weight: 600; }
+        .hexa-all-name { color: var(--panel-text); width: 70px; flex-shrink: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .hexa-all-bar-wrap { flex: 1; height: 6px; background: rgba(30,60,114,0.06); border-radius: 3px; overflow: hidden; }
+        .hexa-all-bar { height: 100%; border-radius: 3px; transition: width 0.8s cubic-bezier(0.34,1.2,0.64,1); }
+        .hexa-all-score { color: var(--panel-muted); width: 30px; text-align: right; flex-shrink: 0; font-weight: 600; }
+        .hexa-all-row.current .hexa-all-name { color: #1e3c72; font-weight: 700; }
+        .hexa-all-row.current .hexa-all-score { color: #1e3c72; font-weight: 700; }
+
+        /* ── 快捷入口（浅色）── */
+        .hexa-actions { padding: 0 24px 20px; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+        .hexa-action-btn {
+            display: flex; align-items: center; justify-content: center; gap: 5px;
+            padding: 9px 10px; border-radius: 8px; font-size: 0.72rem; font-weight: 600;
+            cursor: pointer; text-decoration: none; transition: all 0.2s; border: 1px solid;
+        }
+        .hexa-action-pri {
+            background: rgba(30,60,114,0.08); border-color: rgba(30,60,114,0.2); color: #1e3c72;
+        }
+        .hexa-action-pri:hover { background: rgba(30,60,114,0.14); }
+        .hexa-action-sec {
+            background: rgba(30,60,114,0.04); border-color: rgba(30,60,114,0.1); color: var(--panel-muted);
+        }
+        .hexa-action-sec:hover { background: rgba(30,60,114,0.08); color: var(--panel-text); }
+
+        /* ── 今日早报摘要（浅色）── */
+        .hexa-brief { padding: 14px 24px; border-top: 1px solid var(--panel-border); border-bottom: 1px solid var(--panel-border); margin-bottom: 0; }
+        .hexa-brief-label { font-size: 0.62rem; font-weight: 700; color: var(--panel-muted); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 8px; }
+        .hexa-brief-headline { font-size: 0.8rem; color: var(--panel-text); font-weight: 600; line-height: 1.5; margin-bottom: 6px; }
+        .hexa-brief-tags { display: flex; flex-wrap: wrap; gap: 4px; }
+        .hexa-brief-tag {
+            padding: 2px 8px; border-radius: 12px; font-size: 0.6rem; font-weight: 600;
+            background: rgba(30,60,114,0.06); border: 1px solid rgba(30,60,114,0.1);
+            color: var(--panel-muted);
+        }
+
+        /* ── SVG 雷达图（浅色背景适配）── */
+        .hexa-radar-wrap { position: relative; display: flex; flex-direction: column; align-items: center; overflow: visible; }
+        .radar-svg { width: 100%; height: 100%; overflow: visible; }
+        .radar-axis-label { font-size: 6.5px; font-family: 'Noto Sans SC', sans-serif; pointer-events: none; }
+        .radar-ring-3d {
+            stroke-width: 1; fill: none;
+            transform-origin: 80px 80px;
+        }
+
+        /* 雷达图入场动画 */
+        @keyframes ringReveal {
+            0%   { transform: scale(0); opacity: 0; }
+            65%  { transform: scale(1.12); opacity: 1; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        @keyframes fillReveal {
+            0%   { opacity: 0; transform: scale(0); }
+            70%  { opacity: 0.85; transform: scale(1.06); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+        @keyframes dotReveal {
+            0%   { transform: scale(0); opacity: 0; }
+            70%  { transform: scale(1.4); opacity: 1; }
+            100% { transform: scale(1); opacity: 0.9; }
+        }
+        @keyframes centerReveal {
+            0%   { opacity: 0; transform: scale(0.4); }
+            70%  { opacity: 1; transform: scale(1.18); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+        @keyframes axisReveal {
+            0%   { stroke-dashoffset: 200; opacity: 0; }
+            50%  { opacity: 1; }
+            100% { stroke-dashoffset: 0; opacity: 1; }
+        }
+        .radar-reveal .radar-ring-3d {
+            transform: scale(0); opacity: 0;
+            animation: ringReveal 0.9s cubic-bezier(0.34,1.3,0.64,1) forwards;
+        }
+        .radar-reveal .radar-ring-3d:nth-child(1) { animation-delay: 0.08s; }
+        .radar-reveal .radar-ring-3d:nth-child(2) { animation-delay: 0.18s; }
+        .radar-reveal .radar-ring-3d:nth-child(3) { animation-delay: 0.28s; }
+        .radar-reveal .radar-ring-3d:nth-child(4) { animation-delay: 0.38s; }
+        .radar-reveal .radar-fill {
+            transform-origin: 80px 80px;
+            transform: scale(0); opacity: 0;
+            animation: fillReveal 1.0s cubic-bezier(0.34,1.2,0.64,1) 0.35s forwards;
+        }
+        .radar-reveal .radar-axis {
+            stroke-dasharray: 200; stroke-dashoffset: 200;
+            animation: axisReveal 0.8s ease-out 0.15s forwards;
+        }
+        .radar-reveal .radar-dot {
+            transform-origin: 0 0;
+            transform: scale(0); opacity: 0;
+            animation: dotReveal 0.7s cubic-bezier(0.34,1.3,0.64,1) forwards;
+        }
+        .radar-reveal .radar-dot:nth-child(1) { animation-delay: 0.45s; }
+        .radar-reveal .radar-dot:nth-child(2) { animation-delay: 0.52s; }
+        .radar-reveal .radar-dot:nth-child(3) { animation-delay: 0.59s; }
+        .radar-reveal .radar-dot:nth-child(4) { animation-delay: 0.66s; }
+        .radar-reveal .radar-dot:nth-child(5) { animation-delay: 0.73s; }
+        .radar-reveal .radar-dot:nth-child(6) { animation-delay: 0.80s; }
+        .radar-reveal .radar-center-val {
+            opacity: 0;
+            animation: centerReveal 0.8s cubic-bezier(0.34,1.3,0.64,1) 0.5s forwards;
+        }
+
+        /* 维度条 + 排名条入场动画 */
+        @keyframes scoreCountUp {
+            0%   { opacity: 0; transform: translateY(6px) scale(0.85); }
+            100% { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        @keyframes barGrow {
+            from { width: 0%; opacity: 0; }
+            to   { opacity: 1; }
+        }
+        .hexa-summary { animation: fadeUp 0.35s ease both; }
+        .hexa-summary .hexa-score-num { opacity: 0; animation: scoreCountUp 0.5s cubic-bezier(0.34,1.3,0.64,1) 0.15s forwards; }
+        .hexa-summary .hexa-grade     { opacity: 0; animation: scoreCountUp 0.5s cubic-bezier(0.34,1.3,0.64,1) 0.25s forwards; }
+
+        .hexa-dim-row .hexa-dim-score { opacity: 0; animation: scoreCountUp 0.4s ease forwards; }
+        .hexa-dim-row:nth-child(1) .hexa-dim-score { animation-delay: 0.08s; }
+        .hexa-dim-row:nth-child(2) .hexa-dim-score { animation-delay: 0.16s; }
+        .hexa-dim-row:nth-child(3) .hexa-dim-score { animation-delay: 0.24s; }
+        .hexa-dim-row:nth-child(4) .hexa-dim-score { animation-delay: 0.32s; }
+        .hexa-dim-row:nth-child(5) .hexa-dim-score { animation-delay: 0.40s; }
+        .hexa-dim-row:nth-child(6) .hexa-dim-score { animation-delay: 0.48s; }
+
+        .hexa-dim-row .hexa-dim-bar {
+            animation: barGrow 0.9s cubic-bezier(0.34,1.2,0.64,1) forwards;
+        }
+        .hexa-dim-row:nth-child(1) .hexa-dim-bar { animation-delay: 0.05s; }
+        .hexa-dim-row:nth-child(2) .hexa-dim-bar { animation-delay: 0.12s; }
+        .hexa-dim-row:nth-child(3) .hexa-dim-bar { animation-delay: 0.19s; }
+        .hexa-dim-row:nth-child(4) .hexa-dim-bar { animation-delay: 0.26s; }
+        .hexa-dim-row:nth-child(5) .hexa-dim-bar { animation-delay: 0.33s; }
+        .hexa-dim-row:nth-child(6) .hexa-dim-bar { animation-delay: 0.40s; }
+
+        .hexa-all-row .hexa-all-bar {
+            animation: barGrow 1.0s cubic-bezier(0.34,1.2,0.64,1) forwards;
+        }
+        .hexa-all-row:nth-child(1) .hexa-all-bar { animation-delay: 0.10s; }
+        .hexa-all-row:nth-child(2) .hexa-all-bar { animation-delay: 0.15s; }
+        .hexa-all-row:nth-child(3) .hexa-all-bar { animation-delay: 0.20s; }
+        .hexa-all-row:nth-child(4) .hexa-all-bar { animation-delay: 0.25s; }
+        .hexa-all-row:nth-child(5) .hexa-all-bar { animation-delay: 0.30s; }
+        .hexa-all-row:nth-child(6) .hexa-all-bar { animation-delay: 0.35s; }
+        .hexa-all-row:nth-child(7) .hexa-all-bar { animation-delay: 0.40s; }
+        .hexa-all-row:nth-child(8) .hexa-all-bar { animation-delay: 0.45s; }
+        .hexa-all-row:nth-child(9) .hexa-all-bar { animation-delay: 0.50s; }
+    </style>
+</head>
+<body>
+
+<!-- 科技感底层 -->
+<div class="tech-stage"></div>
+<div class="bg-atmo"></div>
+<div class="perspective-grid">
+    <div class="grid-plane"></div>
+    <div class="grid-fade"></div>
+</div>
+<canvas id="particleCanvas"></canvas>
+
+<!-- 数据核心 -->
+<div class="data-core-wrap">
+    <div class="data-core-label">◆ SYSTEM CORE ◆</div>
+    <svg class="data-core-svg" width="72" height="72" viewBox="0 0 72 72">
+        <defs>
+            <filter id="glow1">
+                <feGaussianBlur stdDeviation="1.8" result="blur"/>
+                <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+            </filter>
+            <linearGradient id="cg1" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#1e3c72"/>
+                <stop offset="50%" stop-color="#8a2be2"/>
+                <stop offset="100%" stop-color="#1e3c72"/>
+            </linearGradient>
+        </defs>
+        <polygon points="36,5 60,16 60,44 36,55 12,44 12,16"
+            fill="none" stroke="url(#cg1)" stroke-width="1.2" opacity="0.55" filter="url(#glow1)"/>
+        <polygon points="36,14 52,22 52,40 36,48 20,40 20,22"
+            fill="rgba(30,60,114,0.04)" stroke="#1e3c72" stroke-width="0.8" opacity="0.75" filter="url(#glow1)"/>
+        <line x1="36" y1="5" x2="12" y2="44" stroke="#8a2be2" stroke-width="0.5" opacity="0.3" stroke-dasharray="2,2"/>
+        <line x1="60" y1="16" x2="36" y2="55" stroke="#8a2be2" stroke-width="0.5" opacity="0.3" stroke-dasharray="2,2"/>
+        <line x1="36" y1="5" x2="60" y2="44" stroke="#1e3c72" stroke-width="0.4" opacity="0.2"/>
+        <line x1="12" y1="16" x2="36" y2="55" stroke="#1e3c72" stroke-width="0.4" opacity="0.2"/>
+        <circle cx="36" cy="30" r="3.5" fill="#1e3c72" opacity="0.7" filter="url(#glow1)"/>
+        <circle cx="36" cy="30" r="1.5" fill="rgba(255,255,255,0.85)" opacity="0.9"/>
+    </svg>
+</div>
+
+
+<!-- 页面内容 -->
+<div class="page-content">
+    <div class="top-bar">
+        <span class="top-bar-title">晨会指挥中心</span>
+        <nav class="top-bar-nav">
+            <a href="index_v3.html">首页</a>
+            <a href="dept-archive.html">事业部存档</a>
+            <a href="industry_news.html">行业新闻</a>
+            <a href="policy_center_v4.html">政策中心</a>
+            <a href="bu_hub.html" class="active">事业部中心</a>
+        </nav>
+    </div>
+
+    <div class="cat-header">
+        <span class="cat-pill cat-pill-li">⚡ 锂电矩阵</span>
+    </div>
+
+    <div class="hub-grid">
+        <div class="li-col" id="li-col"></div>
+        <div>
+            <div class="cat-header" style="margin-top:0">
+                <span class="cat-pill cat-pill-chem">🧪 化学品矩阵</span>
+            </div>
+            <div class="chem-col" id="chem-col"></div>
+        </div>
+    </div>
+</div>
+<div class="page-bottom"></div>
+
+<!-- 右侧滑入面板 -->
+<div class="panel-overlay" id="panelOverlay">
+    <div class="panel-backdrop" onclick="closePanel()"></div>
+    <div class="panel-drawer" id="panelDrawer">
+        <div class="drawer-topbar">
+            <div class="drawer-bu-info">
+                <div id="drawerLogoWrap">
+                    <img class="drawer-logo-img" id="drawerLogoImg" src="" alt="" style="display:none">
+                    <div class="drawer-logo-placeholder" id="drawerLogoPlaceholder"></div>
+                </div>
+                <div>
+                    <div class="drawer-name" id="drawerName"></div>
+                    <span class="drawer-tag" id="drawerTag"></span>
+                </div>
+            </div>
+            <button type="button" class="drawer-close" onclick="closePanel()">✕</button>
+        </div>
+        <div class="drawer-body" id="drawerBody"></div>
+    </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════
+//  六边形评价体系 · 模拟数据
+//  维度权重：D1战略执行力20% D2经营效益20% D3运营效率18% D4技术创新力17% D5风险合规13% D6组织活力12%
+// ═══════════════════════════════════════════════════════════
+const DIMS = [
+    { id:'d1', name:'战略执行力', color:'#1a6b9e', weight:0.20, order:0,
+      kpis:['KPI目标达成率','战略协同度','项目里程碑完成率','资源配置效率'] },
+    { id:'d2', name:'经营效益',   color:'#2e7d5a', weight:0.20, order:1,
+      kpis:['营收同比增长率','综合毛利率','净利润率','回款率'] },
+    { id:'d3', name:'运营效率',   color:'#7b4fa8', weight:0.18, order:2,
+      kpis:['产能利用率','产品一次合格率','客户投诉率','供应链稳定性'] },
+    { id:'d4', name:'技术创新力', color:'#c0572a', weight:0.17, order:3,
+      kpis:['研发投入强度','专利成果产出','新产品营收占比','技术转化率'] },
+    { id:'d5', name:'风险合规',   color:'#b5862a', weight:0.13, order:4,
+      kpis:['安全事故率','环保达标率','内控执行率','法律纠纷次数'] },
+    { id:'d6', name:'组织活力',   color:'#2a6b7c', weight:0.12, order:5,
+      kpis:['核心人才保留率','人均营收','培训完成率','管理层执行力'] },
+];
+
+const BUS_DATA = {
+    czly:{ name:'常州锂源', logo:'', tag:'新能源材料', accent:'#00d4ff',
+        dims:{ d1:72,d2:68,d3:78,d4:80,d5:70,d6:68 },
+        kpis:{
+            d1:[7,7,7,7], d2:[7,7,6,7], d3:[8,8,8,7],
+            d4:[8,8,8,8], d5:[7,7,7,8], d6:[7,6,7,7]
+        }},
+    lpsd:{ name:'龙蟠时代', logo:'', tag:'电芯智造', accent:'#4caf50',
+        dims:{ d1:65,d2:58,d3:68,d4:75,d5:72,d6:62 },
+        kpis:{
+            d1:[6,7,6,6], d2:[6,5,5,6], d3:[7,7,7,7],
+            d4:[8,7,7,8], d5:[7,7,8,7], d6:[6,6,6,6]
+        }},
+    sjld:{ name:'三金锂电', logo:'', tag:'三元前驱体', accent:'#ff9800',
+        dims:{ d1:68,d2:62,d3:72,d4:78,d5:68,d6:62 },
+        kpis:{
+            d1:[7,6,7,7], d2:[6,6,6,6], d3:[7,7,7,7],
+            d4:[8,8,8,7], d5:[7,7,7,6], d6:[6,6,6,6]
+        }},
+    felt:{ name:'法恩莱特', logo:'', tag:'电解液', accent:'#9c27b0',
+        dims:{ d1:70,d2:65,d3:72,d4:82,d5:70,d6:65 },
+        kpis:{
+            d1:[7,7,7,7], d2:[7,6,6,7], d3:[7,7,7,7],
+            d4:[8,8,9,8], d5:[7,7,7,7], d6:[7,6,7,6]
+        }},
+    sdmd:{ name:'山东美多', logo:'', tag:'回收再利用', accent:'#e91e63',
+        dims:{ d1:75,d2:65,d3:70,d4:72,d5:72,d6:68 },
+        kpis:{
+            d1:[8,7,8,7], d2:[7,6,6,7], d3:[7,7,7,7],
+            d4:[7,7,7,8], d5:[7,8,7,7], d6:[7,7,7,7]
+        }},
+    lhy: { name:'龙蟠润滑油', logo:'', tag:'润滑防护', accent:'#78909c',
+        dims:{ d1:78,d2:82,d3:80,d4:65,d5:85,d6:75 },
+        kpis:{
+            d1:[8,8,8,7], d2:[8,8,8,8], d3:[8,8,8,8],
+            d4:[7,6,7,6], d5:[9,8,8,9], d6:[8,7,7,8]
+        }},
+    kls: { name:'可兰素', logo:'', tag:'车用尿素', accent:'#a1887f',
+        dims:{ d1:80,d2:78,d3:82,d4:62,d5:82,d6:73 },
+        kpis:{
+            d1:[8,8,8,8], d2:[8,8,8,7], d3:[8,8,8,8],
+            d4:[6,6,6,7], d5:[8,8,8,8], d6:[7,7,7,8]
+        }},
+    bych:{ name:'铂源催化', logo:'', tag:'催化材料', accent:'#00bcd4',
+        dims:{ d1:72,d2:80,d3:78,d4:88,d5:75,d6:72 },
+        kpis:{
+            d1:[7,7,7,7], d2:[8,8,8,8], d3:[8,8,8,8],
+            d4:[9,9,9,8], d5:[8,7,7,8], d6:[7,7,7,7]
+        }},
+    dhx: { name:'迪克化学', logo:'', tag:'冷却液', accent:'#7986cb',
+        dims:{ d1:72,d2:80,d3:78,d4:68,d5:78,d6:70 },
+        kpis:{
+            d1:[7,7,7,7], d2:[8,8,8,8], d3:[8,8,8,7],
+            d4:[7,7,7,6], d5:[8,8,7,8], d6:[7,7,7,7]
+        }},
+};
+
+// 集团基准线（9 BU 各维度均值）
+const BASELINE = {d1:73, d2:71, d3:75, d4:74, d5:75, d6:69};
+
+// 计算总分
+function calcTotal(buId) {
+    const bd = BUS_DATA[buId];
+    return DIMS.reduce((s, d) => s + bd.dims[d.id] * d.weight, 0);
+}
+
+// 等级
+function getGrade(score) {
+    if (score >= 90) return { label:'S+卓越', color:'#1a7a6e', bg:'rgba(26,122,110,0.15)' };
+    if (score >= 80) return { label:'A 优秀', color:'#2d7d4f', bg:'rgba(45,125,79,0.15)' };
+    if (score >= 70) return { label:'B 良好', color:'#b5862a', bg:'rgba(181,134,42,0.15)' };
+    if (score >= 60) return { label:'C 待改进', color:'#c0572a', bg:'rgba(192,87,42,0.15)' };
+    return { label:'D 预警', color:'#8b0000', bg:'rgba(139,0,0,0.15)' };
+}
+
+// 计算排名
+function calcRank(buId) {
+    const totals = Object.keys(BUS_DATA).map(id => ({ id, score: calcTotal(id) }));
+    totals.sort((a, b) => b.score - a.score);
+    const rank = totals.findIndex(b => b.id === buId) + 1;
+    return rank;
+}
+
+// ═══════════════════════════════════════════════════════════
+//  粒子系统（保留原功能）
+// ═══════════════════════════════════════════════════════════
+(function() {
+    const canvas = document.getElementById('particleCanvas');
+    const ctx = canvas.getContext('2d');
+    let W, H, particles = [];
+    function resize() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
+    resize();
+    window.addEventListener('resize', resize);
+    const COLORS = ['#1e3c72','#2a4a8c','#3a5a9c','#4a6a9c','#8a2be2','#6a1fa2'];
+    function spawnParticle() {
+        return { x: Math.random()*W, y: Math.random()*H,
+            vx: (Math.random()-0.5)*0.35, vy: (Math.random()-0.5)*0.25-0.05,
+            r: Math.random()*2+0.8, color: COLORS[Math.floor(Math.random()*COLORS.length)],
+            alpha: Math.random()*0.6+0.2, life:0, maxLife: 130+Math.random()*180 };
+    }
+    for (let i=0; i<55; i++) { const p=spawnParticle(); p.life=Math.random()*p.maxLife; particles.push(p); }
+    function draw() {
+        ctx.clearRect(0,0,W,H);
+        particles.forEach((p,i) => {
+            p.life++; p.x+=p.vx; p.y+=p.vy;
+            if (p.life>p.maxLife || p.x<0||p.x>W||p.y<0||p.y>H) { particles[i]=spawnParticle(); return; }
+            const lr = p.life/p.maxLife;
+            const a = p.alpha*(lr<0.1?lr*10:lr>0.8?(1-lr)*5:1);
+            ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+            ctx.fillStyle=p.color; ctx.globalAlpha=a; ctx.fill();
+            particles.forEach((p2,j) => {
+                if (j<=i) return;
+                const dx=p.x-p2.x, dy=p.y-p2.y, dist=Math.sqrt(dx*dx+dy*dy);
+                if (dist<110) { ctx.beginPath(); ctx.moveTo(p.x,p.y); ctx.lineTo(p2.x,p2.y);
+                    ctx.strokeStyle=p.color; ctx.globalAlpha=(1-dist/110)*0.1; ctx.lineWidth=0.5; ctx.stroke(); }
+            });
+        });
+        ctx.globalAlpha=1; requestAnimationFrame(draw);
+    }
+    draw();
+})();
+
+// ═══════════════════════════════════════════════════════════
+//  卡片网格
+// ═══════════════════════════════════════════════════════════
+const LI_BUIS = ['czly','lpsd','sjld','felt','sdmd'];
+const CHEM_BUIS = ['lhy','kls','bych','dhx'];
+
+function buildCard(buId) {
+    const bd = BUS_DATA[buId];
+    const total = calcTotal(buId);
+    const grade = getGrade(total);
+    const totalRounded = total.toFixed(0);
+    return `<div class="bu-card" data-buid="${buId}" style="--card-accent:${bd.accent};--card-accent-glow:${bd.accent}44">
+        <div class="hover-progress" id="hp-${buId}"></div>
+        <div class="card-hint">悬停1秒或单击打开</div>
+        <div class="card-logo-wrap">
+            ${bd.logo
+                ? `<img class="card-logo-img" src="${bd.logo}" alt="${bd.name}" onerror="this.style.display='none'">`
+                : `<div class="card-logo-placeholder" style="background:${bd.accent}22;border:1.5px solid ${bd.accent}44;color:${bd.accent}">${bd.name.slice(0,2)}</div>`
+            }
+            <div class="card-name-block">
+                <div class="card-fullname">${bd.name}</div>
+                <div class="card-tag" style="color:${bd.accent}">${bd.tag}</div>
+            </div>
+        </div>
+        <div class="card-glow-line" style="--card-accent:${bd.accent}"></div>
+        <div class="card-meta">${bd.tag}领域 · 六维经营健康度评估</div>
+    </div>`;
+}
+
+async function init() {
+    // 加载真实公司logo（bu_logos.json 包含 base64 data URI），优先展示
+    try {
+        const res = await fetch('bu_logos.json');
+        if (res.ok) {
+            const logos = await res.json();
+            Object.keys(logos).forEach(buId => {
+                if (BUS_DATA[buId]) BUS_DATA[buId].logo = logos[buId];
+            });
+        }
+    } catch(e) { /* 无logo时显示首字占位 */ }
+
+    // 等logo数据加载完再渲染，避免先闪占位符
+    const liContainer = document.getElementById('li-col');
+    const chemContainer = document.getElementById('chem-col');
+    LI_BUIS.forEach(id => { liContainer.innerHTML += buildCard(id); });
+    CHEM_BUIS.forEach(id => { chemContainer.innerHTML += buildCard(id); });
+    bindEvents();
+}
+
+let openTimer = null;
+
+function bindEvents() {
+    document.querySelectorAll('.bu-card').forEach(card => {
+        const buId = card.dataset.buid;
+        const progressEl = document.getElementById('hp-' + buId);
+        card.addEventListener('click', () => {
+            clearTimeout(openTimer);
+            progressEl.style.transition='none'; progressEl.style.width='0%';
+            openPanel(buId);
+        });
+        card.addEventListener('mouseenter', () => {
+            progressEl.style.transition='none'; progressEl.style.width='0%';
+            progressEl.style.transition='width 1000ms linear';
+            requestAnimationFrame(() => { progressEl.style.width='100%'; });
+            // 悬停1秒自动打开
+            openTimer = setTimeout(() => {
+                card.classList.add('hover-active');
+                openPanel(buId);
+            }, 1000);
+        });
+        card.addEventListener('mouseleave', () => {
+            clearTimeout(openTimer);
+            progressEl.style.transition='width 0.2s ease'; progressEl.style.width='0%';
+            card.classList.remove('hover-active');
+        });
+    });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closePanel(); });
+}
+
+// ═══════════════════════════════════════════════════════════
+//  SVG 雷达图（原版入场动画 + 新6维数据）
+// ═══════════════════════════════════════════════════════════
+function buildRadar(buId) {
+    const bd = BUS_DATA[buId];
+    const cx = 80, cy = 80, r = 62, n = 6, step = (2 * Math.PI) / n;
+
+    // D1-D6 从顶部顺时针：战略→经营→运营→技术→风险→组织
+    const dimNames = DIMS.map(d => d.name);
+    const dimVals  = DIMS.map(d => bd.dims[d.id]);
+
+    function pt(i, v) {
+        const a = i * step - Math.PI / 2;
+        return [cx + r * (v / 100) * Math.cos(a), cy + r * (v / 100) * Math.sin(a)];
+    }
+
+    // 外圈刻度圆环
+    const rings = [25, 50, 75, 100].map(s => {
+        const pts = Array.from({ length: n }, (_, i) => {
+            const a = i * step - Math.PI / 2;
+            return `${cx + r * (s / 100) * Math.cos(a)},${cy + r * (s / 100) * Math.sin(a)}`;
+        }).join(' ');
+        return `<polygon class="radar-ring-3d" points="${pts}" stroke="rgba(201,168,76,${0.04 + s / 1200})" stroke-width="1" fill="none"/>`;
+    }).join('');
+
+    // 轴线 + 端点
+    const axes = Array.from({ length: n }, (_, i) => {
+        const a = i * step - Math.PI / 2;
+        const [ex, ey] = [cx + r * Math.cos(a), cy + r * Math.sin(a)];
+        return `<line class="radar-axis" x1="${cx}" y1="${cy}" x2="${ex}" y2="${ey}" stroke="rgba(30,60,114,0.1)" stroke-width="1.2"/>
+                <circle cx="${ex}" cy="${ey}" r="1.5" fill="rgba(30,60,114,0.2)"/>`;
+    }).join('');
+
+    // 数据区域
+    const dp = Array.from({ length: n }, (_, i) => pt(i, dimVals[i]).join(',')).join(' ');
+
+    // 数据点 + 维度标签
+    const dots = Array.from({ length: n }, (_, i) => {
+        const [x, y] = pt(i, dimVals[i]);
+        const la = i * step - Math.PI / 2;
+        const anchor = Math.abs(la) < 0.1 || Math.abs(la - Math.PI) < 0.1 ? 'middle'
+                    : la > 0 && la < Math.PI ? 'start' : 'end';
+        return `<circle class="radar-dot" cx="${x}" cy="${y}" r="2.5" fill="${DIMS[i].color}" opacity="0.9"/>
+                <text class="radar-axis-label" x="${cx + (r + 14) * Math.cos(la)}" y="${cy + (r + 14) * Math.sin(la)}"
+                    text-anchor="${anchor}" dominant-baseline="middle" fill="${DIMS[i].color}" opacity="0.7">${dimNames[i]}</text>`;
+    }).join('');
+
+    const avgVal = Math.round(dimVals.reduce((a, b) => a + b, 0) / n);
+    const gid = 'rg' + Math.random().toString(36).slice(2, 6);
+
+    return `<div class="hexa-radar-wrap radar-reveal">
+        <svg class="radar-svg" viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg" style="--accent:${bd.accent}">
+            <defs>
+                <filter id="${gid}f" x="-20%" y="-20%" width="140%" height="140%">
+                    <feGaussianBlur stdDeviation="2.5" result="blur"/>
+                    <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+                </filter>
+                <linearGradient id="${gid}" x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0%" stop-color="${bd.accent}" stop-opacity="0.45"/>
+                    <stop offset="100%" stop-color="${bd.accent}" stop-opacity="0.06"/>
+                </linearGradient>
+                <filter id="${gid}dp">
+                    <feDropShadow dx="0" dy="0" stdDeviation="2" flood-color="${bd.accent}" flood-opacity="0.4"/>
+                </filter>
+            </defs>
+            <!-- 背景圆 -->
+            <circle cx="${cx}" cy="${cy}" r="${r}" fill="rgba(30,60,114,0.04)" stroke="rgba(30,60,114,0.08)" stroke-width="1"/>
+            ${rings}
+            ${axes}
+            <!-- 数据区域 -->
+            <polygon class="radar-fill" points="${dp}" fill="url(#${gid})" stroke="${bd.accent}" stroke-width="1.5" stroke-opacity="0.5" filter="url(#${gid}dp)"/>
+            ${dots}
+            <!-- 中心综合分 -->
+            <text class="radar-center-val" x="${cx}" y="${cy - 4}" text-anchor="middle" dominant-baseline="middle"
+                fill="#1e3c72" font-size="1.1rem" font-weight="900" font-family="'Playfair Display', serif"
+                filter="url(#${gid}f)">${avgVal}</text>
+            <text x="${cx}" y="${cy + 12}" text-anchor="middle" fill="rgba(30,60,114,0.4)" font-size="5.5" font-family="'Noto Sans SC', sans-serif">综合评分</text>
+        </svg>
+    </div>`;
+}
+
+// ═══════════════════════════════════════════════════════════
+//  面板内容
+// ═══════════════════════════════════════════════════════════
+async function openPanel(buId) {
+    const bd = BUS_DATA[buId];
+    const total = calcTotal(buId);
+    const rank  = calcRank(buId);
+    const grade = getGrade(total);
+    const totalRounded = Math.round(total * 10) / 10;
+
+    // 找最强/最弱维度
+    let bestDim = DIMS[0], worstDim = DIMS[0];
+    DIMS.forEach(d => {
+        if (bd.dims[d.id] > bd.dims[bestDim.id]) bestDim = d;
+        if (bd.dims[d.id] < bd.dims[worstDim.id]) worstDim = d;
+    });
+
+    const logoEl = document.getElementById('drawerLogoImg');
+    const logoPhEl = document.getElementById('drawerLogoPlaceholder');
+    if (bd.logo) {
+        logoEl.src = bd.logo;
+        logoEl.style.display = '';
+        logoPhEl.style.display = 'none';
+    } else {
+        logoEl.style.display = 'none';
+        logoPhEl.textContent = bd.name.slice(0, 2);
+        logoPhEl.style.color = bd.accent;
+        logoPhEl.style.background = bd.accent + '18';
+        logoPhEl.style.borderColor = bd.accent + '44';
+        logoPhEl.style.display = '';
+    }
+    document.getElementById('drawerName').textContent = bd.name;
+    document.getElementById('drawerTag').textContent = bd.tag;
+    document.getElementById('drawerTag').style.color = bd.accent;
+    const drawer = document.getElementById('panelDrawer');
+    drawer.style.setProperty('--panel-accent', bd.accent);
+
+    // 面板内容
+    document.getElementById('drawerBody').innerHTML = `
+        <div class="hexa-summary">
+            <div class="hexa-score-block">
+                <div class="hexa-score-num">${totalRounded}</div>
+                <div class="hexa-score-label">综合得分</div>
+            </div>
+            <div class="hexa-divider"></div>
+            <div class="hexa-score-block">
+                <div class="hexa-grade" style="color:${grade.color}">${grade.label}</div>
+                <div class="hexa-grade-label">评价等级</div>
+            </div>
+            <div class="hexa-divider"></div>
+            <div class="hexa-meta">
+                <div class="hexa-meta-row">
+                    <span class="hexa-meta-key">集团排名</span>
+                    <span class="hexa-meta-val">#${rank} / 9</span>
+                </div>
+                <div class="hexa-meta-row">
+                    <span class="hexa-meta-key">最强维度</span>
+                    <span class="hexa-meta-val" style="color:${bestDim.color}">${bestDim.name} ${bd.dims[bestDim.id]}</span>
+                </div>
+                <div class="hexa-meta-row">
+                    <span class="hexa-meta-key">最弱维度</span>
+                    <span class="hexa-meta-val" style="color:${worstDim.color}">${worstDim.name} ${bd.dims[worstDim.id]}</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="hexa-main">
+            <div class="hexa-radar-col">
+                ${buildRadar(buId)}
+                <div class="hexa-legend">
+                    <div class="hexa-leg-item"><div class="hexa-leg-dot" style="background:${bd.accent}"></div>${bd.name}</div>
+                    <div class="hexa-leg-item"><div class="hexa-leg-dot" style="background:#1e3c72;opacity:0.6"></div>集团基准线</div>
+                </div>
+                <div class="hexa-rank-note">权重：D1-20% D2-20% D3-18% D4-17% D5-13% D6-12%</div>
+            </div>
+            <div class="hexa-dims-col" id="dimsCol"></div>
+        </div>
+
+        ${buildBriefSection(buId)}
+
+        <div class="hexa-all-section">
+            <div class="hexa-all-title">全部事业部综合评分排名</div>
+            <div class="hexa-all-bars" id="allBars"></div>
+        </div>
+
+        <div class="hexa-actions">
+            <a class="hexa-action-btn hexa-action-pri" href="index_v3.html?bu=${buId}">早报详情</a>
+            <a class="hexa-action-btn hexa-action-sec" href="dept-archive.html?bu=${buId}">事业部存档</a>
+            <a class="hexa-action-btn hexa-action-sec" href="lfp_data_v2.html">锂电图表</a>
+        </div>
+    `;
+
+    // 渲染维度条
+    renderDims(buId);
+
+    // 渲染排名条
+    renderAllBars(buId);
+
+    document.getElementById('panelOverlay').classList.add('active');
+}
+
+function buildBriefSection(buId) {
+    // 从早报数据获取摘要（异步）
+    fetchBUData(buId).then(bu => {
+        if (!bu) return;
+        const headline = bu?.headline || bu?.lead || '';
+        const secs = bu?.sections?.map(s=>s.title||s.dim||'').filter(Boolean) || [];
+        if (!headline && !secs.length) return;
+        const briefEl = document.getElementById('briefSection');
+        if (!briefEl) return;
+        briefEl.innerHTML = `
+            <div class="hexa-brief">
+                <div class="hexa-brief-label">今日早报摘要</div>
+                ${headline ? `<div class="hexa-brief-headline">${escapeHtml(headline)}</div>` : ''}
+                ${secs.length ? `<div class="hexa-brief-tags">${secs.map(t=>`<span class="hexa-brief-tag">${escapeHtml(t)}</span>`).join('')}</div>` : ''}
+            </div>
+        `;
+    });
+    return `<div id="briefSection"></div>`;
+}
+
+function renderDims(buId) {
+    const bd = BUS_DATA[buId];
+    const container = document.getElementById('dimsCol');
+    container.innerHTML = DIMS.map(d => {
+        const val = bd.dims[d.id];
+        const weighted = (val * d.weight).toFixed(1);
+        const kpiList = d.kpis.map((kpi, ki) => {
+            const kpiVal = Math.min(10, bd.kpis[d.id][ki] || 5);
+            const kpiPct = (kpiVal / 10 * 100).toFixed(0);
+            const kpiScore = kpiVal.toFixed(1);
+            return `<div class="hexa-kpi-item">
+                <span class="hexa-kpi-name">${kpi}</span>
+                <div class="hexa-kpi-bar-wrap"><div class="hexa-kpi-bar" style="width:${kpiPct}%;background:${d.color}"></div></div>
+                <span class="hexa-kpi-score" style="color:${d.color}">${kpiScore}</span>
+            </div>`;
+        }).join('');
+        return `<div class="hexa-dim-row" id="dimrow-${d.id}" onclick="toggleDim('${buId}','${d.id}')">
+            <div class="hexa-dim-header">
+                <div class="hexa-dim-dot" style="background:${d.color}"></div>
+                <div class="hexa-dim-num">${d.id.toUpperCase()}</div>
+                <div class="hexa-dim-name">${d.name}</div>
+                <div class="hexa-dim-weight">${(d.weight*100).toFixed(0)}%</div>
+                <div class="hexa-dim-bar-wrap"><div class="hexa-dim-bar" style="width:${val}%;background:${d.color}"></div></div>
+                <div class="hexa-dim-score" style="color:${d.color}">${val}</div>
+                <div class="hexa-dim-pts">+${weighted}</div>
+                <div class="hexa-dim-chevron">&#9660;</div>
+            </div>
+            <div class="hexa-dim-kpi">${kpiList}</div>
+        </div>`;
+    }).join('');
+}
+
+function toggleDim(buId, dimId) {
+    const row = document.getElementById('dimrow-' + dimId);
+    row.classList.toggle('open');
+}
+
+function renderAllBars(buId) {
+    const container = document.getElementById('allBars');
+    const totals = Object.keys(BUS_DATA).map(id => ({
+        id, name: BUS_DATA[id].name, score: calcTotal(id)
+    }));
+    totals.sort((a, b) => b.score - a.score);
+    const maxScore = totals[0].score;
+
+    container.innerHTML = totals.map((t, i) => {
+        const bd = BUS_DATA[t.id];
+        const pct = (t.score / maxScore * 100).toFixed(1);
+        const isCurrent = t.id === buId;
+        return `<div class="hexa-all-row${isCurrent ? ' current' : ''}">
+            <div class="hexa-all-rank">${i+1}</div>
+            <div class="hexa-all-name">${t.name}</div>
+            <div class="hexa-all-bar-wrap"><div class="hexa-all-bar" style="width:${pct}%;background:${isCurrent ? '#1e3c72' : bd.accent + '88'}"></div></div>
+            <div class="hexa-all-score">${t.score.toFixed(1)}</div>
+        </div>`;
+    }).join('');
+}
+
+async function fetchBUData(buId) {
+    const today = new Date().toISOString().slice(0, 10);
+    try {
+        const res = await fetch(`reports/${today}.json`);
+        if (!res.ok) return null;
+        return (await res.json()).departments?.[buId] || null;
+    } catch {
+        return window.__EMBEDDED__?.report?.departments?.[buId] || null;
+    }
+}
+
+function escapeHtml(s) {
+    if (!s) return '';
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function closePanel() {
+    document.getElementById('panelOverlay').classList.remove('active');
+    document.querySelectorAll('.hover-progress').forEach(el => el.style.width='0%');
+    document.querySelectorAll('.bu-card').forEach(el => el.classList.remove('hover-active'));
+}
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>
