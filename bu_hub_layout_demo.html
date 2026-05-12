@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>事业部布局方案对比</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=Noto+Sans+SC:wght@300;400;500;600&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --navy: #0d1b2e;
+            --text-dark: #1e3c72;
+            --text-mid: #4a5568;
+            --text-light: #718096;
+            --d1: #1a6b9e; --d2: #2e7d5a; --d3: #7b4fa8;
+            --d4: #c0572a; --d5: #b5862a; --d6: #2a6b7c;
+            --accent: #00d4ff;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Noto Sans SC', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #e8edf5 0%, #d5dde8 50%, #c8d2e0 100%);
+            min-height: 100vh; color: var(--text-dark);
+        }
+
+        /* ── 通用卡片（所有方案共用）── */
+        .bu-card {
+            border-radius: 14px; padding: 18px 16px 14px;
+            cursor: pointer; position: relative; overflow: hidden;
+            border: 1px solid rgba(30,60,114,0.1);
+            background: rgba(240,244,250,0.92);
+            backdrop-filter: blur(12px);
+            box-shadow: 0 2px 12px rgba(30,60,114,0.08);
+            transition: transform 0.35s cubic-bezier(0.25,0.46,0.45,0.94),
+                        box-shadow 0.35s ease, border-color 0.25s ease;
+            -webkit-user-select: none; user-select: none; min-height: 118px;
+        }
+        .bu-card::before {
+            content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+            background: linear-gradient(90deg, transparent, var(--card-accent), transparent);
+            opacity: 0; transition: opacity 0.3s;
+        }
+        .bu-card:hover, .bu-card.hover-active {
+            transform: translateY(-4px) scale(1.02);
+            border-color: var(--card-accent);
+            box-shadow: 0 8px 28px rgba(30,60,114,0.15), 0 0 18px var(--card-accent-glow),
+                        inset 0 0 16px rgba(255,255,255,0.5);
+            background: rgba(255,255,255,0.96);
+        }
+        .bu-card:hover::before, .bu-card.hover-active::before { opacity: 1; }
+        .hover-progress {
+            position: absolute; bottom: 0; left: 0; height: 2.5px;
+            width: 0%; background: var(--card-accent);
+            opacity: 0.85;
+        }
+        .card-logo-wrap { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+        .card-logo-placeholder {
+            width: 52px; height: 52px; border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.8rem; font-weight: 800;
+            flex-shrink: 0;
+        }
+        .card-logo-img {
+            width: 52px; height: 52px; border-radius: 10px;
+            object-fit: contain; flex-shrink: 0;
+            filter: drop-shadow(0 2px 4px rgba(30,60,114,0.12));
+            transition: filter 0.3s;
+        }
+        .card-name-block { flex: 1; min-width: 0; }
+        .card-fullname { font-size: 0.9rem; font-weight: 800; color: #1e3c72; margin-bottom: 2px; }
+        .card-tag {
+            display: inline-block; padding: 2px 8px; border-radius: 20px;
+            font-size: 0.6rem; font-weight: 600;
+            background: rgba(30,60,114,0.05); border: 1px solid rgba(30,60,114,0.1);
+        }
+        .card-glow-line { height: 1.5px; width: 24px; border-radius: 2px; margin-bottom: 7px; opacity: 0.5; }
+        .card-meta { font-size: 0.66rem; color: rgba(30,60,114,0.45); line-height: 1.55; }
+        .card-hint {
+            position: absolute; top: 10px; right: 10px; font-size: 0.58rem;
+            color: rgba(30,60,114,0.28); opacity: 0;
+            transition: opacity 0.3s; white-space: nowrap;
+        }
+        .bu-card:hover .card-hint { opacity: 1; }
+
+        /* ── 页面头部 ── */
+        .page-header {
+            background: rgba(230,235,245,0.95);
+            border-radius: 14px; padding: 14px 28px; margin-bottom: 18px;
+            box-shadow: 0 2px 16px rgba(30,60,114,0.1);
+            display: flex; justify-content: space-between; align-items: center;
+            border: 1px solid rgba(30,60,114,0.08);
+            max-width: 1400px; margin: 28px auto 18px;
+        }
+        .page-title { font-size: 1.2rem; font-weight: 700; color: #1e3c72; }
+
+        /* ── 方案切换 Tab ── */
+        .scheme-tabs {
+            display: flex; gap: 6px;
+        }
+        .scheme-tab {
+            padding: 7px 18px; border-radius: 10px;
+            font-size: 0.78rem; font-weight: 600;
+            border: 1.5px solid rgba(30,60,114,0.15);
+            background: rgba(240,245,255,0.5);
+            color: var(--text-mid); cursor: pointer;
+            transition: all 0.2s;
+        }
+        .scheme-tab:hover { background: rgba(30,60,114,0.06); color: #1e3c72; }
+        .scheme-tab.active {
+            background: #1e3c72; color: #fff;
+            border-color: #1e3c72;
+        }
+
+        /* ── 内容区 ── */
+        .content-wrap {
+            max-width: 1400px; margin: 0 auto; padding: 0 30px 80px;
+        }
+        .scheme-panel { display: none; }
+        .scheme-panel.active { display: block; }
+
+        .scheme-label {
+            font-size: 0.72rem; color: var(--text-light);
+            margin-bottom: 16px; font-weight: 500; letter-spacing: 0.5px;
+        }
+
+        /* ────────────────────────────────────────────────────
+           方案A：蜂窝镶嵌
+        ──────────────────────────────────────────────────── */
+        .hex-grid {
+            display: flex; flex-direction: column; align-items: center; gap: 0;
+        }
+        .hex-row {
+            display: flex; gap: 12px; margin-bottom: 12px;
+        }
+        .hex-row:nth-child(even) { margin-left: 112px; }
+        .hex-cell {
+            width: 200px; flex-shrink: 0;
+        }
+        /* 分类标签 */
+        .hex-cat-label {
+            font-size: 0.7rem; font-weight: 700; color: rgba(30,60,114,0.5);
+            letter-spacing: 0.08em; text-transform: uppercase;
+            margin: 20px 0 12px;
+            display: flex; align-items: center; gap: 10px;
+        }
+        .hex-cat-label::before, .hex-cat-label::after {
+            content: ''; flex: 1; height: 1px; background: rgba(30,60,114,0.12);
+        }
+
+        /* ────────────────────────────────────────────────────
+           方案B：环形布局
+        ──────────────────────────────────────────────────── */
+        .radial-wrap {
+            position: relative;
+            height: 620px; width: 100%;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .radial-center {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+            text-align: center; pointer-events: none;
+            z-index: 2;
+        }
+        .radial-center-hex {
+            width: 80px; height: 80px;
+            margin: 0 auto 8px;
+            background: linear-gradient(135deg, #1e3c72, #00d4ff);
+            clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+            display: flex; align-items: center; justify-content: center;
+        }
+        .radial-center-text {
+            font-size: 0.6rem; color: rgba(30,60,114,0.4);
+            font-weight: 700; letter-spacing: 2px;
+        }
+        .radial-card {
+            position: absolute;
+            width: 180px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        /* 锂电5个在外圈 */
+        .radial-card.li-card:nth-child(1) { top: 20px;   left: 50%; transform: translateX(-50%); }
+        .radial-card.li-card:nth-child(2) { top: 130px;  right: 80px; }
+        .radial-card.li-card:nth-child(3) { top: 300px;  right: 60px; }
+        .radial-card.li-card:nth-child(4) { bottom: 100px; right: 100px; }
+        .radial-card.li-card:nth-child(5) { bottom: 20px; left: 50%; transform: translateX(-50%); }
+        /* 化学品4个在内圈 */
+        .radial-card.chem-card:nth-child(6)  { top: 110px;  left: 80px; }
+        .radial-card.chem-card:nth-child(7)  { top: 260px;  left: 60px; }
+        .radial-card.chem-card:nth-child(8)  { bottom: 200px; left: 80px; }
+        .radial-card.chem-card:nth-child(9)  { bottom: 60px; left: 130px; }
+
+        /* ────────────────────────────────────────────────────
+           方案C：错层卡片墙
+        ──────────────────────────────────────────────────── */
+        .masonry-wall {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            position: relative;
+            perspective: 800px;
+        }
+        .masonry-card {
+            transition: transform 0.4s cubic-bezier(0.25,0.46,0.45,0.94), z-index 0s;
+            transform-origin: center bottom;
+        }
+        /* 错层高度差制造层叠感 */
+        .masonry-card:nth-child(3n+2) { transform: translateY(-12px); }
+        .masonry-card:nth-child(5n+3) { transform: translateY(-6px); }
+        .masonry-card:hover {
+            transform: translateY(-20px) scale(1.04) rotate(0.5deg) !important;
+            z-index: 10;
+        }
+        /* 锂电/化学品分区背景 */
+        .masonry-section-label {
+            grid-column: 1 / -1;
+            font-size: 0.7rem; font-weight: 700; color: rgba(30,60,114,0.4);
+            letter-spacing: 0.08em; text-transform: uppercase;
+            padding: 8px 0 4px; border-top: 1px solid rgba(30,60,114,0.08);
+        }
+        .masonry-section-label:first-child { border-top: none; padding-top: 0; }
+
+        /* ────────────────────────────────────────────────────
+           方案D：全屏走马灯（大幅卡片 + 淡入淡出）
+        ──────────────────────────────────────────────────── */
+        .carousel-wrap {
+            position: relative;
+        }
+        .carousel-viewport {
+            position: relative;
+            border-radius: 16px;
+            overflow: hidden;
+            height: 480px;
+            background: rgba(220,230,245,0.7);
+            border: 1px solid rgba(30,60,114,0.1);
+        }
+        .carousel-slide {
+            position: absolute; inset: 0;
+            opacity: 0;
+            transition: opacity 0.7s cubic-bezier(0.4,0,0.2,1);
+            display: flex;
+            flex-direction: column;
+        }
+        .carousel-slide.active { opacity: 1; }
+        .carousel-slide-header {
+            display: flex; align-items: center; gap: 12px;
+            padding: 18px 28px 14px;
+            border-bottom: 1px solid rgba(30,60,114,0.08);
+            background: rgba(230,238,250,0.6);
+        }
+        .carousel-slide-title {
+            font-size: 0.75rem; font-weight: 700; color: #1e3c72;
+            letter-spacing: 0.05em;
+        }
+        .carousel-slide-count {
+            font-size: 0.65rem; color: rgba(30,60,114,0.4);
+        }
+        .carousel-cards {
+            flex: 1; display: flex;
+            padding: 20px 28px;
+            gap: 14px;
+            overflow-x: auto;
+            overflow-y: hidden;
+            /* stylelint-disable */
+            scrollbar-width: none; /* Firefox */
+            /* stylelint-enable */
+            -ms-overflow-style: none; /* IE/Edge */
+            align-items: stretch;
+        }
+        .carousel-cards::-webkit-scrollbar { display: none; }
+        .carousel-card {
+            flex: 1; min-width: 0;
+            max-width: 220px;
+        }
+        /* 走马灯控制器 */
+        .carousel-controls {
+            display: flex; align-items: center; justify-content: center;
+            gap: 12px; margin-top: 16px;
+        }
+        .carousel-dot-btn {
+            width: 8px; height: 8px; border-radius: 50%;
+            background: rgba(30,60,114,0.2);
+            cursor: pointer; transition: all 0.3s;
+        }
+        .carousel-dot-btn.active {
+            background: #1e3c72;
+            width: 28px; border-radius: 4px;
+        }
+        .carousel-arrow-btn {
+            width: 38px; height: 38px; border-radius: 50%;
+            background: rgba(255,255,255,0.85);
+            border: 1.5px solid rgba(30,60,114,0.15);
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; font-size: 1.1rem; color: #1e3c72;
+            transition: all 0.2s;
+        }
+        .carousel-arrow-btn:hover { background: #1e3c72; color: #fff; }
+        .carousel-arrow-btn.disabled { opacity: 0.3; pointer-events: none; }
+        /* 每个slide的标签风格 */
+        .slide-tag-li {
+            display: inline-flex; align-items: center; gap: 5px;
+            padding: 3px 10px; border-radius: 20px;
+            font-size: 0.65rem; font-weight: 700;
+            background: rgba(0,212,255,0.1); border: 1px solid rgba(0,212,255,0.25);
+            color: #1e3c72;
+        }
+        .slide-tag-chem {
+            display: inline-flex; align-items: center; gap: 5px;
+            padding: 3px 10px; border-radius: 20px;
+            font-size: 0.65rem; font-weight: 700;
+            background: rgba(138,43,226,0.08); border: 1px solid rgba(138,43,226,0.2);
+            color: #6a1b9a;
+        }
+        /* 进度条 */
+        .carousel-progress {
+            position: absolute; bottom: 0; left: 0; right: 0; height: 3px;
+            background: rgba(30,60,114,0.08);
+        }
+        .carousel-progress-bar {
+            height: 100%; background: linear-gradient(90deg, #1e3c72, #00d4ff);
+            transition: width 0.5s ease;
+        }
+    </style>
+</head>
+<body>
+
+<div class="page-header">
+    <span class="page-title">事业部布局方案对比</span>
+    <div class="scheme-tabs">
+        <button class="scheme-tab active" onclick="switchScheme('A')">方案A · 蜂窝镶嵌</button>
+        <button class="scheme-tab" onclick="switchScheme('B')">方案B · 环形布局</button>
+        <button class="scheme-tab" onclick="switchScheme('C')">方案C · 错层卡片</button>
+        <button class="scheme-tab" onclick="switchScheme('D')">方案D · 全屏走马灯</button>
+    </div>
+</div>
+
+<div class="content-wrap">
+
+    <!-- ══════════════ 方案A：蜂窝镶嵌 ══════════════ -->
+    <div class="scheme-panel active" id="panel-A">
+        <div class="scheme-label">A · 蜂窝镶嵌 — 六边形为单位错位拼贴，契合雷达图六维主题</div>
+        <div class="hex-grid">
+            <div class="hex-cat-label">⚡ 锂电矩阵</div>
+            <div class="hex-row" id="hex-row-li"></div>
+            <div class="hex-cat-label">🧪 化学品矩阵</div>
+            <div class="hex-row" id="hex-row-chem"></div>
+        </div>
+    </div>
+
+    <!-- ══════════════ 方案B：环形布局 ══════════════ -->
+    <div class="scheme-panel" id="panel-B">
+        <div class="scheme-label">B · 环形布局 — 卡片围绕中央六边形核心呈放射状，卫星围绕行星</div>
+        <div class="radial-wrap" id="radial-wrap">
+            <div class="radial-center">
+                <div class="radial-center-hex">
+                    <svg width="40" height="40" viewBox="0 0 40 40">
+                        <polygon points="20,3 37,11 37,29 20,37 3,29 3,11"
+                            fill="none" stroke="rgba(255,255,255,0.8)" stroke-width="1.5"/>
+                    </svg>
+                </div>
+                <div class="radial-center-text">SYSTEM CORE</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══════════════ 方案C：错层卡片墙 ══════════════ -->
+    <div class="scheme-panel" id="panel-C">
+        <div class="scheme-label">C · 错层卡片墙 — 瀑布流高度错落，hover时卡片浮出，有深度层次感</div>
+        <div class="masonry-wall" id="masonry-wall"></div>
+    </div>
+
+    <!-- ══════════════ 方案D：全屏走马灯 ══════════════ -->
+    <div class="scheme-panel" id="panel-D">
+        <div class="scheme-label">D · 全屏走马灯 — 大幅卡片自动轮播，左右切换，视觉冲击力强，适合大屏汇报</div>
+        <div class="carousel-wrap">
+            <div class="carousel-viewport" id="carousel-viewport">
+                <div class="carousel-slide" id="slide-0">
+                    <div class="carousel-slide-header">
+                        <span class="slide-tag-li">⚡ 锂电矩阵</span>
+                        <span class="carousel-slide-count">5家事业部</span>
+                    </div>
+                    <div class="carousel-cards" id="carousel-li"></div>
+                </div>
+                <div class="carousel-slide" id="slide-1">
+                    <div class="carousel-slide-header">
+                        <span class="slide-tag-chem">🧪 化学品矩阵</span>
+                        <span class="carousel-slide-count">4家事业部</span>
+                    </div>
+                    <div class="carousel-cards" id="carousel-chem"></div>
+                </div>
+                <div class="carousel-progress">
+                    <div class="carousel-progress-bar" id="carousel-progress-bar"></div>
+                </div>
+            </div>
+            <div class="carousel-controls">
+                <div class="carousel-arrow-btn" id="carousel-prev" onclick="carouselPrev()">‹</div>
+                <div class="carousel-dot-btn active" onclick="carouselGo(0)"></div>
+                <div class="carousel-dot-btn" onclick="carouselGo(1)"></div>
+                <div class="carousel-arrow-btn" id="carousel-next" onclick="carouselNext()">›</div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+// ═══════════════════ 数据 ═══════════════════
+const BUS_DATA = {
+    czly:{ name:'常州锂源', logo:'', tag:'新能源材料', accent:'#00d4ff',
+        dims:{d1:72,d2:68,d3:78,d4:80,d5:70,d6:68}},
+    lpsd:{ name:'龙蟠时代', logo:'', tag:'电芯智造', accent:'#4caf50',
+        dims:{d1:65,d2:58,d3:68,d4:75,d5:72,d6:62}},
+    sjld:{ name:'三金锂电', logo:'', tag:'三元前驱体', accent:'#ff9800',
+        dims:{d1:68,d2:62,d3:72,d4:78,d5:68,d6:62}},
+    felt:{ name:'法恩莱特', logo:'', tag:'电解液', accent:'#9c27b0',
+        dims:{d1:70,d2:65,d3:72,d4:82,d5:70,d6:65}},
+    sdmd:{ name:'山东美多', logo:'', tag:'回收再利用', accent:'#e91e63',
+        dims:{d1:75,d2:65,d3:70,d4:72,d5:72,d6:68}},
+    lhy: { name:'龙蟠润滑油', logo:'', tag:'润滑防护', accent:'#78909c',
+        dims:{d1:78,d2:82,d3:80,d4:65,d5:85,d6:75}},
+    kls: { name:'可兰素', logo:'', tag:'车用尿素', accent:'#a1887f',
+        dims:{d1:80,d2:78,d3:82,d4:62,d5:82,d6:73}},
+    bych:{ name:'铂源催化', logo:'', tag:'催化材料', accent:'#00bcd4',
+        dims:{d1:72,d2:80,d3:78,d4:88,d5:75,d6:72}},
+    dhx: { name:'迪克化学', logo:'', tag:'冷却液', accent:'#7986cb',
+        dims:{d1:72,d2:80,d3:78,d4:68,d5:78,d6:70}},
+};
+const LI_BUIS = ['czly','lpsd','sjld','felt','sdmd'];
+const CHEM_BUIS = ['lhy','kls','bych','dhx'];
+
+function calcTotal(buId) {
+    const W = [0.20,0.20,0.18,0.17,0.13,0.12];
+    const vals = Object.values(BUS_DATA[buId].dims);
+    return vals.reduce((s,v,i) => s + v*W[i], 0);
+}
+
+// ═══════════════════ 构建卡片 ═══════════════════
+function buildCard(buId) {
+    const bd = BUS_DATA[buId];
+    const total = calcTotal(buId).toFixed(0);
+    return `<div class="bu-card" data-buid="${buId}" style="--card-accent:${bd.accent};--card-accent-glow:${bd.accent}44">
+        <div class="hover-progress" id="hp-${buId}"></div>
+        <div class="card-hint">悬停查看详情</div>
+        <div class="card-logo-wrap">
+            ${bd.logo
+                ? `<img class="card-logo-img" src="${bd.logo}" alt="${bd.name}" onerror="this.style.display='none'">`
+                : `<div class="card-logo-placeholder" style="background:${bd.accent}18;border:1.5px solid ${bd.accent}44;color:${bd.accent}">${bd.name.slice(0,2)}</div>`
+            }
+            <div class="card-name-block">
+                <div class="card-fullname">${bd.name}</div>
+                <div class="card-tag" style="color:${bd.accent}">${bd.tag}</div>
+            </div>
+        </div>
+        <div class="card-glow-line" style="background:linear-gradient(90deg,${bd.accent},transparent)"></div>
+        <div class="card-meta">综合评分 ${total} · 六维健康度</div>
+    </div>`;
+}
+
+// ═══════════════════ 方案A：蜂窝 ═══════════════════
+function renderHexGrid() {
+    // 锂电：2+3 行
+    const liRows = [
+        LI_BUIS.slice(0, 2),
+        LI_BUIS.slice(2, 5),
+    ];
+    const chemRows = [
+        CHEM_BUIS.slice(0, 2),
+        CHEM_BUIS.slice(2, 4),
+    ];
+    document.getElementById('hex-row-li').innerHTML =
+        liRows.map(row => `<div class="hex-row">${row.map(buildCard).join('')}</div>`).join('');
+    document.getElementById('hex-row-chem').innerHTML =
+        chemRows.map(row => `<div class="hex-row">${row.map(buildCard).join('')}</div>`).join('');
+}
+
+// ═══════════════════ 方案B：环形 ═══════════════════
+function renderRadial() {
+    const wrap = document.getElementById('radial-wrap');
+    const all = [...LI_BUIS, ...CHEM_BUIS];
+    const html = all.map(id => {
+        const cls = LI_BUIS.includes(id) ? 'li-card' : 'chem-card';
+        return `<div class="radial-card ${cls} bu-card" data-buid="${id}" style="--card-accent:${BUS_DATA[id].accent};--card-accent-glow:${BUS_DATA[id].accent}44">${buildCardInner(id)}</div>`;
+    }).join('');
+    // 保留 center，重新写入
+    const center = wrap.querySelector('.radial-center').outerHTML;
+    wrap.innerHTML = center + html;
+    bindHover();
+}
+
+function buildCardInner(buId) {
+    const bd = BUS_DATA[buId];
+    const total = calcTotal(buId).toFixed(0);
+    return `<div class="hover-progress" id="hp-${buId}"></div>
+        <div class="card-logo-wrap">
+            ${bd.logo
+                ? `<img class="card-logo-img" src="${bd.logo}" alt="${bd.name}" onerror="this.style.display='none'">`
+                : `<div class="card-logo-placeholder" style="background:${bd.accent}18;border:1.5px solid ${bd.accent}44;color:${bd.accent}">${bd.name.slice(0,2)}</div>`
+            }
+            <div class="card-name-block">
+                <div class="card-fullname">${bd.name}</div>
+                <div class="card-tag" style="color:${bd.accent}">${bd.tag}</div>
+            </div>
+        </div>
+        <div class="card-glow-line" style="background:linear-gradient(90deg,${bd.accent},transparent)"></div>
+        <div class="card-meta">${total}分</div>`;
+}
+
+// ═══════════════════ 方案C：错层 ═══════════════════
+function renderMasonry() {
+    const wall = document.getElementById('masonry-wall');
+    wall.innerHTML =
+        `<div class="masonry-section-label">⚡ 锂电矩阵</div>`
+        + LI_BUIS.map(buildCard).join('')
+        + `<div class="masonry-section-label">🧪 化学品矩阵</div>`
+        + CHEM_BUIS.map(buildCard).join('');
+}
+
+// ═══════════════════ 方案D：全屏走马灯 ═══════════════════
+let carouselIdx = 0;
+const TOTAL_SLIDES = 2;
+let carouselTimer = null;
+
+function renderCarousel() {
+    document.getElementById('carousel-li').innerHTML = LI_BUIS.map(buildCard).join('');
+    document.getElementById('carousel-chem').innerHTML = CHEM_BUIS.map(buildCard).join('');
+}
+
+function carouselGo(n) {
+    carouselIdx = n;
+    document.querySelectorAll('.carousel-slide').forEach((s, i) => {
+        s.classList.toggle('active', i === n);
+    });
+    document.querySelectorAll('.carousel-dot-btn').forEach((d, i) => {
+        d.classList.toggle('active', i === n);
+    });
+    document.getElementById('carousel-prev').classList.toggle('disabled', n === 0);
+    document.getElementById('carousel-next').classList.toggle('disabled', n === TOTAL_SLIDES - 1);
+    document.getElementById('carousel-progress-bar').style.width = `${((n + 1) / TOTAL_SLIDES) * 100}%`;
+    // 重置自动播放计时
+    resetAutoPlay();
+}
+
+function carouselNext() {
+    if (carouselIdx < TOTAL_SLIDES - 1) carouselGo(carouselIdx + 1);
+}
+function carouselPrev() {
+    if (carouselIdx > 0) carouselGo(carouselIdx - 1);
+}
+
+function resetAutoPlay() {
+    clearInterval(carouselTimer);
+    carouselTimer = setInterval(() => {
+        carouselGo((carouselIdx + 1) % TOTAL_SLIDES);
+    }, 5000);
+}
+
+let currentSwipe = 0;
+function goSwipe(n) {
+    currentSwipe = n;
+    document.getElementById('swipe-track').style.transform = `translateX(-${n*100}%)`;
+    document.getElementById('swipe-left').classList.toggle('disabled', n===0);
+    document.getElementById('swipe-right').classList.toggle('disabled', n===1);
+}
+function swipeNext() { if (currentSwipe < 1) goSwipe(currentSwipe+1); }
+function swipePrev() { if (currentSwipe > 0) goSwipe(currentSwipe-1); }
+
+// ═══════════════════ Tab 切换 ═══════════════════
+function switchScheme(letter) {
+    document.querySelectorAll('.scheme-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.scheme-panel').forEach(p => p.classList.remove('active'));
+    document.querySelector(`.scheme-tab[onclick="switchScheme('${letter}')"]`).classList.add('active');
+    document.getElementById('panel-'+letter).classList.add('active');
+}
+
+// ═══════════════════ hover 效果（共用） ═══════════════════
+function bindHover() {
+    document.querySelectorAll('.bu-card').forEach(card => {
+        const buId = card.dataset.buid;
+        const hp = document.getElementById('hp-'+buId);
+        if (!hp) return;
+        card.addEventListener('mouseenter', () => {
+            hp.style.transition='none'; hp.style.width='0%';
+            hp.style.transition='width 1s linear';
+            requestAnimationFrame(() => hp.style.width='100%');
+        });
+        card.addEventListener('mouseleave', () => {
+            hp.style.transition='width 0.2s ease'; hp.style.width='0%';
+        });
+    });
+}
+
+// ═══════════════════ 初始化 ═══════════════════
+async function init() {
+    // 加载真实logo
+    try {
+        const res = await fetch('bu_logos.json');
+        if (res.ok) {
+            const logos = await res.json();
+            Object.keys(logos).forEach(id => {
+                if (BUS_DATA[id]) BUS_DATA[id].logo = logos[id];
+            });
+        }
+    } catch(e) {}
+
+    renderHexGrid();
+    renderRadial();
+    renderMasonry();
+    renderCarousel();
+    carouselGo(0);   // 默认显示第0张
+    resetAutoPlay(); // 启动自动轮播
+    bindHover();
+}
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>

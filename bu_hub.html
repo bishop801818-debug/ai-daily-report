@@ -41,18 +41,18 @@
             color: var(--text-dark);
         }
 
-        /* ── 科技感底层（保留原背景）── */
+        /* ── 背景（更通透更轻）── */
         .tech-stage {
             position: fixed; inset: 0; z-index: 0;
-            background: linear-gradient(135deg, #e8edf5 0%, #d5dde8 50%, #c8d2e0 100%);
+            background: linear-gradient(165deg, #eaedf6 0%, #dde3ee 50%, #d4dbe8 100%);
         }
         .bg-atmo {
-            position: fixed; top: 0; left: 0; right: 0; height: 30%;
+            position: fixed; top: 0; left: 0; right: 0; height: 42%;
             z-index: 0; pointer-events: none;
             background:
-                radial-gradient(ellipse 70% 50% at 50% -5%, rgba(30,60,114,0.08) 0%, transparent 70%),
-                radial-gradient(ellipse 50% 35% at 80% 0%, rgba(138,43,226,0.05) 0%, transparent 60%),
-                radial-gradient(ellipse 40% 30% at 15% 0%, rgba(0,120,200,0.04) 0%, transparent 55%);
+                radial-gradient(ellipse 90% 70% at 15% 0%, rgba(30,60,114,0.12) 0%, transparent 60%),
+                radial-gradient(ellipse 65% 50% at 85% 0%, rgba(138,43,226,0.08) 0%, transparent 58%),
+                radial-gradient(ellipse 55% 40% at 55% 0%, rgba(0,140,220,0.07) 0%, transparent 52%);
         }
         .perspective-grid {
             position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
@@ -131,69 +131,143 @@
         }
         .top-bar-nav a:hover { background: rgba(0,212,255,0.08); color: #1e3c72; }
         .top-bar-nav a.active { background: rgba(0,212,255,0.12); color: #1e3c72; border-color: rgba(0,212,255,0.2); }
-        .cat-header { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; }
-        .cat-pill {
+
+        /* ── 事业部中心整体布局 ── */
+        .bu-hub-body {
+            display: flex; gap: 32px; align-items: flex-start;
+        }
+        .li-matrix-wrap { flex: 1.2; }
+        .chem-matrix-wrap { flex: 1; }
+
+        .matrix-label { display: flex; align-items: center; gap: 10px; margin-bottom: 18px; }
+        .matrix-pill {
             padding: 5px 16px; border-radius: 20px;
             font-size: 0.78rem; font-weight: 700; letter-spacing: 0.5px; flex-shrink: 0;
         }
-        .cat-pill-li { background: rgba(0,212,255,0.1); border: 1px solid rgba(0,212,255,0.3); color: #1e3c72; }
-        .cat-pill-chem { background: rgba(138,43,226,0.08); border: 1px solid rgba(138,43,226,0.2); color: #6a1b9a; }
+        .matrix-pill-li { background: rgba(0,212,255,0.1); border: 1px solid rgba(0,212,255,0.3); color: #1e3c72; }
+        .matrix-pill-chem { background: rgba(138,43,226,0.08); border: 1px solid rgba(138,43,226,0.2); color: #6a1b9a; }
+        .matrix-tagline { font-size: 0.65rem; color: rgba(30,60,114,0.38); letter-spacing: 0.05em; }
+
+        /* ── 锂电五边形星座布局 ── */
+        .pentagon-wrap {
+            position: relative; width: 100%; max-width: 500px;
+            margin: 0 auto; padding-top: 50px;
+        }
+        /* 中央六边形核心 */
+        .constellation-core {
+            position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+            width: 72px; height: 72px; display: flex; align-items: center; justify-content: center;
+            z-index: 2;
+        }
+        .core-hex {
+            width: 72px; height: 72px;
+            background: linear-gradient(135deg, rgba(30,60,114,0.08), rgba(0,212,255,0.06));
+            clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+            display: flex; align-items: center; justify-content: center;
+            border: 1px solid rgba(30,60,114,0.12); backdrop-filter: blur(8px);
+            animation: coreBreath 3s ease-in-out infinite;
+        }
+        @keyframes coreBreath {
+            0%, 100% { box-shadow: 0 0 18px rgba(30,60,114,0.08); }
+            50%       { box-shadow: 0 0 30px rgba(0,212,255,0.2); }
+        }
+        .core-hex svg { width: 38px; height: 38px; }
+        /* 五边形卡片定位 */
+        .pent-wrap { position: relative; width: 100%; height: 480px; }
+        .pent-card {
+            position: absolute; width: 162px;
+        }
+        .pent-card.p1 { top: 52px;  left: 50%; transform: translateX(-50%); }
+        .pent-card.p2 { top: 168px; right: 8px; }
+        .pent-card.p3 { top: 308px; right: 8px; }
+        .pent-card.p4 { top: 308px; left: 8px; }
+        .pent-card.p5 { top: 168px; left: 8px; }
+        /* 五边形连接线 SVG（浮动在卡片层下方） */
+        .pent-lines {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; z-index: 0;
+        }
+        .pent-lines line {
+            stroke: rgba(30,60,114,0.08);
+            stroke-width: 1.5;
+            stroke-dasharray: 4 3;
+        }
+
+        /* ── 化学品菱形矩阵布局 ── */
+        .diamond-wrap {
+            position: relative; width: 100%; max-width: 420px;
+            margin: 0 auto; padding-top: 24px;
+        }
+        .diamond-inner { position: relative; width: 100%; height: 490px; }
+        .diamond-card { position: absolute; width: 162px; }
+        .diamond-card.d1 { top: 16px;  left: 50%; transform: translateX(-50%); }
+        .diamond-card.d2 { top: 268px; left: 0; }
+        .diamond-card.d3 { top: 268px; left: 50%; transform: translateX(-50%); }
+        .diamond-card.d4 { top: 268px; right: 0; }
+        /* 菱形连接线 */
+        .diamond-lines {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; z-index: 0;
+        }
+        .diamond-lines line {
+            stroke: rgba(138,43,226,0.12);
+            stroke-width: 1.5;
+            stroke-dasharray: 4 3;
+        }
+
+        /* ── 通用卡片样式 ── */
         .bu-card {
-            border-radius: 14px; padding: 18px 16px 14px;
-            cursor: pointer; position: relative; overflow: hidden;
+            border-radius: 14px; padding: 16px 14px 13px;
+            cursor: pointer; position: relative; overflow: visible;
             border: 1px solid rgba(30,60,114,0.1);
             background: rgba(240,244,250,0.92);
-            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-            box-shadow: 0 2px 12px rgba(30,60,114,0.08);
-            transition: transform 0.35s cubic-bezier(0.25,0.46,0.45,0.94),
+            -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px);
+            box-shadow: 0 3px 14px rgba(30,60,114,0.1), 0 1px 0 rgba(255,255,255,0.6) inset;
+            transition: transform 0.4s cubic-bezier(0.34,1.25,0.64,1),
                         box-shadow 0.35s ease, border-color 0.25s ease;
             -webkit-user-select: none; user-select: none; min-height: 118px;
         }
         .bu-card::before {
-            content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+            content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2.5px;
             background: linear-gradient(90deg, transparent, var(--card-accent), transparent);
             opacity: 0; transition: opacity 0.3s;
+            border-radius: 14px 14px 0 0;
         }
         .bu-card:hover, .bu-card.hover-active {
-            transform: translateY(-4px) scale(1.02);
+            transform: translateY(-8px) scale(1.04);
             border-color: var(--card-accent);
-            box-shadow: 0 8px 28px rgba(30,60,114,0.15), 0 0 18px var(--card-accent-glow),
-                        inset 0 0 16px rgba(255,255,255,0.5);
+            box-shadow: 0 12px 36px rgba(30,60,114,0.15),
+                        0 0 22px var(--card-accent-glow),
+                        inset 0 0 20px rgba(255,255,255,0.5);
             background: rgba(255,255,255,0.96);
+            z-index: 20;
         }
         .bu-card:hover::before, .bu-card.hover-active::before { opacity: 1; }
-        .bu-card::after {
-            content: ''; position: absolute; top: -40px; right: -40px;
-            width: 100px; height: 100px;
-            background: radial-gradient(circle, var(--card-accent-glow) 0%, transparent 70%);
-            opacity: 0; transition: opacity 0.4s; pointer-events: none;
-        }
-        .bu-card:hover::after, .bu-card.hover-active::after { opacity: 0.18; }
         .hover-progress {
             position: absolute; bottom: 0; left: 0; height: 2.5px;
             width: 0%; background: var(--card-accent);
             transition: none; opacity: 0.85;
             box-shadow: 0 0 8px var(--card-accent-glow);
         }
-        .card-logo-wrap { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+        .card-logo-wrap { display: flex; align-items: center; gap: 10px; margin-bottom: 9px; }
         .card-logo-placeholder {
-            width: 52px; height: 52px; border-radius: 10px;
+            width: 48px; height: 48px; border-radius: 9px;
             display: flex; align-items: center; justify-content: center;
-            font-size: 0.8rem; font-weight: 800;
+            font-size: 0.75rem; font-weight: 800;
             flex-shrink: 0; letter-spacing: 0.5px;
         }
         .card-logo-img {
-            width: 52px; height: 52px; border-radius: 10px;
+            width: 48px; height: 48px; border-radius: 9px;
             object-fit: contain; flex-shrink: 0;
             filter: drop-shadow(0 2px 4px rgba(30,60,114,0.12));
             transition: filter 0.3s;
         }
         .bu-card:hover .card-logo-img, .bu-card.hover-active .card-logo-img {
-            filter: drop-shadow(0 2px 8px var(--card-accent-glow));
+            filter: drop-shadow(0 4px 12px var(--card-accent-glow));
         }
         .card-name-block { flex: 1; min-width: 0; }
         .card-fullname {
-            font-size: 0.9rem; font-weight: 800; color: #1e3c72;
+            font-size: 0.88rem; font-weight: 800; color: #1e3c72;
             margin-bottom: 2px; letter-spacing: 0.3px;
             white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
         }
@@ -204,34 +278,21 @@
             color: var(--card-accent);
         }
         .card-glow-line {
-            height: 1.5px; width: 24px;
+            height: 1.5px; width: 22px;
             background: linear-gradient(90deg, var(--card-accent), transparent);
-            border-radius: 2px; margin-bottom: 7px; opacity: 0.5;
+            border-radius: 2px; margin-bottom: 6px; opacity: 0.5;
         }
         .card-meta {
-            font-size: 0.66rem; color: rgba(30,60,114,0.45); line-height: 1.55;
+            font-size: 0.65rem; color: rgba(30,60,114,0.45); line-height: 1.5;
             display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
         }
         .card-hint {
-            position: absolute; top: 10px; right: 10px; font-size: 0.58rem;
-            color: rgba(30,60,114,0.28); opacity: 0; transform: scale(0.85) translateY(-3px);
+            position: absolute; top: 8px; right: 8px; font-size: 0.58rem;
+            color: rgba(30,60,114,0.28); opacity: 0;
             transition: opacity 0.3s; white-space: nowrap;
         }
-        .bu-card:hover .card-hint { opacity: 1; transform: scale(1) translateY(0); }
-        .page-bottom { height: 80px; }
-
-        /* ── 卡片网格布局 ── */
-        .hub-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 24px;
-            align-items: start;
-        }
-        .li-col, .chem-col {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 14px;
-        }
+        .bu-card:hover .card-hint, .bu-card.hover-active .card-hint { opacity: 1; }
+        .page-bottom { height: 60px; }
 
         /* ── 右侧滑入面板（浅色科技风）── */
         .panel-overlay { position: fixed; inset: 0; z-index: 200; pointer-events: none; }
@@ -608,17 +669,44 @@
         </nav>
     </div>
 
-    <div class="cat-header">
-        <span class="cat-pill cat-pill-li">⚡ 锂电矩阵</span>
-    </div>
-
-    <div class="hub-grid">
-        <div class="li-col" id="li-col"></div>
-        <div>
-            <div class="cat-header" style="margin-top:0">
-                <span class="cat-pill cat-pill-chem">🧪 化学品矩阵</span>
+    <div class="bu-hub-body">
+        <!-- 锂电矩阵：五边形星座 -->
+        <div class="li-matrix-wrap">
+            <div class="matrix-label">
+                <span class="matrix-pill matrix-pill-li">⚡ 锂电矩阵</span>
+                <span class="matrix-tagline">5家事业部</span>
             </div>
-            <div class="chem-col" id="chem-col"></div>
+            <div class="pentagon-wrap">
+                <!-- 中央六边形呼吸核心 -->
+                <div class="constellation-core">
+                    <div class="core-hex">
+                        <svg viewBox="0 0 40 40">
+                            <polygon points="20,3 37,11 37,29 20,37 3,29 3,11"
+                                fill="none" stroke="rgba(30,60,114,0.5)" stroke-width="1.5"/>
+                            <polygon points="20,9 32,15 32,25 20,31 8,25 8,15"
+                                fill="rgba(30,60,114,0.04)" stroke="rgba(0,212,255,0.3)" stroke-width="1"/>
+                            <circle cx="20" cy="20" r="2.5" fill="rgba(0,212,255,0.7)"/>
+                        </svg>
+                    </div>
+                </div>
+                <!-- 5张卡片按五边形顶点定位 -->
+                <div class="pent-wrap" id="pent-wrap">
+                    <svg class="pent-lines" id="pent-lines" viewBox="0 0 500 480"></svg>
+                </div>
+            </div>
+        </div>
+
+        <!-- 化学品矩阵：菱形 -->
+        <div class="chem-matrix-wrap">
+            <div class="matrix-label">
+                <span class="matrix-pill matrix-pill-chem">🧪 化学品矩阵</span>
+                <span class="matrix-tagline">4家事业部</span>
+            </div>
+            <div class="diamond-wrap">
+                <div class="diamond-inner" id="diamond-inner">
+                    <svg class="diamond-lines" id="diamond-lines" viewBox="0 0 420 490"></svg>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -788,15 +876,18 @@ function calcRank(buId) {
 })();
 
 // ═══════════════════════════════════════════════════════════
-//  卡片网格
+//  五边形星座 & 菱形矩阵
 // ═══════════════════════════════════════════════════════════
 const LI_BUIS = ['czly','lpsd','sjld','felt','sdmd'];
 const CHEM_BUIS = ['lhy','kls','bych','dhx'];
+// p1=顶部, p2=右上, p3=右下, p4=左下, p5=左上（五边形顺时针，顶上）
+const LI_POSITIONS = ['p1','p2','p3','p4','p5'];
+// d1=顶, d2=底左, d3=底中, d4=底右
+const CHEM_POSITIONS = ['d1','d2','d3','d4'];
 
 function buildCard(buId) {
     const bd = BUS_DATA[buId];
     const total = calcTotal(buId);
-    const grade = getGrade(total);
     const totalRounded = total.toFixed(0);
     return `<div class="bu-card" data-buid="${buId}" style="--card-accent:${bd.accent};--card-accent-glow:${bd.accent}44">
         <div class="hover-progress" id="hp-${buId}"></div>
@@ -812,12 +903,12 @@ function buildCard(buId) {
             </div>
         </div>
         <div class="card-glow-line" style="--card-accent:${bd.accent}"></div>
-        <div class="card-meta">${bd.tag}领域 · 六维经营健康度评估</div>
+        <div class="card-meta">${bd.tag} · 六维健康度 ${totalRounded}</div>
     </div>`;
 }
 
 async function init() {
-    // 加载真实公司logo（bu_logos.json 包含 base64 data URI），优先展示
+    // 加载真实公司logo
     try {
         const res = await fetch('bu_logos.json');
         if (res.ok) {
@@ -826,14 +917,57 @@ async function init() {
                 if (BUS_DATA[buId]) BUS_DATA[buId].logo = logos[buId];
             });
         }
-    } catch(e) { /* 无logo时显示首字占位 */ }
+    } catch(e) {}
 
-    // 等logo数据加载完再渲染，避免先闪占位符
-    const liContainer = document.getElementById('li-col');
-    const chemContainer = document.getElementById('chem-col');
-    LI_BUIS.forEach(id => { liContainer.innerHTML += buildCard(id); });
-    CHEM_BUIS.forEach(id => { chemContainer.innerHTML += buildCard(id); });
+    // 锂电：五边形星座（5个顶点）
+    const pentWrap = document.getElementById('pent-wrap');
+    LI_BUIS.forEach((id, i) => {
+        const wrapper = document.createElement('div');
+        wrapper.className = `pent-card ${LI_POSITIONS[i]}`;
+        wrapper.innerHTML = buildCard(id);
+        pentWrap.appendChild(wrapper);
+    });
+    drawPentagonLines();
+    drawDiamondLines();
+
+    // 化学品：菱形矩阵（顶部1 + 底部3）
+    const diamondInner = document.getElementById('diamond-inner');
+    CHEM_BUIS.forEach((id, i) => {
+        const wrapper = document.createElement('div');
+        wrapper.className = `diamond-card ${CHEM_POSITIONS[i]}`;
+        wrapper.innerHTML = buildCard(id);
+        diamondInner.appendChild(wrapper);
+    });
+
     bindEvents();
+}
+
+// 五边形连接线：中心→5顶点 + 五边形边（虚线）
+function drawPentagonLines() {
+    const svg = document.getElementById('pent-lines');
+    if (!svg) return;
+    const W = 500, cx = W / 2, coreCy = 97;
+    const vx = [cx, 484, 484, cx, 16];
+    const vy = [97, 213, 353, 353, 213];
+    let html = '';
+    for (let i = 0; i < 5; i++) html += `<line x1="${cx}" y1="${coreCy}" x2="${vx[i]}" y2="${vy[i]}"/>`;
+    for (let i = 0; i < 5; i++) html += `<line x1="${vx[i]}" y1="${vy[i]}" x2="${vx[(i+1)%5]}" y2="${vy[(i+1)%5]}"/>`;
+    svg.innerHTML = html;
+}
+
+// 菱形连接线：顶角→底部3点 + 底部横线
+function drawDiamondLines() {
+    const svg = document.getElementById('diamond-lines');
+    if (!svg) return;
+    const W = 420, topX = W/2, topY = 70;
+    const bL = {x:81, y:322}, bM = {x:W/2, y:322}, bR = {x:339, y:322};
+    svg.innerHTML = [
+        `<line x1="${topX}" y1="${topY}" x2="${bL.x}" y2="${bL.y}"/>`,
+        `<line x1="${topX}" y1="${topY}" x2="${bM.x}" y2="${bM.y}"/>`,
+        `<line x1="${topX}" y1="${topY}" x2="${bR.x}" y2="${bR.y}"/>`,
+        `<line x1="${bL.x}" y1="${bL.y}" x2="${bM.x}" y2="${bM.y}"/>`,
+        `<line x1="${bM.x}" y1="${bM.y}" x2="${bR.x}" y2="${bR.y}"/>`,
+    ].join('');
 }
 
 let openTimer = null;
