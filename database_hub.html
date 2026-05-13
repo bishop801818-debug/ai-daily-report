@@ -289,11 +289,16 @@ const DB_LIST = [
         id: 'electrolyte',
         name: '电解液数据库',
         icon: '🧪',
-        desc: '电解液及六氟磷酸锂溶剂溶质价格、产能、出货量数据',
-        hasData: false,
-        tableCount: 5,
-        updateDate: '—',
-        tables: ['六氟磷酸锂价格', '溶剂价格', '电解液价格', '产能统计', '出货量排名']
+        desc: '电解液及六氟磷酸锂、溶剂溶质价格、产能、出货量数据',
+        hasData: true,
+        tableCount: 28,
+        updateDate: '2026-05-12',
+        tables: ['电解液行业产量', '电解液分企业产量', '电解液企业top15排名', '电解液年累top15排名',
+                 '电解液价格(LFP动力/储能/三元/圆柱)', '高压电解液价格', '六氟磷酸锂行业产量', '六氟磷酸锂分企业产量',
+                 '六氟磷酸锂top15排名', '六氟磷酸锂价格(主流/出口)', 'LiFSI价格(固态/液态)', '六氟出口总量',
+                 '六氟出口分国别', '添加剂VC/FEC产量', '添加剂VC/PS/FEC价格'],
+        charts: 'electrolyte_data_v2.html',
+        data: 'electrolyte_data_v2.html'
     },
     {
         id: 'carbonate',

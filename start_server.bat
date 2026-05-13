@@ -1,3 +1,3 @@
 @echo off
-py -3.12 -m http.server 8888 --directory "D:\trae\AI Daily report"
+py -3.12 no_cache_server.py 8888 "D:\trae\AI Daily report"
 pause
