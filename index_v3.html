@@ -7055,7 +7055,7 @@ const BU_LOGOS = {
                         '<span style="width:8px;height:8px;background:#43a047;border-radius:50%;"></span>' +
                         '<span>储能型: </span>' +
                         '<span style="font-weight:bold;">' + (storageD.close / 10000).toFixed(2) + '万</span>' +
-                        '<span style="color:"' + storageChgColor + '";font-size:11px;">' + storageChgSign + storageChg.toFixed(2) + '%)</span>' +
+                        '<span style="color:' + storageChgColor + ';font-size:11px;">' + storageChgSign + storageChg.toFixed(2) + '%)</span>' +
                         '</div>';
                 } else {
                     storageHtml = '<div style="display:flex;align-items:center;gap:8px;">' +
@@ -7359,11 +7359,37 @@ const BU_LOGOS = {
                 line.setAttribute('x1', cx); line.setAttribute('x2', cx);
                 line.setAttribute('y1', PAD.top); line.setAttribute('y2', PAD.top + chartH);
 
-                // 计算涨跌幅
+                // 计算涨跌幅 - 动力型
                 var powerPrev = idx > 0 ? powerData[idx - 1].close : powerD.close;
                 var powerChg = powerPrev > 0 ? ((powerD.close - powerPrev) / powerPrev * 100) : 0;
                 var powerChgSign = powerChg >= 0 ? '+' : '';
                 var powerChgColor = powerChg > 0 ? '#ff6b6b' : (powerChg < 0 ? '#51cf66' : '#999');
+
+                // 计算涨跌幅 - 储能型（null 安全）
+                var storageChg = 0, storageChgSign = '', storageChgColor = '#999';
+                if (storageD && storageD.close != null) {
+                    var storagePrev = idx > 0 ? storageData[idx - 1].close : storageD.close;
+                    storageChg = storagePrev > 0 ? ((storageD.close - storagePrev) / storagePrev * 100) : 0;
+                    storageChgSign = storageChg >= 0 ? '+' : '';
+                    storageChgColor = storageChg > 0 ? '#ff6b6b' : (storageChg < 0 ? '#51cf66' : '#999');
+                }
+
+                // 储能型 HTML（null 安全）
+                var storageHtml = '';
+                if (storageD && storageD.close != null) {
+                    storageHtml = '<div style="display:flex;align-items:center;gap:8px;">' +
+                        '<span style="width:8px;height:8px;background:#43a047;border-radius:50%;"></span>' +
+                        '<span>储能型: </span>' +
+                        '<span style="font-weight:bold;">' + (storageD.close / 10000).toFixed(2) + '万</span>' +
+                        '<span style="color:' + storageChgColor + ';font-size:11px;">(' + storageChgSign + storageChg.toFixed(2) + '%)</span>' +
+                        '</div>';
+                } else {
+                    storageHtml = '<div style="display:flex;align-items:center;gap:8px;">' +
+                        '<span style="width:8px;height:8px;background:#43a047;border-radius:50%;"></span>' +
+                        '<span>储能型: </span>' +
+                        '<span style="color:#999;font-size:11px;">数据暂无</span>' +
+                        '</div>';
+                }
 
                 hoverTip.innerHTML =
                     '<div style="margin-bottom:6px;font-weight:bold;border-bottom:1px solid #ffffff40;padding-bottom:4px;">' + powerD.date + '</div>' +
@@ -7373,12 +7399,7 @@ const BU_LOGOS = {
                     '<span style="font-weight:bold;">' + (powerD.close / 10000).toFixed(2) + '万</span>' +
                     '<span style="color:' + powerChgColor + ';font-size:11px;">(' + powerChgSign + powerChg.toFixed(2) + '%)</span>' +
                     '</div>' +
-                    '<div style="display:flex;align-items:center;gap:8px;">' +
-                    '<span style="width:8px;height:8px;background:#43a047;border-radius:50%;"></span>' +
-                    '<span>储能型: </span>' +
-                    '<span style="font-weight:bold;">' + (storageD.close / 10000).toFixed(2) + '万</span>' +
-                    '<span style="color:' + storageChgColor + ';font-size:11px;">(' + storageChgSign + storageChg.toFixed(2) + '%)</span>' +
-                    '</div>';
+                    storageHtml;
                 hoverTip.style.display = 'block';
 
                 var xp = cx / W;
