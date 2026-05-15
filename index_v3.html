@@ -5771,7 +5771,119 @@ const BU_LOGOS = {
                     <h1>${modalTitle}</h1>
                     <div class="date">${modalDate}</div>
                     ${modalBody}
-                </body>
+                
+    <!-- 全局错误兜底：防止任何 JS 错误导致 loading 永远卡住 -->
+    <script>
+      // 收集页面上所有 loading 元素的 ID
+      (function() {
+        'use strict';
+        var __loadingIds = [];
+        // 常见 loading 元素 ID 前缀
+        var loadingPrefixes = ['loading', 'Loading', 'lfpDual', 'fpChart', 'lcChart'];
+        
+        function collectLoadingIds() {
+          var all = document.querySelectorAll('[id]');
+          for (var i = 0; i < all.length; i++) {
+            var id = all[i].id;
+            for (var j = 0; j < loadingPrefixes.length; j++) {
+              if (id.toLowerCase().indexOf('loading') >= 0 || 
+                  id === 'lfpDualLoading' || id === 'fpChartLoading' || 
+                  id === 'lcChartLoading' || id === 'lcUpdateTime' ||
+                  id.indexOf('Loading') >= 0) {
+                __loadingIds.push(id);
+                break;
+              }
+            }
+          }
+        }
+        
+        // 隐藏所有 loading
+        function hideAllLoading() {
+          // 按 ID 精确查找
+          var ids = [
+            'lfpDualLoading', 'lfpDualNoData',
+            'fpChartLoading', 'fpChartNoData',
+            'lcChartLoading', 'lcChartNoData',
+            'loadingOverlay',
+            'reportLoading', 'reportNoData'
+          ];
+          for (var i = 0; i < ids.length; i++) {
+            var el = document.getElementById(ids[i]);
+            if (el) el.style.display = 'none';
+          }
+          // 同时隐藏任何带 'loading'  class 的元素
+          var byClass = document.querySelectorAll('[id*="Loading"], [id*="loading"], .loading, .chart-loading');
+          for (var k = 0; k < byClass.length; k++) {
+            byClass[k].style.display = 'none';
+            console.log('[hideAllLoading] Hid element:', byClass[k].id || byClass[k].className);
+          }
+          // 最后手段：隐藏所有 chart-loading 类
+          var allDivs = document.querySelectorAll('div.chart-loading, div[class*="loading"]');
+          for (var m = 0; m < allDivs.length; m++) allDivs[m].style.display = 'none';
+        }
+        
+        // 全局错误兜底
+        window.onerror = function(msg, src, line, col, err) {
+          console.error('[Global Error Handler]', msg, src, line, col);
+          hideAllLoading();
+          return false; // 不阻止默认错误处理
+        };
+        
+        // 未处理的 Promise 拒绝
+        window.addEventListener('unhandledrejection', function(e) {
+          console.error('[Global Promise Rejection]', e.reason);
+          hideAllLoading();
+        });
+        
+        // 安全超时：8秒后强制隐藏所有 loading（更激进）
+        setTimeout(function() {
+          var stillLoading = false;
+          var checkIds = ['lfpDualChartLoading', 'fpChartLoading', 'lcChartLoading', 'loadingOverlay'];
+          for (var i = 0; i < checkIds.length; i++) {
+            var el = document.getElementById(checkIds[i]);
+            if (el && el.style.display !== 'none' && el.offsetParent !== null) {
+              stillLoading = true; break;
+            }
+          }
+          if (stillLoading) {
+            console.warn('[Safety Timeout] 8s timeout, force-hiding all loading');
+            hideAllLoading();
+          }
+        }, 8000);
+
+        // 额外的 5 秒检查点（双保险）
+        setTimeout(function() {
+          hideAllLoading();
+          console.log('[Safety Timeout] 5s fallback: all loading hidden');
+        }, 5000);
+          for (var i = 0; i < checkIds.length; i++) {
+            var el = document.getElementById(checkIds[i]);
+            if (el && el.style.display !== 'none') {
+              stillLoading = true;
+              break;
+            }
+          }
+          if (stillLoading) {
+            console.warn('[Safety Timeout] 12s timeout reached, force-hiding all loading indicators');
+            hideAllLoading();
+          }
+        }, 12000);
+        
+        // 收集 loading ID（DOMContentLoaded 后）
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', collectLoadingIds);
+        } else {
+          collectLoadingIds();
+        }
+        
+        // 暴露给各图表函数调用（加载成功后调用）
+        window.__reportChartLoaded = function(chartName) {
+          console.log('[Chart Loaded]', chartName);
+        };
+      })();
+    </script>
+
+</body>
                 </html>
             `);
             printWindow.document.close();
@@ -6767,7 +6879,7 @@ const BU_LOGOS = {
             var chartW = W - PAD.left - PAD.right;
             var chartH = H - PAD.top - PAD.bottom;
 
-            var closes = data.map(function(d) { return d.close; });
+            var closes = data.filter(function(d) { return d.close !== null; }).map(function(d) { return d.close; });
             var minP = Math.min.apply(null, closes);
             var maxP = Math.max.apply(null, closes);
             var range = maxP - minP || 1;
@@ -7146,6 +7258,8 @@ const BU_LOGOS = {
                 fitSvgToContainer();
                 window.addEventListener('resize', function() { fitSvgToContainer(); });
 
+                console.log('[LFP Dual Chart] Data loaded successfully, hiding loading');
+                window.__reportChartLoaded && window.__reportChartLoaded('LFP Dual');
                 if (loading) loading.style.display = 'none';
             } catch (e) {
                 console.warn('[LFP Dual Chart] load failed:', e);
@@ -7162,7 +7276,8 @@ const BU_LOGOS = {
 
             // 计算统一的价格范围（取两个数据集的最小和最大）
             var allPrices = powerData.map(function(d) { return d.close; })
-                .concat(storageData.map(function(d) { return d.close; }));
+                .concat(storageData.filter(function(d) { return d.close !== null; }).map(function(d) { return d.close; }))
+                .filter(function(v) { return v !== null && v !== undefined && !isNaN(v); });
             var minPrice = Math.min.apply(null, allPrices);
             var maxPrice = Math.max.apply(null, allPrices);
             var priceRange = maxPrice - minPrice || 1;
@@ -7408,6 +7523,8 @@ hitRect.addEventListener('mouseleave', function() {
                 drawFPChart(svg, displayHistory);
 
                 if (loading) loading.style.display = 'none';
+                console.log('[FP Chart] Data loaded successfully');
+                window.__reportChartLoaded && window.__reportChartLoaded('FP Chart');
 
                 var latest = displayHistory[displayHistory.length - 1];
                 var latestEl = document.getElementById('fpLatestPrice');
@@ -7449,7 +7566,7 @@ hitRect.addEventListener('mouseleave', function() {
             var chartW = W - PAD.left - PAD.right;
             var chartH = H - PAD.top - PAD.bottom;
 
-            var closes = data.map(function(d) { return d.close; });
+            var closes = data.filter(function(d) { return d.close !== null; }).map(function(d) { return d.close; });
             var minPrice = Math.min.apply(null, closes);
             var maxPrice = Math.max.apply(null, closes);
             var priceRange = maxPrice - minPrice || 1;
@@ -7709,6 +7826,118 @@ document.addEventListener('DOMContentLoaded', function() {
   setInterval(updateClock, 1000);
 });
 </script>
+
+
+    <!-- 全局错误兜底：防止任何 JS 错误导致 loading 永远卡住 -->
+    <script>
+      // 收集页面上所有 loading 元素的 ID
+      (function() {
+        'use strict';
+        var __loadingIds = [];
+        // 常见 loading 元素 ID 前缀
+        var loadingPrefixes = ['loading', 'Loading', 'lfpDual', 'fpChart', 'lcChart'];
+        
+        function collectLoadingIds() {
+          var all = document.querySelectorAll('[id]');
+          for (var i = 0; i < all.length; i++) {
+            var id = all[i].id;
+            for (var j = 0; j < loadingPrefixes.length; j++) {
+              if (id.toLowerCase().indexOf('loading') >= 0 || 
+                  id === 'lfpDualLoading' || id === 'fpChartLoading' || 
+                  id === 'lcChartLoading' || id === 'lcUpdateTime' ||
+                  id.indexOf('Loading') >= 0) {
+                __loadingIds.push(id);
+                break;
+              }
+            }
+          }
+        }
+        
+        // 隐藏所有 loading
+        function hideAllLoading() {
+          // 按 ID 精确查找
+          var ids = [
+            'lfpDualLoading', 'lfpDualNoData',
+            'fpChartLoading', 'fpChartNoData',
+            'lcChartLoading', 'lcChartNoData',
+            'loadingOverlay',
+            'reportLoading', 'reportNoData'
+          ];
+          for (var i = 0; i < ids.length; i++) {
+            var el = document.getElementById(ids[i]);
+            if (el) el.style.display = 'none';
+          }
+          // 同时隐藏任何带 'loading'  class 的元素
+          var byClass = document.querySelectorAll('[id*="Loading"], [id*="loading"], .loading, .chart-loading');
+          for (var k = 0; k < byClass.length; k++) {
+            byClass[k].style.display = 'none';
+            console.log('[hideAllLoading] Hid element:', byClass[k].id || byClass[k].className);
+          }
+          // 最后手段：隐藏所有 chart-loading 类
+          var allDivs = document.querySelectorAll('div.chart-loading, div[class*="loading"]');
+          for (var m = 0; m < allDivs.length; m++) allDivs[m].style.display = 'none';
+        }
+        
+        // 全局错误兜底
+        window.onerror = function(msg, src, line, col, err) {
+          console.error('[Global Error Handler]', msg, src, line, col);
+          hideAllLoading();
+          return false; // 不阻止默认错误处理
+        };
+        
+        // 未处理的 Promise 拒绝
+        window.addEventListener('unhandledrejection', function(e) {
+          console.error('[Global Promise Rejection]', e.reason);
+          hideAllLoading();
+        });
+        
+        // 安全超时：8秒后强制隐藏所有 loading（更激进）
+        setTimeout(function() {
+          var stillLoading = false;
+          var checkIds = ['lfpDualChartLoading', 'fpChartLoading', 'lcChartLoading', 'loadingOverlay'];
+          for (var i = 0; i < checkIds.length; i++) {
+            var el = document.getElementById(checkIds[i]);
+            if (el && el.style.display !== 'none' && el.offsetParent !== null) {
+              stillLoading = true; break;
+            }
+          }
+          if (stillLoading) {
+            console.warn('[Safety Timeout] 8s timeout, force-hiding all loading');
+            hideAllLoading();
+          }
+        }, 8000);
+
+        // 额外的 5 秒检查点（双保险）
+        setTimeout(function() {
+          hideAllLoading();
+          console.log('[Safety Timeout] 5s fallback: all loading hidden');
+        }, 5000);
+          for (var i = 0; i < checkIds.length; i++) {
+            var el = document.getElementById(checkIds[i]);
+            if (el && el.style.display !== 'none') {
+              stillLoading = true;
+              break;
+            }
+          }
+          if (stillLoading) {
+            console.warn('[Safety Timeout] 12s timeout reached, force-hiding all loading indicators');
+            hideAllLoading();
+          }
+        }, 12000);
+        
+        // 收集 loading ID（DOMContentLoaded 后）
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', collectLoadingIds);
+        } else {
+          collectLoadingIds();
+        }
+        
+        // 暴露给各图表函数调用（加载成功后调用）
+        window.__reportChartLoaded = function(chartName) {
+          console.log('[Chart Loaded]', chartName);
+        };
+      })();
+    </script>
 
 </body>
 </html>
