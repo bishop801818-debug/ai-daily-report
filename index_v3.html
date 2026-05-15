@@ -7328,10 +7328,10 @@ const BU_LOGOS = {
                 return Math.max(0, Math.min(dataLength - 1, idx));
             }
 
-            hitRect.addEventListener('mousemove', function(e) {
+                        hitRect.addEventListener('mousemove', function(e) {
                 var idx = getIdx(e);
                 var powerD = powerData[idx];
-                var storageD = storageData[idx];
+                var storageD = idx < storageData.length ? storageData[idx] : null;
                 var cx = xScale(idx);
                 var line = crosshairG.querySelector('line');
                 line.setAttribute('x1', cx); line.setAttribute('x2', cx);
@@ -7339,13 +7339,13 @@ const BU_LOGOS = {
 
                 // 计算涨跌幅
                 var powerPrev = idx > 0 ? powerData[idx - 1].close : powerD.close;
-                var storagePrev = idx > 0 ? storageData[idx - 1].close : storageD.close;
+                var storagePrev = (idx > 0 && (idx - 1) < storageData.length) ? storageData[idx - 1].close : (storageD ? storageD.close : null);
                 var powerChg = powerPrev > 0 ? ((powerD.close - powerPrev) / powerPrev * 100) : 0;
-                var storageChg = storagePrev > 0 ? ((storageD.close - storagePrev) / storagePrev * 100) : 0;
+                var storageChg = (storagePrev !== null && storageD && storageD.close !== null) ? ((storageD.close - storagePrev) / storagePrev * 100) : null;
                 var powerChgSign = powerChg >= 0 ? '+' : '';
-                var storageChgSign = storageChg >= 0 ? '+' : '';
+                var storageChgSign = (storageChg !== null && storageChg >= 0) ? '+' : '';
                 var powerChgColor = powerChg > 0 ? '#ff6b6b' : (powerChg < 0 ? '#51cf66' : '#999');
-                var storageChgColor = storageChg > 0 ? '#ff6b6b' : (storageChg < 0 ? '#51cf66' : '#999');
+                var storageChgColor = (storageChg !== null && storageChg > 0) ? '#ff6b6b' : ((storageChg !== null && storageChg < 0) ? '#51cf66' : '#999');
 
                 hoverTip.innerHTML =
                     '<div style="margin-bottom:6px;font-weight:bold;border-bottom:1px solid #ffffff40;padding-bottom:4px;">' + powerD.date + '</div>' +
@@ -7358,8 +7358,11 @@ const BU_LOGOS = {
                     '<div style="display:flex;align-items:center;gap:8px;">' +
                     '<span style="width:8px;height:8px;background:#43a047;border-radius:50%;"></span>' +
                     '<span>储能型: </span>' +
-                    '<span style="font-weight:bold;">' + (storageD.close / 10000).toFixed(2) + '万</span>' +
-                    '<span style="color:' + storageChgColor + ';font-size:11px;">(' + storageChgSign + storageChg.toFixed(2) + '%)</span>' +
+                    (storageD && storageD.close !== null ?
+                        '<span style="font-weight:bold;">' + (storageD.close / 10000).toFixed(2) + '万</span>' +
+                        '<span style="color:' + storageChgColor + ';font-size:11px;">(' + storageChgSign + (storageChg !== null ? storageChg.toFixed(2) : '0.00') + '%)</span>'
+                    :
+                        '<span style="color:#999;font-size:11px;">数据暂无</span>') +
                     '</div>';
                 hoverTip.style.display = 'block';
 
@@ -7374,7 +7377,7 @@ const BU_LOGOS = {
                 hoverTip.style.top = '20%';
             });
 
-            hitRect.addEventListener('mouseleave', function() {
+hitRect.addEventListener('mouseleave', function() {
                 hoverTip.style.display = 'none';
                 crosshairG.style.display = 'none';
             });
