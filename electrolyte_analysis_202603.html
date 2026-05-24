@@ -1,0 +1,937 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>电解液产业链市场分析报告 | 2026年3月</title>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Microsoft YaHei', 'PingFang SC', Arial, sans-serif; background: #f0f2f5; min-height: 100vh; }
+        a { color: #1e3c72; text-decoration: none; }
+
+        /* ===== 顶部导航 ===== */
+        .topbar {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: #fff; padding: 0 30px; height: 60px;
+            display: flex; justify-content: space-between; align-items: center;
+            position: sticky; top: 0; z-index: 100;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+        }
+        .topbar-logo { font-size: 18px; font-weight: bold; display: flex; align-items: center; gap: 8px; }
+        .topbar-links { display: flex; gap: 12px; }
+        .topbar-links a { color: rgba(255,255,255,0.8); text-decoration: none; font-size: 13px; padding: 6px 14px; border-radius: 20px; transition: all 0.2s; }
+        .topbar-links a:hover { background: rgba(255,255,255,0.2); color: #fff; }
+        .topbar-right { font-size: 13px; color: rgba(255,255,255,0.7); }
+
+        /* ===== 报告头部 ===== */
+        .report-header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: #fff; padding: 40px 30px 30px;
+            position: relative; overflow: hidden; text-align: center;
+        }
+        .report-header::before {
+            content: ''; position: absolute; inset: 0;
+            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            opacity: 0.3;
+        }
+        .report-meta { font-size: 13px; opacity: 0.8; margin-bottom: 8px; position: relative; }
+        .report-title { font-size: 28px; font-weight: 700; margin-bottom: 6px; position: relative; }
+        .report-subtitle { font-size: 14px; opacity: 0.85; margin-bottom: 20px; position: relative; }
+        .report-tags { display: inline-flex; gap: 8px; flex-wrap: wrap; position: relative; justify-content: center; }
+        .report-tag { background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); padding: 4px 12px; border-radius: 20px; font-size: 12px; }
+
+        /* ===== KPI 概览 ===== */
+        .kpi-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin: 24px 30px 0;
+        }
+        .kpi-card {
+            background: #fff; border-radius: 14px; padding: 20px 22px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05); border: 1px solid #eee;
+            display: flex; flex-direction: column; gap: 8px;
+        }
+        .kpi-label { font-size: 12px; color: #aaa; font-weight: 500; letter-spacing: 0.5px; text-transform: uppercase; }
+        .kpi-value { font-size: 28px; font-weight: 700; color: #1a1a2e; line-height: 1; }
+        .kpi-sub { font-size: 12px; color: #888; }
+        .kpi-delta { font-size: 13px; font-weight: 600; padding: 2px 8px; border-radius: 6px; display: inline-block; }
+        .kpi-delta.up { background: #e8f5e9; color: #2e7d32; }
+        .kpi-delta.down { background: #ffebee; color: #c62828; }
+        .kpi-delta.neutral { background: #f5f5f5; color: #666; }
+
+        /* ===== Tab导航 ===== */
+        .tab-nav {
+            background: #fff; padding: 0 30px;
+            display: flex; gap: 4px;
+            border-bottom: 1px solid #e8e8e8;
+            position: sticky; top: 60px; z-index: 90;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            overflow-x: auto;
+        }
+        .tab-btn {
+            padding: 14px 20px; background: none; border: none;
+            cursor: pointer; font-size: 14px; color: #888;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s; font-family: inherit; font-weight: 600;
+            white-space: nowrap;
+        }
+        .tab-btn:hover { color: #1e3c72; }
+        .tab-btn.active { color: #1e3c72; border-bottom-color: #1e3c72; font-weight: 700; }
+
+        /* ===== 主内容 ===== */
+        .main-content { padding: 24px 30px; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        /* ===== 通用卡片 ===== */
+        .card {
+            background: #fff; border-radius: 14px; padding: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05); border: 1px solid #eee;
+            margin-bottom: 20px;
+        }
+        .card-title {
+            font-size: 16px; font-weight: 700; color: #1a1a2e;
+            margin-bottom: 4px;
+        }
+        .card-sub {
+            font-size: 12px; color: #aaa; margin-bottom: 16px;
+        }
+        .card-hint {
+            font-size: 11px; color: #ccc; margin-top: 12px; text-align: right;
+        }
+
+        /* ===== 数据表格 ===== */
+        .data-table {
+            width: 100%; border-collapse: collapse; font-size: 13px;
+        }
+        .data-table th {
+            background: #f8f9fa; padding: 10px 12px;
+            text-align: left; font-weight: 600; color: #555;
+            border-bottom: 2px solid #e8e8e8;
+            position: sticky; top: 0;
+        }
+        .data-table td {
+            padding: 9px 12px; border-bottom: 1px solid #f0f0f0;
+            color: #333;
+        }
+        .data-table tr:hover td { background: #f8fbff; }
+        .data-table .num { text-align: right; font-variant-numeric: tabular-nums; }
+        .data-table .center { text-align: center; }
+        .data-table .green { color: #2e7d32; font-weight: 600; }
+        .data-table .red { color: #c62828; font-weight: 600; }
+        .data-table .orange { color: #e65100; font-weight: 600; }
+        .data-table .blue { color: #1e3c72; font-weight: 600; }
+        .data-table .rank { font-weight: 700; color: #1e3c72; }
+
+        /* ===== 文字分析块 ===== */
+        .analysis-text {
+            font-size: 13.5px; line-height: 1.9; color: #444;
+            margin-bottom: 12px;
+        }
+        .analysis-text p { margin-bottom: 8px; }
+        .analysis-text strong { color: #1a1a2e; }
+
+        /* ===== 图例说明 ===== */
+        .legend {
+            display: flex; gap: 16px; flex-wrap: wrap;
+            font-size: 12px; color: #888; margin-bottom: 12px;
+        }
+        .legend-item { display: flex; align-items: center; gap: 6px; }
+        .legend-dot { width: 10px; height: 10px; border-radius: 50%; }
+
+        /* ===== 滚动表格容器 ===== */
+        .table-scroll { overflow-x: auto; max-height: 500px; overflow-y: auto; }
+
+        /* ===== 图表容器 ===== */
+        .chart-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .chart-full { width: 100%; height: 360px; }
+        .chart-half { width: 100%; height: 320px; }
+
+        /* ===== 热点区块 ===== */
+        .hot-card {
+            background: #fff; border-radius: 14px; padding: 20px 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05); border: 1px solid #eee;
+            margin-bottom: 16px;
+        }
+        .hot-card-header {
+            display: flex; align-items: center; gap: 12px;
+            margin-bottom: 14px; padding-bottom: 12px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .hot-badge {
+            font-size: 11px; font-weight: 700; padding: 3px 10px;
+            border-radius: 12px; letter-spacing: 0.5px;
+        }
+        .hot-badge.policy { background: #e3f2fd; color: #1e3c72; }
+        .hot-badge.news { background: #e8f5e9; color: #2e7d32; }
+        .hot-card-title { font-size: 15px; font-weight: 700; color: #1a1a2e; flex: 1; }
+        .hot-card-meta { font-size: 12px; color: #aaa; }
+        .hot-card-body { font-size: 13px; line-height: 1.8; color: #555; }
+        .hot-card-body p { margin-bottom: 8px; }
+        .hot-card-body strong { color: #1e3c72; }
+        .hot-card-body .highlight { color: #e65100; font-weight: 600; }
+
+        /* ===== 总结区块 ===== */
+        .summary-card {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            border-radius: 16px; padding: 28px 32px;
+            color: #fff; margin-bottom: 20px;
+        }
+        .summary-title { font-size: 18px; font-weight: 700; margin-bottom: 16px; opacity: 0.9; }
+        .summary-item {
+            display: flex; align-items: flex-start; gap: 12px;
+            margin-bottom: 14px; padding: 12px 16px;
+            background: rgba(255,255,255,0.1); border-radius: 10px;
+        }
+        .summary-icon { font-size: 20px; flex-shrink: 0; }
+        .summary-text { font-size: 14px; line-height: 1.7; }
+        .summary-text strong { color: #ffd700; }
+
+        /* ===== 公司标签 ===== */
+        .company-tag {
+            display: inline-block; font-size: 11px; padding: 2px 8px;
+            border-radius: 6px; font-weight: 600;
+        }
+        .company-tag.top { background: #fff3e0; color: #e65100; }
+        .company-tag.mid { background: #e8f5e9; color: #2e7d32; }
+        .company-tag.low { background: #f5f5f5; color: #666; }
+    </style>
+</head>
+<body>
+
+    <!-- 顶部导航 -->
+    <div class="topbar">
+        <div class="topbar-left">
+            <div class="topbar-logo">🧪 电解液产业链分析报告</div>
+            <div class="topbar-links">
+                <a href="index_v3.html">首页</a>
+                <a href="database_hub.html">数据库</a>
+                <a href="analysis_hub.html">分析报告</a>
+                <a href="electrolyte_data_v2.html">电解液数据</a>
+            </div>
+        </div>
+        <div class="topbar-right">数据截止：2026年3月</div>
+    </div>
+
+    <!-- 报告头部 -->
+    <div class="report-header">
+        <div class="report-meta">中国电解液产业链 · 月度市场分析</div>
+        <div class="report-title">电解液产业链市场分析报告</div>
+        <div class="report-subtitle">2026年3月 | 数据来源：鑫椤数据 · 法恩莱特战略中心整理</div>
+        <div class="report-tags">
+            <span class="report-tag">电解液</span>
+            <span class="report-tag">六氟磷酸锂</span>
+            <span class="report-tag">LiFSI</span>
+            <span class="report-tag">溶剂</span>
+            <span class="report-tag">添加剂</span>
+        </div>
+    </div>
+
+    <!-- KPI 概览 -->
+    <div class="kpi-row" id="kpi-row">
+        <div class="kpi-card">
+            <div class="kpi-label">电解液产量</div>
+            <div class="kpi-value">23.7 <span style="font-size:14px;font-weight:400;color:#888">万吨</span></div>
+            <div class="kpi-sub">2026-02 → 26-03</div>
+            <span class="kpi-delta up">+28.8%</span>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-label">电解液产能利用率</div>
+            <div class="kpi-value">52.89%</div>
+            <div class="kpi-sub">环比变动</div>
+            <span class="kpi-delta up">+9.8</span>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-label">六氟磷酸锂产量</div>
+            <div class="kpi-value">2.34 <span style="font-size:14px;font-weight:400;color:#888">万吨</span></div>
+            <div class="kpi-sub">2026-02 → 26-03</div>
+            <span class="kpi-delta down">-1.1%</span>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-label">六氟产能利用率</div>
+            <div class="kpi-value">63.19%</div>
+            <div class="kpi-sub">环比变动</div>
+            <span class="kpi-delta down">-0.7</span>
+        </div>
+    </div>
+
+    <!-- Tab导航 -->
+    <div class="tab-nav">
+        <button class="tab-btn active" data-tab="summary">总结展望</button>
+        <button class="tab-btn" data-tab="elec-market">电解液市场</button>
+        <button class="tab-btn" data-tab="lfp-market">溶质市场</button>
+        <button class="tab-btn" data-tab="price">价格走势</button>
+        <button class="tab-btn" data-tab="export">出口贸易</button>
+        <button class="tab-btn" data-tab="data">月度数据</button>
+    </div>
+
+    <!-- 主内容 -->
+    <div class="main-content">
+        
+        <div class="tab-content active" id="tab-summary">
+            <div class="summary-card">
+                <div class="summary-title">本月核心结论</div>
+                <div class="summary-item">
+                    <div class="summary-icon">📈</div>
+                    <div class="summary-text"><strong>电解液产量创阶段新高</strong>，3月产量23.7万吨，环比+28.8%，主要受春节后复工复产驱动，头部电池厂排产超预期。</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-icon">⚖️</div>
+                    <div class="summary-text"><strong>产能利用率快速回升</strong>，行业产能利用率从2月低点的约30%迅速回升至53%，头部企业基本满产。</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-icon">📉</div>
+                    <div class="summary-text"><strong>六氟价格高位回落</strong>，六氟从12月约18万元/吨跌至当前约11-12万元/吨，累计跌幅超三成，成本支撑减弱。</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-icon">🔋</div>
+                    <div class="summary-text"><strong>固态电池加速商业化</strong>，清陶能源递表港交所，全固态电池取消电解液，液态电解液企业需加速技术迭代应对替代风险。</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-icon">⚠️</div>
+                    <div class="summary-text"><strong>行业竞争加剧</strong>，法恩莱特产能利用率仅17%，中小企业面临出清压力；头部企业成本优势凸显，市场份额持续集中。</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">电解液产业链关键指标跟踪</div>
+                <div class="card-sub">数据来源：鑫椤数据 | 单位：万吨/元/吨</div>
+                <div class="table-scroll">
+                    <table class="data-table" id="summary-table">
+                        <thead>
+                            <tr>
+                                <th>指标</th>
+                                <th class="num">2025-12</th>
+                                <th class="num">2026-01</th>
+                                <th class="num">2026-02</th>
+                                <th class="num">2026-03</th>
+                                <th class="num">环比</th>
+                                <th class="num">同比</th>
+                            </tr>
+                        </thead>
+                        <tbody id="summary-table-body"></tbody>
+                    </table>
+                </div>
+                <div class="card-hint">注：同比/环比数据基于鑫椤数据库计算，部分数据可能因修正存在差异</div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">法恩莱特行动建议</div>
+                <div class="analysis-text">
+                    <p><strong>1. 密切关注政策动态：</strong>四部门联合座谈会形成的"非理性竞争负面行为清单"即将发布，法恩莱特需提前完成合规自查，重点关注定价策略和供应商账期管理。</p>
+                    <p><strong>2. 强化成本控制：</strong>六氟磷酸锂价格大幅回落为电解液降价提供空间，但头部企业自供六氟成本优势显著，法恩莱特需优化采购策略，提升原料议价能力。</p>
+                    <p><strong>3. 加速新技术储备：</strong>固态电池商业化加速，LiFSI/VC/FEC等高性能添加剂需求上升，法恩莱特应加大超快充/高压电解液配方研发投入，差异化竞争。</p>
+                    <p><strong>4. 关注海外布局机会：</strong>东南亚市场（新宙邦马来西亚项目）和欧洲市场为中国电解液企业出海重点，法恩莱特可评估区域性产能布局可行性。</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="tab-content" id="tab-elec-market">
+            <div class="chart-row" style="margin-bottom:20px">
+                <div class="card" style="flex:1">
+                    <div class="card-title">电解液月度产量趋势</div>
+                    <div class="card-sub">近12个月产量（万吨）及产能利用率（%）</div>
+                    <div id="chart-elec-prod" class="chart-half"></div>
+                </div>
+                <div class="card" style="flex:1">
+                    <div class="card-title">电解液-产能利用率趋势</div>
+                    <div class="card-sub">行业整体产能（万吨）及利用率（%）</div>
+                    <div id="chart-elec-util" class="chart-half"></div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">电解液产量分析要点</div>
+                <div class="analysis-text">
+                    <p><strong>产量创阶段新高：</strong>2026年3月国内电解液产量23.74万吨，环比+28.8%，同比+51.3%。春节假期效应消退后行业全面复工复产。</p>
+                    <p><strong>驱动因素：</strong>①一季度"以旧换新"政策持续发力，新能源车终端库存去化接近尾声；②3月正值动力电池企业为二季度新车发布集中备货，头部电池厂排产指引环比提升近20%；③储能电芯排产占比提升至40%以上。</p>
+                    <p><strong>产能利用率：</strong>3月行业产能44.88万吨，产能利用率52.9%，环比大幅回升22.57个百分点。天赐材料约85万吨产能已基本满产。</p>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">电解液-国内TOP15企业产量与开工率</div>
+                <div class="card-sub">2026年3月 | 数据来源：鑫椤锂电（法恩莱特数据来源：月度经营分析报告）</div>
+                <div class="table-scroll">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th class="center">排名</th>
+                                <th>企业</th>
+                                <th class="num">当月产量(吨)</th>
+                                <th class="num">环比</th>
+                                <th class="num">同比</th>
+                                <th class="num">产能利用率</th>
+                                <th class="center">开工状态</th>
+                            </tr>
+                        </thead>
+                        <tbody id="elec-ent-table-body"></tbody>
+                    </table>
+                </div>
+                <div class="card-hint">产能利用率 ≥80%：基本满产 | 50%~75%：正常 | &lt;50%：低负荷</div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">电解液价格分析</div>
+                <div class="card-sub">分产品类型价格走势（万元/吨）</div>
+                <div id="chart-elec-price" class="chart-full"></div>
+                <div class="legend" style="margin-top:12px">
+                    <div class="legend-item"><div class="legend-dot" style="background:#1e3c72"></div>磷酸铁锂（动力型）</div>
+                    <div class="legend-item"><div class="legend-dot" style="background:#27ae60"></div>磷酸铁锂（储能型）</div>
+                    <div class="legend-item"><div class="legend-dot" style="background:#e67e22"></div>三元（动力型）</div>
+                    <div class="legend-item"><div class="legend-dot" style="background:#9b59b6"></div>高电压4.4V</div>
+                </div>
+                <div class="analysis-text" style="margin-top:16px">
+                    <p><strong>近半年走势：</strong>电解液市场经历"倒V"走势。磷酸铁锂（动力型）从1月约3.0万元/吨高位回落，3月约2.80-2.85万元/吨。三元（动力型）从3.8万元/吨高位区间震荡下滑。</p>
+                    <p><strong>近一月特点：</strong>价格跌势放缓，下游电池企业排产环比提升但力度有限，采购以刚需为主，压价意愿仍强。市场处于下跌后的弱平衡状态。</p>
+                    <p><strong>企业报价：</strong>3月各企业报价普遍下调约5%，广州天赐均价2.65万元/吨为样本最低，其自供六氟磷酸锂成本优势凸显。</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="tab-content" id="tab-lfp-market">
+            <div class="chart-row" style="margin-bottom:20px">
+                <div class="card" style="flex:1">
+                    <div class="card-title">六氟磷酸锂月度产量</div>
+                    <div class="card-sub">近12个月六氟产量（吨）及产能利用率（%）</div>
+                    <div id="chart-lfp-prod" class="chart-half"></div>
+                </div>
+                <div class="card" style="flex:1">
+                    <div class="card-title">六氟产能利用率趋势</div>
+                    <div class="card-sub">产能高位、开工低位，量价背离</div>
+                    <div id="chart-lfp-util" class="chart-half"></div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">六氟磷酸锂-国内TOP15企业</div>
+                <div class="card-sub">2026年3月 | 数据来源：鑫椤锂电</div>
+                <div class="table-scroll">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th class="center">排名</th>
+                                <th>企业</th>
+                                <th class="num">当月产量(吨)</th>
+                                <th class="num">环比</th>
+                                <th class="num">同比</th>
+                                <th class="num">产能利用率</th>
+                                <th class="center">开工状态</th>
+                            </tr>
+                        </thead>
+                        <tbody id="lfp-ent-table-body"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">六氟磷酸锂产量分析要点</div>
+                <div class="analysis-text">
+                    <p><strong>连续下滑：</strong>3月六氟产量2.34万吨，环比小降1%，连续2个月环比下滑。行业呈现"名义产能过剩"与"有效供给偏紧"并存态势。</p>
+                    <p><strong>头部检修：</strong>天赐材料3月1日起龙山北基地年产15万吨液体六氟产线停产检修20-30天，产量环比骤降41%。</p>
+                    <p><strong>量价背离：</strong>产能维持在3.7万吨高位，但产能利用率仅63.2%，较2025年12月82%的高点累计下滑近20个百分点。需求以长协为主，散单成交清淡。</p>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">LiFSI市场分析</div>
+                <div class="chart-row">
+                    <div style="flex:1">
+                        <div class="card-title" style="font-size:14px">LiFSI-固态价格走势</div>
+                        <div id="chart-lifsi-solid" class="chart-half"></div>
+                    </div>
+                    <div style="flex:1">
+                        <div class="card-title" style="font-size:14px">LiFSI-液态价格走势</div>
+                        <div id="chart-lifsi-liquid" class="chart-half"></div>
+                    </div>
+                </div>
+                <div class="analysis-text" style="margin-top:12px">
+                    <p><strong>固态：</strong>近半年从10.0万元/吨涨至3月初14.65万元/吨（累计+46.5%），3月下旬起小幅回落至14.25万元/吨。天赐材料等新建LiFSI产能爬坡，供给趋于充裕。</p>
+                    <p><strong>液态：</strong>全月稳定于8.3-9.3万元/吨区间，均价8.8万元/吨，需求稳定、竞争格局相对均衡，价格无明显波动。</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="tab-content" id="tab-price">
+            <div class="card">
+                <div class="card-title">六氟磷酸锂价格：国内 vs 出口</div>
+                <div class="card-sub">近半年价格走势（万元/吨）</div>
+                <div id="chart-lfp-price" class="chart-full"></div>
+                <div class="legend" style="margin-top:12px">
+                    <div class="legend-item"><div class="legend-dot" style="background:#1e3c72"></div>国内主流市场</div>
+                    <div class="legend-item"><div class="legend-dot" style="background:#e74c3c"></div>出口价格</div>
+                </div>
+                <div class="analysis-text" style="margin-top:12px">
+                    <p><strong>高位回落：</strong>六氟磷酸锂从2025年12月约18万元/吨高位回落，3月上旬跌至11.8-12.6万元/吨，累计跌幅超三成。</p>
+                    <p><strong>出口退税影响：</strong>出口退税政策自4月1日起正式取消，引发3月出口量集中提前释放，对出口价格形成额外下行压力，内外价差收窄至1-2万元/吨。</p>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">高电压电解液价格走势</div>
+                <div class="card-sub">4.35V / 4.4V / >4.4V 三类产品（万元/吨）</div>
+                <div id="chart-hv-price" class="chart-full"></div>
+                <div class="legend" style="margin-top:12px">
+                    <div class="legend-item"><div class="legend-dot" style="background:#8e44ad"></div>高电压 >4.4V</div>
+                    <div class="legend-item"><div class="legend-dot" style="background:#e67e22"></div>高电压 4.4V</div>
+                    <div class="legend-item"><div class="legend-dot" style="background:#f39c12"></div>高电压 4.35V</div>
+                </div>
+                <div class="analysis-text" style="margin-top:12px">
+                    <p><strong>冲高回落：</strong>高电压电解液在去年12月冲至阶段性顶点后，节后需求季节性回落。三类产品3月均价分别降至约3.5万/3.75万/3.95万元/吨，月跌幅约2.6%。</p>
+                    <p><strong>弱平衡延续：</strong>六氟磷酸锂散单报价回落至9-9.5万元/吨，成本端支撑持续削弱，短期高电压电解液仍处弱势寻底阶段。</p>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">电解液企业报价明细</div>
+                <div class="card-sub">2026年3月 | 单位：万元/吨</div>
+                <div class="table-scroll">
+                    <table class="data-table" id="elec-price-table">
+                        <thead>
+                            <tr>
+                                <th>企业</th>
+                                <th class="num">2026-03</th>
+                                <th class="num">2026-02</th>
+                                <th class="num">环比</th>
+                            </tr>
+                        </thead>
+                        <tbody id="elec-price-table-body"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <div class="tab-content" id="tab-export">
+            <div class="card">
+                <div class="card-title">电解液出口量趋势</div>
+                <div class="card-sub">月度出口量（吨）及同比增速</div>
+                <div id="chart-elec-exp" class="chart-full"></div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">电解液出口-行业格局TOP15</div>
+                <div class="card-sub">2026年3月 | 数据来源：鑫椤锂电</div>
+                <div class="table-scroll">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th class="center">排名</th>
+                                <th>企业</th>
+                                <th class="num">当月出口量(吨)</th>
+                                <th class="num">YTD出口量</th>
+                                <th class="num">环比</th>
+                                <th class="num">YTD同比</th>
+                            </tr>
+                        </thead>
+                        <tbody id="elec-exp-ent-table-body"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">出口市场分析要点</div>
+                <div class="analysis-text">
+                    <p><strong>出口量集中释放：</strong>受六氟磷酸锂出口退税政策4月1日起取消影响，3月出口量集中提前释放，出口价格跌幅深于国内。</p>
+                    <p><strong>海外市场动态：</strong>新宙邦马来西亚项目一期3万吨预计2026年Q4投产，服务东南亚及印度核心客户，规避贸易壁垒。</p>
+                    <p><strong>美欧供应链重构：</strong>美国与欧盟签署关键矿产战略伙伴关系MOU，意图重塑全球锂电供应链定价体系，中国电解液出口面临制度性压力。</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="tab-content" id="tab-data">
+            <div class="card">
+                <div class="card-title">电解液行业整体产量（完整月度数据）</div>
+                <div class="card-sub">单位：万吨 / %</div>
+                <div class="table-scroll">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>月份</th>
+                                <th class="num">产量</th>
+                                <th class="num">产能</th>
+                                <th class="num">产能利用率</th>
+                                <th class="num">环比</th>
+                            </tr>
+                        </thead>
+                        <tbody id="elec-all-prod-body"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">六氟磷酸锂行业整体产量（完整月度数据）</div>
+                <div class="card-sub">单位：吨 / %</div>
+                <div class="table-scroll">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>月份</th>
+                                <th class="num">产量</th>
+                                <th class="num">产能</th>
+                                <th class="num">产能利用率</th>
+                                <th class="num">环比</th>
+                            </tr>
+                        </thead>
+                        <tbody id="lfp-all-prod-body"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">添加剂价格走势（完整数据）</div>
+                <div class="card-sub">VC / FEC / PS 价格（万元/吨）</div>
+                <div id="chart-additive-price" class="chart-full"></div>
+                <div class="legend" style="margin-top:12px">
+                    <div class="legend-item"><div class="legend-dot" style="background:#1e3c72"></div>VC</div>
+                    <div class="legend-item"><div class="legend-dot" style="background:#e67e22"></div>FEC</div>
+                    <div class="legend-item"><div class="legend-dot" style="background:#9b59b6"></div>PS</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+<script>
+// ====== 图表数据 ======
+const elecProdMonths = ["04", "05", "06", "07", "08", "09", "10", "11", "12", "01", "02", "03"];
+const elecProdVals = [16.09, 15.85, 17.27, 18.14, 19.08, 20.55, 21.89, 23.11, 23.32, 21.76, 18.44, 23.74];
+const elecUtilVals = [41.42, 39.94, 43.51, 44.69, 47.0, 50.63, 53.92, 56.91, 57.43, 52.95, 43.12, 52.89];
+const lfpProdMonths = ["04", "05", "06", "07", "08", "09", "10", "11", "12", "01", "02", "03"];
+const lfpProdVals = [2.06, 1.73, 1.87, 2.15, 2.26, 2.36, 2.55, 2.59, 2.68, 2.81, 2.36, 2.34];
+const lfpUtilVals = [70.72, 59.47, 64.13, 71.53, 75.29, 74.66, 80.8, 79.73, 82.08, 78.27, 63.92, 63.19];
+
+// 价格数据
+const elecPowLfp = {"dates": ["07-24", "07-25", "07-28", "07-29", "07-30", "07-31", "08-01", "08-04", "08-05", "08-06", "08-07", "08-08", "08-11", "08-12", "08-13", "08-14", "08-15", "08-18", "08-19", "08-21", "08-22", "08-25", "08-26", "08-27", "08-28", "08-29", "09-01", "09-02", "09-03", "09-04", "09-05", "09-08", "09-09", "09-10", "09-11", "09-12", "09-15", "09-16", "09-17", "09-18", "09-19", "09-22", "09-23", "09-24", "09-25", "09-26", "09-28", "09-29", "09-30", "10-09", "10-10", "10-11", "10-13", "10-14", "10-15", "10-16", "10-17", "10-20", "10-21", "10-22", "10-23", "10-24", "10-27", "10-28", "10-29", "10-30", "10-31", "11-03", "11-04", "11-05", "11-06", "11-07", "11-10", "11-11", "11-12", "11-13", "11-14", "11-17", "11-18", "11-19", "11-20", "11-21", "11-24", "11-25", "11-26", "11-27", "11-28", "12-01", "12-02", "12-03", "12-04", "12-05", "12-08", "12-09", "12-10", "12-11", "12-12", "12-15", "12-16", "12-17", "12-18", "12-19", "12-22", "12-23", "12-24", "12-25", "12-26", "12-29", "12-30", "12-31", "01-04", "01-05", "01-06", "01-07", "01-08", "01-09", "01-12", "01-13", "01-14", "01-15", "01-16", "01-19", "01-20", "01-21", "01-22", "01-23", "01-26", "01-27", "01-28", "01-29", "01-30", "02-02", "02-03", "02-04", "02-05", "02-06", "02-09", "02-10", "02-11", "02-12", "02-13", "02-14", "02-24", "02-25", "02-26", "02-27", "02-28", "03-02", "03-03", "03-04", "03-05", "03-06", "03-09", "03-10", "03-11", "03-12", "03-13", "03-16", "03-17", "03-18", "03-19", "03-20", "03-23", "03-24", "03-25", "03-26", "03-27", "03-30", "03-31", "04-01", "04-02", "04-03", "04-07", "04-08", "04-09", "04-10", "04-13", "04-14", "04-15", "04-16"], "vals": [1.78, 1.78, 1.78, 1.78, 1.78, 1.78, 1.78, 1.78, 1.78, 1.78, 1.78, 1.78, 1.78, 1.78, 1.78, 1.78, 1.78, 1.78, 1.78, 1.79, 1.79, 1.79, 1.79, 1.79, 1.79, 1.79, 1.79, 1.79, 1.79, 1.8, 1.8, 1.8, 1.8, 1.8, 1.8, 1.8, 1.8, 1.8, 1.8, 1.8, 1.8, 1.8, 1.81, 1.81, 1.82, 1.82, 1.82, 1.82, 1.82, 1.83, 1.85, 1.85, 1.85, 1.85, 1.87, 1.87, 1.87, 1.87, 1.87, 1.87, 1.87, 1.87, 1.92, 1.92, 1.92, 1.94, 1.94, 1.95, 1.95, 2.05, 2.1, 2.1, 2.1, 2.1, 2.1, 2.1, 2.1, 2.1, 2.1, 2.1, 2.1, 2.1, 2.3, 2.3, 2.3, 2.3, 2.3, 2.35, 2.35, 2.35, 2.35, 2.35, 2.35, 2.35, 2.35, 2.35, 2.35, 2.35, 2.75, 2.75, 2.75, 2.75, 2.75, 2.75, 2.75, 2.75, 2.75, 2.9, 2.9, 2.9, 2.9, 3.2, 3.2, 3.2, 3.2, 3.4, 3.4, 3.4, 3.4, 3.4, 3.4, 3.4, 3.4, 3.4, 3.4, 3.4, 3.4, 3.4, 3.4, 3.4, 3.3, 3.18, 3.18, 3.18, 3.18, 3.18, 3.18, 3.18, 3.18, 3.18, 3.18, 3.18, 3.18, 3.18, 3.18, 3.1, 3.1, 3.1, 3.1, 3.1, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 2.93, 2.93, 2.93, 2.93, 2.93, 2.93, 2.93, 2.93, 2.93, 2.93, 2.93, 2.93, 2.93, 2.93, 2.93, 2.85, 2.85]};
+const elecPowLfpSt = {"dates": ["07-24", "07-25", "07-28", "07-29", "07-30", "07-31", "08-01", "08-04", "08-05", "08-06", "08-07", "08-08", "08-11", "08-12", "08-13", "08-14", "08-15", "08-18", "08-19", "08-21", "08-22", "08-25", "08-26", "08-27", "08-28", "08-29", "09-01", "09-02", "09-03", "09-04", "09-05", "09-08", "09-09", "09-10", "09-11", "09-12", "09-15", "09-16", "09-17", "09-18", "09-19", "09-22", "09-23", "09-24", "09-25", "09-26", "09-28", "09-29", "09-30", "10-09", "10-10", "10-11", "10-13", "10-14", "10-15", "10-16", "10-17", "10-20", "10-21", "10-22", "10-23", "10-24", "10-27", "10-28", "10-29", "10-30", "10-31", "11-03", "11-04", "11-05", "11-06", "11-07", "11-10", "11-11", "11-12", "11-13", "11-14", "11-17", "11-18", "11-19", "11-20", "11-21", "11-24", "11-25", "11-26", "11-27", "11-28", "12-01", "12-02", "12-03", "12-04", "12-05", "12-08", "12-09", "12-10", "12-11", "12-12", "12-15", "12-16", "12-17", "12-18", "12-19", "12-22", "12-23", "12-24", "12-25", "12-26", "12-29", "12-30", "12-31", "01-04", "01-05", "01-06", "01-07", "01-08", "01-09", "01-12", "01-13", "01-14", "01-15", "01-16", "01-19", "01-20", "01-21", "01-22", "01-23", "01-26", "01-27", "01-28", "01-29", "01-30", "02-02", "02-03", "02-04", "02-05", "02-06", "02-09", "02-10", "02-11", "02-12", "02-13", "02-14", "02-24", "02-25", "02-26", "02-27", "02-28", "03-02", "03-03", "03-04", "03-05", "03-06", "03-09", "03-10", "03-11", "03-12", "03-13", "03-16", "03-17", "03-18", "03-19", "03-20", "03-23", "03-24", "03-25", "03-26", "03-27", "03-30", "03-31", "04-01", "04-02", "04-03", "04-07", "04-08", "04-09", "04-10", "04-13", "04-14", "04-15", "04-16"], "vals": [1.65, 1.65, 1.65, 1.65, 1.65, 1.65, 1.65, 1.65, 1.65, 1.65, 1.65, 1.65, 1.65, 1.65, 1.65, 1.65, 1.65, 1.65, 1.65, 1.66, 1.66, 1.66, 1.66, 1.66, 1.66, 1.66, 1.66, 1.66, 1.66, 1.67, 1.67, 1.67, 1.67, 1.67, 1.67, 1.67, 1.67, 1.67, 1.67, 1.67, 1.67, 1.67, 1.68, 1.68, 1.69, 1.69, 1.69, 1.69, 1.69, 1.7, 1.72, 1.72, 1.72, 1.72, 1.75, 1.75, 1.75, 1.75, 1.75, 1.75, 1.75, 1.75, 1.79, 1.79, 1.79, 1.81, 1.81, 1.82, 1.82, 1.92, 1.98, 1.98, 1.98, 1.98, 1.98, 1.98, 1.98, 1.98, 1.98, 1.98, 1.98, 1.98, 2.18, 2.18, 2.18, 2.18, 2.18, 2.23, 2.23, 2.23, 2.23, 2.23, 2.23, 2.23, 2.23, 2.23, 2.23, 2.23, 2.63, 2.63, 2.63, 2.63, 2.63, 2.63, 2.63, 2.63, 2.63, 2.78, 2.78, 2.78, 2.78, 3.08, 3.08, 3.08, 3.08, 3.28, 3.28, 3.28, 3.28, 3.28, 3.28, 3.28, 3.28, 3.28, 3.28, 3.28, 3.28, 3.28, 3.28, 3.28, 3.2, 3.08, 3.08, 3.08, 3.08, 3.08, 3.08, 3.08, 3.08, 3.08, 3.08, 3.08, 3.08, 3.08, 3.08, 3.03, 3.03, 3.03, 3.03, 3.03, 2.93, 2.93, 2.93, 2.93, 2.93, 2.93, 2.93, 2.93, 2.93, 2.93, 2.93, 2.93, 2.93, 2.85, 2.85, 2.85, 2.85, 2.85, 2.85, 2.85, 2.85, 2.85, 2.85, 2.85, 2.85, 2.85, 2.85, 2.85, 2.73, 2.73]};
+const elecPowNcm = {"dates": ["07-24", "07-25", "07-28", "07-29", "07-30", "07-31", "08-01", "08-04", "08-05", "08-06", "08-07", "08-08", "08-11", "08-12", "08-13", "08-14", "08-15", "08-18", "08-19", "08-21", "08-22", "08-25", "08-26", "08-27", "08-28", "08-29", "09-01", "09-02", "09-03", "09-04", "09-05", "09-08", "09-09", "09-10", "09-11", "09-12", "09-15", "09-16", "09-17", "09-18", "09-19", "09-22", "09-23", "09-24", "09-25", "09-26", "09-28", "09-29", "09-30", "10-09", "10-10", "10-11", "10-13", "10-14", "10-15", "10-16", "10-17", "10-20", "10-21", "10-22", "10-23", "10-24", "10-27", "10-28", "10-29", "10-30", "10-31", "11-03", "11-04", "11-05", "11-06", "11-07", "11-10", "11-11", "11-12", "11-13", "11-14", "11-17", "11-18", "11-19", "11-20", "11-21", "11-24", "11-25", "11-26", "11-27", "11-28", "12-01", "12-02", "12-03", "12-04", "12-05", "12-08", "12-09", "12-10", "12-11", "12-12", "12-15", "12-16", "12-17", "12-18", "12-19", "12-22", "12-23", "12-24", "12-25", "12-26", "12-29", "12-30", "12-31", "01-04", "01-05", "01-06", "01-07", "01-08", "01-09", "01-12", "01-13", "01-14", "01-15", "01-16", "01-19", "01-20", "01-21", "01-22", "01-23", "01-26", "01-27", "01-28", "01-29", "01-30", "02-02", "02-03", "02-04", "02-05", "02-06", "02-09", "02-10", "02-11", "02-12", "02-13", "02-14", "02-24", "02-25", "02-26", "02-27", "02-28", "03-02", "03-03", "03-04", "03-05", "03-06", "03-09", "03-10", "03-11", "03-12", "03-13", "03-16", "03-17", "03-18", "03-19", "03-20", "03-23", "03-24", "03-25", "03-26", "03-27", "03-30", "03-31", "04-01", "04-02", "04-03", "04-07", "04-08", "04-09", "04-10", "04-13", "04-14", "04-15", "04-16"], "vals": [2.12, 2.12, 2.12, 2.12, 2.12, 2.12, 2.12, 2.12, 2.12, 2.12, 2.12, 2.12, 2.12, 2.12, 2.12, 2.12, 2.12, 2.12, 2.12, 2.13, 2.13, 2.13, 2.13, 2.13, 2.13, 2.13, 2.13, 2.13, 2.13, 2.14, 2.14, 2.14, 2.14, 2.14, 2.14, 2.14, 2.14, 2.14, 2.14, 2.14, 2.14, 2.14, 2.15, 2.15, 2.16, 2.16, 2.16, 2.16, 2.16, 2.17, 2.19, 2.19, 2.19, 2.19, 2.22, 2.22, 2.22, 2.22, 2.22, 2.22, 2.22, 2.22, 2.27, 2.27, 2.27, 2.29, 2.29, 2.3, 2.3, 2.4, 2.45, 2.45, 2.45, 2.45, 2.45, 2.45, 2.45, 2.45, 2.45, 2.45, 2.45, 2.45, 2.65, 2.65, 2.65, 2.65, 2.65, 2.7, 2.7, 2.7, 2.7, 2.7, 2.7, 2.7, 2.7, 2.7, 2.7, 2.7, 3.06, 3.06, 3.06, 3.06, 3.06, 3.06, 3.06, 3.06, 3.06, 3.13, 3.13, 3.13, 3.13, 3.43, 3.43, 3.43, 3.43, 3.55, 3.55, 3.55, 3.55, 3.55, 3.55, 3.55, 3.55, 3.55, 3.55, 3.55, 3.55, 3.55, 3.55, 3.55, 3.45, 3.3, 3.3, 3.3, 3.3, 3.3, 3.3, 3.3, 3.3, 3.3, 3.3, 3.3, 3.3, 3.3, 3.3, 3.22, 3.22, 3.22, 3.22, 3.22, 3.15, 3.15, 3.15, 3.15, 3.15, 3.15, 3.15, 3.15, 3.15, 3.15, 3.15, 3.15, 3.15, 3.1, 3.1, 3.1, 3.1, 3.1, 3.1, 3.1, 3.1, 3.1, 3.1, 3.1, 3.1, 3.1, 3.1, 3.1, 3.0, 3.0]};
+const lfpPriceD = {"dates": ["07-25", "07-28", "07-29", "07-30", "07-31", "08-01", "08-04", "08-05", "08-06", "08-07", "08-08", "08-11", "08-12", "08-13", "08-14", "08-15", "08-18", "08-19", "08-20", "08-21", "08-22", "08-25", "08-26", "08-27", "08-28", "08-29", "09-01", "09-02", "09-03", "09-04", "09-05", "09-08", "09-09", "09-10", "09-11", "09-12", "09-15", "09-16", "09-17", "09-18", "09-19", "09-22", "09-23", "09-24", "09-25", "09-26", "09-28", "09-29", "09-30", "10-09", "10-10", "10-11", "10-13", "10-14", "10-15", "10-16", "10-17", "10-20", "10-21", "10-22", "10-23", "10-24", "10-27", "10-28", "10-29", "10-30", "10-31", "11-03", "11-04", "11-05", "11-06", "11-07", "11-10", "11-11", "11-12", "11-13", "11-14", "11-17", "11-18", "11-19", "11-20", "11-21", "11-24", "11-25", "11-26", "11-27", "11-28", "12-01", "12-02", "12-03", "12-04", "12-05", "12-08", "12-09", "12-10", "12-11", "12-12", "12-15", "12-16", "12-17", "12-18", "12-19", "12-22", "12-23", "12-24", "12-25", "12-26", "12-29", "12-30", "12-31", "01-04", "01-05", "01-06", "01-07", "01-08", "01-09", "01-12", "01-13", "01-14", "01-15", "01-16", "01-19", "01-20", "01-21", "01-22", "01-23", "01-26", "01-27", "01-28", "01-29", "01-30", "02-02", "02-03", "02-04", "02-05", "02-06", "02-09", "02-10", "02-11", "02-12", "02-13", "02-14", "02-24", "02-25", "02-26", "02-27", "02-28", "03-02", "03-03", "03-04", "03-05", "03-06", "03-09", "03-10", "03-11", "03-12", "03-13", "03-16", "03-17", "03-18", "03-19", "03-20", "03-23", "03-24", "03-25", "03-26", "03-27", "03-30", "03-31", "04-01", "04-02", "04-03", "04-07", "04-08", "04-09", "04-10", "04-13", "04-14", "04-15", "04-16"], "vals": [4.95, 4.95, 5.03, 5.03, 5.03, 5.03, 5.03, 5.03, 5.03, 5.03, 5.03, 5.15, 5.28, 5.33, 5.38, 5.5, 5.5, 5.53, 5.58, 5.58, 5.58, 5.58, 5.58, 5.58, 5.58, 5.58, 5.58, 5.58, 5.65, 5.65, 5.65, 5.65, 5.65, 5.65, 5.65, 5.65, 5.65, 5.65, 5.65, 5.7, 5.75, 5.75, 5.8, 5.83, 5.88, 5.9, 5.9, 6.1, 6.1, 6.3, 6.75, 6.95, 7.05, 7.1, 7.3, 7.7, 7.9, 8.15, 8.5, 8.7, 8.7, 9.5, 9.9, 10.15, 10.25, 10.5, 10.75, 11.15, 11.4, 11.65, 11.9, 12.15, 12.4, 12.85, 15.0, 15.15, 15.75, 16.0, 17.0, 17.5, 17.5, 17.5, 18.0, 18.0, 18.0, 18.0, 18.0, 18.0, 18.0, 18.0, 18.0, 18.0, 18.0, 18.0, 18.0, 18.0, 18.0, 18.0, 18.0, 18.0, 18.0, 18.0, 18.0, 18.0, 18.0, 18.0, 18.0, 18.0, 18.0, 17.5, 16.85, 16.0, 16.0, 15.75, 15.75, 15.75, 15.75, 15.75, 15.4, 15.4, 15.4, 15.4, 15.4, 15.4, 14.75, 14.0, 13.8, 13.8, 13.8, 13.8, 13.8, 13.25, 13.25, 13.0, 13.0, 13.0, 13.0, 13.0, 13.0, 13.0, 13.0, 13.0, 13.0, 13.0, 12.5, 12.2, 12.2, 12.2, 12.2, 12.2, 11.25, 11.1, 11.1, 11.1, 11.1, 11.1, 11.1, 11.1, 11.1, 11.1, 11.1, 11.1, 11.1, 11.1, 10.65, 10.65, 10.65, 10.65, 10.65, 10.65, 10.65, 10.65, 10.5, 10.5, 10.5, 10.5, 9.75, 9.75, 9.75, 9.75]};
+const lfpExpD = {"dates": ["07-25", "07-28", "07-29", "07-30", "07-31", "08-01", "08-04", "08-05", "08-06", "08-07", "08-08", "08-11", "08-12", "08-13", "08-14", "08-15", "08-18", "08-19", "08-20", "08-21", "08-22", "08-25", "08-26", "08-27", "08-28", "08-29", "09-01", "09-02", "09-03", "09-04", "09-05", "09-08", "09-09", "09-10", "09-11", "09-12", "09-15", "09-16", "09-17", "09-18", "09-19", "09-22", "09-23", "09-24", "09-25", "09-26", "09-28", "09-29", "09-30", "10-09", "10-10", "10-11", "10-13", "10-14", "10-15", "10-16", "10-17", "10-20", "10-21", "10-22", "10-23", "10-24", "10-27", "10-28", "10-29", "10-30", "10-31", "11-03", "11-04", "11-05", "11-06", "11-07", "11-10", "11-11", "11-12", "11-13", "11-14", "11-17", "11-18", "11-19", "11-20", "11-21", "11-24", "11-25", "11-26", "11-27", "11-28", "12-01", "12-02", "12-03", "12-04", "12-05", "12-08", "12-09", "12-10", "12-11", "12-12", "12-15", "12-16", "12-17", "12-18", "12-19", "12-22", "12-23", "12-24", "12-25", "12-26", "12-29", "12-30", "12-31", "01-04", "01-05", "01-06", "01-07", "01-08", "01-09", "01-12", "01-13", "01-14", "01-15", "01-16", "01-19", "01-20", "01-21", "01-22", "01-23", "01-26", "01-27", "01-28", "01-29", "01-30", "02-02", "02-03", "02-04", "02-05", "02-06", "02-09", "02-10", "02-11", "02-12", "02-13", "02-14", "02-24", "02-25", "02-26", "02-27", "02-28", "03-02", "03-03", "03-04", "03-05", "03-06", "03-09", "03-10", "03-11", "03-12", "03-13", "03-16", "03-17", "03-18", "03-19", "03-20", "03-23", "03-24", "03-25", "03-26", "03-27", "03-30", "03-31", "04-01", "04-02", "04-03", "04-07", "04-08", "04-09", "04-10", "04-13", "04-14", "04-15", "04-16"], "vals": [5.25, 5.25, 5.35, 5.35, 5.35, 5.35, 5.35, 5.35, 5.35, 5.35, 5.35, 5.55, 5.65, 5.75, 5.85, 5.95, 5.95, 6.05, 6.1, 6.1, 6.1, 6.1, 6.1, 6.1, 6.1, 6.1, 6.1, 6.1, 6.25, 6.25, 6.25, 6.25, 6.25, 6.25, 6.25, 6.25, 6.25, 6.25, 6.25, 6.28, 6.28, 6.28, 6.28, 6.28, 6.28, 6.28, 6.28, 6.45, 6.45, 6.6, 7.3, 7.5, 7.7, 7.8, 8.15, 8.5, 8.6, 8.85, 9.2, 9.5, 9.5, 10.4, 11.0, 11.4, 11.55, 11.85, 12.1, 12.5, 12.75, 13.05, 13.3, 13.5, 13.8, 14.25, 16.5, 16.65, 17.65, 18.0, 19.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 19.5, 19.0, 17.4, 17.4, 17.0, 17.0, 17.0, 17.0, 17.0, 16.5, 16.5, 16.5, 16.5, 16.5, 15.5, 15.5, 14.5, 14.5, 14.5, 14.5, 14.5, 14.5, 14.5, 14.5, 14.5, 14.5, 14.5, 14.5, 14.5, 14.5, 14.5, 14.5, 14.5, 14.5, 14.5, 14.0, 13.75, 13.75, 13.75, 13.75, 13.75, 12.5, 12.5, 12.5, 12.5, 12.5, 12.5, 12.5, 12.5, 12.5, 12.5, 12.5, 12.5, 12.5, 11.5, 11.5, 11.5, 11.5, 11.5, 11.5, 11.5, 11.5, 11.5, 11.5, 11.5, 11.5, 10.5, 10.5, 10.5, 10.5]};
+const lifsiSD = {"dates": ["07-25", "07-28", "07-29", "07-30", "07-31", "08-01", "08-04", "08-05", "08-06", "08-07", "08-08", "08-11", "08-12", "08-13", "08-14", "08-15", "08-18", "08-19", "08-20", "08-21", "08-22", "08-25", "08-26", "08-27", "08-28", "08-29", "09-01", "09-02", "09-03", "09-04", "09-05", "09-08", "09-09", "09-10", "09-11", "09-12", "09-15", "09-16", "09-17", "09-18", "09-19", "09-22", "09-23", "09-24", "09-25", "09-26", "09-28", "09-29", "09-30", "10-09", "10-10", "10-11", "10-13", "10-14", "10-15", "10-16", "10-17", "10-20", "10-21", "10-22", "10-23", "10-24", "10-27", "10-28", "10-29", "10-30", "10-31", "11-03", "11-04", "11-05", "11-06", "11-07", "11-10", "11-11", "11-12", "11-13", "11-14", "11-17", "11-18", "11-19", "11-20", "11-21", "11-24", "11-25", "11-26", "11-27", "11-28", "12-01", "12-02", "12-03", "12-04", "12-05", "12-08", "12-09", "12-10", "12-11", "12-12", "12-15", "12-16", "12-17", "12-18", "12-19", "12-22", "12-23", "12-24", "12-25", "12-26", "12-29", "12-30", "12-31", "01-04", "01-05", "01-06", "01-07", "01-08", "01-09", "01-12", "01-13", "01-14", "01-15", "01-16", "01-19", "01-20", "01-21", "01-22", "01-23", "01-26", "01-27", "01-28", "01-29", "01-30", "02-02", "02-03", "02-04", "02-05", "02-06", "02-09", "02-10", "02-11", "02-12", "02-13", "02-14", "02-24", "02-25", "02-26", "02-27", "02-28", "03-02", "03-03", "03-04", "03-05", "03-06", "03-09", "03-10", "03-11", "03-12", "03-13", "03-16", "03-17", "03-18", "03-19", "03-20", "03-23", "03-24", "03-25", "03-26", "03-27", "03-30", "03-31", "04-01", "04-02", "04-03", "04-07", "04-08", "04-09", "04-10", "04-13", "04-14", "04-15", "04-16"], "vals": [8.8, 8.8, 8.8, 8.8, 8.8, 8.8, 8.8, 8.8, 8.8, 8.8, 8.8, 8.9, 8.9, 8.9, 8.9, 8.9, 8.9, 8.9, 8.9, 8.9, 9.1, 9.1, 9.1, 9.1, 9.1, 9.1, 9.1, 9.1, 9.1, 9.1, 9.1, 9.1, 9.1, 9.1, 9.1, 9.1, 9.1, 9.1, 9.1, 9.1, 9.1, 9.1, 9.1, 9.1, 9.1, 9.1, 9.1, 9.1, 9.1, 9.25, 9.25, 9.25, 9.45, 9.45, 9.45, 9.45, 9.45, 9.45, 9.45, 9.45, 9.45, 9.45, 9.6, 9.6, 9.6, 9.7, 9.7, 9.8, 9.8, 9.8, 9.8, 9.8, 9.8, 9.8, 10.0, 10.0, 10.0, 10.3, 10.3, 10.3, 10.4, 10.4, 10.4, 10.4, 10.4, 10.4, 10.4, 10.4, 10.4, 10.4, 10.4, 10.4, 10.4, 10.4, 10.4, 10.4, 10.4, 10.4, 10.4, 10.4, 10.4, 10.4, 10.4, 10.4, 11.25, 11.25, 11.25, 11.25, 11.25, 12.25, 12.25, 12.25, 13.5, 14.0, 14.0, 14.0, 14.0, 14.5, 14.5, 14.5, 14.5, 15.0, 15.0, 15.0, 15.0, 15.0, 15.0, 15.0, 15.0, 15.0, 15.0, 14.65, 14.65, 14.65, 14.65, 14.65, 14.65, 14.65, 14.65, 14.65, 14.65, 14.65, 14.65, 14.65, 14.65, 14.65, 14.65, 14.65, 14.65, 14.65, 14.65, 14.65, 14.65, 14.65, 14.65, 14.65, 14.65, 14.65, 14.65, 14.65, 14.65, 14.65, 14.65, 14.25, 14.25, 14.25, 14.25, 14.25, 14.25, 14.25, 14.25, 14.25, 14.25, 14.25, 14.25, 14.25, 14.25, 14.25, 14.25, 14.25]};
+const lifsiLD = {"dates": ["07-25", "07-28", "07-29", "07-30", "07-31", "08-01", "08-04", "08-05", "08-06", "08-07", "08-08", "08-11", "08-12", "08-13", "08-14", "08-15", "08-18", "08-19", "08-20", "08-21", "08-22", "08-25", "08-26", "08-27", "08-28", "08-29", "09-01", "09-02", "09-03", "09-04", "09-05", "09-08", "09-09", "09-10", "09-11", "09-12", "09-15", "09-16", "09-17", "09-18", "09-19", "09-22", "09-23", "09-24", "09-25", "09-26", "09-28", "09-29", "09-30", "10-09", "10-10", "10-11", "10-13", "10-14", "10-15", "10-16", "10-17", "10-20", "10-21", "10-22", "10-23", "10-24", "10-27", "10-28", "10-29", "10-30", "10-31", "11-03", "11-04", "11-05", "11-06", "11-07", "11-10", "11-11", "11-12", "11-13", "11-14", "11-17", "11-18", "11-19", "11-20", "11-21", "11-24", "11-25", "11-26", "11-27", "11-28", "12-01", "12-02", "12-03", "12-04", "12-05", "12-08", "12-09", "12-10", "12-11", "12-12", "12-15", "12-16", "12-17", "12-18", "12-19", "12-22", "12-23", "12-24", "12-25", "12-26", "12-29", "12-30", "12-31", "01-04", "01-05", "01-06", "01-07", "01-08", "01-09", "01-12", "01-13", "01-14", "01-15", "01-16", "01-19", "01-20", "01-21", "01-22", "01-23", "01-26", "01-27", "01-28", "01-29", "01-30", "02-02", "02-03", "02-04", "02-05", "02-06", "02-09", "02-10", "02-11", "02-12", "02-13", "02-14", "02-24", "02-25", "02-26", "02-27", "02-28", "03-02", "03-03", "03-04", "03-05", "03-06", "03-09", "03-10", "03-11", "03-12", "03-13", "03-16", "03-17", "03-18", "03-19", "03-20", "03-23", "03-24", "03-25", "03-26", "03-27", "03-30", "03-31", "04-01", "04-02", "04-03", "04-07", "04-08", "04-09", "04-10", "04-13", "04-14", "04-15", "04-16"], "vals": [7.25, 7.25, 7.25, 7.25, 7.25, 7.25, 7.25, 7.25, 7.25, 7.25, 7.25, 7.35, 7.35, 7.35, 7.35, 7.35, 7.35, 7.35, 7.35, 7.35, 7.65, 7.65, 7.65, 7.65, 7.65, 7.65, 7.65, 7.65, 7.65, 7.65, 7.65, 7.65, 7.65, 7.65, 7.65, 7.65, 7.65, 7.65, 7.65, 6.75, 6.75, 6.75, 6.75, 6.75, 6.75, 6.75, 6.75, 6.75, 6.75, 6.85, 6.85, 6.85, 7.05, 7.05, 7.05, 7.05, 7.05, 7.05, 7.05, 7.05, 7.05, 7.05, 7.2, 7.2, 7.2, 7.2, 7.2, 7.2, 7.2, 7.2, 7.2, 7.2, 7.2, 7.2, 7.5, 7.5, 7.5, 7.7, 7.7, 7.7, 7.85, 7.85, 7.85, 7.85, 7.85, 7.85, 7.85, 7.85, 7.85, 7.85, 7.85, 7.85, 7.85, 7.85, 7.85, 7.85, 7.85, 7.85, 7.85, 7.85, 7.85, 7.85, 7.85, 7.85, 8.0, 8.0, 8.0, 8.0, 8.0, 8.2, 8.2, 8.2, 8.5, 8.5, 8.5, 8.5, 8.5, 9.0, 9.0, 9.0, 9.0, 9.0, 9.0, 9.0, 9.0, 9.0, 9.0, 9.0, 9.0, 9.0, 9.0, 8.8, 8.8, 8.8, 8.8, 8.8, 8.8, 8.8, 8.8, 8.8, 8.8, 8.8, 8.8, 8.8, 8.8, 8.8, 8.8, 8.8, 8.8, 8.8, 8.8, 8.8, 8.8, 8.8, 8.8, 8.8, 8.8, 8.8, 8.8, 8.8, 8.8, 8.8, 8.8, 8.5, 8.5, 8.5, 8.5, 8.5, 8.5, 8.5, 8.5, 8.5, 8.5, 8.5, 8.5, 8.5, 8.5, 8.5, 8.5, 8.5]};
+const vcD = {"dates": ["07-25", "07-28", "07-29", "07-30", "07-31", "08-01", "08-04", "08-05", "08-06", "08-07", "08-08", "08-11", "08-12", "08-13", "08-14", "08-15", "08-18", "08-19", "08-20", "08-21", "08-22", "08-25", "08-26", "08-27", "08-28", "08-29", "09-01", "09-02", "09-03", "09-04", "09-05", "09-08", "09-09", "09-10", "09-11", "09-12", "09-15", "09-16", "09-17", "09-18", "09-19", "09-22", "09-23", "09-24", "09-25", "09-26", "09-28", "09-29", "09-30", "10-09", "10-10", "10-11", "10-13", "10-14", "10-15", "10-16", "10-17", "10-20", "10-21", "10-22", "10-23", "10-24", "10-27", "10-28", "10-29", "10-30", "10-31", "11-03", "11-04", "11-05", "11-06", "11-07", "11-10", "11-11", "11-12", "11-13", "11-14", "11-17", "11-18", "11-19", "11-20", "11-21", "11-24", "11-25", "11-26", "11-27", "11-28", "12-01", "12-02", "12-03", "12-04", "12-05", "12-08", "12-09", "12-10", "12-11", "12-12", "12-15", "12-16", "12-17", "12-18", "12-19", "12-20", "12-23", "12-24", "12-25", "12-26", "12-29", "12-30", "12-31", "01-04", "01-05", "01-06", "01-07", "01-08", "01-09", "01-12", "01-13", "01-14", "01-15", "01-16", "01-19", "01-20", "01-21", "01-22", "01-23", "01-26", "01-27", "01-28", "01-29", "01-30", "02-02", "02-03", "02-04", "02-05", "02-06", "02-09", "02-10", "02-11", "02-12", "02-13", "02-14", "02-24", "02-25", "02-26", "02-27", "02-28", "03-02", "03-03", "03-04", "03-05", "03-06", "03-09", "03-10", "03-11", "03-12", "03-13", "03-16", "03-17", "03-18", "03-19", "03-20", "03-23", "03-24", "03-25", "03-26", "03-27", "03-30", "03-31", "04-01", "04-02", "04-03", "04-07", "04-08", "04-09", "04-10", "04-13", "04-14", "04-15", "04-16"], "vals": [4.63, 4.63, 4.63, 4.63, 4.63, 4.63, 4.63, 4.63, 4.63, 4.63, 4.63, 4.63, 4.63, 4.63, 4.63, 4.63, 4.63, 4.63, 4.63, 4.63, 4.63, 4.63, 4.63, 4.63, 4.63, 4.63, 4.63, 4.63, 4.65, 4.65, 4.65, 4.65, 4.65, 4.65, 4.65, 4.65, 4.65, 4.65, 4.65, 4.65, 4.65, 4.65, 4.65, 4.65, 4.65, 4.65, 4.83, 4.83, 4.88, 4.88, 4.95, 5.1, 5.1, 5.1, 5.1, 5.1, 5.2, 5.2, 5.2, 5.25, 5.3, 5.5, 5.58, 5.7, 5.7, 5.7, 5.73, 5.78, 5.78, 5.78, 5.98, 5.98, 6.4, 6.55, 11.0, 14.0, 15.0, 19.0, 20.5, 22.0, 23.5, 23.5, 23.5, 23.5, 23.5, 23.5, 23.5, 23.5, 23.5, 23.5, 23.5, 23.5, 23.5, 23.5, 23.5, 23.5, 23.5, 23.5, 23.5, 23.5, 23.5, 23.5, 23.5, 23.5, 23.5, 23.5, 23.5, 23.5, 23.5, 18.0, 17.1, 16.5, 16.5, 16.5, 16.5, 16.5, 16.5, 16.5, 16.25, 16.25, 16.25, 16.25, 16.25, 16.25, 16.1, 16.0, 15.75, 15.15, 15.15, 15.15, 15.15, 14.5, 14.5, 14.3, 14.3, 14.3, 14.3, 14.3, 14.3, 14.3, 14.3, 14.3, 14.3, 14.3, 14.3, 14.3, 14.3, 14.3, 14.3, 14.3, 13.0, 12.7, 12.7, 12.7, 12.7, 12.7, 12.7, 12.7, 12.7, 12.7, 12.7, 12.7, 12.7, 12.7, 12.7, 12.7, 12.7, 12.7, 12.7, 13.5, 13.5, 13.5, 13.5, 13.5, 13.5, 13.5, 13.5, 13.5, 13.5, 13.5]};
+const fecD = {"dates": ["07-25", "07-28", "07-29", "07-30", "07-31", "08-01", "08-04", "08-05", "08-06", "08-07", "08-08", "08-11", "08-12", "08-13", "08-14", "08-15", "08-18", "08-19", "08-20", "08-21", "08-22", "08-25", "08-26", "08-27", "08-28", "08-29", "09-01", "09-02", "09-03", "09-04", "09-05", "09-08", "09-09", "09-10", "09-11", "09-12", "09-15", "09-16", "09-17", "09-18", "09-19", "09-22", "09-23", "09-24", "09-25", "09-26", "09-28", "09-29", "09-30", "10-09", "10-10", "10-11", "10-13", "10-14", "10-15", "10-16", "10-17", "10-20", "10-21", "10-22", "10-23", "10-24", "10-27", "10-28", "10-29", "10-30", "10-31", "11-03", "11-04", "11-05", "11-06", "11-07", "11-10", "11-11", "11-12", "11-13", "11-14", "11-17", "11-18", "11-19", "11-20", "11-21", "11-24", "11-25", "11-26", "11-27", "11-28", "12-01", "12-02", "12-03", "12-04", "12-05", "12-08", "12-09", "12-10", "12-11", "12-12", "12-15", "12-16", "12-17", "12-18", "12-19", "12-20", "12-23", "12-24", "12-25", "12-26", "12-29", "12-30", "12-31", "01-04", "01-05", "01-06", "01-07", "01-08", "01-09", "01-12", "01-13", "01-14", "01-15", "01-16", "01-19", "01-20", "01-21", "01-22", "01-23", "01-26", "01-27", "01-28", "01-29", "01-30", "02-02", "02-03", "02-04", "02-05", "02-06", "02-09", "02-10", "02-11", "02-12", "02-13", "02-14", "02-24", "02-25", "02-26", "02-27", "02-28", "03-02", "03-03", "03-04", "03-05", "03-06", "03-09", "03-10", "03-11", "03-12", "03-13", "03-16", "03-17", "03-18", "03-19", "03-20", "03-23", "03-24", "03-25", "03-26", "03-27", "03-30", "03-31", "04-01", "04-02", "04-03", "04-07", "04-08", "04-09", "04-10", "04-13", "04-14", "04-15", "04-16"], "vals": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]};
+const psD = {"dates": ["07-25", "07-28", "07-29", "07-30", "07-31", "08-01", "08-04", "08-05", "08-06", "08-07", "08-08", "08-11", "08-12", "08-13", "08-14", "08-15", "08-18", "08-19", "08-20", "08-21", "08-22", "08-25", "08-26", "08-27", "08-28", "08-29", "09-01", "09-02", "09-03", "09-04", "09-05", "09-08", "09-09", "09-10", "09-11", "09-12", "09-15", "09-16", "09-17", "09-18", "09-19", "09-22", "09-23", "09-24", "09-25", "09-26", "09-28", "09-29", "09-30", "10-09", "10-10", "10-11", "10-13", "10-14", "10-15", "10-16", "10-17", "10-20", "10-21", "10-22", "10-23", "10-24", "10-27", "10-28", "10-29", "10-30", "10-31", "11-03", "11-04", "11-05", "11-06", "11-07", "11-10", "11-11", "11-12", "11-13", "11-14", "11-17", "11-18", "11-19", "11-20", "11-21", "11-24", "11-25", "11-26", "11-27", "11-28", "12-01", "12-02", "12-03", "12-04", "12-05", "12-08", "12-09", "12-10", "12-11", "12-12", "12-15", "12-16", "12-17", "12-18", "12-19", "12-20", "12-23", "12-24", "12-25", "12-26", "12-29", "12-30", "12-31", "01-04", "01-05", "01-06", "01-07", "01-08", "01-09", "01-12", "01-13", "01-14", "01-15", "01-16", "01-19", "01-20", "01-21", "01-22", "01-23", "01-26", "01-27", "01-28", "01-29", "01-30", "02-02", "02-03", "02-04", "02-05", "02-06", "02-09", "02-10", "02-11", "02-12", "02-13", "02-14", "02-24", "02-25", "02-26", "02-27", "02-28", "03-02", "03-03", "03-04", "03-05", "03-06", "03-09", "03-10", "03-11", "03-12", "03-13", "03-16", "03-17", "03-18", "03-19", "03-20", "03-23", "03-24", "03-25", "03-26", "03-27", "03-30", "03-31", "04-01", "04-02", "04-03", "04-07", "04-08", "04-09", "04-10", "04-13", "04-14", "04-15", "04-16"], "vals": [7.1, 7.1, 7.1, 7.1, 7.1, 7.1, 7.1, 7.1, 7.1, 7.1, 7.1, 7.1, 7.1, 7.1, 7.1, 7.1, 7.1, 7.1, 7.1, 7.1, 7.1, 7.1, 7.1, 7.1, 7.1, 7.1, 7.1, 7.1, 7.1, 7.1, 7.3, 7.3, 7.3, 7.3, 7.3, 7.3, 7.3, 7.3, 7.3, 7.3, 7.3, 7.3, 7.3, 7.3, 7.3, 7.3, 7.55, 7.7, 7.75, 7.75, 7.85, 8.0, 8.0, 8.0, 8.0, 8.0, 8.05, 8.05, 8.05, 8.15, 8.25, 8.55, 8.75, 8.9, 8.9, 8.9, 9.0, 9.1, 9.1, 9.1, 9.2, 9.2, 9.4, 9.4, 10.25, 10.25, 10.25, 10.25, 10.5, 10.5, 10.5, 10.5, 10.5, 10.5, 10.5, 10.5, 10.5, 10.5, 10.5, 10.5, 10.5, 10.5, 10.5, 10.5, 10.5, 10.5, 10.5, 10.5, 10.5, 10.5, 10.5, 10.5, 10.5, 10.5, 10.5, 10.5, 10.5, 10.5, 10.5, 10.5, 10.5, 10.5, 11.5, 11.5, 11.5, 11.5, 11.5, 11.5, 11.5, 11.5, 11.5, 11.5, 11.5, 11.5, 11.5, 11.5, 11.5, 11.5, 11.5, 11.5, 11.5, 12.5, 12.5, 12.5, 12.5, 12.5, 12.5, 12.5, 12.5, 12.5, 12.5, 12.5, 12.5, 12.5, 12.5, 12.5, 12.5, 12.5, 12.5, 12.5, 13.25, 13.25, 13.25, 13.25, 13.25, 13.25, 13.25, 13.25, 13.25, 13.25, 13.25, 13.25, 13.25, 13.25, 13.25, 13.25, 13.25, 13.25, 13.25, 13.75, 13.75, 13.75, 13.75, 13.75, 13.75, 13.75, 13.75, 13.75, 13.75, 13.75]};
+
+// 出口数据
+const expMonths = [];
+const expVals = [];
+const expYoy = [];
+
+// TOP企业
+const elecEntRows = [{"rank": 1, "ent": "\u5e7f\u5dde\u5929\u8d50", "val": 77500.0, "moq": "+21.1%", "yoy": "61", "util": "82.0%", "tag_class": "top", "tag_text": "\u57fa\u672c\u6ee1\u4ea7"}, {"rank": 2, "ent": "\u65b0\u5b99\u90a6", "val": 33000.0, "moq": "+34.7%", "yoy": "69", "util": "64.0%", "tag_class": "mid", "tag_text": "\u6b63\u5e38"}, {"rank": 3, "ent": "\u6bd4\u4e9a\u8fea", "val": 26000.0, "moq": "+20.9%", "yoy": "-4", "util": "65.0%", "tag_class": "mid", "tag_text": "\u6b63\u5e38"}, {"rank": 4, "ent": "\u77f3\u5927\u80dc\u534e", "val": 14000.0, "moq": "+21.7%", "yoy": "100", "util": "34.0%", "tag_class": "low", "tag_text": "\u4f4e\u8d1f\u8377"}, {"rank": 5, "ent": "\u73e0\u6d77\u8d5b\u7eac", "val": 13500.0, "moq": "+53.4%", "yoy": "108", "util": "64.0%", "tag_class": "mid", "tag_text": "\u6b63\u5e38"}, {"rank": 6, "ent": "\u9999\u6cb3\u6606\u4ed1", "val": 13000.0, "moq": "+41.3%", "yoy": "132", "util": "87.0%", "tag_class": "top", "tag_text": "\u57fa\u672c\u6ee1\u4ea7"}, {"rank": 7, "ent": "\u6c38\u592a\u79d1\u6280", "val": 11000.0, "moq": "+77.4%", "yoy": "129", "util": "88.0%", "tag_class": "top", "tag_text": "\u57fa\u672c\u6ee1\u4ea7"}, {"rank": 8, "ent": "\u4e2d\u5316\u84dd\u5929", "val": 10000.0, "moq": "+14.9%", "yoy": "104", "util": "48.0%", "tag_class": "low", "tag_text": "\u4f4e\u8d1f\u8377"}, {"rank": 9, "ent": "\u5a01\u6d77\u8d22\u91d1", "val": 7000.0, "moq": "+75.0%", "yoy": "52", "util": "84.0%", "tag_class": "top", "tag_text": "\u57fa\u672c\u6ee1\u4ea7"}, {"rank": 10, "ent": "\u80a5\u4e1c\u56fd\u8f69", "val": 6000.0, "moq": "+20.0%", "yoy": "88", "util": "72.0%", "tag_class": "mid", "tag_text": "\u6b63\u5e38"}, {"rank": 11, "ent": "\u745e\u6cf0\u65b0\u6750", "val": 6000.0, "moq": "+1.7%", "yoy": "-", "util": "13.0%", "tag_class": "low", "tag_text": "\u4f4e\u8d1f\u8377"}, {"rank": 12, "ent": "\u8054\u5316\u79d1\u6280", "val": 5000.0, "moq": "+19.0%", "yoy": "-", "util": "60.0%", "tag_class": "mid", "tag_text": "\u6b63\u5e38"}, {"rank": 13, "ent": "\u6cd5\u6069\u83b1\u7279", "val": 5000.0, "moq": "+56.2%", "yoy": "105", "util": "17.0%", "tag_class": "low", "tag_text": "\u4f4e\u8d1f\u8377"}, {"rank": 14, "ent": "\u822a\u76db\u9502\u80fd", "val": 3200.0, "moq": "+33.3%", "yoy": "191", "util": "58.0%", "tag_class": "mid", "tag_text": "\u6b63\u5e38"}, {"rank": 15, "ent": "\u91d1\u5149\u9ad8\u79d1", "val": 1500.0, "moq": "+50.0%", "yoy": "88", "util": "28.0%", "tag_class": "low", "tag_text": "\u4f4e\u8d1f\u8377"}];
+const lfpEntRows = [{"rank": 1, "ent": "\u5929\u8d50\u6750\u6599", "val": 5000.0, "moq": "-41.2%", "yoy": "-29", "util": "54.5%", "tag_class": "mid", "tag_text": "\u6b63\u5e38"}, {"rank": 2, "ent": "\u591a\u6c1f\u591a", "val": 4400.0, "moq": "+37.5%", "yoy": "10", "util": "81.2%", "tag_class": "top", "tag_text": "\u57fa\u672c\u6ee1\u4ea7"}, {"rank": 3, "ent": "\u65b0\u6cf0\u65b0\u6750", "val": 3700.0, "moq": "+23.3%", "yoy": "48", "util": "94.5%", "tag_class": "top", "tag_text": "\u57fa\u672c\u6ee1\u4ea7"}, {"rank": 4, "ent": "\u6c5f\u897f\u77f3\u78ca", "val": 2000.0, "moq": "+66.7%", "yoy": "122", "util": "66.7%", "tag_class": "mid", "tag_text": "\u6b63\u5e38"}, {"rank": 5, "ent": "\u77f3\u5927\u80dc\u534e", "val": 1100.0, "moq": "-26.7%", "yoy": "267", "util": "36.7%", "tag_class": "low", "tag_text": "\u4f4e\u8d1f\u8377"}, {"rank": 6, "ent": "\u5b8f\u6e90\u836f\u4e1a", "val": 1000.0, "moq": "+0.0%", "yoy": "100", "util": "100.0%", "tag_class": "top", "tag_text": "\u57fa\u672c\u6ee1\u4ea7"}, {"rank": 7, "ent": "\u6d59\u6c5f\u6c38\u592a", "val": 800.0, "moq": "+0.0%", "yoy": "0", "util": "53.3%", "tag_class": "mid", "tag_text": "\u6b63\u5e38"}, {"rank": 8, "ent": "\u6c5f\u82cf\u5fc5\u5eb7", "val": 700.0, "moq": "+16.7%", "yoy": "27", "util": "64.6%", "tag_class": "mid", "tag_text": "\u6b63\u5e38"}, {"rank": 9, "ent": "\u9f99\u5fb7", "val": 700.0, "moq": "+16.7%", "yoy": "338", "util": "64.6%", "tag_class": "mid", "tag_text": "\u6b63\u5e38"}, {"rank": 10, "ent": "\u8d35\u5dde\u78f7\u5316", "val": 600.0, "moq": "+0.0%", "yoy": "71", "util": "72.0%", "tag_class": "mid", "tag_text": "\u6b63\u5e38"}, {"rank": 11, "ent": "\u4e2d\u84dd\u5b8f\u6e90", "val": 600.0, "moq": "+20.0%", "yoy": "20", "util": "80.0%", "tag_class": "top", "tag_text": "\u57fa\u672c\u6ee1\u4ea7"}, {"rank": 12, "ent": "\u6df1\u5733\u65b0\u661f", "val": 500.0, "moq": "+11.1%", "yoy": "-", "util": "103.5%", "tag_class": "top", "tag_text": "\u57fa\u672c\u6ee1\u4ea7"}, {"rank": 13, "ent": "\u91d1\u5149", "val": 400.0, "moq": "+14.3%", "yoy": "-", "util": "95.9%", "tag_class": "top", "tag_text": "\u57fa\u672c\u6ee1\u4ea7"}, {"rank": 14, "ent": "\u68ee\u7530\u5316\u5de5", "val": 250.0, "moq": "+25.0%", "yoy": "150", "util": "41.7%", "tag_class": "low", "tag_text": "\u4f4e\u8d1f\u8377"}, {"rank": 15, "ent": "\u65b0\u4e9a\u6749\u6749", "val": 130.0, "moq": "+0.0%", "yoy": "8", "util": "22.3%", "tag_class": "low", "tag_text": "\u4f4e\u8d1f\u8377"}];
+
+// 企业报价
+const indPriceMap = {"\u5e7f\u5dde\u5929\u8d50": {"cur": 2.65, "moq": "-5.4%"}, "\u65b0\u5b99\u90a6": {"cur": 2.7, "moq": "-5.3%"}, "\u77f3\u5927\u80dc\u534e": {"cur": 2.75, "moq": "-5.2%"}, "\u56fd\u6cf0\u534e\u8363": {"cur": 2.73, "moq": "-4.9%"}, "\u6c38\u592a\u79d1\u6280": {"cur": 2.71, "moq": "-5.2%"}, "\u6cd5\u6069\u83b1\u7279": {"cur": 2.8, "moq": "-5.1%"}, "\u73e0\u6d77\u8d5b\u7eac": {"cur": 2.8, "moq": "-5.1%"}, "\u9999\u6cb3\u6606\u4ed1": {"cur": 2.8, "moq": "-5.1%"}, "\u4e2d\u5316\u84dd\u5929": {"cur": 2.8, "moq": "-5.1%"}, "\u5c71\u4e1c\u6d77\u5bb9": {"cur": 2.92, "moq": "-4.9%"}, "\u6cb3\u5357\u534e\u745e": {"cur": 2.9, "moq": "-4.9%"}, "\u5929\u6d25\u91d1\u725b": {"cur": 2.9, "moq": "-4.9%"}, "\u91d1\u5149\u9ad8\u79d1": {"cur": 2.88, "moq": "-5.3%"}, "\u5b89\u5fbd\u5174\u9502": {"cur": 2.89, "moq": "-4.6%"}, "\u822a\u76db\u9502\u80fd": {"cur": 2.88, "moq": "-4.6%"}, "\u65b0\u4e9a\u6749\u6749": {"cur": 2.8, "moq": "-6.7%"}, "\u91d1\u6656": {"cur": 2.85, "moq": "-5.0%"}, "\u5a01\u6d77\u8d22\u91d1": {"cur": 2.73, "moq": "-5.2%"}, "\u8054\u5316\u79d1\u6280": {"cur": 2.75, "moq": "-5.2%"}};
+
+// 完整产量表
+const elecAllRows = [{"\u65e5\u671f": "2026-03-01", "\u6708\u4efd": "2026-03", "\u4ea7\u91cf": 237400.0, "\u73af\u6bd4": "28.76%", "\u540c\u6bd4": "51.31%", "\u4ea7\u80fd": 448833.0, "\u4ea7\u80fd\u5229\u7528\u7387": "52.89%"}, {"\u65e5\u671f": "2026-02-01", "\u6708\u4efd": "2026-02", "\u4ea7\u91cf": 184380.0, "\u73af\u6bd4": "-15.27%", "\u540c\u6bd4": "37.57%", "\u4ea7\u80fd": 427583.0, "\u4ea7\u80fd\u5229\u7528\u7387": "43.12%"}, {"\u65e5\u671f": "2026-01-01", "\u6708\u4efd": "2026-01", "\u4ea7\u91cf": 217600.0, "\u73af\u6bd4": "-6.67%", "\u540c\u6bd4": "50.11%", "\u4ea7\u80fd": 410917.0, "\u4ea7\u80fd\u5229\u7528\u7387": "52.95%"}, {"\u65e5\u671f": "2025-12-01", "\u6708\u4efd": "2025-12", "\u4ea7\u91cf": 233150.0, "\u73af\u6bd4": "0.91%", "\u540c\u6bd4": "44.54%", "\u4ea7\u80fd": 406000.0, "\u4ea7\u80fd\u5229\u7528\u7387": "57.43%"}, {"\u65e5\u671f": "2025-11-01", "\u6708\u4efd": "2025-11", "\u4ea7\u91cf": 231050.0, "\u73af\u6bd4": "5.55%", "\u540c\u6bd4": "37.49%", "\u4ea7\u80fd": 406000.0, "\u4ea7\u80fd\u5229\u7528\u7387": "56.91%"}, {"\u65e5\u671f": "2025-10-01", "\u6708\u4efd": "2025-10", "\u4ea7\u91cf": 218900.0, "\u73af\u6bd4": "6.49%", "\u540c\u6bd4": "42.33%", "\u4ea7\u80fd": 406000.0, "\u4ea7\u80fd\u5229\u7528\u7387": "53.92%"}, {"\u65e5\u671f": "2025-09-01", "\u6708\u4efd": "2025-09", "\u4ea7\u91cf": 205550.0, "\u73af\u6bd4": "7.73%", "\u540c\u6bd4": "41.86%", "\u4ea7\u80fd": 406000.0, "\u4ea7\u80fd\u5229\u7528\u7387": "50.63%"}, {"\u65e5\u671f": "2025-08-01", "\u6708\u4efd": "2025-08", "\u4ea7\u91cf": 190800.0, "\u73af\u6bd4": "5.15%", "\u540c\u6bd4": "43.40%", "\u4ea7\u80fd": 406000.0, "\u4ea7\u80fd\u5229\u7528\u7387": "47.00%"}, {"\u65e5\u671f": "2025-07-01", "\u6708\u4efd": "2025-07", "\u4ea7\u91cf": 181450.0, "\u73af\u6bd4": "5.10%", "\u540c\u6bd4": "46.35%", "\u4ea7\u80fd": 406000.0, "\u4ea7\u80fd\u5229\u7528\u7387": "44.69%"}, {"\u65e5\u671f": "2025-06-01", "\u6708\u4efd": "2025-06", "\u4ea7\u91cf": 172650.0, "\u73af\u6bd4": "8.93%", "\u540c\u6bd4": "45.39%", "\u4ea7\u80fd": 396833.0, "\u4ea7\u80fd\u5229\u7528\u7387": "43.51%"}, {"\u65e5\u671f": "2025-05-01", "\u6708\u4efd": "2025-05", "\u4ea7\u91cf": 158500.0, "\u73af\u6bd4": "-1.49%", "\u540c\u6bd4": "30.18%", "\u4ea7\u80fd": 396833.0, "\u4ea7\u80fd\u5229\u7528\u7387": "39.94%"}, {"\u65e5\u671f": "2025-04-01", "\u6708\u4efd": "2025-04", "\u4ea7\u91cf": 160900.0, "\u73af\u6bd4": "2.55%", "\u540c\u6bd4": "34.96%", "\u4ea7\u80fd": 388500.0, "\u4ea7\u80fd\u5229\u7528\u7387": "41.42%"}, {"\u65e5\u671f": "2025-03-01", "\u6708\u4efd": "2025-03", "\u4ea7\u91cf": 156900.0, "\u73af\u6bd4": "17.06%", "\u540c\u6bd4": "47.39%", "\u4ea7\u80fd": 388500.0, "\u4ea7\u80fd\u5229\u7528\u7387": "40.39%"}, {"\u65e5\u671f": "2025-02-01", "\u6708\u4efd": "2025-02", "\u4ea7\u91cf": 134030.0, "\u73af\u6bd4": "-7.54%", "\u540c\u6bd4": "109.65%", "\u4ea7\u80fd": 388500.0, "\u4ea7\u80fd\u5229\u7528\u7387": "34.50%"}, {"\u65e5\u671f": "2025-01-01", "\u6708\u4efd": "2025-01", "\u4ea7\u91cf": 144960.0, "\u73af\u6bd4": "-10.13%", "\u540c\u6bd4": "87.29%", "\u4ea7\u80fd": 388500.0, "\u4ea7\u80fd\u5229\u7528\u7387": "37.31%"}, {"\u65e5\u671f": "2024-12-01", "\u6708\u4efd": "2024-12", "\u4ea7\u91cf": 161300.0, "\u73af\u6bd4": "-4.02%", "\u540c\u6bd4": "93.34%", "\u4ea7\u80fd": 388500.0, "\u4ea7\u80fd\u5229\u7528\u7387": "41.52%"}, {"\u65e5\u671f": "2024-11-01", "\u6708\u4efd": "2024-11", "\u4ea7\u91cf": 168050.0, "\u73af\u6bd4": "9.27%", "\u540c\u6bd4": "74.05%", "\u4ea7\u80fd": 388500.0, "\u4ea7\u80fd\u5229\u7528\u7387": "43.26%"}, {"\u65e5\u671f": "2024-10-01", "\u6708\u4efd": "2024-10", "\u4ea7\u91cf": 153800.0, "\u73af\u6bd4": "6.14%", "\u540c\u6bd4": "50.71%", "\u4ea7\u80fd": 388500.0, "\u4ea7\u80fd\u5229\u7528\u7387": "39.59%"}, {"\u65e5\u671f": "2024-09-01", "\u6708\u4efd": "2024-09", "\u4ea7\u91cf": 144900.0, "\u73af\u6bd4": "8.91%", "\u540c\u6bd4": "38.73%", "\u4ea7\u80fd": 370583.0, "\u4ea7\u80fd\u5229\u7528\u7387": "39.10%"}, {"\u65e5\u671f": "2024-08-01", "\u6708\u4efd": "2024-08", "\u4ea7\u91cf": 133050.0, "\u73af\u6bd4": "7.32%", "\u540c\u6bd4": "22.43%", "\u4ea7\u80fd": 353917.0, "\u4ea7\u80fd\u5229\u7528\u7387": "37.59%"}, {"\u65e5\u671f": "2024-07-01", "\u6708\u4efd": "2024-07", "\u4ea7\u91cf": 123980.0, "\u73af\u6bd4": "4.40%", "\u540c\u6bd4": "18.49%", "\u4ea7\u80fd": 353917.0, "\u4ea7\u80fd\u5229\u7528\u7387": "35.03%"}, {"\u65e5\u671f": "2024-06-01", "\u6708\u4efd": "2024-06", "\u4ea7\u91cf": 118750.0, "\u73af\u6bd4": "-2.46%", "\u540c\u6bd4": "27.69%", "\u4ea7\u80fd": 353917.0, "\u4ea7\u80fd\u5229\u7528\u7387": "33.55%"}, {"\u65e5\u671f": "2024-05-01", "\u6708\u4efd": "2024-05", "\u4ea7\u91cf": 121750.0, "\u73af\u6bd4": "2.12%", "\u540c\u6bd4": "45.55%", "\u4ea7\u80fd": 303917.0, "\u4ea7\u80fd\u5229\u7528\u7387": "40.06%"}, {"\u65e5\u671f": "2024-04-01", "\u6708\u4efd": "2024-04", "\u4ea7\u91cf": 119220.0, "\u73af\u6bd4": "12.00%", "\u540c\u6bd4": "64.55%", "\u4ea7\u80fd": 303917.0, "\u4ea7\u80fd\u5229\u7528\u7387": "39.23%"}, {"\u65e5\u671f": "2024-03-01", "\u6708\u4efd": "2024-03", "\u4ea7\u91cf": 106450.0, "\u73af\u6bd4": "66.51%", "\u540c\u6bd4": "35.83%", "\u4ea7\u80fd": 303917.0, "\u4ea7\u80fd\u5229\u7528\u7387": "35.03%"}, {"\u65e5\u671f": "2024-02-01", "\u6708\u4efd": "2024-02", "\u4ea7\u91cf": 63930.0, "\u73af\u6bd4": "-17.40%", "\u540c\u6bd4": "-13.83%", "\u4ea7\u80fd": 296416.0, "\u4ea7\u80fd\u5229\u7528\u7387": "21.57%"}, {"\u65e5\u671f": "2024-01-01", "\u6708\u4efd": "2024-01", "\u4ea7\u91cf": 77400.0, "\u73af\u6bd4": "-7.23%", "\u540c\u6bd4": "13.74%", "\u4ea7\u80fd": 296416.0, "\u4ea7\u80fd\u5229\u7528\u7387": "26.11%"}, {"\u65e5\u671f": "2023-12-01", "\u6708\u4efd": "2023-12", "\u4ea7\u91cf": 83430.0, "\u73af\u6bd4": "-13.59%", "\u4ea7\u80fd": 296417.0, "\u4ea7\u80fd\u5229\u7528\u7387": "28.15%"}, {"\u65e5\u671f": "2023-11-01", "\u6708\u4efd": "2023-11", "\u4ea7\u91cf": 96550.0, "\u73af\u6bd4": "-5.39%", "\u4ea7\u80fd": 275583.0, "\u4ea7\u80fd\u5229\u7528\u7387": "35.03%"}, {"\u65e5\u671f": "2023-10-01", "\u6708\u4efd": "2023-10", "\u4ea7\u91cf": 102050.0, "\u73af\u6bd4": "-2.30%", "\u4ea7\u80fd": 250583.0, "\u4ea7\u80fd\u5229\u7528\u7387": "40.73%"}, {"\u65e5\u671f": "2023-09-01", "\u6708\u4efd": "2023-09", "\u4ea7\u91cf": 104450.0, "\u73af\u6bd4": "-3.88%", "\u4ea7\u80fd": 246417.0, "\u4ea7\u80fd\u5229\u7528\u7387": "42.39%"}, {"\u65e5\u671f": "2023-08-01", "\u6708\u4efd": "2023-08", "\u4ea7\u91cf": 108670.0, "\u73af\u6bd4": "3.86%", "\u4ea7\u80fd": 244750.0, "\u4ea7\u80fd\u5229\u7528\u7387": "44.40%"}, {"\u65e5\u671f": "2023-07-01", "\u6708\u4efd": "2023-07", "\u4ea7\u91cf": 104630.0, "\u73af\u6bd4": "12.51%", "\u4ea7\u80fd": 232250.0, "\u4ea7\u80fd\u5229\u7528\u7387": "45.05%"}, {"\u65e5\u671f": "2023-06-01", "\u6708\u4efd": "2023-06", "\u4ea7\u91cf": 93000.0, "\u73af\u6bd4": "11.18%", "\u4ea7\u80fd": 216833.0, "\u4ea7\u80fd\u5229\u7528\u7387": "42.89%"}, {"\u65e5\u671f": "2023-05-01", "\u6708\u4efd": "2023-05", "\u4ea7\u91cf": 83650.0, "\u73af\u6bd4": "15.46%", "\u4ea7\u80fd": 205167.0, "\u4ea7\u80fd\u5229\u7528\u7387": "40.77%"}, {"\u65e5\u671f": "2023-04-01", "\u6708\u4efd": "2023-04", "\u4ea7\u91cf": 72450.0, "\u73af\u6bd4": "-7.55%", "\u4ea7\u80fd": 178500.0, "\u4ea7\u80fd\u5229\u7528\u7387": "40.59%"}, {"\u65e5\u671f": "2023-03-01", "\u6708\u4efd": "2023-03", "\u4ea7\u91cf": 78370.0, "\u73af\u6bd4": "5.63%", "\u4ea7\u80fd": 178500.0, "\u4ea7\u80fd\u5229\u7528\u7387": "43.90%"}, {"\u65e5\u671f": "2023-02-01", "\u6708\u4efd": "2023-02", "\u4ea7\u91cf": 74190.0, "\u73af\u6bd4": "9.02%", "\u4ea7\u80fd": 170167.0, "\u4ea7\u80fd\u5229\u7528\u7387": "43.60%"}, {"\u65e5\u671f": "2023-01-01", "\u6708\u4efd": "2023-01", "\u4ea7\u91cf": 68050.0, "\u4ea7\u80fd": 170167.0, "\u4ea7\u80fd\u5229\u7528\u7387": "39.99%"}];
+const lfpAllRows = [{"\u65e5\u671f": "2026-03-01", "\u6708\u4efd": "2026-03", "\u4ea7\u91cf": 23360.0, "\u73af\u6bd4": "-1.14%", "\u540c\u6bd4": "17.27%", "\u4ea7\u80fd": 36967.0, "\u4ea7\u80fd\u5229\u7528\u7387": "63.19%"}, {"\u65e5\u671f": "2026-02-01", "\u6708\u4efd": "2026-02", "\u4ea7\u91cf": 23630.0, "\u73af\u6bd4": "-16.06%", "\u540c\u6bd4": "32.46%", "\u4ea7\u80fd": 36967.0, "\u4ea7\u80fd\u5229\u7528\u7387": "63.92%"}, {"\u65e5\u671f": "2026-01-01", "\u6708\u4efd": "2026-01", "\u4ea7\u91cf": 28150.0, "\u73af\u6bd4": "5.04%", "\u540c\u6bd4": "45.48%", "\u4ea7\u80fd": 35967.0, "\u4ea7\u80fd\u5229\u7528\u7387": "78.27%"}, {"\u65e5\u671f": "2025-12-01", "\u6708\u4efd": "2025-12", "\u4ea7\u91cf": 26800.0, "\u73af\u6bd4": "3.47%", "\u540c\u6bd4": "32.67%", "\u4ea7\u80fd": 32650.0, "\u4ea7\u80fd\u5229\u7528\u7387": "82.08%"}, {"\u65e5\u671f": "2025-11-01", "\u6708\u4efd": "2025-11", "\u4ea7\u91cf": 25900.0, "\u73af\u6bd4": "1.57%", "\u540c\u6bd4": "26.46%", "\u4ea7\u80fd": 32483.0, "\u4ea7\u80fd\u5229\u7528\u7387": "79.73%"}, {"\u65e5\u671f": "2025-10-01", "\u6708\u4efd": "2025-10", "\u4ea7\u91cf": 25500.0, "\u73af\u6bd4": "8.23%", "\u540c\u6bd4": "35.28%", "\u4ea7\u80fd": 31558.0, "\u4ea7\u80fd\u5229\u7528\u7387": "80.80%"}, {"\u65e5\u671f": "2025-09-01", "\u6708\u4efd": "2025-09", "\u4ea7\u91cf": 23560.0, "\u73af\u6bd4": "4.11%", "\u540c\u6bd4": "24.66%", "\u4ea7\u80fd": 31558.0, "\u4ea7\u80fd\u5229\u7528\u7387": "74.66%"}, {"\u65e5\u671f": "2025-08-01", "\u6708\u4efd": "2025-08", "\u4ea7\u91cf": 22630.0, "\u73af\u6bd4": "5.26%", "\u540c\u6bd4": "27.64%", "\u4ea7\u80fd": 30058.0, "\u4ea7\u80fd\u5229\u7528\u7387": "75.29%"}, {"\u65e5\u671f": "2025-07-01", "\u6708\u4efd": "2025-07", "\u4ea7\u91cf": 21500.0, "\u73af\u6bd4": "14.97%", "\u540c\u6bd4": "34.21%", "\u4ea7\u80fd": 30058.0, "\u4ea7\u80fd\u5229\u7528\u7387": "71.53%"}, {"\u65e5\u671f": "2025-06-01", "\u6708\u4efd": "2025-06", "\u4ea7\u91cf": 18700.0, "\u73af\u6bd4": "7.84%", "\u540c\u6bd4": "17.39%", "\u4ea7\u80fd": 29158.0, "\u4ea7\u80fd\u5229\u7528\u7387": "64.13%"}, {"\u65e5\u671f": "2025-05-01", "\u6708\u4efd": "2025-05", "\u4ea7\u91cf": 17340.0, "\u73af\u6bd4": "-15.91%", "\u540c\u6bd4": "5.54%", "\u4ea7\u80fd": 29158.0, "\u4ea7\u80fd\u5229\u7528\u7387": "59.47%"}, {"\u65e5\u671f": "2025-04-01", "\u6708\u4efd": "2025-04", "\u4ea7\u91cf": 20620.0, "\u73af\u6bd4": "3.51%", "\u540c\u6bd4": "32.01%", "\u4ea7\u80fd": 29158.0, "\u4ea7\u80fd\u5229\u7528\u7387": "70.72%"}, {"\u65e5\u671f": "2025-03-01", "\u6708\u4efd": "2025-03", "\u4ea7\u91cf": 19920.0, "\u73af\u6bd4": "11.66%", "\u540c\u6bd4": "43.93%", "\u4ea7\u80fd": 29158.0, "\u4ea7\u80fd\u5229\u7528\u7387": "68.32%"}, {"\u65e5\u671f": "2025-02-01", "\u6708\u4efd": "2025-02", "\u4ea7\u91cf": 17840.0, "\u73af\u6bd4": "-7.80%", "\u540c\u6bd4": "86.81%", "\u4ea7\u80fd": 29158.0, "\u4ea7\u80fd\u5229\u7528\u7387": "61.18%"}, {"\u65e5\u671f": "2025-01-01", "\u6708\u4efd": "2025-01", "\u4ea7\u91cf": 19350.0, "\u73af\u6bd4": "-4.21%", "\u540c\u6bd4": "70.33%", "\u4ea7\u80fd": 29158.0, "\u4ea7\u80fd\u5229\u7528\u7387": "66.36%"}, {"\u65e5\u671f": "2024-12-01", "\u6708\u4efd": "2024-12", "\u4ea7\u91cf": 20200.0, "\u73af\u6bd4": "-1.37%", "\u540c\u6bd4": "67.77%", "\u4ea7\u80fd": 29408.0, "\u4ea7\u80fd\u5229\u7528\u7387": "68.69%"}, {"\u65e5\u671f": "2024-11-01", "\u6708\u4efd": "2024-11", "\u4ea7\u91cf": 20480.0, "\u73af\u6bd4": "8.65%", "\u540c\u6bd4": "51.59%", "\u4ea7\u80fd": 29408.0, "\u4ea7\u80fd\u5229\u7528\u7387": "69.64%"}, {"\u65e5\u671f": "2024-10-01", "\u6708\u4efd": "2024-10", "\u4ea7\u91cf": 18850.0, "\u73af\u6bd4": "-0.26%", "\u540c\u6bd4": "33.88%", "\u4ea7\u80fd": 29408.0, "\u4ea7\u80fd\u5229\u7528\u7387": "64.10%"}, {"\u65e5\u671f": "2024-09-01", "\u6708\u4efd": "2024-09", "\u4ea7\u91cf": 18900.0, "\u73af\u6bd4": "6.60%", "\u540c\u6bd4": "29.99%", "\u4ea7\u80fd": 29408.0, "\u4ea7\u80fd\u5229\u7528\u7387": "64.27%"}, {"\u65e5\u671f": "2024-08-01", "\u6708\u4efd": "2024-08", "\u4ea7\u91cf": 17730.0, "\u73af\u6bd4": "10.67%", "\u540c\u6bd4": "25.39%", "\u4ea7\u80fd": 29408.0, "\u4ea7\u80fd\u5229\u7528\u7387": "60.29%"}, {"\u65e5\u671f": "2024-07-01", "\u6708\u4efd": "2024-07", "\u4ea7\u91cf": 16020.0, "\u73af\u6bd4": "0.56%", "\u540c\u6bd4": "22.76%", "\u4ea7\u80fd": 28158.0, "\u4ea7\u80fd\u5229\u7528\u7387": "56.89%"}, {"\u65e5\u671f": "2024-06-01", "\u6708\u4efd": "2024-06", "\u4ea7\u91cf": 15930.0, "\u73af\u6bd4": "-3.04%", "\u540c\u6bd4": "30.04%", "\u4ea7\u80fd": 28158.0, "\u4ea7\u80fd\u5229\u7528\u7387": "56.57%"}, {"\u65e5\u671f": "2024-05-01", "\u6708\u4efd": "2024-05", "\u4ea7\u91cf": 16430.0, "\u73af\u6bd4": "5.19%", "\u540c\u6bd4": "79.37%", "\u4ea7\u80fd": 28158.0, "\u4ea7\u80fd\u5229\u7528\u7387": "58.35%"}, {"\u65e5\u671f": "2024-04-01", "\u6708\u4efd": "2024-04", "\u4ea7\u91cf": 15620.0, "\u73af\u6bd4": "12.86%", "\u540c\u6bd4": "136.31%", "\u4ea7\u80fd": 28158.0, "\u4ea7\u80fd\u5229\u7528\u7387": "55.47%"}, {"\u65e5\u671f": "2024-03-01", "\u6708\u4efd": "2024-03", "\u4ea7\u91cf": 13840.0, "\u73af\u6bd4": "44.92%", "\u540c\u6bd4": "57.81%", "\u4ea7\u80fd": 28158.0, "\u4ea7\u80fd\u5229\u7528\u7387": "49.15%"}, {"\u65e5\u671f": "2024-02-01", "\u6708\u4efd": "2024-02", "\u4ea7\u91cf": 9550.0, "\u73af\u6bd4": "-15.93%", "\u540c\u6bd4": "1.06%", "\u4ea7\u80fd": 28158.0, "\u4ea7\u80fd\u5229\u7528\u7387": "33.92%"}, {"\u65e5\u671f": "2024-01-01", "\u6708\u4efd": "2024-01", "\u4ea7\u91cf": 11360.0, "\u73af\u6bd4": "-5.65%", "\u540c\u6bd4": "37.86%", "\u4ea7\u80fd": 28158.0, "\u4ea7\u80fd\u5229\u7528\u7387": "40.34%"}, {"\u65e5\u671f": "2023-12-01", "\u6708\u4efd": "2023-12", "\u4ea7\u91cf": 12040.0, "\u73af\u6bd4": "-10.88%", "\u4ea7\u80fd": 25992.0, "\u4ea7\u80fd\u5229\u7528\u7387": "46.32%"}, {"\u65e5\u671f": "2023-11-01", "\u6708\u4efd": "2023-11", "\u4ea7\u91cf": 13510.0, "\u73af\u6bd4": "-4.05%", "\u4ea7\u80fd": 25242.0, "\u4ea7\u80fd\u5229\u7528\u7387": "53.52%"}, {"\u65e5\u671f": "2023-10-01", "\u6708\u4efd": "2023-10", "\u4ea7\u91cf": 14080.0, "\u73af\u6bd4": "-3.16%", "\u4ea7\u80fd": 23847.0, "\u4ea7\u80fd\u5229\u7528\u7387": "59.04%"}, {"\u65e5\u671f": "2023-09-01", "\u6708\u4efd": "2023-09", "\u4ea7\u91cf": 14540.0, "\u73af\u6bd4": "2.83%", "\u4ea7\u80fd": 23847.0, "\u4ea7\u80fd\u5229\u7528\u7387": "60.97%"}, {"\u65e5\u671f": "2023-08-01", "\u6708\u4efd": "2023-08", "\u4ea7\u91cf": 14140.0, "\u73af\u6bd4": "8.35%", "\u4ea7\u80fd": 23847.0, "\u4ea7\u80fd\u5229\u7528\u7387": "59.29%"}, {"\u65e5\u671f": "2023-07-01", "\u6708\u4efd": "2023-07", "\u4ea7\u91cf": 13050.0, "\u73af\u6bd4": "6.53%", "\u4ea7\u80fd": 20430.0, "\u4ea7\u80fd\u5229\u7528\u7387": "63.88%"}, {"\u65e5\u671f": "2023-06-01", "\u6708\u4efd": "2023-06", "\u4ea7\u91cf": 12250.0, "\u73af\u6bd4": "33.73%", "\u4ea7\u80fd": 17930.0, "\u4ea7\u80fd\u5229\u7528\u7387": "68.32%"}, {"\u65e5\u671f": "2023-05-01", "\u6708\u4efd": "2023-05", "\u4ea7\u91cf": 9160.0, "\u73af\u6bd4": "38.58%", "\u4ea7\u80fd": 17597.0, "\u4ea7\u80fd\u5229\u7528\u7387": "52.05%"}, {"\u65e5\u671f": "2023-04-01", "\u6708\u4efd": "2023-04", "\u4ea7\u91cf": 6610.0, "\u73af\u6bd4": "-24.63%", "\u4ea7\u80fd": 17097.0, "\u4ea7\u80fd\u5229\u7528\u7387": "38.66%"}, {"\u65e5\u671f": "2023-03-01", "\u6708\u4efd": "2023-03", "\u4ea7\u91cf": 8770.0, "\u73af\u6bd4": "-7.20%", "\u4ea7\u80fd": 16263.0, "\u4ea7\u80fd\u5229\u7528\u7387": "53.93%"}, {"\u65e5\u671f": "2023-02-01", "\u6708\u4efd": "2023-02", "\u4ea7\u91cf": 9450.0, "\u73af\u6bd4": "14.68%", "\u4ea7\u80fd": 15430.0, "\u4ea7\u80fd\u5229\u7528\u7387": "61.24%"}, {"\u65e5\u671f": "2023-01-01", "\u6708\u4efd": "2023-01", "\u4ea7\u91cf": 8240.0, "\u4ea7\u80fd": 15430.0, "\u4ea7\u80fd\u5229\u7528\u7387": "53.40%"}];
+
+// ====== 图表初始化 ======
+function initCharts() {
+    const colors = ['#1e3c72','#4facfe','#27ae60','#e67e22','#9b59b6','#e74c3c','#f39c12'];
+
+    // 电解液产量趋势
+    if (document.getElementById('chart-elec-prod')) {
+        const c = echarts.init(document.getElementById('chart-elec-prod'));
+        c.setOption({
+            tooltip: { trigger: 'axis' },
+            legend: { data: ['产量(万吨)', '产能利用率(%)'] },
+            xAxis: { type: 'category', data: elecProdMonths, axisLabel: { fontSize: 11 } },
+            yAxis: [
+                { type: 'value', name: '产量', axisLabel: { fontSize: 11 } },
+                { type: 'value', name: '利用率', max: 100, axisLabel: { formatter: '{value}%' } }
+            ],
+            series: [
+                { name: '产量(万吨)', type: 'bar', data: elecProdVals, itemStyle: { color: '#1e3c72' } },
+                { name: '产能利用率(%)', type: 'line', yAxisIndex: 1, data: elecUtilVals, itemStyle: { color: '#f39c12' } }
+            ]
+        });
+    }
+
+    // 电解液产能利用率
+    if (document.getElementById('chart-elec-util')) {
+        const c = echarts.init(document.getElementById('chart-elec-util'));
+        c.setOption({
+            tooltip: { trigger: 'axis' },
+            xAxis: { type: 'category', data: elecProdMonths, axisLabel: { fontSize: 11 } },
+            yAxis: [
+                { type: 'value', name: '产能(万吨)' },
+                { type: 'value', name: '利用率%', max: 100 }
+            ],
+            series: [
+                { name: '产能(万吨)', type: 'bar', data: elecProdVals.map((v,i) => Math.round(v / elecUtilVals[i] * 100)), itemStyle: { color: '#b0bec5' } },
+                { name: '利用率(%)', type: 'line', yAxisIndex: 1, data: elecUtilVals, itemStyle: { color: '#4facfe' } }
+            ]
+        });
+    }
+
+    // 电解液价格
+    if (document.getElementById('chart-elec-price')) {
+        const c = echarts.init(document.getElementById('chart-elec-price'));
+        const allDates = [...new Set([...elecPowLfp.dates,...elecPowLfpSt.dates,...elecPowNcm.dates])].sort();
+        c.setOption({
+            tooltip: { trigger: 'axis' },
+            legend: { data: ['LFP动力型', 'LFP储能型', 'NCM动力型'] },
+            xAxis: { type: 'category', data: allDates, axisLabel: { fontSize: 11 } },
+            yAxis: { type: 'value', name: '万元/吨', min: 0 },
+            series: [
+                { name: 'LFP动力型', type: 'line', data: elecPowLfp.vals, itemStyle: { color: '#1e3c72' } },
+                { name: 'LFP储能型', type: 'line', data: elecPowLfpSt.vals, itemStyle: { color: '#27ae60' } },
+                { name: 'NCM动力型', type: 'line', data: elecPowNcm.vals, itemStyle: { color: '#e67e22' } }
+            ]
+        });
+    }
+
+    // 六氟产量
+    if (document.getElementById('chart-lfp-prod')) {
+        const c = echarts.init(document.getElementById('chart-lfp-prod'));
+        c.setOption({
+            tooltip: { trigger: 'axis' },
+            legend: { data: ['六氟产量(万吨)', '产能利用率(%)'] },
+            xAxis: { type: 'category', data: lfpProdMonths, axisLabel: { fontSize: 11 } },
+            yAxis: [
+                { type: 'value', name: '产量(万吨)' },
+                { type: 'value', name: '利用率%', max: 100 }
+            ],
+            series: [
+                { name: '六氟产量(万吨)', type: 'bar', data: lfpProdVals, itemStyle: { color: '#9b59b6' } },
+                { name: '产能利用率(%)', type: 'line', yAxisIndex: 1, data: lfpUtilVals, itemStyle: { color: '#e74c3c' } }
+            ]
+        });
+    }
+
+    // 六氟产能利用率
+    if (document.getElementById('chart-lfp-util')) {
+        const c = echarts.init(document.getElementById('chart-lfp-util'));
+        c.setOption({
+            tooltip: { trigger: 'axis' },
+            xAxis: { type: 'category', data: lfpProdMonths, axisLabel: { fontSize: 11 } },
+            yAxis: { type: 'value', name: '利用率%', max: 100 },
+            series: [
+                { name: '利用率(%)', type: 'line', data: lfpUtilVals, itemStyle: { color: '#e74c3c' }, areaStyle: { color: 'rgba(231,76,60,0.1)' } }
+            ]
+        });
+    }
+
+    // LiFSI
+    if (document.getElementById('chart-lifsi-solid')) {
+        const c = echarts.init(document.getElementById('chart-lifsi-solid'));
+        c.setOption({
+            tooltip: { trigger: 'axis' },
+            xAxis: { type: 'category', data: lifsiSD.dates, axisLabel: { fontSize: 10 } },
+            yAxis: { type: 'value', name: '万元/吨' },
+            series: [{ name: 'LiFSI-固态', type: 'line', data: lifsiSD.vals, itemStyle: { color: '#8e44ad' } }]
+        });
+    }
+    if (document.getElementById('chart-lifsi-liquid')) {
+        const c = echarts.init(document.getElementById('chart-lifsi-liquid'));
+        c.setOption({
+            tooltip: { trigger: 'axis' },
+            xAxis: { type: 'category', data: lifsiLD.dates, axisLabel: { fontSize: 10 } },
+            yAxis: { type: 'value', name: '万元/吨' },
+            series: [{ name: 'LiFSI-液态', type: 'line', data: lifsiLD.vals, itemStyle: { color: '#2ecc71' } }]
+        });
+    }
+
+    // 六氟价格
+    if (document.getElementById('chart-lfp-price')) {
+        const c = echarts.init(document.getElementById('chart-lfp-price'));
+        const allDates = [...new Set([...lfpPriceD.dates,...lfpExpD.dates])].sort();
+        c.setOption({
+            tooltip: { trigger: 'axis' },
+            legend: { data: ['国内主流市场', '出口价格'] },
+            xAxis: { type: 'category', data: allDates, axisLabel: { fontSize: 11 } },
+            yAxis: { type: 'value', name: '万元/吨', min: 0 },
+            series: [
+                { name: '国内主流市场', type: 'line', data: lfpPriceD.vals, itemStyle: { color: '#1e3c72' } },
+                { name: '出口价格', type: 'line', data: lfpExpD.vals, itemStyle: { color: '#e74c3c' } }
+            ]
+        });
+    }
+
+    // 高电压电解液价格
+    if (document.getElementById('chart-hv-price')) {
+        const c = echarts.init(document.getElementById('chart-hv-price'));
+        const allDates = [...new Set([...hv44_d.dates,...hv440_d.dates,...hv435_d.dates])].sort();
+        c.setOption({
+            tooltip: { trigger: 'axis' },
+            legend: { data: ['>4.4V', '4.4V', '4.35V'] },
+            xAxis: { type: 'category', data: allDates, axisLabel: { fontSize: 11 } },
+            yAxis: { type: 'value', name: '万元/吨', min: 0 },
+            series: [
+                { name: '>4.4V', type: 'line', data: hv440_d.vals, itemStyle: { color: '#8e44ad' } },
+                { name: '4.4V', type: 'line', data: hv44_d.vals, itemStyle: { color: '#e67e22' } },
+                { name: '4.35V', type: 'line', data: hv435_d.vals, itemStyle: { color: '#f39c12' } }
+            ]
+        });
+    }
+
+    // 出口
+    if (document.getElementById('chart-elec-exp')) {
+        const c = echarts.init(document.getElementById('chart-elec-exp'));
+        c.setOption({
+            tooltip: { trigger: 'axis' },
+            legend: { data: ['出口量(万吨)', '同比增速(%)'] },
+            xAxis: { type: 'category', data: expMonths, axisLabel: { fontSize: 11 } },
+            yAxis: [
+                { type: 'value', name: '出口量(万吨)' },
+                { type: 'value', name: '同比%' }
+            ],
+            series: [
+                { name: '出口量(万吨)', type: 'bar', data: expVals, itemStyle: { color: '#1e3c72' } },
+                { name: '同比增速(%)', type: 'line', yAxisIndex: 1, data: expYoy, itemStyle: { color: '#e74c3c' } }
+            ]
+        });
+    }
+
+    // 添加剂价格
+    if (document.getElementById('chart-additive-price')) {
+        const c = echarts.init(document.getElementById('chart-additive-price'));
+        const allDates = [...new Set([...vcD.dates,...fecD.dates,...psD.dates])].sort();
+        c.setOption({
+            tooltip: { trigger: 'axis' },
+            legend: { data: ['VC', 'FEC', 'PS'] },
+            xAxis: { type: 'category', data: allDates, axisLabel: { fontSize: 11 } },
+            yAxis: { type: 'value', name: '万元/吨' },
+            series: [
+                { name: 'VC', type: 'line', data: vcD.vals, itemStyle: { color: '#1e3c72' } },
+                { name: 'FEC', type: 'line', data: fecD.vals, itemStyle: { color: '#e67e22' } },
+                { name: 'PS', type: 'line', data: psD.vals, itemStyle: { color: '#9b59b6' } }
+            ]
+        });
+    }
+
+    window.addEventListener('resize', () => {
+        Object.values(echarts).forEach(fn => { if (typeof fn.resize === 'function') fn.resize(); });
+    });
+}
+
+// ====== 表格渲染 ======
+function renderTables() {
+    // TOP15企业 - 电解液
+    const elecBody = document.getElementById('elec-ent-table-body');
+    if (elecBody) {
+        elecBody.innerHTML = elecEntRows.map(r => `
+            <tr>
+                <td class="center rank">${r.rank}</td>
+                <td>${r.ent}</td>
+                <td class="num">${r.val.toLocaleString()}</td>
+                <td class="num ${r.moq.includes('+') ? 'green' : r.moq.includes('-') ? 'red' : ''}">${r.moq}</td>
+                <td class="num">${r.yoy}</td>
+                <td class="num">${r.util}</td>
+                <td class="center"><span class="company-tag ${r.tag_class}">${r.tag_text}</span></td>
+            </tr>
+        `).join('');
+    }
+
+    // TOP15企业 - 六氟
+    const lfpBody = document.getElementById('lfp-ent-table-body');
+    if (lfpBody) {
+        lfpBody.innerHTML = lfpEntRows.map(r => `
+            <tr>
+                <td class="center rank">${r.rank}</td>
+                <td>${r.ent}</td>
+                <td class="num">${r.val.toLocaleString()}</td>
+                <td class="num ${r.moq.includes('+') ? 'green' : r.moq.includes('-') ? 'red' : ''}">${r.moq}</td>
+                <td class="num">${r.yoy}</td>
+                <td class="num">${r.util}</td>
+                <td class="center"><span class="company-tag ${r.tag_class}">${r.tag_text}</span></td>
+            </tr>
+        `).join('');
+    }
+
+    // 企业报价表
+    const priceBody = document.getElementById('elec-price-table-body');
+    if (priceBody) {
+        const rows = Object.entries(indPriceMap)
+            .filter(([k,v]) => v.cur > 0)
+            .sort((a,b) => a[1].cur - b[1].cur);
+        priceBody.innerHTML = rows.map(([ent, v]) => `
+            <tr>
+                <td>${ent}</td>
+                <td class="num blue">${v.cur}</td>
+                <td class="num">${(v.cur / parseFloat(v.moq.replace('%','')/100 + 1)).toFixed(2)}</td>
+                <td class="num ${v.moq.includes('+') ? 'green' : 'red'}">${v.moq}</td>
+            </tr>
+        `).join('');
+    }
+
+    // 完整电解液产量表
+    const elecAllBody = document.getElementById('elec-all-prod-body');
+    if (elecAllBody) {
+        elecAllBody.innerHTML = elecAllRows.map(r => `
+            <tr>
+                <td>${r.get('月份','')}</td>
+                <td class="num">${(parseFloat(r.get('产量',0))/10000).toFixed(2)}</td>
+                <td class="num">${(parseFloat(r.get('产能',0))/10000).toFixed(2)}</td>
+                <td class="num">${str(r.get('产能利用率','-')).replace('%','')}%</td>
+                <td class="num">${safeMoq(r.get('环比','-'))}</td>
+            </tr>
+        `).join('');
+    }
+
+    // 完整六氟产量表
+    const lfpAllBody = document.getElementById('lfp-all-prod-body');
+    if (lfpAllBody) {
+        lfpAllBody.innerHTML = lfpAllRows.map(r => `
+            <tr>
+                <td>${r.get('月份','')}</td>
+                <td class="num">${parseFloat(r.get('产量',0)).toLocaleString()}</td>
+                <td class="num">${parseFloat(r.get('产能',0)).toLocaleString()}</td>
+                <td class="num">${str(r.get('产能利用率','-')).replace('%','')}%</td>
+                <td class="num">${safeMoq(r.get('环比','-'))}</td>
+            </tr>
+        `).join('');
+    }
+
+    // 总结表
+    const sumBody = document.getElementById('summary-table-body');
+    if (sumBody) {
+        const allMonths = [...new Set(elecAllRows.map(r => r.get('月份','')))].sort();
+        const last6 = allMonths.slice(-6);
+        sumBody.innerHTML = [
+            {label:'电解液产量(万吨)', key:'产量', div:10000},
+            {label:'电解液产能(万吨)', key:'产能', div:10000},
+            {label:'电解液产能利用率(%)', key:'产能利用率', div:1},
+            {label:'六氟产量(吨)', key:'产量', div:1},
+            {label:'六氟产能(吨)', key:'产能', div:1},
+            {label:'六氟产能利用率(%)', key:'产能利用率', div:1},
+        ].map(item => {
+            const vals = last6.map(m => {
+                const row = elecAllRows.find(r => r.get('月份','') === m);
+                if (!row) return null;
+                const v = parseFloat(row.get(item.key, 0) || 0);
+                return item.div === 10000 ? (v/10000).toFixed(2) : (item.key === '产能利用率' ? str(v).replace('%','')+'%' : v.toFixed(0));
+            });
+            return `<tr><td>${item.label}</td>${vals.map(v => `<td class="num">${v ?? '-'}</td>`).join('')}<td>-</td><td>-</td></tr>`;
+        }).join('');
+    }
+}
+
+function safeMoq(v) {
+    const s = String(v).replace('%','').trim();
+    if (!s || s === 'null' || s === 'None') return '-';
+    try { const n = parseFloat(s); return (n >= 0 ? '+' : '') + n.toFixed(1) + '%'; } catch { return '-'; }
+}
+
+function str(v) { return String(v ?? ''); }
+
+// ====== Tab切换 ======
+document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        btn.classList.add('active');
+        const tabId = 'tab-' + btn.dataset.tab;
+        const el = document.getElementById(tabId);
+        if (el) el.classList.add('active');
+        setTimeout(() => { initCharts(); }, 50);
+    });
+});
+
+window.addEventListener('load', () => { renderTables(); initCharts(); });
+</script>

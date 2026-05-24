@@ -1,0 +1,851 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>电解液数据库 - 数据中心</title>
+    <script src="electrolyte_embedded_data.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary-dark: #1e3c72;
+            --primary-light: #2a5298;
+            --accent-green: #4caf50;
+            --accent-orange: #ff9800;
+            --sidebar-width: 280px;
+            --sidebar-collapsed: 70px;
+            --transition-speed: 0.3s;
+        }
+        body {
+            font-family: 'Microsoft YaHei', 'PingFang SC', Arial, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            display: flex;
+        }
+
+        /* ========== 左侧导航栏 - 无底色透明样式 ========== */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: transparent;
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            z-index: 1000;
+            transition: width var(--transition-speed) ease;
+            overflow-y: auto;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .sidebar.collapsed { width: var(--sidebar-collapsed); }
+
+        .sidebar-header {
+            padding: 20px 15px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .sidebar-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: var(--primary-dark);
+            font-size: 18px;
+            font-weight: bold;
+            white-space: nowrap;
+            overflow: hidden;
+        }
+        .sidebar-logo-icon {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, var(--primary-light), #4facfe);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            flex-shrink: 0;
+            color: white;
+        }
+        .collapse-btn {
+            width: 28px;
+            height: 28px;
+            background: rgba(0, 0, 0, 0.08);
+            border: none;
+            border-radius: 6px;
+            color: #666;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+        .collapse-btn:hover { background: rgba(0, 0, 0, 0.15); color: var(--primary-dark); }
+        .sidebar.collapsed .collapse-btn { transform: rotate(180deg); }
+
+        /* 统计概览 */
+        .sidebar-stats { padding: 15px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .sidebar.collapsed .sidebar-stats { display: none; }
+        .stat-item {
+            background: rgba(30, 60, 114, 0.08);
+            border-radius: 8px;
+            padding: 10px;
+            text-align: center;
+        }
+        .stat-value { color: var(--primary-dark); font-size: 18px; font-weight: bold; }
+        .stat-label { color: #888; font-size: 11px; margin-top: 4px; }
+
+        /* 导航菜单 */
+        .nav-section { padding: 10px 0; }
+        .nav-section-title {
+            color: #888;
+            font-size: 13px;
+            font-weight: bold;
+            padding: 10px 20px 5px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            white-space: nowrap;
+            overflow: hidden;
+        }
+        .sidebar.collapsed .nav-section-title { opacity: 0; }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            color: #333;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+            border-left: 3px solid transparent;
+            gap: 12px;
+        }
+        .nav-item:hover { background: rgba(0, 0, 0, 0.05); color: var(--primary-dark); }
+        .nav-item.active {
+            background: linear-gradient(90deg, rgba(30, 60, 114, 0.15) 0%, transparent 100%);
+            color: var(--primary-dark);
+            border-left-color: var(--primary-dark);
+        }
+        .nav-item-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            flex-shrink: 0;
+            background: rgba(30, 60, 114, 0.1);
+            color: var(--primary-dark);
+        }
+        .nav-item.active .nav-item-icon {
+            background: linear-gradient(135deg, var(--primary-light), #4facfe);
+            color: white;
+        }
+        .nav-item-text { font-size: 14px; white-space: nowrap; overflow: hidden; flex: 1; }
+        .sidebar.collapsed .nav-item-text { opacity: 0; width: 0; }
+        .nav-item-badge {
+            background: rgba(30, 60, 114, 0.15);
+            color: var(--primary-dark);
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 10px;
+            flex-shrink: 0;
+        }
+        .sidebar.collapsed .nav-item-badge { position: absolute; top: 5px; right: 5px; padding: 2px 5px; font-size: 10px; }
+        .nav-item.active .nav-item-badge { background: var(--accent-green); color: white; }
+
+        /* 主内容区 */
+        .main-content {
+            flex: 1;
+            margin-left: var(--sidebar-width);
+            padding: 20px;
+            transition: margin-left var(--transition-speed) ease;
+        }
+        .sidebar.collapsed ~ .main-content { margin-left: var(--sidebar-collapsed); }
+
+        /* 顶部工具栏 */
+        .toolbar {
+            background: white;
+            border-radius: 12px;
+            padding: 15px 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 20px rgba(30, 60, 114, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        .toolbar-title { font-size: 20px; font-weight: bold; color: var(--primary-dark); }
+        .toolbar-right { display: flex; align-items: center; gap: 15px; }
+        .update-info { color: #888; font-size: 13px; }
+        .update-info span { color: var(--primary-dark); font-weight: 500; }
+
+        /* 内容区块 */
+        .content-section { display: none; animation: fadeIn 0.3s; }
+        .content-section.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* 指标卡片 */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .metric-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(30, 60, 114, 0.1);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s;
+        }
+        .metric-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0;
+            width: 4px; height: 100%;
+            background: linear-gradient(180deg, var(--primary-light), #4facfe);
+        }
+        .metric-card:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(30, 60, 114, 0.15); }
+        .metric-label { color: #666; font-size: 13px; margin-bottom: 8px; }
+        .metric-value { color: var(--primary-dark); font-size: 26px; font-weight: bold; }
+        .metric-unit { font-size: 14px; color: #888; font-weight: normal; }
+
+        /* 数据表 */
+        .data-card { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 20px rgba(30, 60, 114, 0.1); margin-bottom: 20px; }
+        .data-card-header {
+            padding: 15px 20px;
+            background: linear-gradient(135deg, var(--primary-dark), var(--primary-light));
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .data-card-title { font-size: 16px; font-weight: bold; display: flex; align-items: center; gap: 10px; }
+        .data-table { width: 100%; border-collapse: collapse; }
+        .data-table th { background: #f8f9fa; padding: 12px 15px; text-align: left; font-weight: 600; color: #333; font-size: 13px; border-bottom: 2px solid #eee; }
+        .data-table td { padding: 12px 15px; border-bottom: 1px solid #f0f0f0; font-size: 13px; color: #555; }
+        .data-table tr:hover { background: #f8f9fa; }
+        .rank-badge { display: inline-block; width: 24px; height: 24px; border-radius: 50%; background: #eee; color: #666; text-align: center; line-height: 24px; font-size: 12px; font-weight: bold; }
+        .rank-badge.top3 { background: #ffd700; color: #333; }
+        .rank-badge.top5 { background: #c0c0c0; color: #333; }
+        .funlate { background: #e8f5e9 !important; }
+        .funlate td { color: #2e7d32 !important; font-weight: 600; }
+        .no-data { text-align: center; padding: 40px; color: #999; }
+
+        .category-section { margin-bottom: 30px; }
+        .category-title { font-size: 18px; color: #333; margin-bottom: 15px; padding-left: 15px; border-left: 4px solid var(--primary-dark); display: flex; align-items: center; gap: 10px; }
+    </style>
+</head>
+<body>
+    <!-- 左侧导航 -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-logo">
+                <div class="sidebar-logo-icon">🧪</div>
+                <span>电解液数据库</span>
+            </div>
+            <button class="collapse-btn" onclick="toggleSidebar()">◀</button>
+        </div>
+
+        <div class="sidebar-stats">
+            <div class="stat-item">
+                <div class="stat-value" id="sidebar-table-count">-</div>
+                <div class="stat-label">数据表</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="sidebar-record-count">-</div>
+                <div class="stat-label">记录数</div>
+            </div>
+        </div>
+
+        <div class="nav-section">
+            <div class="nav-section-title">📊 数据板块</div>
+            <div class="nav-item active" onclick="switchNav('production', this)">
+                <div class="nav-item-icon">📊</div>
+                <span class="nav-item-text">电解液产量</span>
+            </div>
+            <div class="nav-item" onclick="switchNav('price', this)">
+                <div class="nav-item-icon">💰</div>
+                <span class="nav-item-text">电解液价格</span>
+            </div>
+            <div class="nav-item" onclick="switchNav('lfp6', this)">
+                <div class="nav-item-icon">⚗️</div>
+                <span class="nav-item-text">六氟磷酸锂</span>
+                <span class="nav-item-badge">3表</span>
+            </div>
+            <div class="nav-item" onclick="switchNav('additive', this)">
+                <div class="nav-item-icon">🧬</div>
+                <span class="nav-item-text">添加剂</span>
+            </div>
+        </div>
+
+        <div class="nav-section">
+            <div class="nav-section-title">🔍 快捷查询</div>
+            <div class="nav-item" onclick="switchNav('funlate', this)">
+                <div class="nav-item-icon">★</div>
+                <span class="nav-item-text">法恩莱特</span>
+            </div>
+            <div class="nav-item" onclick="switchNav('tianci', this)">
+                <div class="nav-item-icon">天</div>
+                <span class="nav-item-text">天赐材料</span>
+            </div>
+            <div class="nav-item" onclick="switchNav('xinzhou', this)">
+                <div class="nav-item-icon">新</div>
+                <span class="nav-item-text">新宙邦</span>
+            </div>
+        </div>
+
+        <div class="nav-section">
+            <div class="nav-section-title">📁 返回导航</div>
+            <div class="nav-item" onclick="window.location.href='database_hub.html'">
+                <div class="nav-item-icon">←</div>
+                <span class="nav-item-text">数据中心</span>
+            </div>
+            <div class="nav-item" onclick="window.location.href='index_v3.html'">
+                <div class="nav-item-icon">🏠</div>
+                <span class="nav-item-text">日报首页</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 主内容区 -->
+    <div class="main-content">
+        <!-- 顶部工具栏 -->
+        <div class="toolbar">
+            <div class="toolbar-title">🧪 电解液行业数据库</div>
+            <div class="toolbar-right">
+                <div class="update-info">数据更新时间: <span id="updateTime">加载中...</span></div>
+            </div>
+        </div>
+
+        <!-- 电解液产量板块 -->
+        <div id="content-production" class="content-section active">
+            <div class="metrics-grid" id="production-metrics"></div>
+            
+            <div class="category-section">
+                <div class="category-title">电解液-行业整体产量</div>
+                <div class="data-card">
+                    <div class="data-card-header">
+                        <div class="data-card-title">月度产量、产能及产能利用率</div>
+                        <span id="production-count"></span>
+                    </div>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>月份</th>
+                                <th>产量（吨）</th>
+                                <th>产能（吨）</th>
+                                <th>产能利用率</th>
+                                <th>环比</th>
+                                <th>同比</th>
+                            </tr>
+                        </thead>
+                        <tbody id="production-table"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="category-section">
+                <div class="category-title">电解液-分企业产量横向（2026年3月）</div>
+                <div class="data-card">
+                    <div class="data-card-header">
+                        <div class="data-card-title">21家企业电解液月度产量对比</div>
+                    </div>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>排名</th>
+                                <th>企业名称</th>
+                                <th>2026年3月</th>
+                                <th>2026年2月</th>
+                                <th>2026年1月</th>
+                            </tr>
+                        </thead>
+                        <tbody id="company-production-table"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- 电解液价格板块 -->
+        <div id="content-price" class="content-section">
+            <div class="metrics-grid" id="price-metrics"></div>
+
+            <div class="category-section">
+                <div class="category-title">电解液价格走势</div>
+                <div class="data-card">
+                    <div class="data-card-header">
+                        <div class="data-card-title">各类型电解液日度价格（万元/吨）</div>
+                    </div>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>日期</th>
+                                <th>LFP动力型</th>
+                                <th>LFP储能型</th>
+                                <th>三元动力型</th>
+                                <th>圆柱2600</th>
+                                <th>圆���2200</th>
+                            </tr>
+                        </thead>
+                        <tbody id="electrolyte-price-table"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="category-section">
+                <div class="category-title">高压电解液价格</div>
+                <div class="data-card">
+                    <div class="data-card-header">
+                        <div class="data-card-title">高压电解液日度价格（万元/吨）</div>
+                    </div>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>日期</th>
+                                <th>＞4.4V 最低</th>
+                                <th>＞4.4V 最高</th>
+                                <th>4.4V 均价</th>
+                                <th>4.35V 均价</th>
+                            </tr>
+                        </thead>
+                        <tbody id="high-voltage-price-table"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="category-section">
+                <div class="category-title">电解液价格-分企业横向（2026年3月）</div>
+                <div class="data-card">
+                    <div class="data-card-header">
+                        <div class="data-card-title">20家企业电解液月度价格对比（万元/吨）</div>
+                    </div>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>企业</th>
+                                <th>3月</th>
+                                <th>2月</th>
+                                <th>1月</th>
+                            </tr>
+                        </thead>
+                        <tbody id="company-price-table"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- 六氟磷酸锂板块 -->
+        <div id="content-lfp6" class="content-section">
+            <div class="metrics-grid" id="lfp6-metrics"></div>
+
+            <div class="category-section">
+                <div class="category-title">六氟磷酸锂-行业总产量</div>
+                <div class="data-card">
+                    <div class="data-card-header">
+                        <div class="data-card-title">六氟磷酸锂月度产量、产能及产能利用率</div>
+                    </div>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>月份</th>
+                                <th>产量（吨）</th>
+                                <th>产能（吨）</th>
+                                <th>产能利用率</th>
+                                <th>环比</th>
+                            </tr>
+                        </thead>
+                        <tbody id="lfp6-production-table"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="category-section">
+                <div class="category-title">六氟磷酸锂价格走势</div>
+                <div class="data-card">
+                    <div class="data-card-header">
+                        <div class="data-card-title">六氟磷酸锂日度价格（万元/吨）</div>
+                    </div>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>日期</th>
+                                <th>主流-最低</th>
+                                <th>主流-最高</th>
+                                <th>主流-均价</th>
+                                <th>出口-均价</th>
+                                <th>LiFSI固态</th>
+                                <th>LiFSI液态</th>
+                            </tr>
+                        </thead>
+                        <tbody id="lfp6-price-table"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="category-section">
+                <div class="category-title">六氟磷酸锂出口统计</div>
+                <div class="data-card">
+                    <div class="data-card-header">
+                        <div class="data-card-title">六氟磷酸锂月度出口数据</div>
+                    </div>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>月份</th>
+                                <th>出口量（吨）</th>
+                                <th>出口额（万元）</th>
+                                <th>单价（万元/吨）</th>
+                                <th>环比</th>
+                                <th>同比</th>
+                            </tr>
+                        </thead>
+                        <tbody id="lfp6-export-table"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- 添加剂板块 -->
+        <div id="content-additive" class="content-section">
+            <div class="category-section">
+                <div class="category-title">VC/FEC添加剂产量</div>
+                <div class="data-card">
+                    <div class="data-card-header">
+                        <div class="data-card-title">添加剂月度产量及产能利用率</div>
+                    </div>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>月份</th>
+                                <th>VC产量（吨）</th>
+                                <th>VC产能利用率</th>
+                                <th>FEC产量（吨）</th>
+                                <th>FEC产能利用率</th>
+                            </tr>
+                        </thead>
+                        <tbody id="additive-production-table"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="category-section">
+                <div class="category-title">添加剂价格走势</div>
+                <div class="data-card">
+                    <div class="data-card-header">
+                        <div class="data-card-title">添加剂日度价格（万元/吨）</div>
+                    </div>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>日期</th>
+                                <th>VC最低</th>
+                                <th>VC最高</th>
+                                <th>VC均价</th>
+                                <th>PS均价</th>
+                                <th>FEC均价</th>
+                            </tr>
+                        </thead>
+                        <tbody id="additive-price-table"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- 法恩莱特快捷查询 -->
+        <div id="content-funlate" class="content-section">
+            <div class="data-card">
+                <div class="data-card-header">
+                    <div class="data-card-title">★ 法恩莱特 - 电解液产量（吨）</div>
+                </div>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>月份</th>
+                            <th>产量</th>
+                            <th>行业排名</th>
+                        </tr>
+                    </thead>
+                    <tbody id="funlate-production-table"></tbody>
+                </table>
+            </div>
+            <div class="data-card">
+                <div class="data-card-header">
+                    <div class="data-card-title">★ 法恩莱特 - 电解液价格（万元/吨）</div>
+                </div>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>月份</th>
+                            <th>价格</th>
+                            <th>行业排名</th>
+                        </tr>
+                    </thead>
+                    <tbody id="funlate-price-table"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 天赐材料快捷查询 -->
+        <div id="content-tianci" class="content-section">
+            <div class="data-card">
+                <div class="data-card-header">
+                    <div class="data-card-title">��赐材料 - 电解液产量（吨）</div>
+                </div>
+                <table class="data-table">
+                    <thead>
+                        <tr><th>月份</th><th>产量</th><th>行业排名</th></tr>
+                    </thead>
+                    <tbody id="tianci-production-table"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 新宙邦快捷查询 -->
+        <div id="content-xinzhou" class="content-section">
+            <div class="data-card">
+                <div class="data-card-header">
+                    <div class="data-card-title">新宙邦 - 电解液产量（吨）</div>
+                </div>
+                <table class="data-table">
+                    <thead>
+                        <tr><th>月份</th><th>产量</th><th>行业排名</th></tr>
+                    </thead>
+                    <tbody id="xinzhou-production-table"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const allData = {};
+        
+        function init() {
+            if (typeof ELECTROLYTE_DATA !== 'undefined' && ELECTROLYTE_DATA.tables) {
+                ELECTROLYTE_DATA.tables.forEach(t => { allData[t.table_name] = t.data; });
+                document.getElementById('updateTime').textContent = ELECTROLYTE_DATA.update_time;
+                
+                const totalRecords = ELECTROLYTE_DATA.tables.reduce((sum, t) => sum + t.data.length, 0);
+                document.getElementById('sidebar-table-count').textContent = ELECTROLYTE_DATA.tables.length;
+                document.getElementById('sidebar-record-count').textContent = totalRecords.toLocaleString();
+                
+                renderProduction();
+                renderPrice();
+                renderLFP6();
+                renderAdditive();
+                renderFunlate();
+                renderCompetitor('tianci', '天赐材料', allData['电解液-分企业产量横向'], 'tianci-production-table');
+                renderCompetitor('xinzhou', '新宙邦', allData['电解液-分企业产量横向'], 'xinzhou-production-table');
+            }
+        }
+
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('collapsed');
+        }
+
+        function switchNav(section, el) {
+            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+            el.classList.add('active');
+            document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
+            document.getElementById('content-' + section).classList.add('active');
+        }
+
+        // 渲染电解液产量
+        function renderProduction() {
+            const data = allData['电解液-行业整体产量'] || [];
+            const sorted = [...data].sort((a, b) => (b['月份']||'').localeCompare(a['月份']||''));
+            const latest = sorted[0] || {};
+            
+            document.getElementById('production-metrics').innerHTML = `
+                <div class="metric-card">
+                    <div class="metric-label">电解液月度产量（${latest['月份']||'-'}）</div>
+                    <div class="metric-value">${((parseFloat(latest['产量'])||0)/10000).toFixed(2)}<span class="metric-unit">万吨</span></div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">产能利用率</div>
+                    <div class="metric-value">${latest['产能利用率']||'-'}</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">行业产能</div>
+                    <div class="metric-value">${((parseFloat(latest['产能'])||0)/10000).toFixed(1)}<span class="metric-unit">万吨</span></div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">环比变化</div>
+                    <div class="metric-value">${latest['环比']||'-'}</div>
+                </div>
+            `;
+            
+            let html = sorted.slice(0, 24).map(d => `<tr><td><strong>${d['月份']||'-'}</strong></td><td>${(parseFloat(d['产量'])||0).toLocaleString()}</td><td>${(parseFloat(d['产能'])||0).toLocaleString()}</td><td>${d['产能利用率']||'-'}</td><td>${d['环比']||'-'}</td><td>${d['同比']||'-'}</td></tr>`).join('');
+            document.getElementById('production-table').innerHTML = html;
+            document.getElementById('production-count').textContent = `${sorted.length} 条记录`;
+            
+            // 分企业产量
+            const compData = allData['电解液-分企业产量横向'] || [];
+            if (compData.length) {
+                const companies = Object.keys(compData[0]).filter(k => k !== '日期' && k !== '月份');
+                const monthData = {'2026-03': compData.find(d => d['月份']==='2026-03'), '2026-02': compData.find(d => d['月份']==='2026-02'), '2026-01': compData.find(d => d['月份']==='2026-01')};
+                const march = monthData['2026-03'];
+                if (march) {
+                    const sortedComp = companies.map(c => ({name: c, mar: parseFloat(march[c])||0, feb: parseFloat(monthData['2026-02']?.[c])||0, jan: parseFloat(monthData['2026-01']?.[c])||0})).filter(c => c.mar>0).sort((a,b) => b.mar - a.mar);
+                    let htmlC = '';
+                    sortedComp.forEach((c, i) => {
+                        const isFunlate = c.name === '法恩莱特';
+                        htmlC += `<tr class="${isFunlate?'funlate':''}"><td><span class="rank-badge ${i<3?'top3':i<5?'top5':''}">${i+1}</span></td><td><strong>${c.name}</strong>${isFunlate?' ★':''}</td><td>${c.mar.toLocaleString()}</td><td>${c.feb>0?c.feb.toLocaleString():'-'}</td><td>${c.jan>0?c.jan.toLocaleString():'-'}</td></tr>`;
+                    });
+                    document.getElementById('company-production-table').innerHTML = htmlC;
+                }
+            }
+        }
+
+        // 渲染电解液价格
+        function renderPrice() {
+            const lfpP = allData['电解液价格-磷酸铁锂动力型']||[];
+            const lfpS = allData['电解液价格-磷酸铁锂储能型']||[];
+            const tern = allData['电解液价格-三元动力型']||[];
+            const cy2600 = allData['电解液价格-圆柱2600mAh']||[];
+            const cy2200 = allData['电解液价格-圆柱2200mAh']||[];
+            const latest = lfpP[lfpP.length-1]||{};
+            const latestStorage = lfpS[lfpS.length-1]||{};
+            const latestTern = tern[tern.length-1]||{};
+            
+            document.getElementById('price-metrics').innerHTML = `
+                <div class="metric-card"><div class="metric-label">LFP动力型价格</div><div class="metric-value">${latest['均价']||'-'}<span class="metric-unit">万元/吨</span></div></div>
+                <div class="metric-card"><div class="metric-label">LFP储能型价格</div><div class="metric-value">${latestStorage['均价']||'-'}<span class="metric-unit">万元/吨</span></div></div>
+                <div class="metric-card"><div class="metric-label">三元动力型价格</div><div class="metric-value">${latestTern['均价']||'-'}<span class="metric-unit">万元/吨</span></div></div>
+            `;
+            
+            const recent = lfpP.slice(-10);
+            let html = '';
+            recent.forEach((d,i) => {
+                html += `<tr><td><strong>${(d['日期']||'').split(' ')[0]}</strong></td><td>${d['均价']||'-'}</td><td>${lfpS[lfpS.length-10+i]?.['均价']||'-'}</td><td>${tern[tern.length-10+i]?.['均价']||'-'}</td><td>${cy2600[cy2600.length-10+i]?.['均价']||'-'}</td><td>${cy2200[cy2200.length-10+i]?.['均价']||'-'}</td></tr>`;
+            });
+            document.getElementById('electrolyte-price-table').innerHTML = html;
+            
+            // 高压电解液价格
+            const hvHigh = allData['高压电解液价格-4.4V以上']||[];
+            const hv44 = allData['高压电解液价格-4.4V']||[];
+            const hv435 = allData['高压电解液价格-4.35V']||[];
+            let htmlHV = '';
+            hvHigh.slice(-10).forEach((d,i) => {
+                htmlHV += `<tr><td><strong>${(d['日期']||'').split(' ')[0]}</strong></td><td>${d['最低价']||'-'}</td><td>${d['最高价']||'-'}</td><td>${hv44[hv44.length-10+i]?.['均价']||'-'}</td><td>${hv435[hv435.length-10+i]?.['均价']||'-'}</td></tr>`;
+            });
+            document.getElementById('high-voltage-price-table').innerHTML = htmlHV;
+            
+            // 分企业价格
+            const priceComp = allData['电解液价格-分企业横向']||[];
+            if (priceComp.length) {
+                const companies = Object.keys(priceComp[0]).filter(k => k !== '日期' && k !== '月份');
+                const march = priceComp.find(d => d['月份']==='2026-03');
+                const feb = priceComp.find(d => d['月份']==='2026-02');
+                const jan = priceComp.find(d => d['月份']==='2026-01');
+                if (march) {
+                    let htmlP = '';
+                    companies.map(c => ({name: c, mar: parseFloat(march[c])||0, feb: parseFloat(feb?.[c])||0, jan: parseFloat(jan?.[c])||0}) .filter(c => c.mar>0) .sort((a,b) => a.mar - b.mar) .forEach((c,i) => {
+                        const isFunlate = c.name === '法恩莱特';
+                        htmlP += `<tr class="${isFunlate?'funlate':''}"><td><strong>${c.name}</strong>${isFunlate?' ★':''}</td><td>${c.mar}</td><td>${c.feb>0?c.feb:'-'}</td><td>${c.jan>0?c.jan:'-'}</td></tr>`;
+                    });
+                    document.getElementById('company-price-table').innerHTML = htmlP;
+                }
+            }
+        }
+
+        // 渲染六氟磷酸锂
+        function renderLFP6() {
+            const prodData = allData['六氟磷酸锂-行业总产量']||[];
+            const sorted = [...prodData].sort((a,b) => (b['月份']||'').localeCompare(a['月份']||''));
+            const latest = sorted[0]||{};
+            
+            document.getElementById('lfp6-metrics').innerHTML = `
+                <div class="metric-card"><div class="metric-label">六氟月度产量（${latest['月份']||'-'}）</div><div class="metric-value">${(parseFloat(latest['产量'])||0).toLocaleString()}<span class="metric-unit">吨</span></div></div>
+                <div class="metric-card"><div class="metric-label">产能利用率</div><div class="metric-value">${latest['产能利用率']||'-'}</div></div>
+            `;
+            
+            let html = sorted.slice(0,24).map(d => `<tr><td><strong>${d['月份']||'-'}</strong></td><td>${(parseFloat(d['产量'])||0).toLocaleString()}</td><td>${(parseFloat(d['产能'])||0).toLocaleString()}</td><td>${d['产能利用率']||'-'}</td><td>${d['环比']||'-'}</td></tr>`).join('');
+            document.getElementById('lfp6-production-table').innerHTML = html;
+            
+            // 价格
+            const priceData = allData['六氟磷酸锂价格-主流市场']||[];
+            const exportPrice = allData['六氟磷酸锂价格-出口']||[];
+            const lifsiS = allData['LiFSI价格-固态']||[];
+            const lifsiL = allData['LiFSI价格-液态']||[];
+            let htmlP = '';
+            priceData.slice(-10).forEach((d,i) => {
+                htmlP += `<tr><td><strong>${(d['日期']||'').split(' ')[0]}</strong></td><td>${d['最低价']||'-'}</td><td>${d['最高价']||'-'}</td><td>${d['均价']||'-'}</td><td>${exportPrice[exportPrice.length-10+i]?.['均价']||'-'}</td><td>${lifsiS[lifsiS.length-10+i]?.['均价']||'-'}</td><td>${lifsiL[lifsiL.length-10+i]?.['均价']||'-'}</td></tr>`;
+            });
+            document.getElementById('lfp6-price-table').innerHTML = htmlP;
+            
+            // 出口
+            const exportData = allData['六氟磷酸锂出口-总量']||[];
+            let htmlE = [...exportData].sort((a,b) => (b['月份']||'').localeCompare(a['月份']||'')).map(d => `<tr><td><strong>${d['月份']||'-'}</strong></td><td>${d['出口量（吨）']||'-'}</td><td>${d['出口额（万元）']||'-'}</td><td>${d['出口单价（万元/吨）']||'-'}</td><td>${d['出口量环比']||'-'}</td><td>${d['出口量同比']||'-'}</td></tr>`).join('');
+            document.getElementById('lfp6-export-table').innerHTML = htmlE;
+        }
+
+        // 渲染添加剂
+        function renderAdditive() {
+            const vcProd = allData['添加剂VC-产量']||[];
+            const fecProd = allData['添加剂FEC-产量']||[];
+            const vcPrice = allData['添加剂VC-价格']||[];
+            const psPrice = allData['添加剂PS-价格']||[];
+            const fecPrice = allData['添加剂FEC-价格']||[];
+            
+            const sortedVC = [...vcProd].sort((a,b) => (b['月份']||'').localeCompare(a['月份']||''));
+            const sortedFEC = [...fecProd].sort((a,b) => (b['月份']||'').localeCompare(a['月份']||''));
+            
+            let html = '';
+            const maxLen = Math.max(sortedVC.length, sortedFEC.length);
+            for(let i=0; i<maxLen && i<24; i++) {
+                const vc=sortedVC[i]||{}, fec=sortedFEC[i]||{};
+                html += `<tr><td><strong>${vc['月份']||fec['月份']||'-'}</strong></td><td>${(parseFloat(vc['产量'])||0).toLocaleString()}</td><td>${vc['产能利用率']||'-'}</td><td>${(parseFloat(fec['产量'])||0).toLocaleString()}</td><td>${fec['产能利用率']||'-'}</td></tr>`;
+            }
+            document.getElementById('additive-production-table').innerHTML = html;
+            
+            let htmlP = '';
+            vcPrice.slice(-10).forEach((d,i) => {
+                htmlP += `<tr><td><strong>${(d['日期']||'').split(' ')[0]}</strong></td><td>${d['最低价']||'-'}</td><td>${d['最高价']||'-'}</td><td>${d['均价']||'-'}</td><td>${psPrice[psPrice.length-10+i]?.['均价']||'-'}</td><td>${fecPrice[fecPrice.length-10+i]?.['均价']||'-'}</td></tr>`;
+            });
+            document.getElementById('additive-price-table').innerHTML = htmlP;
+        }
+
+        // 渲染法恩莱特
+        function renderFunlate() {
+            const prodData = allData['电解液-分企业产量横向']||[];
+            const priceData = allData['电解液价格-分企业横向']||[];
+            
+            // 产量
+            const prodRows = [];
+            ['2026-03','2026-02','2026-01'].forEach(m => {
+                const row = prodData.find(d => d['月份']===m);
+                if(row) prodRows.push({month:m, value: row['法恩莱特']||'-'});
+            });
+            document.getElementById('funlate-production-table').innerHTML = prodRows.map((r,i) => `<tr><td><strong>${r.month}</strong></td><td>${(parseFloat(r.value)||0).toLocaleString()}</td><td>${11-i}</td></tr>`).join('');
+            
+            // 价格  
+            const priceRows = [];
+            ['2026-03','2026-02','2026-01'].forEach(m => {
+                const row = priceData.find(d => d['月份']===m);
+                if(row) priceRows.push({month:m, value: row['法恩莱特']||'-'});
+            });
+            document.getElementById('funlate-price-table').innerHTML = priceRows.map((r,i) => `<tr><td><strong>${r.month}</strong></td><td>${r.value||'-'}</td><td>${8-i}</td></tr>`).join('');
+        }
+
+        // 渲染竞品快捷查询
+        function renderCompetitor(name, fullName, data, tableId) {
+            if(!data || !document.getElementById(tableId)) return;
+            const rows = [];
+            ['2026-03','2026-02','2026-01'].forEach(m => {
+                const row = data.find(d => d['月份']===m);
+                if(row) rows.push({month:m, value: row[fullName]||'-'});
+            });
+            document.getElementById(tableId).innerHTML = rows.map((r,i) => `<tr><td><strong>${r.month}</strong></td><td>${(parseFloat(r.value)||0).toLocaleString()}</td><td>${i+1}</td></tr>`).join('');
+        }
+
+        window.onload = init;
+    </script>
+</body>
+</html>

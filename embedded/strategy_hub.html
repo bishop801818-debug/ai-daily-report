@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>战略洞察 - 龙蟠DSTE五看</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'Microsoft YaHei','PingFang SC',Arial,sans-serif; background:#f4f6f9; min-height:100vh; }
+a { color:#1e3c72; text-decoration:none; }
+
+/* 顶部导航 */
+.topbar {
+    background:linear-gradient(135deg,#1e3c72 0%,#2a5298 100%);
+    color:#fff; padding:0 30px; height:60px;
+    display:flex; justify-content:space-between; align-items:center;
+    position:sticky; top:0; z-index:100;
+    box-shadow:0 2px 10px rgba(0,0,0,0.15);
+}
+.topbar-left { display:flex; align-items:center; gap:16px; }
+.topbar-logo { font-size:18px; font-weight:bold; display:flex; align-items:center; gap:8px; }
+.topbar-links { display:flex; gap:12px; }
+.topbar-links a { color:rgba(255,255,255,0.8); text-decoration:none; font-size:13px; padding:6px 14px; border-radius:20px; transition:all 0.2s; }
+.topbar-links a:hover { background:rgba(255,255,255,0.2); color:#fff; }
+.topbar-right { font-size:13px; color:rgba(255,255,255,0.7); }
+
+/* 主内容 */
+.main { max-width:1300px; margin:0 auto; padding:24px 20px; }
+
+/* 报告头部 */
+.report-header {
+    background:linear-gradient(135deg,#1e3c72,#2a5298);
+    color:#fff; border-radius:16px; padding:28px 32px;
+    margin-bottom:20px; position:relative; overflow:hidden;
+}
+.report-header::before {
+    content:''; position:absolute; inset:0;
+    background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    opacity:0.3;
+}
+.report-header .rh-meta { font-size:13px; color:rgba(255,255,255,0.7); margin-bottom:8px; position:relative; }
+.report-header h1 { font-size:24px; font-weight:700; margin-bottom:6px; position:relative; }
+.report-header .rh-sub { font-size:14px; color:rgba(255,255,255,0.8); position:relative; }
+.report-header .version-tag {
+    position:absolute; top:0; right:0;
+    background:rgba(255,255,255,0.15); border-radius:8px;
+    padding:4px 10px; font-size:12px;
+}
+
+/* 实时信号面板 */
+.signal-panel {
+    background:#fff; border-radius:12px; padding:18px 22px;
+    margin-bottom:20px; box-shadow:0 2px 8px rgba(0,0,0,0.05);
+}
+.signal-panel-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
+.signal-panel-title { font-size:15px; font-weight:700; color:#1a1a2e; }
+.tag-container { display:flex; flex-wrap:wrap; gap:8px; }
+.tag-chip {
+    padding:5px 12px; border-radius:20px; border:1px solid;
+    font-size:13px; font-weight:600; cursor:default;
+}
+
+/* 五看概览 */
+.overview-grid {
+    display:grid; grid-template-columns:repeat(5,1fr); gap:12px;
+    margin-bottom:20px;
+}
+.overview-card {
+    background:#fff; border-radius:12px; padding:16px 14px;
+    box-shadow:0 2px 8px rgba(0,0,0,0.05); cursor:pointer;
+    transition:all 0.2s; text-align:center;
+}
+.overview-card:hover { box-shadow:0 6px 20px rgba(0,0,0,0.1); transform:translateY(-2px); }
+.overview-label { font-size:14px; font-weight:700; color:#1a1a2e; margin-bottom:6px; }
+.overview-status { font-size:13px; font-weight:600; margin-bottom:4px; }
+.overview-meta { font-size:11px; color:#aaa; }
+
+/* 五看卡片 */
+.look-card {
+    background:#fff; border-radius:14px; margin-bottom:14px;
+    box-shadow:0 2px 8px rgba(0,0,0,0.05); overflow:hidden;
+}
+.look-header {
+    padding:18px 22px; cursor:pointer;
+    border-bottom:1px solid transparent;
+    transition:background 0.2s;
+}
+.look-header:hover { background:#f8f9fb; }
+.look-card.expanded .look-header { border-bottom-color:#f0f0f0; }
+.look-title-row { display:flex; align-items:center; gap:14px; }
+.look-icon {
+    width:44px; height:44px; border-radius:12px;
+    display:flex; align-items:center; justify-content:center;
+    font-size:20px; font-weight:700; flex-shrink:0;
+}
+.look-title-text { flex:1; }
+.look-title { font-size:16px; font-weight:700; color:#1a1a2e; }
+.look-subtitle { font-size:12px; color:#888; margin-top:2px; }
+.look-status-badge {
+    padding:4px 12px; border-radius:20px; font-size:12px; font-weight:600;
+}
+.look-arrow { font-size:12px; color:#aaa; transition:transform 0.3s; }
+.look-card.expanded .look-arrow { transform:rotate(180deg); }
+
+.look-body {
+    display:none; padding:18px 22px 22px;
+    background:#fafbfc;
+}
+.look-card.expanded .look-body { display:block; }
+
+/* KPI行 */
+.kpi-row { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:16px; }
+.kpi-card {
+    background:#fff; border-radius:10px; padding:14px;
+    border:1px solid #f0f0f0; text-align:center;
+}
+.kpi-label { font-size:11px; color:#888; margin-bottom:6px; }
+.kpi-value { font-size:18px; font-weight:700; color:#1e3c72; }
+.kpi-sub { font-size:11px; color:#aaa; margin-top:4px; }
+
+/* 信号区 */
+.signals-section { margin-bottom:16px; }
+.signal-item {
+    padding:8px 12px; background:#fff; border-radius:8px;
+    font-size:13px; color:#444; margin-bottom:6px;
+    border:1px solid #f0f0f0;
+}
+
+/* 政策区 */
+.policy-section { margin-bottom:16px; }
+.policy-item {
+    display:flex; align-items:center; gap:10px; padding:8px 12px;
+    background:#fff; border-radius:8px; margin-bottom:6px;
+    border:1px solid #f0f0f0; border-left-width:3px;
+}
+.policy-icon { font-size:14px; }
+.policy-date { font-size:11px; color:#aaa; white-space:nowrap; }
+.policy-title { font-size:13px; color:#333; flex:1; }
+
+/* 结论盒 */
+.conclusion-box, .action-box {
+    background:#fff; border-radius:10px; padding:14px 16px; margin-bottom:10px;
+    border:1px solid #f0f0f0;
+}
+.conclusion-label, .action-label {
+    font-size:11px; font-weight:700; color:#888; text-transform:uppercase;
+    letter-spacing:1px; margin-bottom:6px;
+}
+.conclusion-text, .action-text { font-size:13px; color:#333; line-height:1.7; }
+.action-text { color:#1e3c72; }
+
+/* 底部 */
+.footer { text-align:center; padding:30px; font-size:12px; color:#aaa; }
+</style>
+</head>
+<body>
+
+<!-- 顶部导航 -->
+<div class="topbar">
+    <div class="topbar-left">
+        <div class="topbar-logo">🔭 战略洞察中心</div>
+        <div class="topbar-links">
+            <a href="index_v3.html">首页</a>
+            <a href="policy_center_v4.html">政策中心</a>
+            <a href="industry_news.html">行业新闻</a>
+            <a href="database_hub.html">数据库</a>
+            <a href="analysis_hub.html">分析报告</a>
+            <a href="strategy_hub.html" style="background:rgba(255,255,255,0.2);color:#fff">战略洞察</a>
+        </div>
+    </div>
+    <div class="topbar-right">数据生成：2026-05-21 16:03</div>
+</div>
+
+<!-- 主内容 -->
+<div class="main">
+
+    <!-- 报告头部 -->
+    <div class="report-header">
+        <div class="rh-meta">DSTE战略洞察 · 2026-05-21</div>
+        <h1>🔭 龙蟠科技行业战略洞察</h1>
+        <div class="rh-sub">华为DSTE五看三定框架 · 数据驱动战略分析</div>
+        <div class="version-tag">v1.0</div>
+    </div>
+
+    <!-- 实时信号面板 -->
+    <div class="signal-panel">
+        <div class="signal-panel-header">
+            <div class="signal-panel-title">🚨 实时信号</div>
+        </div>
+        <div class="tag-container"><div class="tag-chip" style="border-color:#e74c3c;color:#e74c3c">
+            🔴 政策风险
+        </div></div>
+    </div>
+
+    <!-- 五看概览 -->
+    <div class="overview-grid">
+        
+        <div class="overview-card" style="border-top:3px solid #27ae60" onclick="toggleCard('look_industry')">
+            <div class="overview-label">看行业</div>
+            <div class="overview-status" style="color:#27ae60">供给宽松</div>
+            <div class="overview-meta">1个指标 · 0个信号</div>
+        </div>
+        <div class="overview-card" style="border-top:3px solid #1e3c72" onclick="toggleCard('look_customer')">
+            <div class="overview-label">看客户</div>
+            <div class="overview-status" style="color:#1e3c72">需求观望</div>
+            <div class="overview-meta">6个指标 · 0个信号</div>
+        </div>
+        <div class="overview-card" style="border-top:3px solid #1e3c72" onclick="toggleCard('look_competition')">
+            <div class="overview-label">看竞争</div>
+            <div class="overview-status" style="color:#1e3c72">竞争加剧</div>
+            <div class="overview-meta">0个指标 · 0个信号</div>
+        </div>
+        <div class="overview-card" style="border-top:3px solid #1e3c72" onclick="toggleCard('look_self')">
+            <div class="overview-label">看自己</div>
+            <div class="overview-status" style="color:#1e3c72">数据已录入</div>
+            <div class="overview-meta">4个指标 · 0个信号</div>
+        </div>
+        <div class="overview-card" style="border-top:3px solid #e67e22" onclick="toggleCard('look_risk')">
+            <div class="overview-label">看机会</div>
+            <div class="overview-status" style="color:#e67e22">3个风险信号</div>
+            <div class="overview-meta">0个指标 · 3个信号</div>
+        </div>
+    </div>
+
+    <!-- 五看详情 -->
+    <div class="looks-container">
+        
+        <div class="look-card" id="card-look_industry">
+            <div class="look-header" onclick="toggleCard('look_industry')">
+                <div class="look-title-row">
+                    <div class="look-icon" style="background:#27ae6020;color:#27ae60">业</div>
+                    <div class="look-title-text">
+                        <div class="look-title">看行业</div>
+                        <div class="look-subtitle">供需格局与价格走势</div>
+                    </div>
+                    <div class="look-status-badge" style="background:#27ae6020;color:#27ae60">供给宽松</div>
+                    <div class="look-arrow" id="arrow-look_industry">▼</div>
+                </div>
+            </div>
+            <div class="look-body" id="body-look_industry">
+                <div class="kpi-row">
+            <div class="kpi-card">
+                <div class="kpi-label">电解液(LFP动力)</div>
+                <div class="kpi-value">2.85万/吨</div>
+                <div class="kpi-sub">万元/吨 -1.5%</div>
+            </div></div>
+                
+                
+                <div class="conclusion-box">
+                    <div class="conclusion-label">核心结论</div>
+                    <div class="conclusion-text">电解液行业当前产能利用率0%，产能尚未充分利用。碳酸锂价格走势趋稳。</div>
+                </div>
+                <div class="action-box">
+                    <div class="action-label">行动建议</div>
+                    <div class="action-text">当前碳酸锂价格下行通道中，建议适度控制原料库存周期，等待价格企稳信号。六氟磷酸锂供给趋紧，需关注锁价采购机会。</div>
+                </div>
+            </div>
+        </div>
+        <div class="look-card" id="card-look_customer">
+            <div class="look-header" onclick="toggleCard('look_customer')">
+                <div class="look-title-row">
+                    <div class="look-icon" style="background:#1e3c7220;color:#1e3c72">户</div>
+                    <div class="look-title-text">
+                        <div class="look-title">看客户</div>
+                        <div class="look-subtitle">下游需求与客户动态</div>
+                    </div>
+                    <div class="look-status-badge" style="background:#1e3c7220;color:#1e3c72">需求观望</div>
+                    <div class="look-arrow" id="arrow-look_customer">▼</div>
+                </div>
+            </div>
+            <div class="look-body" id="body-look_customer">
+                <div class="kpi-row">
+            <div class="kpi-card">
+                <div class="kpi-label">今日关注</div>
+                <div class="kpi-value">润滑油涨价潮持续，美孚昆仑壳牌等主流品牌密集落地</div>
+                <div class="kpi-sub">润滑油事业部 </div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">今日关注</div>
+                <div class="kpi-value">昆仑天润全系API SQ汽机油西安首发推向全国</div>
+                <div class="kpi-sub">润滑油事业部 </div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">今日关注</div>
+                <div class="kpi-value">湖北楚怡25万吨绿色高端合成油脂项目正式投产</div>
+                <div class="kpi-sub">润滑油事业部 </div>
+            </div></div>
+                
+                
+                <div class="conclusion-box">
+                    <div class="conclusion-label">核心结论</div>
+                    <div class="conclusion-text">电解液市场价格整体延续弱势，下游电池厂采购节奏放缓，以消化库存为主。动力电池4月排产环比持平，储能需求未见明显增量。近期未见大规模招标动态，需求端暂无明显催化剂。</div>
+                </div>
+                <div class="action-box">
+                    <div class="action-label">行动建议</div>
+                    <div class="action-text">建议密切跟踪电池厂月度排产数据和招标公告，把握需求边际变化信号。</div>
+                </div>
+            </div>
+        </div>
+        <div class="look-card" id="card-look_competition">
+            <div class="look-header" onclick="toggleCard('look_competition')">
+                <div class="look-title-row">
+                    <div class="look-icon" style="background:#1e3c7220;color:#1e3c72">争</div>
+                    <div class="look-title-text">
+                        <div class="look-title">看竞争</div>
+                        <div class="look-subtitle">竞争格局与企业动态</div>
+                    </div>
+                    <div class="look-status-badge" style="background:#1e3c7220;color:#1e3c72">竞争加剧</div>
+                    <div class="look-arrow" id="arrow-look_competition">▼</div>
+                </div>
+            </div>
+            <div class="look-body" id="body-look_competition">
+                
+                
+                
+                <div class="conclusion-box">
+                    <div class="conclusion-label">核心结论</div>
+                    <div class="conclusion-text">电解液行业集中度高，天赐材料、新宙邦、国泰华荣稳居前三。行业新增产能持续释放，龙头企业凭借规模优势和客户壁垒维持竞争主动权。中小厂商面临成本和客户双重压力，行业洗牌持续。</div>
+                </div>
+                <div class="action-box">
+                    <div class="action-label">行动建议</div>
+                    <div class="action-text">关注头部企业产能利用率变化和客户结构迁移，中小厂商动态可作为行业竞争强度和价格底部判断的先行指标。</div>
+                </div>
+            </div>
+        </div>
+        <div class="look-card" id="card-look_self">
+            <div class="look-header" onclick="toggleCard('look_self')">
+                <div class="look-title-row">
+                    <div class="look-icon" style="background:#1e3c7220;color:#1e3c72">己</div>
+                    <div class="look-title-text">
+                        <div class="look-title">看自己</div>
+                        <div class="look-subtitle">自身能力与行业对标</div>
+                    </div>
+                    <div class="look-status-badge" style="background:#1e3c7220;color:#1e3c72">数据已录入</div>
+                    <div class="look-arrow" id="arrow-look_self">▼</div>
+                </div>
+            </div>
+            <div class="look-body" id="body-look_self">
+                <div class="kpi-row">
+            <div class="kpi-card">
+                <div class="kpi-label">电解液产能利用率</div>
+                <div class="kpi-value">待录入</div>
+                <div class="kpi-sub">% </div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">电解液月出货量</div>
+                <div class="kpi-value">待录入</div>
+                <div class="kpi-sub">吨 </div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">碳酸锂加工产能</div>
+                <div class="kpi-value">待录入</div>
+                <div class="kpi-sub">万吨/年 </div>
+            </div></div>
+                
+                
+                <div class="conclusion-box">
+                    <div class="conclusion-label">核心结论</div>
+                    <div class="conclusion-text">龙蟠自身数据已录入，核心指标运行正常。</div>
+                </div>
+                <div class="action-box">
+                    <div class="action-label">行动建议</div>
+                    <div class="action-text">持续跟踪关键运营指标，对标行业领先水平。</div>
+                </div>
+            </div>
+        </div>
+        <div class="look-card" id="card-look_risk">
+            <div class="look-header" onclick="toggleCard('look_risk')">
+                <div class="look-title-row">
+                    <div class="look-icon" style="background:#e67e2220;color:#e67e22">会风险</div>
+                    <div class="look-title-text">
+                        <div class="look-title">看机会风险</div>
+                        <div class="look-subtitle">政策影响与风险预警</div>
+                    </div>
+                    <div class="look-status-badge" style="background:#e67e2220;color:#e67e22">3个风险信号</div>
+                    <div class="look-arrow" id="arrow-look_risk">▼</div>
+                </div>
+            </div>
+            <div class="look-body" id="body-look_risk">
+                
+                <div class="signals-section"><div class="signal-item">🔴 [2026-05-19] 尿素出口法检持续收紧，保供稳价为主基调</div><div class="signal-item">🔴 [2026-05-18] ① 尿素出口法检持续收紧，保供稳价为主基调
+
+国泰君安期货5月19日研报指出，国内尿素出口法检管控依</div><div class="signal-item">⚠️ 【润滑油事业部] 润滑油全行业多轮涨价已持续三个月，下游40万汽服门店成本压力持续累积，终端价格传导效率下降可能导致渠道库存积压和资金周转压力。当前WTI虽有所回落，但布伦特仍维</div></div>
+                <div class="policy-section"><div class="policy-item" style="border-left-color:#e74c3c">
+                    <span class="policy-icon">🔴</span>
+                    <span class="policy-date">2026-05-19</span>
+                    <span class="policy-title">尿素出口法检持续收紧，保供稳价为主基调</span>
+                </div><div class="policy-item" style="border-left-color:#3498db">
+                    <span class="policy-icon">🔵</span>
+                    <span class="policy-date">2026-05-19</span>
+                    <span class="policy-title">郑商所尿素期货仓单环比减少，监管加强抑制投机</span>
+                </div><div class="policy-item" style="border-left-color:#e74c3c">
+                    <span class="policy-icon">🔴</span>
+                    <span class="policy-date">2026-05-18</span>
+                    <span class="policy-title">① 尿素出口法检持续收紧，保供稳价为主基调
+
+国泰君安期货5月19日研报指出，国</span>
+                </div><div class="policy-item" style="border-left-color:#3498db">
+                    <span class="policy-icon">🔵</span>
+                    <span class="policy-date">2026-05-18</span>
+                    <span class="policy-title">② 郑商所尿素期货仓单环比减少，监管加强抑制投机
+
+5月18日郑商所尿素仓单13</span>
+                </div></div>
+                <div class="conclusion-box">
+                    <div class="conclusion-label">核心结论</div>
+                    <div class="conclusion-text"></div>
+                </div>
+                <div class="action-box">
+                    <div class="action-label">行动建议</div>
+                    <div class="action-text">持续跟踪政策动态，重点关注新能源汽车购置税、锂电池行业规范条件等政策变化。碳酸锂价格下行趋势中，关注成本击穿边际产能带来的供给侧收缩信号。</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div class="footer">
+    由 gen_strategy_analysis.py 自动生成 · 数据来源：龙蟠行业数据库 + 早报系统 + 政策中心<br>
+    分析框架：华为DSTE五看三定 · 2026-05-21 16:03
+</div>
+
+<script>
+// 五看卡片展开/折叠
+function toggleCard(key) {
+    var card = document.getElementById('card-' + key);
+    if (card) card.classList.toggle('expanded');
+}
+
+// 默认展开第一个卡片
+document.addEventListener('DOMContentLoaded', function() {
+    var first = document.querySelector('.look-card');
+    if (first) first.classList.add('expanded');
+});
+</script>
+</body>
+</html>

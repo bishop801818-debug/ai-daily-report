@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>锂辉石&锂云母价格看板</title>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <style>
+        * { margin:0; padding:0; box-sizing: border-box; }
+        body { font-family: 'Microsoft YaHei', sans-serif; background: #f5f5f5; }
+        
+        /* 顶部导航 */
+        .topbar { background: #fff; padding: 15px 30px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
+        .topbar h1 { color: #1e3c72; font-size: 20px; }
+        .topbar a { color: #666; text-decoration: none; margin-left: 20px; font-size: 14px; }
+        
+        /* 主内容 */
+        .main-content { padding: 20px 30px; }
+        
+        /* 统计卡片 */
+        .stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin-bottom: 20px; }
+        .stat-card { background: #fff; border-radius: 12px; padding: 16px 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+        .stat-card h3 { color: #888; font-size: 13px; margin-bottom: 8px; font-weight: normal; }
+        .stat-card .price { color: #1e3c72; font-size: 28px; font-weight: 600; }
+        .stat-card .unit { font-size: 14px; color: #999; font-weight: normal; }
+        .stat-card .meta { color: #999; font-size: 12px; margin-top: 8px; }
+        .stat-card .origin { color: #666; font-size: 12px; margin-top: 4px; }
+        
+        /* 数据表格 */
+        .data-table { background: #fff; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); margin-bottom: 20px; }
+        .data-table h2 { color: #333; font-size: 16px; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid #f0f0f0; }
+        table { width: 100%; border-collapse: collapse; }
+        th { background: #f8f9fa; color: #666; font-size: 13px; font-weight: 600; text-align: left; padding: 10px 12px; border-bottom: 2px solid #e9ecef; }
+        td { padding: 10px 12px; font-size: 13px; color: #333; border-bottom: 1px solid #f0f0f0; }
+        tr:hover { background: #f8f9fa; }
+        
+        /* 加载提示 */
+        .loading { text-align: center; padding: 40px; color: #999; }
+        
+        @media (max-width: 768px) {
+            .stats-row { grid-template-columns: 1fr; }
+            .main-content { padding: 15px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="topbar">
+        <h1>⛏️ 锂辉石&锂云母价格看板</h1>
+        <div>
+            <a href="index_v3.html">🏠 首页</a>
+            <a href="lfp_charts.html">📊 LFP看板</a>
+        </div>
+    </div>
+    
+    <div class="main-content">
+        <div class="loading" id="loading">正在加载数据...</div>
+        
+        <div id="content" style="display:none;">
+            <!-- 锂辉石价格卡片 -->
+            <div class="stats-row" id="lithium-ore-cards"></div>
+            
+            <!-- 锂云母价格卡片 -->
+            <div class="stats-row" id="lepidolite-cards"></div>
+            
+            <!-- 数据表格 -->
+            <div class="data-table">
+                <h2>📋 详细数据</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>品种</th>
+                            <th>产品名称</th>
+                            <th>品位/规格</th>
+                            <th>产地</th>
+                            <th>最低价</th>
+                            <th>最高价</th>
+                            <th>均价</th>
+                            <th>单位</th>
+                            <th>更新时间</th>
+                        </tr>
+                    </thead>
+                    <tbody id="data-tbody"></tbody>
+                </table>
+            </div>
+            
+            <!-- 元数据 -->
+            <div style="color: #999; font-size: 12px; text-align: center; margin-top: 20px;">
+                <div>数据来源: Mysteel (我的钢铁网) | 抓取时间: <span id="scrape-time">-</span></div>
+                <div style="margin-top: 4px;">备注: 价格仅供参考，请以官方数据为准</div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // 加载数据
+        async function loadData() {
+            try {
+                const response = await fetch('data/lithium_ore_price.json?t=' + new Date().getTime());
+                const data = await response.json();
+                
+                // 隐藏加载提示
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('content').style.display = 'block';
+                
+                // 处理数据
+                processData(data);
+            } catch (error) {
+                document.getElementById('loading').innerHTML = '❌ 数据加载失败: ' + error.message;
+                console.error('加载数据失败:', error);
+            }
+        }
+        
+        // 处理数据
+        function processData(data) {
+            let lithiumOreData = null;
+            let lepidoliteData = null;
+            let scrapeTime = '-';
+            
+            // 遍历数据数组
+            data.forEach(commodity => {
+                if (commodity.commodity === '锂辉石') {
+                    lithiumOreData = commodity;
+                } else if (commodity.commodity === '锂云母') {
+                    lepidoliteData = commodity;
+                }
+                
+                // 获取抓取时间
+                if (commodity.scrape_time && scrapeTime === '-') {
+                    scrapeTime = commodity.scrape_time;
+                }
+            });
+            
+            // 更新抓取时间
+            document.getElementById('scrape-time').textContent = scrapeTime;
+            
+            // 渲染锂辉石卡片
+            if (lithiumOreData && lithiumOreData.data) {
+                renderLithiumOreCards(lithiumOreData.data);
+                renderDataTable(lithiumOreData.data, '锂辉石');
+            }
+            
+            // 渲染锂云母卡片
+            if (lepidoliteData && lepidoliteData.data) {
+                renderLepidoliteCards(lepidoliteData.data);
+                renderDataTable(lepidoliteData.data, '锂云母');
+            }
+        }
+        
+        // 渲染锂辉石卡片
+        function renderLithiumOreCards(dataList) {
+            const container = document.getElementById('lithium-ore-cards');
+            container.innerHTML = '';
+            
+            dataList.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'stat-card';
+                card.innerHTML = `
+                    <h3>${item.product_name} (${item.grade})</h3>
+                    <div class="price">${item.avg_price}<span class="unit">${item.unit}</span></div>
+                    <div class="meta">价格区间: ${item.min_price}-${item.max_price} ${item.unit}</div>
+                    <div class="origin">产地: ${item.origin}</div>
+                `;
+                container.appendChild(card);
+            });
+        }
+        
+        // 渲染锂云母卡片
+        function renderLepidoliteCards(dataList) {
+            const container = document.getElementById('lepidolite-cards');
+            container.innerHTML = '';
+            
+            dataList.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'stat-card';
+                card.innerHTML = `
+                    <h3>${item.product_name}</h3>
+                    <div class="price">${item.price}<span class="unit">${item.unit}</span></div>
+                    <div class="meta">趋势: ${item.trend}</div>
+                `;
+                container.appendChild(card);
+            });
+        }
+        
+        // 渲染数据表格
+        function renderDataTable(dataList, commodityType) {
+            const tbody = document.getElementById('data-tbody');
+            
+            dataList.forEach(item => {
+                const row = document.createElement('tr');
+                
+                if (commodityType === '锂辉石') {
+                    row.innerHTML = `
+                        <td>锂辉石</td>
+                        <td>${item.product_name}</td>
+                        <td>${item.grade}</td>
+                        <td>${item.origin}</td>
+                        <td>${item.min_price}</td>
+                        <td>${item.max_price}</td>
+                        <td><strong>${item.avg_price}</strong></td>
+                        <td>${item.unit}</td>
+                        <td>${item.update_time}</td>
+                    `;
+                } else if (commodityType === '锂云母') {
+                    row.innerHTML = `
+                        <td>锂云母</td>
+                        <td>${item.product_name}</td>
+                        <td>-</td>
+                        <td>-</td>
+                        <td>-</td>
+                        <td>-</td>
+                        <td><strong>${item.price}</strong></td>
+                        <td>${item.unit}</td>
+                        <td>${item.update_time}</td>
+                    `;
+                }
+                
+                tbody.appendChild(row);
+            });
+        }
+        
+        // 页面加载时执行
+        loadData();
+    </script>
+</body>
+</html>

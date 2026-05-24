@@ -1,26 +1,52 @@
-# Development debug files
-_*.py
-_*.js
-__*.py
-__*.js
-debug_*.py
-debug_*.js
-test_*.py
-test_*.js
+# ==========================================
+# AI Daily Report - Git Ignore Rules
+# 只保留网站部署文件，排除所有开发调试文件
+# ==========================================
 
-# Backup directories
+# ------------------------------------------
+# 1. Python 开发脚本（不是网站文件）
+# ------------------------------------------
+*.py
+
+# ------------------------------------------
+# 2. 备份文件和旧版本
+# ------------------------------------------
 backup/
 backups/
 _backups/
+*.bak
+*.bak_*
+*_bak_*
+*_backup_*
+*_olden_*
+*_stable_*
+*_stable_latest*
 
-# WorkBuddy session files
+# ------------------------------------------
+# 3. 调试和测试文件
+# ------------------------------------------
+_*
+debug_*
+test_*
+__test*
+tmp/
+temp/
+*.tmp
+
+# ------------------------------------------
+# 4. WorkBuddy 会话文件
+# ------------------------------------------
 .workbuddy/
 
-# AI proxy files
+# ------------------------------------------
+# 5. AI 代理文件
+# ------------------------------------------
 ai_proxy.py
 ai_proxy.log
 
-# Deploy scripts
+# ------------------------------------------
+# 6. 部署脚本（不需要在 repo 中）
+# ------------------------------------------
 deploy.sh
 create_scheduled_task.ps1
 run_market_fetch.bat
@@ -30,53 +56,69 @@ setup_autostart.bat
 install_ai_proxy_service.bat
 rollback_index_v3.bat
 
-# Temporary files
-temp/
-tmp/
-*.tmp
-*.bak
-*.bak_*
+# ------------------------------------------
+# 7. 日志文件
+# ------------------------------------------
+*.log
 
-# Python cache
+# ------------------------------------------
+# 8. Python 缓存
+# ------------------------------------------
 __pycache__/
 *.pyc
 *.pyo
 
-# IDE files
+# ------------------------------------------
+# 9. IDE 文件
+# ------------------------------------------
 .vscode/
 .idea/
 *.swp
 *.swo
 
-# OS files
+# ------------------------------------------
+# 10. 操作系统文件
+# ------------------------------------------
 Thumbs.db
 Desktop.ini
 .DS_Store
 
-# Log files
-*.log
-
-# Specific debug/output files
-output/
-nul
-
-# Version control meta files
-.version-rollback.json
-ROLLBACK_GUIDE_*.md
-MODIFICATION_REPORT_*.md
-CHANGELOG.md
-
-# Documentation (local only)
+# ------------------------------------------
+# 11. 文档（仅本地）
+# ------------------------------------------
 _docs/
 prompt_template_*.md
+任务计划程序设置说明.md
+早报首页_回滚指南.md
+MODIFICATION_REPORT_*.md
 
-# Data source (raw, not for deploy)
+# ------------------------------------------
+# 12. 数据源（原始数据，不部署）
+# ------------------------------------------
 policies_source/
 industry_news_source/
 
-# Screenshots
+# ------------------------------------------
+# 13. 截图（不部署）
+# ------------------------------------------
 *.png
 *.jpg
 *.jpeg
 screenshot*.png
 sidebar_screenshot.png
+
+# ------------------------------------------
+# 14. 输出目录
+# ------------------------------------------
+output/
+nul
+
+# ------------------------------------------
+# 15. 版本控制元文件
+# ------------------------------------------
+.version-rollback.json
+ROLLBACK_GUIDE_*.md
+CHANGELOG.md
+GOLDEN_VERSION.txt
+rollback_info.txt
+version.txt

@@ -719,9 +719,9 @@ function renderLhCompany() {
 // 氢氧化锂出口量
 function renderLhExport() {
     const data = allData['氢氧化锂-出口量'] || [];
-    const sorted = [...data].sort((a,b) => String(b['月份']||'').localeCompare(a['月份']||''));
+    const sorted = [...data].sort((a,b) => String(b['日期']||'').localeCompare(a['日期']||''));
     let html = sorted.map(d =>
-        `<tr><td>${fmtDate(d['月份'])}</td><td>${fmtNum(d['出口量（吨）'])}</td><td>${pct(d['出口金额（万元）'])}</td>
+        `<tr><td>${fmtDate(d['日期'])}</td><td>${fmtNum(d['出口量（吨）'])}</td><td>${pct(d['出口金额（万元）'])}</td>
             <td>${pct(d['出口均价（万元/吨）'])}</td><td>${pct(d['环比'])}</td><td>${pct(d['同比'])}</td></tr>`
     ).join('');
     document.getElementById('lh-export-body').innerHTML = html || '<tr><td colspan="6" class="loading">暂无数据</td></tr>';
@@ -730,9 +730,9 @@ function renderLhExport() {
 // 氢氧化锂出口贸易伙伴
 function renderLhExportPartner() {
     const data = allData['氢氧化锂—出口贸易伙伴'] || [];
-    const sorted = [...data].sort((a,b) => String(b['月份']||'').localeCompare(a['月份']||''));
+    const sorted = [...data].sort((a,b) => String(b['日期']||'').localeCompare(a['日期']||''));
     let html = sorted.slice(0,200).map(d =>
-        `<tr><td>${fmtDate(d['月份'])}</td><td>${d['贸易伙伴名称']||'-'}</td><td>${pct(d['出口量（吨）'])}</td>
+        `<tr><td>${fmtDate(d['日期'])}</td><td>${d['贸易伙伴名称']||'-'}</td><td>${pct(d['出口量（吨）'])}</td>
             <td>${pct(d['出口价格（万元）'])}</td><td>${pct(d['出口均价（万元/吨）'])}</td></tr>`
     ).join('');
     document.getElementById('lh-export-partner-body').innerHTML = html || '<tr><td colspan="5" class="loading">暂无数据</td></tr>';
