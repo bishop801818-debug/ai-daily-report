@@ -1,33 +1,82 @@
-# Python
+# Development debug files
+_*.py
+_*.js
+__*.py
+__*.js
+debug_*.py
+debug_*.js
+test_*.py
+test_*.js
+
+# Backup directories
+backup/
+backups/
+_backups/
+
+# WorkBuddy session files
+.workbuddy/
+
+# AI proxy files
+ai_proxy.py
+ai_proxy.log
+
+# Deploy scripts
+deploy.sh
+create_scheduled_task.ps1
+run_market_fetch.bat
+update_data_daily.bat
+start_http_server.bat
+setup_autostart.bat
+install_ai_proxy_service.bat
+rollback_index_v3.bat
+
+# Temporary files
+temp/
+tmp/
+*.tmp
+*.bak
+*.bak_*
+
+# Python cache
 __pycache__/
 *.pyc
 *.pyo
 
-# Temp / debug files
-_do_*.py
-_check_*.js
-_czly_*.txt
-_debug*.txt
-_direct_*.txt
-_emoji*.py
-_do_emoji*.py
-_do_range_test.py
-_do_test*.py
-_do_final*.py
-_do_czly*.py
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
 
-# Old backup dirs (legacy)
-_backup_*/
-backup_YYYYMMDD/
-
-# Backup system (never commit)
-backups/
-_tmp_*/
-
-# Generated / temp
-reports/*.json
-embedded/
-
-# OS
-.DS_Store
+# OS files
 Thumbs.db
+Desktop.ini
+.DS_Store
+
+# Log files
+*.log
+
+# Specific debug/output files
+output/
+nul
+
+# Version control meta files
+.version-rollback.json
+ROLLBACK_GUIDE_*.md
+MODIFICATION_REPORT_*.md
+CHANGELOG.md
+
+# Documentation (local only)
+_docs/
+prompt_template_*.md
+
+# Data source (raw, not for deploy)
+policies_source/
+industry_news_source/
+
+# Screenshots
+*.png
+*.jpg
+*.jpeg
+screenshot*.png
+sidebar_screenshot.png
