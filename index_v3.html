@@ -6,24 +6,34 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <meta name="html-version" content="20260526_120807">
+    <meta name="html-version" content="20260526_2145">
     <script>
       window.HTML_VERSION = document.querySelector('meta[name="html-version"]').content;
     </script>
     <script>
       // 安全帘：页面头部立即隐藏正文，防止旧内容闪出
+      // 优化：更快显示，避免1秒闪烁
       (function(){
         var s=document.createElement('style');
         s.id='__safety-curtain__';
-        s.textContent='body{opacity:0!important;transition:opacity .3s}';
+        s.textContent='body{opacity:0!important;transition:opacity .15s}';
         document.head.appendChild(s);
-        window.addEventListener('DOMContentLoaded',function(){
+        // 主动触发：一旦HTML解析完成就显示，不再等DOMContentLoaded
+        document.addEventListener('DOMContentLoaded',function(){
           requestAnimationFrame(function(){
             var sc=document.getElementById('__safety-curtain__');
-            if(sc)sc.parentNode.removeChild(sc);
+            if(sc) sc.parentNode.removeChild(sc);
             document.body.style.opacity='1';
           });
         });
+        // 超时保护：如果3秒还没触发DOMContentLoaded，强制显示
+        setTimeout(function(){
+          var sc=document.getElementById('__safety-curtain__');
+          if(sc){
+            sc.parentNode.removeChild(sc);
+            document.body.style.opacity='1';
+          }
+        },3000);
       })();
     </script>
     <script>
