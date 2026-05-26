@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="html-version" content="20260520b">
+<meta name="html-version" content="20260524a">
 <title>事业部历史存档</title>
 <script>
   // 每次修改此文件后，将 content 值改为今天日期（如 20260420）
@@ -338,14 +338,14 @@ function renderGuidePage() {
 async function loadBUHistory(id) {
   try {
     /* 加载 index.json 获取可用日期列表 */
-    const respIdx = await fetch('reports/index.json?v=' + HTML_VERSION);
+    const respIdx = await fetch('reports/index.json?t=' + Date.now());
     const idx = await respIdx.json();
     const dates = idx.available_dates || [];
 
     /* 加载最新一期获取统计信息 */
     let statsData = null;
     try {
-      const respLatest = await fetch(`reports/${dates[0]}.json?v=${HTML_VERSION}`);
+      const respLatest = await fetch(`reports/${dates[0]}.json?t=${Date.now()}`);
       statsData = await respLatest.json();
     } catch(e) {}
 
@@ -432,7 +432,7 @@ async function checkDateForBU(date, buId) {
   const month = months[d.getMonth()];
 
   try {
-    const resp = await fetch(`reports/${date}.json?v=${HTML_VERSION}`);
+    const resp = await fetch(`reports/${date}.json?t=${Date.now()}`);
     const data = await resp.json();
     const dept = data.departments ? data.departments[buId] : null;
     const hasSections = dept && dept.sections && (
@@ -459,7 +459,7 @@ async function checkDateForBU(date, buId) {
 /* ── 打开报告弹窗 ── */
 async function openReportModal(date, buId, embed) {
   try {
-    const resp = await fetch(`reports/${date}.json?v=${HTML_VERSION}`);
+    const resp = await fetch(`reports/${date}.json?t=${Date.now()}`);
     const data = await resp.json();
     const dept = data.departments ? data.departments[buId] : null;
     if (!dept) {
@@ -769,9 +769,60 @@ function buildSectionsHTML(dept) {
             });
             html += `</div>`;
           } else {
-            html += `<div class="report-section"><h4>【${safe(sec.title || sec.dim)}】</h4>`;
-            items.forEach(item => { html += renderItem(item); });
-            html += `</div>`;
+            // 市场/价格：价格类条目聚合成表格，分析类条目正常渲染
+            if (sec.dim === 'market') {
+              const priceItems = [];
+              const textItems = [];
+              for (const item of items) {
+                const content = (typeof item === 'object' ? (item.content || '') : String(item));
+                if (/价格[：:]/.test(content)) {
+                  priceItems.push(item);
+                } else {
+                  textItems.push(item);
+                }
+              }
+              const parseMarketPriceItem = (item) => {
+                const content = item.content || '';
+                const title = item.title || item.raw || '';
+                const priceMatch = content.match(/价格[：:]\s*([^，]+)/);
+                const changeMatch = content.match(/涨跌[：:]\s*([^。]+)/);
+                const sourceMatch = content.match(/来源[：:]\s*(.+)$/);
+                return {
+                  name: title,
+                  price: priceMatch ? priceMatch[1].trim() : '',
+                  change: changeMatch ? changeMatch[1].trim() : '',
+                  source: sourceMatch ? sourceMatch[1].trim() : ''
+                };
+              };
+              html += `<div class="report-section"><h4>📊 ${safe(sec.title || '市场/价格')}</h4>`;
+              if (priceItems.length) {
+                const rows = priceItems.map(parseMarketPriceItem);
+                html += '<div style="overflow-x:auto;margin:10px 0"><table style="width:100%;border-collapse:collapse;font-size:12px">';
+                html += '<thead><tr>';
+                html += '<th style="border:1px solid #ddd;padding:6px;background:#f5f5f5;text-align:left">品种</th>';
+                html += '<th style="border:1px solid #ddd;padding:6px;background:#f5f5f5;text-align:left">价格</th>';
+                html += '<th style="border:1px solid #ddd;padding:6px;background:#f5f5f5;text-align:left">涨跌</th>';
+                html += '<th style="border:1px solid #ddd;padding:6px;background:#f5f5f5;text-align:left">来源</th>';
+                html += '</tr></thead><tbody>';
+                for (const row of rows) {
+                  html += '<tr>';
+                  html += `<td style="border:1px solid #ddd;padding:6px">${safe(row.name)}</td>`;
+                  html += `<td style="border:1px solid #ddd;padding:6px;white-space:nowrap">${safe(row.price)}</td>`;
+                  html += `<td style="border:1px solid #ddd;padding:6px">${safe(row.change)}</td>`;
+                  html += `<td style="border:1px solid #ddd;padding:6px;color:#888;font-size:11px">${safe(row.source)}</td>`;
+                  html += '</tr>';
+                }
+                html += '</tbody></table></div>';
+              }
+              for (const item of textItems) {
+                html += renderItem(item);
+              }
+              html += `</div>`;
+            } else {
+              html += `<div class="report-section"><h4>【${safe(sec.title || sec.dim)}】</h4>`;
+              items.forEach(item => { html += renderItem(item); });
+              html += `</div>`;
+            }
           }
         }
       }
