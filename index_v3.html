@@ -6,19 +6,32 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <meta name="html-version" content="20260526_2145">
+    <meta name="html-version" content="20260526_2150">
     <script>
       window.HTML_VERSION = document.querySelector('meta[name="html-version"]').content;
     </script>
     <script>
       // 安全帘：页面头部立即隐藏正文，防止旧内容闪出
-      // 优化：更快显示，避免1秒闪烁
+      // 版本检测 + 强制刷新：如果发现版本不匹配，强制刷新
       (function(){
+        var CURRENT_VERSION = '20260526_2150';
+        var savedVersion = localStorage.getItem('html_version');
+        var needsRefresh = savedVersion && savedVersion !== CURRENT_VERSION;
+        
+        if(needsRefresh){
+          console.log('[缓存清除] 发现版本变化:',savedVersion,'->',CURRENT_VERSION,'，强制刷新');
+          localStorage.setItem('html_version',CURRENT_VERSION);
+          window.location.reload(true); // 强制刷新，忽略缓存
+          return;
+        }
+        
+        localStorage.setItem('html_version',CURRENT_VERSION);
+        
+        // 显示优化
         var s=document.createElement('style');
         s.id='__safety-curtain__';
         s.textContent='body{opacity:0!important;transition:opacity .15s}';
         document.head.appendChild(s);
-        // 主动触发：一旦HTML解析完成就显示，不再等DOMContentLoaded
         document.addEventListener('DOMContentLoaded',function(){
           requestAnimationFrame(function(){
             var sc=document.getElementById('__safety-curtain__');
@@ -26,9 +39,8 @@
             document.body.style.opacity='1';
           });
         });
-        // 超时保护：如果3秒还没触发DOMContentLoaded，强制显示
         setTimeout(function(){
-          var sc=document.getElementById('__safety-curtain__');
+          var sc=document.document.getElementById('__safety-curtain__');
           if(sc){
             sc.parentNode.removeChild(sc);
             document.body.style.opacity='1';
