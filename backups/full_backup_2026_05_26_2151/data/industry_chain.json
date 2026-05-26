@@ -1,0 +1,190 @@
+{
+  "锂电板块": {
+    "description": "磷酸铁锂产业链从上游原料到终端应用",
+    "nodes": [
+      {
+        "id": "锂辉石精矿",
+        "name": "锂辉石精矿",
+        "category": "上游",
+        "subCategory": "锂矿",
+        "description": "上游锂矿原料，主要产自澳大利亚、智利等地",
+        "unit": "元/吨",
+        "data_status": "pending"
+      },
+      {
+        "id": "锂云母",
+        "name": "锂云母",
+        "category": "上游",
+        "subCategory": "锂矿",
+        "description": "国内锂云母矿，主要产自江西宜春等地",
+        "unit": "元/吨",
+        "data_status": "pending"
+      },
+      {
+        "id": "磷矿石",
+        "name": "磷矿石",
+        "category": "上游",
+        "subCategory": "磷源",
+        "description": "磷酸原料，用于制备磷酸铁锂",
+        "unit": "元/吨",
+        "data_status": "pending"
+      },
+      {
+        "id": "铁矿石",
+        "name": "铁矿石",
+        "category": "上游",
+        "subCategory": "铁源",
+        "description": "铁源原料，用于制备硫酸亚铁",
+        "unit": "元/吨",
+        "data_status": "pending"
+      },
+      {
+        "id": "磷酸铁",
+        "name": "磷酸铁",
+        "category": "中游",
+        "subCategory": "原料",
+        "description": "磷酸铁锂核心原料之一",
+        "unit": "元/吨",
+        "data_status": "pending"
+      },
+      {
+        "id": "硫酸亚铁",
+        "name": "硫酸亚铁",
+        "category": "中游",
+        "subCategory": "原料",
+        "description": "铁源材料，用于制备磷酸铁锂",
+        "unit": "元/吨",
+        "data_status": "pending"
+      },
+      {
+        "id": "碳酸锂",
+        "name": "碳酸锂",
+        "category": "中游",
+        "subCategory": "原料",
+        "description": "锂电池正极材料核心原料",
+        "unit": "元/吨",
+        "data_status": "available"
+      },
+      {
+        "id": "磷酸铁锂",
+        "name": "磷酸铁锂",
+        "category": "中游",
+        "subCategory": "正极材料",
+        "description": "磷酸铁锂正极材料",
+        "unit": "元/吨",
+        "data_status": "available"
+      },
+      {
+        "id": "锂电池",
+        "name": "锂电池",
+        "category": "下游",
+        "subCategory": "电池制造",
+        "description": "锂电池电芯/电池包",
+        "unit": "元/Wh",
+        "data_status": "available"
+      },
+      {
+        "id": "新能源车",
+        "name": "新能源车",
+        "category": "下游",
+        "subCategory": "终端应用",
+        "description": "新能源汽车销量/产量",
+        "unit": "万辆",
+        "data_status": "available"
+      }
+    ],
+    "edges": [
+      {
+        "from": "锂辉石精矿",
+        "to": "碳酸锂",
+        "relation": "原料→加工",
+        "transmission_lag": "1-2周",
+        "strength": 0.85
+      },
+      {
+        "from": "锂云母",
+        "to": "碳酸锂",
+        "relation": "原料→加工",
+        "transmission_lag": "1-2周",
+        "strength": 0.8
+      },
+      {
+        "from": "磷矿石",
+        "to": "磷酸铁",
+        "relation": "原料→加工",
+        "transmission_lag": "即时",
+        "strength": 0.9
+      },
+      {
+        "from": "铁矿石",
+        "to": "硫酸亚铁",
+        "relation": "原料→加工",
+        "transmission_lag": "即时",
+        "strength": 0.9
+      },
+      {
+        "from": "磷酸铁",
+        "to": "磷酸铁锂",
+        "relation": "核心原料",
+        "transmission_lag": "即时",
+        "strength": 0.9
+      },
+      {
+        "from": "硫酸亚铁",
+        "to": "磷酸铁锂",
+        "relation": "核心原料",
+        "transmission_lag": "即时",
+        "strength": 0.9
+      },
+      {
+        "from": "碳酸锂",
+        "to": "磷酸铁锂",
+        "relation": "核心原料",
+        "transmission_lag": "即时",
+        "strength": 0.95
+      },
+      {
+        "from": "磷酸铁锂",
+        "to": "锂电池",
+        "relation": "正极材料",
+        "transmission_lag": "即时",
+        "strength": 0.95
+      },
+      {
+        "from": "锂电池",
+        "to": "新能源车",
+        "relation": "核心部件",
+        "transmission_lag": "1个月",
+        "strength": 0.75
+      }
+    ],
+    "display": {
+      "levels": [
+        {
+          "label": "上游（核心资源）",
+          "bgColor": "#e8f4fd",
+          "chains": [
+            ["锂辉石精矿", "锂云母"],
+            ["磷矿石", "铁矿石"]
+          ]
+        },
+        {
+          "label": "中游（材料制造）",
+          "bgColor": "#d0e8fb",
+          "chains": [
+            ["硫酸亚铁"],
+            ["磷酸铁", "碳酸锂"],
+            ["磷酸铁锂"]
+          ]
+        },
+        {
+          "label": "下游（终端应用）",
+          "bgColor": "#b8dcf9",
+          "chains": [
+            ["锂电池", "新能源车"]
+          ]
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="html-version" content="20260524a">
+<title>事业部历史存档</title>
+<script>
+  // 每次修改此文件后，将 content 值改为今天日期（如 20260420）
+  // 浏览器遇到新的 html-version 会强制重新加载，永久告别缓存问题
+  window.HTML_VERSION = document.querySelector('meta[name="html-version"]').content;
+</script>
+<style>
+  :root {
+    --primary: #1e3c72;
+    --primary-light: #2a5298;
+    --accent: #f39c12;
+    --bg: #f0f2f8;
+    --card-bg: #ffffff;
+    --text: #2c3e50;
+    --text-dim: #7f8c8d;
+    --border: #e0e6ef;
+    --shadow: 0 2px 12px rgba(30,60,114,0.08);
+    --shadow-hover: 0 6px 24px rgba(30,60,114,0.16);
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Microsoft YaHei','PingFang SC',Arial,sans-serif;
+          background:var(--bg); color:var(--text); min-height:100vh; }
+
+  /* ── 顶部导航 ── */
+  .topbar {
+    background: linear-gradient(135deg,#1e3c72,#2a5298);
+    padding:14px 30px; display:flex; align-items:center;
+    justify-content:space-between; box-shadow:0 2px 12px rgba(0,0,0,0.15);
+    position:sticky; top:0; z-index:100;
+  }
+  .topbar-title { color:#fff; font-size:20px; font-weight:700; display:flex; align-items:center; gap:10px; }
+  .topbar-title .bu-icon { font-size:24px; }
+  .topbar-nav { display:flex; gap:8px; align-items:center; }
+  .topbar-nav a {
+    color:rgba(255,255,255,0.85); text-decoration:none; font-size:13px;
+    padding:6px 14px; border-radius:8px; background:rgba(255,255,255,0.12);
+    transition:all 0.2s; cursor:pointer;
+  }
+  .topbar-nav a:hover { background:rgba(255,255,255,0.25); color:#fff; }
+
+  /* ── 页面标题区 ── */
+  .page-hero {
+    background: linear-gradient(135deg,var(--primary),var(--primary-light));
+    color:white; padding:32px 40px 24px;
+    position:relative; overflow:hidden;
+  }
+  .page-hero::before {
+    content:''; position:absolute; top:-60px; right:-40px;
+    width:300px; height:300px; border-radius:50%;
+    background:rgba(255,255,255,0.06);
+  }
+  .page-hero .back-link {
+    display:inline-flex; align-items:center; gap:6px;
+    color:rgba(255,255,255,0.7); text-decoration:none; font-size:13px;
+    margin-bottom:12px; transition:color 0.2s;
+  }
+  .page-hero .back-link:hover { color:#fff; }
+  .page-hero h1 { font-size:26px; font-weight:700; margin-bottom:4px; }
+  .page-hero .bu-subtitle { font-size:14px; color:rgba(255,255,255,0.7); margin-bottom:8px; }
+  .page-hero .stats-row { display:flex; gap:24px; margin-top:14px; }
+  .page-hero .stat-item { text-align:center; }
+  .page-hero .stat-num { font-size:22px; font-weight:700; }
+  .page-hero .stat-lbl { font-size:11px; color:rgba(255,255,255,0.6); }
+
+  /* ── 主内容 ── */
+  .container { max-width:900px; margin:0 auto; padding:24px 20px 60px; }
+
+  /* ── 日期列表 ── */
+  .date-list-title {
+    font-size:13px; color:var(--text-dim); margin-bottom:14px;
+    display:flex; align-items:center; gap:8px;
+  }
+  .date-list-title::after { content:''; flex:1; height:1px; background:var(--border); }
+
+  .date-card {
+    background:var(--card-bg); border-radius:12px; padding:20px 24px;
+    margin-bottom:12px; box-shadow:var(--shadow); cursor:pointer;
+    border-left:4px solid var(--primary);
+    transition:all 0.2s; display:flex; align-items:center; gap:16px;
+  }
+  .date-card:hover { transform:translateX(4px); box-shadow:var(--shadow-hover); }
+  .date-card.today { border-left-color:var(--accent); background:#fffbf0; }
+  .date-card.latest { border-left-color:#27ae60; }
+
+  .date-card-left { flex-shrink:0; text-align:center; min-width:60px; }
+  .date-card-day { font-size:28px; font-weight:700; color:var(--primary); line-height:1; }
+  .date-card-month { font-size:12px; color:var(--text-dim); }
+  .date-card.today .date-card-day { color:#d68910; }
+  .date-card.latest .date-card-day { color:#27ae60; }
+
+  .date-card-info { flex:1; }
+  .date-card-date { font-size:14px; font-weight:600; color:var(--text); margin-bottom:2px; }
+  .date-card-status { font-size:12px; color:var(--text-dim); }
+  .date-card-badge { display:inline-block; padding:2px 10px; border-radius:20px; font-size:11px; font-weight:600; }
+  .badge-today { background:#fff3cd; color:#d68910; }
+  .badge-latest { background:#d4edda; color:#27ae60; }
+  .badge-normal { background:var(--bg); color:var(--text-dim); }
+
+  .date-card-actions { display:flex; gap:10px; align-items:center; }
+  .action-btn {
+    padding:8px 18px; border-radius:8px; font-size:13px; font-weight:600;
+    border:none; cursor:pointer; transition:all 0.2s; font-family:inherit;
+  }
+  .action-btn.primary {
+    background:var(--primary); color:white;
+  }
+  .action-btn.primary:hover { background:var(--primary-light); transform:translateY(-1px); }
+  .action-btn.secondary {
+    background:var(--bg); color:var(--text); border:1px solid var(--border);
+  }
+  .action-btn.secondary:hover { border-color:var(--primary); color:var(--primary); }
+  .date-card-empty .action-btn.primary { background:#ccc; cursor:not-allowed; pointer-events:none; }
+
+  /* ── 报告弹窗 ── */
+  .report-modal {
+    display:none; position:fixed; inset:0; z-index:200;
+    background:rgba(0,0,0,0.5);
+  }
+  .report-modal.active { display:flex; align-items:center; justify-content:center; }
+  .report-modal-dialog {
+    background:var(--card-bg); border-radius:16px; width:92vw; max-width:960px;
+    max-height:88vh; display:flex; flex-direction:column;
+    box-shadow:0 20px 60px rgba(0,0,0,0.3);
+  }
+  .report-modal-header {
+    background:var(--primary); color:white; padding:16px 24px;
+    display:flex; justify-content:space-between; align-items:center;
+    border-radius:16px 16px 0 0; flex-shrink:0;
+  }
+  .report-modal-header h2 { font-size:16px; font-weight:600; }
+  .report-modal-close {
+    background:rgba(255,255,255,0.2); border:none; color:white;
+    width:32px; height:32px; border-radius:50%; cursor:pointer;
+    font-size:18px; transition:background 0.2s;
+  }
+  .report-modal-close:hover { background:rgba(255,255,255,0.35); }
+  .report-modal-body { flex:1; overflow-y:auto; padding:24px; }
+
+  /* ── 加载状态 ── */
+  .loading-state { text-align:center; padding:60px 20px; color:var(--text-dim); }
+  .loading-state .spinner { font-size:36px; animation:spin 1s linear infinite; }
+  @keyframes spin { to { transform:rotate(360deg); } }
+  .empty-state { text-align:center; padding:60px 20px; }
+  .empty-state .icon { font-size:48px; margin-bottom:16px; }
+  .empty-state h3 { font-size:18px; color:var(--text); margin-bottom:8px; }
+  .empty-state p { font-size:14px; color:var(--text-dim); }
+
+  /* ── 引导页（无 id 参数） ── */
+  .guide-section { margin-bottom:28px; }
+  .guide-title { font-size:13px; color:var(--text-dim); margin-bottom:12px; }
+  .guide-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
+  .guide-card {
+    background:var(--card-bg); border-radius:10px; padding:16px;
+    border-left:3px solid var(--primary); text-decoration:none; color:inherit;
+    transition:all 0.2s; box-shadow:var(--shadow);
+  }
+  .guide-card:hover { transform:translateY(-2px); box-shadow:var(--shadow-hover); }
+  .guide-card .gi { font-size:22px; margin-bottom:6px; }
+  .guide-card .gn { font-size:14px; font-weight:600; color:var(--primary); }
+  .guide-card .gt { font-size:11px; color:var(--text-dim); }
+
+  /* ── 报告内容样式（弹窗内） ── */
+  .report-headline {
+    font-size:17px; font-weight:700; color:var(--primary);
+    padding:14px 18px; background:linear-gradient(135deg,#eef3ff,#e8eefc);
+    border-radius:10px; margin-bottom:14px; border-left:4px solid var(--primary);
+  }
+  .report-lead {
+    font-size:14px; color:#444; line-height:1.7;
+    padding:12px 18px; background:#f8f9fc; border-radius:8px;
+    margin-bottom:16px; border-left:3px solid var(--border);
+  }
+  .report-section { margin-bottom:28px; }
+  .report-section h4 {
+    font-size:13px; font-weight:700; color:var(--primary);
+    margin-bottom:12px; padding-bottom:8px; border-bottom:2px solid var(--border);
+  }
+  .report-item {
+    font-size:13.5px; color:#333; line-height:1.75;
+    padding:10px 14px; margin-bottom:10px;
+    background:#fff; border-radius:6px;
+    border-left:3px solid var(--accent);
+    box-shadow:0 1px 4px rgba(0,0,0,0.05);
+  }
+  .report-item-title {
+    font-size:14px; font-weight:600; color:#1e3c72;
+    margin-bottom:5px; line-height:1.4;
+  }
+  .report-item-body {
+    font-size:13px; color:#444; line-height:1.7;
+  }
+  .report-summary {
+    font-size:13.5px; color:#555; line-height:1.8;
+    padding:10px 14px; background:#f0f8ff;
+    border-radius:6px; border-left:3px solid #3498db;
+  }
+  .report-risk {
+    background:#fff8e1; border:1px solid #ffe082;
+    border-radius:8px; padding:12px 16px; margin-top:16px;
+    font-size:13px; color:#5d4037;
+  }
+  .report-conclusion {
+    background:#e8f5e9; border:1px solid #c8e6c9;
+    border-radius:8px; padding:12px 16px; margin-top:12px;
+    font-size:13px; color:#2e7d32;
+  }
+  .report-summary {
+    border-radius:8px; padding:14px 18px; margin-top:16px;
+  }
+  .summary-bullet {
+    padding:4px 0 4px 12px; font-size:13px; color:#2e7d32; line-height:1.6;
+    border-left:3px solid #a5d6a7; margin-bottom:4px;
+  }
+
+  @media(max-width:600px) {
+    .guide-grid { grid-template-columns:repeat(2,1fr); }
+    .date-card { flex-direction:column; align-items:flex-start; }
+    .date-card-actions { width:100%; justify-content:flex-end; }
+    .page-hero { padding:20px; }
+    .page-hero h1 { font-size:20px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- 顶部导航 -->
+<div class="topbar">
+  <div class="topbar-title">
+    <span id="topbar-icon">📋</span>
+    <span id="topbar-title-text">事业部历史存档</span>
+  </div>
+  <div class="topbar-nav">
+    <a href="index_v3.html">🏠 首页</a>
+    <a href="index_v3.html#history">📁 历史数据</a>
+  </div>
+</div>
+
+<!-- 页面标题 -->
+<div class="page-hero" id="pageHero">
+  <a class="back-link" href="index_v3.html">← 返回首页</a>
+  <h1 id="hero-title">事业部历史存档</h1>
+  <div class="bu-subtitle" id="hero-subtitle">选择一个日期查看该日早报</div>
+  <div class="stats-row">
+    <div class="stat-item"><div class="stat-num" id="stat-total">—</div><div class="stat-lbl">历史期数</div></div>
+    <div class="stat-item"><div class="stat-num" id="stat-latest">—</div><div class="stat-lbl">最新一期</div></div>
+  </div>
+</div>
+
+<!-- 主内容 -->
+<div class="container" id="mainContainer">
+  <div class="loading-state">
+    <div class="spinner">⏳</div>
+    <div style="margin-top:12px">正在加载历史数据…</div>
+  </div>
+</div>
+
+<!-- 报告弹窗 -->
+<div class="report-modal" id="reportModal">
+  <div class="report-modal-dialog">
+    <div class="report-modal-header">
+      <h2 id="reportModalTitle">早报详情</h2>
+      <div id="reportModalSubtitle" style="font-size:13px;color:#888;margin-top:4px;font-weight:normal"></div>
+      <button class="report-modal-close" onclick="closeReportModal()">✕</button>
+    </div>
+    <div class="report-modal-body" id="reportModalBody"></div>
+  </div>
+</div>
+
+<script>
+/* ── 事业部元数据 ── */
+const BU_META = {
+  czly:  { name:'常州锂源',   subtitle:'磷酸铁锂正极材料', icon:'🔋', color:'#1e3c72' },
+  lpsd:  { name:'龙蟠时代',   subtitle:'磷酸铁锂正极材料', icon:'🔋', color:'#2e75b6' },
+  felt:  { name:'法恩莱特',   subtitle:'电解液',           icon:'⚗️', color:'#7b2d8b' },
+  sdmd:  { name:'山东美多',   subtitle:'动力电池回收',       icon:'♻️', color:'#215732' },
+  sjld:  { name:'三金锂电',   subtitle:'三元前驱体',         icon:'🧪', color:'#34495e' },
+  kls:   { name:'可兰素',     subtitle:'车用尿素',           icon:'🚛', color:'#d35400' },
+  lhy:   { name:'润滑油事业部',subtitle:'润滑油',           icon:'🛢️', color:'#c0392b' },
+  bych:  { name:'铂源催化',   subtitle:'氢能/催化',          icon:'⚡', color:'#8e44ad' },
+  dhx:   { name:'迪克化学',   subtitle:'汽车化学品',        icon:'🧴', color:'#16a085' },
+};
+
+/* ── 读取 URL 参数 ── */
+const params = new URLSearchParams(location.search);
+const buId = params.get('id') || '';
+
+function getBUId() { return buId; }
+
+/* ── 页面初始化 ── */
+async function initPage() {
+  if (!buId || !BU_META[buId]) {
+    renderGuidePage();
+    return;
+  }
+  const meta = BU_META[buId];
+  applyBUTheme(meta);
+  await loadBUHistory(buId);
+}
+
+/* ── 应用 BU 主题色 ── */
+function applyBUTheme(meta) {
+  document.getElementById('topbar-icon').textContent = meta.icon;
+  document.getElementById('topbar-title-text').textContent = meta.name + ' · 历史存档';
+  document.getElementById('hero-title').textContent = meta.name + ' · 历史存档';
+  document.getElementById('hero-subtitle').textContent = meta.subtitle;
+  document.title = meta.name + ' · 历史存档';
+  const hero = document.getElementById('pageHero');
+  hero.style.background = `linear-gradient(135deg, ${meta.color}, ${meta.color}cc)`;
+}
+
+/* ── 引导页（无 id 时） ── */
+function renderGuidePage() {
+  const html = `
+    <div class="guide-section">
+      <div class="date-list-title">📋 选择事业部查看历史早报</div>
+      <div class="guide-grid">
+        ${Object.entries(BU_META).map(([id, m]) => `
+          <a class="guide-card" href="dept-archive.html?id=${id}">
+            <div class="gi">${m.icon}</div>
+            <div class="gn">${m.name}</div>
+            <div class="gt">${m.subtitle}</div>
+          </a>
+        `).join('')}
+      </div>
+    </div>
+  `;
+  document.getElementById('mainContainer').innerHTML = html;
+  document.getElementById('pageHero').style.display = 'none';
+}
+
+/* ── 加载 BU 历史数据 ── */
+async function loadBUHistory(id) {
+  try {
+    /* 加载 index.json 获取可用日期列表 */
+    const respIdx = await fetch('reports/index.json?t=' + Date.now());
+    const idx = await respIdx.json();
+    const dates = idx.available_dates || [];
+
+    /* 加载最新一期获取统计信息 */
+    let statsData = null;
+    try {
+      const respLatest = await fetch(`reports/${dates[0]}.json?t=${Date.now()}`);
+      statsData = await respLatest.json();
+    } catch(e) {}
+
+    document.getElementById('stat-total').textContent = dates.length;
+    document.getElementById('stat-latest').textContent = dates[0] || '—';
+
+    /* 对每个日期异步检查该 BU 是否有内容（出错时标记为空，不阻塞） */
+    const dateCardResults = [];
+    for (const d of dates) {
+      try {
+        dateCardResults.push(await checkDateForBU(d, id));
+      } catch(e) {
+        dateCardResults.push({ date:d, day:new Date(d).getDate(), month:'', empty:true, _rawDate:new Date(d) });
+      }
+    }
+    const dateCards = dateCardResults;
+
+    /* 按日期排序（最新在前）*/
+    dateCards.sort((a, b) => b._rawDate - a._rawDate);
+
+    const today = new Date().toISOString().slice(0, 10);
+    const container = document.getElementById('mainContainer');
+    container.innerHTML = '';  // 清除 loading 状态
+
+    if (dateCards.length === 0) {
+      container.innerHTML = `
+        <div class="empty-state">
+          <div class="icon">📭</div>
+          <h3>暂无历史数据</h3>
+          <p>该事业部尚未生成过早报，请先运行早报生成脚本。</p>
+        </div>
+      `;
+      return;
+    }
+
+    container.innerHTML = `
+      <div class="date-list-title">📅 选择日期查看早报（${dates.length} 期）</div>
+      ${dateCards.map((card, i) => {
+        const isToday = card.date === today;
+        const isLatest = i === 0;
+        const cardClass = isToday ? 'today' : (isLatest ? 'latest' : '');
+        const badgeClass = isToday ? 'badge-today' : (isLatest ? 'badge-latest' : 'badge-normal');
+        const badgeText = isToday ? '今日' : (isLatest ? '最新' : '');
+        return `
+          <div class="date-card ${cardClass} ${card.empty ? 'date-card-empty' : ''}">
+            <div class="date-card-left">
+              <div class="date-card-day">${card.day}</div>
+              <div class="date-card-month">${card.month}</div>
+            </div>
+            <div class="date-card-info">
+              <div class="date-card-date">${card.date}</div>
+              <div class="date-card-status">${card.empty ? '❌ 该日无数据' : '✅ 有早报内容'}</div>
+            </div>
+            <div class="date-card-actions">
+              ${card.empty
+                ? '<button class="action-btn primary" style="background:#ccc" disabled>无数据</button>'
+                : `<button class="action-btn primary" onclick="openReportModal('${card.date}','${id}')">查看早报</button>
+                   <button class="action-btn secondary" onclick="openReportModal('${card.date}','${id}',true)">弹窗预览</button>`
+              }
+            </div>
+          </div>
+        `;
+      }).join('')}
+    `;
+
+  } catch(e) {
+    console.error('loadBUHistory error:', e);
+    document.getElementById('mainContainer').innerHTML = `
+      <div class="empty-state">
+        <div class="icon">⚠️</div>
+        <h3>加载失败</h3>
+        <p>无法获取历史数据列表，请检查网络或 reports/index.json 是否存在。</p>
+        <p style="font-size:12px;color:#999;margin-top:8px">${e.message}</p>
+      </div>
+    `;
+  }
+}
+
+/* ── 检查某日该 BU 是否有内容 ── */
+async function checkDateForBU(date, buId) {
+  const d = new Date(date);
+  const day = d.getDate();
+  const months = ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
+  const month = months[d.getMonth()];
+
+  try {
+    const resp = await fetch(`reports/${date}.json?t=${Date.now()}`);
+    const data = await resp.json();
+    const dept = data.departments ? data.departments[buId] : null;
+    const hasSections = dept && dept.sections && (
+      (Array.isArray(dept.sections) && dept.sections.some(sec => Array.isArray(sec.items) && sec.items.length > 0)) ||
+      Object.values(dept.sections).some(v => Array.isArray(v) && v.length > 0)
+    );
+    const hasContent = dept && (
+      (dept._raw_content && dept._raw_content.trim()) ||
+      (dept.headline && dept.headline.trim()) ||
+      hasSections
+    );
+    // 诊断日志：打印所有日期的检测结果
+    const secsInfo = dept && dept.sections
+      ? Object.entries(dept.sections).map(([k,v]) => k + ':' + (Array.isArray(v) ? v.length : '?')).join(',')
+      : 'NO_DEPTS';
+    console.log(`[checkDateForBU] ${date} / ${buId} → empty=${!hasContent} sections=[${secsInfo}]`);
+    return { date, day, month, empty: !hasContent, _rawDate: d };
+  } catch(e) {
+    console.error(`[checkDateForBU] ${date} / ${buId} → ERROR: ${e.message}`);
+    return { date, day, month, empty: true, _rawDate: d };
+  }
+}
+
+/* ── 打开报告弹窗 ── */
+async function openReportModal(date, buId, embed) {
+  try {
+    const resp = await fetch(`reports/${date}.json?t=${Date.now()}`);
+    const data = await resp.json();
+    const dept = data.departments ? data.departments[buId] : null;
+    if (!dept) {
+      alert('该日无此事业部数据');
+      return;
+    }
+
+    const hasSections = dept.sections && (
+      (Array.isArray(dept.sections) && dept.sections.some(sec => Array.isArray(sec.items) && sec.items.length > 0)) ||
+      Object.values(dept.sections).some(v => Array.isArray(v) && v.length > 0)
+    );
+    let contentHtml = '';
+    if (dept._raw_content && dept._raw_content.trim()) {
+      contentHtml = dept._raw_content;
+    } else if (dept.headline || hasSections) {
+      contentHtml = buildSectionsHTML(dept);
+    } else {
+      contentHtml = '<div style="text-align:center;padding:40px;color:#999">该日数据为空</div>';
+    }
+
+    const meta = BU_META[buId] || {};
+    const ws = dept.window_start || '';
+    const we = dept.window_end || '';
+    const periodStr = (ws && we) ? ` | 覆盖区间：${ws} ~ ${we}` : '';
+    const modalTitle = `${meta.name || buId} · ${date} 早报`;
+    const modalSubtitle = ws && we ? `${ws.replace('2026-','')}-${we.replace('2026-','')}` : date;
+
+    document.getElementById('reportModalTitle').textContent = modalTitle;
+    document.getElementById('reportModalSubtitle').textContent = modalSubtitle;
+    document.getElementById('reportModalBody').innerHTML = contentHtml;
+    document.getElementById('reportModal').classList.add('active');
+
+  } catch(e) {
+    alert('加载失败: ' + e.message);
+  }
+}
+
+/* ── 关闭报告弹窗 ── */
+function closeReportModal() {
+  document.getElementById('reportModal').classList.remove('active');
+}
+
+/* ── ESC 关闭弹窗 ── */
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') closeReportModal();
+});
+
+/* ── 构建 sections HTML ── */
+function buildSectionsHTML(dept) {
+  // 去掉 ** 和 HTML 转义的辅助函数
+  const stripMd = s => String(s).replace(/\*\*/g, '');
+  const safe = s => stripMd(String(s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/\n/g, '<br>'));
+
+  // 将包含多条 **N.标题** 的长字符串拆成多个子项
+  const splitMultiItems = text => {
+    let parts = String(text).split(/\n\*\*/);
+    if (parts.length > 1) {
+      return parts.map(p => p.replace(/\*\*/g, '').trim()).filter(p => !!p);
+    }
+    const stripped = String(text).replace(/\*\*/g, '');
+    const p2 = stripped.split(/\n\n+/);
+    if (p2.length > 1) return p2.map(p => p.trim()).filter(p => !!p);
+    const p3 = stripped.split(/(?=\n\s*\d+[．、.]\s*)/);
+    const result = [];
+    for (const p of p3) {
+      const t = p.trim();
+      if (!t) continue;
+      const m = t.match(/^\d+[．、.]\s*(.*)$/s);
+      result.push(m ? m[1].trim() : t);
+    }
+    return result.length > 0 ? result : [stripped];
+  };
+
+  // 渲染单个条目（支持字符串 / {title,content} / {content}）
+  const renderItem = item => {
+    if (typeof item === 'string') {
+      // 长字符串 → 拆分多行
+      const parts = splitMultiItems(item);
+      if (parts.length > 1) {
+        return parts.map(p => `<div class="report-item">${safe(p)}</div>`).join('\n');
+      }
+      return `<div class="report-item">${safe(item)}</div>`;
+    } else {
+      const title = item.title ? safe(item.title) : '';
+      let rawContent = item.content || '';
+      let itemSource = item.source || '';
+      let itemDate = item.date || dept.window_end || '';
+      if (!itemSource || !itemDate) {
+        const m = rawContent.match(/[（(]来源：([^，,)]+)[，,]\s*(\d{4}-\d{2}-\d{2})[）)]/);
+        if (m) {
+          if (!itemSource) itemSource = m[1].trim();
+          if (!itemDate) itemDate = m[2].trim();
+          rawContent = rawContent.replace(/[（(]来源：[^）)]*[）)]/, '').trim();
+        }
+      }
+      const content = safe(rawContent);
+      const source = itemSource ? `<span style="font-size:12px;color:#888;background:#f5f5f5;border-radius:3px;padding:1px 6px;margin-left:8px;vertical-align:middle">来源: ${safe(itemSource)}</span>` : '';
+      const date = itemDate ? `<span style="font-size:12px;color:#888;background:#f0f0f0;border-radius:3px;padding:1px 6px;margin-left:4px;vertical-align:middle">${safe(itemDate)}</span>` : '';
+      const meta = (source || date) ? `<div style="margin-top:6px;padding-top:6px;border-top:1px dashed #e0e0e0">${source}${date}</div>` : '';
+      if (title && content) {
+        return `<div class="report-item"><div class="report-item-title">${title}</div><div class="report-item-body">${content}</div>${meta}</div>`;
+      } else if (title) {
+        return `<div class="report-item"><div class="report-item-title">${title}</div>${meta}</div>`;
+      } else if (content) {
+        return `<div class="report-item"><div class="report-item-body">${content}</div>${meta}</div>`;
+      }
+      return '';
+    }
+  };
+
+  // 渲染 {title, name, content} 格式的 body 内容（带序号）
+  const renderContentBody = (content, safeFn) => {
+    if (!content) return '';
+    let bodyHtml = '';
+    // 预处理：把"价格数据表| 产品 | 价格 |..."拆为标题+表格header
+    const processedContent = content.replace(
+        /^(价格数据表|数据表|品种表|产品表)\s*(\|.*)$/gm,
+        '$1\n$2'
+    );
+    const lines = processedContent.split('\n');
+    const tableLines = [];
+    const bodyLines = [];
+    let inTable = false;
+    // 提取表格
+    for (const line of lines) {
+      const t = line.trim();
+      const isSep = /^\|[\s\-:|]+\|$/.test(t);
+      const looksLikeTableRow = t.startsWith('|');
+      if (!inTable && looksLikeTableRow && !isSep) { inTable = true; }
+      if (isSep) { tableLines.push(line); continue; }
+      if (inTable && !looksLikeTableRow) { inTable = false; }
+      if (inTable) { tableLines.push(line); }
+      else { bodyLines.push(line); }
+    }
+    // 渲染表格：从tableLines中找到第一个非separator行作为header
+    let headerCells = [];
+    let dataStartIdx = -1;
+    for (let i = 0; i < tableLines.length; i++) {
+      const t = tableLines[i].trim();
+      if (/^\|[\s\-:|]+\|$/.test(t)) continue;
+      headerCells = tableLines[i].split('|').map(s => s.trim()).filter(s => s);
+      dataStartIdx = i + 1;
+      break;
+    }
+    if (headerCells.length > 0) {
+      bodyHtml += '<div style="overflow-x:auto;margin:10px 0"><table style="width:100%;border-collapse:collapse;font-size:12px">';
+      bodyHtml += '<thead><tr>' + headerCells.map(h => `<th style="border:1px solid #ddd;padding:6px;background:#f5f5f5;text-align:left">${safeFn(h)}</th>`).join('') + '</tr></thead>';
+      bodyHtml += '<tbody>';
+      for (let i = dataStartIdx; i < tableLines.length; i++) {
+        const line = tableLines[i];
+        const t = line.trim();
+        if (/^\|[\s\-:|]+\|$/.test(t)) continue;
+        const cells = line.split('|').map(s => s.trim()).filter(s => s);
+        if (cells.length < headerCells.length) continue;
+        if (cells.every(c => /^[\s\-:|]+$/.test(c))) continue;
+        bodyHtml += '<tr>' + cells.slice(0, headerCells.length).map(c => `<td style="border:1px solid #ddd;padding:6px">${safeFn(c)}</td>`).join('') + '</tr>';
+      }
+      bodyHtml += '</tbody></table></div>';
+    }
+    // 渲染 body 文本
+    const bodyText = bodyLines.join('\n').trim();
+    if (bodyText) {
+      // 按 ## 标题分割
+      const headingItems = bodyText.split(/\n##\s+/).map(s => s.trim()).filter(s => s);
+      if (headingItems.length > 1) {
+        let idx = 1;
+        for (const item of headingItems) {
+          const cleanItem = item.replace(/^##\s*/, '').trim();
+          if (!cleanItem) continue;
+          const singleLine = cleanItem.replace(/\n+/g, ' ').trim();
+          bodyHtml += `<div class="report-item">
+  <div class="report-item-title" style="display:flex;gap:8px;align-items:baseline">
+    <span style="color:#e74c3c;font-weight:bold">${idx}.</span>
+    <span>${safeFn(singleLine.substring(0, 120))}${singleLine.length > 120 ? '...' : ''}</span>
+  </div>
+  <div class="report-item-body">${safeFn(singleLine)}</div>
+</div>`;
+          idx++;
+        }
+      } else {
+        const paras = bodyText.split(/\n\n+/).map(s => s.trim()).filter(s => s);
+        // 检查 **标题**：格式
+        const colonTitleRegex = /\*\*([^*]+)\*\*：/g;
+        const colonTitleMatches = [...bodyText.matchAll(colonTitleRegex)];
+        if (colonTitleMatches.length > 0) {
+          const parts = bodyText.split(/\*\*[^*]+\*\*：/);
+          let itemIdx = 1;
+          if (parts[0].trim()) {
+            const summaryText = parts[0].trim();
+            let titleText = summaryText.split('\n')[0] || '';
+            bodyHtml += `<div class="report-item">
+  <div class="report-item-title" style="display:flex;gap:8px;align-items:baseline">
+    <span style="color:#e74c3c;font-weight:bold">${itemIdx}.</span>
+    <span>${safeFn(titleText)}</span>
+  </div>
+  <div class="report-item-body">${safeFn(summaryText).replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')}</div>
+</div>`;
+            itemIdx++;
+          }
+          for (let i = 0; i < colonTitleMatches.length; i++) {
+            const title = colonTitleMatches[i][1];
+            const body = parts[i + 1] ? parts[i + 1].trim() : '';
+            bodyHtml += `<div class="report-item">
+  <div class="report-item-title" style="display:flex;gap:8px;align-items:baseline">
+    <span style="color:#e74c3c;font-weight:bold">${itemIdx}.</span>
+    <span><strong>${safeFn(title)}</strong></span>
+  </div>
+  <div class="report-item-body">${safeFn(body).replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')}</div>
+</div>`;
+            itemIdx++;
+          }
+        } else if (paras.length > 1) {
+          let idx = 1;
+          for (const p of paras) {
+            const trimmed = p.trim();
+            if (!trimmed) continue;
+            // 尝试提取 **标题**正文 格式中的标题部分
+            const boldTitleMatch = trimmed.match(/^\*\*([^*]+)\*\*\s*([\s\S]*)$/);
+            if (boldTitleMatch) {
+              const titleText = boldTitleMatch[1].trim();
+              const bodyContent = boldTitleMatch[2].trim();
+              bodyHtml += `<div class="report-item">
+  <div class="report-item-title" style="display:flex;gap:8px;align-items:baseline">
+    <span style="color:#e74c3c;font-weight:bold">${idx}.</span>
+    <span>${safeFn(titleText)}</span>
+  </div>
+  <div class="report-item-body">${safeFn(bodyContent).replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')}</div>
+</div>`;
+            } else {
+              let titleText = trimmed.split('\n')[0] || '';
+              bodyHtml += `<div class="report-item">
+  <div class="report-item-title" style="display:flex;gap:8px;align-items:baseline">
+    <span style="color:#e74c3c;font-weight:bold">${idx}.</span>
+    <span>${safeFn(titleText)}</span>
+  </div>
+  <div class="report-item-body">${safeFn(trimmed).replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')}</div>
+</div>`;
+            }
+            idx++;
+          }
+        } else {
+          const trimmed = paras[0] ? paras[0].trim() : '';
+          if (trimmed) {
+            const boldTitleMatch = trimmed.match(/^\*\*([^*]+)\*\*\s*([\s\S]*)$/);
+            if (boldTitleMatch) {
+              const titleText = boldTitleMatch[1].trim();
+              const bodyContent = boldTitleMatch[2].trim();
+              bodyHtml += `<div class="report-item">
+  <div class="report-item-title" style="display:flex;gap:8px;align-items:baseline">
+    <span style="color:#e74c3c;font-weight:bold">1.</span>
+    <span>${safeFn(titleText)}</span>
+  </div>
+  <div class="report-item-body">${safeFn(bodyContent).replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')}</div>
+</div>`;
+            } else if (trimmed.startsWith('- ') || trimmed.startsWith('* ')) {
+              const listItems = trimmed.split('\n').map(it => `<li>${safeFn(it.replace(/^[-*]\s+/, ''))}</li>`).join('');
+              bodyHtml += `<ul style="margin:8px 0;padding-left:20px">${listItems}</ul>`;
+            } else {
+              bodyHtml += `<div class="report-item"><div class="report-item-body">${safeFn(trimmed).replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')}</div></div>`;
+            }
+          }
+        }
+      }
+    }
+    return bodyHtml;
+  };
+
+  let html = '';
+  // 新格式（数组）：不单独渲染 headline/lead，由 sectionsToHTML 统一处理
+  if (dept.sections && !Array.isArray(dept.sections)) {
+    if (dept.headline) html += `<div class="report-headline">${safe(dept.headline)}</div>`;
+    if (dept.lead)     html += `<div class="report-lead">${safe(dept.lead)}</div>`;
+  }
+  if (dept.sections) {
+    // 新格式：sections 是有序数组 [{dim, title, items}, ...] 或 [{title, name, content}, ...]
+    if (Array.isArray(dept.sections)) {
+      for (const sec of dept.sections) {
+        // 兼容 {title, name, content} 格式（无 dim/items，content 为 Markdown 字符串）
+        if (sec.content && !sec.items) {
+          const title = sec.title || sec.name || '';
+          const iconMap = {'今日关注':'📌','市场行情':'📊','政策风向':'📜','企业动态':'🔥','前沿与产品动态':'💻','项目与招标':'🏗','专属提示':'💡'};
+          const icon = iconMap[title] || '📋';
+          html += `<div class="report-section"><h4>${icon} ${safe(title)}</h4>`;
+          html += renderContentBody(sec.content, safe);
+          html += `</div>`;
+        } else {
+          const isTopnews = sec.dim === 'topnews';
+          const items = sec.items || [];
+          if (!items.length) continue;
+          if (isTopnews) {
+            html += `<div class="report-section"><h4>📌 ${safe(sec.title || '今日要报')}</h4>`;
+            items.forEach((item, i) => {
+              const title = safe(item.title || '');
+              const body = safe(item.content || '');
+              const source = safe(item.source || '');
+              const itemDate = safe(item.date || '');
+              html += `<div class="report-item">
+  <div class="report-item-title" style="display:flex;gap:8px;align-items:baseline">
+    <span style="color:#e74c3c;font-weight:bold">${i+1}.</span>
+    <span>${title}</span>
+  </div>
+  ${body ? `<div class="report-item-content" style="margin-top:4px">${body}</div>\n` : ''}
+  ${source || itemDate ? `<div style="font-size:12px;color:#888;margin-top:4px">来源：${source}${source && itemDate ? '，' : ''}${itemDate}</div>` : ''}
+</div>`;
+            });
+            html += `</div>`;
+          } else {
+            // 市场/价格：价格类条目聚合成表格，分析类条目正常渲染
+            if (sec.dim === 'market') {
+              const priceItems = [];
+              const textItems = [];
+              for (const item of items) {
+                const content = (typeof item === 'object' ? (item.content || '') : String(item));
+                if (/价格[：:]/.test(content)) {
+                  priceItems.push(item);
+                } else {
+                  textItems.push(item);
+                }
+              }
+              const parseMarketPriceItem = (item) => {
+                const content = item.content || '';
+                const title = item.title || item.raw || '';
+                const priceMatch = content.match(/价格[：:]\s*([^，]+)/);
+                const changeMatch = content.match(/涨跌[：:]\s*([^。]+)/);
+                const sourceMatch = content.match(/来源[：:]\s*(.+)$/);
+                return {
+                  name: title,
+                  price: priceMatch ? priceMatch[1].trim() : '',
+                  change: changeMatch ? changeMatch[1].trim() : '',
+                  source: sourceMatch ? sourceMatch[1].trim() : ''
+                };
+              };
+              html += `<div class="report-section"><h4>📊 ${safe(sec.title || '市场/价格')}</h4>`;
+              if (priceItems.length) {
+                const rows = priceItems.map(parseMarketPriceItem);
+                html += '<div style="overflow-x:auto;margin:10px 0"><table style="width:100%;border-collapse:collapse;font-size:12px">';
+                html += '<thead><tr>';
+                html += '<th style="border:1px solid #ddd;padding:6px;background:#f5f5f5;text-align:left">品种</th>';
+                html += '<th style="border:1px solid #ddd;padding:6px;background:#f5f5f5;text-align:left">价格</th>';
+                html += '<th style="border:1px solid #ddd;padding:6px;background:#f5f5f5;text-align:left">涨跌</th>';
+                html += '<th style="border:1px solid #ddd;padding:6px;background:#f5f5f5;text-align:left">来源</th>';
+                html += '</tr></thead><tbody>';
+                for (const row of rows) {
+                  html += '<tr>';
+                  html += `<td style="border:1px solid #ddd;padding:6px">${safe(row.name)}</td>`;
+                  html += `<td style="border:1px solid #ddd;padding:6px;white-space:nowrap">${safe(row.price)}</td>`;
+                  html += `<td style="border:1px solid #ddd;padding:6px">${safe(row.change)}</td>`;
+                  html += `<td style="border:1px solid #ddd;padding:6px;color:#888;font-size:11px">${safe(row.source)}</td>`;
+                  html += '</tr>';
+                }
+                html += '</tbody></table></div>';
+              }
+              for (const item of textItems) {
+                html += renderItem(item);
+              }
+              html += `</div>`;
+            } else {
+              html += `<div class="report-section"><h4>【${safe(sec.title || sec.dim)}】</h4>`;
+              items.forEach(item => { html += renderItem(item); });
+              html += `</div>`;
+            }
+          }
+        }
+      }
+    } else {
+      // 旧dict格式
+      for (const [key, items] of Object.entries(dept.sections)) {
+        if (!items) continue;
+        if (key === '综合') continue;
+
+        html += `<div class="report-section"><h4>【${safe(key)}】</h4>`;
+
+        if (key === '小结') {
+          if (Array.isArray(items)) {
+            html += `<div class="report-summary">${items.map(i => typeof i === 'string' ? safe(i) : '').join('<br>')}</div>`;
+          } else if (typeof items === 'string') {
+            html += `<div class="report-summary">${safe(items)}</div>`;
+          }
+        } else {
+          const arr = Array.isArray(items) ? items : [items];
+          arr.forEach(item => { html += renderItem(item); });
+        }
+
+        html += `</div>`;
+      }
+    }
+  }
+  if (dept.risk)       html += `<div class="report-risk">⚠️ 风险提示：${safe(dept.risk)}</div>`;
+  if (dept.conclusion) html += `<div class="report-conclusion">📝 小结：${safe(dept.conclusion)}</div>`;
+  return html;
+}
+
+/* ── 启动 ── */
+initPage();
+</script>
+</body>
+</html>
