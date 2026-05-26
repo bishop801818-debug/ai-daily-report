@@ -8123,6 +8123,7 @@ const BU_LOGOS = {
         }
 
         function drawLithiumOreChart(svg, historyData) {
+            console.log('[drawLithiumOreChart ENTRY] historyData.length=', historyData.length, 'firstDate=', historyData[0]?.date, 'lastDate=', historyData[historyData.length-1]?.date);
             var W = _lithiumOreChartW, H = _lithiumOreChartH;
             var PAD = _lithiumOrePad;
             var chartW = W - PAD.left - PAD.right;
@@ -8141,6 +8142,8 @@ const BU_LOGOS = {
             });
             if (filtered.length === 0) filtered = historyData;
             historyData = filtered;  // 让后续代码使用过滤后的数据
+
+            console.log('[drawLithiumOreChart] filtered.length=', filtered.length, 'targetGrade=', targetGrade, 'targetOrigin=', targetOrigin, 'filteredDateRange=', filtered[0]?.date, '~', filtered[filtered.length-1]?.date, 'prices=', filtered.map(function(d){return d.avg_price}).slice(0,5), '...');
 
             var prices = filtered.map(function(d) { return d.avg_price; });
             var minPrice = Math.min.apply(null, prices);
@@ -8287,6 +8290,7 @@ _lc1.style.cssText='animation:_drawLc1 2.8s cubic-bezier(0.25,0.46,0.45,0.94) fo
         }
 
         function drawLepidoliteChart(svg, historyData) {
+            console.log('[drawLepidoliteChart ENTRY] historyData.length=', historyData.length, 'firstDate=', historyData[0]?.date, 'lastDate=', historyData[historyData.length-1]?.date);
             var W = _lepidoliteChartW, H = _lepidoliteChartH;
             var PAD = _lepidolitePad;
             var chartW = W - PAD.left - PAD.right;
@@ -8306,6 +8310,7 @@ _lc1.style.cssText='animation:_drawLc1 2.8s cubic-bezier(0.25,0.46,0.45,0.94) fo
             if (filtered.length === 0) filtered = historyData;
             historyData = filtered;  // 让后续代码使用过滤后的数据
 
+            console.log('[drawLepidoliteChart] filtered.length=', filtered.length, 'targetGrade=', targetGrade, 'targetOrigin=', targetOrigin, 'filteredDateRange=', filtered[0]?.date, '~', filtered[filtered.length-1]?.date);
             var prices = filtered.map(function(d) { return d.avg_price; });
             var minPrice = Math.min.apply(null, prices);
             var maxPrice = Math.max.apply(null, prices);
@@ -11469,6 +11474,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         function drawLithiumOreChart(svg, historyData) {
+            console.log('[drawLithiumOreChart ENTRY] historyData.length=', historyData.length, 'firstDate=', historyData[0]?.date, 'lastDate=', historyData[historyData.length-1]?.date);
             var W = _lithiumOreChartW, H = _lithiumOreChartH;
             var PAD = _lithiumOrePad;
             var chartW = W - PAD.left - PAD.right;
@@ -11487,6 +11493,8 @@ document.addEventListener('DOMContentLoaded', function() {
             });
             if (filtered.length === 0) filtered = historyData;
             historyData = filtered;  // 让后续代码使用过滤后的数据
+
+            console.log('[drawLithiumOreChart] filtered.length=', filtered.length, 'targetGrade=', targetGrade, 'targetOrigin=', targetOrigin, 'filteredDateRange=', filtered[0]?.date, '~', filtered[filtered.length-1]?.date, 'prices=', filtered.map(function(d){return d.avg_price}).slice(0,5), '...');
 
             var prices = filtered.map(function(d) { return d.avg_price; });
             var minPrice = Math.min.apply(null, prices);
@@ -11718,6 +11726,7 @@ _lc5.style.cssText='animation:_drawLc5 2.8s cubic-bezier(0.25,0.46,0.45,0.94) fo
         }
 
         function drawLepidoliteChart(svg, historyData) {
+            console.log('[drawLepidoliteChart ENTRY] historyData.length=', historyData.length, 'firstDate=', historyData[0]?.date, 'lastDate=', historyData[historyData.length-1]?.date);
             var W = _lepidoliteChartW, H = _lepidoliteChartH;
             var PAD = _lepidolitePad;
             var chartW = W - PAD.left - PAD.right;
@@ -11737,6 +11746,7 @@ _lc5.style.cssText='animation:_drawLc5 2.8s cubic-bezier(0.25,0.46,0.45,0.94) fo
             if (filtered.length === 0) filtered = historyData;
             historyData = filtered;  // 让后续代码使用过滤后的数据
 
+            console.log('[drawLepidoliteChart] filtered.length=', filtered.length, 'targetGrade=', targetGrade, 'targetOrigin=', targetOrigin, 'filteredDateRange=', filtered[0]?.date, '~', filtered[filtered.length-1]?.date);
             var prices = filtered.map(function(d) { return d.avg_price; });
             var minPrice = Math.min.apply(null, prices);
             var maxPrice = Math.max.apply(null, prices);
