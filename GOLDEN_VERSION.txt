@@ -1,0 +1,160 @@
+# 黄金版本标记文件
+# 多文件版本跟踪 - 支持 index_v3.html, database_hub.html, bu_hub.html, policy_center_v4.html, industry_news.html, help.html, toolbox.html, dept-archive.html
+# 版本策略：只保留最近2个版本（当前版本 + 上一版本），自动删除更早的版本
+
+## [index_v3.html] 当前黄金版本
+- 文件名：index_v3.html.golden_2026-05-28_v22
+- 创建时间：2026-05-28 13:33:00
+- 版本说明：v22：去掉热点资讯"更多"按钮，URL跳转功能优化
+
+### 包含的修改（v22 新增）
+1. ✅ 去掉热点资讯右侧"更多"按钮
+2. ✅ 优化URL跳转功能（严格T-3校验+WebFetch链接有效性校验）
+3. ✅ 替代新闻机制（搜不到T-3内有效URL时，从同事业部今日关注中找替代）
+
+### 历史版本（只保留最近1个）
+- v21: index_v3.html.golden_2026-05-28_v21 (2026-05-28 10:30:00)
+## [policy_center_v4.html] 当前黄金版本
+- 文件名：policy_center_v4.html.golden_2026-05-28_v20
+- 创建时间：2026-05-28 10:35:00
+- 版本说明：v20：与index_v3.html同步存档（Unsplash集成）
+
+### 历史版本（只保留最近1个）
+- v19: policy_center_v4.html.golden_2026-05-26_v19 (2026-05-26 12:00:00)
+## [industry_news.html] 当前黄金版本
+- 文件名：industry_news.html.golden_2026-05-28_v20
+- 创建时间：2026-05-28 10:35:00
+- 版本说明：v20：与index_v3.html同步存档（Unsplash集成）
+
+### 历史版本（只保留最近1个）
+- v19: industry_news.html.golden_2026-05-26_v19 (2026-05-26 12:00:00)
+## [database_hub.html] 当前黄金版本
+- 文件名：database_hub.html.golden_2026-05-28_v20
+- 创建时间：2026-05-28 10:35:00
+- 版本说明：v20：与index_v3.html同步存档（Unsplash集成）
+
+### 历史版本（只保留最近1个）
+- v19: database_hub.html.golden_2026-05-26_v19 (2026-05-26 12:00:00)
+## [bu_hub.html] 当前黄金版本
+- 文件名：bu_hub.html.golden_2026-05-28_v20
+- 创建时间：2026-05-28 10:35:00
+- 版本说明：v20：与index_v3.html同步存档（Unsplash集成）
+
+### 历史版本（只保留最近1个）
+- v19: bu_hub.html.golden_2026-05-26_v19 (2026-05-26 12:00:00)
+## [help.html] 当前黄金版本
+- 文件名：help.html.golden_2026-05-28_v20
+- 创建时间：2026-05-28 10:35:00
+- 版本说明：v20：与index_v3.html同步存档（Unsplash集成）
+
+### 历史版本（只保留最近1个）
+- v19: help.html.golden_2026-05-26_v19 (2026-05-26 12:00:00)
+## [toolbox.html] 当前黄金版本
+- 文件名：toolbox.html.golden_2026-05-28_v20
+- 创建时间：2026-05-28 10:35:00
+- 版本说明：v20：与index_v3.html同步存档（Unsplash集成）
+
+### 历史版本（只保留最近1个）
+- v19: toolbox.html.golden_2026-05-26_v19 (2026-05-26 12:00:00)
+## [dept-archive.html] 当前黄金版本
+- 文件名：dept-archive.html.golden_2026-05-28_v20
+- 创建时间：2026-05-28 10:35:00
+- 版本说明：v20：与index_v3.html同步存档（Unsplash集成）
+
+### 历史版本（只保留最近1个）
+- v19: dept-archive.html.golden_2026-05-26_v19 (2026-05-26 12:00:00)
+---
+## 回滚方法
+### 方法1：使用回滚脚本（推荐）
+```bash
+cd "D:/trae/AI Daily report"
+rollback_to_v20.bat
+```
+**优点**：自动备份当前版本，安全可逆
+### 方法2：手动复制到工作版本
+```bash
+cd "D:/trae/AI Daily report"
+copy "index_v3.html.golden_2026-05-28_v21" "index_v3.html"
+copy "database_hub.html.golden_2026-05-28_v20" "database_hub.html"
+# ... 其他文件同理
+```
+**优点**：快速直接（但需手动复制所有9个文件）
+### 方法3：使用稳定版副本（不推荐，可能不是最新）
+```bash
+cd "D:/trae/AI Daily report"
+copy "index_v3.html.stable_latest" "index_v3.html"
+```
+**优点**：最简单，但稳定版副本可能不包含最新数据库文件
+---
+## 备份文件列表（只保留最近2个版本）
+### index_v3.html 备份
+- index_v3.html.golden_2026-05-28_v21（★当前版本★ v21）
+- index_v3.html.golden_2026-05-27_v20（上一版本★ v20）
+- ❌ 已删除：index_v3.html.golden_2026-05-26_v19（v19，已删除）
+### policy_center_v4.html 备份
+- policy_center_v4.html.golden_2026-05-28_v20（★当前版本★ v20）
+- policy_center_v4.html.golden_2026-05-26_v19（上一版本★ v19）
+- ❌ 已删除：policy_center_v4.html.golden_2026-05-25_113822_vNEW（v18，已删除）
+### industry_news.html 备份
+- industry_news.html.golden_2026-05-28_v20（★当前版本★ v20）
+- industry_news.html.golden_2026-05-26_v19（上一版本★ v19）
+- ❌ 已删除：industry_news.html.golden_2026-05-25_113822_vNEW（v18，已删除）
+### database_hub.html 备份
+- database_hub.html.golden_2026-05-28_v20（★当前版本★ v20）
+- database_hub.html.golden_2026-05-26_v19（上一版本★ v19）
+- ❌ 已删除：database_hub.html.golden_2026-05-25_113822_vNEW（v18，已删除）
+### bu_hub.html 备份
+- bu_hub.html.golden_2026-05-28_v20（★当前版本★ v20）
+- bu_hub.html.golden_2026-05-26_v19（上一版本★ v19）
+- ❌ 已删除：bu_hub.html.golden_2026-05-25_113822_vNEW（v18，已删除）
+### help.html 备份
+- help.html.golden_2026-05-28_v20（★当前版本★ v20）
+- help.html.golden_2026-05-26_v19（上一版本★ v19）
+- ❌ 已删除：help.html.golden_2026-05-25_113822_vNEW（v18，已删除）
+### toolbox.html 备份
+- toolbox.html.golden_2026-05-28_v20（★当前版本★ v20）
+- toolbox.html.golden_2026-05-26_v19（上一版本★ v19）
+- ❌ 已删除：toolbox.html.golden_2026-05-25_113822_vNEW（v18，已删除）
+### dept-archive.html 备份
+- dept-archive.html.golden_2026-05-28_v20（★当前版本★ v20）
+- dept-archive.html.golden_2026-05-26_v19（上一版本★ v19）
+- ❌ 已删除：dept-archive.html.golden_2026-05-25_113822_vNEW（v18，已删除）
+---
+## 数据库备份文件列表（只保留最近2个版本）
+### embedded_data.js (LFP数据) 备份
+- embedded_data.js.golden_2026-05-28_v20（★当前版本★ v20）
+- embedded_data.js.golden_2026-05-26_v19（上一版本★ v19）
+- ❌ 已删除：embedded_data.js.golden_2026-05-25_113822_vNEW（v18，已删除）
+### carbonate_embedded_data.js (碳酸锂数据) 备份
+- carbonate_embedded_data.js.golden_2026-05-28_v20（★当前版本★ v20）
+- carbonate_embedded_data.js.golden_2026-05-26_v19（上一版本★ v19）
+- ❌ 已删除：carbonate_embedded_data.js.golden_2026-05-25_113822_vNEW（v18，已删除）
+### electrolyte_embedded_data.js (电解液数据) 备份
+- electrolyte_embedded_data.js.golden_2026-05-28_v20（★当前版本★ v20）
+- electrolyte_embedded_data.js.golden_2026-05-26_v19（上一版本★ v19）
+- ❌ 已删除：electrolyte_embedded_data.js.golden_2026-05-25_113822_vNEW（v18，已删除）
+### lib_battery_embedded_data.js (锂电池数据) 备份
+- lib_battery_embedded_data.js.golden_2026-05-28_v20（★当前版本★ v20）
+- lib_battery_embedded_data.js.golden_2026-05-26_v19（上一版本★ v19）
+- ❌ 已删除：lib_battery_embedded_data.js.golden_2026-05-25_113822_vNEW（v18，已删除）
+### recycling_embedded_data.js (回收数据) 备份
+- recycling_embedded_data.js.golden_2026-05-28_v20（★当前版本★ v20）
+- recycling_embedded_data.js.golden_2026-05-26_v19（上一版本★ v19）
+- ❌ 已删除：recycling_embedded_data.js.golden_2026-05-25_113822_vNEW（v18，已删除）
+### automotive_embedded_data.js (汽车数据) 备份
+- automotive_embedded_data.js.golden_2026-05-28_v20（★当前版本★ v20）
+- automotive_embedded_data.js.golden_2026-05-26_v19（上一版本★ v19）
+- ❌ 已删除：automotive_embedded_data.js.golden_2026-05-25_113822_vNEW（v18，已删除）
+### recycling_all_data.json (回收JSON数据) 备份
+- recycling_all_data.json.golden_2026-05-28_v20（★当前版本★ v20）
+- recycling_all_data.json.golden_2026-05-26_v19（上一版本★ v19）
+- ❌ 已删除：recycling_all_data.json.golden_2026-05-25_113822_vNEW（v18，已删除）
+---
+## [index_v5_portal.html] 当前黄金版本
+- 文件名：index_v5_portal.html.golden_2026-05-28_v2
+- 创建时间：2026-05-28 10:35:00
+- 版本说明：v2：与index_v3.html同步存档（Unsplash集成）
+### 历史版本（只保留最近1个）
+- v1: index_v5_portal.html.golden_2026-05-27_v1 (2026-05-27 11:37:00)
+---
+最后更新：2026-05-28 10:40:00

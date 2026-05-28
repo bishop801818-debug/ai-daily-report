@@ -6,7 +6,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <meta name="html-version" content="20260528_120936">
+    <meta name="html-version" content="20260528_1354">
     <script>
       window.HTML_VERSION = document.querySelector('meta[name="html-version"]').content;
 
@@ -24,6 +24,46 @@
           location.replace(url);
           throw new Error('cache-bust-redirect');
         }
+      })();
+
+      /* ---------- 彻底防止图表旧内容闪屏（bfcache + 渲染残留）----------
+       * 问题：浏览器前进后退缓存(bfcache)会保存完整页面状态，
+       *       刷新时先显示旧页面（含旧图表），约1秒后才加载新数据。
+       * 方案：
+       *   1. 页面解析时立即清空已存在的SVG图表内容
+       *   2. DOMContentLoaded后再次清空所有SVG（确保body中的也被处理）
+       *   3. 重置loading状态，确保显示"数据加载中..."
+       *   4. 监听pageshow事件，bfcache恢复时强制重新加载 */
+      (function() {
+        function clearAllCharts() {
+          document.querySelectorAll('svg[id*="Chart"] g').forEach(function(g) {
+            g.innerHTML = '';
+          });
+          document.querySelectorAll('.chart-loading').forEach(function(el) {
+            el.style.display = 'flex';
+          });
+          document.querySelectorAll('.chart-no-data').forEach(function(el) {
+            el.style.display = 'none';
+          });
+        }
+
+        // 1. 立即清空已解析的SVG（head中执行时可能只有部分）
+        clearAllCharts();
+
+        // 2. DOMContentLoaded后再次清空所有SVG（确保完整）
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', clearAllCharts);
+        } else {
+          clearAllCharts();
+        }
+
+        // 3. 监听pageshow：若从bfcache恢复，强制重新加载页面
+        window.addEventListener('pageshow', function(e) {
+          if (e.persisted) {
+            console.log('[bfcache] 从缓存恢复，强制重新加载...');
+            location.reload();
+          }
+        });
       })();
 
         /* ---------- Ticker 同步辅助函数 ---------- */
@@ -3211,6 +3251,8 @@ window.__EMBEDDED__ = {"mode":"standalone","today":"2026-05-27","report":{"date"
             justify-content: center;
             color: #999;
             font-size: 14px;
+            z-index: 10;
+            background: rgba(250,250,250,0.9);
         }
         #lcFuturesChart {
             display: block;
