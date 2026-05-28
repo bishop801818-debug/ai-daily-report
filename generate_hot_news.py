@@ -8,12 +8,21 @@
 - 检查事业部JSON的"报告时间"字段
 - 如果不是今天，则沿用昨天的hot_news_data.json（不覆盖）
 - 如果是今天，则生成新数据
+
+URL搜索逻辑：
+- 对每条新闻，用DuckDuckGo搜索相关链接
+- 过滤付费墙网站，取第一个有效链接
+- 写入 url 和 url_source 字段
 """
 
 import json
 import random
 import os
+import re
+import urllib.request
+import urllib.parse
 from datetime import datetime, date
+from html import unescape
 
 # 配置
 REPORTS_DIR = "D:/trae/AI Daily report/reports"
@@ -142,6 +151,98 @@ def load_existing_data():
     except:
         return None
 
+# 付费墙/需登录的域名列表（搜索结果出现这些域名时跳过）
+PAYWALL_DOMAINS = [
+    'caixin.com',
+    'ft.com',
+    'wsj.com',
+    'bloomberg.com',
+    'economist.com',
+    'nytimes.com',
+    'reuters.com',  # 部分内容付费
+    'financialtimes.com',
+    'sgx.com',  # 新交所需登录
+]
+
+def is_paywall_url(url):
+    """判断URL是否属于付费墙网站"""
+    try:
+        from urllib.parse import urlparse
+        parsed = urlparse(url)
+        domain = parsed.netloc.lower().replace('www.', '')
+        return any(pw in domain for pw in PAYWALL_DOMAINS)
+    except:
+        return False
+
+def search_news_url(title, max_results=5):
+    """
+    用Bing搜索新闻URL（DuckDuckGo不稳定，改用Bing）
+    返回：(url, source_name) 或 (None, None)
+    """
+    try:
+        query = urllib.parse.quote_plus(title)
+        search_url = f"https://www.bing.com/search?q={query}&setlang=zh-CN"
+        
+        req = urllib.request.Request(
+            search_url,
+            headers={
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+                'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8',
+            }
+        )
+        
+        with urllib.request.urlopen(req, timeout=10) as resp:
+            html = resp.read().decode('utf-8', errors='ignore')
+        
+        # 从Bing HTML中提取结果链接
+        # Bing结果格式: <li class="b_algo"><h2><a href="https://...">标题</a></h2></li>
+        # 或者: <h2><a href="https://...">...</a></h2>
+        pattern = r'<h2><a[^>]+href="(https?://[^"]+)"'
+        matches = re.findall(pattern, html)
+        
+        if not matches:
+            # 尝试另一种格式
+            pattern2 = r'<a href="(https?://[^"]+)"[^>]*class="[^"]*tilk[^"]*"'
+            matches = re.findall(pattern2, html)
+        
+        if not matches:
+            print(f"    [搜索] 未找到结果: {title[:30]}...")
+            return None, None
+        
+        # 过滤付费墙，取第一个有效链接
+        for i, url in enumerate(matches[:max_results]):
+            if is_paywall_url(url):
+                print(f"    [搜索] 跳过付费墙: {url[:60]}...")
+                continue
+            # 取来源网站名
+            try:
+                from urllib.parse import urlparse
+                domain = urlparse(url).netloc.replace('www.', '')
+            except:
+                domain = '未知来源'
+            print(f"    [搜索] 找到链接: {domain} - {url[:60]}...")
+            return url, domain
+        
+        print(f"    [搜索] 所有结果均为付费墙，未找到有效链接: {title[:30]}...")
+        return None, None
+        
+    except Exception as e:
+        print(f"    [搜索] 搜索失败: {e}")
+        return None, None
+
+def enrich_news_with_urls(selected_items):
+    """为每条新闻搜索URL，返回带url字段的新列表"""
+    enriched = []
+    for item in selected_items:
+        print(f"  [搜索URL] {item['title'][:40]}...")
+        url, source = search_news_url(item['title'])
+        new_item = dict(item)  # 复制原item
+        new_item['url'] = url
+        new_item['url_source'] = source
+        enriched.append(new_item)
+    return enriched
+
 def main():
     print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] 开始生成热点新闻数据...")
     
@@ -200,7 +301,7 @@ def main():
     for i, item in enumerate(selected_items, 1):
         print(f"  {i}. [{item['bu']}] {item['title']}")
     
-    # 生成输出数据
+    # 生成输出数据（URL字段由AI自动化任务后续补充，此处不包含URL）
     output_data = {
         "generated_at": datetime.now().isoformat(),
         "news": selected_items

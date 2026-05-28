@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
@@ -4428,11 +4428,14 @@ window.__EMBEDDED__ = {"mode":"standalone","today":"2026-05-27","report":{"date"
         }
 
         .news-slide {
+            display: block;
             min-width: 100%;
             height: 100%;
             position: relative;
             cursor: pointer;
             overflow: hidden;
+            text-decoration: none;
+            color: inherit;
         }
 
         /* 卡片背景（彩色主题渐变） */
@@ -14141,7 +14144,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 newsCarousel.innerHTML = '';
                 items.forEach(function(item, i) {
-                    var slide = document.createElement('div');
+                    var tag = item.url ? 'a' : 'div';
+                    var slide = document.createElement(tag);
+                    if (item.url) {
+                        slide.href = item.url;
+                        slide.target = '_blank';
+                        slide.rel = 'noopener noreferrer';
+                    }
                     slide.className = 'news-slide';
                     slide.innerHTML = '<div class="news-slide-bg"></div><div class="news-overlay"><div class="news-overlay-title">' + item.title + '</div></div>';
                     newsCarousel.appendChild(slide);
