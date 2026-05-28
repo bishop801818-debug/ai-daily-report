@@ -21,7 +21,7 @@ import os
 import re
 import urllib.request
 import urllib.parse
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
 from html import unescape
 
 # 配置
@@ -74,6 +74,7 @@ def extract_news_items(bu_data):
         return []
     
     bu_name = bu_data.get("header", {}).get("事业部", "未知BU")
+    report_time = bu_data.get("header", {}).get("报告时间", "")
     today_focus = bu_data.get("sections", {}).get("今日关注", [])
     
     items = []
@@ -82,7 +83,8 @@ def extract_news_items(bu_data):
         if title:
             items.append({
                 "bu": bu_name,
-                "title": title
+                "title": title,
+                "date": report_time   # 添加报告日期字段
             })
     
     return items
@@ -286,6 +288,31 @@ def main():
             all_items.extend(items)
     
     print(f"总计提取到 {len(all_items)} 条今日关注新闻")
+    
+    # 过滤掉T-3以外的旧闻（报告日期早于T-3的不要）
+    today = date.today()
+    t_minus_3 = today - timedelta(days=3)
+    
+    filtered_items = []
+    old_count = 0
+    for item in all_items:
+        item_date_str = item.get("date", "")
+        try:
+            item_date = datetime.strptime(item_date_str, "%Y-%m-%d").date()
+            if item_date >= t_minus_3:
+                filtered_items.append(item)
+            else:
+                old_count += 1
+                print(f"  [过滤] 旧闻(T-3以外): [{item['date']}] {item['title'][:40]}...")
+        except Exception as e:
+            # 如果日期解析失败，保留该条目
+            filtered_items.append(item)
+    
+    if filtered_items:
+        all_items = filtered_items
+        print(f"过滤后剩余 {len(all_items)} 条（过滤掉 {old_count} 条T-3以外的旧闻）")
+    else:
+        print(f"[警告] 过滤后没有剩余新闻（过滤掉 {old_count} 条），将使用未过滤数据")
     
     # 均匀抽取5条
     selected_items = select_news_evenly(all_items, target_count=5)
