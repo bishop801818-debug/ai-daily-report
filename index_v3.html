@@ -6,20 +6,28 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <meta name="html-version" content="20260528_110831">
+    <meta name="html-version" content="20260528_110105">
     <script>
       window.HTML_VERSION = document.querySelector('meta[name="html-version"]').content;
-      var vp = window.HTML_VERSION;
-      var p = new URLSearchParams(location.search);
-      if (p.get("v") !== vp) {
-        location.replace(location.pathname + "?v=" + encodeURIComponent(vp) + location.hash);
-        throw new Error("br");
-      } else {
-        document.documentElement.style.display = "block";
-      }
-    </script>
-    <style>html{display:none}</style>
-    <title>常州锂源AI晨会指挥中心</title>
+
+      /* ---------- 强制缓存刷新（彻底解决旧内容闪屏）----------
+       * 机制：每次加载时强制携带时间戳参数（如 ?v=20260528_0900），
+       * 浏览器将"不同参数"视为不同资源，不走磁盘缓存。
+       * 1. 读取 meta 版本号作为 v= 值
+       * 2. 若 URL 无此参数，立即 location.replace（强制刷新一次）
+       * 3. 若已有此参数，正常加载（不重复触发） */
+      (function() {
+        var ver = window.HTML_VERSION || '';
+        var params = new URLSearchParams(location.search);
+        if (params.get('v') !== ver) {
+          var url = location.pathname + '?v=' + encodeURIComponent(ver) + location.hash;
+          location.replace(url);
+          throw new Error('cache-bust-redirect');
+        }
+      })();
+
+        /* ---------- Ticker 同步辅助函数 ---------- */
+        function updateTicker(priceId, priceText, changePct) {
             var priceEl = document.getElementById(priceId);
             var changeEl = document.getElementById(priceId + '-change');
             if (priceEl) priceEl.textContent = priceText;
@@ -14135,7 +14143,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 items.forEach(function(item, i) {
                     var slide = document.createElement('div');
                     slide.className = 'news-slide';
-                    slide.innerHTML = '<div class="news-slide-bg"></div><div class="news-overlay"><span class="news-overlay-tag">' + item.bu + '</span><div class="news-overlay-title">' + item.title + '</div><div class="news-overlay-meta">今日关注</div></div>';
+                    slide.innerHTML = '<div class="news-slide-bg"></div><div class="news-overlay"><div class="news-overlay-title">' + item.title + '</div></div>';
                     newsCarousel.appendChild(slide);
                 });
                 
@@ -14178,7 +14186,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 defaultItems.forEach(function(item, i) {
                     var slide = document.createElement('div');
                     slide.className = 'news-slide';
-                    slide.innerHTML = '<div class="news-slide-bg"></div><div class="news-overlay"><span class="news-overlay-tag">' + item.bu + '</span><div class="news-overlay-title">' + item.title + '</div><div class="news-overlay-meta">今日关注</div></div>';
+                    slide.innerHTML = '<div class="news-slide-bg"></div><div class="news-overlay"><div class="news-overlay-title">' + item.title + '</div></div>';
                     newsCarousel.appendChild(slide);
                 });
                 totalNewsSlides = defaultItems.length;
