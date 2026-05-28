@@ -6,7 +6,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <meta name="html-version" content="20260528_1420">
+    <meta name="html-version" content="20260528_1432">
     <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
     <script>
       window.HTML_VERSION = document.querySelector('meta[name="html-version"]').content;
@@ -101,8 +101,9 @@ window.__EMBEDDED__ = {"mode":"standalone","today":"2026-05-27","report":{"date"
     <title>晨会指挥中心 - 每日早报</title>
     <style>
         /* 防止图表旧内容闪屏：SVG默认隐藏，JS渲染完成后由JS设为visible */
+        /* 使用 !important 防止被 inline style 覆盖 */
         svg[id*="Chart"], svg[id*="chart"] {
-            visibility: hidden;
+            visibility: hidden !important;
         }
 
         * {
@@ -4801,6 +4802,52 @@ window.__EMBEDDED__ = {"mode":"standalone","today":"2026-05-27","report":{"date"
 
         .hero-overlay-btn:hover { background: var(--linen-signal); }
 
+        /* 图内信息叠加层 - 绝对定位在图表左上角 */
+        .hero-slide-info {
+            position: absolute;
+            top: 8px;
+            left: 12px;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            pointer-events: auto;
+        }
+        .hero-slide-tag {
+            font-size: 10px;
+            font-weight: 700;
+            color: #C4622D;
+            background: rgba(247,244,236,0.88);
+            padding: 2px 8px;
+            border-radius: 3px;
+            border: 1px solid rgba(196,98,45,0.20);
+            width: fit-content;
+            letter-spacing: 0.5px;
+            backdrop-filter: blur(2px);
+        }
+        .hero-slide-title {
+            font-size: 12px;
+            font-weight: 600;
+            color: #3D2914;
+            background: rgba(247,244,236,0.75);
+            padding: 2px 8px;
+            border-radius: 3px;
+            width: fit-content;
+            backdrop-filter: blur(2px);
+        }
+        .hero-slide-data {
+            font-size: 11px;
+            font-weight: 600;
+            color: #3D2914;
+            background: rgba(247,244,236,0.75);
+            padding: 2px 8px;
+            border-radius: 3px;
+            width: fit-content;
+            backdrop-filter: blur(2px);
+        }
+        .hero-slide-data.up { color: #D04A2B; }
+        .hero-slide-data.down { color: #4A7C59; }
+
         /* 图表轮播容器 - 横向滚动 */
         .chart-carousel {
             display: flex;
@@ -4817,7 +4864,7 @@ window.__EMBEDDED__ = {"mode":"standalone","today":"2026-05-27","report":{"date"
             overflow: hidden;
             display: flex;
             flex-direction: column;
-            justify-content: center;
+            justify-content: flex-start;
             padding: 60px 16px 16px;
         }
 
@@ -5906,47 +5953,39 @@ window.addEventListener('DOMContentLoaded', function() {
                     <span class="hero-right-more" onclick="location.href='database_hub.html'">更多 →</span>
                 </div>
                 <div class="chart-carousel" id="chartCarousel">
-                    <div class="chart-slide">
+                    <div class="chart-slide" data-slide="0">
                         <div class="hero-chart-wrap" id="chartItem0"></div>
-                        <div class="hero-overlay">
-                            <div class="hero-overlay-left">
-                                <span class="hero-overlay-tag">数据库 · LFP产量</span>
-                                <div class="hero-overlay-title">LFP/FP行业产量走势</div>
-                                <div class="hero-overlay-desc">LFP月产量38.0万吨，环比-7.8%</div>
-                            </div>
+                        <div class="hero-slide-info">
+                            <div class="hero-slide-tag">磷酸铁锂·行业产量</div>
+                            <div class="hero-slide-title">LFP行业月度产量走势</div>
+                            <div class="hero-slide-data" id="slide-data-0">--</div>
                             <a class="hero-overlay-btn" href="lfp_charts.html">查看 →</a>
                         </div>
                     </div>
-                    <div class="chart-slide">
+                    <div class="chart-slide" data-slide="1">
                         <div class="hero-chart-wrap" id="chartItem1"></div>
-                        <div class="hero-overlay">
-                            <div class="hero-overlay-left">
-                                <span class="hero-overlay-tag">数据库 · 碳酸锂价格</span>
-                                <div class="hero-overlay-title">碳酸锂期货主力合约走势</div>
-                                <div class="hero-overlay-desc">主力合约LC2507收于62,350元/吨</div>
-                            </div>
+                        <div class="hero-slide-info">
+                            <div class="hero-slide-tag">碳酸锂·现货价格</div>
+                            <div class="hero-slide-title">碳酸锂现货价格走势</div>
+                            <div class="hero-slide-data" id="slide-data-1">--</div>
                             <a class="hero-overlay-btn" href="carbonate_charts.html">查看 →</a>
                         </div>
                     </div>
-                    <div class="chart-slide">
+                    <div class="chart-slide" data-slide="2">
                         <div class="hero-chart-wrap" id="chartItem2"></div>
-                        <div class="hero-overlay">
-                            <div class="hero-overlay-left">
-                                <span class="hero-overlay-tag">数据库 · 电解液</span>
-                                <div class="hero-overlay-title">电解液行业价格与产量监控</div>
-                                <div class="hero-overlay-desc">6F价格企稳回升，DMC供给宽松</div>
-                            </div>
+                        <div class="hero-slide-info">
+                            <div class="hero-slide-tag">电解液·六氟磷酸锂</div>
+                            <div class="hero-slide-title">六氟磷酸锂价格走势</div>
+                            <div class="hero-slide-data" id="slide-data-2">--</div>
                             <a class="hero-overlay-btn" href="electrolyte_charts.html">查看 →</a>
                         </div>
                     </div>
-                    <div class="chart-slide">
+                    <div class="chart-slide" data-slide="3">
                         <div class="hero-chart-wrap" id="chartItem3"></div>
-                        <div class="hero-overlay">
-                            <div class="hero-overlay-left">
-                                <span class="hero-overlay-tag">数据库 · 三元材料</span>
-                                <div class="hero-overlay-title">三元正极材料产量与价格走势</div>
-                                <div class="hero-overlay-desc">高镍三元需求回暖，价差收窄</div>
-                            </div>
+                        <div class="hero-slide-info">
+                            <div class="hero-slide-tag">三元材料·产量</div>
+                            <div class="hero-slide-title">三元正极月度产量走势</div>
+                            <div class="hero-slide-data" id="slide-data-3">--</div>
                             <a class="hero-overlay-btn" href="ternary_charts.html">查看 →</a>
                         </div>
                     </div>
@@ -11715,7 +11754,8 @@ const BU_LOGOS = {
          */
         function triggerLineRevealAnimation(svg) {
             // 图表已渲染完成，显示SVG（防止旧内容闪屏）
-            if (svg) svg.style.visibility = 'visible';
+            // 使用 setProperty 设置 !important，覆盖 CSS 的 visibility: hidden !important
+            if (svg) svg.style.setProperty('visibility', 'visible', 'important');
             var card = svg.closest('.mk-chart-card') || svg.closest('.lc-futures-chart-wrapper') || svg.closest('.lc-spot-chart-wrapper');
             if (!card) return;
             var deepLines = svg.querySelectorAll('.deep-line-anim');
@@ -12118,7 +12158,8 @@ const BU_LOGOS = {
 
                 drawLFPDualChart(svg, powerData.history, storageData.history);
                 // 图表已渲染完成，显示SVG（防止旧内容闪屏）
-                if (svg) svg.style.visibility = 'visible';
+                // 使用 setProperty 设置 !important，覆盖 CSS 的 visibility: hidden !important
+                if (svg) svg.style.setProperty('visibility', 'visible', 'important');
                 if (noData) noData.style.display = 'none';
 
                 function fitSvgToContainer() {
@@ -12440,7 +12481,8 @@ const BU_LOGOS = {
                 var displayHistory = history.slice(-53);
                 drawFPChart(svg, displayHistory);
                 // 图表已渲染完成，显示SVG（防止旧内容闪屏）
-                if (svg) svg.style.visibility = 'visible';
+                // 使用 setProperty 设置 !important，覆盖 CSS 的 visibility: hidden !important
+                if (svg) svg.style.setProperty('visibility', 'visible', 'important');
                 if (loading) loading.style.display = 'none';
 
                 var latest = displayHistory[displayHistory.length - 1];
@@ -14342,7 +14384,8 @@ document.addEventListener('DOMContentLoaded', function() {
     })();
 
 
-    // ========== 数据库看板 - ECharts 小图表初始化 ==========
+
+    // ========== 数据库看板 - 每slide独立ECharts + 图内左上角信息叠加 ==========
     (function() {
         var HERO_COLORS = {
             primary: '#3D2914',
@@ -14350,25 +14393,41 @@ document.addEventListener('DOMContentLoaded', function() {
             accent: '#C4622D',
             up: '#D04A2B',
             down: '#4A7C59',
-            neutral: '#8C7B6B',
-            bg: '#F7F4EF',
-            grid: 'rgba(61,41,20,0.08)',
             text: '#3D2914',
-            textDim: '#8C7B6B'
+            grid: 'rgba(61,41,20,0.12)'
         };
 
-        function shortLineOption(data, color, label) {
+        var SLIDE_META = [
+            { tag: '磷酸铁锂·行业产量', title: 'LFP行业月度产量走势', link: 'lfp_charts.html' },
+            { tag: '碳酸锂·现货价格',   title: '碳酸锂现货价格走势',   link: 'carbonate_charts.html' },
+            { tag: '电解液·六氟磷酸锂', title: '六氟磷酸锂价格走势',   link: 'electrolyte_charts.html' },
+            { tag: '三元材料·产量',     title: '三元正极月度产量走势', link: 'ternary_charts.html' }
+        ];
+
+        var slideCharts = [null, null, null, null];
+        var slideData = [null, null, null, null];
+        var currentSlide = 0;
+
+        function mkLineOpt(data, color, showAxis) {
+            var grid = { top: 12, right: 16, bottom: showAxis ? 28 : 8, left: 12, containLabel: false };
+            var xAxisCfg = showAxis ? {
+                type: 'category', show: true,
+                data: data.map(function(d) { return d[0]; }),
+                axisLine: { lineStyle: { color: '#ccc', width: 1 } },
+                axisTick: { show: false },
+                axisLabel: { show: true, color: '#8C7B6B', fontSize: 10, interval: Math.floor(data.length / 4) },
+                splitLine: { show: false }
+            } : { type: 'category', show: false, data: data.map(function(d) { return d[0]; }) };
             return {
                 backgroundColor: 'transparent',
-                grid: { top: 8, right: 8, bottom: 8, left: 8, containLabel: false },
-                xAxis: { type: 'category', show: false, data: data.map(function(d){ return d[0]; }) },
+                grid: grid,
+                xAxis: xAxisCfg,
                 yAxis: { type: 'value', show: false, min: 'dataMin' },
                 series: [{
-                    type: 'line',
-                    data: data.map(function(d){ return d[1]; }),
-                    smooth: true,
-                    symbol: 'none',
+                    type: 'line', data: data.map(function(d) { return d[1]; }),
+                    smooth: true, symbol: 'circle', symbolSize: 4,
                     lineStyle: { color: color, width: 2 },
+                    itemStyle: { color: color, borderWidth: 1, borderColor: '#fff' },
                     areaStyle: {
                         color: {
                             type: 'linear', x: 0, y: 0, x2: 0, y2: 1,
@@ -14381,147 +14440,211 @@ document.addEventListener('DOMContentLoaded', function() {
                 }],
                 tooltip: {
                     trigger: 'axis',
-                    backgroundColor: '#fff',
+                    backgroundColor: 'rgba(247,244,236,0.95)',
                     borderColor: '#ddd',
                     borderWidth: 1,
                     textStyle: { color: '#3D2914', fontSize: 12 },
-                    formatter: function(params) {
-                        var p = params[0];
-                        return p.name + '<br/>' + p.marker + ' ' + label + ': <b>' + p.value + '</b>';
-                    }
+                    position: function(pos) { return [pos[0] - 40, Math.max(0, pos[1] - 60)]; }
                 }
             };
         }
 
-        function barOption(data, color, label) {
+        function mkBarOpt(data, color, showAxis) {
+            var grid = { top: 12, right: 16, bottom: showAxis ? 28 : 8, left: 12, containLabel: false };
+            var xAxisCfg = showAxis ? {
+                type: 'category', show: true,
+                data: data.map(function(d) { return d[0]; }),
+                axisLine: { lineStyle: { color: '#ccc', width: 1 } },
+                axisTick: { show: false },
+                axisLabel: { show: true, color: '#8C7B6B', fontSize: 10, interval: Math.floor(data.length / 4) },
+                splitLine: { show: false }
+            } : { type: 'category', show: false, data: data.map(function(d) { return d[0]; }) };
             return {
                 backgroundColor: 'transparent',
-                grid: { top: 8, right: 8, bottom: 8, left: 8, containLabel: false },
-                xAxis: { type: 'category', show: false, data: data.map(function(d){ return d[0]; }) },
+                grid: grid,
+                xAxis: xAxisCfg,
                 yAxis: { type: 'value', show: false, min: 0 },
                 series: [{
                     type: 'bar',
-                    data: data.map(function(d){ return d[1]; }),
-                    barMaxWidth: 20,
+                    data: data.map(function(d) { return d[1]; }),
+                    barMaxWidth: 18,
                     itemStyle: { color: color, borderRadius: [2, 2, 0, 0] }
                 }],
                 tooltip: {
                     trigger: 'axis',
-                    backgroundColor: '#fff',
+                    backgroundColor: 'rgba(247,244,236,0.95)',
                     borderColor: '#ddd',
                     borderWidth: 1,
                     textStyle: { color: '#3D2914', fontSize: 12 },
-                    formatter: function(params) {
-                        var p = params[0];
-                        return p.name + '<br/>' + p.marker + ' ' + label + ': <b>' + p.value + '</b>';
-                    }
+                    position: function(pos) { return [pos[0] - 40, Math.max(0, pos[1] - 60)]; }
                 }
             };
         }
 
-        var charts = [];
-
-        function initHeroCharts() {
-            var items = [
-                { id: 'chartItem0', type: 'line', color: HERO_COLORS.accent, label: '产量(万吨)' },
-                { id: 'chartItem1', type: 'line', color: HERO_COLORS.up, label: '价格(万元/吨)' },
-                { id: 'chartItem2', type: 'bar', color: HERO_COLORS.secondary, label: '产量(万吨)' },
-                { id: 'chartItem3', type: 'bar', color: HERO_COLORS.primary, label: '产量(万吨)' }
-            ];
-
-            // 数据默认值（加载真实数据前）
-            var defaultData = [
-                [['1月',12],['2月',15],['3月',14],['4月',18],['5月',16],['6月',20],['7月',19],['8月',22],['9月',21],['10月',24],['11月',23],['12月',26]],
-                [['1月',7.2],['2月',7.5],['3月',7.8],['4月',8.1],['5月',7.6],['6月',8.3],['7月',8.5],['8月',8.2],['9月',8.7],['10月',9.0],['11月',8.8],['12月',9.2]],
-                [['1月',4.2],['2月',3.8],['3月',4.5],['4月',4.1],['5月',4.8],['6月',5.0],['7月',4.7],['8月',5.2],['9月',5.1],['10月',5.5],['11月',5.3],['12月',5.8]],
-                [['1月',3.1],['2月',3.4],['3月',3.2],['4月',3.5],['5月',3.8],['6月',3.6],['7月',4.0],['8月',3.9],['9月',4.2],['10月',4.1],['11月',4.4],['12月',4.6]]
-            ];
-
-            items.forEach(function(item, i) {
-                var el = document.getElementById(item.id);
-                if (!el) return;
-                var chart = echarts.init(el);
-                var opt = item.type === 'bar'
-                    ? barOption(defaultData[i], item.color, item.label)
-                    : shortLineOption(defaultData[i], item.color, item.label);
-                chart.setOption(opt);
-                charts.push({ chart: chart, id: item.id });
-            });
-
-            // 加载真实数据
-            loadHeroChartData(charts, defaultData);
+        function fmtNum(v, unit) {
+            if (v === null || v === undefined || isNaN(v)) return '--';
+            return v.toFixed(2) + (unit || '');
         }
 
-        function loadHeroChartData(charts, defaults) {
-            // LFP产量
-            fetch('lfp_all_data.json?t=' + Date.now())
-                .then(function(r){ return r.json(); })
-                .then(function(d) {
-                    var rows = (d.tables.find(function(t){ return t.table_name === 'LFP-行业整体产量'; }) || {}).data || [];
-                    var last12 = rows.slice(-12);
-                    var data = last12.map(function(r){
-                        var m = String(r['月份'] || '');
-                        var v = parseFloat(String(r['月度产量'] || '0').replace(/,/g,''));
-                        return [m.length > 7 ? m.slice(5) : m, v];
-                    });
-                    updateChart(0, data, 'line', HERO_COLORS.accent, '产量(万吨)');
-                }).catch(function(){});
+        function calcChange(data) {
+            if (!data || data.length < 2) return null;
+            var last = data[data.length - 1][1];
+            var prev = data[data.length - 2][1];
+            if (!last || !prev) return null;
+            return ((last - prev) / prev * 100);
+        }
 
-            // 碳酸锂价格
-            fetch('carbonate_all_data.json?t=' + Date.now())
-                .then(function(r){ return r.json(); })
-                .then(function(d) {
-                    var rows = (d.tables.find(function(t){ return t.table_name === '碳酸锂—价格'; }) || {}).data || [];
-                    var last30 = rows.slice(-30);
-                    var data = last30.map(function(r){
-                        var date = String(r['日期'] || r['月份'] || '').slice(5,10);
-                        var v = parseFloat(String(r['现货价'] || r['期货收盘价(元/吨)'] || '0').replace(/,/g,''));
-                        if (v > 0) return [date, v / 10000]; // 转为万元
-                        return null;
-                    }).filter(function(d){ return d !== null; });
-                    updateChart(1, data, 'line', HERO_COLORS.up, '价格(万元/吨)');
-                }).catch(function(){});
+        function getSlideEl(idx) {
+            return document.querySelectorAll('.chart-slide')[idx];
+        }
 
-            // 电解液产量
-            fetch('electrolyte_all_data.json?t=' + Date.now())
-                .then(function(r){ return r.json(); })
-                .then(function(d) {
-                    var rows = (d.tables.find(function(t){ return t.table_name === '电解液-行业整体产量'; }) || {}).data || [];
-                    var last12 = rows.slice(-12);
-                    var data = last12.map(function(r){
-                        var m = String(r['月份'] || '');
-                        var v = parseFloat(String(r['产量'] || '0').replace(/,/g,''));
-                        return [m.length > 7 ? m.slice(5) : m, v];
-                    });
-                    updateChart(2, data, 'bar', HERO_COLORS.secondary, '产量(万吨)');
-                }).catch(function(){});
+        function renderSlide(idx, forceData) {
+            var slide = getSlideEl(idx);
+            if (!slide) return;
+            var meta = SLIDE_META[idx] || {};
+            var data = forceData !== undefined ? forceData : slideData[idx];
+            currentSlide = idx;
 
-            // 三元材料产量 (用 embedded_data.js 里的 battery_data)
-            // 如果找不到三元数据，用 LFP出口量 替代
-            if (typeof BATTERY !== 'undefined' && BATTERY.lfp_export) {
-                var rows = BATTERY.lfp_export.slice(-12);
-                var data = rows.map(function(r){
-                    var m = String(r['月份'] || '').slice(5);
-                    var v = parseFloat(String(r['月度出口量（万吨）'] || '0').replace(/,/g,''));
-                    return [m, v];
-                }).filter(function(d){ return d[1] > 0; });
-                if (data.length > 3) updateChart(3, data, 'bar', HERO_COLORS.primary, '出口(万吨)');
+            // 标签 + 标题
+            var tagEl = slide.querySelector('.hero-slide-tag');
+            var titleEl = slide.querySelector('.hero-slide-title');
+            var dataEl = slide.querySelector('.hero-slide-data');
+            var btnEl = slide.querySelector('.hero-overlay-btn');
+
+            if (tagEl) tagEl.textContent = meta.tag || '';
+            if (titleEl) titleEl.textContent = meta.title || '';
+            if (btnEl && meta.link) btnEl.href = meta.link;
+
+            if (dataEl) {
+                if (data && data.length > 0) {
+                    var latest = data[data.length - 1][1];
+                    var pct = calcChange(data);
+                    var changeStr = pct !== null ? (pct >= 0 ? '+' : '') + pct.toFixed(1) + '%' : '';
+                    dataEl.className = 'hero-slide-data' + (pct > 0 ? ' up' : (pct < 0 ? ' down' : ''));
+                    dataEl.textContent = fmtNum(latest, '') + (changeStr ? '  ' + changeStr : '');
+                } else {
+                    dataEl.textContent = '--';
+                    dataEl.className = 'hero-slide-data';
+                }
             }
+
+            // 图表：当前slide显示真实数据+坐标轴，其他slide显示placeholder
+            slideCharts.forEach(function(ch, i) {
+                if (!ch) return;
+                if (i === idx) {
+                    var isBar = (idx === 2 || idx === 3);
+                    var d = slideData[idx];
+                    if (!d || d.length === 0) {
+                        ch.setOption(mkLineOpt([['--',0]], HERO_COLORS.accent, true), true);
+                    } else {
+                        var opt = isBar ? mkBarOpt(d, HERO_COLORS.accent, true) : mkLineOpt(d, HERO_COLORS.accent, true);
+                        ch.setOption(opt, true);
+                        ch.resize();
+                    }
+                } else {
+                    ch.clear();
+                }
+            });
         }
 
-        function updateChart(idx, data, type, color, label) {
-            var item = charts[idx];
-            if (!item) return;
-            var opt = type === 'bar'
-                ? barOption(data, color, label)
-                : shortLineOption(data, color, label);
-            item.chart.setOption(opt, true);
+        function initAllCharts() {
+            for (var i = 0; i < 4; i++) {
+                var el = document.getElementById('chartItem' + i);
+                if (!el) continue;
+                slideCharts[i] = echarts.init(el);
+            }
+            // 渲染第0张
+            renderSlide(0);
+        }
+
+        function loadAllData() {
+            // Slide 0: LFP行业整体产量
+            fetch('lfp_all_data.json?t=' + Date.now())
+                .then(function(r) { return r.json(); })
+                .then(function(d) {
+                    var rows = (d.tables.find(function(t) { return t.table_name === 'LFP-行业整体产量'; }) || {}).data || [];
+                    var data = rows.slice(-12).map(function(r) {
+                        var m = String(r['月份'] || '');
+                        var v = parseFloat(String(r['月度产量'] || '0').replace(/,/g, ''));
+                        return [m.length > 7 ? m.slice(5) : m, v];
+                    }).filter(function(d) { return d[1] > 0; });
+                    slideData[0] = data;
+                    renderSlide(0);
+                }).catch(function() {});
+
+            // Slide 1: 碳酸锂现货价格
+            fetch('carbonate_all_data.json?t=' + Date.now())
+                .then(function(r) { return r.json(); })
+                .then(function(d) {
+                    var rows = (d.tables.find(function(t) { return t.table_name === '碳酸锂—价格'; }) || {}).data || [];
+                    var data = rows.slice(-30).map(function(r) {
+                        var date = String(r['日期'] || r['月份'] || '').slice(5, 10);
+                        var v = parseFloat(String(r['现货价'] || r['期货收盘价(元/吨)'] || '0').replace(/,/g, ''));
+                        if (v > 0) return [date, v / 10000];
+                        return null;
+                    }).filter(function(d) { return d !== null; });
+                    slideData[1] = data;
+                    renderSlide(0);
+                }).catch(function() {});
+
+            // Slide 2: 六氟磷酸锂价格
+            fetch('electrolyte_all_data.json?t=' + Date.now())
+                .then(function(r) { return r.json(); })
+                .then(function(d) {
+                    var rows = (d.tables.find(function(t) { return t.table_name === '电解液价格-六氟磷酸锂'; }) || {}).data || [];
+                    var data = rows.slice(-12).map(function(r) {
+                        var m = String(r['月份'] || '');
+                        // 取数值型列
+                        var v = 0;
+                        for (var key in r) {
+                            var num = parseFloat(String(r[key]).replace(/,/g, ''));
+                            if (!isNaN(num) && num > 0 && num < 1000) { v = num; break; }
+                        }
+                        return [m.length > 7 ? m.slice(5) : m, v];
+                    }).filter(function(d) { return d[1] > 0; });
+                    slideData[2] = data;
+                    renderSlide(0);
+                }).catch(function() {});
+
+            // Slide 3: 碳酸锂行业总产量兜底
+            fetch('carbonate_all_data.json?t=' + Date.now())
+                .then(function(r) { return r.json(); })
+                .then(function(d) {
+                    var rows = (d.tables.find(function(t) { return t.table_name === '碳酸锂-行业总产量'; }) || {}).data || [];
+                    var data = rows.slice(-12).map(function(r) {
+                        var m = String(r['月份'] || '');
+                        var v = parseFloat(String(r['产量（吨）'] || '0').replace(/,/g, ''));
+                        return [m.length > 7 ? m.slice(5) : m, v / 10000];
+                    }).filter(function(d) { return d[1] > 0; });
+                    slideData[3] = data;
+                    renderSlide(0);
+                }).catch(function() {});
+        }
+
+        // 监听轮播切换，联动图表
+        var _origMove = null;
+        function patchCarousel() {
+            var origMove = window.moveChartCarousel;
+            window.moveChartCarousel = function(dir) {
+                var dots = document.querySelectorAll('.chart-dot');
+                var cur = 0;
+                dots.forEach(function(d, i) { if (d.classList.contains('active')) cur = i; });
+                var next = (cur + dir + 4) % 4;
+                renderSlide(next);
+                origMove && origMove(dir);
+            };
+        }
+
+        function init() {
+            initAllCharts();
+            loadAllData();
+            setTimeout(patchCarousel, 800);
         }
 
         if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', initHeroCharts);
+            document.addEventListener('DOMContentLoaded', init);
         } else {
-            initHeroCharts();
+            init();
         }
     })();
 
