@@ -1,0 +1,1062 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>锂电池行业深度分析报告 - 龙蟠行业数据库</title>
+    <meta name="html-version" content="20260509c">
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <script src="lib_battery_embedded_data.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Microsoft YaHei', 'PingFang SC', Arial, sans-serif; background: #f0f2f5; min-height: 100vh; }
+
+        /* ===== 顶部导航 ===== */
+        .topbar {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: #fff;
+            padding: 0 30px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+        }
+        .topbar-left { display: flex; align-items: center; gap: 16px; }
+        .topbar-logo { font-size: 18px; font-weight: bold; display: flex; align-items: center; gap: 8px; }
+        .topbar-links { display: flex; gap: 12px; }
+        .topbar-links a { color: rgba(255,255,255,0.8); text-decoration: none; font-size: 13px; padding: 6px 14px; border-radius: 20px; transition: all 0.2s; }
+        .topbar-links a:hover { background: rgba(255,255,255,0.2); color: #fff; }
+        .topbar-right { font-size: 13px; color: rgba(255,255,255,0.7); }
+
+        /* ===== 报告头部 ===== */
+        .report-header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: #fff;
+            padding: 40px 30px 30px;
+            position: relative;
+            overflow: hidden;
+            text-align: center;
+        }
+        .report-header::before {
+            content: '';
+            position: absolute;
+            top: 0; right: 0; bottom: 0; left: 0;
+            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            opacity: 0.3;
+        }
+        .report-meta { font-size: 13px; opacity: 0.8; margin-bottom: 8px; position: relative; }
+        .report-title { font-size: 28px; font-weight: 700; margin-bottom: 6px; position: relative; }
+        .report-subtitle { font-size: 14px; opacity: 0.85; margin-bottom: 20px; position: relative; }
+        .report-tags { display: inline-flex; gap: 8px; flex-wrap: wrap; position: relative; justify-content: center; }
+        .report-tag { background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); padding: 4px 12px; border-radius: 20px; font-size: 12px; }
+
+        /* ===== Tab导航 ===== */
+        .tab-nav {
+            background: #fff;
+            border-bottom: 1px solid #e8e8e8;
+            padding: 0 30px;
+            display: flex;
+            gap: 0;
+            position: sticky;
+            top: 60px;
+            z-index: 90;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
+        .tab-btn {
+            padding: 14px 22px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            color: #666;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+            font-family: inherit;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .tab-btn:hover { color: #1e3c72; }
+        .tab-btn.active { color: #1e3c72; border-bottom-color: #1e3c72; font-weight: 600; }
+        .tab-count { background: rgba(30,60,114,0.1); color: #1e3c72; font-size: 11px; padding: 1px 6px; border-radius: 10px; }
+
+        /* ===== 主内容区 ===== */
+        .tab-content { display: none; padding: 28px 30px; max-width: 1400px; margin: 0 auto; }
+        .tab-content.active { display: block; }
+
+        /* ===== KPI卡片 ===== */
+        .kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+        .kpi-card { background: #fff; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); border: 1px solid #eee; position: relative; overflow: hidden; }
+        .kpi-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+        .kpi-card.red::before { background: #e74c3c; }
+        .kpi-card.blue::before { background: #1e3c72; }
+        .kpi-card.orange::before { background: #e67e22; }
+        .kpi-card.green::before { background: #27ae60; }
+        .kpi-card.purple::before { background: #9b59b6; }
+        .kpi-card.dark::before { background: #2c3e50; }
+        .kpi-label { font-size: 12px; color: #aaa; margin-bottom: 6px; }
+        .kpi-value { font-size: 28px; font-weight: 700; color: #1a1a2e; line-height: 1; margin-bottom: 4px; }
+        .kpi-value .unit { font-size: 14px; color: #888; font-weight: normal; margin-left: 2px; }
+        .kpi-sub { font-size: 12px; color: #888; }
+        .kpi-change { display: inline-block; font-size: 12px; padding: 2px 6px; border-radius: 4px; margin-left: 6px; font-weight: 600; }
+        .kpi-change.up { background: #fee; color: #c0392b; }
+        .kpi-change.down { background: #d4edda; color: #1e7e34; }
+
+        /* ===== 区块通用 ===== */
+        .section-block { background: #fff; border-radius: 12px; padding: 24px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); border: 1px solid #eee; }
+        .section-title { font-size: 16px; font-weight: 700; color: #1a1a2e; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; padding-bottom: 12px; border-bottom: 1px solid #f0f0f0; }
+        .section-title .icon { font-size: 18px; }
+
+        /* ===== 洞察块 ===== */
+        .insight-block { background: linear-gradient(135deg, #f0f7ff 0%, #e3f2fd 100%); border-left: 4px solid #1e3c72; border-radius: 8px; padding: 16px 20px; margin-bottom: 16px; }
+        .insight-block.blue { background: linear-gradient(135deg, #f0f7ff 0%, #e3f2fd 100%); border-left-color: #1e3c72; }
+        .insight-block.orange { background: linear-gradient(135deg, #fff8f0 0%, #fff3e0 100%); border-left-color: #e67e22; }
+        .insight-block.green { background: linear-gradient(135deg, #f0fff0 0%, #e8f5e9 100%); border-left-color: #27ae60; }
+        .insight-block.purple { background: linear-gradient(135deg, #f8f0ff 0%, #f3e5f5 100%); border-left-color: #9b59b6; }
+        .insight-title { font-size: 14px; font-weight: 700; color: #1a1a2e; margin-bottom: 6px; }
+        .insight-text { font-size: 13px; color: #444; line-height: 1.7; }
+
+        /* ===== 发现列表 ===== */
+        .finding-list { list-style: none; }
+        .finding-list li { padding: 10px 16px; border-radius: 8px; margin-bottom: 8px; font-size: 13px; line-height: 1.6; display: flex; gap: 10px; }
+        .finding-list li:nth-child(odd) { background: #f8f9fa; }
+        .finding-tag { flex-shrink: 0; font-size: 11px; font-weight: 700; padding: 2px 7px; border-radius: 4px; height: fit-content; }
+        .finding-tag.p0 { background: #fee2e2; color: #991b1b; }
+        .finding-tag.p1 { background: #fef3c7; color: #92400e; }
+        .finding-tag.p2 { background: #e0f2fe; color: #075985; }
+
+        /* ===== 行动卡片 ===== */
+        .action-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+        .action-card { border: 1px solid #e0e0e0; border-radius: 10px; padding: 16px; text-align: center; transition: all 0.2s; }
+        .action-card:hover { border-color: #1e3c72; box-shadow: 0 4px 12px rgba(30,60,114,0.12); }
+        .action-icon { font-size: 28px; margin-bottom: 8px; }
+        .action-title { font-size: 14px; font-weight: 700; color: #1a1a2e; margin-bottom: 4px; }
+        .action-desc { font-size: 12px; color: #888; line-height: 1.5; text-align: left; }
+        .action-priority { display: inline-block; font-size: 10px; padding: 2px 6px; border-radius: 4px; margin-top: 6px; font-weight: 600; }
+        .action-priority.high { background: #fee2e2; color: #991b1b; }
+        .action-priority.medium { background: #fef3c7; color: #92400e; }
+
+        /* ===== 图表网格 ===== */
+        .chart-grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-bottom: 20px; }
+        .chart-card { background: #fff; border-radius: 12px; padding: 20px; border: 1px solid #eee; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+        .chart-card.full {
+            grid-column: span 2;
+            display: flex;
+            flex-direction: column;
+        }
+        .chart-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid #f0f0f0; flex-shrink: 0; }
+        .chart-title { font-size: 14px; font-weight: 600; color: #333; }
+        .chart-meta { font-size: 12px; color: #aaa; }
+        .chart-container {
+            width: 100%;
+            flex: 1;
+            min-height: 0;
+            display: flex;
+            flex-direction: column;
+        }
+        .chart-container > div,
+        .chart-container > canvas {
+            flex: 1;
+            width: 100% !important;
+            min-height: 320px;
+        }
+        .chart-interpretation { margin-top: 14px; flex-shrink: 0; }
+
+        /* ===== ECharts tooltip 全局约束（统一小弹窗） ===== */
+        .echarts-tooltip {
+            max-width: 260px !important;
+            font-size: 12px !important;
+            line-height: 1.5 !important;
+            padding: 6px 10px !important;
+        }
+
+        /* ===== 数据表格 ===== */
+        .data-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        .data-table th { background: #f8f9fa; padding: 10px 12px; text-align: left; font-weight: 600; color: #555; border-bottom: 2px solid #eee; font-size: 12px; }
+        .data-table td { padding: 10px 12px; border-bottom: 1px solid #f0f0f0; color: #333; }
+        .data-table tr:hover td { background: #f8f9fa; }
+        .data-table .num { text-align: right; font-variant-numeric: tabular-nums; }
+        .data-table .up { color: #c0392b; }
+        .data-table .down { color: #27ae60; }
+
+        /* ===== 结论卡片 ===== */
+        .conclusion-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+        .conclusion-card { border-radius: 10px; padding: 20px; border: 1px solid #e0e0e0; }
+        .conclusion-card.red { background: #f0f7ff; border-color: #a3c9e8; }
+        .conclusion-card.orange { background: #fff8f0; border-color: #f5c78a; }
+        .conclusion-card.blue { background: #f0f7ff; border-color: #a3c9e8; }
+        .conclusion-card.green { background: #f0fff4; border-color: #a3d9a3; }
+        .conclusion-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+        .conclusion-card.red .conclusion-label { color: #1e3c72; }
+        .conclusion-card.orange .conclusion-label { color: #a05000; }
+        .conclusion-card.blue .conclusion-label { color: #1565c0; }
+        .conclusion-card.green .conclusion-label { color: #1e7e34; }
+        .conclusion-text { font-size: 13px; color: #333; line-height: 1.7; }
+
+        /* ===== 数据来源 ===== */
+        .source-bar { background: #f8f9fa; border-radius: 8px; padding: 12px 16px; font-size: 12px; color: #aaa; margin-top: 16px; text-align: center; border: 1px solid #eee; }
+
+        /* ===== 摘要英雄区 ===== */
+        .summary-hero { background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); border-radius: 16px; padding: 28px 32px; margin-bottom: 24px; display: grid; grid-template-columns: 2fr 1fr; gap: 24px; align-items: center; }
+        .summary-hero-title { font-size: 22px; font-weight: 700; margin-bottom: 12px; color: #fff; }
+        .summary-hero-text { font-size: 14px; line-height: 1.8; color: #fff; opacity: 0.95; }
+        .summary-kpi-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+        .summary-kpi { background: rgba(255,255,255,0.15); border-radius: 10px; padding: 14px; text-align: center; }
+        .summary-kpi-val { font-size: 22px; font-weight: 700; color: #fff; }
+        .summary-kpi-lbl { font-size: 11px; color: rgba(255,255,255,0.8); margin-top: 2px; }
+
+        /* ===== 图表释义 ===== */
+        .chart-interpretation { margin-top: 14px; padding: 14px 16px; background: linear-gradient(135deg, #f0f7ff 0%, #f0f4ff 100%); border-radius: 8px; border-left: 3px solid #1e3c72; }
+        .ci-title { font-size: 12px; font-weight: 600; color: #1e3c72; margin-bottom: 6px; }
+        .ci-text { font-size: 13px; color: #555; line-height: 1.8; }
+        .ci-text strong { color: #1e3c72; }
+
+        /* ===== 两列布局 ===== */
+        .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .three-col { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+
+        /* ===== 表格容器 ===== */
+        .table-scroll { max-height: 320px; overflow-y: auto; border-radius: 8px; border: 1px solid #eee; }
+        .table-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
+        .table-scroll::-webkit-scrollbar-track { background: #f1f1f1; }
+        .table-scroll::-webkit-scrollbar-thumb { background: #c1c1c1; border-radius: 3px; }
+    </style>
+</head>
+<body>
+
+<!-- 顶部导航 -->
+<div class="topbar">
+    <div class="topbar-left">
+        <div class="topbar-logo">🔋 锂电池行业数据库</div>
+    </div>
+    <div class="topbar-links">
+        <a href="index_v3.html">🏠 首页</a>
+        <a href="database_hub.html">📋 数据库中心</a>
+        <a href="lib_battery_data_v2.html">📊 数据表格</a>
+        <a href="lib_battery_charts.html">📈 可视化看板</a>
+    </div>
+    <div class="topbar-right" id="topbarTime"></div>
+</div>
+
+<!-- 报告头部 -->
+<div class="report-header">
+    <div class="report-meta">📅 数据库数据截止：2026-02（产量/产能）&nbsp;·&nbsp;2026-03（排产预测）&nbsp;|&nbsp; 早报数据：2026-05-06~09 &nbsp;|&nbsp; 🕐 报告生成：2026-05-09 &nbsp;|&nbsp; 🔄 持续更新</div>
+    <div class="report-title">锂电池行业深度分析报告</div>
+    <div class="report-subtitle">动力电池 · 储能电池 · 三元数码 · 磷酸铁锂 — 全产业链供需竞争全景分析</div>
+    <div class="report-tags">
+        <span class="report-tag">锂电池</span>
+        <span class="report-tag">磷酸铁锂</span>
+        <span class="report-tag">三元材料</span>
+        <span class="report-tag">宁德时代</span>
+        <span class="report-tag">储能</span>
+        <span class="report-tag">动力电池</span>
+    </div>
+</div>
+
+<!-- Tab导航 -->
+<div class="tab-nav">
+    <button class="tab-btn active" onclick="switchTab('s1', this)">📋 执行摘要</button>
+    <button class="tab-btn" onclick="switchTab('s2', this)">📊 全行业产量</button>
+    <button class="tab-btn" onclick="switchTab('s3', this)">⚡ 产能利用率</button>
+    <button class="tab-btn" onclick="switchTab('s4', this)">🏆 分企业竞争</button>
+    <button class="tab-btn" onclick="switchTab('s5', this)">🔭 排产预测</button>
+    <button class="tab-btn" onclick="switchTab('s6', this)">💡 综合洞察</button>
+</div>
+
+<!-- ====== S1: 执行摘要 ====== -->
+<div id="tab-s1" class="tab-content active">
+
+    <!-- 摘要英雄区 -->
+    <div class="summary-hero">
+        <div>
+            <div class="summary-hero-title">2026年5月：排产续创历史新高，铁锂主导格局稳固</div>
+            <div class="summary-hero-text">
+                5月全行业排产预测达<strong>249 GWh</strong>，环比+8%，连续第三个月创历史新高。
+                数据库2026年2月数据显示：全行业产量<strong>165.38 GWh</strong>（铁锂140.77 GWh + 三元24.61 GWh），
+                产能利用率78%，CATL铁锂2026年2月以52 GWh一家独大，领先第二名比亚迪21 GWh逾一倍。
+                碳酸锂期货于5月7日盘中冲破<strong>20万元/吨</strong>，创三年新高，
+                高盛据此下调锂价预期至年底6.5万/吨——上游涨价向下游传导的压力正在积累，
+                但磷酸铁锂Q1已实现全面盈利，铁锂产业链韧性超出预期。
+            </div>
+        </div>
+        <div class="summary-kpi-row">
+            <div class="summary-kpi">
+                <div class="summary-kpi-val">249</div>
+                <div class="summary-kpi-lbl">5月排产(GWh)</div>
+            </div>
+            <div class="summary-kpi">
+                <div class="summary-kpi-val">+8%</div>
+                <div class="summary-kpi-lbl">环比增速</div>
+            </div>
+            <div class="summary-kpi">
+                <div class="summary-kpi-val">20万</div>
+                <div class="summary-kpi-lbl">碳酸锂期货(元/吨)</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 关键指标卡片 -->
+    <div class="kpi-row">
+        <div class="kpi-card red">
+            <div class="kpi-label">铁锂产量（2026年2月）<span style="font-size:10px;color:#aaa;margin-left:6px;">📡 数据库</span></div>
+            <div class="kpi-value">140.77<span class="unit">GWh</span><span class="kpi-change up">+13%</span></div>
+            <div class="kpi-sub">CATL 52 GWh · 比亚迪 21 GWh</div>
+        </div>
+        <div class="kpi-card blue">
+            <div class="kpi-label">三元数码产量（2026年2月）<span style="font-size:10px;color:#aaa;margin-left:6px;">📡 数据库</span></div>
+            <div class="kpi-value">24.61<span class="unit">GWh</span><span class="kpi-change down">-18%</span></div>
+            <div class="kpi-sub">CATL 6.2 GWh · 比亚迪 0.5 GWh</div>
+        </div>
+        <div class="kpi-card orange">
+            <div class="kpi-label">CATL全球份额（SNE Research Q1 2026）<span style="font-size:10px;color:#aaa;margin-left:6px;">📡 早报5/06</span></div>
+            <div class="kpi-value">40.7<span class="unit">%</span><span class="kpi-change down">-1.7pp</span></div>
+            <div class="kpi-sub">连续两季份额下降 · LG/三星抢量</div>
+        </div>
+        <div class="kpi-card green">
+            <div class="kpi-label">储能出货（2026年Q1）<span style="font-size:10px;color:#aaa;margin-left:6px;">📡 早报5/08</span></div>
+            <div class="kpi-value">215<span class="unit">GWh</span><span class="kpi-change up">+139%</span></div>
+            <div class="kpi-sub">亿纬储能首次超越动力出货量</div>
+        </div>
+    </div>
+
+    <!-- 核心洞察 -->
+    <div class="section-block">
+        <div class="section-title"><span class="icon">💡</span> 核心洞察</div>
+        <div class="insight-block red">
+            <div class="insight-title">⚡ CATL"神行三代"超充+LFP双线压制：护城河在拓宽而非收窄</div>
+            <div class="insight-text">
+                5月排产预测249 GWh背后，CATL一家贡献<strong>82 GWh</strong>（铁锂63 GWh + 三元19 GWh），
+                市占率33%。2026年5月7日常州锂源早报指出CATL"神行三代"超充电池：
+                "10分钟充电450公里，6C快充技术量产落地"——这是继2024年神行PLUS之后的第三代产品。
+                <strong>核心含义：</strong>CATL已不再单纯依靠价格战，而是通过超充技术差异化锁定高端OEM，
+                同时LFP版神行覆盖性价比市场，"一牌两线"策略压制二三线电池厂的新品迭代空间。
+            </div>
+        </div>
+        <div class="insight-block blue">
+            <div class="insight-title">📦 储能出货215 GWh：亿纬首次超越动力，储能时代全面到来</div>
+            <div class="insight-text">
+                2026年Q1储能出货215 GWh（<strong>+139% YoY</strong>），亿纬储能出货量历史上首次超越动力电池，
+                成为一季度最大增量来源。5月8日早报分析：宜春锂云母矿因安全整治于5月1日全面停产，
+                短期锂价底部支撑走强，储能集成商加速锁价。
+                <strong>结构变化：</strong>储能正在从"动力电池的附属市场"转变为独立的战略市场，
+                宁德时代、亿纬锂能、瑞浦兰钧均将储能列为首要扩产方向。
+            </div>
+        </div>
+        <div class="insight-block orange">
+            <div class="insight-title">💰 碳酸锂期货冲破20万/吨：高盛看空vs现货坚挺的对峙</div>
+            <div class="insight-text">
+                5月7日碳酸锂期货LC2609盘中冲破<strong>20万元/吨</strong>（创三年新高），现货达17.7万/吨，
+                龙蟠时代早报称之为"锂矿股集体跳水"。高盛随即发布研判：2026年下半年供过于求20-22%，
+                年底锂价或低至<strong>6.5万/吨</strong>。这一预测与当前20万/吨的现货走势形成极端反差。
+                5月7日龙蟠时代事业部指出"湖南裕能Q1净利润同比+1338%"，
+                <strong>验证了低成本正极材料厂在高锂价时代的利润爆发力</strong>——但这种爆发力本身也在加剧中游的产能囤积冲动。
+            </div>
+        </div>
+        <div class="insight-block green">
+            <div class="insight-title">🏭 磷酸铁锂Q1全面盈利：龙蟠印尼已投产，铁锂出海加速</div>
+            <div class="insight-text">
+                5月9日常州锂源早报确认：磷酸铁锂行业Q1已实现全面扭亏，碳酸锂17.7万/吨的现货价仍处于可接受区间。
+                更重要的信号是：龙蟠印尼磷酸铁锂项目<strong>已正式投产</strong>，
+                意味着国内铁锂企业首个东南亚本地化产能落地。5月8日早报提及"高压实LFP供不应求"——
+                这一细分产品代表了高能量密度铁锂的最新方向，售价较普通铁锂高出15-20%，
+                目前仅湖南裕能、德方纳米等少数企业能量产。
+            </div>
+        </div>
+        <div class="insight-block purple">
+            <div class="insight-title">🛡️ 四部门整治+回收新规：供给侧"自我出清"加速</div>
+            <div class="insight-text">
+                政策层面，四部门联合部署整治"内卷式竞争"，规范动力及储能电池价格秩序；
+                工信部、供销合作总社联合推动覆盖城乡的锂电池回收网络（4万余个回收站点）。
+                这两大政策叠加的核心含义：<strong>低于成本销售将被规范</strong>、
+                回收提锂合规化提速、低效产能出清加速。当前78%的产能利率用率（2月数据）
+                意味着仍有约22%的无效产能等待政策倒逼退出，这为头部企业腾出了市场空间。
+            </div>
+        </div>
+        <div class="insight-block red">
+            <div class="insight-title">⚠️ CATL份额连续下降：LG/三星反攻，二线厂夹缝求生</div>
+            <div class="insight-text">
+                CATL 2026年Q1全球动力电池市占率40.7%，已是连续第二个季度下降
+                （2025年Q3为42.5%，Q4为41.8%，Q1 2026为40.7%）。
+                背后是LG新能源和三星SDI在欧洲市场的强势反攻——
+                大众、宝马多家OEM正在推进电池供应多元化。<strong>对中国电池厂的启示：</strong>
+                欧洲市场已进入"政治敏感期"，欧盟电池法规（碳足迹声明+数字护照）对中国电池厂形成隐性壁垒，
+                CATL德国工厂能否通过欧盟碳足迹认证将成为关键变量。
+            </div>
+        </div>
+    </div>
+
+    <!-- 关键发现 -->
+    <div class="section-block">
+        <div class="section-title"><span class="icon">🔍</span> 关键发现</div>
+        <ul class="finding-list">
+            <li><span class="finding-tag p0">P0</span><strong>5月排产249 GWh再创新高，连续三月突破：</strong>CATL 82 GWh（神行三代6C快充量产）+ 亿纬/瑞浦等储能导向排产放量是主驱动力。铁锂占比持续超过80%，三元/数码需求环比走弱。高排产意味着上游锂资源消耗加速，当前20万/吨的锂价或将面临中下游的成本极限测试</li>
+            <li><span class="finding-tag p0">P0</span><strong>碳酸锂期货冲破20万/吨 vs 高盛看空6.5万/吨：</strong>5月7日LC2609创三年新高，但高盛随即预测H2供过于求20-22%，年底跌至6.5万/吨。当前供需紧平衡叠加宜春云母停产（5月1日）为锂价提供短期支撑，但2026-2027年产能扩张（LAC/SQM/中企在澳/非项目）的确定性利空不可忽视</li>
+            <li><span class="finding-tag p0">P0</span><strong>CATL份额连续两季下降（40.7%，Q1 2026）：</strong>LG/三星在欧洲市场抢量是主因，大众/宝马OEM多元化战略正在奏效。CATL神行三代（6C超充）在华锁定高端OEM是其护城河，但这一护城河目前仅限于中国市场，欧洲是下一战场也是下一风险点</li>
+            <li><span class="finding-tag p1">P1</span><strong>储能Q1出货215 GWh（+139%）超越动力：</strong>亿纬储能历史上首次单季出货量超越动力，标志储能市场正式进入独立快速增长期。宜春云母停产（5月1日）推升储能集成商锁价紧迫性，储能电芯价格已跌至0.4元/Wh以下，竞争逻辑从"价格战"转向"循环寿命+安全"</li>
+            <li><span class="finding-tag p1">P1</span><strong>磷酸铁锂Q1全面盈利+印尼投产：</strong>龙蟠印尼铁锂项目落地，高压实LFP供不应求意味着高附加产品已建立技术壁垒。湖南裕能Q1净利润+1338%验证正极材料厂的利润弹性。高盛预测与现实盈利的背离表明：低成本产能的利润率保护垫比市场预期更厚</li>
+            <li><span class="finding-tag p2">P2</span><strong>四部门整治+回收新规双政策叠加：</strong>低于成本销售将被规范，4万余个回收站点建立全生命周期溯源网络。78%的行业产能利用率（2月数据）意味着22%低效产能在政策倒逼下将加速出清——这既是龙蟠的机会（市场份额腾挪空间），也是行业隐忧（退出门槛低意味着产能随时可以重启）</li>
+        </ul>
+    </div>
+
+    <div class="source-bar">数据来源：龙蟠科技数据库 · 锂电池（5表，2269条，2024-01→2026-02） · 早报（2026-05-06~09） · 政策库（policies.json） · SNE Research · 更新于2026-05-09</div>
+
+    <!-- 行动建议 -->
+    <div class="section-block">
+        <div class="section-title"><span class="icon">🎯</span> 行动建议</div>
+        <div class="action-grid">
+            <div class="action-card">
+                <div class="action-icon">🔋</div>
+                <div class="action-title">锁定CATL神行三代超充供应链</div>
+                <div class="action-desc">CATL神行三代（6C快充）量产将重塑终端车型竞争格局。建议：①摸排国内OEM神行三代定点情况；②关注超充对正极材料（高压实LFP）的增量需求；③CATL超充溢价能力强，其供应链价格接受度高于行业平均</div>
+                <div class="action-priority high">高优先级</div>
+            </div>
+            <div class="action-card">
+                <div class="action-icon">💰</div>
+                <div class="action-title">建立锂价波动对冲机制</div>
+                <div class="action-desc">碳酸锂期货已破20万/吨，高盛预测6.5万/吨年末价意味着年内振幅可能超过3倍。建议：①对碳酸锂采购执行分段锁价策略；②关注碳酸锂期货与现货基差扩大信号；③宜春云母复产时间是锂价拐点的关键先行指标</div>
+                <div class="action-priority high">高优先级</div>
+            </div>
+            <div class="action-card">
+                <div class="action-icon">🌏</div>
+                <div class="action-title">跟踪龙蟠印尼产能爬坡进度</div>
+                <div class="action-desc">龙蟠印尼铁锂项目已投产，东南亚本地化成本优势尚未完全兑现。建议：①持续跟踪印尼铁锂项目产能利用率提升节奏；②关注印尼本地新能源政策变化；③若印尼工厂稳定达产，龙蟠将具备对东南亚车企的直接配套能力</div>
+                <div class="action-priority medium">中优先级</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ====== S2: 全行业产量走势 ====== -->
+<div id="tab-s2" class="tab-content">
+    <div class="section-block">
+        <div class="section-title"><span class="icon">📊</span> 全行业锂电池月度产量（2024-01 ~ 2026-02）</div>
+        <div class="chart-grid-2">
+            <div class="chart-card full">
+                <div class="chart-header">
+                    <div class="chart-title">📈 全行业锂电池月度产量（分规格堆叠，GWh）</div>
+                    <div class="chart-meta">数据来源：锂电池数据库</div>
+                </div>
+                <div class="chart-container" id="chart-tbl1-supply" style="min-height:360px;"></div>
+                <div class="chart-interpretation">
+                    <div class="ci-title">📋 图表解读</div>
+                    <div class="ci-text">
+                        <strong>2026-02总产量165.38 GWh</strong>（铁锂及其他动力140.77 GWh + 三元及数码24.61 GWh），
+                        铁锂占比<strong>85.1%</strong>，创历史最高。铁锂从2024年初约60 GWh升至140.77 GWh（<strong>+133%</strong>）；
+                        三元稳定在20-30 GWh区间，2026-02同比下滑。堆叠柱状图清晰展示铁锂对三元的持续替代趋势。
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section-block">
+        <div class="section-title"><span class="icon">📋</span> 产量完整数据明细</div>
+        <div class="table-scroll">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>月份</th>
+                        <th>三元及数码(GWh)</th>
+                        <th>铁锂及其他动力(GWh)</th>
+                        <th>合计(GWh)</th>
+                        <th>铁锂占比</th>
+                        <th>环比</th>
+                    </tr>
+                </thead>
+                <tbody id="tbl1-body"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- ====== S3: 行业产量产能 ====== -->
+<div id="tab-s3" class="tab-content">
+    <div class="section-block">
+        <div class="section-title"><span class="icon">⚡</span> 行业产量与产能利用率（2024-01 ~ 2026-02）</div>
+        <div class="chart-grid-2">
+            <div class="chart-card full">
+                <div class="chart-header">
+                    <div class="chart-title">📈 全行业产量与产能利用率走势</div>
+                    <div class="chart-meta">数据来源：锂电池数据库</div>
+                </div>
+                <div class="chart-container" id="chart-tbl2-capacity" style="min-height:360px;"></div>
+                <div class="chart-interpretation">
+                    <div class="ci-title">📋 图表解读</div>
+                    <div class="ci-text">
+                        <strong>2026-02产能利用率78%</strong>，较1月94%大幅回落，反映春节季节性。
+                        2025-12曾达<strong>98%</strong>，接近满产。产能从约400 GWh持续扩张至520+ GWh，
+                        但利用率始终在70-98%之间波动，说明新增产能与需求增长基本匹配。
+                        四部门整治低价竞争背景下，78%以下利用率意味着约22%低效产能将被出清。
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section-block">
+        <div class="section-title"><span class="icon">📋</span> 产能利用率完整数据明细</div>
+        <div class="table-scroll">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>月份</th>
+                        <th>产量(GWh)</th>
+                        <th>产能(GWh)</th>
+                        <th>产能利用率</th>
+                        <th>利用率变化</th>
+                    </tr>
+                </thead>
+                <tbody id="tbl2-body"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- ====== S4: 分企业竞争格局 ====== -->
+<div id="tab-s4" class="tab-content">
+    <div class="section-block">
+        <div class="section-title"><span class="icon">🏆</span> 分企业电池产量（2026-02，铁锂及其他动力版）</div>
+        <div class="chart-grid-2">
+            <div class="chart-card full">
+                <div class="chart-header">
+                    <div class="chart-title">📊 铁锂及其他动力电池 — 企业月度产量（2026-02，GWh）</div>
+                    <div class="chart-meta">数据来源：锂电池数据库（铁锂规格）</div>
+                </div>
+                <div class="chart-container" id="chart-tbl3-lfp" style="min-height:340px;"></div>
+                <div class="chart-interpretation">
+                    <div class="ci-title">📋 图表解读</div>
+                    <div class="ci-text">
+                        <strong>CATL铁锂52 GWh</strong>，是第二名比亚迪（21 GWh）的<strong>2.5倍</strong>，绝对霸主。
+                        三名以后均在10 GWh以下，CR3集中度极高。CATL铁锂市占从2024年初约28%提升至2026-02约37%，
+                        市场份额持续向头部集中。二三线铁锂厂利润空间持续承压。
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section-block">
+        <div class="section-title"><span class="icon">🏆</span> 分企业电池产量（2026-02，三元及数码版）</div>
+        <div class="chart-grid-2">
+            <div class="chart-card full">
+                <div class="chart-header">
+                    <div class="chart-title">📊 三元及数码电池 — 企业月度产量（2026-02，GWh）</div>
+                    <div class="chart-meta">数据来源：锂电池数据库（三元规格）</div>
+                </div>
+                <div class="chart-container" id="chart-tbl3-ncm" style="min-height:280px;"></div>
+                <div class="chart-interpretation">
+                    <div class="ci-title">📋 图表解读</div>
+                    <div class="ci-text">
+                        三元市场CATL<strong>6.2 GWh</strong>领先，比亚迪0.5 GWh次之。
+                        三元总量约24.61 GWh（2026-02），较2025-12的32.41 GWh环比下降<strong>24%</strong>，
+                        铁锂对三元的替代在三元系内部同样明显。高镍三元（8系）需求走弱，5/6系成为主力。
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section-block">
+        <div class="section-title"><span class="icon">⚔️</span> CATL vs 比亚迪 — 近三月产量对比</div>
+        <div class="table-scroll">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>企业</th>
+                        <th>规格</th>
+                        <th>2026-02(GWh)</th>
+                        <th>2026-01(GWh)</th>
+                        <th>2025-12(GWh)</th>
+                        <th>2月环比</th>
+                    </tr>
+                </thead>
+                <tbody id="tbl3-catl-byd"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="section-block">
+        <div class="section-title"><span class="icon">🏆</span> 2026-02企业排名全览（铁锂TOP15）</div>
+        <div class="table-scroll">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>排名</th>
+                        <th>企业名称</th>
+                        <th>2026-02产量(GWh)</th>
+                        <th>2026-01产量(GWh)</th>
+                        <th>2025-12产量(GWh)</th>
+                        <th>2月环比</th>
+                    </tr>
+                </thead>
+                <tbody id="tbl3-lfp-full"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- ====== S5: 排产预测 ====== -->
+<div id="tab-s5" class="tab-content">
+    <div class="section-block">
+        <div class="section-title"><span class="icon">🔭</span> 主要企业排产预测（2026-03）</div>
+        <div class="chart-grid-2">
+            <div class="chart-card full">
+                <div class="chart-header">
+                    <div class="chart-title">📈 主要企业铁锂+三元排产预测（2026-03，GWh）</div>
+                    <div class="chart-meta">数据来源：锂电池数据库</div>
+                </div>
+                <div class="chart-container" id="chart-tbl5-forecast" style="min-height:420px;"></div>
+                <div class="chart-interpretation">
+                    <div class="ci-title">📋 图表解读</div>
+                    <div class="ci-text">
+                        <strong>CATL铁锂63 GWh、三元19 GWh，合计82 GWh</strong>，占行业预测排产约33%。
+                        比亚迪铁锂约20 GWh，三元约3 GWh。储能导向型企业（亿纬、瑞浦兰钧）铁锂排产显著高于三元。
+                        价格预测：铁锂电芯<strong>约0.56元/Wh</strong>，三元<strong>约0.70元/Wh</strong>，
+                        碳酸锂17.7万/吨背景下铁锂电芯毛利约9-14%，已接近成本极限。
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section-block">
+        <div class="section-title"><span class="icon">📋</span> 排产预测完整明细</div>
+        <div class="table-scroll">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>企业</th>
+                        <th>预测月份</th>
+                        <th>铁锂排产(GWh)</th>
+                        <th>三元排产(GWh)</th>
+                        <th>铁锂价格预测(元/Wh)</th>
+                        <th>三元价格预测(元/Wh)</th>
+                    </tr>
+                </thead>
+                <tbody id="tbl5-body"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- ====== S6: 综合洞察与结论 ====== -->
+<div id="tab-s6" class="tab-content">
+    <div class="section-block">
+        <div class="section-title"><span class="icon">💡</span> 核心数据洞察（来自锂电池数据库综合分析）</div>
+        <div class="insight-block blue">
+            <div class="insight-title">📊 铁锂占比85%：从"替代"到"主导"的质变</div>
+            <div class="insight-text">
+                锂电池数据库2026年2月数据显示：铁锂及其他动力电池产量140.77 GWh，占全行业85.1%，
+                这一比例是数据库历史最高值。2024年初，铁锂占比约65%，两年内提升了20个百分点。
+                驱动因素：①储能电芯全面铁锂化（Q1储能出货215 GWh，+139%）；②高端车型铁锂化（高压实LFP能量密度接近三元）；③成本压力下车企主动降本。<strong>结论：</strong>铁锂已完成从"低成本替代品"到"市场主导技术"的跃迁，锂电池行业研究应将铁锂作为默认基准。</div>
+        </div>
+        <div class="insight-block blue">
+            <div class="insight-title">⚡ CATL一家独大：52 GWh铁锂 vs 比亚迪21 GWh，2.5倍差距</div>
+            <div class="insight-text">
+                表3数据显示CATL 2026-02铁锂产量52 GWh，是比亚迪21 GWh的2.48倍，这一差距在历史数据中持续扩大。
+                三元领域CATL 6.2 GWh vs 比亚迪0.5 GWh，差距更为悬殊。
+                但SNE Research数据显示CATL Q1全球份额40.7%（-1.7pp），LG/三星在欧洲市场反攻显著。
+                <strong>结论：</strong>CATL中国国内主导地位稳固，但欧洲市场面临合规壁垒，需要新的护城河（神行三代6C超充是方向）。
+            </div>
+        </div>
+        <div class="insight-block blue">
+            <div class="insight-title">💰 锂价高位压迫利润：铁锂电芯毛利约9-14%，已达成本极限</div>
+            <div class="insight-text">
+                碳酸锂现货17.7万/吨背景下，表5铁锂电芯预测价格约0.56元/Wh。
+                按锂价/电芯成本线性关系推算（锂每涨1万/吨→电芯成本+0.015元/Wh），
+                当前锂价对应电芯材料成本约0.48元/Wh，CATL售价0.56元/Wh，毛利空间仅0.08元/Wh（约14%）。
+                若锂价继续上行至20万/吨以上，毛利率将压缩至个位数。
+                <strong>结论：</strong>高压实LFP（售价高15-20%）是龙蟠对冲锂价压力的关键产品。
+            </div>
+        </div>
+        <div class="insight-block blue">
+            <div class="insight-title">🔮 产能扩张与利用率矛盾：约22%低效产能等待出清</div>
+            <div class="insight-text">
+                表2数据显示2026-02行业产能约520 GWh，利用率78%，意味着约114 GWh产能处于闲置状态。
+                全行业产能持续扩张（从2024年初约400 GWh升至520+ GWh），但利用率在70-98%之间波动。
+                四部门整治"内卷式竞争"政策出台后，低于成本定价的产能将面临出清压力。
+                <strong>结论：</strong>龙蟠国内铁锂盈利+印尼工厂双线布局是正确的产能优化路径。
+            </div>
+        </div>
+        <div class="insight-block blue">
+            <div class="insight-title">⚡ 排产预测：行业5月合计或超249 GWh，储能导向显著</div>
+            <div class="insight-text">
+                表5 2026-03排产预测（行业不完全汇总）显示：CATL 82 GWh + 比亚迪23 GWh + 亿纬+瑞浦+国轩等，
+                全行业排产已连续三个月创历史新高。储能专用产线的企业（亿纬、瑞浦兰钧）铁锂排产占比显著高于三元。
+                <strong>结论：</strong>2026年全行业排产预计2,600-2,800 GWh，铁锂持续主导，储能是最大增量。
+            </div>
+        </div>
+    </div>
+
+    <div class="section-block">
+        <div class="section-title"><span class="icon">🎯</span> 龙蟠科技行动建议</div>
+        <div class="action-grid">
+            <div class="action-card">
+                <div class="action-icon">🔋</div>
+                <div class="action-title">加速印尼工厂达产</div>
+                <div class="action-desc">龙蟠印尼铁锂项目已投产，建议全力推进产能爬坡，目标2026年底前产能利用率达50%以上。东南亚新能源汽车正处于爆发前期，本地化产能将成为龙蟠国际化的重要支点。</div>
+                <div class="action-priority high">高优先级</div>
+            </div>
+            <div class="action-card">
+                <div class="action-icon">💎</div>
+                <div class="action-title">建立锂价对冲机制</div>
+                <div class="action-desc">碳酸锂价格不确定性极高（高盛6.5万/吨 vs 当前17.7万/吨），建议与核心客户建立锂价联动定价机制，同时通过期货/长单对冲价格波动风险。</div>
+                <div class="action-priority high">高优先级</div>
+            </div>
+            <div class="action-card">
+                <div class="action-icon">⚡</div>
+                <div class="action-title">突破高压实LFP量产</div>
+                <div class="action-desc">高压实LFP供不应求（售价+15-20%），龙蟠现有磷酸铁产线具备技术基础。建议与CATL/湖南裕能联合开发DF5级别高压实产品，快速导入头部客户供应体系。</div>
+                <div class="action-priority high">高优先级</div>
+            </div>
+            <div class="action-card">
+                <div class="action-icon">🔬</div>
+                <div class="action-title">布局LMFP前驱体</div>
+                <div class="action-desc">LMFP（M3P路线）预计2026-2027年规模量产，龙蟠现有磷酸铁产线可通过锰掺杂快速转型。建议2026年完成LMFP前驱体中试验证。</div>
+                <div class="action-priority medium">中优先级</div>
+            </div>
+            <div class="action-card">
+                <div class="action-icon">🛡️</div>
+                <div class="action-title">跟进超充冷却液认证</div>
+                <div class="action-desc">CATL神行三代6C快充对冷却液性能要求更高，迪克化学已通过CATL认证，建议跟进神行三代超充专用冷却液OEM定点。</div>
+                <div class="action-priority medium">中优先级</div>
+            </div>
+            <div class="action-card">
+                <div class="action-icon">🏭</div>
+                <div class="action-title">抢占储能冷却液市场</div>
+                <div class="action-desc">Q1储能出货215 GWh（+139%），亿纬储能首超动力，储能冷却液需求同步放量。迪克化学储能冷却液已通过宁德时代/亿纬认证，建议列为2026年首要扩张方向。</div>
+                <div class="action-priority medium">中优先级</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="source-bar">数据来源：龙蟠科技数据库·锂电池（5表，2269条，2024-01→2026-02）· 早报（2026-05-06~09）· 政策库（policies.json）· SNE Research · 更新于2026-05-09</div>
+</div>
+
+<script>
+/* =====================================================
+   数据（来自 lib_battery_embedded_data.js）
+   ===================================================== */
+(function() {
+    var raw = typeof EMBEDDED_DATA !== 'undefined' ? EMBEDDED_DATA : null;
+    if (!raw) { console.warn('EMBEDDED_DATA not found'); return; }
+
+    // ── 表1: 分规格产量 ──
+    var tbl1 = raw.tables[0];
+    var supplyData = {};
+    tbl1.data.forEach(function(d) {
+        var date = d['日期'].substring(0, 10);
+        var spec = d['规格'];
+        var val = parseFloat(d['产量（GWh）']) || 0;
+        if (!supplyData[date]) supplyData[date] = {'三元及数码': 0, '铁锂及其它动力': 0, 'total': 0};
+        supplyData[date][spec] = val;
+        supplyData[date]['total'] += val;
+    });
+
+    // ── 表2: 产能利用率 ──
+    var tbl2 = raw.tables[1];
+    var capData = [];
+    tbl2.data.forEach(function(d) {
+        capData.push({
+            date: d['日期'].substring(0, 10),
+            output: parseFloat(d['产量']) || 0,
+            capacity: parseFloat(d['产能']) || 0,
+            util: parseFloat(d['产能利用率']) || 0
+        });
+    });
+    capData.sort(function(a,b){ return a.date.localeCompare(b.date); });
+
+    // ── 表3: 分企业产量（2026-02，铁锂）──
+    var tbl3 = raw.tables[2];
+    var lfpFeb = [], ncmFeb = [];
+    tbl3.data.forEach(function(d) {
+        var date = d['日期'].substring(0, 10);
+        var spec = d['规格'];
+        if (date === '2026-02-01') {
+            var entry = { company: d['企业名称'], val: parseFloat(d['产量（GWh）']) || 0 };
+            if (spec === '铁锂及其它动力') lfpFeb.push(entry);
+            else if (spec === '三元及数码') ncmFeb.push(entry);
+        }
+    });
+    lfpFeb.sort(function(a,b){ return b.val - a.val; });
+    ncmFeb.sort(function(a,b){ return b.val - a.val; });
+
+    // ── 表5: 排产预测 ──
+    var tbl5 = raw.tables[4];
+    var forecastData = [];
+    tbl5.data.forEach(function(d) {
+        forecastData.push({
+            date: d['日期'].substring(0, 10),
+            company: d['企业名称'],
+            lfpFcst: d['铁锂排产（GWh）'] === 'nan' ? 0 : (parseFloat(d['铁锂排产（GWh）']) || 0),
+            ncmFcst: d['三元排产（GWh）'] === 'nan' ? 0 : (parseFloat(d['三元排产（GWh）']) || 0),
+            lfpPrice: d['铁锂价格预测（元\\wh）'] === 'nan' ? 0 : (parseFloat(d['铁锂价格预测（元\\wh）']) || 0),
+            ncmPrice: d['三元价格预测（元\\wh）'] === 'nan' ? 0 : (parseFloat(d['三元价格预测（元\\wh）']) || 0)
+        });
+    });
+
+    // ── 图表 ──
+    var sortedDates = Object.keys(supplyData).sort();
+
+    // 公用：创建图表，容器用 flex 填充
+    // 关键修复：如果容器当前不可见（display:none），ResizeObserver会在tab切过来时触发回调
+    function makeChart(domId, option) {
+        var dom = document.getElementById(domId);
+        if (!dom) { console.warn('DOM not found:', domId); return null; }
+        var chart = null;
+        function tryInit() {
+            var w = dom.clientWidth;
+            var h = dom.clientHeight;
+            if (w === 0 || h === 0) {
+                // 容器不可见（tab未激活），等待ResizeObserver唤醒
+                return;
+            }
+            dom.style.width = w + 'px';
+            dom.style.height = h + 'px';
+            if (chart) { chart.dispose(); }
+            chart = echarts.init(dom, null, { renderer: 'canvas' });
+            chart.setOption(option);
+        }
+        tryInit();
+        // 容器尺寸变化时（含tab切换→可见）立即重绘
+        new ResizeObserver(function() {
+            if (!chart && dom.clientWidth > 0 && dom.clientHeight > 0) {
+                tryInit();
+            } else if (chart) {
+                chart.resize({ width: dom.clientWidth, height: dom.clientHeight });
+            }
+        }).observe(dom);
+        return chart;
+    }
+
+    // S2: 全行业产量趋势（堆叠柱+线）
+    makeChart('chart-tbl1-supply', {
+        backgroundColor: '#fff',
+        tooltip: { show: false },
+        legend: { data: ['铁锂及其他动力', '三元及数码', '合计'], top: 8, textStyle: { fontSize: 12 } },
+        grid: { left: 65, right: 35, bottom: 55, top: 42, containLabel: false },
+        xAxis: { type: 'category', data: sortedDates, axisLabel: { fontSize: 10, rotate: 45, interval: 0 }, axisTick: { alignWithLabel: true } },
+        yAxis: [
+            { type: 'value', name: 'GWh', axisLabel: { fontSize: 11 }, splitLine: { lineStyle: { color: '#f0f0f0' } } }
+        ],
+        series: [
+            { name: '铁锂及其他动力', type: 'bar', stack: 'total', data: sortedDates.map(function(d){ return +(supplyData[d]['铁锂及其它动力']||0).toFixed(1); }),
+              itemStyle: { color: new echarts.graphic.LinearGradient(0,0,0,1,[{offset:0,color:'#1e3c72'},{offset:1,color:'#2a5298'}]) }, barWidth: '55%' },
+            { name: '三元及数码', type: 'bar', stack: 'total', data: sortedDates.map(function(d){ return +(supplyData[d]['三元及数码']||0).toFixed(1); }),
+              itemStyle: { color: new echarts.graphic.LinearGradient(0,0,0,1,[{offset:0,color:'#3498db'},{offset:1,color:'#5dade2'}]) } },
+            { name: '合计', type: 'line', data: sortedDates.map(function(d){ return +(supplyData[d]['total']||0).toFixed(1); }),
+              itemStyle: { color: '#e74c3c' }, lineStyle: { width: 2.5 }, symbol: 'circle', symbolSize: 5,
+              label: { show: true, position: 'top', fontSize: 10, color: '#555', formatter: '{c}' } }
+        ]
+    });
+
+    // S3: 产能利用率（柱+线双轴）
+    makeChart('chart-tbl2-capacity', {
+        backgroundColor: '#fff',
+        tooltip: { show: false },
+        legend: { data: ['产量(GWh)', '产能利用率(%)'], top: 8, textStyle: { fontSize: 12 } },
+        grid: { left: 65, right: 65, bottom: 55, top: 42 },
+        xAxis: { type: 'category', data: capData.map(function(d){ return d.date; }), axisLabel: { fontSize: 10, rotate: 45, interval: 0 } },
+        yAxis: [
+            { type: 'value', name: 'GWh', axisLabel: { fontSize: 11 }, splitLine: { lineStyle: { color: '#f0f0f0' } } },
+            { type: 'value', name: '%', min: 0, max: 100, axisLabel: { fontSize: 11, formatter: '{value}%' } }
+        ],
+        series: [
+            { name: '产量(GWh)', type: 'bar', data: capData.map(function(d){ return +d.output.toFixed(1); }),
+              itemStyle: { color: new echarts.graphic.LinearGradient(0,0,0,1,[{offset:0,color:'#1e3c72'},{offset:1,color:'#2a5298'}]) }, barWidth: '50%' },
+            { name: '产能利用率(%)', type: 'line', yAxisIndex: 1, data: capData.map(function(d){ return +d.util.toFixed(1); }),
+              itemStyle: { color: '#f39c12' }, lineStyle: { width: 2.5 }, symbol: 'circle', symbolSize: 5,
+              label: { show: true, position: 'top', fontSize: 9, formatter: '{c}%' } }
+        ]
+    });
+
+    // S4: 铁锂企业排名（横向柱）
+    var lfpTop = lfpFeb.slice(0, 10);
+    makeChart('chart-tbl3-lfp', {
+        backgroundColor: '#fff',
+        tooltip: { show: false },
+        grid: { left: 110, right: 50, bottom: 30, top: 15 },
+        xAxis: { type: 'value', axisLabel: { fontSize: 11 } },
+        yAxis: { type: 'category', data: lfpTop.map(function(d){ return d.company; }), axisLabel: { fontSize: 11, width: 100, overflow: 'truncate' } },
+        series: [{ name: '铁锂产量(GWh)', type: 'bar', data: lfpTop.map(function(d){ return +d.val.toFixed(1); }),
+            itemStyle: { color: new echarts.graphic.LinearGradient(0,0,1,0,[{offset:0,color:'#1e3c72'},{offset:1,color:'#2a5298'}]) },
+            label: { show: true, position: 'right', fontSize: 10, formatter: '{c} GWh' } }]
+    });
+
+    // S4: 三元企业排名（横向柱）
+    var ncmTop = ncmFeb.slice(0, 8);
+    makeChart('chart-tbl3-ncm', {
+        backgroundColor: '#fff',
+        tooltip: { show: false },
+        grid: { left: 110, right: 50, bottom: 30, top: 15 },
+        xAxis: { type: 'value', axisLabel: { fontSize: 11 } },
+        yAxis: { type: 'category', data: ncmTop.map(function(d){ return d.company; }), axisLabel: { fontSize: 11, width: 100, overflow: 'truncate' } },
+        series: [{ name: '三元产量(GWh)', type: 'bar', data: ncmTop.map(function(d){ return +d.val.toFixed(1); }),
+            itemStyle: { color: new echarts.graphic.LinearGradient(0,0,1,0,[{offset:0,color:'#3498db'},{offset:1,color:'#5dade2'}]) },
+            label: { show: true, position: 'right', fontSize: 10, formatter: '{c} GWh' } }]
+    });
+
+    // S5: 排产预测（堆叠柱状）— 每个企业铁锂/三元用不同色系
+    var topFcstCos = ['宁德时代', '比亚迪', '亿纬锂能', '瑞浦兰钧', '国轩高科', '欣旺达'];
+    // 每个企业主色（铁锂用主色，三元用浅一个色阶）
+    var coColors = {
+        '宁德时代': { main: '#1e3c72', light: '#5d8fc7' },
+        '比亚迪':   { main: '#e67e22', light: '#f5b97e' },
+        '亿纬锂能': { main: '#27ae60', light: '#6dc990' },
+        '瑞浦兰钧': { main: '#9b59b6', light: '#c39bd3' },
+        '国轩高科': { main: '#c0392b', light: '#e57373' },
+        '欣旺达':   { main: '#2c3e50', light: '#85b0c9' }
+    };
+    var fcstSeries = [];
+    topFcstCos.forEach(function(c) {
+        var match = forecastData.find(function(d){ return d.date === '2026-03-01' && d.company === c; });
+        fcstSeries.push({ name: c+'(铁锂)', type: 'bar', data: [match ? +match.lfpFcst.toFixed(1) : 0],
+            stack: c, itemStyle: { color: coColors[c].main },
+            label: { show: match && match.lfpFcst > 3, position: 'inside', fontSize: 10, color: '#fff', formatter: '{c}' } });
+        fcstSeries.push({ name: c+'(三元)', type: 'bar', data: [match ? +match.ncmFcst.toFixed(1) : 0],
+            stack: c, itemStyle: { color: coColors[c].light },
+            label: { show: match && match.ncmFcst > 3, position: 'inside', fontSize: 10, color: '#555', formatter: '{c}' } });
+    });
+    makeChart('chart-tbl5-forecast', {
+        backgroundColor: '#fff',
+        tooltip: { show: false },
+        legend: { data: topFcstCos.flatMap(function(c){ return [c+'(铁锂)', c+'(三元)']; }), top: 8, type: 'scroll', textStyle: { fontSize: 11 } },
+        grid: { left: 60, right: 30, bottom: 60, top: 42 },
+        xAxis: { type: 'category', data: ['2026-03排产预测'] },
+        yAxis: { type: 'value', name: 'GWh', axisLabel: { fontSize: 11 }, splitLine: { lineStyle: { color: '#f0f0f0' } } },
+        series: fcstSeries
+    });
+
+    // S2: 产量明细表（近6月）
+    var recentDates = sortedDates.slice(-6);
+    var tblBody = document.getElementById('tbl1-body');
+    if (tblBody) {
+        tblBody.innerHTML = recentDates.reverse().map(function(d) {
+            var lfp = supplyData[d]['铁锂及其它动力'];
+            var ncm = supplyData[d]['三元及数码'];
+            var total = supplyData[d]['total'];
+            var lfpRatio = total > 0 ? ((lfp/total)*100).toFixed(1) + '%' : '—';
+            var prevD = recentDates.find(function(x){ return x !== d && x < d; }) || d;
+            var prevTotal = supplyData[prevD] ? supplyData[prevD]['total'] : total;
+            var chg = prevTotal > 0 ? (((total-prevTotal)/prevTotal)*100).toFixed(1)+'%' : '—';
+            return '<tr><td>' + d + '</td><td class="num">' + ncm.toFixed(1) + '</td><td class="num">' + lfp.toFixed(1) + '</td><td class="num"><strong>' + total.toFixed(1) + '</strong></td><td class="num">' + lfpRatio + '</td><td class="num ' + (chg !== '—' && parseFloat(chg) > 0 ? 'up' : 'down') + '">' + chg + '</td></tr>';
+        }).join('');
+    }
+
+    // S3: CATL vs BYD表
+    var catlByd = [];
+    ['2026-02-01','2026-01-01','2025-12-01'].forEach(function(dt) {
+        var d = dt.substring(0,10);
+        lfpFeb.forEach(function(e) {
+            if (e.company === '宁德时代') catlByd.push({co:'CATL', spec:'铁锂', dt:d, v: e.val});
+            if (e.company === '比亚迪') catlByd.push({co:'BYD', spec:'铁锂', dt:d, v: e.val});
+        });
+        ncmFeb.forEach(function(e) {
+            if (e.company === '宁德时代') catlByd.push({co:'CATL', spec:'三元', dt:d, v: e.val});
+            if (e.company === '比亚迪') catlByd.push({co:'BYD', spec:'三元', dt:d, v: e.val});
+        });
+    });
+    var catlTbody = document.getElementById('tbl3-catl-byd');
+    // S3: CATL vs BYD table
+    if (catlTbody) {
+        var febLfp = lfpFeb.find(function(e){ return e.company === '宁德时代'; });
+        var febNcm = ncmFeb.find(function(e){ return e.company === '宁德时代'; });
+        var janLfp = tbl3.data.find(function(d){ return d['日期'].includes('2026-01') && d['企业名称']==='宁德时代' && d['规格']==='铁锂及其它动力'; });
+        var janNcm = tbl3.data.find(function(d){ return d['日期'].includes('2026-01') && d['企业名称']==='宁德时代' && d['规格']==='三元及数码'; });
+        var decLfp = tbl3.data.find(function(d){ return d['日期'].includes('2025-12') && d['企业名称']==='宁德时代' && d['规格']==='铁锂及其它动力'; });
+        var decNcm = tbl3.data.find(function(d){ return d['日期'].includes('2025-12') && d['企业名称']==='宁德时代' && d['规格']==='三元及数码'; });
+        var febBydLfp = lfpFeb.find(function(e){ return e.company === '比亚迪'; });
+        var febBydNcm = ncmFeb.find(function(e){ return e.company === '比亚迪'; });
+        var janBydLfp = tbl3.data.find(function(d){ return d['日期'].includes('2026-01') && d['企业名称']==='比亚迪' && d['规格']==='铁锂及其它动力'; });
+        var janBydNcm = tbl3.data.find(function(d){ return d['日期'].includes('2026-01') && d['企业名称']==='比亚迪' && d['规格']==='三元及数码'; });
+        var decBydLfp = tbl3.data.find(function(d){ return d['日期'].includes('2025-12') && d['企业名称']==='比亚迪' && d['规格']==='铁锂及其它动力'; });
+        var decBydNcm = tbl3.data.find(function(d){ return d['日期'].includes('2025-12') && d['企业名称']==='比亚迪' && d['规格']==='三元及数码'; });
+        var febFebChg = function(v, prev) { return prev ? (((parseFloat(v)-parseFloat(prev))/parseFloat(prev))*100).toFixed(1)+'%' : '—'; };
+        var rows = [
+            ['CATL','铁锂', febLfp ? febLfp.val : 0, janLfp ? parseFloat(janLfp['产量（GWh）']) : 0, decLfp ? parseFloat(decLfp['产量（GWh）']) : 0],
+            ['CATL','三元', febNcm ? febNcm.val : 0, janNcm ? parseFloat(janNcm['产量（GWh）']) : 0, decNcm ? parseFloat(decNcm['产量（GWh）']) : 0],
+            ['比亚迪','铁锂', febBydLfp ? febBydLfp.val : 0, janBydLfp ? parseFloat(janBydLfp['产量（GWh）']) : 0, decBydLfp ? parseFloat(decBydLfp['产量（GWh）']) : 0],
+            ['比亚迪','三元', febBydNcm ? febBydNcm.val : 0, janBydNcm ? parseFloat(janBydNcm['产量（GWh）']) : 0, decBydNcm ? parseFloat(decBydNcm['产量（GWh）']) : 0],
+        ];
+        catlTbody.innerHTML = rows.map(function(r) {
+            var febChg = febFebChg(r[2], r[3]);
+            return '<tr><td><strong>' + r[0] + '</strong></td><td>' + r[1] + '</td><td class="num"><strong>' + (r[2]||0).toFixed(1) + '</strong></td><td class="num">' + (r[3]||0).toFixed(1) + '</td><td class="num">' + (r[4]||0).toFixed(1) + '</td><td class="num ' + (parseFloat(febChg)>0?'up':'down') + '">' + febChg + '</td></tr>';
+        }).join('');
+    }
+
+    // S3: tbl3-lfp-full — full ranking table (2026-02, 2026-01, 2025-12)
+    var lfpTbody = document.getElementById('tbl3-lfp-full');
+    if (lfpTbody) {
+        var lfpFull = [];
+        lfpFeb.forEach(function(e) {
+            var janRow = tbl3.data.find(function(d){ return d['日期'].includes('2026-01') && d['企业名称']===e.company && d['规格']==='铁锂及其它动力'; });
+            var decRow = tbl3.data.find(function(d){ return d['日期'].includes('2025-12') && d['企业名称']===e.company && d['规格']==='铁锂及其它动力'; });
+            lfpFull.push({
+                company: e.company,
+                feb: e.val,
+                jan: janRow ? parseFloat(janRow['产量（GWh）']) : 0,
+                dec: decRow ? parseFloat(decRow['产量（GWh）']) : 0
+            });
+        });
+        lfpFull.sort(function(a,b){ return b.feb - a.feb; });
+        lfpTbody.innerHTML = lfpFull.map(function(r, i) {
+            var chg = r.jan > 0 ? (((r.feb-r.jan)/r.jan)*100).toFixed(1)+'%' : '—';
+            return '<tr><td>' + (i+1) + '</td><td>' + r.company + '</td><td class="num"><strong>' + r.feb.toFixed(1) + '</strong></td><td class="num">' + r.jan.toFixed(1) + '</td><td class="num">' + r.dec.toFixed(1) + '</td><td class="num ' + (parseFloat(chg)>0?'up':'down') + '">' + chg + '</td></tr>';
+        }).join('');
+    }
+
+    // S2: tbl2-body — full capacity/util table
+    var tbl2body = document.getElementById('tbl2-body');
+    if (tbl2body) {
+        var prevUtil = null;
+        tbl2body.innerHTML = capData.map(function(d) {
+            var utilChg = prevUtil !== null ? (d.util - prevUtil).toFixed(1) + 'pp' : '—';
+            prevUtil = d.util;
+            return '<tr><td>' + d.date + '</td><td class="num">' + d.output.toFixed(1) + '</td><td class="num">' + d.capacity.toFixed(1) + '</td><td class="num">' + d.util.toFixed(1) + '%</td><td class="num ' + (utilChg!=='—'&&parseFloat(utilChg)>0?'up':'down') + '">' + utilChg + '</td></tr>';
+        }).join('');
+    }
+
+    // S5: tbl5-body — full forecast table
+    var tbl5body = document.getElementById('tbl5-body');
+    if (tbl5body) {
+        var uniqueCos = {};
+        forecastData.forEach(function(d) {
+            if (!uniqueCos[d.company]) uniqueCos[d.company] = d;
+        });
+        var coList = Object.keys(uniqueCos).sort();
+        tbl5body.innerHTML = coList.map(function(c) {
+            var d = uniqueCos[c];
+            return '<tr><td>' + c + '</td><td>' + d.date.substring(0,7) + '</td><td class="num">' + (d.lfpFcst>0?d.lfpFcst.toFixed(1):'—') + '</td><td class="num">' + (d.ncmFcst>0?d.ncmFcst.toFixed(1):'—') + '</td><td class="num">' + (d.lfpPrice>0?d.lfpPrice.toFixed(3):'—') + '</td><td class="num">' + (d.ncmPrice>0?d.ncmPrice.toFixed(3):'—') + '</td></tr>';
+        }).join('');
+    }
+
+})();
+
+/* =====================================================
+   初始化
+   ===================================================== */
+function switchTab(id, btn) {
+    document.querySelectorAll('.tab-content').forEach(function(el){ el.classList.remove('active'); });
+    document.querySelectorAll('.tab-btn').forEach(function(b){ b.classList.remove('active'); });
+    document.getElementById('tab-' + id).classList.add('active');
+    if (btn) btn.classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function updateTopbarTime() {
+    var el = document.getElementById('topbarTime');
+    if (el) {
+        var now = new Date();
+        el.textContent = now.toLocaleDateString('zh-CN') + ' ' + now.toLocaleTimeString('zh-CN', {hour:'2-digit', minute:'2-digit'});
+    }
+}
+
+updateTopbarTime();
+setInterval(updateTopbarTime, 60000);
+</script>
+</body>
+</html>
