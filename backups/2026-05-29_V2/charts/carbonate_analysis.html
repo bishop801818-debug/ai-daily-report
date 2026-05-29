@@ -1,0 +1,1526 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>碳酸锂及原料深度分析报告 - 龙蟠行业数据库</title>
+    <meta name="html-version" content="20260429a">
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Microsoft YaHei', 'PingFang SC', Arial, sans-serif; background: #f0f2f5; min-height: 100vh; }
+
+        /* ===== 顶部导航 ===== */
+        .topbar {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: #fff;
+            padding: 0 30px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+        }
+        .topbar-left { display: flex; align-items: center; gap: 16px; }
+        .topbar-logo { font-size: 18px; font-weight: bold; display: flex; align-items: center; gap: 8px; }
+        .topbar-links { display: flex; gap: 12px; }
+        .topbar-links a { color: rgba(255,255,255,0.8); text-decoration: none; font-size: 13px; padding: 6px 14px; border-radius: 20px; transition: all 0.2s; }
+        .topbar-links a:hover { background: rgba(255,255,255,0.2); color: #1e3c72; }
+        .topbar-right { font-size: 13px; color: rgba(255,255,255,0.7); }
+
+        /* ===== 报告头部 ===== */
+        .report-header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: #fff;
+            padding: 40px 30px 30px;
+            position: relative;
+            overflow: hidden;
+            text-align: center;
+        }
+        .report-header::before {
+            content: '';
+            position: absolute;
+            top: 0; right: 0; bottom: 0; left: 0;
+            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            opacity: 0.3;
+        }
+        .report-meta { font-size: 13px; opacity: 0.8; margin-bottom: 8px; position: relative; }
+        .report-title { font-size: 28px; font-weight: 700; margin-bottom: 6px; position: relative; }
+        .report-subtitle { font-size: 14px; opacity: 0.85; margin-bottom: 20px; position: relative; }
+        .report-tags { display: inline-flex; gap: 8px; flex-wrap: wrap; position: relative; justify-content: center; }
+        .report-tag { background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); padding: 4px 12px; border-radius: 20px; font-size: 12px; }
+
+        /* ===== Tab导航 ===== */
+        .tab-nav {
+            background: #fff;
+            border-bottom: 1px solid #e8e8e8;
+            padding: 0 30px;
+            display: flex;
+            gap: 0;
+            position: sticky;
+            top: 60px;
+            z-index: 90;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
+        .tab-btn {
+            padding: 14px 22px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            color: #666;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+            font-family: inherit;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .tab-btn:hover { color: #1e3c72; }
+        .tab-btn.active { color: #1e3c72; border-bottom-color: #1e3c72; font-weight: 600; }
+        .tab-count {
+            background: rgba(30,60,114,0.1);
+            color: #1e3c72;
+            font-size: 11px;
+            padding: 1px 6px;
+            border-radius: 10px;
+        }
+
+        /* ===== 主内容区 ===== */
+        .tab-content { display: none; padding: 28px 30px; max-width: 1400px; margin: 0 auto; }
+        .tab-content.active { display: block; }
+
+        /* ===== KPI卡片 ===== */
+        .kpi-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .kpi-card {
+            background: #fff;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            border: 1px solid #eee;
+            position: relative;
+            overflow: hidden;
+        }
+        .kpi-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+        }
+        .kpi-card.green::before { background: #1e3c72; }
+        .kpi-card.blue::before { background: #3498db; }
+        .kpi-card.orange::before { background: #e67e22; }
+        .kpi-card.purple::before { background: #9b59b6; }
+        .kpi-card.red::before { background: #e74c3c; }
+        .kpi-card.dark::before { background: #2c3e50; }
+
+        .kpi-label { font-size: 12px; color: #aaa; margin-bottom: 6px; }
+        .kpi-value { font-size: 28px; font-weight: 700; color: #1a1a2e; line-height: 1; margin-bottom: 4px; }
+        .kpi-value .unit { font-size: 14px; color: #888; font-weight: normal; margin-left: 2px; }
+        .kpi-sub { font-size: 12px; color: #888; }
+        .kpi-change { display: inline-block; font-size: 12px; padding: 2px 6px; border-radius: 4px; margin-left: 6px; font-weight: 600; }
+        .kpi-change.up { background: #fee; color: #c0392b; }
+        .kpi-change.down { background: #fee; color: #c0392b; }
+
+        /* ===== 区块通用 ===== */
+        .section-block {
+            background: #fff;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            border: 1px solid #eee;
+        }
+        .section-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #1a1a2e;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .section-title .icon { font-size: 18px; }
+
+        /* ===== 洞察块 ===== */
+        .insight-block {
+            background: linear-gradient(135deg, #f0f7ff 0%, #e3f2fd 100%);
+            border-left: 4px solid #1e3c72;
+            border-radius: 8px;
+            padding: 16px 20px;
+            margin-bottom: 16px;
+        }
+        .insight-block.blue { background: linear-gradient(135deg, #f0f7ff 0%, #e3f2fd 100%); border-left-color: #3498db; }
+        .insight-block.orange { background: linear-gradient(135deg, #fff8f0 0%, #fff3e0 100%); border-left-color: #e67e22; }
+        .insight-block.purple { background: linear-gradient(135deg, #f8f0ff 0%, #f3e5f5 100%); border-left-color: #9b59b6; }
+        .insight-title { font-size: 14px; font-weight: 700; color: #1a1a2e; margin-bottom: 6px; }
+        .insight-text { font-size: 13px; color: #444; line-height: 1.7; }
+
+        /* ===== 发现列表 ===== */
+        .finding-list { list-style: none; }
+        .finding-list li {
+            padding: 10px 16px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            font-size: 13px;
+            line-height: 1.6;
+            display: flex;
+            gap: 10px;
+        }
+        .finding-list li:nth-child(odd) { background: #f8f9fa; }
+        .finding-tag {
+            flex-shrink: 0;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 2px 7px;
+            border-radius: 4px;
+            height: fit-content;
+        }
+        .finding-tag.p0 { background: #fee2e2; color: #991b1b; }
+        .finding-tag.p1 { background: #fef3c7; color: #92400e; }
+        .finding-tag.p2 { background: #e0f2fe; color: #075985; }
+
+        /* ===== 行动卡片 ===== */
+        .action-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+        .action-card {
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 16px;
+            text-align: center;
+            transition: all 0.2s;
+        }
+        .action-card:hover { border-color: #1e3c72; box-shadow: 0 4px 12px rgba(30,60,114,0.12); }
+        .action-icon { font-size: 28px; margin-bottom: 8px; }
+        .action-title { font-size: 14px; font-weight: 700; color: #1a1a2e; margin-bottom: 4px; }
+        .action-desc { font-size: 12px; color: #888; line-height: 1.5; }
+        .action-priority {
+            display: inline-block;
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            margin-top: 6px;
+            font-weight: 600;
+        }
+        .action-priority.high { background: #fee2e2; color: #991b1b; }
+        .action-priority.medium { background: #fef3c7; color: #92400e; }
+
+        /* ===== 图表网格 ===== */
+        .chart-grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-bottom: 20px; }
+        .chart-card { background: #fff; border-radius: 12px; padding: 20px; border: 1px solid #eee; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+        .chart-card.full { grid-column: span 2; }
+        .chart-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid #f0f0f0; }
+        .chart-title { font-size: 14px; font-weight: 600; color: #333; }
+        .chart-meta { font-size: 12px; color: #aaa; }
+        .chart-container { width: 100%; height: 300px; }
+        .chart-card.full .chart-container { height: 320px; }
+
+        /* ===== 数据表格 ===== */
+        .data-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        .data-table th { background: #f8f9fa; padding: 10px 12px; text-align: left; font-weight: 600; color: #555; border-bottom: 2px solid #eee; font-size: 12px; }
+        .data-table td { padding: 10px 12px; border-bottom: 1px solid #f0f0f0; color: #333; }
+        .data-table tr:hover td { background: #f8f9fa; }
+        .data-table .num { text-align: right; font-variant-numeric: tabular-nums; }
+        .data-table .up { color: #c0392b; }
+        .data-table .down { color: #1e3c72; }
+
+        /* ===== 结论卡片 ===== */
+        .conclusion-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+        .conclusion-card {
+            border-radius: 10px;
+            padding: 20px;
+            border: 1px solid #e0e0e0;
+        }
+        .conclusion-card.green { background: #f0f7ff; border-color: #a3c9e8; }
+        .conclusion-card.orange { background: #fff8f0; border-color: #f5c78a; }
+        .conclusion-card.blue { background: #f0f7ff; border-color: #a3c9e8; }
+        .conclusion-card.red { background: #fff0f0; border-color: #f5a3a3; }
+        .conclusion-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+        .conclusion-card.green .conclusion-label { color: #1e3c72; }
+        .conclusion-card.orange .conclusion-label { color: #a05000; }
+        .conclusion-card.blue .conclusion-label { color: #1565c0; }
+        .conclusion-card.red .conclusion-label { color: #a03030; }
+        .conclusion-text { font-size: 13px; color: #333; line-height: 1.7; }
+
+        /* ===== 数据来源 ===== */
+        .source-bar { background: #f8f9fa; border-radius: 8px; padding: 12px 16px; font-size: 12px; color: #aaa; margin-top: 16px; text-align: center; border: 1px solid #eee; }
+
+        /* ===== 两列布局 ===== */
+        .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .three-col { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+
+        /* ===== 摘要KPI行 ===== */
+        .summary-hero {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            border-radius: 16px;
+            padding: 28px 32px;
+            margin-bottom: 24px;
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 24px;
+            align-items: center;
+        }
+        .summary-hero-title { font-size: 22px; font-weight: 700; margin-bottom: 12px; color: #fff; }
+        .summary-hero-text { font-size: 14px; line-height: 1.8; color: #fff; opacity: 0.95; }
+        .summary-kpi-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+        .summary-kpi { background: rgba(255,255,255,0.15); border-radius: 10px; padding: 14px; text-align: center; }
+        .summary-kpi-val { font-size: 22px; font-weight: 700; color: #fff; }
+        .summary-kpi-lbl { font-size: 11px; color: rgba(255,255,255,0.8); margin-top: 2px; }
+
+        /* ===== 图表释义（图表下方数据分析文本） ===== */
+        .chart-interpretation {
+            margin-top: 14px;
+            padding: 14px 16px;
+            background: linear-gradient(135deg, #f8f9fc 0%, #f0f4ff 100%);
+            border-radius: 8px;
+            border-left: 3px solid #1e3c72;
+        }
+        .ci-title { font-size: 12px; font-weight: 600; color: #1e3c72; margin-bottom: 6px; }
+        .ci-text { font-size: 13px; color: #555; line-height: 1.8; }
+        .ci-text strong { color: #1e3c72; }
+    </style>
+</head>
+<body>
+
+<!-- 顶部导航 -->
+<div class="topbar">
+    <div class="topbar-left">
+        <div class="topbar-logo">⛏️ 碳酸锂及原料数据库</div>
+    </div>
+    <div class="topbar-links">
+        <a href="index_v3.html">🏠 首页</a>
+        <a href="database_hub.html">📋 数据库中心</a>
+        <a href="carbonate_data_v2.html">📊 数据表格</a>
+        <a href="carbonate_charts.html">📈 可视化看板</a>
+    </div>
+    <div class="topbar-right" id="topbarTime"></div>
+</div>
+
+<!-- 报告头部 -->
+<div class="report-header">
+    <div class="report-meta">📅 数据库数据截止：2026-02（供需/产量）&nbsp;·&nbsp;2026-03（月均价格）&nbsp;|&nbsp; 早报数据：2026-04-22-23 &nbsp;|&nbsp; 🕐 报告生成：2026-04-25 &nbsp;|&nbsp; 🔄 持续更新</div>
+    <div class="report-title">碳酸锂及原料深度分析报告</div>
+    <div class="report-subtitle">碳酸锂 · 氢氧化锂 · 锂云母 · 锂辉石精矿 — 四位一体产业链全景分析</div>
+    <div class="report-tags">
+        <span class="report-tag">碳酸锂</span>
+        <span class="report-tag">氢氧化锂</span>
+        <span class="report-tag">锂辉石</span>
+        <span class="report-tag">锂云母</span>
+        <span class="report-tag">新能源上游</span>
+        <span class="report-tag">锂资源</span>
+    </div>
+</div>
+
+<!-- Tab导航 -->
+<div class="tab-nav">
+    <button class="tab-btn active" onclick="switchTab('s1', this)">📋 执行摘要</button>
+    <button class="tab-btn" onclick="switchTab('s2', this)">📊 供需格局</button>
+    <button class="tab-btn" onclick="switchTab('s3', this)">⚔️ 竞争格局</button>
+    <button class="tab-btn" onclick="switchTab('s4', this)">💰 价格体系</button>
+    <button class="tab-btn" onclick="switchTab('s5', this)">🚢 出口贸易</button>
+    <button class="tab-btn" onclick="switchTab('s6', this)">🔭 战略展望</button>
+</div>
+
+<!-- ====== S1: 执行摘要 ====== -->
+<div id="tab-s1" class="tab-content active">
+
+    <!-- 摘要英雄区 -->
+    <div class="summary-hero" style="color:#fff;">
+        <div>
+            <div class="summary-hero-title">2026年4月：期货高位回调，现货紧平衡未变</div>
+            <div class="summary-hero-text">
+                碳酸锂价格在<span style="font-weight:700">2026年4月22日LC2609期货收于17.43万元/吨</span>（单日-2.84%），
+                未突破18万/吨关键阻力位，多头主动减仓1.18万手，短期进入高位震荡格局。
+                但这一回调并不改变供需紧平衡本质——<span style="font-weight:700">3月进口环比+50%至83.74万吨</span>（津巴布韦进口创年内新高+61.5%），
+                但津巴布韦自2月底禁令以来中企虽获出口配额，<strong>尚无实质发运</strong>，物流周期3个月，
+                二季度供给缺口仍将持续构成价格底部支撑。早报中龙蟠时代事业部4月22日指出：
+                "紫金矿业Q1碳酸锂1.6万吨，6月马诺诺投产将显著放量"——巨头扩张叠加期货回调，
+                构成当前锂价"高位震荡"的核心矛盾。
+            </div>
+        </div>
+        <div class="summary-kpi-row">
+            <div class="summary-kpi">
+                <div class="summary-kpi-val">17.43</div>
+                <div class="summary-kpi-lbl">期货收盘(万元/吨)</div>
+            </div>
+            <div class="summary-kpi">
+                <div class="summary-kpi-val">17.20</div>
+                <div class="summary-kpi-lbl">SMM现货(万元/吨)</div>
+            </div>
+            <div class="summary-kpi">
+                <div class="summary-kpi-val">+139%</div>
+                <div class="summary-kpi-lbl">锂辉石年涨幅</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 关键指标卡片 -->
+    <div class="kpi-row">
+        <div class="kpi-card green">
+            <div class="kpi-label">碳酸锂期货（LC2609，4月22日收盘价）<span style="font-size:10px;color:#aaa;margin-left:6px;">📡 早报4/22</span></div>
+            <div class="kpi-value">17.43<span class="unit">万元/吨</span><span class="kpi-change down">-2.84%</span></div>
+            <div class="kpi-sub">阻力位18万/吨，10日均线16.92万/吨支撑</div>
+        </div>
+        <div class="kpi-card blue">
+            <div class="kpi-label">SMM电池级碳酸锂（4月22日现货价）<span style="font-size:10px;color:#aaa;margin-left:6px;">📡 早报4/22</span></div>
+            <div class="kpi-value">17.20<span class="unit">万元/吨</span><span class="kpi-change down">-0.03%</span></div>
+            <div class="kpi-sub">现货贴水期货0.23万/吨，基差收窄</div>
+        </div>
+        <div class="kpi-card orange">
+            <div class="kpi-label">锂辉石进口（2026年3月）<span style="font-size:10px;color:#aaa;margin-left:6px;">📡 早报4月环比</span></div>
+            <div class="kpi-value">83.74<span class="unit">万吨</span><span class="kpi-change up">+50.2%</span></div>
+            <div class="kpi-sub">津巴布韦+61.5%创新高 · 澳矿-8.9%</div>
+        </div>
+        <div class="kpi-card dark">
+            <div class="kpi-label">氢氧化锂现货（4月22日）<span style="font-size:10px;color:#aaa;margin-left:6px;">📡 早报4/22</span></div>
+            <div class="kpi-value">14.70<span class="unit">万元/吨</span><span class="kpi-change up">+8.1%</span></div>
+            <div class="kpi-sub">近10天涨幅 · 跟涨滞后于碳酸锂</div>
+        </div>
+    </div>
+
+    <!-- 核心洞察 -->
+    <div class="section-block">
+        <div class="section-title"><span class="icon">💡</span> 核心洞察</div>
+        <div class="insight-block">
+            <div class="insight-title">⚡ 期货高位回调 vs 现货紧平衡：矛盾正在分化</div>
+            <div class="insight-text">
+                4月22日碳酸锂期货LC2609收于17.43万元/吨，<strong>单日减仓1.18万手</strong>（-2.84%），
+                未能突破18万/吨强阻力位。但这一轮回调的核心逻辑是"多头主动了结获利"而非"基本面恶化"——
+                SMM现货仅微跌500元至17.20万/吨，基差从4月初的贴水1万收窄至0.23万/吨，
+                <strong>现货对期货的支撑反而在加强</strong>。4月22日早报中光大期货研判：
+                "10日均线16.92万/吨支撑明显，短期维持17万~17.9万震荡偏强"——
+                这一判断将期货短期顶锚定在18万/吨，但同时也确认了17万/吨的强支撑。
+            </div>
+        </div>
+        <div class="insight-block blue">
+            <div class="insight-title">📋 四部门整治+回收新规：政策底托住价格底部</div>
+            <div class="insight-text">
+                4月9日，工信部/发改委/市场监管总局/能源局四部门联合约谈动力及储能电池企业，
+                部署整治"内卷式竞争"，强调"持续深入推进产能预警调控"，碳酸锂冶炼赫然在列。
+                4月1日正式施行的动力电池回收新规（六部门联合，全生命周期溯源）同步生效。
+                <strong>两大政策叠加的核心含义：</strong>低于成本销售将被规范、低效产能出清加速、
+                回收提锂合规化提速——对当前14万+高价区的价格底部构成政策托底效应。
+            </div>
+        </div>
+        <div class="insight-block orange">
+            <div class="insight-title">🏭 津巴布韦禁令持续：3个月物流缺口是最确定性利多</div>
+            <div class="insight-text">
+                4月21日华友钴业在业绩说明会上确认：中企在津巴布韦虽已陆续获出口配额批文，
+                但<strong>"尚无实质发运"</strong>。从津巴布韦至中国海运+清关约3个月，
+                意味着该缺口影响将延续至5-6月。<strong>3月津巴布韦进口11.26万吨（+61.5%）
+                实际是禁令前最后一批货的集中到港</strong>，4月后将显著缩量。
+                这一结构性缺口，与期货多头离场形成的短期回调，形成"短空长多"的格局。
+            </div>
+        </div>
+        <div class="insight-block purple">
+            <div class="insight-title">💰 巨头Q1业绩爆发：低成本矿商利润弹性充分释放</div>
+            <div class="insight-text">
+                4月22日早报集中披露锂资源巨头Q1成绩单：
+                <strong>紫金矿业净利润201亿（同比+98%）</strong>，碳酸锂产量1.6万吨；
+                <strong>天齐锂业净利润17-20亿（同比+1530%~1818%）</strong>；
+                <strong>赣锋锂业盈利16-21亿（同比扭亏）</strong>。
+                三家巨头的共同特征：低成本盐湖/矿山自给率在60%以上，
+                碳酸锂售价15万+时单吨毛利达7-10万元。
+                但每涨1万/吨，中下游采购成本增加约15亿元/年，利润再分配压力持续积累。
+            </div>
+        </div>
+        <div class="insight-block blue">
+            <div class="insight-title">📦 进口结构变化：非洲占比首超澳洲，替代逻辑持续强化</div>
+            <div class="insight-text">
+                2026年3月锂辉石进口83.74万吨（环比+50.2%），背后是结构性的来源地替代：<strong>津巴布韦+61.5%（11.26万吨）创年内新高</strong>，
+                尼日利亚+7.3%（12.51万吨），非洲两国合计23.77万吨，已超越澳洲（19.54万吨，-8.9%），非洲首次成为最大进口来源区。
+                这一替代趋势背后是政治经济学逻辑：澳洲锂辉石已高度集中于Pilbara/Mineral Resources等少数巨头，价格博弈能力强；
+                非洲新矿山由中企主导（华友钴业Bikita、中矿集团Bambula等），成本可控且物流路径稳定。<strong>核心风险：</strong>
+                津巴布韦出口禁令虽已松绑但物流周期3个月，意味着4-6月进口将面临真空期，3月进口增量是最后一批货的集中到港而非趋势性增长。
+            </div>
+        </div>
+        <div class="insight-block orange">
+            <div class="insight-title">🔗 碳酸锂-氢氧化锂价差扩大至-2.73万/吨：高端路线持续承压</div>
+            <div class="insight-text">
+                4月22日碳酸锂与氢氧化锂价差扩大至<strong>-2.73万/吨</strong>（碳酸锂17.43万 vs 氢氧化锂14.70万），是近两年来最大差距。
+                氢氧化锂4月涨幅仅+8.09%（近10天），远低于碳酸锂同期涨幅，反映高镍三元/固态电池路线需求仍未实质启动。
+                <strong>背后逻辑：</strong>①磷酸铁锂持续压制三元市场份额，三元材料厂开工率不足拖累氢氧化锂需求；②部分氢氧化锂产线已开始转产碳酸锂；
+                ③固态/半固态电池虽有进展但距大规模商业化仍有距离，短期内氢氧化锂需求难有显著改善。<strong>对常州锂源的战略启示：</strong>
+                若碳酸锂维持高位，氢氧化锂跟涨逻辑将在2-3个月内逐步兑现，14.70万/吨附近是较强支撑位；建议关注高端三元需求修复信号。
+            </div>
+        </div>
+    </div>
+
+    <!-- 关键发现 -->
+    <div class="section-block">
+        <div class="section-title"><span class="icon">🔍</span> 关键发现</div>
+        <ul class="finding-list">
+            <li><span class="finding-tag p0">P0</span><strong>期货回调≠基本面反转：</strong>4月22日期货收17.43万/吨（-2.84%），但SMM现货仅跌500元/吨至17.20万/吨，基差收窄至0.23万/吨；早报多家机构研判17万/吨是强支撑，10日均线16.92万/吨止损明确——短期顶部18万/吨确认，回调不改中期强势格局</li>
+            <li><span class="finding-tag p0">P0</span><strong>津巴布韦配额已批但零发运：</strong>华友钴业4月21日确认"尚无实质发运"，3个月物流周期意味着5-6月前供给缺口持续。4月22日早报指出"二季度紧平衡预期持续支撑锂价"——这一缺口量化约3-4万吨LCE，是当前最确定性价格底部支撑</li>
+            <li><span class="finding-tag p0">P0</span><strong>四部门整治+回收新规双政策叠加：</strong>4月9日四部门约谈"产能预警+规范价格竞争"，4月1日回收新规（六部门联合，全生命周期溯源）正式施行。两大政策同时推进：低于成本倾销将被规范、回收提锂合规化加速——行业供给侧收缩力度超预期</li>
+            <li><span class="finding-tag p1">P1</span><strong>巨头Q1业绩验证"暴利周期"：</strong>紫金矿业(+98%)、天齐锂业(+1530%)、赣锋锂业（扭亏为盈16-21亿）——低成本矿商利润弹性充分释放。但每涨1万/吨，中下游成本增加约15亿元/年，利润再分配压力持续积累</li>
+            <li><span class="finding-tag p1">P1</span><strong>锂辉石进口3月暴增50%：</strong>83.74万吨（津巴布韦+61.5%创年内新高），但进口增量主要对应禁令前抢运；非洲占比持续提升（津巴布韦+尼日利亚合计23.77万吨），替代澳洲趋势加速</li>
+            <li><span class="finding-tag p2">P2</span><strong>氢氧化锂跟涨但幅度有限：</strong>4月22日14.7万/吨（近10天+8.09%），但与碳酸锂（17.43万）的价差扩大至-2.73万/吨，显示高端路线（高镍三元/固态电池）需求仍未实质启动</li>
+        </ul>
+    </div>
+
+    <div class="source-bar">数据来源：龙蟠科技数据库 · 碳酸锂及原料（12表） · 月度数据2024-01 → 2026-02 · 早报（2026-04-23） · 政策库（policies.json） · 更新于2026-04-25
+    <!-- 行动建议 -->
+    <div class="section-block">
+        <div class="section-title"><span class="icon">🎯</span> 行动建议</div>
+        <div class="action-grid">
+            <div class="action-card">
+                <div class="action-icon">⛏️</div>
+                <div class="action-title">关注期货盘面，设定止损线</div>
+                <div class="action-desc" style="text-align:left;font-size:12px;color:#666;line-height:1.7;">
+                    碳酸锂期货LC2609在<span style="font-weight:600;">18万/吨</span>面临强阻力，多头主动减仓1.18万手，短期高位震荡格局确立。建议：①将<span style="font-weight:600;">10日均线16.92万/吨</span>设为短期止损线；②关注持仓量变化——若持仓量持续下降，多头力量正在撤退；③基差扩大（超过0.5万/吨）是现货走弱的领先信号，需提前调整采购节奏。
+                </div>
+                <div class="action-priority high">高优先级</div>
+            </div>
+            <div class="action-card">
+                <div class="action-icon">🏭</div>
+                <div class="action-title">跟踪津巴布韦物流进度</div>
+                <div class="action-desc" style="text-align:left;font-size:12px;color:#666;line-height:1.7;">
+                    华友钴业已确认中企陆续获出口配额批文，但<span style="font-weight:600;">"尚无实质发运"</span>。建议：①每周跟踪津巴布韦主要港口（Beira港）出港数据；②关注中企物流方合作动态；③若5月中旬前仍无实质发运，缺口预期将推动期货再次上攻。当前可提前与有配额矿企锁定长单。
+                </div>
+                <div class="action-priority high">高优先级</div>
+            </div>
+            <div class="action-card">
+                <div class="action-icon">📦</div>
+                <div class="action-title">氢氧化锂关注窗口期</div>
+                <div class="action-desc" style="text-align:left;font-size:12px;color:#666;line-height:1.7;">
+                    当前碳酸锂-氢氧化锂价差扩大至<span style="font-weight:600;">-2.73万/吨</span>，是近两年最大值。建议：①若碳酸锂期货持续高位，氢氧化锂跟涨逻辑将强化，4.70万/吨附近有较强支撑；②关注高端三元电池需求修复信号（固态/半固态电池进展）；③部分氢氧化锂产线已转产碳酸锂，若转产加速将边际改善氢氧化锂供需。
+                </div>
+                <div class="action-priority medium">中优先级</div>
+            </div>
+        </div>
+    </div>
+
+</div>
+</div>
+
+<!-- ====== S2: 供需格局 ====== -->
+<div id="tab-s2" class="tab-content">
+    <div class="kpi-row">
+        <div class="kpi-card green">
+            <div class="kpi-label">碳酸锂产能（2026年2月）<span style="font-size:10px;color:#aaa;margin-left:6px;">📡 数据库</span></div>
+            <div class="kpi-value">10.72<span class="unit">万吨/月</span><span class="kpi-change up">+48%</span></div>
+            <div class="kpi-sub">较2024年1月增长48%</div>
+        </div>
+        <div class="kpi-card blue">
+            <div class="kpi-label">氢氧化锂产能（2026年2月）<span style="font-size:10px;color:#aaa;margin-left:6px;">📡 数据库</span></div>
+            <div class="kpi-value">4.95<span class="unit">万吨/月</span><span class="kpi-change up">+3.4%</span></div>
+            <div class="kpi-sub">较2024年1月增长3.4%</div>
+        </div>
+        <div class="kpi-card orange">
+            <div class="kpi-label">2026年2月产量（合计）<span style="font-size:10px;color:#aaa;margin-left:6px;">📡 数据库</span></div>
+            <div class="kpi-value">10.18<span class="unit">万吨</span></div>
+            <div class="kpi-sub">碳酸锂7.70 + 氢氧化锂2.47</div>
+        </div>
+        <div class="kpi-card dark">
+            <div class="kpi-label">产能综合利用率<span style="font-size:10px;color:#aaa;margin-left:6px;">📡 数据库2026-02</span></div>
+            <div class="kpi-value">65<span class="unit">%</span></div>
+            <div class="kpi-sub">加权平均（按产能）</div>
+        </div>
+    </div>
+
+    <div class="chart-grid-2">
+        <div class="chart-card full">
+            <div class="chart-header">
+                <div class="chart-title">碳酸锂 vs 氢氧化锂 月度产量走势（2024-2026）</div>
+                <div class="chart-meta">单位：吨 · 数据来源：龙蟠数据库</div>
+            </div>
+            <div class="chart-container" id="c-supply"></div>
+            <div class="chart-interpretation">
+                <div class="ci-title">📖 图表释义</div>
+                <div class="ci-text">
+                    <strong>碳酸锂与氢氧化锂产量剪刀差持续扩大：</strong>2024年碳酸锂月均产量约4.9万吨，至2026年2月已达7.70万吨（+57%），主驱动力是磷酸铁锂正极材料需求爆发。氢氧化锂月产量从2024年初的1.8万吨增长至2025年峰值后回落，2026年2月仅2.47万吨。<strong>剪刀差背后的结构性问题：</strong>磷酸铁锂路线（用碳酸锂）压制高镍三元路线（用氢氧化锂）的市场份额，导致氢氧化锂需求增速持续低于碳酸锂。<strong>3月趋势预判：</strong>春节因素消退后，碳酸锂产量预计反弹至8.5万吨以上，但优质云母矿供应紧张将限制进一步上行空间；氢氧化锂在4月前难有显著改善，高端路线仍承压。</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="two-col">
+        <div class="chart-card">
+            <div class="chart-header">
+                <div class="chart-title">碳酸锂月度产能利用率</div>
+                <div class="chart-meta">2024-01 → 2026-02</div>
+            </div>
+            <div class="chart-container" id="c-lc-util"></div>
+            <div class="chart-interpretation">
+                <div class="ci-title">📖 图表释义</div>
+                <div class="ci-text">
+                    <strong>产能利用率呈"W"型走势：</strong>2024年初利用率约65%，年中冲高至80%，2025年受需求带动利用率突破90%，2026年1-2月受春节影响回落至72%。<strong>利用率70%是盈亏平衡关键阈值：</strong>产能利用率高于70%时，固定成本摊薄显著，单吨加工费可控制在3000-4000元；低于70%时加工费需5000-6000元，成本压力骤增。<strong>领先指标意义：</strong>利用率回升领先产量增长约1-2个月，是判断供给端松紧的先行指标。2026年3月预计利用率将回升至76-78%，若高于80%则预示短期供需偏紧、价格有支撑。</span>
+                </div>
+            </div>
+        </div>
+        <div class="chart-card">
+            <div class="chart-header">
+                <div class="chart-title">氢氧化锂月度产能利用率</div>
+                <div class="chart-meta">2024-01 → 2026-02</div>
+            </div>
+            <div class="chart-container" id="c-lh-util"></div>
+            <div class="chart-interpretation">
+                <div class="ci-title">📖 图表释义</div>
+                <div class="ci-text">
+                    <strong>氢氧化锂利用率持续低于碳酸锂，差距扩大：</strong>2026年2月碳酸锂利用率72%，而氢氧化锂仅50%，差距达22个百分点。这一差距在2024年初仅为5个百分点（碳酸锂67% vs 氢氧化锂62%）。<strong>根源：高镍三元需求走弱：</strong>NCM811/9系高镍电池对氢氧化锂的需求是主力，而磷酸铁锂持续压制三元市场份额，导致氢氧化锂需求增速远低于产能扩张速度。<strong>产能闲置风险：</strong>部分企业（如四川某氢氧化锂冶炼厂）已开始将氢氧化锂产线转产碳酸锂。若氢氧化锂价格持续低迷，转产趋势将加速，可能在2026年下半年形成对碳酸锂供给的边际增量。</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section-block">
+        <div class="section-title"><span class="icon">📊</span> 供需格局分析</div>
+        <div class="insight-block">
+            <div class="insight-title">供给端：产能高速扩张，产量增速放缓</div>
+            <div class="insight-text">
+                碳酸锂产能从2024年1月的7.31万吨/月扩张至2026年2月的10.72万吨/月（累计+46.6%），
+                但产量增速未能跟上，主因是优质锂矿供应紧张导致部分产能利用率不足。
+                2月因春节因素产量环比下降11%至7.70万吨，预计3月将回升至8.5万吨以上。
+            </div>
+        </div>
+        <div class="insight-block blue">
+            <div class="insight-title">需求端：铁锂路线主导，高端路线承压</div>
+            <div class="insight-text">
+                磷酸铁锂正极材料在动力电池装机占比超70%，带动电池级碳酸锂需求刚性增长。
+                高镍三元路线增长放缓导致氢氧化锂需求走弱，2026年2月氢氧化锂产能利用率仅为50%，
+                为近两年最低。部分氢氧化锂产能已出现转产碳酸锂的迹象。
+            </div>
+        </div>
+    </div>
+
+    <div class="section-block">
+        <div class="section-title"><span class="icon">📋</span> 2024-2026年行业产量明细</div>
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>月份</th>
+                    <th class="num">碳酸锂产量（吨）</th>
+                    <th class="num">碳酸锂产能（吨）</th>
+                    <th class="num">利用率</th>
+                    <th class="num">氢氧化锂产量（吨）</th>
+                    <th class="num">氢氧化锂产能（吨）</th>
+                    <th class="num">利用率</th>
+                </tr>
+            </thead>
+            <tbody id="supply-table-body"></tbody>
+        </table>
+    </div>
+
+    <div class="source-bar">数据来源：龙蟠科技数据库 · 碳酸锂及原料（12表） · 月度数据2024-01 → 2026-02</div>
+</div>
+
+<!-- ====== S3: 竞争格局 ====== -->
+<div id="tab-s3" class="tab-content">
+    <div class="kpi-row">
+        <div class="kpi-card green">
+            <div class="kpi-label">碳酸锂主要工艺路线</div>
+            <div class="kpi-value">3<span class="unit">种</span></div>
+            <div class="kpi-sub">盐湖提锂 / 云母提锂 / 辉石提锂</div>
+        </div>
+        <div class="kpi-card blue">
+            <div class="kpi-label">碳酸锂年化产能（2026）</div>
+            <div class="kpi-value">~130<span class="unit">万吨/年</span></div>
+            <div class="kpi-sub">满产可达130万吨</div>
+        </div>
+        <div class="kpi-card orange">
+            <div class="kpi-label">氢氧化锂产能（2026）</div>
+            <div class="kpi-value">~59<span class="unit">万吨/年</span></div>
+            <div class="kpi-sub">以矿石提锂为主</div>
+        </div>
+        <div class="kpi-card purple">
+            <div class="kpi-label">锂辉石进口依赖度</div>
+            <div class="kpi-value">>60<span class="unit">%</span></div>
+            <div class="kpi-sub">澳洲+非洲为主</div>
+        </div>
+    </div>
+
+    <div class="section-block">
+        <div class="section-title"><span class="icon">⚔️</span> 三足鼎立：三大提锂路线竞争格局</div>
+        <div class="three-col">
+            <div class="action-card" style="border-top: 3px solid #3498db;">
+                <div class="action-icon">🏜️</div>
+                <div class="action-title">盐湖提锂</div>
+                <div class="action-desc" style="text-align:left; font-size:12px; line-height:1.6;">
+                    <b>代表：</b>青海盐湖（蓝科/藏格）、西藏扎布耶<br><br>
+                    <b>优势：</b>成本最低（2-4万元/吨），资源储量大<br><br>
+                    <b>劣势：</b>扩产周期长（3-5年），季节性影响大<br><br>
+                    <b>趋势：</b>吸附法技术突破，产量稳步提升
+                </div>
+            </div>
+            <div class="action-card" style="border-top: 3px solid #e67e22;">
+                <div class="action-icon">⛰️</div>
+                <div class="action-title">锂云母提锂</div>
+                <div class="action-desc" style="text-align:left; font-size:12px; line-height:1.6;">
+                    <b>代表：</b>宜春地区（江特/永兴/国轩）<br><br>
+                    <b>优势：</b>国内资源可控，可副产铷铯<br><br>
+                    <b>劣势：</b>成本较高（6-10万元/吨），渣处理难<br><br>
+                    <b>趋势：</b>2026年价格支撑下复产积极，边际成本约8万
+                </div>
+            </div>
+            <div class="action-card" style="border-top: 3px solid #1e3c72;">
+                <div class="action-icon">💎</div>
+                <div class="action-title">锂辉石提锂</div>
+                <div class="action-desc" style="text-align:left; font-size:12px; line-height:1.6;">
+                    <b>代表：</b>澳洲Pilbara/G鳞、Gtth<br><br>
+                    <b>优势：</b>产品纯度最高，适合电池级氢氧化锂<br><br>
+                    <b>劣势：</b>高度依赖进口，运费+关税成本大<br><br>
+                    <b>趋势：</b>非洲新矿逐步放量，长期价格中枢下移
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="chart-card full" style="background:#fff;border-radius:12px;padding:20px;border:1px solid #eee;box-shadow:0 2px 8px rgba(0,0,0,0.04);margin-bottom:20px;">
+        <div class="chart-header">
+            <div class="chart-title">全球锂资源供应链示意</div>
+            <div class="chart-meta">上游矿源 → 中游冶炼 → 下游正极材料</div>
+        </div>
+        <div id="c-supply-chain" style="height:280px;width:100%;"></div>
+        <div class="chart-interpretation">
+            <div class="ci-title">📖 图表释义</div>
+            <div class="ci-text">
+                <strong>锂资源供应链呈"哑铃型"格局：</strong>上游矿源（澳洲锂辉石、非洲锂辉石、盐湖卤水、江西云母）高度集中，中游冶炼（中国占全球80%以上产能）竞争激烈，下游正极材料（磷酸铁锂/三元）需求分化。<strong>澳洲锂辉石定价权最强：</strong>Pilbara Minerals的BMX拍卖平台对CIF中国价格有锚定效应，2026年Q1多次拍卖成交价维持$2,000-2,500/吨，推升国内碳酸锂成本底部。<strong>非洲新矿的边际影响：</strong>津巴布韦Bikita、纳米比亚Kamoa等项目逐步放量，预计2026年下半年非洲进口占比突破50%，可部分对冲澳洲矿价上涨压力。<strong>关键启示：</strong>锂资源供应链的地理集中度（三大洲+中国冶炼）决定了价格波动性——任何单一来源的供给中断都可能引发10-15%的价格跳涨，这是当前锂价高位运行的底层逻辑。</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="section-block">
+        <div class="section-title"><span class="icon">🔍</span> 竞争格局关键发现</div>
+        <ul class="finding-list">
+            <li><span class="finding-tag p0">P0</span><strong>紫金矿业Q1净利润201亿（+98%），剑指全球最大锂生产商：</strong>4月22日早报，龙蟠时代事业部披露：紫金矿业Q1碳酸锂产量1.6万吨，马诺诺项目（Manono）预计2026年6月投产、2028年目标27-32万吨LCE。紫金的暴利是全行业最低成本的印证——低成本矿商（自给率60%+）在15万+价格下单吨毛利达7-10万，形成对龙蟠时代等中游冶炼企业的成本锚定参考</li>
+            <li><span class="finding-tag p0">P0</span><strong>天齐(+1530%)/赣锋扭亏验证锂价底部：</strong>天齐锂业Q1净利润17-20亿（同比+1530%~1818%），赣锋锂业16-21亿（同比扭亏）。两大巨头业绩爆发反证：当前14-17万/吨的碳酸锂价格已大幅高于全行业成本线，锂价已越过成本支撑区进入利润区——这正是四部门整治低于成本倾销政策出台的行业背景</li>
+            <li><span class="finding-tag p1">P1</span><strong>龙蟠科技上游布局加速（4月22日早报）：</strong>斥资近9000万港元收购澳洲锂矿勘探权（1800万吨资源量，品位1%）+ 认购GL1的5%股权并签10年供货协议（年供至少7万吨），产业链垂直整合意图明显，有助于平滑采购成本波动</li>
+            <li><span class="finding-tag p1">P1</span><strong>非洲锂辉石替代澳洲趋势加速：</strong>3月津巴布韦（+61.5%）+尼日利亚（+62.9%）合计进口23.77万吨，占总量28.4%；非洲占比提升削弱Pilbara BMX定价权，是2026年下半年锂辉石价格能否回落的关键变量</li>
+        </ul>
+    </div>
+
+    <div class="source-bar">数据来源：龙蟠科技数据库 · 早报（2026-04-23） · 政策库 · 公开资料整理</div>
+</div>
+
+<!-- ====== S4: 价格体系 ====== -->
+<div id="tab-s4" class="tab-content">
+    <div class="kpi-row">
+        <div class="kpi-card green">
+            <div class="kpi-label">LC2609期货（4月22日收盘）<span style="font-size:10px;color:#aaa;margin-left:6px;">📡 早报4/22</span></div>
+            <div class="kpi-value">17.43<span class="unit">万元/吨</span><span class="kpi-change down">-2.84%</span></div>
+            <div class="kpi-sub">收盘，未突破18万阻力位；持仓42.4万手</div>
+        </div>
+        <div class="kpi-card blue">
+            <div class="kpi-label">SMM电池级碳酸锂（4月22日现货）<span style="font-size:10px;color:#aaa;margin-left:6px;">📡 早报4/22</span></div>
+            <div class="kpi-value">17.20<span class="unit">万元/吨</span><span class="kpi-change down">-0.03%</span></div>
+            <div class="kpi-sub">基差0.23万/吨（现货贴水期货）</div>
+        </div>
+        <div class="kpi-card orange">
+            <div class="kpi-label">氢氧化锂现货（4月22日）<span style="font-size:10px;color:#aaa;margin-left:6px;">📡 早报4/22</span></div>
+            <div class="kpi-value">14.70<span class="unit">万元/吨</span><span class="kpi-change up">+8.09%</span></div>
+            <div class="kpi-sub">近10天涨幅 · 滞后跟涨碳酸锂</div>
+        </div>
+        <div class="kpi-card purple">
+            <div class="kpi-label">锂辉石进口（2026年3月）<span style="font-size:10px;color:#aaa;margin-left:6px;">📡 海关数据</span></div>
+            <div class="kpi-value">+50%<span class="unit"></span><span class="kpi-change up">83.74万吨</span></div>
+            <div class="kpi-sub">津巴布韦+61.5%创新高 · 澳矿-8.9%</div>
+        </div>
+    </div>
+
+    <div class="chart-grid-2">
+        <div class="chart-card full">
+            <div class="chart-header">
+                <div class="chart-title">碳酸锂 vs 氢氧化锂 月度均价走势（2025-2026）</div>
+                <div class="chart-meta">单位：万元/吨 · 数据来源：龙蟠数据库</div>
+            </div>
+            <div class="chart-container" id="c-price-lc-lh"></div>
+            <div class="chart-interpretation">
+                <div class="ci-title">📖 图表释义</div>
+                <div class="ci-text">
+                    <strong>价差收窄甚至倒挂：</strong>2025年上半年碳酸锂与氢氧化锂价格基本持平（均在7-8万/吨区间），2025年下半年开始分化，碳酸锂上涨斜率明显更陡，2026年3月两者分别为14.55万和15.39万/吨。历史上氢氧化锂通常高于碳酸锂2-3万/吨（因品质溢价），当前接近平水的状态说明高端市场需求严重不足。<strong>2025年价格暴涨的触发逻辑：</strong>锂辉石精矿从2025年均价$683/吨飙升至2026年3月$1,955/吨（+186%），直接推升冶炼成本，碳酸锂成本支撑位从7万/吨上移至11-12万/吨。<strong>短期价格顶部判断：</strong>若碳酸锂维持在14-15万/吨，下游电池厂毛利压缩至10%以下，整车厂将启动材料替代或涨价传导，15万/吨是短期内强阻力位。</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="two-col">
+        <div class="chart-card">
+            <div class="chart-header">
+                <div class="chart-title">锂辉石精矿（6% CIF中国）月度均价</div>
+                <div class="chart-meta">单位：美元/吨</div>
+            </div>
+            <div class="chart-container" id="c-price-spod"></div>
+            <div class="chart-interpretation">
+                <div class="ci-title">📖 图表释义</div>
+                <div class="ci-text">
+                    <strong>锂辉石精矿是本轮锂价上涨的最强驱动力：</strong>从2025年均价$683/吨暴涨至2026年3月$1,955/吨（+186%），远超碳酸锂价格涨幅（+101%）。这说明上游矿端的定价权远强于中游冶炼。<strong>Pilbara BMX拍卖的锚定效应：</strong>澳洲矿商通过BMX平台拍卖推高市场成交价，2026年Q1多次拍卖在$2,000-2,500/吨区间成交，直接拉升CIF中国现货价格。<strong>非洲矿的替代节奏：</strong>津巴布韦、纳米比亚新矿品位（5-6%）与澳洲相当，但物流成本高+选矿能力弱，预计2026年下半年开始形成有效供给。非洲占比提升将削弱澳洲定价权，是2026年锂辉石价格能否回落的关键变量。</span>
+                </div>
+            </div>
+        </div>
+        <div class="chart-card">
+            <div class="chart-header">
+                <div class="chart-title">锂云母精矿（1.8%品位）月度均价</div>
+                <div class="chart-meta">单位：万元/吨品位</div>
+            </div>
+            <div class="chart-container" id="c-price-lep"></div>
+            <div class="chart-interpretation">
+                <div class="ci-title">📖 图表释义</div>
+                <div class="ci-text">
+                    <strong>锂云母价格弹性最大：</strong>从2025年均价0.17万/吨品位暴涨至2026年3月0.45万/吨品位（+165%），与锂辉石涨幅接近，但基数更低。云母提锂的成本支撑位约0.30万/吨（0.45万品位对应约8万/吨碳酸锂成本），当前价格已高于盈亏平衡线。<strong>宜春云母矿的供给弹性：</strong>江西宜春地区云母矿产能约50万吨/年（折碳酸锂当量），但品位偏低（0.3-0.5%），实际有效产能仅20-25万吨。云母提锂企业（江特电机、永兴材料）对锂价敏感度高：锂价低于8万/吨时云母产线普遍亏损，当前14万/吨价格下利润空间充足，开工意愿强烈。</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section-block">
+        <div class="section-title"><span class="icon">💡</span> 价格传导机制</div>
+        <div class="insight-block orange">
+            <div class="insight-title">价格传导链：矿端 → 冶炼端 → 正极材料 → 电芯 → 电池 → 整车</div>
+            <div class="insight-text">
+                <b>锂辉石精矿（3月均价$1,955/吨）</b> → 冶炼成本约2-3万/吨 → <b>碳酸锂（期货17.43万/吨）</b> →
+                正极材料（碳酸锂+其他） → <b>电芯成本上升</b> → 车企降本压力持续。
+                目前碳酸锂占电芯成本约15-20%，若碳酸锂价格维持在14万/吨以上，整车成本压力难缓解。
+            </div>
+        </div>
+        <div class="insight-block">
+            <div class="insight-title">矿端定价权：Pilbara锚定 vs 非洲替代加速</div>
+            <div class="insight-text">
+                澳洲Pilbara Minerals的BMX拍卖平台对CIF中国价格有强锚定效应，2026年Q1多次拍卖成交价维持$2,000-2,500/吨。
+                但3月数据出现重要分化：<strong>澳矿进口环比-8.9%至25.56万吨</strong>，
+                而非洲（津巴布韦+尼日利亚）合计23.77万吨（+62%）大幅放量。
+                这一结构变化意味着：<strong>非洲矿占比提升正在削弱Pilbara的定价权</strong>——
+                4月22日早报方正中期期货指出"非洲进口持续放量"是二季度供给端最大变量，
+                2026年下半年若非洲占比突破50%，BMX锚定效应将被显著稀释，
+                矿价松动将带动碳酸锂成本支撑线下移。
+            </div>
+        </div>
+    </div>
+
+    <div class="section-block">
+        <div class="section-title"><span class="icon">📋</span> 2025-2026年价格月度明细</div>
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>月份</th>
+                    <th class="num">碳酸锂(万元/吨)</th>
+                    <th class="num">氢氧化锂(万元/吨)</th>
+                    <th class="num">锂辉石(美元/吨)</th>
+                    <th class="num">锂云母(万元/吨)</th>
+                    <th>趋势</th>
+                </tr>
+            </thead>
+            <tbody id="price-table-body"></tbody>
+        </table>
+    </div>
+
+    <div class="source-bar">数据来源：龙蟠科技数据库 · 早报（2026-04-22-23）· 月度价格截至2026-03 · 日度价格截至2026-04-22</div>
+</div>
+
+<!-- ====== S5: 出口贸易 ====== -->
+<div id="tab-s5" class="tab-content">
+    <div class="kpi-row">
+        <div class="kpi-card green">
+            <div class="kpi-label">2026年1-2月碳酸锂累计出口<span style="font-size:10px;color:#aaa;margin-left:6px;">📡 海关</span></div>
+            <div class="kpi-value">1,068<span class="unit">吨</span><span class="kpi-change up">+33.4%</span></div>
+            <div class="kpi-sub">2025年同期801吨</div>
+        </div>
+        <div class="kpi-card blue">
+            <div class="kpi-label">2025年全年氢氧化锂出口<span style="font-size:10px;color:#aaa;margin-left:6px;">📡 海关</span></div>
+            <div class="kpi-value">4.46<span class="unit">万吨</span><span class="kpi-change down">-35.2%</span></div>
+            <div class="kpi-sub">2024年同期6.88万吨</div>
+        </div>
+        <div class="kpi-card orange">
+            <div class="kpi-label">碳酸锂最新出口（2026年2月）<span style="font-size:10px;color:#aaa;margin-left:6px;">📡 海关</span></div>
+            <div class="kpi-value">596<span class="unit">吨</span></div>
+            <div class="kpi-sub">出口均价10.6万元/吨</div>
+        </div>
+        <div class="kpi-card purple">
+            <div class="kpi-label">碳酸锂出口主要目的地（2026年2月）<span style="font-size:10px;color:#aaa;margin-left:6px;">📡 海关</span></div>
+            <div class="kpi-value">韩国<span class="unit">（450吨）</span></div>
+            <div class="kpi-sub">占当月出口75.5%</div>
+        </div>
+    </div>
+
+    <div class="two-col">
+        <div class="chart-card">
+            <div class="chart-header">
+                <div class="chart-title">碳酸锂月度出口量走势</div>
+                <div class="chart-meta">单位：吨 · 2023-2026</div>
+            </div>
+            <div class="chart-container" id="c-lc-export"></div>
+            <div class="chart-interpretation">
+                <div class="ci-title">📖 图表释义</div>
+                <div class="ci-text">
+                    <strong>碳酸锂出口规模整体偏小，但2026年增速显著：</strong>2023年月均出口约40吨，2024年受国内价格上涨挤压有所下滑，2026年1-2月月均534吨，较2025年同期增长33%。出口量偏小的根本原因是国内价格长期高于海外（除2022年极端行情外）。<strong>国内溢价导致出口意愿不足：</strong>2026年3月国内碳酸锂均价14.55万/吨，出口均价10.6万/吨（对应1-2月数据），倒挂约4万/吨，国内出货更划算，企业出口动力不足。预计2026年下半年若国内价格回落至12万/吨以下，出口量将迎来明显回升。</span>
+                </div>
+            </div>
+        </div>
+        <div class="chart-card">
+            <div class="chart-header">
+                <div class="chart-title">氢氧化锂月度出口量走势</div>
+                <div class="chart-meta">单位：吨 · 2023-2026</div>
+            </div>
+            <div class="chart-container" id="c-lh-export"></div>
+            <div class="chart-interpretation">
+                <div class="ci-title">📖 图表释义</div>
+                <div class="ci-text">
+                    <strong>氢氧化锂出口"断崖式"下滑：</strong>2023年月均10,600吨→2024年月均5,700吨→2025年月均3,700吨→2026年预计进一步下滑至3,000吨以下。两年时间萎缩超过60%。<strong>衰退的根源是日韩高镍三元路线的失速：</strong>氢氧化锂的主要海外客户是日韩电池厂，用于NCM811/NCMA等高镍正极。随着磷酸铁锂在中国市场装机占比突破70%，日韩电池厂也被迫跟进LFP转型，松下、LG新能源的4680大圆柱电池转向LFP，导致氢氧化锂海外需求持续萎缩。<strong>对国内冶炼厂的启示：</strong>纯氢氧化锂出口导向型企业（如四川某盐湖）面临订单流失风险，需加快向碳酸锂产线转产或拓展国内三元客户。</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="chart-card full" style="background:#fff;border-radius:12px;padding:20px;border:1px solid #eee;box-shadow:0 2px 8px rgba(0,0,0,0.04);margin-bottom:20px;">
+        <div class="chart-header">
+            <div class="chart-title">碳酸锂出口目的地分布（2026-02）</div>
+            <div class="chart-meta">单位：吨 · 共596.1吨</div>
+        </div>
+        <div id="c-export-pie" style="height:320px;width:100%;"></div>
+        <div class="chart-interpretation">
+            <div class="ci-title">📖 图表释义</div>
+            <div class="ci-text">
+                <strong>韩国单一市场依赖度极高：</strong>2026年2月韩国占碳酸锂出口75.5%（450吨），远超其他国家/地区。这一高度集中的结构带来显著的地缘风险——若韩国电池厂商（LG新能源/SK On/三星SDI）转向LFP导致需求萎缩，中国碳酸锂出口将面临订单真空。<strong>日系稳健、日欧新兴：</strong>日本（80吨，占13.4%）是成熟市场，松下对华锂盐采购稳定；日欧（35吨）代表新兴增量，以部分欧洲车企直接从中国采购锂盐用于本地电池生产为主。<strong>战略建议：</strong>出口市场多元化是当务之急。东南亚（印尼、泰国）的电池厂建设正如火如荼，2027-2028年将形成实质性采购需求，可作为韩日之外的新兴突破口。</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="section-block">
+        <div class="section-title"><span class="icon">🚢</span> 出口贸易关键发现</div>
+        <ul class="finding-list">
+            <li><span class="finding-tag p0">P0</span>2026年2月碳酸锂出口目的地中韩国占比75.5%（450吨），日系电池厂商采购持续恢复</li>
+            <li><span class="finding-tag p1">P1</span>氢氧化锂出口连续两年下滑（2023年月均10,600吨→2025年月均约3,700吨），主因是日韩高镍路线放缓</li>
+            <li><span class="finding-tag p1">P1</span>碳酸锂出口均价与国内现货价差收窄（价差从2023年的40+万收窄至2026年的-4万），显示国内价格已高于出口</li>
+            <li><span class="finding-tag p2">P2</span>非洲成为中国锂辉石精矿主要来源，2026年进口占比或超50%，替代澳洲的趋势加速</li>
+        </ul>
+    </div>
+
+    <div class="section-block">
+        <div class="section-title"><span class="icon">📋</span> 碳酸锂出口历史明细（2023-2026）</div>
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>月份</th>
+                    <th class="num">出口量（吨）</th>
+                    <th class="num">出口金额（万元）</th>
+                    <th class="num">出口均价（万元/吨）</th>
+                    <th class="num">环比</th>
+                    <th class="num">同比</th>
+                </tr>
+            </thead>
+            <tbody id="export-table-body"></tbody>
+        </table>
+    </div>
+
+    <div class="source-bar">数据来源：龙蟠科技数据库 · 碳酸锂及原料（12表） · 月度数据2024-01 → 2026-02· 早报（2026-04-23）· 出口数据截至2026-02</div>
+</div>
+
+<!-- ====== S6: 战略展望 ====== -->
+<div id="tab-s6" class="tab-content">
+    <div class="kpi-row">
+        <div class="kpi-card green">
+            <div class="kpi-label">2026年价格展望<span style="font-size:10px;color:#aaa;margin-left:6px;">📡 分析预测</span></div>
+            <div class="kpi-value">12-18<span class="unit">万元/吨</span></div>
+            <div class="kpi-sub">碳酸锂全年均价预测区间</div>
+        </div>
+        <div class="kpi-card blue">
+            <div class="kpi-label">供需格局展望<span style="font-size:10px;color:#aaa;margin-left:6px;">📡 分析预测</span></div>
+            <div class="kpi-value">紧平衡</div>
+            <div class="kpi-sub">2026年全年供需缺口约5-8万吨</div>
+        </div>
+        <div class="kpi-card orange">
+            <div class="kpi-label">高镍路线复苏节点<span style="font-size:10px;color:#aaa;margin-left:6px;">📡 分析预测</span></div>
+            <div class="kpi-value">2026H2</div>
+            <div class="kpi-sub">固态电池+大圆柱电池拉动氢氧化锂</div>
+        </div>
+        <div class="kpi-card purple">
+            <div class="kpi-label">钠电池替代影响<span style="font-size:10px;color:#aaa;margin-left:6px;">📡 分析预测</span></div>
+            <div class="kpi-value">&lt;5<span class="unit">%</span></div>
+            <div class="kpi-sub">5年内对锂需求替代有限</div>
+        </div>
+    </div>
+
+    <div class="section-block">
+        <div class="section-title"><span class="icon">🔭</span> 2026年战略展望</div>
+        <div class="insight-block">
+            <div class="insight-title">📈 价格展望：期货高位震荡，下半年回调概率加大</div>
+            <div class="insight-text">
+                4月22日期货LC2609收于17.43万/吨，未突破18万/吨强阻力位，多头主动减仓1.18万手。
+                短期顶部（18万）和底部（17万）均已确认，形成<strong>17-18万高位震荡</strong>格局。
+                4月22日早报光大期货研判："短期维持17万~17.9万震荡偏强"，10日均线16.92万/吨是关键止损位。
+                <strong>两大关键变量决定方向：</strong>①津巴布韦配额实际发运节奏（目前零发运，3个月周期）；②紫金矿业马诺诺项目6月投产进度。
+                若两者叠加，下半年或迎来实质性回调（12-14万/吨）；若缺口持续，17万/吨以上高位将延续。
+            </div>
+        </div>
+        <div class="insight-block blue">
+            <div class="insight-title">🔄 结构性变化：LFP主导持续，氢氧化锂复苏等待信号</div>
+            <div class="insight-text">
+                4月16日早报披露：容百科技（43亿LFP前驱体）+ 盟固利（30亿一体化）两家三元龙头同日宣布全面转型LFP——
+                这是继4月9日四部门约谈后，三元阵营对LFP路线长达两年判断的最终共识确认。
+                LFP装机占比已超70%，碳酸锂需求刚性有保障。
+                氢氧化锂4月22日14.7万/吨（+8.09%），但仍低于碳酸锂2.73万/吨——高镍复苏需等待固态电池（宁德凝聚态电池量产+亿纬大圆柱）规模化信号，当前时间窗口仍在2026H2以后。
+            </div>
+        </div>
+        <div class="insight-block orange">
+            <div class="insight-title">🌍 资源安全：非洲锂矿战略地位凸显</div>
+            <div class="insight-text">
+                中国企业在非洲锂矿权益产能已超30万吨LCE/年（合150万吨锂矿石处理量），
+                主要项目包括：Manono（紫金矿业持有24.99%）、Bikita（中矿资源持有100%）、
+                Kamoa-Kakula（艾芬豪/宁德时代）。
+                预计2026年非洲锂辉石占中国进口量比例将从2023年的30%提升至50%以上，
+                降低澳洲单一来源依赖。
+            </div>
+        </div>
+        <div class="insight-block purple">
+            <div class="insight-title">⚠️ 风险提示</div>
+            <div class="insight-text">
+                ① <b>政策风险：</b>国内新能源汽车补贴退坡超预期，导致正极材料需求大幅下滑；
+                ② <b>矿端风险：</b>澳洲、南非等地地缘政治风险影响锂矿物流；
+                ③ <b>技术替代：</b>钠离子电池、凝聚态电池对锂需求超预期替代；
+                ④ <b>库存风险：</b>2025年末中下游备货充足，2026Q1去库压力可能压制短期价格。
+            </div>
+        </div>
+    </div>
+
+    <div class="section-block">
+        <div class="section-title"><span class="icon">🎯</span> 战略行动建议</div>
+        <div class="action-grid">
+            <div class="action-card">
+                <div class="action-icon">📦</div>
+                <div class="action-title">建立战略库存</div>
+                <div class="action-desc">在价格回调至12-13万/吨时适度建立2-3个月用量的碳酸锂安全库存</div>
+                <span class="action-priority high">高优先级</span>
+            </div>
+            <div class="action-card">
+                <div class="action-icon">🤝</div>
+                <div class="action-title">锁定长协价格</div>
+                <div class="action-desc">与澳洲/非洲矿商签订6-12个月长协，锁定60%用量，平滑现货价格波动</div>
+                <span class="action-priority high">高优先级</span>
+            </div>
+            <div class="action-card">
+                <div class="action-icon">🌍</div>
+                <div class="action-title">布局非洲资源</div>
+                <div class="action-desc">关注Bikita扩产项目进展，评估Manono项目权益，布局上游资源合作</div>
+                <span class="action-priority medium">中优先级</span>
+            </div>
+            <div class="action-card">
+                <div class="action-icon">🔬</div>
+                <div class="action-title">追踪固态电池进展</div>
+                <div class="action-desc">密切跟踪宁德时代凝聚态电池量产节奏，提前布局氢氧化锂采购计划</div>
+                <span class="action-priority medium">中优先级</span>
+            </div>
+            <div class="action-card">
+                <div class="action-icon">♻️</div>
+                <div class="action-title">关注回收锂增量</div>
+                <div class="action-desc">电池回收提锂在2026年有望贡献3-5万吨LCE，关注白名单企业回收产能释放</div>
+                <span class="action-priority medium">中优先级</span>
+            </div>
+            <div class="action-card">
+                <div class="action-icon">📊</div>
+                <div class="action-title">完善价格预警</div>
+                <div class="action-desc">建立周度价格监测机制，设定$1,800/吨（矿端）和$12万/吨（产品端）预警阈值</div>
+                <span class="action-priority high">高优先级</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="conclusion-grid">
+        <div class="conclusion-card green">
+            <div class="conclusion-label">核心结论</div>
+            <div class="conclusion-text">
+                2026年碳酸锂市场维持供需紧平衡，价格高位震荡运行。
+                全年均价预计在13-15万元/吨区间，较2025年均值（7.3万元/吨）上涨约80-100%。
+                产业链利润向上游矿端集中，中游冶炼利润承压，下游电池/车企降本压力持续。
+            </div>
+        </div>
+        <div class="conclusion-card blue">
+            <div class="conclusion-label">机会窗口</div>
+            <div class="conclusion-text">
+                2026年下半年非洲锂矿集中到港或带来短期价格回调（12-14万/吨），
+                为中下游企业提供3-6个月的战略采购窗口期，建议提前锁定用量。
+                长期看，高品质盐湖提锂企业将持续享受成本红利。
+            </div>
+        </div>
+    </div>
+
+    <div class="source-bar">数据来源：龙蟠科技数据库 · 早报（2026-04-23）· 政策库 · 行业分析 · 市场调研 · 更新于2026-04-25</div>
+</div>
+
+<script>
+/* =====================================================
+   真实数据（从 carbonate_all_data.json 分析提取）
+   ===================================================== */
+const LC_MONTHLY = [
+    {month:'2024-01', prod:43678, cap:73123, util:60},
+    {month:'2024-02', prod:37708, cap:64040, util:59},
+    {month:'2024-03', prod:42780, cap:61123, util:70},
+    {month:'2024-04', prod:47850, cap:74873, util:64},
+    {month:'2024-05', prod:53201, cap:75706, util:70},
+    {month:'2024-06', prod:54620, cap:75706, util:72},
+    {month:'2024-07', prod:57850, cap:77373, util:75},
+    {month:'2024-08', prod:59760, cap:77373, util:77},
+    {month:'2024-09', prod:57903, cap:77373, util:75},
+    {month:'2024-10', prod:59235, cap:77373, util:77},
+    {month:'2024-11', prod:58587, cap:80623, util:73},
+    {month:'2024-12', prod:60439, cap:87457, util:69},
+    {month:'2025-01', prod:57235, cap:92625, util:62},
+    {month:'2025-02', prod:58330, cap:92625, util:63},
+    {month:'2025-03', prod:65780, cap:98458, util:67},
+    {month:'2025-04', prod:63700, cap:93875, util:68},
+    {month:'2025-05', prod:60460, cap:93875, util:64},
+    {month:'2025-06', prod:65010, cap:93875, util:69},
+    {month:'2025-07', prod:69600, cap:104709, util:66},
+    {month:'2025-08', prod:75150, cap:101292, util:74},
+    {month:'2025-09', prod:77650, cap:105459, util:74},
+    {month:'2025-10', prod:80500, cap:106376, util:76},
+    {month:'2025-11', prod:83950, cap:107209, util:78},
+    {month:'2025-12', prod:87250, cap:107209, util:81},
+    {month:'2026-01', prod:86650, cap:107209, util:81},
+    {month:'2026-02', prod:77020, cap:107209, util:72},
+];
+
+const LH_MONTHLY = [
+    {month:'2024-01', prod:28800, cap:47899, util:60},
+    {month:'2024-02', prod:29900, cap:47899, util:62},
+    {month:'2024-03', prod:30950, cap:47899, util:65},
+    {month:'2024-04', prod:32200, cap:47899, util:67},
+    {month:'2024-05', prod:31400, cap:49566, util:63},
+    {month:'2024-06', prod:31400, cap:49566, util:63},
+    {month:'2024-07', prod:30600, cap:47899, util:64},
+    {month:'2024-08', prod:30200, cap:47899, util:63},
+    {month:'2024-09', prod:29950, cap:47899, util:63},
+    {month:'2024-10', prod:29750, cap:47899, util:62},
+    {month:'2024-11', prod:29800, cap:50399, util:59},
+    {month:'2024-12', prod:29750, cap:52066, util:57},
+    {month:'2025-01', prod:28800, cap:48982, util:59},
+    {month:'2025-02', prod:28550, cap:48982, util:58},
+    {month:'2025-03', prod:28750, cap:48982, util:59},
+    {month:'2025-04', prod:28600, cap:48149, util:59},
+    {month:'2025-05', prod:28600, cap:48149, util:59},
+    {month:'2025-06', prod:28450, cap:48149, util:59},
+    {month:'2025-07', prod:26300, cap:45082, util:58},
+    {month:'2025-08', prod:26950, cap:45915, util:59},
+    {month:'2025-09', prod:28400, cap:43415, util:65},
+    {month:'2025-10', prod:28150, cap:43415, util:65},
+    {month:'2025-11', prod:26650, cap:46624, util:57},
+    {month:'2025-12', prod:28600, cap:46624, util:61},
+    {month:'2026-01', prod:27350, cap:49541, util:55},
+    {month:'2026-02', prod:24740, cap:49541, util:50},
+];
+
+const LC_PRICE_MONTHLY = [
+    {month:'2025-02',lc:7.28,lh:7.29,spod:690,lep:0.162},
+    {month:'2025-03',lc:7.21,lh:7.26,spod:683,lep:0.161},
+    {month:'2025-04',lc:6.98,lh:7.24,spod:632,lep:0.134},
+    {month:'2025-05',lc:6.30,lh:6.80,spod:552,lep:0.106},
+    {month:'2025-06',lc:5.83,lh:6.31,spod:484,lep:0.094},
+    {month:'2025-07',lc:6.40,lh:6.14,spod:538,lep:0.121},
+    {month:'2025-08',lc:7.50,lh:7.38,spod:685,lep:0.176},
+    {month:'2025-09',lc:7.18,lh:7.44,spod:668,lep:0.168},
+    {month:'2025-10',lc:7.35,lh:7.48,spod:681,lep:0.179},
+    {month:'2025-11',lc:8.36,lh:7.96,spod:822,lep:0.228},
+    {month:'2025-12',lc:9.82,lh:8.86,spod:1048,lep:0.280},
+    {month:'2026-01',lc:14.10,lh:14.09,spod:1740,lep:0.453},
+    {month:'2026-02',lc:14.03,lh:15.04,spod:1779,lep:0.454},
+    {month:'2026-03',lc:14.55,lh:15.39,spod:1955,lep:0.453},
+];
+
+const LC_EXPORT = [
+    {month:'2023-01',qty:672.9, amt:3863, price:57.4, mom:null, yoy:null},
+    {month:'2023-02',qty:1416.3,amt:7568, price:53.4, mom:'110%', yoy:null},
+    {month:'2023-03',qty:951.1, amt:4527, price:47.6, mom:'-33%', yoy:null},
+    {month:'2023-04',qty:1012.8,amt:3849, price:38.0, mom:'6%', yoy:null},
+    {month:'2023-05',qty:1434.5,amt:4820, price:33.6, mom:'42%', yoy:null},
+    {month:'2023-06',qty:863.5, amt:2590, price:30.0, mom:'-40%', yoy:null},
+    {month:'2023-07',qty:707.7, amt:2611, price:36.9, mom:'-18%', yoy:null},
+    {month:'2023-08',qty:939.2, amt:2658, price:28.3, mom:'33%', yoy:null},
+    {month:'2023-09',qty:573.9, amt:1423, price:24.8, mom:'-39%', yoy:null},
+    {month:'2023-10',qty:317.5, amt:730,  price:23.0, mom:'-45%', yoy:null},
+    {month:'2023-11',qty:396.4, amt:781,  price:19.7, mom:'25%', yoy:null},
+    {month:'2023-12',qty:307.3, amt:513,  price:16.7, mom:'-22%', yoy:null},
+    {month:'2024-01',qty:196.3, amt:346,  price:17.6, mom:'-36%', yoy:'-71%'},
+    {month:'2024-02',qty:441.8, amt:615,  price:13.9, mom:'125%', yoy:'-69%'},
+    {month:'2024-03',qty:322.1, amt:483,  price:15.0, mom:'-27%', yoy:'-66%'},
+    {month:'2024-04',qty:344.7, amt:482,  price:14.0, mom:'7%', yoy:'-66%'},
+    {month:'2024-05',qty:212.5, amt:242,  price:11.4, mom:'-38%', yoy:'-85%'},
+    {month:'2024-06',qty:501.2, amt:551,  price:11.0, mom:'136%', yoy:'-42%'},
+    {month:'2024-07',qty:267,   amt:299,  price:11.2, mom:'-47%', yoy:'-62%'},
+    {month:'2024-08',qty:235,   amt:237,  price:10.1, mom:'-12%', yoy:'-75%'},
+    {month:'2024-09',qty:165.9, amt:151,  price:9.1, mom:'-29%', yoy:'-71%'},
+    {month:'2024-10',qty:299.6, amt:276,  price:9.2, mom:'81%', yoy:'-6%'},
+    {month:'2024-11',qty:217.5, amt:180,  price:8.3, mom:'-27%', yoy:'-45%'},
+    {month:'2024-12',qty:624.7, amt:518,  price:8.3, mom:'187%', yoy:'103%'},
+    {month:'2025-01',qty:398.6, amt:315,  price:7.9, mom:'-36%', yoy:'103%'},
+    {month:'2025-02',qty:417.1, amt:350,  price:8.4, mom:'5%', yoy:'-6%'},
+    {month:'2025-03',qty:220,   amt:308,  price:14.0, mom:'-47%', yoy:'-32%'},
+    {month:'2025-04',qty:734.3, amt:536,  price:7.3, mom:'234%', yoy:'113%'},
+    {month:'2025-05',qty:286.7, amt:215,  price:7.5, mom:'-61%', yoy:'35%'},
+    {month:'2025-06',qty:429.7, amt:297,  price:6.9, mom:'50%', yoy:'-14%'},
+    {month:'2025-07',qty:366.3, amt:253,  price:6.9, mom:'-15%', yoy:'37%'},
+    {month:'2025-08',qty:368.9, amt:262,  price:7.1, mom:'1%', yoy:'57%'},
+    {month:'2025-09',qty:150.8, amt:122,  price:8.1, mom:'-59%', yoy:'-9%'},
+    {month:'2025-10',qty:245.9, amt:167,  price:6.8, mom:'63%', yoy:'-18%'},
+    {month:'2025-11',qty:759.2, amt:569,  price:7.5, mom:'209%', yoy:'249%'},
+    {month:'2025-12',qty:911.9, amt:757,  price:8.3, mom:'20%', yoy:'46%'},
+    {month:'2026-01',qty:471.6, amt:485,  price:10.3, mom:'-48%', yoy:'18%'},
+    {month:'2026-02',qty:596.1, amt:630,  price:10.6, mom:'26%', yoy:'43%'},
+];
+
+const LH_EXPORT = [
+    {month:'2023-01',qty:9627, price:38.5},
+    {month:'2023-02',qty:10344,price:41.1},
+    {month:'2023-03',qty:10235,price:39.5},
+    {month:'2023-04',qty:10093,price:38.2},
+    {month:'2023-05',qty:10963,price:33.6},
+    {month:'2023-06',qty:9816, price:34.0},
+    {month:'2023-07',qty:8638, price:32.3},
+    {month:'2023-08',qty:11257,price:34.4},
+    {month:'2023-09',qty:11055,price:32.3},
+    {month:'2023-10',qty:10267,price:30.3},
+    {month:'2023-11',qty:15318,price:26.9},
+    {month:'2023-12',qty:12343,price:26.1},
+    {month:'2024-01',qty:9233, price:15.5},
+    {month:'2024-02',qty:8980, price:16.4},
+    {month:'2024-03',qty:12840,price:14.2},
+    {month:'2024-04',qty:10824,price:12.6},
+    {month:'2024-05',qty:12017,price:15.3},
+    {month:'2024-06',qty:14248,price:15.5},
+    {month:'2024-07',qty:9096, price:11.6},
+    {month:'2024-08',qty:10421,price:10.6},
+    {month:'2024-09',qty:12714,price:12.9},
+    {month:'2024-10',qty:7831, price:8.9},
+    {month:'2024-11',qty:5494, price:9.1},
+    {month:'2024-12',qty:7038, price:9.5},
+    {month:'2025-01',qty:3221, price:8.2},
+    {month:'2025-02',qty:4325, price:9.2},
+    {month:'2025-03',qty:4259, price:9.5},
+    {month:'2025-04',qty:4222, price:10.3},
+    {month:'2025-05',qty:5585, price:8.7},
+    {month:'2025-06',qty:6260, price:7.8},
+    {month:'2025-07',qty:1248, price:7.1},
+    {month:'2025-08',qty:5673, price:7.6},
+    {month:'2025-09',qty:6526, price:7.7},
+    {month:'2025-10',qty:2876, price:8.3},
+    {month:'2025-11',qty:3357, price:7.2},
+    {month:'2025-12',qty:6318, price:6.6},
+];
+
+const EXPORT_PARTNERS = [
+    {name:'韩国',    qty:450.0, pct:'75.5%'},
+    {name:'日本',    qty:80.0,  pct:'13.4%'},
+    {name:'德国',    qty:33.5,  pct:'5.6%'},
+    {name:'匈牙利', qty:15.0,  pct:'2.5%'},
+    {name:'俄罗斯', qty:3.4,   pct:'0.6%'},
+    {name:'马来西亚',qty:1.9,   pct:'0.3%'},
+    {name:'越南',   qty:1.0,   pct:'0.2%'},
+    {name:'中国台湾',qty:1.0,  pct:'0.2%'},
+    {name:'其他国家',qty:10.3, pct:'1.7%'},
+];
+
+/* =====================================================
+   Tab切换
+   ===================================================== */
+let currentTab = 's1';
+
+function switchTab(tabId, btn) {
+    currentTab = tabId;
+    document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('tab-' + tabId).classList.add('active');
+    if (btn) btn.classList.add('active');
+
+    // 触发对应图表渲染
+    if (tabId === 's2') renderSupplyCharts();
+    if (tabId === 's4') renderPriceCharts();
+    if (tabId === 's5') renderExportCharts();
+    if (tabId === 's3') renderSupplyChainChart();
+
+    // 渲染表格
+    if (tabId === 's2') renderSupplyTable();
+    if (tabId === 's4') renderPriceTable();
+    if (tabId === 's5') renderExportTable();
+}
+
+/* =====================================================
+   图表主题配置
+   ===================================================== */
+const CHART_COLORS = {
+    primary:   '#1e3c72',
+    secondary: '#4a6fa5',
+    accent:    '#2ecc71',
+    orange:    '#e67e22',
+    purple:    '#9b59b6',
+    red:       '#e74c3c',
+    yellow:    '#f39c12',
+    gray:      '#95a5a6',
+    grid:      '#f0f0f0',
+    text:      '#666',
+};
+
+function baseChartOpts() {
+    return {
+        textStyle: { fontFamily: 'Microsoft YaHei, PingFang SC' },
+        color: [CHART_COLORS.primary, CHART_COLORS.orange, CHART_COLORS.blue, CHART_COLORS.purple, CHART_COLORS.red],
+    };
+}
+
+/* =====================================================
+   S2: 供需格局图表
+   ===================================================== */
+function renderSupplyCharts() {
+    const months = LC_MONTHLY.map(d => d.month);
+
+    // 产量对比图
+    const c1 = echarts.init(document.getElementById('c-supply'));
+    c1.setOption({
+        ...baseChartOpts(),
+        tooltip: { trigger: 'axis', formatter: p => p.map(s => `${s.marker} ${s.seriesName}: ${s.value.toLocaleString()}吨`).join('<br>') },
+        legend: { data: ['碳酸锂', '氢氧化锂'], top: 0 },
+        grid: { left: 60, right: 20, top: 40, bottom: 30 },
+        xAxis: { type: 'category', data: months, axisLabel: { fontSize: 11, color: '#888' }, axisLine: { lineStyle: { color: '#ddd' } } },
+        yAxis: [
+            { type: 'value', name: '产量（吨）', axisLabel: { fontSize: 11, formatter: v => (v/1000).toFixed(0)+'k' }, splitLine: { lineStyle: { color: CHART_COLORS.grid } } },
+        ],
+        series: [
+            { name: '碳酸锂', type: 'bar', data: LC_MONTHLY.map(d => d.prod), itemStyle: { color: CHART_COLORS.primary, borderRadius: [2,2,0,0] }, barWidth: '35%', label: { show: true, position: 'top', fontSize: 10, color: '#555', formatter: p => (p.value/1000).toFixed(0)+'k' } },
+            { name: '氢氧化锂', type: 'bar', data: LH_MONTHLY.map(d => d.prod), itemStyle: { color: CHART_COLORS.blue, borderRadius: [2,2,0,0] }, label: { show: true, position: 'top', fontSize: 10, color: '#555', formatter: p => (p.value/1000).toFixed(0)+'k' } },
+        ]
+    });
+
+    // 碳酸锂利用率
+    const c2 = echarts.init(document.getElementById('c-lc-util'));
+    c2.setOption({
+        ...baseChartOpts(),
+        tooltip: { trigger: 'axis', formatter: p => `${p[0].name}<br>利用率: ${p[0].value}%` },
+        grid: { left: 50, right: 20, top: 10, bottom: 30 },
+        xAxis: { type: 'category', data: months, axisLabel: { fontSize: 10, color: '#888' }, axisLine: { lineStyle: { color: '#ddd' } } },
+        yAxis: { type: 'value', max: 100, axisLabel: { formatter: '{value}%' }, splitLine: { lineStyle: { color: CHART_COLORS.grid } } },
+        series: [{ type: 'line', data: LC_MONTHLY.map(d => d.util), smooth: true, areaStyle: { color: { type: 'linear', x:0,y:0,x2:0,y2:1, colorStops: [{offset:0, color:'rgba(30,60,114,0.3)'},{offset:1, color:'rgba(30,60,114,0.05)'}] } }, itemStyle: { color: CHART_COLORS.primary }, lineStyle: { width: 2 }, label: { show: true, position: 'top', fontSize: 10, color: '#555', formatter: p => p.value >= 75 ? p.value+'%' : '' } }]
+    });
+
+    // 氢氧化锂利用率
+    const c3 = echarts.init(document.getElementById('c-lh-util'));
+    c3.setOption({
+        ...baseChartOpts(),
+        tooltip: { trigger: 'axis', formatter: p => `${p[0].name}<br>利用率: ${p[0].value}%` },
+        grid: { left: 50, right: 20, top: 10, bottom: 30 },
+        xAxis: { type: 'category', data: months, axisLabel: { fontSize: 10, color: '#888' }, axisLine: { lineStyle: { color: '#ddd' } } },
+        yAxis: { type: 'value', max: 80, axisLabel: { formatter: '{value}%' }, splitLine: { lineStyle: { color: CHART_COLORS.grid } } },
+        series: [{ type: 'line', data: LH_MONTHLY.map(d => d.util), smooth: true, areaStyle: { color: { type: 'linear', x:0,y:0,x2:0,y2:1, colorStops: [{offset:0, color:'rgba(52,152,219,0.3)'},{offset:1, color:'rgba(52,152,219,0.05)'}] } }, itemStyle: { color: CHART_COLORS.blue }, lineStyle: { width: 2 }, label: { show: true, position: 'top', fontSize: 10, color: '#555', formatter: p => p.value >= 65 ? p.value+'%' : '' } }]
+    });
+}
+
+/* =====================================================
+   S3: 供应链图（桑基样式用柱状图代替）
+   ===================================================== */
+function renderSupplyChainChart() {
+    const c = echarts.init(document.getElementById('c-supply-chain'));
+    c.setOption({
+        ...baseChartOpts(),
+        tooltip: { trigger: 'item', formatter: p => `${p.name}: ${p.value}` },
+        grid: { left: 10, right: 10, top: 10, bottom: 30 },
+        xAxis: {
+            type: 'category',
+            data: ['澳洲\n锂辉石', '非洲\n锂辉石', '盐湖\n提锂', '云母\n提锂', '碳酸锂\n冶炼', '氢氧化锂\n冶炼', '正极\n材料', '电池', '整车'],
+            axisLabel: { fontSize: 12, color: '#555' },
+            axisLine: { lineStyle: { color: '#ddd' } },
+        },
+        yAxis: {
+            type: 'value',
+            name: '产能/产量占比（示意）',
+            axisLabel: { fontSize: 11 },
+            splitLine: { lineStyle: { color: CHART_COLORS.grid } }
+        },
+        series: [{
+            type: 'bar',
+            data: [
+                {value: 45, itemStyle: { color: '#3498db' }},
+                {value: 30, itemStyle: { color: '#2980b9' }},
+                {value: 55, itemStyle: { color: '#1e3c72' }},
+                {value: 25, itemStyle: { color: '#e67e22' }},
+                {value: 100, itemStyle: { color: '#8e44ad' }},
+                {value: 60, itemStyle: { color: '#9b59b6' }},
+                {value: 80, itemStyle: { color: '#e74c3c' }},
+                {value: 70, itemStyle: { color: '#c0392b' }},
+                {value: 60, itemStyle: { color: '#7f8c8d' }},
+            ],
+            barWidth: '55%',
+            itemStyle: { borderRadius: [4,4,0,0] },
+            label: { show: true, position: 'top', fontSize: 11, formatter: p => p.value > 10 ? p.value : '', color: '#555' }
+        }]
+    });
+}
+
+/* =====================================================
+   S4: 价格图表
+   ===================================================== */
+function renderPriceCharts() {
+    const months = LC_PRICE_MONTHLY.map(d => d.month);
+
+    // 碳酸锂 vs 氢氧化锂价格
+    const c1 = echarts.init(document.getElementById('c-price-lc-lh'));
+    c1.setOption({
+        ...baseChartOpts(),
+        tooltip: { trigger: 'axis', formatter: p => p.map(s => `${s.marker} ${s.seriesName}: ${s.value}万元/吨`).join('<br>') },
+        legend: { data: ['碳酸锂', '氢氧化锂'], top: 0 },
+        grid: { left: 55, right: 20, top: 40, bottom: 30 },
+        xAxis: { type: 'category', data: months, axisLabel: { fontSize: 11, color: '#888' }, axisLine: { lineStyle: { color: '#ddd' } } },
+        yAxis: { type: 'value', name: '万元/吨', axisLabel: { fontSize: 11 }, splitLine: { lineStyle: { color: CHART_COLORS.grid } } },
+        series: [
+            { name: '碳酸锂', type: 'line', data: LC_PRICE_MONTHLY.map(d => d.lc), smooth: true, itemStyle: { color: CHART_COLORS.primary, width: 2 }, areaStyle: { color: { type: 'linear', x:0,y:0,x2:0,y2:1, colorStops: [{offset:0, color:'rgba(30,60,114,0.2)'},{offset:1, color:'rgba(30,60,114,0)'}] } }, label: { show: true, position: 'top', fontSize: 10, color: CHART_COLORS.primary, formatter: p => p.value } },
+            { name: '氢氧化锂', type: 'line', data: LC_PRICE_MONTHLY.map(d => d.lh), smooth: true, itemStyle: { color: CHART_COLORS.blue, width: 2 }, label: { show: true, position: 'top', fontSize: 10, color: CHART_COLORS.blue, formatter: p => p.value } },
+        ]
+    });
+
+    // 锂辉石
+    const c2 = echarts.init(document.getElementById('c-price-spod'));
+    c2.setOption({
+        ...baseChartOpts(),
+        tooltip: { trigger: 'axis', formatter: p => `${p[0].name}<br>锂辉石: $${p[0].value}/吨` },
+        grid: { left: 60, right: 20, top: 10, bottom: 30 },
+        xAxis: { type: 'category', data: months, axisLabel: { fontSize: 10, color: '#888' }, axisLine: { lineStyle: { color: '#ddd' } } },
+        yAxis: { type: 'value', name: '美元/吨', axisLabel: { fontSize: 11 }, splitLine: { lineStyle: { color: CHART_COLORS.grid } } },
+        series: [{ type: 'bar', data: LC_PRICE_MONTHLY.map(d => d.spod), itemStyle: { color: CHART_COLORS.orange, borderRadius: [2,2,0,0] }, label: { show: true, position: 'top', fontSize: 10, color: '#555', formatter: p => '$'+p.value } }]
+    });
+
+    // 锂云母
+    const c3 = echarts.init(document.getElementById('c-price-lep'));
+    c3.setOption({
+        ...baseChartOpts(),
+        tooltip: { trigger: 'axis', formatter: p => `${p[0].name}<br>锂云母: ${p[0].value}万元/吨` },
+        grid: { left: 60, right: 20, top: 10, bottom: 30 },
+        xAxis: { type: 'category', data: months, axisLabel: { fontSize: 10, color: '#888' }, axisLine: { lineStyle: { color: '#ddd' } } },
+        yAxis: { type: 'value', name: '万元/吨', axisLabel: { fontSize: 11, formatter: v => v.toFixed(2) }, splitLine: { lineStyle: { color: CHART_COLORS.grid } } },
+        series: [{ type: 'bar', data: LC_PRICE_MONTHLY.map(d => d.lep), itemStyle: { color: CHART_COLORS.purple, borderRadius: [2,2,0,0] }, label: { show: true, position: 'top', fontSize: 10, color: '#555', formatter: p => p.value.toFixed(2) } }]
+    });
+}
+
+/* =====================================================
+   S5: 出口图表
+   ===================================================== */
+function renderExportCharts() {
+    // 碳酸锂出口
+    const c1 = echarts.init(document.getElementById('c-lc-export'));
+    c1.setOption({
+        ...baseChartOpts(),
+        tooltip: { trigger: 'axis', formatter: p => `${p[0].name}<br>出口量: ${p[0].value}吨` },
+        grid: { left: 60, right: 20, top: 10, bottom: 30 },
+        xAxis: { type: 'category', data: LC_EXPORT.map(d => d.month), axisLabel: { fontSize: 10, rotate: 45, color: '#888' }, axisLine: { lineStyle: { color: '#ddd' } } },
+        yAxis: { type: 'value', name: '吨', axisLabel: { fontSize: 11 }, splitLine: { lineStyle: { color: CHART_COLORS.grid } } },
+        series: [{ type: 'bar', data: LC_EXPORT.map(d => d.qty), itemStyle: { color: CHART_COLORS.primary, borderRadius: [2,2,0,0] }, label: { show: true, position: 'top', fontSize: 10, color: '#555', formatter: p => p.value >= 100 ? (p.value/1000).toFixed(1)+'k' : p.value } }]
+    });
+
+    // 氢氧化锂出口
+    const c2 = echarts.init(document.getElementById('c-lh-export'));
+    c2.setOption({
+        ...baseChartOpts(),
+        tooltip: { trigger: 'axis', formatter: p => `${p[0].name}<br>出口量: ${p[0].value}吨` },
+        grid: { left: 60, right: 20, top: 10, bottom: 30 },
+        xAxis: { type: 'category', data: LH_EXPORT.map(d => d.month), axisLabel: { fontSize: 10, rotate: 45, color: '#888' }, axisLine: { lineStyle: { color: '#ddd' } } },
+        yAxis: { type: 'value', name: '吨', axisLabel: { fontSize: 11 }, splitLine: { lineStyle: { color: CHART_COLORS.grid } } },
+        series: [{ type: 'bar', data: LH_EXPORT.map(d => d.qty), itemStyle: { color: CHART_COLORS.blue, borderRadius: [2,2,0,0] }, label: { show: true, position: 'top', fontSize: 10, color: '#555', formatter: p => (p.value/1000).toFixed(1)+'k' } }]
+    });
+
+    // 出口目的地饼图
+    const c3 = echarts.init(document.getElementById('c-export-pie'));
+    c3.setOption({
+        ...baseChartOpts(),
+        tooltip: { trigger: 'item', formatter: p => `${p.name}: ${p.value}吨 (${p.percent}%)` },
+        legend: { orient: 'vertical', right: 20, top: 'middle', textStyle: { fontSize: 12 } },
+        series: [{
+            type: 'pie',
+            radius: ['35%', '65%'],
+            center: ['40%', '50%'],
+            data: EXPORT_PARTNERS.map((d, i) => ({
+                name: `${d.name} (${d.pct})`,
+                value: d.qty,
+                itemStyle: { color: [CHART_COLORS.primary, CHART_COLORS.blue, CHART_COLORS.orange, CHART_COLORS.purple, CHART_COLORS.red, CHART_COLORS.yellow, CHART_COLORS.gray, '#2ecc71', '#7f8c8d'][i] }
+            })),
+            label: { show: true, position: 'outside', fontSize: 11, color: '#555', formatter: p => p.name.split(' ')[0] },
+            emphasis: { label: { show: true, fontSize: 14, fontWeight: 'bold' } },
+        }]
+    });
+}
+
+/* =====================================================
+   表格渲染
+   ===================================================== */
+function renderSupplyTable() {
+    const tbody = document.getElementById('supply-table-body');
+    if (!tbody || tbody.children.length > 0) return;
+    LC_MONTHLY.forEach((lc, i) => {
+        const lh = LH_MONTHLY[i];
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td>${lc.month}</td>
+            <td class="num">${lc.prod.toLocaleString()}</td>
+            <td class="num">${lc.cap.toLocaleString()}</td>
+            <td class="num"><span style="color:${lc.util >= 70 ? '#27ae60' : lc.util >= 60 ? '#e67e22' : '#e74c3c'}">${lc.util}%</span></td>
+            <td class="num">${lh ? lh.prod.toLocaleString() : '-'}</td>
+            <td class="num">${lh ? lh.cap.toLocaleString() : '-'}</td>
+            <td class="num"><span style="color:${lh && lh.util >= 60 ? '#27ae60' : '#e74c3c'}">${lh ? lh.util+'%' : '-'}</span></td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+
+function renderPriceTable() {
+    const tbody = document.getElementById('price-table-body');
+    if (!tbody || tbody.children.length > 0) return;
+    LC_PRICE_MONTHLY.forEach((d, i) => {
+        const tr = document.createElement('tr');
+        const prev = i > 0 ? LC_PRICE_MONTHLY[i-1] : null;
+        const trend = prev ? (d.lc > prev.lc ? '↑ 上涨' : d.lc < prev.lc ? '↓ 下跌' : '→ 持平') : '';
+        const trendColor = trend.includes('上涨') ? '#c0392b' : trend.includes('下跌') ? '#27ae60' : '#888';
+        tr.innerHTML = `
+            <td>${d.month}</td>
+            <td class="num up">${d.lc.toFixed(2)}</td>
+            <td class="num up">${d.lh.toFixed(2)}</td>
+            <td class="num up">$${d.spod.toLocaleString()}</td>
+            <td class="num up">${d.lep.toFixed(4)}</td>
+            <td style="color:${trendColor};font-size:12px;">${trend}</td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+
+function renderExportTable() {
+    const tbody = document.getElementById('export-table-body');
+    if (!tbody || tbody.children.length > 0) return;
+    LC_EXPORT.forEach((d, i) => {
+        const tr = document.createElement('tr');
+        const momColor = d.mom && d.mom.startsWith('-') ? '#27ae60' : '#c0392b';
+        const yoyColor = d.yoy && d.yoy.startsWith('-') ? '#27ae60' : '#c0392b';
+        tr.innerHTML = `
+            <td>${d.month}</td>
+            <td class="num">${d.qty.toLocaleString()}</td>
+            <td class="num">${d.amt.toFixed(0)}</td>
+            <td class="num">${d.price}</td>
+            <td class="num" style="color:${momColor}">${d.mom || '-'}</td>
+            <td class="num" style="color:${yoyColor}">${d.yoy || '-'}</td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+
+/* =====================================================
+   初始化
+   ===================================================== */
+document.getElementById('topbarTime').textContent = new Date().toLocaleString('zh-CN');
+
+// 窗口resize时重绘图表
+window.addEventListener('resize', () => {
+    ['c-supply','c-lc-util','c-lh-util','c-supply-chain',
+     'c-price-lc-lh','c-price-spod','c-price-lep',
+     'c-lc-export','c-lh-export','c-export-pie'
+    ].forEach(id => {
+        const inst = echarts.getInstanceByDom(document.getElementById(id));
+        if (inst) inst.resize();
+    });
+});
+</script>
+</body>
+</html>
