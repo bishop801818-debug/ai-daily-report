@@ -59,6 +59,9 @@ def update_spodumene_history(latest_data, history_path):
     
     added_count = 0
     for record in latest_data.get('data', []):
+        # 只保留 5.0-5.5% 澳大利亚
+        if record.get('grade') != '5.0-5.5%' or record.get('origin') != '澳大利亚':
+            continue
         grade = record.get('grade', '')
         origin = record.get('origin', '')
         min_price = record.get('min_price', 0)
