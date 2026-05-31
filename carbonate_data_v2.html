@@ -1048,7 +1048,13 @@ function renderLspPrice() {
     let html = '';
     dates.slice(0,20).forEach(dt => {
         grouped[dt].slice(0,5).forEach(d => {
-            html += `<tr><td>${dt}</td><td>${fmtSpec(d['规格'], 20)}</td><td>${d['产地']||'-'}</td>
+            // 统一规格显示：5.00% → 5%
+            let spec = d['规格'] || '';
+            if (spec === '5.00%') spec = '5%';
+            if (spec === '5.50%') spec = '5.5%';
+            if (spec === '4.50%') spec = '4.5%';
+            if (spec === '4.00%') spec = '4%';
+            html += `<tr><td>${dt}</td><td>${fmtSpec(spec, 20)}</td><td>${d['产地']||'-'}</td>
                 <td>${num(d['最低价（美元/吨）']).toLocaleString()}</td><td>${num(d['最高价（美元/吨）']).toLocaleString()}</td>
                 <td>${num(d['均价（美元/吨）']).toLocaleString()}</td></tr>`;
         });

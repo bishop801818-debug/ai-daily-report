@@ -59,8 +59,8 @@ def update_spodumene_history(latest_data, history_path):
     
     added_count = 0
     for record in latest_data.get('data', []):
-        # 只保留 5.0-5.5% 澳大利亚
-        if record.get('grade') != '5.0-5.5%' or record.get('origin') != '澳大利亚':
+        # 只保留 5% 澳洲
+        if record.get('grade') != '5%' or record.get('origin') != '澳洲':
             continue
         grade = record.get('grade', '')
         origin = record.get('origin', '')
@@ -86,7 +86,8 @@ def update_spodumene_history(latest_data, history_path):
             "origin": origin,
             "min_price": min_price,
             "max_price": max_price,
-            "avg_price": avg_price
+            "avg_price": avg_price,
+            "unit": "美元/吨"
         }
         existing_entries.append(new_entry)
         added_count += 1
@@ -203,6 +204,7 @@ def update_lepidolite_history(latest_data, history_path):
                     continue
                 
                 # 转换公式: 元/吨 = 元/吨度 × 品位%
+                converted_price = round(price * grade_pct, 2)
                 converted_price = round(price * grade_pct, 2)
                 
                 is_duplicate = any(
