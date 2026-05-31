@@ -394,11 +394,15 @@ const DB_LIST = [
         id: 'ternary',
         name: '三元材料数据库',
         icon: '⚡',
-        desc: '三元正极材料（NCM/NCA）产量、价格、原料成本分析',
-        hasData: false,
-        tableCount: 6,
-        updateDate: '—',
-        tables: ['行业整体产量', '企业产量排名', '价格走势', '硫酸镍钴成本', '进出口数据', '项目动态'],
+        desc: '三元正极及前驱体产量、价格、进出口、原料成本全维度数据',
+        hasData: true,
+        tableCount: 19,
+        updateDate: null,
+        tables: ['三元正极-行业产量', '三元正极-分型号产量', '三元正极-分企业产量', '三元正极-进出口', '三元正极-现货价',
+                 '三元前驱体-行业产量', '三元前驱体-分型号产量', '三元前驱体-分企业产量', '三元前驱体-进出口', '三元前驱体-现货价',
+                 '关键原料-现货价', '硫酸钴镍-产量规模', '硫酸钴镍-现货价'],
+        charts: 'ternary_charts.html',
+        data: 'ternary_data_v2.html',
         reportMonths: []
     },
     {
@@ -567,6 +571,7 @@ const DB_UPDATE_MAP = {
     lib_battery:{ file: 'embedded/lib_battery_embedded_data.js',  key: 'update_time' },
     automotive: { file: 'embedded/automotive_embedded_data.js',   key: 'update_time' },
     recycling:  { file: 'embedded/recycling_embedded_data.js',   key: 'update_time' },
+    ternary:    { file: 'embedded/ternary_embedded_data.js',    key: 'update_time' },
 };
 
 async function fetchDbUpdateDate(dbId) {
