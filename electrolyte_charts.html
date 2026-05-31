@@ -301,15 +301,33 @@
 
     function fmtMonth(d) {
         var m = d['月份'] || d['日期'] || '?';
+        // "2026年4月" 格式 → "26年04月"
+        if (/^\d{4}年\d{1,2}月$/.test(m)) {
+            return m.slice(2, 4) + '年' + String(m.match(/(\d+)年(\d+)月/)[2]).padStart(2, '0') + '月';
+        }
+        // "26年04月" 格式，直接返回
+        if (/^\d{2}年\d{2}月$/.test(m)) return m;
+        // "YYYY-MM" 格式 → "26年04月"
         if (m.length === 7) return m.slice(2, 4) + '年' + m.slice(5, 7) + '月';
+        // "YYYY-MM-DD" 格式 → "26年04月"
         if (m.length === 10) return m.slice(2, 4) + '年' + m.slice(5, 7) + '月';
         return m;
     }
 
-    // 日频数据格式化：显示 MM-DD
+    // 日频数据格式化：显示 MM-DD（支持 2026/5/19、2026-05-19、2026-05-19 00:00:00 格式）
     function fmtDate(d) {
         var m = d['日期'] || d['月份'] || '?';
-        if (m.length === 10) return m.slice(5); // "03-02"
+        // 去掉时间后缀 " 00:00:00"
+        if (m.length > 10) m = m.slice(0, 10);
+        // "2026/5/19" 格式
+        if (/\d{4}\/\d{1,2}\/\d{1,2}/.test(m)) {
+            var parts = m.split('/');
+            return String(parts[1]).padStart(2, '0') + '-' + String(parts[2]).padStart(2, '0');
+        }
+        // "2026-05-19" 格式
+        if (m.length === 10) return m.slice(5);
+        // "YYYY-MM" 格式 → "05月"
+        if (m.length === 7) return m.slice(5, 7) + '月';
         return m;
     }
 
@@ -343,8 +361,7 @@
         return result;
     }
 
-    // 日频数据横轴标签：每隔一段显示，避免太密集
-    // 每隔 N 个点显示一个标签（约5-7天一个刻度）
+    // 日频数据横轴标签：每隔 N 天显示一个（约每月1-2个刻度）
     function makeDateLabels(data, step) {
         var labels = [];
         for (var i = 0; i < data.length; i++) {
@@ -489,8 +506,8 @@
             }]
         });
 
-        // 电解液TOP10（行格式：企业名称 + 当期产量）
-        var elTop = getTable('电解液-企业产量top15');
+        // 电解液TOP10（列：厂家/企业、当期产量）
+        var elTop = getTable('电解液-top15排名');
         if (elTop && elTop.length > 0) {
             // 取最后月份的数据
             var lastMonth = elTop[elTop.length - 1]['月份'];
@@ -498,7 +515,7 @@
             // 按当期产量排序取前10
             monthData.sort(function(a, b){ return toNum(b['当期产量']) - toNum(a['当期产量']); });
             var top10 = monthData.slice(0, 10);
-            var names = top10.map(function(d){ return d['企业名称'] || ''; });
+            var names = top10.map(function(d){ return d['厂家/企业'] || ''; });
             var vals = top10.map(function(d){ return toNum(d['当期产量']); });
             if (names.length > 0 && vals.length > 0) {
                 initChart('p3', {
@@ -515,14 +532,14 @@
             }
         }
 
-        // 六氟TOP10（行格式）
-        var lipf6Top = getTable('六氟磷酸锂-企业产量top15');
+        // 六氟TOP10（列：厂家/企业、当期产量）
+        var lipf6Top = getTable('六氟-top15排名');
         if (lipf6Top && lipf6Top.length > 0) {
             var lastMonth = lipf6Top[lipf6Top.length - 1]['月份'];
             var monthData = lipf6Top.filter(function(d){ return d['月份'] === lastMonth; });
             monthData.sort(function(a, b){ return toNum(b['当期产量']) - toNum(a['当期产量']); });
             var top10 = monthData.slice(0, 10);
-            var names = top10.map(function(d){ return d['企业名称'] || ''; });
+            var names = top10.map(function(d){ return d['厂家/企业'] || ''; });
             var vals = top10.map(function(d){ return toNum(d['当期产量']); });
             if (names.length > 0 && vals.length > 0) {
                 initChart('p4', {
@@ -571,8 +588,8 @@
         initChart('x1', {
             tooltip: { trigger: 'axis' },
             legend: { data: priceTables.map(function(t){ return t.label; }), top: 5 },
-            grid: { left: '3%', right: '4%', bottom: '8%', containLabel: true },
-            xAxis: { type: 'category', data: xLabels, axisLabel: { color: C.textLight, fontSize: 10, rotate: 45 }, boundaryGap: false },
+            grid: { left: '3%', right: '4%', bottom: '15%', containLabel: true },
+            xAxis: { type: 'category', data: xLabels, axisLabel: { color: C.textLight, fontSize: 10 }, boundaryGap: false },
             yAxis: { type: 'value', name: '万元/吨', axisLabel: { color: C.textLight }, splitLine: { lineStyle: { color: C.border } } },
             series: priceSeries
         });
@@ -587,8 +604,8 @@
         initChart('x2', {
             tooltip: { trigger: 'axis' },
             legend: { data: ['低价', '高价', '均价'], top: 5 },
-            grid: { left: '3%', right: '4%', bottom: '8%', containLabel: true },
-            xAxis: { type: 'category', data: lpX, axisLabel: { color: C.textLight, fontSize: 10, rotate: 45 }, boundaryGap: false },
+            grid: { left: '3%', right: '4%', bottom: '12%', containLabel: true },
+            xAxis: { type: 'category', data: lpX, axisLabel: { color: C.textLight, fontSize: 10, rotate: 0 }, boundaryGap: false },
             yAxis: { type: 'value', name: '万元/吨', axisLabel: { color: C.textLight }, splitLine: { lineStyle: { color: C.border } } },
             series: [
                 { name: '低价', type: 'line', data: lpLow, smooth: true, lineStyle: { color: '#aaa', width: 1, type: 'dashed' } },
@@ -605,8 +622,8 @@
         initChart('x3', {
             tooltip: { trigger: 'axis' },
             legend: { data: ['固态LiFSI', '液态LiFSI'], top: 5 },
-            grid: { left: '3%', right: '4%', bottom: '8%', containLabel: true },
-            xAxis: { type: 'category', data: lifsiX, axisLabel: { color: C.textLight, fontSize: 10, rotate: 45 }, boundaryGap: false },
+            grid: { left: '3%', right: '4%', bottom: '12%', containLabel: true },
+            xAxis: { type: 'category', data: lifsiX, axisLabel: { color: C.textLight, fontSize: 10, rotate: 0 }, boundaryGap: false },
             yAxis: { type: 'value', name: '万元/吨', axisLabel: { color: C.textLight }, splitLine: { lineStyle: { color: C.border } } },
             series: [
                 { name: '固态LiFSI', type: 'line', data: lifsiS.map(function(d){ return toNum(d['均价']); }), smooth: true, lineStyle: { color: COLORS[0], width: 2 } },
@@ -624,8 +641,8 @@
         initChart('x4', {
             tooltip: { trigger: 'axis' },
             legend: { data: ['VC', 'PS', 'FEC'], top: 5 },
-            grid: { left: '3%', right: '4%', bottom: '8%', containLabel: true },
-            xAxis: { type: 'category', data: addX, axisLabel: { color: C.textLight, fontSize: 10, rotate: 45 }, boundaryGap: false },
+            grid: { left: '3%', right: '4%', bottom: '12%', containLabel: true },
+            xAxis: { type: 'category', data: addX, axisLabel: { color: C.textLight, fontSize: 10, rotate: 0 }, boundaryGap: false },
             yAxis: { type: 'value', name: '万元/吨', axisLabel: { color: C.textLight }, splitLine: { lineStyle: { color: C.border } } },
             series: [
                 { name: 'VC', type: 'line', data: vcPrice.map(function(d){ return toNum(d['均价']); }), smooth: true, lineStyle: { color: COLORS[0], width: 2 } },
@@ -668,8 +685,8 @@
         initChart('r1', {
             tooltip: { trigger: 'axis' },
             legend: { data: ['六氟磷酸锂', 'VC', 'FEC', 'PS'], top: 5 },
-            grid: { left: '3%', right: '4%', bottom: '8%', containLabel: true },
-            xAxis: { type: 'category', data: lpX, axisLabel: { color: C.textLight, fontSize: 10, rotate: 45 }, boundaryGap: false },
+            grid: { left: '3%', right: '4%', bottom: '12%', containLabel: true },
+            xAxis: { type: 'category', data: lpX, axisLabel: { color: C.textLight, fontSize: 10, rotate: 0 }, boundaryGap: false },
             yAxis: { type: 'value', name: '万元/吨', axisLabel: { color: C.textLight }, splitLine: { lineStyle: { color: C.border } } },
             series: [
                 { name: '六氟磷酸锂', type: 'line', data: lpAvgPrices, smooth: true, lineStyle: { color: C.primary, width: 3 } },

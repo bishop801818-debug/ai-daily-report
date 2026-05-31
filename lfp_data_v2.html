@@ -717,7 +717,7 @@
         <div id="lfp-company" class="content-section">
             <div class="data-card">
                 <div class="data-card-header">
-                    <div class="data-card-title">🏭 LFP分企业产量（2026年2月）</div>
+                    <div class="data-card-title">🏭 LFP分企业产量</div>
                     <div class="data-card-actions">
                         <button class="action-btn" onclick="exportTable('lfp-company-table')">📥 导出</button>
                     </div>
@@ -725,7 +725,7 @@
                 <div class="table-container">
                     <table class="data-table" id="lfp-company-table">
                         <thead>
-                            <tr><th>排名</th><th>企业</th><th>产能(吨)</th><th>产量(吨)</th><th>利用率</th><th>环比</th></tr>
+                            <tr><th>月份</th><th>企业</th><th>产能(吨)</th><th>产量(吨)</th><th>利用率</th><th>环比</th></tr>
                         </thead>
                         <tbody id="lfp-company-body"><tr><td colspan="6" class="loading">数据加载中</td></tr></tbody>
                     </table>
@@ -737,7 +737,7 @@
         <div id="lfp-competitor" class="content-section">
             <div class="data-card">
                 <div class="data-card-header">
-                    <div class="data-card-title">⚔️ LFP竞对销量（2026年2月）</div>
+                    <div class="data-card-title">⚔️ LFP竞对销量及客户采购量</div>
                     <div class="data-card-actions">
                         <button class="action-btn" onclick="exportTable('lfp-competitor-table')">📥 导出</button>
                     </div>
@@ -745,7 +745,7 @@
                 <div class="table-container">
                     <table class="data-table" id="lfp-competitor-table">
                         <thead>
-                            <tr><th>企业</th><th>CATL</th><th>BYD</th><th>中航</th><th>亿纬</th><th>国轩</th><th>欣旺达</th><th>蜂巢</th><th>远景</th><th>天合</th></tr>
+                            <tr><th>月份</th><th>企业</th><th>CATL</th><th>BYD</th><th>中航</th><th>亿纬</th><th>国轩</th><th>欣旺达</th><th>蜂巢</th><th>远景</th><th>天合</th></tr>
                         </thead>
                         <tbody id="lfp-competitor-body"><tr><td colspan="10" class="loading">数据加载中</td></tr></tbody>
                     </table>
@@ -837,7 +837,7 @@
         <div id="fp-company" class="content-section">
             <div class="data-card">
                 <div class="data-card-header">
-                    <div class="data-card-title">🏭 FP分企业产量（2026年2月）</div>
+                    <div class="data-card-title">🏭 FP分企业产量</div>
                     <div class="data-card-actions">
                         <button class="action-btn" onclick="exportTable('fp-company-table')">📥 导出</button>
                     </div>
@@ -845,7 +845,7 @@
                 <div class="table-container">
                     <table class="data-table" id="fp-company-table">
                         <thead>
-                            <tr><th>排名</th><th>企业</th><th>产能(吨)</th><th>产量(吨)</th><th>利用率</th><th>环比</th></tr>
+                            <tr><th>月份</th><th>企业</th><th>产能(吨)</th><th>产量(吨)</th><th>利用率</th><th>环比</th></tr>
                         </thead>
                         <tbody id="fp-company-body"><tr><td colspan="6" class="loading">数据加载中</td></tr></tbody>
                     </table>
@@ -1161,12 +1161,12 @@
         function renderLFPCompany() {
             const data = allData['LFP-分企业产量'] || [];
             tableData['lfp-company'] = data;
-            const feb = data.filter(d => d['月份'] === '2026-02');
-            const sorted = [...feb].sort((a, b) => (parseFloat(b['产量']||0) - parseFloat(a['产量']||0)));
+            // 按月份倒序展示全部数据（不再硬编码月份）
+            const sorted = [...data].sort((a, b) => String(b['月份']||'').localeCompare(String(a['月份']||'')));
 
-            let html = sorted.slice(0, 20).map((d, i) => `
+            let html = sorted.map((d, i) => `
                 <tr>
-                    <td><span class="rank-badge ${i<3?'top3':''}">${i+1}</span></td>
+                    <td>${d['月份'] || '-'}</td>
                     <td>${d['企业名称'] || '-'}</td>
                     <td>${(parseFloat(d['产能'])||0).toLocaleString()}</td>
                     <td>${(parseFloat(d['产量'])||0).toLocaleString()}</td>
@@ -1182,9 +1182,10 @@
             const data = allData['LFP竞对销量（客户采购量）'] || [];
             tableData['lfp-competitor'] = data;
             const sorted = [...data].sort((a, b) => String(b['月份']||'').localeCompare(String(a['月份']||'')));
-            
-            let html = sorted.slice(0, 50).map(d => `
+
+            let html = sorted.map(d => `
                 <tr>
+                    <td>${d['月份'] || '-'}</td>
                     <td><strong>${d['企业名称']}</strong></td>
                     <td>${d['CATL'] || '-'}</td>
                     <td>${d['BYD'] || '-'}</td>
@@ -1296,16 +1297,12 @@
         function renderFPCompany() {
             const data = allData['FP-分企业产量'] || [];
             tableData['fp-company'] = data;
-            if (!data.length) {
-                document.getElementById('fp-company-body').innerHTML = '<tr><td colspan="6" class="loading">暂无数据</td></tr>';
-                return;
-            }
-            const feb = data.filter(d => d['月份'] === '2026-02');
-            const sorted = [...feb].sort((a, b) => (parseFloat(b['产量']||0) - parseFloat(a['产量']||0)));
+            // 按月份倒序展示全部数据
+            const sorted = [...data].sort((a, b) => String(b['月份']||'').localeCompare(String(a['月份']||'')));
 
-            let html = sorted.slice(0, 20).map((d, i) => `
+            let html = sorted.map(d => `
                 <tr>
-                    <td><span class="rank-badge ${i<3?'top3':''}">${i+1}</span></td>
+                    <td>${d['月份'] || '-'}</td>
                     <td>${d['企业名称'] || '-'}</td>
                     <td>${(parseFloat(d['产能'])||0).toLocaleString()}</td>
                     <td>${(parseFloat(d['产量'])||0).toLocaleString()}</td>

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="html-version" content="20260524a">
+<meta name="html-version" content="20260529_1250">
 <title>事业部历史存档</title>
 <script>
   // 每次修改此文件后，将 content 值改为今天日期（如 20260420）
@@ -338,14 +338,14 @@ function renderGuidePage() {
 async function loadBUHistory(id) {
   try {
     /* 加载 index.json 获取可用日期列表 */
-    const respIdx = await fetch('reports/index.json?t=' + Date.now());
+    const respIdx = await fetch('reports/index.json?v=' + HTML_VERSION);
     const idx = await respIdx.json();
     const dates = idx.available_dates || [];
 
     /* 加载最新一期获取统计信息 */
     let statsData = null;
     try {
-      const respLatest = await fetch(`reports/${dates[0]}.json?t=${Date.now()}`);
+      const respLatest = await fetch(`reports/${dates[0]}.json?v=${HTML_VERSION}`);
       statsData = await respLatest.json();
     } catch(e) {}
 
@@ -432,7 +432,7 @@ async function checkDateForBU(date, buId) {
   const month = months[d.getMonth()];
 
   try {
-    const resp = await fetch(`reports/${date}.json?t=${Date.now()}`);
+    const resp = await fetch(`reports/${date}.json?v=${HTML_VERSION}`);
     const data = await resp.json();
     const dept = data.departments ? data.departments[buId] : null;
     const hasSections = dept && dept.sections && (
@@ -459,9 +459,12 @@ async function checkDateForBU(date, buId) {
 /* ── 打开报告弹窗 ── */
 async function openReportModal(date, buId, embed) {
   try {
-    const resp = await fetch(`reports/${date}.json?t=${Date.now()}`);
+    const resp = await fetch(`reports/${date}.json?v=${HTML_VERSION}`);
     const data = await resp.json();
-    const dept = data.departments ? data.departments[buId] : null;
+    // 兼容键名：departments 或 departments
+    const deptsObj = data.departments || data.departments || {};
+    const dept = deptsObj[buId] || null;
+    console.log(`[openReportModal] date=${date} buId=${buId} deptsObj keys count=${Object.keys(deptsObj).length} dept=`, dept ? 'found' : 'NULL');
     if (!dept) {
       alert('该日无此事业部数据');
       return;
@@ -535,6 +538,86 @@ function buildSectionsHTML(dept) {
     return result.length > 0 ? result : [stripped];
   };
 
+  /* ── 规范化 sections：兼容中文键名和嵌套对象格式 ── */
+  const normalizeSections = sections => {
+    if (!sections || typeof sections !== 'object' || Array.isArray(sections)) return sections;
+    const normalized = {};
+    for (const [key, value] of Object.entries(sections)) {
+      if (key === 'topnews' && Array.isArray(value)) {
+        normalized[key] = value.map(item => ({
+          title: item.标题 || item.title || '',
+          content: ''
+        }));
+      } else if (key === 'market' && value && typeof value === 'object') {
+        let items = [];
+        if (value['价格数据表'] && Array.isArray(value['价格数据表'])) {
+          // Markdown 表格预转为 HTML 表格
+          let htmlTable = '<div style="overflow-x:auto;margin:8px 0"><table style="width:100%;border-collapse:collapse;font-size:13px">';
+          htmlTable += '<thead><tr>';
+          const headers = ['品类', '价格', '涨跌', '来源'];
+          for (const h of headers) { htmlTable += `<th style="background:#f5f5f5;padding:6px 8px;text-align:left;border-bottom:2px solid #ddd">${h}</th>`; }
+          htmlTable += '</tr></thead><tbody>';
+          for (const row of value['价格数据表']) {
+            htmlTable += '<tr>';
+            htmlTable += `<td style="padding:5px 8px;border-bottom:1px solid #eee">${row.品类 || ''}</td>`;
+            htmlTable += `<td style="padding:5px 8px;border-bottom:1px solid #eee;color:#2c3e50;font-weight:600">${row.价格 || ''}</td>`;
+            const changeColor = (row.涨跌 || '').startsWith('+') ? '#27ae60' : '#e74c3c';
+            htmlTable += `<td style="padding:5px 8px;border-bottom:1px solid #eee;color:${changeColor}">${row.涨跌 || ''}</td>`;
+            htmlTable += `<td style="padding:5px 8px;border-bottom:1px solid #eee;color:#888">${row.来源 || ''}</td>`;
+            htmlTable += '</tr>';
+          }
+          htmlTable += '</tbody></table></div>';
+          items.push({ title: '价格数据表', content: htmlTable });
+        }
+        for (const subKey of ['供给信号', '争议风险', '需求信号', '行业动态']) {
+          if (value[subKey] && Array.isArray(value[subKey])) {
+            for (const item of value[subKey]) {
+              items.push({ title: item.标题 || '', content: item.正文 || '' });
+            }
+          }
+        }
+        normalized[key] = items;
+      } else if (['policy', 'enterprise', 'tech'].includes(key) && Array.isArray(value)) {
+        normalized[key] = value.map(item => ({
+          title: item.标题 || item.title || '',
+          content: (item.摘要 || item.content || '') +
+            (item.来源 ? '\n\n' + item.来源 : '') +
+            (item.日期 ? ' ' + item.日期 : '')
+        }));
+      } else if (key === 'project' && Array.isArray(value)) {
+        normalized[key] = value.map(item => ({
+          title: item.标题 || item.title || '',
+          content: (item.摘要 || item.content || '') +
+            (item.来源 ? '\n\n' + item.来源 : '') +
+            (item.日期 ? ' ' + item.日期 : '')
+        }));
+      } else if (key === 'tips' && value && typeof value === 'object') {
+        let items = [];
+        for (const tipKey of ['机会', '风险', '行动建议']) {
+          if (value[tipKey] && Array.isArray(value[tipKey])) {
+            for (const item of value[tipKey]) {
+              items.push({ title: tipKey, content: item.总结 || item.content || '' });
+            }
+          }
+        }
+        normalized[key] = items;
+      } else if (Array.isArray(value)) {
+        normalized[key] = value.map(item => typeof item === 'string' ? item : {
+          title: item.标题 || item.title || '',
+          content: item.摘要 || item.正文 || item.content || ''
+        });
+      } else {
+        normalized[key] = value;
+      }
+    }
+    return normalized;
+  };
+
+  // 如果 sections 是对象格式，先规范化
+  if (dept.sections && typeof dept.sections === 'object' && !Array.isArray(dept.sections)) {
+    dept.sections = normalizeSections(dept.sections);
+  }
+
   // 渲染单个条目（支持字符串 / {title,content} / {content}）
   const renderItem = item => {
     if (typeof item === 'string') {
@@ -545,10 +628,13 @@ function buildSectionsHTML(dept) {
       }
       return `<div class="report-item">${safe(item)}</div>`;
     } else {
-      const title = item.title ? safe(item.title) : '';
-      let rawContent = item.content || '';
-      let itemSource = item.source || '';
-      let itemDate = item.date || dept.window_end || '';
+      const title = item.title || item.标题 ? safe(item.title || item.标题) : '';
+      let rawContent = item.content || item.摘要 || item.正文 || '';
+      // 如果 content 已经是预构建的 HTML（以 < 开头），则不再转义
+      const contentIsHtml = typeof rawContent === 'string' && rawContent.trim().startsWith('<');
+      const content = contentIsHtml ? rawContent : safe(rawContent);
+      let itemSource = item.source || item.来源 || '';
+      let itemDate = item.date || item.日期 || dept.window_end || '';
       if (!itemSource || !itemDate) {
         const m = rawContent.match(/[（(]来源：([^，,)]+)[，,]\s*(\d{4}-\d{2}-\d{2})[）)]/);
         if (m) {
@@ -557,7 +643,6 @@ function buildSectionsHTML(dept) {
           rawContent = rawContent.replace(/[（(]来源：[^）)]*[）)]/, '').trim();
         }
       }
-      const content = safe(rawContent);
       const source = itemSource ? `<span style="font-size:12px;color:#888;background:#f5f5f5;border-radius:3px;padding:1px 6px;margin-left:8px;vertical-align:middle">来源: ${safe(itemSource)}</span>` : '';
       const date = itemDate ? `<span style="font-size:12px;color:#888;background:#f0f0f0;border-radius:3px;padding:1px 6px;margin-left:4px;vertical-align:middle">${safe(itemDate)}</span>` : '';
       const meta = (source || date) ? `<div style="margin-top:6px;padding-top:6px;border-top:1px dashed #e0e0e0">${source}${date}</div>` : '';
@@ -769,70 +854,30 @@ function buildSectionsHTML(dept) {
             });
             html += `</div>`;
           } else {
-            // 市场/价格：价格类条目聚合成表格，分析类条目正常渲染
-            if (sec.dim === 'market') {
-              const priceItems = [];
-              const textItems = [];
-              for (const item of items) {
-                const content = (typeof item === 'object' ? (item.content || '') : String(item));
-                if (/价格[：:]/.test(content)) {
-                  priceItems.push(item);
-                } else {
-                  textItems.push(item);
-                }
-              }
-              const parseMarketPriceItem = (item) => {
-                const content = item.content || '';
-                const title = item.title || item.raw || '';
-                const priceMatch = content.match(/价格[：:]\s*([^，]+)/);
-                const changeMatch = content.match(/涨跌[：:]\s*([^。]+)/);
-                const sourceMatch = content.match(/来源[：:]\s*(.+)$/);
-                return {
-                  name: title,
-                  price: priceMatch ? priceMatch[1].trim() : '',
-                  change: changeMatch ? changeMatch[1].trim() : '',
-                  source: sourceMatch ? sourceMatch[1].trim() : ''
-                };
-              };
-              html += `<div class="report-section"><h4>📊 ${safe(sec.title || '市场/价格')}</h4>`;
-              if (priceItems.length) {
-                const rows = priceItems.map(parseMarketPriceItem);
-                html += '<div style="overflow-x:auto;margin:10px 0"><table style="width:100%;border-collapse:collapse;font-size:12px">';
-                html += '<thead><tr>';
-                html += '<th style="border:1px solid #ddd;padding:6px;background:#f5f5f5;text-align:left">品种</th>';
-                html += '<th style="border:1px solid #ddd;padding:6px;background:#f5f5f5;text-align:left">价格</th>';
-                html += '<th style="border:1px solid #ddd;padding:6px;background:#f5f5f5;text-align:left">涨跌</th>';
-                html += '<th style="border:1px solid #ddd;padding:6px;background:#f5f5f5;text-align:left">来源</th>';
-                html += '</tr></thead><tbody>';
-                for (const row of rows) {
-                  html += '<tr>';
-                  html += `<td style="border:1px solid #ddd;padding:6px">${safe(row.name)}</td>`;
-                  html += `<td style="border:1px solid #ddd;padding:6px;white-space:nowrap">${safe(row.price)}</td>`;
-                  html += `<td style="border:1px solid #ddd;padding:6px">${safe(row.change)}</td>`;
-                  html += `<td style="border:1px solid #ddd;padding:6px;color:#888;font-size:11px">${safe(row.source)}</td>`;
-                  html += '</tr>';
-                }
-                html += '</tbody></table></div>';
-              }
-              for (const item of textItems) {
-                html += renderItem(item);
-              }
-              html += `</div>`;
-            } else {
-              html += `<div class="report-section"><h4>【${safe(sec.title || sec.dim)}】</h4>`;
-              items.forEach(item => { html += renderItem(item); });
-              html += `</div>`;
-            }
+            html += `<div class="report-section"><h4>【${safe(sec.title || sec.dim)}】</h4>`;
+            items.forEach(item => { html += renderItem(item); });
+            html += `</div>`;
           }
         }
       }
     } else {
-      // 旧dict格式
+      // 旧dict格式：sections = {topnews: [...], market: {...}, ...}
+      // 英文键名 → 中文显示名
+      const keyNameMap = {
+        'topnews': '今日关注',
+        'market': '市场行情',
+        'policy': '政策风向',
+        'enterprise': '企业动态',
+        'tech': '前沿与产品动态',
+        'project': '项目与招标',
+        'tips': '专属提示'
+      };
       for (const [key, items] of Object.entries(dept.sections)) {
         if (!items) continue;
         if (key === '综合') continue;
 
-        html += `<div class="report-section"><h4>【${safe(key)}】</h4>`;
+        const sectionTitle = keyNameMap[key] || key;
+        html += `<div class="report-section"><h4>【${safe(sectionTitle)}】</h4>`;
 
         if (key === '小结') {
           if (Array.isArray(items)) {

@@ -268,6 +268,16 @@
                 <span class="nav-item-text">碳酸锂现货价</span>
                 <span class="nav-item-badge" id="badge-lc-price">—</span>
             </div>
+            <div class="nav-item" onclick="showTab('lc-import', this)" data-tab="lc-import">
+                <div class="nav-item-icon">🛥️</div>
+                <span class="nav-item-text">碳酸锂进口量</span>
+                <span class="nav-item-badge" id="badge-lc-import">—</span>
+            </div>
+            <div class="nav-item" onclick="showTab('lc-import-partner', this)" data-tab="lc-import-partner">
+                <div class="nav-item-icon">🌏</div>
+                <span class="nav-item-text">碳酸锂进口贸易伙伴</span>
+                <span class="nav-item-badge" id="badge-lc-import-partner">—</span>
+            </div>
         </div>
 
         <div class="nav-section">
@@ -297,6 +307,16 @@
                 <span class="nav-item-text">氢氧化锂现货价</span>
                 <span class="nav-item-badge" id="badge-lh-price">—</span>
             </div>
+            <div class="nav-item" onclick="showTab('lh-import', this)" data-tab="lh-import">
+                <div class="nav-item-icon">🛥️</div>
+                <span class="nav-item-text">氢氧化锂进口量</span>
+                <span class="nav-item-badge" id="badge-lh-import">—</span>
+            </div>
+            <div class="nav-item" onclick="showTab('lh-import-partner', this)" data-tab="lh-import-partner">
+                <div class="nav-item-icon">🌏</div>
+                <span class="nav-item-text">氢氧化锂进口贸易伙伴</span>
+                <span class="nav-item-badge" id="badge-lh-import-partner">—</span>
+            </div>
         </div>
 
         <div class="nav-section">
@@ -310,6 +330,26 @@
                 <div class="nav-item-icon">💎</div>
                 <span class="nav-item-text">锂辉石精矿价格</span>
                 <span class="nav-item-badge" id="badge-lsp-price">—</span>
+            </div>
+            <div class="nav-item" onclick="showTab('li-import', this)" data-tab="li-import">
+                <div class="nav-item-icon">🛥️</div>
+                <span class="nav-item-text">锂辉石进口量</span>
+                <span class="nav-item-badge" id="badge-li-import">—</span>
+            </div>
+            <div class="nav-item" onclick="showTab('li-import-partner', this)" data-tab="li-import-partner">
+                <div class="nav-item-icon">🌏</div>
+                <span class="nav-item-text">锂辉石进口贸易伙伴</span>
+                <span class="nav-item-badge" id="badge-li-import-partner">—</span>
+            </div>
+            <div class="nav-item" onclick="showTab('li-export', this)" data-tab="li-export">
+                <div class="nav-item-icon">🚢</div>
+                <span class="nav-item-text">锂辉石出口量</span>
+                <span class="nav-item-badge" id="badge-li-export">—</span>
+            </div>
+            <div class="nav-item" onclick="showTab('li-export-partner', this)" data-tab="li-export-partner">
+                <div class="nav-item-icon">🌏</div>
+                <span class="nav-item-text">锂辉石出口贸易伙伴</span>
+                <span class="nav-item-badge" id="badge-li-export-partner">—</span>
             </div>
         </div>
     </nav>
@@ -531,6 +571,133 @@
                 </div>
             </div>
         </div>
+        <!-- 碳酸锂进口量 -->
+        <div id="lc-import" class="content-section">
+            <div class="data-card">
+                <div class="data-card-header">
+                    <div class="data-card-title">🛥️ 碳酸锂进口量</div>
+                    <div class="data-card-actions"><button class="action-btn" onclick="exportTable('lc-import-table')">📥 导出</button></div>
+                </div>
+                <div class="table-container">
+                    <table class="data-table" id="lc-import-table">
+                        <thead><tr><th>月份</th><th>进口量（吨）</th><th>进口金额（元）</th><th>进口均价（万元/吨）</th><th>环比</th><th>同比</th></tr></thead>
+                        <tbody id="lc-import-body"><tr><td colspan="6" class="loading">数据加载中</td></tr></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- 碳酸锂进口贸易伙伴 -->
+        <div id="lc-import-partner" class="content-section">
+            <div class="data-card">
+                <div class="data-card-header">
+                    <div class="data-card-title">🌏 碳酸锂进口贸易伙伴</div>
+                    <div class="data-card-actions"><button class="action-btn" onclick="exportTable('lc-import-partner-table')">📥 导出</button></div>
+                </div>
+                <div class="table-container">
+                    <table class="data-table" id="lc-import-partner-table">
+                        <thead><tr><th>月份</th><th>贸易伙伴</th><th>进口量（吨）</th><th>进口价格（万元）</th><th>进口均价（万元/吨）</th></tr></thead>
+                        <tbody id="lc-import-partner-body"><tr><td colspan="5" class="loading">数据加载中</td></tr></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- 氢氧化锂进口量 -->
+        <div id="lh-import" class="content-section">
+            <div class="data-card">
+                <div class="data-card-header">
+                    <div class="data-card-title">🛥️ 氢氧化锂进口量</div>
+                    <div class="data-card-actions"><button class="action-btn" onclick="exportTable('lh-import-table')">📥 导出</button></div>
+                </div>
+                <div class="table-container">
+                    <table class="data-table" id="lh-import-table">
+                        <thead><tr><th>月份</th><th>进口量（吨）</th><th>进口金额（元）</th><th>进口均价（万元/吨）</th><th>环比</th><th>同比</th></tr></thead>
+                        <tbody id="lh-import-body"><tr><td colspan="6" class="loading">数据加载中</td></tr></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- 氢氧化锂进口贸易伙伴 -->
+        <div id="lh-import-partner" class="content-section">
+            <div class="data-card">
+                <div class="data-card-header">
+                    <div class="data-card-title">🌏 氢氧化锂进口贸易伙伴</div>
+                    <div class="data-card-actions"><button class="action-btn" onclick="exportTable('lh-import-partner-table')">📥 导出</button></div>
+                </div>
+                <div class="table-container">
+                    <table class="data-table" id="lh-import-partner-table">
+                        <thead><tr><th>月份</th><th>贸易伙伴</th><th>进口量（吨）</th><th>进口价格（万元）</th><th>进口均价（万元/吨）</th></tr></thead>
+                        <tbody id="lh-import-partner-body"><tr><td colspan="5" class="loading">数据加载中</td></tr></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- 锂辉石进口量 -->
+        <div id="li-import" class="content-section">
+            <div class="data-card">
+                <div class="data-card-header">
+                    <div class="data-card-title">🛥️ 锂辉石进口量</div>
+                    <div class="data-card-actions"><button class="action-btn" onclick="exportTable('li-import-table')">📥 导出</button></div>
+                </div>
+                <div class="table-container">
+                    <table class="data-table" id="li-import-table">
+                        <thead><tr><th>月份</th><th>进口量（吨）</th><th>进口金额（元）</th><th>进口均价（元/吨）</th><th>环比</th><th>同比</th></tr></thead>
+                        <tbody id="li-import-body"><tr><td colspan="6" class="loading">数据加载中</td></tr></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- 锂辉石进口贸易伙伴 -->
+        <div id="li-import-partner" class="content-section">
+            <div class="data-card">
+                <div class="data-card-header">
+                    <div class="data-card-title">🌏 锂辉石进口贸易伙伴</div>
+                    <div class="data-card-actions"><button class="action-btn" onclick="exportTable('li-import-partner-table')">📥 导出</button></div>
+                </div>
+                <div class="table-container">
+                    <table class="data-table" id="li-import-partner-table">
+                        <thead><tr><th>月份</th><th>贸易伙伴</th><th>进口量（吨）</th><th>进口价格（万元）</th><th>进口均价（元/吨）</th></tr></thead>
+                        <tbody id="li-import-partner-body"><tr><td colspan="5" class="loading">数据加载中</td></tr></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- 锂辉石出口量 -->
+        <div id="li-export" class="content-section">
+            <div class="data-card">
+                <div class="data-card-header">
+                    <div class="data-card-title">🚢 锂辉石出口量</div>
+                    <div class="data-card-actions"><button class="action-btn" onclick="exportTable('li-export-table')">📥 导出</button></div>
+                </div>
+                <div class="table-container">
+                    <table class="data-table" id="li-export-table">
+                        <thead><tr><th>月份</th><th>出口量（吨）</th><th>出口金额（元）</th><th>出口均价（元/吨）</th><th>环比</th><th>同比</th></tr></thead>
+                        <tbody id="li-export-body"><tr><td colspan="6" class="loading">数据加载中</td></tr></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- 锂辉石出口贸易伙伴 -->
+        <div id="li-export-partner" class="content-section">
+            <div class="data-card">
+                <div class="data-card-header">
+                    <div class="data-card-title">🌏 锂辉石出口贸易伙伴</div>
+                    <div class="data-card-actions"><button class="action-btn" onclick="exportTable('li-export-partner-table')">📥 导出</button></div>
+                </div>
+                <div class="table-container">
+                    <table class="data-table" id="li-export-partner-table">
+                        <thead><tr><th>月份</th><th>贸易伙伴</th><th>出口量（吨）</th><th>出口价格（万元）</th><th>出口均价（万元/吨）</th></tr></thead>
+                        <tbody id="li-export-partner-body"><tr><td colspan="5" class="loading">数据加载中</td></tr></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
     </main>
 
 <script>
@@ -570,6 +737,14 @@ function updateBadge(tableName, count) {
         '氢氧化锂-价格': 'badge-lh-price',
         '锂云母—价格': 'badge-lym-price',
         '锂辉石精矿-价格': 'badge-lsp-price',
+        '碳酸锂-进口量': 'badge-lc-import',
+        '碳酸锂-进口贸易伙伴': 'badge-lc-import-partner',
+        '氢氧化锂-进口量': 'badge-lh-import',
+        '氢氧化锂-进口贸易伙伴': 'badge-lh-import-partner',
+        '锂辉石-进口量': 'badge-li-import',
+        '锂辉石-进口贸易伙伴': 'badge-li-import-partner',
+        '锂辉石-出口量': 'badge-li-export',
+        '锂辉石—出口贸易伙伴': 'badge-li-export-partner',
     };
     const id = map[tableName];
     if (!id) return;
@@ -605,6 +780,7 @@ function num(v) { return parseFloat(v) || 0; }
 function pct(v) { return v == null || v === '' ? '-' : String(v); }
 function fmtNum(v) { return num(v).toLocaleString(); }
 function fmtDate(v) { return v ? String(v).split(' ')[0] : '-'; }
+	function fmtSpec(v, len) { return typeof v === 'string' ? v.substring(0, len || 20) : String(v || '-'); }
 
 // 碳酸锂行业产量
 function renderLcIndustry() {
@@ -674,12 +850,34 @@ function renderLcPrice() {
     let html = '';
     dates.slice(0,15).forEach(dt => {
         grouped[dt].slice(0,5).forEach(d => {
-            html += `<tr><td>${dt}</td><td>${(d['规格']||'-').substring(0,25)}</td>
+            html += `<tr><td>${dt}</td><td>${fmtSpec(d['规格'], 25)}</td>
                 <td>${num(d['最低价（万元/吨）']).toFixed(2)}</td><td>${num(d['最高价（万元/吨）']).toFixed(2)}</td>
                 <td>${num(d['均价（万元/吨）']).toFixed(2)}</td></tr>`;
         });
     });
     document.getElementById('lc-price-body').innerHTML = html;
+}
+
+// 碳酸锂进口量
+function renderLcImport() {
+    const data = allData['碳酸锂-进口量'] || [];
+    const sorted = [...data].sort((a,b) => String(b['月份']||'').localeCompare(a['月份']||''));
+    let html = sorted.map(d =>
+        `<tr><td>${pct(d['月份'])}</td><td>${fmtNum(d['进口量（吨）'])}</td><td>${fmtNum(d['进口金额（元）'])}</td>
+            <td>${pct(d['进口均价（万元/吨）'])}</td><td>${pct(d['环比'])}</td><td>${pct(d['同比'])}</td></tr>`
+    ).join('');
+    document.getElementById('lc-import-body').innerHTML = html || '<tr><td colspan="6" class="loading">暂无数据</td></tr>';
+}
+
+// 碳酸锂进口贸易伙伴
+function renderLcImportPartner() {
+    const data = allData['碳酸锂-进口贸易伙伴'] || [];
+    const sorted = [...data].sort((a,b) => String(b['月份']||'').localeCompare(a['月份']||''));
+    let html = sorted.slice(0,300).map(d =>
+        `<tr><td>${pct(d['月份'])}</td><td>${d['贸易伙伴名称']||'-'}</td><td>${pct(d['进口量（吨）'])}</td>
+            <td>${pct(d['进口价格（万元）'])}</td><td>${pct(d['进口均价（万元/吨）'])}</td></tr>`
+    ).join('');
+    document.getElementById('lc-import-partner-body').innerHTML = html || '<tr><td colspan="5" class="loading">暂无数据</td></tr>';
 }
 
 // 氢氧化锂行业产量
@@ -748,12 +946,78 @@ function renderLhPrice() {
     let html = '';
     dates.slice(0,15).forEach(dt => {
         grouped[dt].slice(0,5).forEach(d => {
-            html += `<tr><td>${dt}</td><td>${(d['规格']||'-').substring(0,25)}</td>
+            html += `<tr><td>${dt}</td><td>${fmtSpec(d['规格'], 25)}</td>
                 <td>${num(d['最低价（万元/吨）']).toFixed(2)}</td><td>${num(d['最高价（万元/吨）']).toFixed(2)}</td>
                 <td>${num(d['均价（万元/吨）']).toFixed(2)}</td></tr>`;
         });
     });
     document.getElementById('lh-price-body').innerHTML = html;
+}
+
+// 氢氧化锂进口量
+function renderLhImport() {
+    const data = allData['氢氧化锂-进口量'] || [];
+    const sorted = [...data].sort((a,b) => String(b['月份']||'').localeCompare(a['月份']||''));
+    let html = sorted.map(d =>
+        `<tr><td>${pct(d['月份'])}</td><td>${fmtNum(d['进口量（吨）'])}</td><td>${fmtNum(d['进口金额（元）'])}</td>
+            <td>${pct(d['进口均价（万元/吨）'])}</td><td>${pct(d['环比'])}</td><td>${pct(d['同比'])}</td></tr>`
+    ).join('');
+    document.getElementById('lh-import-body').innerHTML = html || '<tr><td colspan="6" class="loading">暂无数据</td></tr>';
+}
+
+// 氢氧化锂进口贸易伙伴
+function renderLhImportPartner() {
+    const data = allData['氢氧化锂-进口贸易伙伴'] || [];
+    const sorted = [...data].sort((a,b) => String(b['月份']||'').localeCompare(a['月份']||''));
+    let html = sorted.slice(0,300).map(d =>
+        `<tr><td>${pct(d['月份'])}</td><td>${d['贸易伙伴名称']||'-'}</td><td>${pct(d['进口量（吨）'])}</td>
+            <td>${pct(d['进口价格（万元）'])}</td><td>${pct(d['进口均价（万元/吨）'])}</td></tr>`
+    ).join('');
+    document.getElementById('lh-import-partner-body').innerHTML = html || '<tr><td colspan="5" class="loading">暂无数据</td></tr>';
+}
+
+// 锂辉石进口量
+function renderLiImport() {
+    const data = allData['锂辉石-进口量'] || [];
+    const sorted = [...data].sort((a,b) => String(b['月份']||'').localeCompare(a['月份']||''));
+    let html = sorted.map(d =>
+        `<tr><td>${pct(d['月份'])}</td><td>${fmtNum(d['进口量（吨）'])}</td><td>${fmtNum(d['进口金额（元）'])}</td>
+            <td>${pct(d['进口均价（元/吨）'])}</td><td>${pct(d['环比'])}</td><td>${pct(d['同比'])}</td></tr>`
+    ).join('');
+    document.getElementById('li-import-body').innerHTML = html || '<tr><td colspan="6" class="loading">暂无数据</td></tr>';
+}
+
+// 锂辉石进口贸易伙伴
+function renderLiImportPartner() {
+    const data = allData['锂辉石-进口贸易伙伴'] || [];
+    const sorted = [...data].sort((a,b) => String(b['月份']||'').localeCompare(a['月份']||''));
+    let html = sorted.slice(0,300).map(d =>
+        `<tr><td>${pct(d['月份'])}</td><td>${d['贸易伙伴名称']||'-'}</td><td>${pct(d['进口量（吨）'])}</td>
+            <td>${pct(d['进口价格（万元）'])}</td><td>${pct(d['进口均价（元/吨）'])}</td></tr>`
+    ).join('');
+    document.getElementById('li-import-partner-body').innerHTML = html || '<tr><td colspan="5" class="loading">暂无数据</td></tr>';
+}
+
+// 锂辉石出口量
+function renderLiExport() {
+    const data = allData['锂辉石-出口量'] || [];
+    const sorted = [...data].sort((a,b) => String(b['月份']||'').localeCompare(a['月份']||''));
+    let html = sorted.map(d =>
+        `<tr><td>${pct(d['月份'])}</td><td>${fmtNum(d['出口量（吨）'])}</td><td>${fmtNum(d['出口金额（元）'])}</td>
+            <td>${pct(d['出口均价（元/吨）'])}</td><td>${pct(d['环比'])}</td><td>${pct(d['同比'])}</td></tr>`
+    ).join('');
+    document.getElementById('li-export-body').innerHTML = html || '<tr><td colspan="6" class="loading">暂无数据</td></tr>';
+}
+
+// 锂辉石出口贸易伙伴
+function renderLiExportPartner() {
+    const data = allData['锂辉石—出口贸易伙伴'] || [];
+    const sorted = [...data].sort((a,b) => String(b['月份']||'').localeCompare(a['月份']||''));
+    let html = sorted.slice(0,200).map(d =>
+        `<tr><td>${pct(d['月份'])}</td><td>${d['贸易伙伴名称']||'-'}</td><td>${pct(d['出口量（吨）'])}</td>
+            <td>${pct(d['出口价格（万元）'])}</td><td>${pct(d['出口均价（万元/吨）'])}</td></tr>`
+    ).join('');
+    document.getElementById('li-export-partner-body').innerHTML = html || '<tr><td colspan="5" class="loading">暂无数据</td></tr>';
 }
 
 // 锂云母价格
@@ -766,7 +1030,7 @@ function renderLymPrice() {
     let html = '';
     dates.slice(0,20).forEach(dt => {
         grouped[dt].slice(0,5).forEach(d => {
-            html += `<tr><td>${dt}</td><td>${(d['规格']||'-').substring(0,25)}</td>
+            html += `<tr><td>${dt}</td><td>${fmtSpec(d['规格'], 25)}</td>
                 <td>${num(d['最低价（万元/吨）']).toFixed(3)}</td><td>${num(d['最高价（万元/吨）']).toFixed(3)}</td>
                 <td>${num(d['均价（万元/吨）']).toFixed(3)}</td></tr>`;
         });
@@ -784,7 +1048,7 @@ function renderLspPrice() {
     let html = '';
     dates.slice(0,20).forEach(dt => {
         grouped[dt].slice(0,5).forEach(d => {
-            html += `<tr><td>${dt}</td><td>${(d['规格']||'-').substring(0,20)}</td><td>${d['产地']||'-'}</td>
+            html += `<tr><td>${dt}</td><td>${fmtSpec(d['规格'], 20)}</td><td>${d['产地']||'-'}</td>
                 <td>${num(d['最低价（美元/吨）']).toLocaleString()}</td><td>${num(d['最高价（美元/吨）']).toLocaleString()}</td>
                 <td>${num(d['均价（美元/吨）']).toLocaleString()}</td></tr>`;
         });
@@ -802,8 +1066,11 @@ async function loadAllData() {
         const total = EMBEDDED_DATA.tables.reduce((s,t) => s + t.data.length, 0);
         document.getElementById('totalRecords').textContent = (total/10000).toFixed(1) + '万';
         renderLcIndustry(); renderLcCompany(); renderLcExport(); renderLcExportPartner(); renderLcPrice();
+        renderLcImport(); renderLcImportPartner();
         renderLhIndustry(); renderLhCompany(); renderLhExport(); renderLhExportPartner(); renderLhPrice();
+        renderLhImport(); renderLhImportPartner();
         renderLymPrice(); renderLspPrice();
+        renderLiImport(); renderLiImportPartner(); renderLiExport(); renderLiExportPartner();
         restoreTabFromHash();
         return;
     }
@@ -816,8 +1083,11 @@ async function loadAllData() {
         const total = d.tables.reduce((s,t) => s + t.data.length, 0);
         document.getElementById('totalRecords').textContent = (total/10000).toFixed(1) + '万';
         renderLcIndustry(); renderLcCompany(); renderLcExport(); renderLcExportPartner(); renderLcPrice();
+        renderLcImport(); renderLcImportPartner();
         renderLhIndustry(); renderLhCompany(); renderLhExport(); renderLhExportPartner(); renderLhPrice();
+        renderLhImport(); renderLhImportPartner();
         renderLymPrice(); renderLspPrice();
+        renderLiImport(); renderLiImportPartner(); renderLiExport(); renderLiExportPartner();
         restoreTabFromHash();
     } catch(e) {
         console.error(e);

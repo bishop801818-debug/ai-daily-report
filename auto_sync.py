@@ -13,7 +13,7 @@ from datetime import datetime
 
 # 配置
 REPO_DIR = r"D:\trae\AI Daily report"
-BRANCH = "master"
+BRANCH = "main"
 REMOTE = "origin"
 LOG_FILE = r"D:\trae\AI Daily report\auto_sync.log"
 
@@ -52,8 +52,15 @@ def main():
         if not status_result.stdout.strip():
             log(f"没有未提交的更改，退出")
             return 0
-        
-        log(f"发现未提交的更改，开始自动同步...")
+
+        # 安全检查：如果更改文件过多（超过20个），可能是异常回退，跳过自动同步
+        changed_count = len(status_result.stdout.strip().split('\n'))
+        if changed_count > 20:
+            log(f"⚠️ 变更文件过多（{changed_count}个），疑似异常回退，跳过自动同步")
+            log(f"变更列表: {status_result.stdout.strip()[:500]}")
+            return 1
+
+        log(f"发现未提交的更改（{changed_count}个文件），开始自动同步...")
         
         # 2. Git add -A
         run_git(['add', '-A'])
