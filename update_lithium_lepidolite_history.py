@@ -220,13 +220,8 @@ def update_lepidolite_history(latest_data, history_path):
                 existing_entries.append(new_entry)
                 added_count += 1
             else:
-                print(f"[WARN] 无法从产品名提取品位: {product_name}")
-                # fallback: 尝试提取任何数字
-                grade_match2 = re.search(r'(\d+\.?\d*)\s*%', record.get('grade', product_name))
-                if not grade_match2:
-                    continue
-                grade_pct = float(grade_match2.group(1))
-                # ... same logic as above but simplified
+                print(f"[WARN] 无法从产品名提取品位: {product_name}, 跳过此记录")
+                continue
     
     if added_count > 0:
         history['history'] = existing_entries
