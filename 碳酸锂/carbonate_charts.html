@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>可视化看板 - 碳酸锂及原料数据库</title>
+    <meta name="html-version" content="20260423a">
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Microsoft YaHei', sans-serif; background: #f5f5f5; }
+
+        .topbar { background: #fff; padding: 15px 30px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
+        .topbar h1 { color: #1e3c72; font-size: 20px; }
+        .topbar a { color: #666; text-decoration: none; margin-left: 20px; font-size: 14px; }
+        .topbar a:hover { color: #1e3c72; }
+
+        .tab-nav { background: #fff; padding: 0 30px; display: flex; gap: 5px; border-bottom: 1px solid #eee; }
+        .tab-btn { padding: 12px 20px; background: none; border: none; cursor: pointer; font-size: 14px; color: #666; border-bottom: 2px solid transparent; transition: all 0.2s; }
+        .tab-btn:hover { color: #1e3c72; }
+        .tab-btn.active { color: #1e3c72; border-bottom-color: #1e3c72; font-weight: 600; }
+
+        .main-content { padding: 20px 30px; }
+
+        .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 20px; }
+        .stat-card { background: #fff; border-radius: 12px; padding: 16px 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); display: flex; align-items: center; gap: 16px; }
+        .stat-icon { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px; }
+        .stat-icon.blue { background: rgba(30,60,114,0.1); }
+        .stat-icon.green { background: rgba(76,175,80,0.1); }
+        .stat-icon.orange { background: rgba(255,152,0,0.1); }
+        .stat-icon.purple { background: rgba(156,39,176,0.1); }
+        .stat-info .label { color: #888; font-size: 12px; margin-bottom: 4px; }
+        .stat-info .value { color: #1e3c72; font-size: 24px; font-weight: 600; }
+        .stat-info .unit { font-size: 14px; color: #999; font-weight: normal; }
+        .stat-info .sub { font-size: 12px; color: #888; margin-top: 2px; }
+
+        .chart-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+        .chart-card { background: #fff; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+        .chart-card.full { grid-column: span 2; }
+        .chart-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid #f0f0f0; }
+        .chart-title { font-size: 15px; font-weight: 600; color: #333; }
+        .chart-subtitle { font-size: 12px; color: #999; margin-top: 4px; }
+        .chart-meta { font-size: 12px; color: #999; }
+        .chart-container { width: 100%; height: 300px; }
+        .chart-card.full .chart-container { height: 280px; }
+
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        @media (max-width: 1200px) {
+            .stats-row { grid-template-columns: repeat(2, 1fr); }
+            .chart-grid { grid-template-columns: 1fr; }
+            .chart-card.full { grid-column: span 1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="topbar">
+        <h1>⛏️ 可视化看板 - 碳酸锂及原料</h1>
+        <div><a href="index_v3.html">🏠 首页</a><a href="database_hub.html">📋 数据库</a><a href="carbonate_data_v2.html">📊 数据表格</a></div>
+    </div>
+
+    <div class="tab-nav">
+        <button class="tab-btn active" onclick="switchTab('overview', this)">📈 概览</button>
+        <button class="tab-btn" onclick="switchTab('lc', this)">🔋 碳酸锂</button>
+        <button class="tab-btn" onclick="switchTab('lh', this)">🧪 氢氧化锂</button>
+        <button class="tab-btn" onclick="switchTab('raw', this)">⛏️ 原料价格</button>
+    </div>
+
+    <div class="main-content">
+
+        <!-- ===== 概览 ===== -->
+        <div class="tab-content active" id="tab-overview">
+            <div class="stats-row">
+                <div class="stat-card">
+                    <div class="stat-icon blue">📊</div>
+                    <div class="stat-info">
+                        <div class="label">碳酸锂月产量（2026-04）</div>
+                        <div class="value">10.70<span class="unit">万吨</span></div>
+                        <div class="sub">产能利用率 93%</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon green">⚡</div>
+                    <div class="stat-info">
+                        <div class="label">氢氧化锂月产量（2026-04）</div>
+                        <div class="value">3.08<span class="unit">万吨</span></div>
+                        <div class="sub">近12月高点</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon orange">🚢</div>
+                    <div class="stat-info">
+                        <div class="label">碳酸锂月出口量（2026-04）</div>
+                        <div class="value">370<span class="unit">吨</span></div>
+                        <div class="sub">近12月均值</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon purple">💵</div>
+                    <div class="stat-info">
+                        <div class="label">碳酸锂现货均价（最新）</div>
+                        <div class="value">16.69<span class="unit">万元/吨</span></div>
+                        <div class="sub">近30日趋势</div>
+                    </div>
+                </div>
+            </div>
+            <div class="chart-grid">
+                <div class="chart-card full">
+                    <div class="chart-header">
+                        <div class="chart-title">碳酸锂 vs 氢氧化锂 月度产量走势</div>
+                        <div class="chart-meta">近12个月</div>
+                    </div>
+                    <div class="chart-container" id="c1"></div>
+                </div>
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <div class="chart-title">碳酸锂产能利用率趋势</div>
+                        <div class="chart-meta">近12个月</div>
+                    </div>
+                    <div class="chart-container" id="c2"></div>
+                </div>
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <div class="chart-title">碳酸锂出口量与均价走势</div>
+                        <div class="chart-meta">近12个月</div>
+                    </div>
+                    <div class="chart-container" id="c3"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== 碳酸锂 ===== -->
+        <div class="tab-content" id="tab-lc">
+            <div class="chart-grid">
+                <div class="chart-card full">
+                    <div class="chart-header">
+                        <div class="chart-title">碳酸锂月度产量走势</div>
+                        <div class="chart-subtitle">行业整体产量（吨）</div>
+                    </div>
+                    <div class="chart-container" id="lc1"></div>
+                </div>
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <div class="chart-title">碳酸锂分企业产量 TOP10</div>
+                        <div class="chart-subtitle">2026年2月</div>
+                    </div>
+                    <div class="chart-container" id="lc2"></div>
+                </div>
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <div class="chart-title">碳酸锂企业产量占比</div>
+                        <div class="chart-subtitle">2026年2月</div>
+                    </div>
+                    <div class="chart-container" id="lc3"></div>
+                </div>
+                <div class="chart-card full">
+                    <div class="chart-header">
+                        <div class="chart-title">碳酸锂现货价格走势</div>
+                        <div class="chart-subtitle">均价趋势（万元/吨）</div>
+                    </div>
+                    <div class="chart-container" id="lc4"></div>
+                </div>
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <div class="chart-title">碳酸锂出口贸易伙伴</div>
+                        <div class="chart-subtitle">累计出口量TOP10</div>
+                    </div>
+                    <div class="chart-container" id="lc5"></div>
+                </div>
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <div class="chart-title">碳酸锂出口量趋势</div>
+                        <div class="chart-subtitle">近12个月</div>
+                    </div>
+                    <div class="chart-container" id="lc6"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== 氢氧化锂 ===== -->
+        <div class="tab-content" id="tab-lh">
+            <div class="chart-grid">
+                <div class="chart-card full">
+                    <div class="chart-header">
+                        <div class="chart-title">氢氧化锂月度产量走势</div>
+                        <div class="chart-subtitle">行业整体产量（吨）</div>
+                    </div>
+                    <div class="chart-container" id="lh1"></div>
+                </div>
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <div class="chart-title">氢氧化锂分企业产量 TOP10</div>
+                        <div class="chart-subtitle">2026年2月</div>
+                    </div>
+                    <div class="chart-container" id="lh2"></div>
+                </div>
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <div class="chart-title">氢氧化锂企业产量占比</div>
+                        <div class="chart-subtitle">2026年2月</div>
+                    </div>
+                    <div class="chart-container" id="lh3"></div>
+                </div>
+                <div class="chart-card full">
+                    <div class="chart-header">
+                        <div class="chart-title">氢氧化锂出口量与均价走势</div>
+                        <div class="chart-subtitle">近12个月</div>
+                    </div>
+                    <div class="chart-container" id="lh4"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== 原料价格 ===== -->
+        <div class="tab-content" id="tab-raw">
+            <div class="stats-row">
+                <div class="stat-card">
+                    <div class="stat-icon blue">📊</div>
+                    <div class="stat-info">
+                        <div class="label">碳酸锂现货价（最新）</div>
+                        <div class="value">16.69<span class="unit">万元/吨</span></div>
+                        <div class="sub">2026-05-28</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon orange">💎</div>
+                    <div class="stat-info">
+                        <div class="label">锂辉石精矿均价（最新）</div>
+                        <div class="value">2342<span class="unit">美元/吨</span></div>
+                        <div class="sub">CIF 中国</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon purple">🪨</div>
+                    <div class="stat-info">
+                        <div class="label">锂云母均价（最新）</div>
+                        <div class="value">0.47<span class="unit">万元/吨</span></div>
+                        <div class="sub">1.8%品位</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon green">⚡</div>
+                    <div class="stat-info">
+                        <div class="label">氢氧化锂现货价（最新）</div>
+                        <div class="value">16.85<span class="unit">万元/吨</span></div>
+                        <div class="sub">56.5%粗颗粒</div>
+                    </div>
+                </div>
+            </div>
+            <div class="chart-grid">
+                <div class="chart-card full">
+                    <div class="chart-header">
+                        <div class="chart-title">碳酸锂 & 氢氧化锂 现货价格走势对比</div>
+                        <div class="chart-subtitle">均价趋势（万元/吨）</div>
+                    </div>
+                    <div class="chart-container" id="raw1"></div>
+                </div>
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <div class="chart-title">锂辉石精矿价格走势</div>
+                        <div class="chart-subtitle">CIF中国（美元/吨）</div>
+                    </div>
+                    <div class="chart-container" id="raw2"></div>
+                </div>
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <div class="chart-title">锂云母价格走势</div>
+                        <div class="chart-subtitle">1.8%品位（万元/吨）</div>
+                    </div>
+                    <div class="chart-container" id="raw3"></div>
+                </div>
+                <div class="chart-card full">
+                    <div class="chart-header">
+                        <div class="chart-title">碳酸锂与原料价格相关性</div>
+                        <div class="chart-subtitle">碳酸锂 vs 锂辉石（双轴）</div>
+                    </div>
+                    <div class="chart-container" id="raw4"></div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+<script>
+var COLORS = ['#1e3c72','#4a6fa5','#4facfe','#667eea','#764ba2','#f59e0b','#10b981','#ef4444','#3b82f6','#8b5cf6'];
+var C = { primary: '#1e3c72', secondary: '#4a6fa5', accent: '#4facfe', border: '#e0e0e0', text: '#333', textLight: '#666' };
+
+// ============ 数据 ============
+// 碳酸锂行业产量
+var lcMonths = ["25-05", "25-06", "25-07", "25-08", "25-09", "25-10", "25-11", "25-12", "26-01", "26-02", "26-03", "26-04"];
+var lcOutput = [60460, 65010, 69600, 75150, 77650, 80500, 83950, 87250, 86650, 77020, 103100, 107000];
+var lcUtil = [64, 69, 66, 74, 74, 76, 78, 81, 81, 72, 90, 93];
+
+// 氢氧化锂产量
+var lhOutput = [28600, 28450, 26300, 26950, 28400, 28150, 26650, 28600, 27350, 24740, 30350, 30810];
+
+// 碳酸锂出口
+var lcExpVol = [287.0, 430.0, 366.0, 369.0, 151.0, 246.0, 759.0, 912.0, 472.0, 596.0, 448.0, 370.0];
+var lcExpPrice = [7.5, 6.9, 6.9, 7.1, 8.1, 6.8, 7.5, 8.3, 10.3, 10.6, 13.9, 14.3];
+
+// 氢氧化锂出口
+var lhExpVol = [5585.0, 6260.0, 1248.0, 5673.0, 6526.0, 2876.0, 3357.0, 6318.0, 1871.0, 2623.0, 3143.0, 5535.0];
+var lhExpPrice = [8.7, 7.8, 7.1, 7.6, 7.7, 8.3, 7.2, 6.6, 8.2, 8.9, 10.3, 10.3];
+
+// 碳酸锂分企业 TOP10（2026-02，单位：吨）
+var lcCompNames = ["其它", "九岭锂业", "蓝科锂业", "赣锋锂业", "四川雅化", "新疆西海锂业", "盛新锂能", "天齐锂业", "广西华友", "中信国安"];
+var lcCompOutput = [22150.0, 7500.0, 6600.0, 5300.0, 4600.0, 4500.0, 4400.0, 4200.0, 4000.0, 3200.0];
+
+// 氢氧化锂分企业 TOP10（2026-02，单位：吨）
+var lhCompNames = ["天宜锂业", "赣锋锂业", "江西雅保", "四川雅化", "四川国润", "天齐锂业"];
+var lhCompOutput = [4000.0, 3800.0, 3700.0, 3500.0, 2800.0, 1900.0];
+
+// 碳酸锂现货价（万元/吨）
+var lcPriceMonths = ["25-10", "25-11", "25-12", "26-01", "26-02", "26-03", "26-04", "26-05"];
+var lcPriceAvg = [7.1, 8.1, 9.5, 13.5, 13.2, 13.8, 14.7, 17.5];
+
+// 碳酸锂日度均价
+var lcDailyDates = ["05-08", "05-09", "05-11", "05-12", "05-13", "05-14", "05-15", "05-18", "05-19", "05-20", "05-21", "05-22", "05-25", "05-26", "05-27"];
+var lcDailyAvg = [18.2, 18.2, 18.7, 19.2, 18.9, 18.6, 18.3, 18.3, 16.6, 16.1, 16.0, 16.1, 16.1, 16.0, 16.0];
+
+// 锂辉石精矿日度均价（美元/吨）
+var lspDates = ["05-14", "05-15", "05-18", "05-19", "05-20", "05-21", "05-22", "05-25", "05-26", "05-27"];
+var lspAvg = [2940.0, 2920.0, 2920.0, 2870.0, 2770.0, 2190.0, 2180.0, 2180.0, 2130.0, 2080.0];
+
+// 锂云母日度均价（万元/吨）
+var lymDates = ["05-14", "05-15", "05-18", "05-19", "05-20", "05-21", "05-22", "05-25", "05-26", "05-27"];
+var lymAvg = [0.64, 0.63, 0.63, 0.62, 0.61, 0.6, 0.6, 0.6, 0.58, 0.55];
+
+// 氢氧化锂日度均价（万元/吨）
+var lhDailyDates = ["05-20", "05-21", "05-22", "05-25", "05-26", "05-27"];
+var lhDailyAvg = [17.6, 17.5, 17.6, 17.6, 17.45, 17.25];
+
+// ============ 工具函数 ============
+function initChart(id, opt) { echarts.init(document.getElementById(id)).setOption(opt); }
+function gridOpt() { return { left: '3%', right: '4%', bottom: '3%', containLabel: true }; }
+function xAxis() { return { type: 'category', axisLabel: { color: C.textLight }, axisLine: { lineStyle: { color: C.border } } }; }
+function yAxis(name, formatter) { return { type: 'value', name: name, axisLabel: { color: C.textLight, formatter: formatter || '{value}' }, splitLine: { lineStyle: { color: C.border } } }; }
+function colorFn(idx) { return function(p){ return COLORS[(p.dataIndex + idx) % COLORS.length]; }; }
+
+// ============ 概览Tab ============
+// C1: 碳酸锂 vs 氢氧化锂产量
+initChart('c1', {
+    tooltip: { trigger: 'axis' },
+    legend: { data: ['碳酸锂','氢氧化锂'], top: 5 },
+    grid: gridOpt(),
+    xAxis: Object.assign({}, xAxis(), { data: lcMonths }),
+    yAxis: [yAxis('产量（吨）'), yAxis('氢氧化锂（吨）')],
+    series: [
+        { name: '碳酸锂', type: 'bar', data: lcOutput,
+          itemStyle: { color: C.primary, borderRadius: [4,4,0,0] },
+          label: { show: true, position: 'top', formatter: function(p){return (p.value/10000).toFixed(1)+'万';}, fontSize: 9, color: C.textLight } },
+        { name: '氢氧化锂', type: 'bar', data: lhOutput,
+          itemStyle: { color: C.secondary, borderRadius: [4,4,0,0] },
+          label: { show: false } }
+    ]
+});
+
+// C2: 产能利用率
+initChart('c2', {
+    tooltip: { trigger: 'axis', formatter: '{b}: {c}%' },
+    grid: gridOpt(),
+    xAxis: Object.assign({}, xAxis(), { data: lcMonths }),
+    yAxis: yAxis('%', '{value}%'),
+    series: [{
+        type: 'line', data: lcUtil, smooth: true, lineStyle: { color: C.primary, width: 3 },
+        areaStyle: { color: { type: 'linear', x:0,y:0,x2:0,y2:1, colorStops: [{offset:0,color:'rgba(30,60,114,0.2)'},{offset:1,color:'rgba(30,60,114,0.02)'}] } },
+        label: { show: true, position: 'top', formatter: '{c}%', fontSize: 9, color: C.primary, fontWeight: 'bold' },
+        itemStyle: { color: C.primary }
+    }]
+});
+
+// C3: 碳酸锂出口
+initChart('c3', {
+    tooltip: { trigger: 'axis', axisPointer: { type: 'cross' } },
+    legend: { data: ['出口量','均价'], top: 5 },
+    grid: gridOpt(),
+    xAxis: Object.assign({}, xAxis(), { data: lcMonths }),
+    yAxis: [
+        yAxis('出口量（吨）'),
+        { type: 'value', name: '万元/吨', min: 5, max: 16, position: 'right', axisLabel: { color: C.textLight }, splitLine: { show: false } }
+    ],
+    series: [
+        { name: '出口量', type: 'bar', data: lcExpVol,
+          itemStyle: { color: C.secondary, borderRadius: [4,4,0,0] },
+          label: { show: true, position: 'top', formatter: '{c}', fontSize: 9, color: C.textLight } },
+        { name: '均价', type: 'line', yAxisIndex: 1, smooth: true, lineStyle: { color: C.accent, width: 3 },
+          itemStyle: { color: C.accent },
+          label: { show: true, position: 'bottom', formatter: '{c}万', fontSize: 9, color: C.accent, fontWeight: 'bold' } }
+    ]
+});
+
+// ============ 碳酸锂Tab ============
+// LC1: 碳酸锂月度产量
+initChart('lc1', {
+    tooltip: { trigger: 'axis' },
+    grid: gridOpt(),
+    xAxis: Object.assign({}, xAxis(), { data: lcMonths }),
+    yAxis: yAxis('产量（吨）'),
+    series: [{
+        type: 'bar', data: lcOutput,
+        itemStyle: { color: C.primary, borderRadius: [4,4,0,0] },
+        label: { show: true, position: 'top', formatter: function(p){return (p.value/10000).toFixed(1)+'万';}, fontSize: 9, color: C.textLight }
+    }]
+});
+
+// LC2: 碳酸锂企业TOP10
+initChart('lc2', {
+    tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' }, formatter: '{b}: {c}吨' },
+    grid: { left: '3%', right: '15%', bottom: '3%', containLabel: true },
+    xAxis: { type: 'value', axisLabel: { formatter: function(v){return (v/10000).toFixed(0)+'万';} }, splitLine: { lineStyle: { color: C.border } } },
+    yAxis: { type: 'category', data: lcCompNames.slice(1).reverse(), axisLabel: { color: C.text, fontSize: 11 } },
+    series: [{
+        type: 'bar', data: lcCompOutput.slice(1).reverse(),
+        itemStyle: { color: function(p){ return p.dataIndex < 3 ? C.primary : C.secondary; }, borderRadius: [0,4,4,0] },
+        label: { show: true, position: 'right', formatter: function(p){return (p.value/10000).toFixed(1)+'万';}, fontSize: 10, color: C.textLight }
+    }]
+});
+
+// LC3: 碳酸锂企业饼图
+initChart('lc3', {
+    tooltip: { trigger: 'item', formatter: '{b}: {c}吨 ({d}%)' },
+    legend: { orient: 'vertical', right: 10, top: 'center', textStyle: { fontSize: 10 } },
+    series: [{
+        type: 'pie', radius: ['30%', '65%'], center: ['40%', '50%'],
+        data: lcCompNames.map(function(n,i){ return {name: n+' '+lcCompOutput[i]+'吨', value: lcCompOutput[i]}; }),
+        label: { show: true, formatter: '{b}', fontSize: 9, color: '#333' },
+        itemStyle: { color: colorFn(0) }
+    }]
+});
+
+// LC4: 碳酸锂现货价走势
+initChart('lc4', {
+    tooltip: { trigger: 'axis' },
+    grid: gridOpt(),
+    xAxis: Object.assign({}, xAxis(), { data: lcDailyDates }),
+    yAxis: yAxis('万元/吨'),
+    series: [{
+        type: 'line', data: lcDailyAvg, smooth: true, lineStyle: { color: C.primary, width: 3 },
+        areaStyle: { color: { type: 'linear', x:0,y:0,x2:0,y2:1, colorStops: [{offset:0,color:'rgba(30,60,114,0.2)'},{offset:1,color:'rgba(30,60,114,0.02)'}] } },
+        itemStyle: { color: C.primary },
+        label: { show: true, position: 'top', formatter: '{c}', fontSize: 9, color: C.primary, fontWeight: 'bold' }
+    }]
+});
+
+// LC5: 碳酸锂出口贸易伙伴（示例数据）
+initChart('lc5', {
+    tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
+    grid: { left: '3%', right: '15%', bottom: '3%', containLabel: true },
+    xAxis: { type: 'value', splitLine: { lineStyle: { color: C.border } } },
+    yAxis: { type: 'category', data: ['日本','韩国','印度','印尼','中国台湾','马来西亚','越南','泰国','美国'].reverse(), axisLabel: { color: C.text } },
+    series: [{
+        type: 'bar', data: [5800,4200,2100,1200,980,650,540,320,210].reverse(),
+        itemStyle: { color: function(p){ return p.dataIndex < 3 ? C.primary : C.secondary; }, borderRadius: [0,4,4,0] },
+        label: { show: true, position: 'right', formatter: '{c}吨', fontSize: 9, color: C.textLight }
+    }]
+});
+
+// LC6: 碳酸锂出口量柱状图
+initChart('lc6', {
+    tooltip: { trigger: 'axis' },
+    grid: gridOpt(),
+    xAxis: Object.assign({}, xAxis(), { data: lcMonths }),
+    yAxis: yAxis('出口量（吨）'),
+    series: [{
+        type: 'bar', data: lcExpVol,
+        itemStyle: { color: C.secondary, borderRadius: [4,4,0,0] },
+        label: { show: true, position: 'top', formatter: '{c}', fontSize: 9, color: C.textLight }
+    }]
+});
+
+// ============ 氢氧化锂Tab ============
+// LH1: 氢氧化锂月度产量
+initChart('lh1', {
+    tooltip: { trigger: 'axis' },
+    grid: gridOpt(),
+    xAxis: Object.assign({}, xAxis(), { data: lcMonths }),
+    yAxis: yAxis('产量（吨）'),
+    series: [{
+        type: 'bar', data: lhOutput,
+        itemStyle: { color: C.secondary, borderRadius: [4,4,0,0] },
+        label: { show: true, position: 'top', formatter: function(p){return (p.value/10000).toFixed(1)+'万';}, fontSize: 9, color: C.textLight }
+    }]
+});
+
+// LH2: 氢氧化锂企业TOP10
+initChart('lh2', {
+    tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
+    grid: { left: '3%', right: '15%', bottom: '3%', containLabel: true },
+    xAxis: { type: 'value', axisLabel: { formatter: function(v){return (v/10000).toFixed(0)+'万';} }, splitLine: { lineStyle: { color: C.border } } },
+    yAxis: { type: 'category', data: lhCompNames.reverse(), axisLabel: { color: C.text, fontSize: 11 } },
+    series: [{
+        type: 'bar', data: lhCompOutput.reverse(),
+        itemStyle: { color: function(p){ return p.dataIndex < 3 ? C.primary : C.secondary; }, borderRadius: [0,4,4,0] },
+        label: { show: true, position: 'right', formatter: function(p){return (p.value/10000).toFixed(1)+'万';}, fontSize: 10, color: C.textLight }
+    }]
+});
+
+// LH3: 氢氧化锂企业饼图
+initChart('lh3', {
+    tooltip: { trigger: 'item', formatter: '{b}: {c}吨 ({d}%)' },
+    legend: { orient: 'vertical', right: 10, top: 'center', textStyle: { fontSize: 10 } },
+    series: [{
+        type: 'pie', radius: ['30%', '65%'], center: ['40%', '50%'],
+        data: lhCompNames.map(function(n,i){ return {name: n+' '+lhCompOutput[i]+'吨', value: lhCompOutput[i]}; }),
+        label: { show: true, formatter: '{b}', fontSize: 9, color: '#333' },
+        itemStyle: { color: colorFn(0) }
+    }]
+});
+
+// LH4: 氢氧化锂出口（近12月，取年份月份）
+initChart('lh4', {
+    tooltip: { trigger: 'axis', axisPointer: { type: 'cross' } },
+    legend: { data: ['出口量（吨）','出口均价（万元/吨）'], top: 5 },
+    grid: gridOpt(),
+    xAxis: Object.assign({}, xAxis(), { data: lcMonths }),
+    yAxis: [
+        yAxis('吨'),
+        { type: 'value', name: '万元/吨', position: 'right', axisLabel: { color: C.textLight }, splitLine: { show: false } }
+    ],
+    series: [
+        { name: '出口量（吨）', type: 'bar', data: lhExpVol,
+          itemStyle: { color: C.secondary, borderRadius: [4,4,0,0] },
+          label: { show: true, position: 'top', formatter: function(p){return (p.value/10000).toFixed(2)+'万';}, fontSize: 9, color: C.textLight } },
+        { name: '出口均价（万元/吨）', type: 'line', yAxisIndex: 1, smooth: true, lineStyle: { color: C.accent, width: 3 },
+          itemStyle: { color: C.accent },
+          label: { show: true, position: 'bottom', formatter: '{c}', fontSize: 9, color: C.accent, fontWeight: 'bold' } }
+    ]
+});
+
+// ============ 原料价格Tab ============
+// Raw1: 碳酸锂 vs 氢氧化锂现货价对比
+initChart('raw1', {
+    tooltip: { trigger: 'axis' },
+    legend: { data: ['碳酸锂均价','氢氧化锂均价'], top: 5 },
+    grid: gridOpt(),
+    xAxis: Object.assign({}, xAxis(), { data: lcDailyDates }),
+    yAxis: yAxis('万元/吨'),
+    series: [
+        { name: '碳酸锂均价', type: 'line', data: lcDailyAvg, smooth: true,
+          lineStyle: { color: C.primary, width: 3 }, itemStyle: { color: C.primary },
+          label: { show: true, position: 'top', formatter: '{c}', fontSize: 9, color: C.primary, fontWeight: 'bold' } },
+        { name: '氢氧化锂均价', type: 'line', data: lhDailyAvg, smooth: true,
+          lineStyle: { color: C.secondary, width: 3 }, itemStyle: { color: C.secondary },
+          label: { show: true, position: 'bottom', formatter: '{c}', fontSize: 9, color: C.secondary } }
+    ]
+});
+
+// Raw2: 锂辉石精矿价格
+initChart('raw2', {
+    tooltip: { trigger: 'axis' },
+    grid: gridOpt(),
+    xAxis: Object.assign({}, xAxis(), { data: lspDates }),
+    yAxis: yAxis('美元/吨'),
+    series: [{
+        type: 'line', data: lspAvg, smooth: true, lineStyle: { color: '#e67e22', width: 3 },
+        areaStyle: { color: { type: 'linear', x:0,y:0,x2:0,y2:1, colorStops: [{offset:0,color:'rgba(230,126,34,0.2)'},{offset:1,color:'rgba(230,126,34,0.02)'}] } },
+        itemStyle: { color: '#e67e22' },
+        label: { show: true, position: 'top', formatter: '{c}', fontSize: 9, color: '#e67e22', fontWeight: 'bold' }
+    }]
+});
+
+// Raw3: 锂云母价格
+initChart('raw3', {
+    tooltip: { trigger: 'axis' },
+    grid: gridOpt(),
+    xAxis: Object.assign({}, xAxis(), { data: lymDates }),
+    yAxis: yAxis('万元/吨'),
+    series: [{
+        type: 'line', data: lymAvg, smooth: true, lineStyle: { color: '#9b59b6', width: 3 },
+        areaStyle: { color: { type: 'linear', x:0,y:0,x2:0,y2:1, colorStops: [{offset:0,color:'rgba(155,89,182,0.2)'},{offset:1,color:'rgba(155,89,182,0.02)'}] } },
+        itemStyle: { color: '#9b59b6' },
+        label: { show: true, position: 'top', formatter: '{c}', fontSize: 9, color: '#9b59b6', fontWeight: 'bold' }
+    }]
+});
+
+// Raw4: 碳酸锂 vs 锂辉石双轴
+initChart('raw4', {
+    tooltip: { trigger: 'axis', axisPointer: { type: 'cross' } },
+    legend: { data: ['碳酸锂（元/吨×10）','锂辉石（美元/吨）'], top: 5 },
+    grid: gridOpt(),
+    xAxis: Object.assign({}, xAxis(), { data: lspDates }),
+    yAxis: [
+        { type: 'value', name: '碳酸锂（元/吨）', position: 'left',
+          axisLabel: { color: C.textLight, formatter: function(v){return v/10000+'万';} },
+          splitLine: { lineStyle: { color: C.border } } },
+        { type: 'value', name: '锂辉石（美元）', position: 'right',
+          axisLabel: { color: '#e67e22' }, splitLine: { show: false } }
+    ],
+    series: [
+        { name: '碳酸锂（元/吨×10）', type: 'line', data: lcDailyAvg.slice(-10).map(function(v){return v*10000;}),
+          smooth: true, lineStyle: { color: C.primary, width: 3 }, itemStyle: { color: C.primary } },
+        { name: '锂辉石（美元/吨）', type: 'line', yAxisIndex: 1, data: lspAvg,
+          smooth: true, lineStyle: { color: '#e67e22', width: 3 }, itemStyle: { color: '#e67e22' } }
+    ]
+});
+
+// ============ Tab切换 ============
+function switchTab(tab, btn) {
+    document.querySelectorAll('.tab-btn').forEach(function(b){ b.classList.remove('active'); });
+    document.querySelectorAll('.tab-content').forEach(function(t){ t.classList.remove('active'); });
+    btn.classList.add('active');
+    document.getElementById('tab-' + tab).classList.add('active');
+    setTimeout(function(){
+        document.querySelectorAll('.chart-container').forEach(function(c){
+            var chart = echarts.getInstanceByDom(c);
+            if(chart) chart.resize();
+        });
+    }, 100);
+}
+
+window.addEventListener('resize', function(){
+    document.querySelectorAll('.chart-container').forEach(function(c){
+        var chart = echarts.getInstanceByDom(c);
+        if(chart) chart.resize();
+    });
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,969 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>可视化看板 - 三元材料数据库</title>
+    <meta name="html-version" content="20260530a">
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <script src="ternary_embedded_data.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Microsoft YaHei', sans-serif; background: #f5f5f5; }
+
+        .topbar { background: #fff; padding: 15px 30px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
+        .topbar h1 { color: #1e3c72; font-size: 20px; }
+        .topbar-links { display: flex; gap: 4px; }
+        .topbar-links a { color: #666; text-decoration: none; margin-left: 16px; font-size: 14px; padding: 6px 12px; border-radius: 6px; transition: all 0.2s; }
+        .topbar-links a:hover { color: #1e3c72; background: #f0f4ff; }
+
+        .tab-nav { background: #fff; padding: 0 30px; display: flex; gap: 5px; border-bottom: 1px solid #eee; }
+        .tab-btn { padding: 12px 20px; background: none; border: none; cursor: pointer; font-size: 14px; color: #666; border-bottom: 2px solid transparent; transition: all 0.2s; }
+        .tab-btn:hover { color: #1e3c72; }
+        .tab-btn.active { color: #1e3c72; border-bottom-color: #1e3c72; font-weight: 600; }
+
+        .main-content { padding: 20px 30px; }
+
+        .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 20px; }
+        .stat-card { background: #fff; border-radius: 12px; padding: 16px 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); display: flex; align-items: center; gap: 16px; }
+        .stat-icon { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px; }
+        .stat-icon.purple { background: rgba(142,68,173,0.1); }
+        .stat-icon.blue { background: rgba(30,60,114,0.1); }
+        .stat-icon.green { background: rgba(39,174,96,0.1); }
+        .stat-icon.orange { background: rgba(255,152,0,0.1); }
+        .stat-info .label { color: #888; font-size: 12px; margin-bottom: 4px; }
+        .stat-info .value { color: #1e3c72; font-size: 24px; font-weight: 600; }
+        .stat-info .unit { font-size: 14px; color: #999; font-weight: normal; }
+        .stat-info .sub { font-size: 12px; color: #888; margin-top: 2px; }
+
+        .chart-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+        .chart-card { background: #fff; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+        .chart-card.full { grid-column: span 2; }
+        .chart-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid #f0f0f0; }
+        .chart-title { font-size: 15px; font-weight: 600; color: #333; }
+        .chart-subtitle { font-size: 12px; color: #999; margin-top: 4px; }
+        .chart-meta { font-size: 12px; color: #999; }
+        .chart-container { width: 100%; height: 300px; }
+        .chart-card.full .chart-container { height: 320px; }
+
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        .source-bar { background: #fff; border-radius: 8px; padding: 10px 20px; margin-bottom: 16px; font-size: 12px; color: #aaa; display: flex; align-items: center; gap: 8px; }
+        .source-bar strong { color: #1e3c72; }
+
+        @media (max-width: 1200px) {
+            .stats-row { grid-template-columns: repeat(2, 1fr); }
+            .chart-grid { grid-template-columns: 1fr; }
+            .chart-card.full { grid-column: span 1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="topbar">
+        <h1>🔋 可视化看板 - 三元材料数据库</h1>
+        <div class="topbar-links">
+            <a href="index_v3.html">🏠 首页</a>
+            <a href="database_hub.html">📋 数据库</a>
+            <a href="ternary_data_v2.html">📊 数据表格</a>
+        </div>
+    </div>
+
+    <div class="tab-nav">
+        <button class="tab-btn active" onclick="switchTab('overview', this)">📈 概览</button>
+        <button class="tab-btn" onclick="switchTab('cathode', this)">🔋 三元正极</button>
+        <button class="tab-btn" onclick="switchTab('precursor', this)">⚗️ 三元前驱体</button>
+        <button class="tab-btn" onclick="switchTab('raw', this)">🧪 关键原料</button>
+    </div>
+
+    <div class="main-content">
+        <div class="source-bar">
+            📌 数据来源：三元前驱体产业链数据库 &nbsp;|&nbsp; 更新时间：<strong id="data-time">加载中...</strong>
+        </div>
+
+        <!-- ====== Tab1: 概览 ====== -->
+        <div class="tab-content active" id="tab-overview">
+            <div class="stats-row">
+                <div class="stat-card">
+                    <div class="stat-icon blue">📊</div>
+                    <div class="stat-info">
+                        <div class="label">NCM正极月产量（最新）</div>
+                        <div class="value" id="stat-ncm-output">—</div>
+                        <div class="sub" id="stat-ncm-date">—</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon purple">⚗️</div>
+                    <div class="stat-info">
+                        <div class="label">前驱体月产量（最新）</div>
+                        <div class="value" id="stat-pre-output">—</div>
+                        <div class="sub" id="stat-pre-date">—</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon orange">💰</div>
+                    <div class="stat-info">
+                        <div class="label">NCM811均价（最新）</div>
+                        <div class="value" id="stat-ncm811-price">—</div>
+                        <div class="sub" id="stat-ncm811-date">—</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon green">🔬</div>
+                    <div class="stat-info">
+                        <div class="label">硫酸钴均价（最新）</div>
+                        <div class="value" id="stat-cobalt-price">—</div>
+                        <div class="sub" id="stat-cobalt-date">—</div>
+                    </div>
+                </div>
+            </div>
+            <div class="chart-grid">
+                <div class="chart-card full">
+                    <div class="chart-header">
+                        <div class="chart-title">NCM正极 vs 前驱体 月度产量对比</div>
+                        <div class="chart-meta">近12个月 | 单位：吨</div>
+                    </div>
+                    <div class="chart-container" id="ov1"></div>
+                </div>
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <div class="chart-title">NCM正极产能利用率趋势</div>
+                        <div class="chart-meta">近12个月</div>
+                    </div>
+                    <div class="chart-container" id="ov2"></div>
+                </div>
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <div class="chart-title">前驱体产能利用率趋势</div>
+                        <div class="chart-meta">近12个月</div>
+                    </div>
+                    <div class="chart-container" id="ov3"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ====== Tab2: 三元正极 ====== -->
+        <div class="tab-content" id="tab-cathode">
+            <div class="chart-grid">
+                <div class="chart-card full">
+                    <div class="chart-header">
+                        <div class="chart-title">NCM正极月度产量走势</div>
+                        <div class="chart-meta">全部历史数据 | 单位：吨</div>
+                    </div>
+                    <div class="chart-container" id="ca1"></div>
+                </div>
+                <div class="chart-card full">
+                    <div class="chart-header">
+                        <div class="chart-title">NCM正极分型号产量趋势</div>
+                        <div class="chart-subtitle">NCM111 / 523 / 622 / 811 / NCA / 9系</div>
+                    </div>
+                    <div class="chart-container" id="ca2"></div>
+                </div>
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <div class="chart-title">NCM正极企业产量 TOP10</div>
+                        <div class="chart-meta" id="ca3-label">最新月份</div>
+                    </div>
+                    <div class="chart-container" id="ca3"></div>
+                </div>
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <div class="chart-title">NCM正极企业产能利用率 TOP10</div>
+                        <div class="chart-meta" id="ca4-label">最新月份</div>
+                    </div>
+                    <div class="chart-container" id="ca4"></div>
+                </div>
+                <div class="chart-card full">
+                    <div class="chart-header">
+                        <div class="chart-title">NCM正极主要型号现货价格走势</div>
+                        <div class="chart-subtitle">NCM523 / 622 / 811 / NCA 均价（万元/吨）</div>
+                    </div>
+                    <div class="chart-container" id="ca5"></div>
+                </div>
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <div class="chart-title">NCM正极出口量趋势</div>
+                        <div class="chart-meta">近12个月 | 吨</div>
+                    </div>
+                    <div class="chart-container" id="ca6"></div>
+                </div>
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <div class="chart-title">NCM正极出口目的地 TOP10</div>
+                        <div class="chart-meta">累计出口量</div>
+                    </div>
+                    <div class="chart-container" id="ca7"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ====== Tab3: 三元前驱体 ====== -->
+        <div class="tab-content" id="tab-precursor">
+            <div class="chart-grid">
+                <div class="chart-card full">
+                    <div class="chart-header">
+                        <div class="chart-title">前驱体月度产量走势</div>
+                        <div class="chart-meta">全部历史数据 | 单位：吨</div>
+                    </div>
+                    <div class="chart-container" id="pr1"></div>
+                </div>
+                <div class="chart-card full">
+                    <div class="chart-header">
+                        <div class="chart-title">前驱体分型号产量趋势</div>
+                        <div class="chart-subtitle">NCMpre333 / 523 / 622 / 811 / NCApre / 9系</div>
+                    </div>
+                    <div class="chart-container" id="pr2"></div>
+                </div>
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <div class="chart-title">前驱体企业产量 TOP10</div>
+                        <div class="chart-meta" id="pr3-label">最新月份</div>
+                    </div>
+                    <div class="chart-container" id="pr3"></div>
+                </div>
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <div class="chart-title">前驱体企业产能利用率 TOP10</div>
+                        <div class="chart-meta" id="pr4-label">最新月份</div>
+                    </div>
+                    <div class="chart-container" id="pr4"></div>
+                </div>
+                <div class="chart-card full">
+                    <div class="chart-header">
+                        <div class="chart-title">前驱体主要型号现货价格走势</div>
+                        <div class="chart-subtitle">NCM523 / 622 / 811 均价（万元/吨）</div>
+                    </div>
+                    <div class="chart-container" id="pr5"></div>
+                </div>
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <div class="chart-title">前驱体出口量趋势</div>
+                        <div class="chart-meta">近12个月 | 吨</div>
+                    </div>
+                    <div class="chart-container" id="pr6"></div>
+                </div>
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <div class="chart-title">前驱体出口目的地 TOP10</div>
+                        <div class="chart-meta">累计出口量</div>
+                    </div>
+                    <div class="chart-container" id="pr7"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ====== Tab4: 关键原料 ====== -->
+        <div class="tab-content" id="tab-raw">
+            <div class="stats-row">
+                <div class="stat-card">
+                    <div class="stat-icon orange">🟠</div>
+                    <div class="stat-info">
+                        <div class="label">硫酸钴均价（最新）</div>
+                        <div class="value" id="stat-raw-cobalt">—</div>
+                        <div class="sub" id="stat-raw-cobalt-date">—</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon green">🟢</div>
+                    <div class="stat-info">
+                        <div class="label">电池级硫酸锰均价（最新）</div>
+                        <div class="value" id="stat-raw-mn">—</div>
+                        <div class="sub" id="stat-raw-mn-date">—</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon blue">🔵</div>
+                    <div class="stat-info">
+                        <div class="label">电池级硫酸镍均价（最新）</div>
+                        <div class="value" id="stat-raw-ni">—</div>
+                        <div class="sub" id="stat-raw-ni-date">—</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon purple">🟣</div>
+                    <div class="stat-info">
+                        <div class="label">四氧化三钴月产量（最新）</div>
+                        <div class="value" id="stat-co3o4-output">—</div>
+                        <div class="sub" id="stat-co3o4-date">—</div>
+                    </div>
+                </div>
+            </div>
+            <div class="chart-grid">
+                <div class="chart-card full">
+                    <div class="chart-header">
+                        <div class="chart-title">关键原料现货价格走势</div>
+                        <div class="chart-subtitle">硫酸钴 / 硫酸锰 / 硫酸镍 均价（万元/吨）</div>
+                    </div>
+                    <div class="chart-container" id="rw1"></div>
+                </div>
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <div class="chart-title">硫酸钴（≥20.5%）价格走势</div>
+                        <div class="chart-meta">万元/吨</div>
+                    </div>
+                    <div class="chart-container" id="rw2"></div>
+                </div>
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <div class="chart-title">电池级硫酸镍价格走势</div>
+                        <div class="chart-meta">万元/吨</div>
+                    </div>
+                    <div class="chart-container" id="rw3"></div>
+                </div>
+                <div class="chart-card full">
+                    <div class="chart-header">
+                        <div class="chart-title">四氧化三钴行业产量</div>
+                        <div class="chart-meta">月度产量 + 产能利用率</div>
+                    </div>
+                    <div class="chart-container" id="rw4"></div>
+                </div>
+                <div class="chart-card full">
+                    <div class="chart-header">
+                        <div class="chart-title">四氧化三钴现货价格走势</div>
+                        <div class="chart-meta">万元/吨</div>
+                    </div>
+                    <div class="chart-container" id="rw5"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<script>
+var COLORS = ['#1e3c72','#4a6fa5','#4facfe','#667eea','#764ba2','#f59e0b','#10b981','#ef4444','#3b82f6','#8b5cf6'];
+var C = { primary: '#1e3c72', secondary: '#4a6fa5', accent: '#4facfe', border: '#e0e0e0', text: '#333', textLight: '#666' };
+
+// ==== Data helpers ====
+function getTable(name) {
+    var t = TERNARY_DATA.tables.find(function(t){ return t.table_name === name; });
+    return t ? t.data : [];
+}
+function toNum(v) {
+    if (typeof v === 'number') return v;
+    if (typeof v === 'string') return parseFloat(v.replace(/[,%]/g, '')) || 0;
+    return 0;
+}
+function fmtMonth(m) {
+    var s = m['月份'] || m['日期'] || '';
+    if (s.length === 7) return s.slice(2,4)+'\''+s.slice(5,7);
+    if (s.length === 10) return s.slice(2,4)+'\''+s.slice(5,7);
+    return s;
+}
+function fmtDate(d) {
+    var s = d['日期'] || d['月份'] || d['当前日期'] || '';
+    if (s.length === 10) return s.slice(5);
+    return s;
+}
+function getLastNMonths(data, n) {
+    var seen = {}, result = [];
+    for (var i = data.length-1; i>=0; i--) {
+        var key = data[i]['月份'] || data[i]['日期'];
+        if (!seen[key]) { seen[key]=true; result.unshift(data[i]); if (result.length>=n) break; }
+    }
+    return result;
+}
+function getLastNDays(data, n) {
+    var seen = {}, result = [];
+    var dateKey = data[0] && data[0]['当前日期'] ? '当前日期' : (data[0] && data[0]['日期'] ? '日期' : '月份');
+    for (var i = data.length-1; i>=0; i--) {
+        var key = data[i][dateKey];
+        if (!seen[key]) { seen[key]=true; result.unshift(data[i]); if (result.length>=n) break; }
+    }
+    return result;
+}
+function makeDateLabels(data, step, dateKey) {
+    var dk = dateKey || '日期';
+    var labels = [];
+    for (var i=0; i<data.length; i++) { labels.push(i % step === 0 ? fmtDate(data[i]) : ''); }
+    return labels;
+}
+
+// ==== Price helpers ====
+// Extract model-average-price columns from spot-price tables
+function getPriceModels(data) {
+    if (!data || !data.length) return [];
+    var headers = Object.keys(data[0]);
+    var dateCol = headers[0];
+    var models = [];
+    var seen = {};
+    headers.slice(1).forEach(function(h) {
+        var suffix = '';
+        if (h.endsWith('均价')) suffix = '均价';
+        else if (h.endsWith('最低价格')) suffix = '最低价格';
+        else if (h.endsWith('最高价格')) suffix = '最高价格';
+        else return;
+        var model = h.slice(0, -suffix.length);
+        if (!seen[model]) { seen[model] = true; models.push({ name: model, avg: h, high: h.replace('均价','最高价格'), low: h.replace('均价','最低价格') }); }
+    });
+    return models;
+}
+
+function getModelAvgSeries(data, modelName) {
+    // Find the exact column for this model's avg
+    var headers = data.length ? Object.keys(data[0]) : [];
+    var col = headers.find(function(h) { return h.indexOf(modelName) === 0 && h.endsWith('均价'); });
+    if (!col) col = modelName;
+    return data.map(function(d) { return toNum(d[col]); });
+}
+
+// ==== Chart registry (for resize on tab switch) ====
+var allCharts = [];
+
+// ==== Tab switching ====
+function switchTab(tabId, btn) {
+    document.querySelectorAll('.tab-content').forEach(function(el){ el.classList.remove('active'); });
+    document.querySelectorAll('.tab-btn').forEach(function(el){ el.classList.remove('active'); });
+    document.getElementById('tab-'+tabId).classList.add('active');
+    if (btn) btn.classList.add('active');
+    // Resize all charts after a short delay to let CSS layout settle
+    setTimeout(function() {
+        allCharts.forEach(function(c) { try { c.resize(); } catch(e) {} });
+    }, 100);
+}
+
+// ==== Chart init ====
+function initChart(id, opt) {
+    var dom = document.getElementById(id);
+    if (!dom) return null;
+    var chart = echarts.init(dom);
+    chart.setOption(opt);
+    allCharts.push(chart);
+    return chart;
+}
+
+// ==== Update time ====
+document.getElementById('data-time').textContent = TERNARY_DATA.update_time || '—';
+
+// ============================================================
+//  TAB 1: 概览
+// ============================================================
+(function() {
+    // NCM industry data
+    var ncmInd = getTable('三元正极-行业产量规模');
+    var preInd = getTable('三元前驱体-行业产量规模');
+    var ncmLast12 = getLastNMonths(ncmInd, 12);
+    var preLast12 = getLastNMonths(preInd, 12);
+
+    // Stat cards
+    if (ncmInd.length) {
+        var last = ncmInd[ncmInd.length-1];
+        document.getElementById('stat-ncm-output').innerHTML = (toNum(last['月度产量'])/10000).toFixed(2) + '<span class="unit">万吨</span>';
+        document.getElementById('stat-ncm-date').textContent = last['月份'] + ' | 利用率 ' + (last['产能利用率']||'—');
+    }
+    if (preInd.length) {
+        var last = preInd[preInd.length-1];
+        document.getElementById('stat-pre-output').innerHTML = (toNum(last['月度产量'])/10000).toFixed(2) + '<span class="unit">万吨</span>';
+        document.getElementById('stat-pre-date').textContent = last['月份'] + ' | 利用率 ' + (last['产能利用率']||'—');
+    }
+    // NCM811 latest price
+    var ncmPrice = getTable('三元正极-现货市场价');
+    if (ncmPrice.length) {
+        var last = ncmPrice[ncmPrice.length-1];
+        var dk = Object.keys(last)[0];
+        var col811 = Object.keys(last).find(function(k){ return k.indexOf('811')>=0 && k.endsWith('均价'); });
+        if (col811) {
+            document.getElementById('stat-ncm811-price').innerHTML = toNum(last[col811]).toFixed(2) + '<span class="unit">万/吨</span>';
+            document.getElementById('stat-ncm811-date').textContent = last[dk];
+        }
+    }
+    // Cobalt price
+    var rawPrice = getTable('硫酸钴镍-现货市场价');
+    if (rawPrice.length) {
+        var last = rawPrice[rawPrice.length-1];
+        var dk = Object.keys(last)[0];
+        var colCo = Object.keys(last).find(function(k){ return k.endsWith('均价'); });
+        if (colCo) {
+            document.getElementById('stat-cobalt-price').innerHTML = toNum(last[colCo]).toFixed(2) + '<span class="unit">万/吨</span>';
+            document.getElementById('stat-cobalt-date').textContent = last[dk];
+        }
+    }
+
+    // ov1: NCM vs Precursor output bar chart
+    var months = ncmLast12.map(fmtMonth);
+    var ncmOut = ncmLast12.map(function(d){ return toNum(d['月度产量']); });
+    var preOut = preLast12.map(function(d){ return toNum(d['月度产量']); });
+    initChart('ov1', {
+        tooltip: { trigger: 'axis' },
+        legend: { data: ['NCM正极','前驱体'], top: 5 },
+        grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+        xAxis: { type: 'category', data: months, axisLabel: { color: C.textLight, fontSize: 11 } },
+        yAxis: { type: 'value', name: '吨', axisLabel: { color: C.textLight, formatter: function(v){ return (v/10000).toFixed(0)+'万'; } }, splitLine: { lineStyle: { color: C.border } } },
+        series: [
+            { name: 'NCM正极', type: 'bar', data: ncmOut, itemStyle: { color: C.primary, borderRadius: [4,4,0,0] }, label: { show: true, position: 'top', formatter: function(p){ return (p.data/10000).toFixed(1)+'万'; }, fontSize: 9, color: C.textLight } },
+            { name: '前驱体', type: 'bar', data: preOut, itemStyle: { color: C.secondary, borderRadius: [4,4,0,0] }, label: { show: true, position: 'top', formatter: function(p){ return (p.data/10000).toFixed(1)+'万'; }, fontSize: 9, color: C.textLight } }
+        ]
+    });
+
+    // ov2: NCM util rate
+    var ncmUtil = ncmLast12.map(function(d){ return parseFloat((d['产能利用率']||'0').replace('%','')); });
+    initChart('ov2', {
+        tooltip: { trigger: 'axis', formatter: '{b}: {c}%' },
+        grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+        xAxis: { type: 'category', data: months, axisLabel: { color: C.textLight, fontSize: 11 } },
+        yAxis: { type: 'value', name: '%', min: 0, max: 100, axisLabel: { color: C.textLight }, splitLine: { lineStyle: { color: C.border } } },
+        series: [{ type: 'line', data: ncmUtil, smooth: true, lineStyle: { color: C.primary, width: 3 }, areaStyle: { color: { type: 'linear', x:0,y:0,x2:0,y2:1, colorStops: [{offset:0,color:'rgba(30,60,114,0.2)'},{offset:1,color:'rgba(30,60,114,0.02)'}] } }, label: { show: true, position: 'top', formatter: '{c}%', fontSize: 9, color: C.primary } }]
+    });
+
+    // ov3: Precursor util rate
+    var preUtil = preLast12.map(function(d){ return parseFloat((d['产能利用率']||'0').replace('%','')); });
+    var preMonths = preLast12.map(fmtMonth);
+    initChart('ov3', {
+        tooltip: { trigger: 'axis', formatter: '{b}: {c}%' },
+        grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+        xAxis: { type: 'category', data: preMonths, axisLabel: { color: C.textLight, fontSize: 11 } },
+        yAxis: { type: 'value', name: '%', min: 0, max: 100, axisLabel: { color: C.textLight }, splitLine: { lineStyle: { color: C.border } } },
+        series: [{ type: 'line', data: preUtil, smooth: true, lineStyle: { color: C.secondary, width: 3 }, areaStyle: { color: { type: 'linear', x:0,y:0,x2:0,y2:1, colorStops: [{offset:0,color:'rgba(74,111,165,0.2)'},{offset:1,color:'rgba(74,111,165,0.02)'}] } }, label: { show: true, position: 'top', formatter: '{c}%', fontSize: 9, color: C.secondary } }]
+    });
+})();
+
+// ============================================================
+//  TAB 2: 三元正极
+// ============================================================
+(function() {
+    var ncmInd = getTable('三元正极-行业产量规模');
+    var ncmModel = getTable('三元正极-型号产量');
+    var ncmCompany = getTable('三元正极-分企业产量');
+    var ncmPrice = getTable('三元正极-现货市场价');
+    var ncmExport = getTable('三元正极-出口总额');
+    var ncmExpPartner = getTable('三元正极-出口目的地');
+
+    // ca1: NCM产量走势 (line + area, all data)
+    var allMonths = ncmInd.map(fmtMonth);
+    var allOut = ncmInd.map(function(d){ return toNum(d['月度产量']); });
+    initChart('ca1', {
+        tooltip: { trigger: 'axis' },
+        grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+        xAxis: { type: 'category', data: allMonths, axisLabel: { color: C.textLight, fontSize: 10, rotate: 45 } },
+        yAxis: { type: 'value', name: '吨', axisLabel: { color: C.textLight, formatter: function(v){ return (v/10000).toFixed(0)+'万'; } }, splitLine: { lineStyle: { color: C.border } } },
+        series: [{ type: 'line', data: allOut, smooth: true, lineStyle: { color: C.primary, width: 2 }, areaStyle: { color: { type: 'linear', x:0,y:0,x2:0,y2:1, colorStops: [{offset:0,color:'rgba(30,60,114,0.15)'},{offset:1,color:'rgba(30,60,114,0.01)'}] } }, label: { show: true, position: 'top', formatter: function(p){ return p.dataIndex % 3 === 0 ? (p.data/10000).toFixed(1)+'万' : ''; }, fontSize: 9, color: C.primary } }]
+    });
+
+    // ca2: 型号产量 stacked bar (melted data)
+    if (ncmModel.length) {
+        var modelHeaders = Object.keys(ncmModel[0]);
+        var fixedCols = ['日期','月份'];
+        var modelCols = modelHeaders.filter(function(h){ return fixedCols.indexOf(h)<0; });
+        var modelMonths = ncmModel.map(function(d){ return fmtMonth(d); });
+        var seriesData = modelCols.map(function(mc, i) {
+            return {
+                name: mc.replace('NCM',''),
+                type: 'bar',
+                stack: 'total',
+                data: ncmModel.map(function(d){ return toNum(d[mc]); }),
+                itemStyle: { color: COLORS[i % COLORS.length] }
+            };
+        });
+        initChart('ca2', {
+            tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
+            legend: { data: modelCols.map(function(m){ return m.replace('NCM',''); }), top: 5, textStyle: { fontSize: 10 } },
+            grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+            xAxis: { type: 'category', data: modelMonths, axisLabel: { color: C.textLight, fontSize: 9, rotate: 45 } },
+            yAxis: { type: 'value', name: '吨', axisLabel: { color: C.textLight }, splitLine: { lineStyle: { color: C.border } } },
+            series: seriesData
+        });
+    }
+
+    // ca3: TOP10 company output
+    if (ncmCompany.length) {
+        var sorted = ncmCompany.slice().sort(function(a,b){ return String(b['月份']||'').localeCompare(a['月份']||''); });
+        var latestMonth = sorted[0] ? sorted[0]['月份'] : '';
+        var monthData = sorted.filter(function(d){ return d['月份']===latestMonth; });
+        monthData.sort(function(a,b){ return toNum(b['产量'])-toNum(a['产量']); });
+        var top10 = monthData.slice(0, 10);
+        document.getElementById('ca3-label').textContent = latestMonth || '最新月份';
+        if (top10.length) {
+            initChart('ca3', {
+                tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
+                grid: { left: '3%', right: '15%', bottom: '3%', containLabel: true },
+                xAxis: { type: 'value', splitLine: { lineStyle: { color: C.border } } },
+                yAxis: { type: 'category', data: top10.map(function(d){ return d['企业名称']||''; }).reverse(), axisLabel: { color: C.text, fontSize: 10 } },
+                series: [{ type: 'bar', data: top10.map(function(d){ return toNum(d['产量']); }).reverse(), itemStyle: { color: function(p){ return COLORS[p.dataIndex % COLORS.length]; }, borderRadius: [0,4,4,0] }, label: { show: true, position: 'right', formatter: function(p){ return (p.data/10000).toFixed(2)+'万'; }, fontSize: 9, color: C.textLight } }]
+            });
+        }
+    }
+
+    // ca4: TOP10 company util rate
+    if (ncmCompany.length && top10) {
+        // Filter companies with valid util rate, sort by output then util
+        var utilTop = monthData.filter(function(d){ return d['产能利用率'] && parseFloat(String(d['产能利用率']).replace('%',''))>0; });
+        utilTop.sort(function(a,b){ return parseFloat(String(b['产能利用率']).replace('%','')) - parseFloat(String(a['产能利用率']).replace('%','')); });
+        var top10u = utilTop.slice(0, 10);
+        if (top10u.length) {
+            initChart('ca4', {
+                tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' }, formatter: '{b}: {c}%' },
+                grid: { left: '3%', right: '15%', bottom: '3%', containLabel: true },
+                xAxis: { type: 'value', splitLine: { lineStyle: { color: C.border } } },
+                yAxis: { type: 'category', data: top10u.map(function(d){ return d['企业名称']||''; }).reverse(), axisLabel: { color: C.text, fontSize: 10 } },
+                series: [{ type: 'bar', data: top10u.map(function(d){ return parseFloat(String(d['产能利用率']).replace('%','')); }).reverse(), itemStyle: { color: function(p){ return COLORS[p.dataIndex % COLORS.length]; }, borderRadius: [0,4,4,0] }, label: { show: true, position: 'right', formatter: '{c}%', fontSize: 9, color: C.textLight } }]
+            });
+        }
+    }
+
+    // ca5: Price trends - key models (523, 622, 811, NCA avg prices)
+    if (ncmPrice.length) {
+        var priceModels = getPriceModels(ncmPrice);
+        // Find key models
+        var keyNames = ['523','622','811','NCA'];
+        var selectedModels = [];
+        keyNames.forEach(function(kn) {
+            var m = priceModels.find(function(pm){ return pm.name.indexOf(kn)>=0 && pm.name.indexOf('单晶')<0; });
+            if (m) selectedModels.push(m);
+            else {
+                // try to find any match
+                m = priceModels.find(function(pm){ return pm.name.indexOf(kn)>=0; });
+                if (m && selectedModels.indexOf(m)<0) selectedModels.push(m);
+            }
+        });
+        if (selectedModels.length === 0 && priceModels.length > 0) selectedModels = priceModels.slice(0, 4);
+
+        var priceData = getLastNDays(ncmPrice, 90);
+        var priceLabels = makeDateLabels(priceData, 7, '当前日期');
+        var priceSeries = selectedModels.map(function(m, i) {
+            return {
+                name: m.name,
+                type: 'line',
+                data: priceData.map(function(d){ return toNum(d[m.avg]); }),
+                smooth: true,
+                lineStyle: { color: COLORS[i], width: 2 }
+            };
+        });
+        initChart('ca5', {
+            tooltip: { trigger: 'axis' },
+            legend: { data: selectedModels.map(function(m){ return m.name; }), top: 5, textStyle: { fontSize: 10 } },
+            grid: { left: '3%', right: '4%', bottom: '8%', containLabel: true },
+            xAxis: { type: 'category', data: priceLabels, axisLabel: { color: C.textLight, fontSize: 10, rotate: 45 }, boundaryGap: false },
+            yAxis: { type: 'value', name: '万元/吨', axisLabel: { color: C.textLight }, splitLine: { lineStyle: { color: C.border } } },
+            series: priceSeries
+        });
+    }
+
+    // ca6: Export volume trend
+    if (ncmExport.length) {
+        var exp12 = getLastNMonths(ncmExport, 12);
+        var expMonths = exp12.map(fmtMonth);
+        var expVol = exp12.map(function(d){ return toNum(d['出口量（吨）']); });
+        initChart('ca6', {
+            tooltip: { trigger: 'axis' },
+            grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+            xAxis: { type: 'category', data: expMonths, axisLabel: { color: C.textLight, fontSize: 10 } },
+            yAxis: { type: 'value', name: '吨', axisLabel: { color: C.textLight }, splitLine: { lineStyle: { color: C.border } } },
+            series: [{ type: 'bar', data: expVol, itemStyle: { color: C.primary, borderRadius: [4,4,0,0] }, label: { show: true, position: 'top', fontSize: 9, color: C.textLight } }]
+        });
+    }
+
+    // ca7: Export partner TOP10
+    if (ncmExpPartner.length) {
+        var partnerAgg = {};
+        ncmExpPartner.forEach(function(d) {
+            var name = d['出口目的地'] || d['进口目的地'] || '';
+            if (!name) return;
+            partnerAgg[name] = (partnerAgg[name]||0) + toNum(d['出口量（吨）']);
+        });
+        var partners = Object.entries(partnerAgg).sort(function(a,b){ return b[1]-a[1]; }).slice(0,10);
+        if (partners.length) {
+            initChart('ca7', {
+                tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
+                grid: { left: '3%', right: '15%', bottom: '3%', containLabel: true },
+                xAxis: { type: 'value', splitLine: { lineStyle: { color: C.border } } },
+                yAxis: { type: 'category', data: partners.map(function(p){ return p[0]; }).reverse(), axisLabel: { color: C.text, fontSize: 10 } },
+                series: [{ type: 'bar', data: partners.map(function(p){ return p[1]; }).reverse(), itemStyle: { color: function(p){ return COLORS[p.dataIndex % COLORS.length]; }, borderRadius: [0,4,4,0] }, label: { show: true, position: 'right', formatter: function(p){ return (p.data/10000).toFixed(2)+'万'; }, fontSize: 9, color: C.textLight } }]
+            });
+        }
+    }
+})();
+
+// ============================================================
+//  TAB 3: 三元前驱体
+// ============================================================
+(function() {
+    var preInd = getTable('三元前驱体-行业产量规模');
+    var preModel = getTable('三元前驱体-型号产量');
+    var preCompany = getTable('三元前驱体-分企业产量');
+    var prePrice = getTable('三元前驱体-现货市场价');
+    var preExport = getTable('三元前驱体-出口总额');
+    var preExpPartner = getTable('三元前驱体-出口目的地');
+
+    // pr1: Precursor output line
+    var allMonths = preInd.map(fmtMonth);
+    var allOut = preInd.map(function(d){ return toNum(d['月度产量']); });
+    initChart('pr1', {
+        tooltip: { trigger: 'axis' },
+        grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+        xAxis: { type: 'category', data: allMonths, axisLabel: { color: C.textLight, fontSize: 10, rotate: 45 } },
+        yAxis: { type: 'value', name: '吨', axisLabel: { color: C.textLight, formatter: function(v){ return (v/10000).toFixed(0)+'万'; } }, splitLine: { lineStyle: { color: C.border } } },
+        series: [{ type: 'line', data: allOut, smooth: true, lineStyle: { color: C.secondary, width: 2 }, areaStyle: { color: { type: 'linear', x:0,y:0,x2:0,y2:1, colorStops: [{offset:0,color:'rgba(74,111,165,0.15)'},{offset:1,color:'rgba(74,111,165,0.01)'}] } }, label: { show: true, position: 'top', formatter: function(p){ return p.dataIndex % 3 === 0 ? (p.data/10000).toFixed(1)+'万' : ''; }, fontSize: 9, color: C.secondary } }]
+    });
+
+    // pr2: Model output stacked bar
+    if (preModel.length) {
+        var modelHeaders = Object.keys(preModel[0]);
+        var fixedCols = ['日期','月份'];
+        var modelCols = modelHeaders.filter(function(h){ return fixedCols.indexOf(h)<0; });
+        var modelMonths = preModel.map(function(d){ return fmtMonth(d); });
+        var seriesData = modelCols.map(function(mc, i) {
+            return {
+                name: mc.replace('NCMpre','').replace('NCApre','NCA'),
+                type: 'bar', stack: 'total',
+                data: preModel.map(function(d){ return toNum(d[mc]); }),
+                itemStyle: { color: COLORS[i % COLORS.length] }
+            };
+        });
+        initChart('pr2', {
+            tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
+            legend: { data: seriesData.map(function(s){ return s.name; }), top: 5, textStyle: { fontSize: 10 } },
+            grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+            xAxis: { type: 'category', data: modelMonths, axisLabel: { color: C.textLight, fontSize: 9, rotate: 45 } },
+            yAxis: { type: 'value', name: '吨', axisLabel: { color: C.textLight }, splitLine: { lineStyle: { color: C.border } } },
+            series: seriesData
+        });
+    }
+
+    // pr3: TOP10 company output
+    var top10p;
+    if (preCompany.length) {
+        var sorted = preCompany.slice().sort(function(a,b){ return String(b['月份']||'').localeCompare(a['月份']||''); });
+        var latestMonth = sorted[0] ? sorted[0]['月份'] : '';
+        var monthData = sorted.filter(function(d){ return d['月份']===latestMonth; });
+        monthData.sort(function(a,b){ return toNum(b['产量'])-toNum(a['产量']); });
+        top10p = monthData.slice(0, 10);
+        document.getElementById('pr3-label').textContent = latestMonth || '最新月份';
+        if (top10p.length) {
+            initChart('pr3', {
+                tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
+                grid: { left: '3%', right: '15%', bottom: '3%', containLabel: true },
+                xAxis: { type: 'value', splitLine: { lineStyle: { color: C.border } } },
+                yAxis: { type: 'category', data: top10p.map(function(d){ return d['企业名称']||''; }).reverse(), axisLabel: { color: C.text, fontSize: 10 } },
+                series: [{ type: 'bar', data: top10p.map(function(d){ return toNum(d['产量']); }).reverse(), itemStyle: { color: function(p){ return COLORS[p.dataIndex % COLORS.length]; }, borderRadius: [0,4,4,0] }, label: { show: true, position: 'right', formatter: function(p){ return (p.data/10000).toFixed(2)+'万'; }, fontSize: 9, color: C.textLight } }]
+            });
+        }
+    }
+
+    // pr4: TOP10 util rate
+    if (preCompany.length && top10p) {
+        var sorted2 = preCompany.slice().sort(function(a,b){ return String(b['月份']||'').localeCompare(a['月份']||''); });
+        var lm = sorted2[0] ? sorted2[0]['月份'] : '';
+        var md = sorted2.filter(function(d){ return d['月份']===lm; });
+        var utilTop = md.filter(function(d){ return d['产能利用率'] && parseFloat(String(d['产能利用率']).replace('%',''))>0; });
+        utilTop.sort(function(a,b){ return parseFloat(String(b['产能利用率']).replace('%','')) - parseFloat(String(a['产能利用率']).replace('%','')); });
+        var top10u = utilTop.slice(0, 10);
+        if (top10u.length) {
+            initChart('pr4', {
+                tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
+                grid: { left: '3%', right: '15%', bottom: '3%', containLabel: true },
+                xAxis: { type: 'value', splitLine: { lineStyle: { color: C.border } } },
+                yAxis: { type: 'category', data: top10u.map(function(d){ return d['企业名称']||''; }).reverse(), axisLabel: { color: C.text, fontSize: 10 } },
+                series: [{ type: 'bar', data: top10u.map(function(d){ return parseFloat(String(d['产能利用率']).replace('%','')); }).reverse(), itemStyle: { color: function(p){ return COLORS[p.dataIndex % COLORS.length]; }, borderRadius: [0,4,4,0] }, label: { show: true, position: 'right', formatter: '{c}%', fontSize: 9, color: C.textLight } }]
+            });
+        }
+    }
+
+    // pr5: Price trends
+    if (prePrice.length) {
+        var priceModels = getPriceModels(prePrice);
+        var keyNames = ['523','622','811'];
+        var selectedModels = [];
+        keyNames.forEach(function(kn) {
+            var m = priceModels.find(function(pm){ return pm.name.indexOf(kn)>=0; });
+            if (m) selectedModels.push(m);
+        });
+        if (selectedModels.length===0 && priceModels.length>0) selectedModels = priceModels.slice(0,3);
+
+        var priceData = getLastNDays(prePrice, 90);
+        var priceLabels = makeDateLabels(priceData, 7, '当前日期');
+        var priceSeries = selectedModels.map(function(m, i) {
+            return {
+                name: m.name,
+                type: 'line', data: priceData.map(function(d){ return toNum(d[m.avg]); }),
+                smooth: true, lineStyle: { color: COLORS[i], width: 2 }
+            };
+        });
+        initChart('pr5', {
+            tooltip: { trigger: 'axis' },
+            legend: { data: selectedModels.map(function(m){ return m.name; }), top: 5, textStyle: { fontSize: 10 } },
+            grid: { left: '3%', right: '4%', bottom: '8%', containLabel: true },
+            xAxis: { type: 'category', data: priceLabels, axisLabel: { color: C.textLight, fontSize: 10, rotate: 45 }, boundaryGap: false },
+            yAxis: { type: 'value', name: '万元/吨', axisLabel: { color: C.textLight }, splitLine: { lineStyle: { color: C.border } } },
+            series: priceSeries
+        });
+    }
+
+    // pr6: Export trend
+    if (preExport.length) {
+        var exp12 = getLastNMonths(preExport, 12);
+        var expMonths = exp12.map(fmtMonth);
+        var expVol = exp12.map(function(d){ return toNum(d['出口量（吨）']); });
+        initChart('pr6', {
+            tooltip: { trigger: 'axis' },
+            grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+            xAxis: { type: 'category', data: expMonths, axisLabel: { color: C.textLight, fontSize: 10 } },
+            yAxis: { type: 'value', name: '吨', axisLabel: { color: C.textLight }, splitLine: { lineStyle: { color: C.border } } },
+            series: [{ type: 'bar', data: expVol, itemStyle: { color: C.secondary, borderRadius: [4,4,0,0] }, label: { show: true, position: 'top', fontSize: 9, color: C.textLight } }]
+        });
+    }
+
+    // pr7: Export partner TOP10
+    if (preExpPartner.length) {
+        var partnerAgg = {};
+        preExpPartner.forEach(function(d) {
+            var name = d['出口目的地'] || d['进口目的地'] || '';
+            if (!name) return;
+            partnerAgg[name] = (partnerAgg[name]||0) + toNum(d['出口量（吨）']);
+        });
+        var partners = Object.entries(partnerAgg).sort(function(a,b){ return b[1]-a[1]; }).slice(0,10);
+        if (partners.length) {
+            initChart('pr7', {
+                tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
+                grid: { left: '3%', right: '15%', bottom: '3%', containLabel: true },
+                xAxis: { type: 'value', splitLine: { lineStyle: { color: C.border } } },
+                yAxis: { type: 'category', data: partners.map(function(p){ return p[0]; }).reverse(), axisLabel: { color: C.text, fontSize: 10 } },
+                series: [{ type: 'bar', data: partners.map(function(p){ return p[1]; }).reverse(), itemStyle: { color: function(p){ return COLORS[p.dataIndex % COLORS.length]; }, borderRadius: [0,4,4,0] }, label: { show: true, position: 'right', formatter: function(p){ return (p.data/10000).toFixed(2)+'万'; }, fontSize: 9, color: C.textLight } }]
+            });
+        }
+    }
+})();
+
+// ============================================================
+//  TAB 4: 关键原料
+// ============================================================
+(function() {
+    var rawPrice = getTable('关键原料-现货市场价');
+    var coInd = getTable('硫酸钴镍-行业产量规模');
+    var coPrice = getTable('硫酸钴镍-现货市场价');
+
+    // Stats
+    if (rawPrice.length) {
+        var last = rawPrice[rawPrice.length-1];
+        var dk = Object.keys(last)[0];
+        var coCol = Object.keys(last).find(function(k){ return k.indexOf('钴')>=0 && k.endsWith('均价'); });
+        var mnCol = Object.keys(last).find(function(k){ return k.indexOf('锰')>=0 && k.endsWith('均价'); });
+        var niCol = Object.keys(last).find(function(k){ return k.indexOf('镍')>=0 && k.endsWith('均价'); });
+        if (coCol) {
+            document.getElementById('stat-raw-cobalt').innerHTML = toNum(last[coCol]).toFixed(2) + '<span class="unit">万/吨</span>';
+            document.getElementById('stat-raw-cobalt-date').textContent = last[dk];
+        }
+        if (mnCol) {
+            document.getElementById('stat-raw-mn').innerHTML = toNum(last[mnCol]).toFixed(2) + '<span class="unit">万/吨</span>';
+            document.getElementById('stat-raw-mn-date').textContent = last[dk];
+        }
+        if (niCol) {
+            document.getElementById('stat-raw-ni').innerHTML = toNum(last[niCol]).toFixed(2) + '<span class="unit">万/吨</span>';
+            document.getElementById('stat-raw-ni-date').textContent = last[dk];
+        }
+    }
+    if (coInd.length) {
+        var last = coInd[coInd.length-1];
+        document.getElementById('stat-co3o4-output').innerHTML = (toNum(last['月度产量'])/10000).toFixed(2) + '<span class="unit">万吨</span>';
+        document.getElementById('stat-co3o4-date').textContent = last['月份'] + ' | 利用率 ' + (last['产能利用率']||'—');
+    }
+
+    // rw1: Raw material prices multi-line
+    if (rawPrice.length) {
+        var rpModels = getPriceModels(rawPrice);
+        var rpData = getLastNDays(rawPrice, 90);
+        var rpLabels = makeDateLabels(rpData, 7, '当前日期');
+        var rpSeries = rpModels.map(function(m, i) {
+            return {
+                name: m.name,
+                type: 'line', data: rpData.map(function(d){ return toNum(d[m.avg]); }),
+                smooth: true, lineStyle: { color: COLORS[i], width: 2 }
+            };
+        });
+        initChart('rw1', {
+            tooltip: { trigger: 'axis' },
+            legend: { data: rpModels.map(function(m){ return m.name; }), top: 5, textStyle: { fontSize: 9 } },
+            grid: { left: '3%', right: '4%', bottom: '8%', containLabel: true },
+            xAxis: { type: 'category', data: rpLabels, axisLabel: { color: C.textLight, fontSize: 10, rotate: 45 }, boundaryGap: false },
+            yAxis: { type: 'value', name: '万元/吨', axisLabel: { color: C.textLight }, splitLine: { lineStyle: { color: C.border } } },
+            series: rpSeries
+        });
+    }
+
+    // rw2: Cobalt sulfate price band
+    if (rawPrice.length) {
+        var coData = getLastNDays(rawPrice, 90);
+        var coLabels = makeDateLabels(coData, 7, '当前日期');
+        var coModel = getPriceModels(rawPrice).find(function(m){ return m.name.indexOf('钴')>=0; });
+        if (coModel) {
+            initChart('rw2', {
+                tooltip: { trigger: 'axis' },
+                grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+                xAxis: { type: 'category', data: coLabels, axisLabel: { color: C.textLight, fontSize: 10, rotate: 45 }, boundaryGap: false },
+                yAxis: { type: 'value', name: '万元/吨', axisLabel: { color: C.textLight }, splitLine: { lineStyle: { color: C.border } } },
+                series: [
+                    { name: '最低价', type: 'line', data: coData.map(function(d){ return toNum(d[coModel.low]); }), smooth: true, lineStyle: { color: '#10b981', width: 1, type: 'dashed' }, symbol: 'none' },
+                    { name: '均价', type: 'line', data: coData.map(function(d){ return toNum(d[coModel.avg]); }), smooth: true, lineStyle: { color: C.primary, width: 2 }, areaStyle: { color: { type: 'linear', x:0,y:0,x2:0,y2:1, colorStops: [{offset:0,color:'rgba(30,60,114,0.1)'},{offset:1,color:'rgba(30,60,114,0.01)'}] } } },
+                    { name: '最高价', type: 'line', data: coData.map(function(d){ return toNum(d[coModel.high]); }), smooth: true, lineStyle: { color: '#ef4444', width: 1, type: 'dashed' }, symbol: 'none' }
+                ]
+            });
+        }
+    }
+
+    // rw3: Nickel sulfate price band
+    if (rawPrice.length) {
+        var niModel = getPriceModels(rawPrice).find(function(m){ return m.name.indexOf('镍')>=0; });
+        if (niModel) {
+            var niData = getLastNDays(rawPrice, 90);
+            var niLabels = makeDateLabels(niData, 7, '当前日期');
+            initChart('rw3', {
+                tooltip: { trigger: 'axis' },
+                grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+                xAxis: { type: 'category', data: niLabels, axisLabel: { color: C.textLight, fontSize: 10, rotate: 45 }, boundaryGap: false },
+                yAxis: { type: 'value', name: '万元/吨', axisLabel: { color: C.textLight }, splitLine: { lineStyle: { color: C.border } } },
+                series: [
+                    { name: '最低价', type: 'line', data: niData.map(function(d){ return toNum(d[niModel.low]); }), smooth: true, lineStyle: { color: '#10b981', width: 1, type: 'dashed' }, symbol: 'none' },
+                    { name: '均价', type: 'line', data: niData.map(function(d){ return toNum(d[niModel.avg]); }), smooth: true, lineStyle: { color: C.secondary, width: 2 } },
+                    { name: '最高价', type: 'line', data: niData.map(function(d){ return toNum(d[niModel.high]); }), smooth: true, lineStyle: { color: '#ef4444', width: 1, type: 'dashed' }, symbol: 'none' }
+                ]
+            });
+        }
+    }
+
+    // rw4: 四氧化三钴 output + util rate
+    if (coInd.length) {
+        var coMonths = coInd.map(fmtMonth);
+        var coOutput = coInd.map(function(d){ return toNum(d['月度产量']); });
+        var coUtil = coInd.map(function(d){ return parseFloat((d['产能利用率']||'0').replace('%','')); });
+        initChart('rw4', {
+            tooltip: { trigger: 'axis' },
+            legend: { data: ['月度产量','产能利用率'], top: 5 },
+            grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+            xAxis: { type: 'category', data: coMonths, axisLabel: { color: C.textLight, fontSize: 10, rotate: 45 } },
+            yAxis: [
+                { type: 'value', name: '吨', axisLabel: { color: C.textLight, formatter: function(v){ return (v/10000).toFixed(0)+'万'; } }, splitLine: { lineStyle: { color: C.border } } },
+                { type: 'value', name: '%', min: 0, max: 100, axisLabel: { color: C.textLight } }
+            ],
+            series: [
+                { name: '月度产量', type: 'bar', data: coOutput, itemStyle: { color: C.primary, borderRadius: [4,4,0,0] } },
+                { name: '产能利用率', type: 'line', yAxisIndex: 1, data: coUtil, smooth: true, lineStyle: { color: '#dc2626', width: 2.5 }, label: { show: true, position: 'top', formatter: '{c}%', fontSize: 9, color: '#dc2626', fontWeight: 'bold' } }
+            ]
+        });
+    }
+
+    // rw5: 四氧化三钴 price
+    if (coPrice.length) {
+        var coPM = getPriceModels(coPrice);
+        if (coPM.length) {
+            var m = coPM[0];
+            var cpData = getLastNDays(coPrice, 90);
+            var cpLabels = makeDateLabels(cpData, 7, '当前日期');
+            initChart('rw5', {
+                tooltip: { trigger: 'axis' },
+                grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+                xAxis: { type: 'category', data: cpLabels, axisLabel: { color: C.textLight, fontSize: 10, rotate: 45 }, boundaryGap: false },
+                yAxis: { type: 'value', name: '万元/吨', axisLabel: { color: C.textLight }, splitLine: { lineStyle: { color: C.border } } },
+                series: [
+                    { name: '最低价', type: 'line', data: cpData.map(function(d){ return toNum(d[m.low]); }), smooth: true, lineStyle: { color: '#10b981', width: 1, type: 'dashed' }, symbol: 'none' },
+                    { name: '均价', type: 'line', data: cpData.map(function(d){ return toNum(d[m.avg]); }), smooth: true, lineStyle: { color: C.primary, width: 2 }, areaStyle: { color: { type: 'linear', x:0,y:0,x2:0,y2:1, colorStops: [{offset:0,color:'rgba(30,60,114,0.1)'},{offset:1,color:'rgba(30,60,114,0.01)'}] } } },
+                    { name: '最高价', type: 'line', data: cpData.map(function(d){ return toNum(d[m.high]); }), smooth: true, lineStyle: { color: '#ef4444', width: 1, type: 'dashed' }, symbol: 'none' }
+                ]
+            });
+        }
+    }
+})();
+
+// Resize all charts on window resize
+window.addEventListener('resize', function() {
+    allCharts.forEach(function(c) { try { c.resize(); } catch(e) {} });
+});
+</script>
+</body>
+</html>
