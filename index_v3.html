@@ -14582,26 +14582,37 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 // 异步加载Unsplash图片（顺序加载，避免并发触发速率限制）
                 var usedImageUrls = [];  // 已使用的图片URL，避免重复
+                // 默认图片fallback列表（Unsplash失败时随机选一张，避免空白）
+                var fallbackImages = [
+                    'https://images.unsplash.com/photo-1610465299993-96bed78f0528?w=1200&q=80',
+                    'https://images.unsplash.com/photo-1593941707888-502ceeb3c7e1?w=1200&q=80',
+                    'https://images.unsplash.com/photo-1621905252507-bd01a2c51b66?w=1200&q=80',
+                    'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=1200&q=80',
+                    'https://images.unsplash.com/photo-1466611653911-950815cf5b74?w=1200&q=80',
+                ];
                 for (var i = 0; i < items.length; i++) {
                     var item = items[i];
                     try {
                         const searchQuery = extractKeywords(item.title);
                         let imageUrl = await fetchUnsplashImage(searchQuery, usedImageUrls);
-                        // 新缓存机制已内部处理去重，无需额外重试
-                        if (imageUrl) {
-                            usedImageUrls.push(imageUrl);  // 记录已用URL，后续排除
-                            const slide = newsCarousel.children[i];
-                            if (slide) {
-                                const bg = slide.querySelector('.news-slide-bg');
-                                if (bg) {
-                                    bg.style.backgroundImage = 'url(' + imageUrl + ')';
-                                    bg.style.backgroundSize = 'cover';
-                                    bg.style.backgroundPosition = 'center';
-                                }
+                        // fallback：Unsplash失败时随机选一张默认图，绝不空白
+                        if (!imageUrl) {
+                            var fi = Math.floor(Math.random() * fallbackImages.length);
+                            imageUrl = fallbackImages[fi];
+                            console.log('[热点资讯] Unsplash失败，使用默认图: ' + imageUrl.slice(0,60));
+                        }
+                        usedImageUrls.push(imageUrl);
+                        const slide = newsCarousel.children[i];
+                        if (slide) {
+                            const bg = slide.querySelector('.news-slide-bg');
+                            if (bg) {
+                                bg.style.backgroundImage = 'url(' + imageUrl + ')';
+                                bg.style.backgroundSize = 'cover';
+                                bg.style.backgroundPosition = 'center';
                             }
                         }
                     } catch (e) {
-                        console.warn('[热点资讯] Unsplash图片加载失败:', e);
+                        console.warn('[热点资讯] 图片加载失败:', e);
                     }
                 }
                 
