@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>工具箱 - 战略中心信息中台</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --primary: #1e3c72;
+            --primary-light: #4a6fa5;
+            --accent: #4facfe;
+            --bg: #f5f7fa;
+            --surface: #ffffff;
+            --border: #e0e6ed;
+            --text: #333;
+            --text-mid: #666;
+            --text-dim: #999;
+            --green: #10b981;
+            --orange: #f59e0b;
+            --red: #ef4444;
+            --shadow: 0 2px 12px rgba(30,60,114,0.08);
+            --shadow-lg: 0 8px 30px rgba(30,60,114,0.12);
+        }
+
+        body {
+            font-family: 'Microsoft YaHei', 'PingFang SC', Arial, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+        }
+
+        /* 顶部导航栏 */
+        .header {
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9ff 100%);
+            border-radius: 0;
+            padding: 0 30px;
+            box-shadow: 0 2px 12px rgba(30,60,114,0.08);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 1px solid var(--border);
+            height: 60px;
+        }
+        .header-left { display: flex; align-items: center; gap: 20px; }
+        .logo { font-size: 18px; font-weight: bold; color: var(--primary); cursor: pointer; display: flex; align-items: center; gap: 8px; }
+        .logo-icon { font-size: 22px; }
+        .header-right { color: var(--text-mid); font-size: 14px; }
+        .header-date { color: var(--text-dim); font-size: 12px; }
+
+        .nav-links { display: flex; gap: 6px; }
+        .nav-links a {
+            color: var(--text-mid);
+            text-decoration: none;
+            font-size: 14px;
+            padding: 6px 12px;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+        .nav-links a:hover { background: rgba(30,60,114,0.06); color: var(--primary); }
+
+        /* 页面容器 */
+        .page-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 30px 24px;
+        }
+
+        /* 页面标题 */
+        .page-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 6px;
+        }
+        .page-subtitle {
+            font-size: 14px;
+            color: var(--text-dim);
+            margin-bottom: 28px;
+        }
+
+        /* Tab 切换 */
+        .tool-tabs {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 24px;
+            background: var(--surface);
+            padding: 6px;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            width: fit-content;
+        }
+        .tool-tab {
+            padding: 10px 22px;
+            border: none;
+            background: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-mid);
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+        .tool-tab:hover { color: var(--primary); }
+        .tool-tab.active {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 2px 8px rgba(30,60,114,0.25);
+        }
+
+        /* Tab 内容 */
+        .tool-panel { display: none; }
+        .tool-panel.active { display: block; }
+
+        /* 工具卡片网格 */
+        .tool-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 16px;
+            margin-bottom: 30px;
+        }
+        .tool-card {
+            background: var(--surface);
+            border-radius: 14px;
+            padding: 24px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+            cursor: pointer;
+            transition: all 0.25s;
+            position: relative;
+            overflow: hidden;
+        }
+        .tool-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            background: var(--accent);
+            transform: scaleX(0);
+            transition: transform 0.25s;
+        }
+        .tool-card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--accent);
+        }
+        .tool-card:hover::before { transform: scaleX(1); }
+        .tool-card-icon {
+            font-size: 32px;
+            margin-bottom: 14px;
+        }
+        .tool-card-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 6px;
+        }
+        .tool-card-desc {
+            font-size: 12px;
+            color: var(--text-dim);
+            line-height: 1.6;
+        }
+        .tool-card-badge {
+            position: absolute;
+            top: 14px;
+            right: 14px;
+            background: var(--accent);
+            color: white;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 20px;
+        }
+
+        /* 收藏面板 */
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        .section-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+        .section-action {
+            font-size: 13px;
+            color: var(--accent);
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+        .section-action:hover { background: rgba(79,172,254,0.1); }
+
+        .filter-bar {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+        .filter-chip {
+            padding: 6px 14px;
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            background: var(--surface);
+            font-size: 13px;
+            color: var(--text-mid);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .filter-chip:hover { border-color: var(--accent); color: var(--accent); }
+        .filter-chip.active {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: white;
+        }
+
+        /* 收藏列表 */
+        .collect-list {
+            background: var(--surface);
+            border-radius: 14px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+        .collect-empty {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-dim);
+        }
+        .collect-empty-icon { font-size: 48px; margin-bottom: 12px; opacity: 0.4; }
+        .collect-empty-text { font-size: 14px; }
+        .collect-empty-sub { font-size: 12px; margin-top: 6px; opacity: 0.7; }
+
+        .collect-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border);
+            transition: background 0.15s;
+            position: relative;
+        }
+        .collect-item:last-child { border-bottom: none; }
+        .collect-item:hover { background: rgba(79,172,254,0.03); }
+        .collect-item:hover .collect-remove { opacity: 1; }
+
+        .collect-type-badge {
+            flex-shrink: 0;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            margin-top: 2px;
+        }
+        .collect-type-badge.policy { background: rgba(30,60,114,0.1); color: var(--primary); }
+        .collect-type-badge.report { background: rgba(16,185,129,0.1); color: var(--green); }
+        .collect-type-badge.news { background: rgba(245,158,11,0.1); color: var(--orange); }
+
+        .collect-body { flex: 1; min-width: 0; }
+        .collect-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 4px;
+            line-height: 1.4;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .collect-meta {
+            font-size: 12px;
+            color: var(--text-dim);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+        .collect-remove {
+            opacity: 0;
+            background: none;
+            border: none;
+            color: var(--red);
+            cursor: pointer;
+            font-size: 16px;
+            padding: 4px;
+            border-radius: 4px;
+            transition: all 0.15s;
+            flex-shrink: 0;
+        }
+        .collect-remove:hover { background: rgba(239,68,68,0.1); }
+
+        /* 导出面板 */
+        .export-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        @media (max-width: 700px) {
+            .export-grid { grid-template-columns: 1fr; }
+        }
+        .export-card {
+            background: var(--surface);
+            border-radius: 14px;
+            padding: 28px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+        }
+        .export-card-icon { font-size: 40px; margin-bottom: 16px; }
+        .export-card-title {
+            font-size: 17px;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 8px;
+        }
+        .export-card-desc {
+            font-size: 13px;
+            color: var(--text-dim);
+            line-height: 1.7;
+            margin-bottom: 20px;
+        }
+        .export-card-options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .export-option {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 13px;
+            color: var(--text-mid);
+        }
+        .export-option input[type="checkbox"] {
+            width: 16px; height: 16px;
+            accent-color: var(--accent);
+            cursor: pointer;
+        }
+        .export-range {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            align-items: center;
+        }
+        .export-range label { font-size: 13px; color: var(--text-mid); }
+        .export-range select {
+            flex: 1;
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            font-size: 13px;
+            color: var(--text);
+            background: white;
+            cursor: pointer;
+            font-family: inherit;
+        }
+        .export-range select:focus { outline: none; border-color: var(--accent); }
+        .export-btn {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: inherit;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .export-btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+        .export-btn-primary:hover { background: #163360; box-shadow: 0 4px 12px rgba(30,60,114,0.3); }
+        .export-btn-secondary {
+            background: white;
+            color: var(--primary);
+            border: 1.5px solid var(--border);
+        }
+        .export-btn-secondary:hover { border-color: var(--primary); background: rgba(30,60,114,0.04); }
+        .export-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        /* Toast 提示 */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(20px);
+            background: #1e3c72;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            box-shadow: 0 4px 20px rgba(30,60,114,0.3);
+            opacity: 0;
+            transition: all 0.3s;
+            z-index: 9999;
+            pointer-events: none;
+        }
+        .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+        /* 模态框 */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.4);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        .modal-overlay.show { display: flex; }
+        .modal {
+            background: white;
+            border-radius: 16px;
+            padding: 32px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+        }
+        .modal-title { font-size: 18px; font-weight: 700; color: var(--primary); margin-bottom: 16px; }
+        .modal-body { font-size: 14px; color: var(--text-mid); line-height: 1.7; margin-bottom: 24px; }
+        .modal-actions { display: flex; gap: 10px; justify-content: flex-end; }
+        .modal-btn {
+            padding: 9px 22px;
+            border-radius: 8px;
+            border: none;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+        .modal-btn-cancel { background: #f0f0f0; color: var(--text-mid); }
+        .modal-btn-cancel:hover { background: #e0e0e0; }
+        .modal-btn-confirm { background: var(--red); color: white; }
+        .modal-btn-confirm:hover { background: #dc2626; }
+    </style>
+</head>
+<body>
+
+    <!-- 顶部导航 -->
+    <div class="header">
+        <div class="header-left">
+            <div class="logo" onclick="location.href='index_v3.html'">
+                <span class="logo-icon">⚡</span>
+                <span>战略中心信息中台</span>
+            </div>
+        </div>
+        <div class="header-right">
+            <div class="header-date" id="headerDate"></div>
+        </div>
+        <div class="nav-links">
+            <a href="index_v3.html">🏠 首页</a>
+            <a href="policy_center_v4.html">📜 政策中心</a>
+            <a href="toolbox.html">🛠️ 工具箱</a>
+            <a href="help.html">❓ 帮助</a>
+        </div>
+    </div>
+
+    <div class="page-container">
+        <div class="page-title">工具箱</div>
+        <div class="page-subtitle">常用工具与数据管理</div>
+
+        <!-- Tab 切换 -->
+        <div class="tool-tabs">
+            <button class="tool-tab active" onclick="switchToolTab('tools', this)">🛠️ 工具集</button>
+            <button class="tool-tab" onclick="switchToolTab('collect', this)">🔖 我的收藏 <span id="collectCountBadge" style="background:rgba(255,255,255,0.25);padding:1px 7px;border-radius:10px;font-size:12px;margin-left:2px;">0</span></button>
+            <button class="tool-tab" onclick="switchToolTab('export', this)">📥 数据导出</button>
+        </div>
+
+        <!-- 工具集 -->
+        <div class="tool-panel active" id="panel-tools">
+            <div class="tool-grid">
+                <div class="tool-card" onclick="switchToolTab('collect', document.querySelectorAll('.tool-tab')[1])">
+                    <div class="tool-card-badge">常用</div>
+                    <div class="tool-card-icon">🔖</div>
+                    <div class="tool-card-title">我的收藏</div>
+                    <div class="tool-card-desc">收藏的政策、新闻和早报内容，随时查看和管理</div>
+                </div>
+                <div class="tool-card" onclick="switchToolTab('export', document.querySelectorAll('.tool-tab')[2])">
+                    <div class="tool-card-icon">📥</div>
+                    <div class="tool-card-title">数据导出</div>
+                    <div class="tool-card-desc">将早报、政策导出为 Excel 或 Word 格式</div>
+                </div>
+                <div class="tool-card" onclick="showToast('价格预警功能开发中')">
+                    <div class="tool-card-icon">🔔</div>
+                    <div class="tool-card-title">价格预警</div>
+                    <div class="tool-card-desc">设置碳酸锂、LFP 等关键品种的价格阈值，到价提醒</div>
+                </div>
+                <div class="tool-card" onclick="showToast('竞品追踪配置功能开发中')">
+                    <div class="tool-card-icon">⚔️</div>
+                    <div class="tool-card-title">竞品追踪</div>
+                    <div class="tool-card-desc">配置各 BU 核心竞品名单，精准追踪竞品动态</div>
+                </div>
+                <div class="tool-card" onclick="showToast('关键词订阅功能开发中')">
+                    <div class="tool-card-icon">🔍</div>
+                    <div class="tool-card-title">关键词订阅</div>
+                    <div class="tool-card-desc">订阅特定关键词，命中后自动推送到早报</div>
+                </div>
+                <div class="tool-card" onclick="showToast('数据对比功能开发中')">
+                    <div class="tool-card-icon">📐</div>
+                    <div class="tool-card-title">数据对比</div>
+                    <div class="tool-card-desc">多时间区间、多 BU 关键指标对比分析</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 收藏 -->
+        <div class="tool-panel" id="panel-collect">
+            <div class="section-header">
+                <div class="section-title">🔖 我的收藏</div>
+                <button class="section-action" onclick="clearAllCollections()" id="clearAllBtn" style="display:none;">🗑 清空全部</button>
+            </div>
+            <div class="filter-bar" id="collectFilterBar">
+                <button class="filter-chip active" onclick="filterCollects('all', this)">全部</button>
+                <button class="filter-chip" onclick="filterCollects('policy', this)">📜 政策</button>
+                <button class="filter-chip" onclick="filterCollects('report', this)">📋 早报</button>
+                <button class="filter-chip" onclick="filterCollects('news', this)">📰 新闻</button>
+            </div>
+            <div class="collect-list" id="collectList">
+                <div class="collect-empty">
+                    <div class="collect-empty-icon">🔖</div>
+                    <div class="collect-empty-text">暂无收藏内容</div>
+                    <div class="collect-empty-sub">点击政策/新闻/早报中的「收藏」按钮即可添加</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 数据导出 -->
+        <div class="tool-panel" id="panel-export">
+            <div class="section-header" style="margin-bottom:20px;">
+                <div class="section-title">📥 数据导出</div>
+            </div>
+            <div class="export-grid">
+                <!-- 早报导出 -->
+                <div class="export-card">
+                    <div class="export-card-icon">📋</div>
+                    <div class="export-card-title">早报导出</div>
+                    <div class="export-card-desc">将指定时间范围内的各事业部早报合并导出为一个文件，方便存档和传阅。</div>
+                    <div class="export-range">
+                        <label>时间范围</label>
+                        <select id="reportRange">
+                            <option value="today">今日</option>
+                            <option value="week">最近一周</option>
+                            <option value="month" selected>最近一月</option>
+                        </select>
+                    </div>
+                    <div class="export-card-options">
+                        <label class="export-option">
+                            <input type="checkbox" checked disabled> 全选（9个事业部）
+                        </label>
+                        <label class="export-option">
+                            <input type="checkbox" checked onclick="toggleExportAll(this)"> 包含早报正文内容
+                        </label>
+                        <label class="export-option">
+                            <input type="checkbox" checked> 包含市场行情数据
+                        </label>
+                    </div>
+                    <button class="export-btn export-btn-primary" onclick="exportReports()">
+                        <span>📥</span> 导出 Excel
+                    </button>
+                </div>
+                <!-- 政策导出 -->
+                <div class="export-card">
+                    <div class="export-card-icon">📜</div>
+                    <div class="export-card-title">政策导出</div>
+                    <div class="export-card-desc">将政策中心收录的政策按类型、来源、时间范围筛选后导出。</div>
+                    <div class="export-range">
+                        <label>政策类型</label>
+                        <select id="policyType">
+                            <option value="all" selected>全部类型</option>
+                            <option value="中央政策">中央政策</option>
+                            <option value="地方政策">地方政策</option>
+                            <option value="海外政策">海外政策</option>
+                        </select>
+                    </div>
+                    <div class="export-range">
+                        <label>时间范围</label>
+                        <select id="policyRange">
+                            <option value="month" selected>最近一月</option>
+                            <option value="quarter">最近一季度</option>
+                            <option value="halfyear">最近半年</option>
+                        </select>
+                    </div>
+                    <button class="export-btn export-btn-secondary" onclick="exportPolicies()">
+                        <span>📄</span> 导出 Word
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 确认清空模态框 -->
+    <div class="modal-overlay" id="clearModal">
+        <div class="modal">
+            <div class="modal-title">确认清空收藏？</div>
+            <div class="modal-body">此操作将删除所有已收藏的内容，删除后不可恢复。</div>
+            <div class="modal-actions">
+                <button class="modal-btn modal-btn-cancel" onclick="closeModal()">取消</button>
+                <button class="modal-btn modal-btn-confirm" onclick="confirmClear()">确认清空</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+
+<script>
+    // 日期显示
+    var weekDays = ['星期日','星期一','星期二','星期三','星期四','星期五','星期六'];
+    var now = new Date();
+    document.getElementById('headerDate').textContent =
+        now.getFullYear() + ' 年 ' + (now.getMonth()+1) + ' 月 ' + now.getDate() + ' 日 ' + weekDays[now.getDay()];
+
+    // ========== 收藏功能 ==========
+    var STORAGE_KEY = 'toolbox_collections';
+
+    function getCollections() {
+        try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); }
+        catch(e) { return []; }
+    }
+    function saveCollections(list) {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+        updateCollectBadge();
+    }
+
+    function updateCollectBadge() {
+        var n = getCollections().length;
+        document.getElementById('collectCountBadge').textContent = n;
+    }
+
+    function addCollection(item) {
+        var list = getCollections();
+        // 避免重复
+        if (list.some(function(x){ return x.id === item.id; })) return;
+        list.unshift(Object.assign({savedAt: new Date().toISOString()}, item));
+        saveCollections(list);
+        showToast('已添加到收藏');
+        renderCollects();
+    }
+
+    function removeCollection(id) {
+        var list = getCollections().filter(function(x){ return x.id !== id; });
+        saveCollections(list);
+        showToast('已取消收藏');
+        renderCollects();
+    }
+
+    function clearAllCollections() {
+        document.getElementById('clearModal').classList.add('show');
+    }
+    function closeModal() {
+        document.getElementById('clearModal').classList.remove('show');
+    }
+    function confirmClear() {
+        saveCollections([]);
+        closeModal();
+        renderCollects();
+        showToast('已清空全部收藏');
+    }
+
+    var currentFilter = 'all';
+
+    function filterCollects(type, btn) {
+        currentFilter = type;
+        document.querySelectorAll('.filter-chip').forEach(function(b){ b.classList.remove('active'); });
+        btn.classList.add('active');
+        renderCollects();
+    }
+
+    function renderCollects() {
+        var list = getCollections();
+        var filtered = currentFilter === 'all' ? list : list.filter(function(x){ return x.type === currentFilter; });
+        var el = document.getElementById('collectList');
+        var clearBtn = document.getElementById('clearAllBtn');
+
+        if (list.length === 0) {
+            clearBtn.style.display = 'none';
+            el.innerHTML = '<div class="collect-empty"><div class="collect-empty-icon">🔖</div><div class="collect-empty-text">暂无收藏内容</div><div class="collect-empty-sub">点击政策/新闻/早报中的「收藏」按钮即可添加</div></div>';
+            return;
+        }
+        clearBtn.style.display = '';
+
+        if (filtered.length === 0) {
+            el.innerHTML = '<div class="collect-empty"><div class="collect-empty-icon">🔍</div><div class="collect-empty-text">该分类下暂无收藏</div></div>';
+            return;
+        }
+
+        var typeLabel = {policy:'📜 政策', report:'📋 早报', news:'📰 新闻'};
+        var html = '';
+        filtered.forEach(function(item) {
+            var savedDate = new Date(item.savedAt);
+            var savedStr = savedDate.getMonth()+1 + '月' + savedDate.getDate() + '日';
+            html += '<div class="collect-item">'
+                + '<span class="collect-type-badge ' + item.type + '">' + (typeLabel[item.type] || item.type) + '</span>'
+                + '<div class="collect-body">'
+                + '<div class="collect-title">' + escapeHtml(item.title) + '</div>'
+                + '<div class="collect-meta">'
+                + '<span>' + (item.date || item.source || '') + '</span>'
+                + '<span>收藏于 ' + savedStr + '</span>'
+                + '</div></div>'
+                + '<button class="collect-remove" onclick="removeCollection(\'' + item.id + '\')" title="取消收藏">✕</button>'
+                + '</div>';
+        });
+        el.innerHTML = html;
+    }
+
+    function escapeHtml(str) {
+        return str.replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    // ========== 导出功能 ==========
+    function toggleExportAll(cb) {
+        // 可以扩展
+    }
+
+    function exportReports() {
+        var range = document.getElementById('reportRange').value;
+        var now = new Date();
+        var startDate = new Date();
+        if (range === 'today') startDate = now;
+        else if (range === 'week') startDate.setDate(now.getDate() - 7);
+        else startDate.setDate(now.getDate() - 30);
+
+        var buList = ['常州锂源','龙蟠时代','法恩莱特','三金锂电','山东美多','铂源催化','可兰素','润滑油','迪克化学'];
+        var rows = [['事业部','日期','类型','标题','摘要','来源']];
+
+        for (var i = 0; i < buList.length; i++) {
+            rows.push([buList[i], now.toLocaleDateString('zh-CN'), '早报', buList[i] + ' 早报 ' + now.toLocaleDateString('zh-CN'), '(详细内容请访问平台)', '战略中心信息中台']);
+        }
+
+        downloadCSV('早报汇总_' + formatDate(now) + '.csv', rows);
+        showToast('早报数据已导出 (' + formatDate(now) + ')');
+    }
+
+    function exportPolicies() {
+        var ptype = document.getElementById('policyType').value;
+        var range = document.getElementById('policyRange').value;
+        var now = new Date();
+        var rows = [['政策标题','来源','类型','日期','摘要']];
+
+        var policies = [
+            ['关于加快新型储能发展的若干措施','工信部','中央政策','2026-03-28','推动新型储能技术规模化应用...'],
+            ['关于加快储能技术研发攻关的若干措施','发改委','中央政策','2026-03-28','组织开展长时储能技术攻关...'],
+            ['关于对新能源城市公交车辆给予运营补助的通知','交通运输部','中央政策','2026-04-02','对应用LFP电池的城市公交车辆...'],
+            ['龙蟠时代：年产3万吨电池级碳酸锂项目竣工投产','龙蟠科技','地方政策','2026-04-01','龙蟠时代四川遂宁基地正式投产...'],
+            ['四川省新能源汽车动力电池回收利用试点方案','四川省经信厅','地方政策','2026-03-29','明确回收主体资质与梯次利用标准...'],
+        ];
+
+        for (var i = 0; i < policies.length; i++) {
+            if (ptype !== 'all' && policies[i][2] !== ptype) continue;
+            rows.push(policies[i]);
+        }
+
+        downloadCSV('政策汇总_' + formatDate(now) + '.csv', rows);
+        showToast('政策数据已导出 (' + formatDate(now) + ')');
+    }
+
+    function downloadCSV(filename, rows) {
+        var csv = rows.map(function(row) {
+            return row.map(function(cell) {
+                var str = String(cell);
+                if (str.indexOf(',') !== -1 || str.indexOf('"') !== -1 || str.indexOf('\n') !== -1) {
+                    return '"' + str.replace(/"/g,'""') + '"';
+                }
+                return str;
+            }).join(',');
+        }).join('\n');
+
+        // 添加 BOM 兼容中文 Excel
+        var blob = new Blob(['\ufeff' + csv], {type:'text/csv;charset=utf-8'});
+        var a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = filename;
+        a.click();
+        URL.revokeObjectURL(a.href);
+    }
+
+    function formatDate(d) {
+        return d.getFullYear() + '-' + pad(d.getMonth()+1) + '-' + pad(d.getDate());
+    }
+    function pad(n) { return n < 10 ? '0'+n : n; }
+
+    // ========== Tab 切换 ==========
+    function switchToolTab(tab, btn) {
+        document.querySelectorAll('.tool-panel').forEach(function(p){ p.classList.remove('active'); });
+        document.querySelectorAll('.tool-tab').forEach(function(b){ b.classList.remove('active'); });
+        document.getElementById('panel-' + tab).classList.add('active');
+        btn.classList.add('active');
+        if (tab === 'collect') renderCollects();
+    }
+
+    // ========== Toast ==========
+    function showToast(msg) {
+        var t = document.getElementById('toast');
+        t.textContent = msg;
+        t.classList.add('show');
+        setTimeout(function(){ t.classList.remove('show'); }, 2500);
+    }
+
+    // ========== 初始化 ==========
+    updateCollectBadge();
+    renderCollects();
+</script>
+</body>
+</html>

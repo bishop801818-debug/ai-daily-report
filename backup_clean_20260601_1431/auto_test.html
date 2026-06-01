@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>汽车行业数据库 - 龙蟠科技行业数据库</title>
+    <meta name="html-version" content="20260518a">
+    <script src="automotive_embedded_data.js"></script>
+    <style>
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #c1c1c1; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #a1a1a1; }
+
+        :root {
+            --primary-dark: #1e3c72;
+            --primary-light: #2a5298;
+            --bg-gradient-start: #f5f7fa;
+            --bg-gradient-end: #c3cfe2;
+            --sidebar-width: 280px;
+            --sidebar-collapsed: 70px;
+            --transition-speed: 0.3s;
+        }
+
+        body {
+            font-family: 'Microsoft YaHei', 'PingFang SC', Arial, sans-serif;
+            background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
+            min-height: 100vh;
+            display: flex;
+        }
+
+        .sidebar {
+            width: var(--sidebar-width);
+            background: #f5f5f5;
+            height: 100vh;
+            position: fixed;
+            left: 0; top: 0;
+            z-index: 1000;
+            transition: width var(--transition-speed) ease;
+            overflow-y: auto;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+        }
+        .sidebar.collapsed { width: var(--sidebar-collapsed); }
+
+        .sidebar-header {
+            padding: 20px 15px;
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .sidebar-logo {
+            font-size: 16px; font-weight: bold;
+            color: var(--primary-dark);
+            display: flex; align-items: center; gap: 8px;
+        }
+        .sidebar-toggle {
+            background: none; border: none; cursor: pointer;
+            font-size: 18px; color: #666;
+            padding: 4px; border-radius: 4px;
+        }
+        .sidebar-toggle:hover { background: #e0e0e0; }
+
+        .nav-section-title {
+            padding: 14px 15px 6px;
+            font-size: 11px; font-weight: 700;
+            color: #999; text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .nav-item {
+            padding: 10px 15px;
+            cursor: pointer;
+            display: flex; align-items: center; gap: 10px;
+            font-size: 13px; color: #444;
+            transition: all 0.2s;
+            border-left: 3px solid transparent;
+            white-space: nowrap; overflow: hidden;
+        }
+        .nav-item:hover { background: #e8e8e8; }
+        .nav-item.active {
+            background: #e3eaf7;
+            color: var(--primary-dark);
+            border-left-color: var(--primary-dark);
+            font-weight: 600;
+        }
+        .nav-item-icon { font-size: 16px; flex-shrink: 0; }
+        .nav-item-text { overflow: hidden; text-overflow: ellipsis; }
+
+        .sidebar.collapsed .nav-section-title,
+        .sidebar.collapsed .nav-item-text,
+        .sidebar.collapsed .sidebar-logo span { display: none; }
+        .sidebar.collapsed .nav-item { justify-content: center; padding: 10px; }
+
+        .main-content {
+            margin-left: var(--sidebar-width);
+            flex: 1; min-height: 100vh;
+            transition: margin-left var(--transition-speed) ease;
+        }
+        .sidebar.collapsed ~ .main-content { margin-left: var(--sidebar-collapsed); }
+
+        .toolbar {
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-light) 100%);
+            color: #fff; padding: 16px 24px;
+            display: flex; align-items: center;
+            justify-content: space-between; flex-wrap: wrap; gap: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+        }
+        .toolbar-title { font-size: 18px; font-weight: bold; display: flex; align-items: center; gap: 8px; }
+        .nav-buttons { display: flex; gap: 8px; }
+        .nav-btn {
+            padding: 7px 14px; border-radius: 20px;
+            font-size: 12px; text-decoration: none;
+            transition: all 0.2s; font-weight: 500;
+        }
+        .nav-btn-home { background: rgba(255,255,255,0.2); color: #fff; }
+        .nav-btn-home:hover { background: rgba(255,255,255,0.3); }
+        .nav-btn-db { background: rgba(255,255,255,0.2); color: #fff; }
+        .nav-btn-db:hover { background: rgba(255,255,255,0.3); }
+        .update-info { font-size: 12px; opacity: 0.8; }
+
+        .page-content { padding: 24px; }
+
+        .content-section { display: none; }
+        .content-section.active { display: block; }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 12px; margin-bottom: 16px;
+        }
+        .metric-card {
+            background: #fff;
+            border-radius: 10px;
+            padding: 14px 16px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+            text-align: center;
+        }
+        .metric-label { font-size: 12px; color: #888; margin-bottom: 6px; }
+        .metric-value { font-size: 22px; font-weight: 700; color: var(--primary-dark); line-height: 1; }
+        .metric-unit { font-size: 12px; font-weight: normal; color: #888; margin-left: 2px; }
+
+        .data-card {
+            background: #fff; border-radius: 12px;
+            padding: 20px; margin-bottom: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+        .data-card-header {
+            display: flex; align-items: center;
+            justify-content: space-between; margin-bottom: 14px;
+        }
+        .data-card-title { font-size: 15px; font-weight: 700; color: #1a1a2e; }
+        .data-card-header span { font-size: 12px; color: #999; }
+
+        .table-container { overflow-x: auto; }
+        .data-table {
+            width: 100%; border-collapse: collapse;
+            font-size: 13px; min-width: 600px;
+        }
+        .data-table thead tr {
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-light) 100%);
+            color: #fff;
+        }
+        .data-table th {
+            padding: 10px 12px; text-align: center;
+            font-weight: 600; white-space: nowrap;
+        }
+        .data-table tbody tr:nth-child(even) { background: #f9f9f9; }
+        .data-table tbody tr:hover { background: #f0f4ff; }
+        .data-table td {
+            padding: 9px 12px; text-align: center;
+            border-bottom: 1px solid #f0f0f0;
+            color: #333;
+        }
+
+        .rank-badge {
+            display: inline-block; width: 22px; height: 22px;
+            border-radius: 50%; line-height: 22px; font-size: 11px;
+            font-weight: bold; text-align: center;
+        }
+        .rank-badge.top3 { background: #ffd700; color: #333; }
+        .rank-badge.top5 { background: #e0e0e0; color: #333; }
+        .rank-badge.empty { background: #f5f5f5; color: #aaa; }
+    </style>
+</head>
+<body>
+
+<!-- 侧边栏 -->
+<div class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+        <div class="sidebar-logo">🚗 汽车行业数据库</div>
+        <button class="sidebar-toggle" onclick="toggleSidebar()">☰</button>
+    </div>
+    <div class="nav-section-title">🌍 全球汽车市场</div>
+    <div class="nav-item" onclick="switchNav('汽车-全球分区域', this)"><div class="nav-item-icon">🌍</div><span class="nav-item-text">全球分区域销量</span></div>
+    <div class="nav-item" onclick="switchNav('汽车-全球分国家', this)"><div class="nav-item-icon">🌍</div><span class="nav-item-text">全球分国家销量</span></div>
+    <div class="nav-section-title">🇨🇳 中国汽车市场</div>
+    <div class="nav-item" onclick="switchNav('汽车-中国整体', this)"><div class="nav-item-icon">🚗</div><span class="nav-item-text">中国汽车整体市场</span></div>
+    <div class="nav-item" onclick="switchNav('汽车-中国乘用车', this)"><div class="nav-item-icon">🚗</div><span class="nav-item-text">中国乘用车市场</span></div>
+    <div class="nav-item" onclick="switchNav('汽车-中国乘用车出口', this)"><div class="nav-item-icon">🚗</div><span class="nav-item-text">中国乘用车出口</span></div>
+    <div class="nav-item" onclick="switchNav('汽车-乘用车分整车厂', this)"><div class="nav-item-icon">🚗</div><span class="nav-item-text">中国乘用车分整车厂</span></div>
+    <div class="nav-section-title">🚛 中国商用车</div>
+    <div class="nav-item" onclick="switchNav('汽车-中国商用车', this)"><div class="nav-item-icon">🚛</div><span class="nav-item-text">中国商用车整体</span></div>
+    <div class="nav-item" onclick="switchNav('汽车-商用车分整车厂', this)"><div class="nav-item-icon">🚛</div><span class="nav-item-text">商用车分整车厂</span></div>
+    <div class="nav-item" onclick="switchNav('汽车-中重卡分整车厂', this)"><div class="nav-item-icon">🚛</div><span class="nav-item-text">中重卡分整车厂</span></div>
+    <div class="nav-item" onclick="switchNav('汽车-轻卡分整车厂', this)"><div class="nav-item-icon">🚛</div><span class="nav-item-text">轻卡分整车厂</span></div>
+    <div class="nav-section-title">⚡ 新能源汽车</div>
+    <div class="nav-item" onclick="switchNav('新能源-全球整体', this)"><div class="nav-item-icon">⚡</div><span class="nav-item-text">新能源全球整体</span></div>
+    <div class="nav-item" onclick="switchNav('新能源-全球分地区', this)"><div class="nav-item-icon">⚡</div><span class="nav-item-text">新能源全球分地区</span></div>
+    <div class="nav-item" onclick="switchNav('新能源-中国整体', this)"><div class="nav-item-icon">⚡</div><span class="nav-item-text">新能源汽车中国市场</span></div>
+    <div class="nav-item" onclick="switchNav('新能源-出口整体', this)"><div class="nav-item-icon">⚡</div><span class="nav-item-text">新能源汽车出口</span></div>
+    <div class="nav-item" onclick="switchNav('新能源-乘用车零售', this)"><div class="nav-item-icon">⚡</div><span class="nav-item-text">新能源乘用车零售</span></div>
+    <div class="nav-item" onclick="switchNav('新能源-商用车零售', this)"><div class="nav-item-icon">⚡</div><span class="nav-item-text">新能源商用车零售</span></div>
+    <div class="nav-item" onclick="switchNav('新能源-乘用车分类型', this)"><div class="nav-item-icon">⚡</div><span class="nav-item-text">新能源乘用车分类型(BEV/PHEV)</span></div>
+    <div class="nav-item" onclick="switchNav('新能源-乘用车分级别', this)"><div class="nav-item-icon">⚡</div><span class="nav-item-text">新能源乘用车分级别</span></div>
+    <div class="nav-item" onclick="switchNav('新能源-乘用车分品牌', this)"><div class="nav-item-icon">⚡</div><span class="nav-item-text">新能源乘用车分品牌TOP</span></div>
+    <div class="nav-item" onclick="switchNav('新能源-乘用车出口分市场', this)"><div class="nav-item-icon">⚡</div><span class="nav-item-text">乘用车出口分市场</span></div>
+    <div class="nav-item" onclick="switchNav('新能源-乘用车出口分类型', this)"><div class="nav-item-icon">⚡</div><span class="nav-item-text">乘用车出口分类型</span></div>
+    <div class="nav-item" onclick="switchNav('新能源-乘用车出口分车企', this)"><div class="nav-item-icon">⚡</div><span class="nav-item-text">乘用车出口分车企TOP</span></div>
+</div>
+
+<!-- 主内容区 -->
+<div class="main-content">
+    <div class="toolbar">
+        <div class="toolbar-title">🚗 汽车行业数据库</div>
+        <div class="nav-buttons">
+            <a href="http://localhost:8888/index_v3.html" class="nav-btn nav-btn-home">🏠 返回首页</a>
+            <a href="http://localhost:8888/database_hub.html" class="nav-btn nav-btn-db">📊 返回数据库</a>
+        </div>
+        <div class="update-info">数据更新时间: <span id="updateTime">加载中...</span></div>
+    </div>
+
+    <div class="page-content">
+        <div class="content-section" id="content-汽车-全球分区域">
+    <div class="data-card">
+        <div class="data-card-header">
+            <div class="data-card-title">全球分区域销量</div>
+            <span>24条</span>
+        </div>
+        <div class="table-container">
+        <table class="data-table">
+            <thead><tr><th>月份</th><th>区域</th><th>本期(万辆)</th><th>去年同期(万辆)</th><th>同比</th><th>本年YTD</th><th>上一年YTD</th><th>累计同比</th></tr></thead>
+            <tbody><tr><td>2026-03</td><td>北美</td><td>174.52</td><td>195.09</td><td>-11%</td><td>460.0</td><td>484.2</td><td>-5%</td></tr><tr><td>2026-03</td><td>欧洲</td><td>179.27</td><td>184.09</td><td>-3%</td><td>437.2</td><td>445.3</td><td>-2%</td></tr><tr><td>2026-03</td><td>亚洲</td><td>442.39</td><td>468.66</td><td>-6%</td><td>1153.5</td><td>1242.5</td><td>-7%</td></tr><tr><td>2026-03</td><td>全球</td><td>853.29</td><td>900.42</td><td>-5%</td><td>2209.3</td><td>2321.7</td><td>-5%</td></tr><tr><td>2026-02</td><td>北美</td><td>145.84</td><td>150.21</td><td>-3%</td><td>283.1</td><td>289.2</td><td>-2%</td></tr><tr><td>2026-02</td><td>欧洲</td><td>114.07</td><td>129.56</td><td>-12%</td><td>239.8</td><td>261.3</td><td>-8%</td></tr><tr><td>2026-02</td><td>亚洲</td><td>312.87</td><td>359.2</td><td>-13%</td><td>704.1</td><td>746.6</td><td>-6%</td></tr><tr><td>2026-02</td><td>全球</td><td>613.36</td><td>684.79</td><td>-10%</td><td>1318.6</td><td>1389.7</td><td>-5%</td></tr><tr><td>2026-01</td><td>北美</td><td>137.20</td><td>138.99</td><td>-1%</td><td>137.2</td><td>139.0</td><td>-1%</td></tr><tr><td>2026-01</td><td>欧洲</td><td>102.65</td><td>131.7</td><td>-22%</td><td>102.6</td><td>131.7</td><td>-22%</td></tr><tr><td>2026-01</td><td>亚洲</td><td>386.42</td><td>385.73</td><td>0%</td><td>386.4</td><td>385.7</td><td>0%</td></tr><tr><td>2026-01</td><td>全球</td><td>675.81</td><td>703.19</td><td>-4%</td><td>675.8</td><td>703.2</td><td>-4%</td></tr><tr><td>2025-12</td><td>北美</td><td>180.38</td><td>183.76</td><td>-2%</td><td>2022.0</td><td>1991.4</td><td>2%</td></tr><tr><td>2025-12</td><td>欧洲</td><td>150.23</td><td>163.2</td><td>-8%</td><td>1799.8</td><td>1839.9</td><td>-2%</td></tr><tr><td>2025-12</td><td>亚洲</td><td>462.11</td><td>483.22</td><td>-4%</td><td>5092.2</td><td>4825.3</td><td>6%</td></tr><tr><td>2025-12</td><td>全球</td><td>846.87</td><td>883.08</td><td>-4%</td><td>9547.1</td><td>9243.7</td><td>3%</td></tr><tr><td>2025-11</td><td>北美</td><td>159.37</td><td>172.26</td><td>-7%</td><td>1836.6</td><td>1807.7</td><td>2%</td></tr><tr><td>2025-11</td><td>欧洲</td><td>135.64</td><td>151.65</td><td>-11%</td><td>1634.5</td><td>1676.7</td><td>-3%</td></tr><tr><td>2025-11</td><td>亚洲</td><td>478.65</td><td>477.48</td><td>0%</td><td>4625.1</td><td>4342.0</td><td>7%</td></tr><tr><td>2025-11</td><td>全球</td><td>823.72</td><td>855.29</td><td>-4%</td><td>8671.1</td><td>8360.5</td><td>4%</td></tr><tr><td>2025-10</td><td>北美</td><td>159.39</td><td>168.49</td><td>-5%</td><td>1675.5</td><td>1635.0</td><td>2%</td></tr><tr><td>2025-10</td><td>欧洲</td><td>141.00</td><td>153.84</td><td>-8%</td><td>1482.9</td><td>1525.1</td><td>-3%</td></tr><tr><td>2025-10</td><td>亚洲</td><td>478.20</td><td>458.08</td><td>4%</td><td>4146.5</td><td>3864.5</td><td>7%</td></tr><tr><td>2025-10</td><td>全球</td><td>828.81</td><td>835.64</td><td>-1%</td><td>7821.9</td><td>7504.8</td><td>4%</td></tr></tbody>
+        </table>
+        </div>
+    </div>
+</div>
+        <div class="content-section" id="content-汽车-全球分国家">
+    <div class="data-card">
+        <div class="data-card-header">
+            <div class="data-card-title">全球分国家销量</div>
+            <span>24条</span>
+        </div>
+        <div class="table-container">
+        <table class="data-table">
+            <thead><tr><th>月份</th><th>国家</th><th>本期(万辆)</th><th>去年同期(万辆)</th><th>同比</th><th>本年YTD</th><th>上一年YTD</th><th>累计同比</th></tr></thead>
+            <tbody><tr><td>2026-03</td><td>美国</td><td>142.98</td><td>163.14</td><td>-12%</td><td>378.1</td><td>402.7</td><td>-6%</td></tr><tr><td>2026-03</td><td>加拿大</td><td>18.09</td><td>18.75</td><td>-4%</td><td>42.9</td><td>43.6</td><td>-1%</td></tr><tr><td>2026-03</td><td>墨西哥</td><td>13.45</td><td>13.2</td><td>2%</td><td>38.9</td><td>37.9</td><td>3%</td></tr><tr><td>2026-03</td><td>英国</td><td>43.24</td><td>40.97</td><td>6%</td><td>70.0</td><td>66.8</td><td>5%</td></tr><tr><td>2026-03</td><td>德国</td><td>31.98</td><td>27.96</td><td>14%</td><td>76.5</td><td>73.6</td><td>4%</td></tr><tr><td>2026-03</td><td>法国</td><td>21.38</td><td>19.04</td><td>12%</td><td>50.3</td><td>50.8</td><td>-1%</td></tr><tr><td>2026-03</td><td>意大利</td><td>20.27</td><td>18.94</td><td>7%</td><td>53.1</td><td>49.1</td><td>8%</td></tr><tr><td>2026-03</td><td>西班牙</td><td>15.1</td><td>13.4</td><td>13%</td><td>35.2</td><td>32.6</td><td>8%</td></tr><tr><td>2026-03</td><td>中国</td><td>289.88</td><td>291.55</td><td>-1%</td><td>705.0</td><td>746.8</td><td>-6%</td></tr><tr><td>2026-03</td><td>印度</td><td>55.89</td><td>47.24</td><td>18%</td><td>165.3</td><td>144.7</td><td>14%</td></tr><tr><td>2026-03</td><td>日本</td><td>48.97</td><td>49.89</td><td>-2%</td><td>125.1</td><td>128.4</td><td>-3%</td></tr><tr><td>2026-03</td><td>韩国</td><td>16.47</td><td>14.95</td><td>10%</td><td>40.9</td><td>38.8</td><td>5%</td></tr><tr><td>2026-02</td><td>美国</td><td>121.71</td><td>125.42</td><td>-3%</td><td>234.3</td><td>239.7</td><td>-2%</td></tr><tr><td>2026-02</td><td>加拿大</td><td>12.07</td><td>12.56</td><td>-4%</td><td>23.3</td><td>24.8</td><td>-6%</td></tr><tr><td>2026-02</td><td>墨西哥</td><td>12.06</td><td>12.24</td><td>-1%</td><td>25.4</td><td>24.7</td><td>3%</td></tr><tr><td>2026-02</td><td>德国</td><td>23.18</td><td>22.49</td><td>3%</td><td>44.5</td><td>45.7</td><td>-3%</td></tr><tr><td>2026-02</td><td>意大利</td><td>17.25</td><td>15.34</td><td>12%</td><td>32.9</td><td>30.2</td><td>9%</td></tr><tr><td>2026-02</td><td>法国</td><td>15.34</td><td>17.37</td><td>-12%</td><td>28.9</td><td>31.8</td><td>-9%</td></tr><tr><td>2026-02</td><td>西班牙</td><td>11.4</td><td>10.56</td><td>8%</td><td>20.1</td><td>19.2</td><td>5%</td></tr><tr><td>2026-02</td><td>英国</td><td>10.54</td><td>9.92</td><td>6%</td><td>26.8</td><td>25.8</td><td>4%</td></tr><tr><td>2026-02</td><td>中国</td><td>180.52</td><td>212.86</td><td>-15%</td><td>415.2</td><td>455.2</td><td>-9%</td></tr><tr><td>2026-02</td><td>印度</td><td>51.93</td><td>47.19</td><td>10%</td><td>107.8</td><td>97.5</td><td>11%</td></tr><tr><td>2026-02</td><td>日本</td><td>39.44</td><td>40.89</td><td>-4%</td><td>76.2</td><td>78.5</td><td>-3%</td></tr><tr><td>2026-02</td><td>韩国</td><td>12.32</td><td>13.29</td><td>-7%</td><td>24.4</td><td>23.9</td><td>2%</td></tr></tbody>
+        </table>
+        </div>
+    </div>
+</div>
+        <div class="content-section" id="content-汽车-中国整体">
+    <div class="data-card">
+        <div class="data-card-header">
+            <div class="data-card-title">中国汽车整体市场</div>
+            <span>24条</span>
+        </div>
+        <div class="table-container">
+        <table class="data-table">
+            <thead><tr><th>月份</th><th>本期(万辆)</th><th>环比</th><th>同比</th><th>本年YTD</th><th>上一年YTD</th><th>累计同比</th></tr></thead>
+            <tbody><tr><td>2026-04</td><td>253</td><td>-12.9%</td><td>-2.5%</td><td>959.0</td><td>1006</td><td>-4.67%</td></tr><tr><td>2026-03</td><td>290</td><td>60.6%</td><td>-0.5%</td><td>706.0</td><td>747</td><td>-5.49%</td></tr><tr><td>2026-02</td><td>181</td><td>-23.1%</td><td>-15.2%</td><td>416.0</td><td>455</td><td>-8.57%</td></tr><tr><td>2026-01</td><td>235</td><td>-28.3%</td><td>-3.2%</td><td>235.0</td><td>242</td><td>-2.89%</td></tr><tr><td>2025-12</td><td>327</td><td>-4.6%</td><td>-6.2%</td><td>3,435</td><td>3144</td><td>9.26%</td></tr><tr><td>2025-11</td><td>343</td><td>3.2%</td><td>3.4%</td><td>3,108</td><td>2794</td><td>11.24%</td></tr><tr><td>2025-10</td><td>332</td><td>3.0%</td><td>8.8%</td><td>2,765</td><td>2462</td><td>12.31%</td></tr><tr><td>2025-09</td><td>323</td><td>12.9%</td><td>14.8%</td><td>2,433</td><td>2157</td><td>12.80%</td></tr><tr><td>2025-08</td><td>286</td><td>10.2%</td><td>16.5%</td><td>2,110</td><td>1877</td><td>12.41%</td></tr><tr><td>2025-07</td><td>259</td><td>-10.7%</td><td>14.6%</td><td>1,824</td><td>1631</td><td>11.83%</td></tr><tr><td>2025-06</td><td>290</td><td>8.1%</td><td>13.8%</td><td>1,565</td><td>1405</td><td>11.39%</td></tr><tr><td>2025-05</td><td>269</td><td>3.7%</td><td>11.1%</td><td>1,275</td><td>1150</td><td>10.87%</td></tr><tr><td>2025-04</td><td>259</td><td>-11.1%</td><td>9.8%</td><td>1,006</td><td>908</td><td>10.79%</td></tr><tr><td>2025-03</td><td>292</td><td>36.9%</td><td>8.2%</td><td>747.0</td><td>672</td><td>11.16%</td></tr><tr><td>2025-02</td><td>213</td><td>-12.1%</td><td>34.4%</td><td>455.0</td><td>403</td><td>12.90%</td></tr><tr><td>2025-01</td><td>242</td><td>-30.6%</td><td>-0.7%</td><td>242.0</td><td>244</td><td>-0.82%</td></tr><tr><td>2024-12</td><td>349</td><td>5.2%</td><td>-</td><td>3,142</td><td>0</td><td>None</td></tr><tr><td>2024-11</td><td>332</td><td>8.6%</td><td>-</td><td>2,793</td><td>0</td><td>None</td></tr><tr><td>2024-10</td><td>305</td><td>8.7%</td><td>-</td><td>2,461</td><td>0</td><td>None</td></tr><tr><td>2024-09</td><td>281</td><td>14.5%</td><td>-</td><td>2,156</td><td>0</td><td>None</td></tr><tr><td>2024-08</td><td>245</td><td>8.4%</td><td>-</td><td>1,875</td><td>0</td><td>None</td></tr><tr><td>2024-07</td><td>226</td><td>-11.4%</td><td>-</td><td>1,630</td><td>0</td><td>None</td></tr><tr><td>2024-06</td><td>255</td><td>5.6%</td><td>-</td><td>1,404</td><td>0</td><td>None</td></tr><tr><td>2024-05</td><td>242</td><td>2.5%</td><td>-</td><td>1,149</td><td>0</td><td>None</td></tr></tbody>
+        </table>
+        </div>
+    </div>
+</div>
+        <div class="content-section" id="content-汽车-中国乘用车">
+    <div class="data-card">
+        <div class="data-card-header">
+            <div class="data-card-title">中国乘用车市场</div>
+            <span>24条</span>
+        </div>
+        <div class="table-container">
+        <table class="data-table">
+            <thead><tr><th>月份</th><th>本期(万辆)</th><th>环比</th><th>同比</th><th>本年YTD</th><th>上一年YTD</th><th>累计同比</th></tr></thead>
+            <tbody><tr><td>2026-04</td><td>212.9</td><td>-11.7%</td><td>-4.2%</td><td>806.0</td><td>864.1</td><td>-6.67%</td></tr><tr><td>2026-03</td><td>241.2</td><td>57.1%</td><td>-2.3%</td><td>594.0</td><td>641.9</td><td>-7.52%</td></tr><tr><td>2026-02</td><td>153.6</td><td>-22.7%</td><td>-15.4%</td><td>352.0</td><td>394.8</td><td>-10.74%</td></tr><tr><td>2026-01</td><td>198.8</td><td>-30.2%</td><td>-6.8%</td><td>199.0</td><td>213.3</td><td>-6.80%</td></tr><tr><td>2025-12</td><td>284.7</td><td>-6.3%</td><td>-8.8%</td><td>3,006</td><td>2756.3</td><td>9.05%</td></tr><tr><td>2025-11</td><td>303.7</td><td>2.6%</td><td>1.2%</td><td>2,721</td><td>2443.5</td><td>11.36%</td></tr><tr><td>2025-10</td><td>296.1</td><td>3.6%</td><td>7.5%</td><td>2,417</td><td>2143.4</td><td>12.78%</td></tr><tr><td>2025-09</td><td>285.9</td><td>12.6%</td><td>13.2%</td><td>2,121</td><td>1867.9</td><td>13.57%</td></tr><tr><td>2025-08</td><td>254</td><td>11.1%</td><td>16.5%</td><td>1,835</td><td>1615.7</td><td>13.60%</td></tr><tr><td>2025-07</td><td>228.7</td><td>-9.8%</td><td>14.7%</td><td>1,581</td><td>1397.4</td><td>13.17%</td></tr><tr><td>2025-06</td><td>253.6</td><td>7.8%</td><td>14.5%</td><td>1,353</td><td>1197.9</td><td>12.92%</td></tr><tr><td>2025-05</td><td>235.2</td><td>5.8%</td><td>13.3%</td><td>1,099</td><td>976.5</td><td>12.56%</td></tr><tr><td>2025-04</td><td>222.3</td><td>-9.9%</td><td>11.1%</td><td>864.0</td><td>768.9</td><td>12.36%</td></tr><tr><td>2025-03</td><td>246.8</td><td>36.0%</td><td>10.4%</td><td>642.0</td><td>568.7</td><td>12.82%</td></tr><tr><td>2025-02</td><td>181.5</td><td>-14.9%</td><td>36.2%</td><td>395.0</td><td>345.1</td><td>14.40%</td></tr><tr><td>2025-01</td><td>213.3</td><td>-31.6%</td><td>0.9%</td><td>213.0</td><td>211.5</td><td>0.85%</td></tr><tr><td>2024-12</td><td>312</td><td>4.0%</td><td>-</td><td>2,755</td><td>-</td><td>None</td></tr><tr><td>2024-11</td><td>300.1</td><td>8.9%</td><td>-</td><td>2,443</td><td>-</td><td>None</td></tr><tr><td>2024-10</td><td>275.5</td><td>9.1%</td><td>-</td><td>2,143</td><td>-</td><td>None</td></tr><tr><td>2024-09</td><td>252.5</td><td>15.8%</td><td>-</td><td>1,867</td><td>-</td><td>None</td></tr><tr><td>2024-08</td><td>218.1</td><td>9.4%</td><td>-</td><td>1,615</td><td>-</td><td>None</td></tr><tr><td>2024-07</td><td>199.4</td><td>-10.0%</td><td>-</td><td>1,397</td><td>-</td><td>None</td></tr><tr><td>2024-06</td><td>221.5</td><td>6.7%</td><td>-</td><td>1,198</td><td>-</td><td>None</td></tr><tr><td>2024-05</td><td>207.5</td><td>3.7%</td><td>-</td><td>976.0</td><td>-</td><td>None</td></tr></tbody>
+        </table>
+        </div>
+    </div>
+</div>
+        <div class="content-section" id="content-汽车-中国乘用车出口">
+    <div class="data-card">
+        <div class="data-card-header">
+            <div class="data-card-title">中国乘用车出口</div>
+            <span>24条</span>
+        </div>
+        <div class="table-container">
+        <table class="data-table">
+            <thead><tr><th>月份</th><th>出口(万辆)</th><th>环比</th><th>同比</th><th>本年YTD</th><th>上一年YTD</th><th>累计同比</th></tr></thead>
+            <tbody><tr><td>2026-03</td><td>74.8</td><td>27.83%</td><td>82.39%</td><td>1,922,908</td><td>117.6</td><td>63.46%</td></tr><tr><td>2026-02</td><td>58.6</td><td>-0.57%</td><td>57.99%</td><td>1,174,409</td><td>76.6</td><td>53.32%</td></tr><tr><td>2026-01</td><td>58.9</td><td>-8.17%</td><td>48.93%</td><td>588,887</td><td>39.5</td><td>48.93%</td></tr><tr><td>2025-12</td><td>64.1</td><td>2.83%</td><td>50.49%</td><td>6,005,308</td><td>494.3</td><td>21.50%</td></tr><tr><td>2025-11</td><td>62.4</td><td>9.13%</td><td>48.66%</td><td>5,364,042</td><td>451.7</td><td>18.76%</td></tr><tr><td>2025-10</td><td>57.1</td><td>2.10%</td><td>22.76%</td><td>4,740,447</td><td>409.7</td><td>15.70%</td></tr><tr><td>2025-09</td><td>56.0</td><td>5.02%</td><td>22.40%</td><td>4,169,041</td><td>363.2</td><td>14.80%</td></tr><tr><td>2025-08</td><td>53.3</td><td>6.70%</td><td>21.76%</td><td>3,609,404</td><td>317.4</td><td>13.70%</td></tr><tr><td>2025-07</td><td>49.9</td><td>-0.48%</td><td>25.23%</td><td>3,076,507</td><td>273.7</td><td>12.41%</td></tr><tr><td>2025-06</td><td>50.2</td><td>7.29%</td><td>24.58%</td><td>2,577,054</td><td>233.8</td><td>10.23%</td></tr><tr><td>2025-05</td><td>46.8</td><td>8.52%</td><td>17.68%</td><td>2,075,186</td><td>193.5</td><td>7.24%</td></tr><tr><td>2025-04</td><td>43.1</td><td>5.03%</td><td>0.44%</td><td>1,607,427</td><td>153.8</td><td>4.54%</td></tr><tr><td>2025-03</td><td>41.0</td><td>10.74%</td><td>-3.21%</td><td>1,176,392</td><td>110.8</td><td>6.13%</td></tr><tr><td>2025-02</td><td>37.1</td><td>-6.27%</td><td>-</td><td>765,999</td><td>68.4</td><td>11.91%</td></tr><tr><td>2025-01</td><td>39.5</td><td>-7.21%</td><td>-</td><td>395,400</td><td>36.9</td><td>7.02%</td></tr><tr><td>2024-12</td><td>42.6</td><td>1.58%</td><td>-</td><td>4,258,262</td><td>408.4</td><td>4.28%</td></tr><tr><td>2024-11</td><td>41.9</td><td>-9.88%</td><td>-</td><td>3,832,156</td><td>366.2</td><td>4.64%</td></tr><tr><td>2024-10</td><td>46.5</td><td>1.80%</td><td>-</td><td>3,412,691</td><td>325.5</td><td>4.83%</td></tr><tr><td>2024-09</td><td>45.7</td><td>4.47%</td><td>-</td><td>2,947,235</td><td>283.5</td><td>3.96%</td></tr><tr><td>2024-08</td><td>43.8</td><td>9.74%</td><td>-</td><td>2,490,009</td><td>245.4</td><td>1.48%</td></tr><tr><td>2024-07</td><td>39.9</td><td>-1.00%</td><td>-</td><td>2,052,353</td><td>210.5</td><td>-2.51%</td></tr><tr><td>2024-06</td><td>40.3</td><td>1.35%</td><td>-</td><td>1,653,528</td><td>177.9</td><td>-7.07%</td></tr><tr><td>2024-05</td><td>39.7</td><td>-7.38%</td><td>-</td><td>1,250,668</td><td>146.7</td><td>-14.76%</td></tr><tr><td>2024-04</td><td>42.9</td><td>1.21%</td><td>-</td><td>853,181</td><td>114.2</td><td>-25.28%</td></tr></tbody>
+        </table>
+        </div>
+    </div>
+</div>
+        <div class="content-section" id="content-汽车-乘用车分整车厂">
+    <div class="data-card">
+        <div class="data-card-header">
+            <div class="data-card-title">中国乘用车分整车厂</div>
+            <span>24条</span>
+        </div>
+        <div class="table-container">
+        <table class="data-table">
+            <thead><tr><th>月份</th><th>企业</th><th>销量(万辆)</th><th>同期</th><th>同比</th><th>环比</th><th>市占率</th></tr></thead>
+            <tbody><tr><td>2026-03</td><td>比亚迪</td><td>28.86</td><td>35.88</td><td>-19.6%</td><td>44.6%</td><td>12.0%</td></tr><tr><td>2026-03</td><td>奇瑞汽车</td><td>21.76</td><td>18.94</td><td>14.9%</td><td>16.2%</td><td>9.0%</td></tr><tr><td>2026-03</td><td>吉利汽车</td><td>20.39</td><td>21.96</td><td>-7.1%</td><td>-17.2%</td><td>8.5%</td></tr><tr><td>2026-03</td><td>长安汽车</td><td>14.42</td><td>13.11</td><td>10.0%</td><td>-26.0%</td><td>6.0%</td></tr><tr><td>2026-03</td><td>一汽大众</td><td>11.40</td><td>15.44</td><td>-26.2%</td><td>-6.3%</td><td>4.7%</td></tr><tr><td>2026-03</td><td>上汽乘用车</td><td>9.08</td><td>6.76</td><td>34.3%</td><td>17.4%</td><td>3.8%</td></tr><tr><td>2026-03</td><td>特斯拉</td><td>8.57</td><td>7.88</td><td>8.7%</td><td>23.9%</td><td>3.6%</td></tr><tr><td>2026-03</td><td>长城汽车</td><td>8.56</td><td>7.76</td><td>10.4%</td><td>14.2%</td><td>3.6%</td></tr><tr><td>2026-03</td><td>上汽通用五菱</td><td>8.26</td><td>12.12</td><td>-31.9%</td><td>24.1%</td><td>3.4%</td></tr><tr><td>2026-03</td><td>上汽大众</td><td>7.13</td><td>9.0</td><td>-20.8%</td><td>-5.2%</td><td>3.0%</td></tr><tr><td>2026-02</td><td>吉利汽车</td><td>18.23</td><td>19.24</td><td>-5.3%</td><td>-26.0%</td><td>11.9%</td></tr><tr><td>2026-02</td><td>比亚迪</td><td>18.23</td><td>30.97</td><td>-41.1%</td><td>-8.6%</td><td>11.9%</td></tr><tr><td>2026-02</td><td>奇瑞汽车</td><td>14.04</td><td>16.17</td><td>-13.2%</td><td>-25.0%</td><td>9.1%</td></tr><tr><td>2026-02</td><td>长安汽车</td><td>8.00</td><td>7.91</td><td>1.2%</td><td>-</td><td>5.2%</td></tr><tr><td>2026-02</td><td>上汽乘用车</td><td>6.15</td><td>4.53</td><td>35.6%</td><td>-20.5%</td><td>4.0%</td></tr><tr><td>2026-02</td><td>长城汽车</td><td>6.06</td><td>6.06</td><td>0</td><td>-19.2%</td><td>3.9%</td></tr><tr><td>2026-02</td><td>上汽通用五菱</td><td>6.01</td><td>9.9</td><td>-39.3%</td><td>-9.7%</td><td>3.9%</td></tr><tr><td>2026-02</td><td>特斯拉</td><td>5.86</td><td>3.07</td><td>91.0%</td><td>-15.2%</td><td>3.8%</td></tr><tr><td>2026-02</td><td>上汽大众</td><td>5.64</td><td>6.3</td><td>-10.5%</td><td>-25.0%</td><td>3.7%</td></tr><tr><td>2026-02</td><td>一汽大众</td><td>5.54</td><td>9.62</td><td>-42.4%</td><td>-54.5%</td><td>3.6%</td></tr><tr><td>2026-01</td><td>吉利汽车</td><td>24.63</td><td>25.51</td><td>-3.4%</td><td>18.1%</td><td>12.4%</td></tr><tr><td>2026-01</td><td>比亚迪</td><td>19.95</td><td>28.47</td><td>-29.9%</td><td>-49.7%</td><td>10.0%</td></tr><tr><td>2026-01</td><td>奇瑞汽车</td><td>18.72</td><td>20.43</td><td>-8.4%</td><td>-14.8%</td><td>9.4%</td></tr><tr><td>2026-01</td><td>一汽大众</td><td>12.17</td><td>13.02</td><td>-6.5%</td><td>-10.1%</td><td>6.1%</td></tr></tbody>
+        </table>
+        </div>
+    </div>
+</div>
+        <div class="content-section" id="content-汽车-中国商用车">
+    <div class="data-card">
+        <div class="data-card-header">
+            <div class="data-card-title">中国商用车整体</div>
+            <span>24条</span>
+        </div>
+        <div class="table-container">
+        <table class="data-table">
+            <thead><tr><th>月份</th><th>本期(万辆)</th><th>环比</th><th>同比</th><th>本年YTD</th><th>上一年YTD</th><th>累计同比</th></tr></thead>
+            <tbody><tr><td>2026-04</td><td>39.7</td><td>-18.5%</td><td>8.1%</td><td>151.0</td><td>141.8</td><td>6.63%</td></tr><tr><td>2026-03</td><td>48.7</td><td>80.7%</td><td>8.9%</td><td>112.0</td><td>105.1</td><td>6.09%</td></tr><tr><td>2026-02</td><td>26.9</td><td>-24.9%</td><td>-14.1%</td><td>63.0</td><td>60.4</td><td>3.97%</td></tr><tr><td>2026-01</td><td>35.9</td><td>-15.6%</td><td>23.5%</td><td>36.0</td><td>29.1</td><td>23.37%</td></tr><tr><td>2025-12</td><td>42.5</td><td>8.4%</td><td>15.2%</td><td>429.0</td><td>387.3</td><td>10.77%</td></tr><tr><td>2025-11</td><td>39.2</td><td>8.6%</td><td>24.4%</td><td>387.0</td><td>350.5</td><td>10.27%</td></tr><tr><td>2025-10</td><td>36.1</td><td>-1.9%</td><td>21.1%</td><td>347.0</td><td>319</td><td>8.87%</td></tr><tr><td>2025-09</td><td>36.8</td><td>16.5%</td><td>29.6%</td><td>311.0</td><td>289.2</td><td>7.61%</td></tr><tr><td>2025-08</td><td>31.6</td><td>3.3%</td><td>16.2%</td><td>274.0</td><td>260.8</td><td>5.21%</td></tr><tr><td>2025-07</td><td>30.6</td><td>-17.1%</td><td>14.2%</td><td>243.0</td><td>233.6</td><td>3.94%</td></tr><tr><td>2025-06</td><td>36.9</td><td>10.1%</td><td>9.5%</td><td>212.0</td><td>206.8</td><td>2.61%</td></tr><tr><td>2025-05</td><td>33.5</td><td>-8.7%</td><td>-2.0%</td><td>175.0</td><td>173.1</td><td>1.27%</td></tr><tr><td>2025-04</td><td>36.7</td><td>-18.0%</td><td>2.7%</td><td>142.0</td><td>139</td><td>2.01%</td></tr><tr><td>2025-03</td><td>44.7</td><td>42.9%</td><td>-2.4%</td><td>105.0</td><td>103.3</td><td>1.74%</td></tr><tr><td>2025-02</td><td>31.3</td><td>7.7%</td><td>25.0%</td><td>60.0</td><td>57.5</td><td>5.04%</td></tr><tr><td>2025-01</td><td>29.1</td><td>-21.3%</td><td>-10.3%</td><td>29.0</td><td>32.4</td><td>-10.19%</td></tr><tr><td>2024-12</td><td>36.9</td><td>17.1%</td><td>1.2%</td><td>387.0</td><td>-</td><td>None</td></tr><tr><td>2024-11</td><td>31.5</td><td>5.6%</td><td>-13.9%</td><td>350.0</td><td>-</td><td>None</td></tr><tr><td>2024-10</td><td>29.8</td><td>4.9%</td><td>-18.3%</td><td>319.0</td><td>-</td><td>None</td></tr><tr><td>2024-09</td><td>28.4</td><td>4.4%</td><td>-23.5%</td><td>289.0</td><td>-</td><td>None</td></tr><tr><td>2024-08</td><td>27.2</td><td>1.4%</td><td>-12.2%</td><td>261.0</td><td>-</td><td>None</td></tr><tr><td>2024-07</td><td>26.8</td><td>-20.4%</td><td>-6.6%</td><td>234.0</td><td>-</td><td>None</td></tr><tr><td>2024-06</td><td>33.7</td><td>-1.2%</td><td>-4.9%</td><td>207.0</td><td>-</td><td>None</td></tr><tr><td>2024-05</td><td>34.1</td><td>-4.5%</td><td>3.3%</td><td>173.0</td><td>-</td><td>None</td></tr></tbody>
+        </table>
+        </div>
+    </div>
+</div>
+        <div class="content-section" id="content-汽车-商用车分整车厂">
+    <div class="data-card">
+        <div class="data-card-header">
+            <div class="data-card-title">商用车分整车厂</div>
+            <span>24条</span>
+        </div>
+        <div class="table-container">
+        <table class="data-table">
+            <thead><tr><th>月份</th><th>整车厂</th><th>销量(万辆)</th><th>同期</th><th>同比</th><th>环比</th><th>市占率</th></tr></thead>
+            <tbody><tr><td>2026-03</td><td>北汽福田</td><td>8.68</td><td>7.22</td><td>20.1%</td><td>56.6%</td><td>17.8%</td></tr><tr><td>2026-03</td><td>东风商用车</td><td>5.27</td><td>4.57</td><td>15.4%</td><td>51.5%</td><td>10.8%</td></tr><tr><td>2026-03</td><td>中国重汽</td><td>5.02</td><td>4.56</td><td>10.2%</td><td>23.8%</td><td>10.3%</td></tr><tr><td>2026-03</td><td>长安汽车</td><td>4.01</td><td>4.16</td><td>-3.5%</td><td>-</td><td>8.2%</td></tr><tr><td>2026-03</td><td>一汽解放</td><td>3.54</td><td>2.72</td><td>30.4%</td><td>32.8%</td><td>7.3%</td></tr><tr><td>2026-03</td><td>上汽通用五菱</td><td>3.33</td><td>2.35</td><td>41.6%</td><td>-0.7%</td><td>6.8%</td></tr><tr><td>2026-03</td><td>陕汽集团</td><td>2.31</td><td>2.05</td><td>12.7%</td><td>37.3%</td><td>4.7%</td></tr><tr><td>2026-03</td><td>江铃汽车</td><td>2.31</td><td>2.59</td><td>-11.1%</td><td>39.3%</td><td>4.7%</td></tr><tr><td>2026-03</td><td>上汽大通</td><td>2.28</td><td>1.69</td><td>34.7%</td><td>37.8%</td><td>4.7%</td></tr><tr><td>2026-03</td><td>长城汽车</td><td>2.04</td><td>2.04</td><td>0.1%</td><td>33.2%</td><td>4.2%</td></tr><tr><td>2026-02</td><td>北汽福田</td><td>4.11</td><td>4.75</td><td>-13.4%</td><td>-25.8%</td><td>15.2%</td></tr><tr><td>2026-02</td><td>上汽通用五菱</td><td>3.18</td><td>2.23</td><td>42.6%</td><td>-5.2%</td><td>11.8%</td></tr><tr><td>2026-02</td><td>中国重汽</td><td>3.04</td><td>3.16</td><td>-3.6%</td><td>-25.0%</td><td>11.3%</td></tr><tr><td>2026-02</td><td>东风商用车</td><td>2.57</td><td>2.9</td><td>-11.4%</td><td>-26.0%</td><td>9.5%</td></tr><tr><td>2026-02</td><td>长安汽车</td><td>1.80</td><td>2.78</td><td>-35.2%</td><td>-</td><td>6.7%</td></tr><tr><td>2026-02</td><td>一汽解放</td><td>1.61</td><td>2.57</td><td>-37.5%</td><td>-39.8%</td><td>5.9%</td></tr><tr><td>2026-02</td><td>江淮汽车</td><td>1.47</td><td>1.59</td><td>-7.5%</td><td>-43.7%</td><td>5.5%</td></tr><tr><td>2026-02</td><td>江铃汽车</td><td>1.40</td><td>1.47</td><td>-4.6%</td><td>-15.3%</td><td>5.2%</td></tr><tr><td>2026-02</td><td>陕汽集团</td><td>1.24</td><td>1.41</td><td>-12.0%</td><td>-26.3%</td><td>4.6%</td></tr><tr><td>2026-02</td><td>上汽大通</td><td>1.24</td><td>1.31</td><td>-5.6%</td><td>-25.4%</td><td>4.6%</td></tr><tr><td>2026-01</td><td>北汽福田</td><td>5.54</td><td>5.02</td><td>10.3%</td><td>-4.6%</td><td>15.4%</td></tr><tr><td>2026-01</td><td>中国重汽</td><td>4.06</td><td>2.99</td><td>35.5%</td><td>27.7%</td><td>11.3%</td></tr><tr><td>2026-01</td><td>东风商用车</td><td>3.48</td><td>2.22</td><td>56.9%</td><td>-14.7%</td><td>9.7%</td></tr><tr><td>2026-01</td><td>上汽通用五菱</td><td>3.36</td><td>0.57</td><td>487.0%</td><td>31.2%</td><td>9.3%</td></tr></tbody>
+        </table>
+        </div>
+    </div>
+</div>
+        <div class="content-section" id="content-汽车-中重卡分整车厂">
+    <div class="data-card">
+        <div class="data-card-header">
+            <div class="data-card-title">中重卡分整车厂</div>
+            <span>24条</span>
+        </div>
+        <div class="table-container">
+        <table class="data-table">
+            <thead><tr><th>月份</th><th>整车厂</th><th>交强险(万台)</th><th>新能源渗透率</th><th>新能源量(万台)</th></tr></thead>
+            <tbody><tr><td>2026-03</td><td>保险总量</td><td>8.75</td><td>20.0%</td><td>1.75</td></tr><tr><td>2026-03</td><td>一汽解放</td><td>2.05</td><td>11.0%</td><td>0.23</td></tr><tr><td>2026-03</td><td>中国重汽</td><td>1.69</td><td>14.0%</td><td>0.24</td></tr><tr><td>2026-03</td><td>东风汽车</td><td>1.23</td><td>7.0%</td><td>0.09</td></tr><tr><td>2026-03</td><td>北汽福田</td><td>1.13</td><td>15.0%</td><td>0.17</td></tr><tr><td>2026-03</td><td>陕汽集团</td><td>0.95</td><td>20.0%</td><td>0.19</td></tr><tr><td>2026-03</td><td>东风柳州</td><td>0.35</td><td>16.0%</td><td>0.06</td></tr><tr><td>2026-03</td><td>徐工集团</td><td>0.28</td><td>82.0%</td><td>0.23</td></tr><tr><td>2026-03</td><td>三一重工</td><td>0.2</td><td>57.0%</td><td>0.11</td></tr><tr><td>2026-03</td><td>湖南汽车</td><td>0.18</td><td>1</td><td>0.18</td></tr><tr><td>2026-03</td><td>华菱星马</td><td>0.09</td><td>99.0%</td><td>0.09</td></tr><tr><td>2026-02</td><td>保险总量</td><td>3.09</td><td>26.0%</td><td>0.8</td></tr><tr><td>2026-02</td><td>中国重汽</td><td>0.57</td><td>16.0%</td><td>0.09</td></tr><tr><td>2026-02</td><td>一汽解放</td><td>0.56</td><td>12.0%</td><td>0.07</td></tr><tr><td>2026-02</td><td>东风汽车</td><td>0.46</td><td>10.0%</td><td>0.05</td></tr><tr><td>2026-02</td><td>北汽福田</td><td>0.43</td><td>16.0%</td><td>0.07</td></tr><tr><td>2026-02</td><td>陕汽集团</td><td>0.29</td><td>21.0%</td><td>0.06</td></tr><tr><td>2026-02</td><td>徐工集团</td><td>0.15</td><td>85.0%</td><td>0.13</td></tr><tr><td>2026-02</td><td>东风柳州</td><td>0.12</td><td>12.0%</td><td>0.01</td></tr><tr><td>2026-02</td><td>湖南汽车</td><td>0.07</td><td>1</td><td>0.07</td></tr><tr><td>2026-02</td><td>三一重工</td><td>0.06</td><td>64.0%</td><td>0.04</td></tr><tr><td>2026-02</td><td>华菱星马</td><td>0.03</td><td>1</td><td>0.03</td></tr><tr><td>2026-01</td><td>保险总量</td><td>5.27</td><td>32.0%</td><td>1.69</td></tr><tr><td>2026-01</td><td>中国重汽</td><td>0.98</td><td>26.0%</td><td>0.25</td></tr></tbody>
+        </table>
+        </div>
+    </div>
+</div>
+        <div class="content-section" id="content-汽车-轻卡分整车厂">
+    <div class="data-card">
+        <div class="data-card-header">
+            <div class="data-card-title">轻卡分整车厂</div>
+            <span>24条</span>
+        </div>
+        <div class="table-container">
+        <table class="data-table">
+            <thead><tr><th>月份</th><th>整车厂</th><th>交强险(万台)</th><th>新能源渗透率</th><th>新能源量(万台)</th></tr></thead>
+            <tbody><tr><td>2026-03</td><td>保险总量</td><td>11.63</td><td>21.0%</td><td>2.44</td></tr><tr><td>2026-03</td><td>北汽福田</td><td>2.82</td><td>11.0%</td><td>0.31</td></tr><tr><td>2026-03</td><td>上汽通用五菱</td><td>1.66</td><td>4.0%</td><td>0.07</td></tr><tr><td>2026-03</td><td>江淮汽车</td><td>1.17</td><td>23.0%</td><td>0.27</td></tr><tr><td>2026-03</td><td>中国重汽</td><td>1.12</td><td>15.0%</td><td>0.17</td></tr><tr><td>2026-03</td><td>东风汽车</td><td>0.75</td><td>9.0%</td><td>0.07</td></tr><tr><td>2026-03</td><td>一汽解放</td><td>0.52</td><td>17.0%</td><td>0.09</td></tr><tr><td>2026-03</td><td>江铃汽车</td><td>0.47</td><td>7.0%</td><td>0.03</td></tr><tr><td>2026-03</td><td>吉利汽车</td><td>0.37</td><td>1</td><td>0.37</td></tr><tr><td>2026-03</td><td>上汽大通</td><td>0.32</td><td>32.0%</td><td>0.1</td></tr><tr><td>2026-03</td><td>长安汽车</td><td>0.26</td><td>2.0%</td><td>0.01</td></tr><tr><td>2026-02</td><td>保险总量</td><td>4.33</td><td>18.0%</td><td>0.78</td></tr><tr><td>2026-02</td><td>北汽福田</td><td>1.08</td><td>8.0%</td><td>0.09</td></tr><tr><td>2026-02</td><td>上汽通用五菱</td><td>0.66</td><td>2.0%</td><td>0.01</td></tr><tr><td>2026-02</td><td>中国重汽</td><td>0.38</td><td>8.0%</td><td>0.03</td></tr><tr><td>2026-02</td><td>江淮汽车</td><td>0.35</td><td>9.0%</td><td>0.03</td></tr><tr><td>2026-02</td><td>东风汽车</td><td>0.28</td><td>11.0%</td><td>0.03</td></tr><tr><td>2026-02</td><td>上汽大通</td><td>0.2</td><td>64.0%</td><td>0.13</td></tr><tr><td>2026-02</td><td>江铃汽车</td><td>0.19</td><td>11.0%</td><td>0.02</td></tr><tr><td>2026-02</td><td>一汽解放</td><td>0.15</td><td>11.0%</td><td>0.02</td></tr><tr><td>2026-02</td><td>庆铃汽车</td><td>0.13</td><td>57.0%</td><td>0.07</td></tr><tr><td>2026-02</td><td>长安汽车</td><td>0.11</td><td>2.0%</td><td>0.0</td></tr><tr><td>2026-01</td><td>保险总量</td><td>9.03</td><td>18.0%</td><td>1.63</td></tr><tr><td>2026-01</td><td>北汽福田</td><td>1.81</td><td>11.0%</td><td>0.2</td></tr></tbody>
+        </table>
+        </div>
+    </div>
+</div>
+        <div class="content-section" id="content-新能源-全球整体">
+    <div class="data-card">
+        <div class="data-card-header">
+            <div class="data-card-title">新能源全球整体</div>
+            <span>24条</span>
+        </div>
+        <div class="table-container">
+        <table class="data-table">
+            <thead><tr><th>月份</th><th>本期(万辆)</th><th>环比</th><th>同比</th><th>本年YTD</th><th>渗透率</th></tr></thead>
+            <tbody><tr><td>2026-03</td><td>190.3</td><td>62.65%</td><td>6.31%</td><td>448.0</td><td>22.3%</td></tr><tr><td>2026-02</td><td>117</td><td>-17.02%</td><td>-9.30%</td><td>258.0</td><td>19.1%</td></tr><tr><td>2026-01</td><td>141</td><td>-36.49%</td><td>5.22%</td><td>141.0</td><td>19.8%</td></tr><tr><td>2025-12</td><td>222</td><td>-0.89%</td><td>6.73%</td><td>2,223</td><td>26.0%</td></tr><tr><td>2025-11</td><td>224</td><td>5.66%</td><td>14.29%</td><td>2,001</td><td>27.0%</td></tr><tr><td>2025-10</td><td>212</td><td>-5.36%</td><td>14.59%</td><td>1,777</td><td>26.0%</td></tr><tr><td>2025-09</td><td>224</td><td>19.15%</td><td>28.74%</td><td>1,565</td><td>27.0%</td></tr><tr><td>2025-08</td><td>188</td><td>6.21%</td><td>27.89%</td><td>1,341</td><td>25.0%</td></tr><tr><td>2025-07</td><td>177</td><td>-5.85%</td><td>28.26%</td><td>1,153</td><td>23.0%</td></tr><tr><td>2025-06</td><td>188</td><td>4.44%</td><td>22.88%</td><td>976.0</td><td>23.0%</td></tr><tr><td>2025-05</td><td>180</td><td>8.43%</td><td>31.39%</td><td>788.0</td><td>23.0%</td></tr><tr><td>2025-04</td><td>166</td><td>-7.26%</td><td>34.96%</td><td>608.0</td><td>22.0%</td></tr><tr><td>2025-03</td><td>179</td><td>38.76%</td><td>30.66%</td><td>442.0</td><td>20.0%</td></tr><tr><td>2025-02</td><td>129</td><td>-3.73%</td><td>53.57%</td><td>263.0</td><td>19.0%</td></tr><tr><td>2025-01</td><td>134</td><td>-35.58%</td><td>24.07%</td><td>134.0</td><td>19.0%</td></tr><tr><td>2024-12</td><td>208</td><td>6.12%</td><td>-</td><td>1,790</td><td>24.0%</td></tr><tr><td>2024-11</td><td>196</td><td>5.95%</td><td>-</td><td>1,582</td><td>23.0%</td></tr><tr><td>2024-10</td><td>185</td><td>6.32%</td><td>-</td><td>1,386</td><td>22.0%</td></tr><tr><td>2024-09</td><td>174</td><td>18.37%</td><td>-</td><td>1,201</td><td>22.0%</td></tr><tr><td>2024-08</td><td>147</td><td>6.52%</td><td>-</td><td>1,027</td><td>20.0%</td></tr><tr><td>2024-07</td><td>138</td><td>-9.80%</td><td>-</td><td>880.0</td><td>19.0%</td></tr><tr><td>2024-06</td><td>153</td><td>11.68%</td><td>-</td><td>742.0</td><td>19.0%</td></tr><tr><td>2024-05</td><td>137</td><td>11.38%</td><td>-</td><td>589.0</td><td>18.0%</td></tr><tr><td>2024-04</td><td>123</td><td>-10.22%</td><td>-</td><td>452.0</td><td>17.0%</td></tr></tbody>
+        </table>
+        </div>
+    </div>
+</div>
+        <div class="content-section" id="content-新能源-全球分地区">
+    <div class="data-card">
+        <div class="data-card-header">
+            <div class="data-card-title">新能源全球分地区</div>
+            <span>24条</span>
+        </div>
+        <div class="table-container">
+        <table class="data-table">
+            <thead><tr><th>月份</th><th>地区</th><th>本期(万辆)</th><th>同比</th><th>环比</th><th>渗透率</th></tr></thead>
+            <tbody><tr><td>2026-03</td><td>中国</td><td>116.1</td><td>0.9%</td><td>60.9%</td><td>43.9%</td></tr><tr><td>2026-03</td><td>欧洲</td><td>43.2</td><td>14.0%</td><td>84.2%</td><td>24.1%</td></tr><tr><td>2026-03</td><td>北美</td><td>11.6</td><td>-29.8%</td><td>32.1%</td><td>6.6%</td></tr><tr><td>2026-03</td><td>印度</td><td>3.9</td><td>96.7%</td><td>20.0%</td><td>7.0%</td></tr><tr><td>2026-03</td><td>韩国</td><td>2.4</td><td>68.8%</td><td>49.4%</td><td>14.6%</td></tr><tr><td>2026-03</td><td>日本</td><td>1.8</td><td>59.6%</td><td>50.8%</td><td>3.7%</td></tr><tr><td>2026-03</td><td>其他</td><td>11.4</td><td>75.7%</td><td>67.0%</td><td>12.9%</td></tr><tr><td>2026-02</td><td>中国</td><td>72.2</td><td>-14.2%</td><td>-17.8%</td><td>43.1%</td></tr><tr><td>2026-02</td><td>欧洲</td><td>23.4</td><td>-5.2%</td><td>3.0%</td><td>20.5%</td></tr><tr><td>2026-02</td><td>北美</td><td>8.8</td><td>-29.9%</td><td>4.2%</td><td>6.0%</td></tr><tr><td>2026-02</td><td>韩国</td><td>3.3</td><td>112.4%</td><td>223.3%</td><td>6.3%</td></tr><tr><td>2026-02</td><td>印度</td><td>1.6</td><td>57.5%</td><td>-19.3%</td><td>13.1%</td></tr><tr><td>2026-02</td><td>日本</td><td>1.2</td><td>53.1%</td><td>10.3%</td><td>3.0%</td></tr><tr><td>2026-02</td><td>其他</td><td>6.8</td><td>36.9%</td><td>-37.6%</td><td>9.8%</td></tr><tr><td>2026-01</td><td>中国</td><td>87.9</td><td>-2.1%</td><td>-44.1%</td><td>40.8%</td></tr><tr><td>2026-01</td><td>欧洲</td><td>22.8</td><td>-7.2%</td><td>-39.9%</td><td>22.2%</td></tr><tr><td>2026-01</td><td>北美</td><td>8.4</td><td>-32.9%</td><td>-30.1%</td><td>6.1%</td></tr><tr><td>2026-01</td><td>韩国</td><td>2</td><td>61.0%</td><td>9.0%</td><td>3.6%</td></tr><tr><td>2026-01</td><td>印度</td><td>1.1</td><td>11.3%</td><td>51.7%</td><td>8.9%</td></tr><tr><td>2026-01</td><td>日本</td><td>1</td><td>276.0%</td><td>-6.6%</td><td>2.7%</td></tr><tr><td>2026-01</td><td>其他</td><td>10.9</td><td>124.7%</td><td>-3.9%</td><td>11.3%</td></tr><tr><td>2025-12</td><td>中国</td><td>157.1</td><td>4.6%</td><td>-7.8%</td><td>52.9%</td></tr><tr><td>2025-12</td><td>欧洲</td><td>37.9</td><td>16.7%</td><td>17.6%</td><td>25.2%</td></tr><tr><td>2025-12</td><td>北美</td><td>12</td><td>-31.9%</td><td>27.1%</td><td>6.7%</td></tr></tbody>
+        </table>
+        </div>
+    </div>
+</div>
+        <div class="content-section" id="content-新能源-中国整体">
+    <div class="data-card">
+        <div class="data-card-header">
+            <div class="data-card-title">新能源汽车中国市场</div>
+            <span>24条</span>
+        </div>
+        <div class="table-container">
+        <table class="data-table">
+            <thead><tr><th>月份</th><th>本期(万辆)</th><th>环比</th><th>同比</th><th>本年YTD</th><th>上一年YTD</th><th>累计同比</th></tr></thead>
+            <tbody><tr><td>2026-04</td><td>134.4</td><td>7.35%</td><td>9.62%</td><td>431.0</td><td>430</td><td>0.14%</td></tr><tr><td>2026-03</td><td>125.2</td><td>63.66%</td><td>1.21%</td><td>296.0</td><td>307.5</td><td>-3.67%</td></tr><tr><td>2026-02</td><td>76.5</td><td>-19.05%</td><td>-14.24%</td><td>171.0</td><td>183.5</td><td>-6.81%</td></tr><tr><td>2026-01</td><td>94.5</td><td>-44.74%</td><td>29.63%</td><td>94.0</td><td>72.9</td><td>29.63%</td></tr><tr><td>2025-12</td><td>171</td><td>-6.20%</td><td>7.14%</td><td>1,623</td><td>1289.9</td><td>25.82%</td></tr><tr><td>2025-11</td><td>182.3</td><td>6.30%</td><td>20.57%</td><td>1,452</td><td>1136.9</td><td>27.71%</td></tr><tr><td>2025-10</td><td>171.5</td><td>6.92%</td><td>19.93%</td><td>1,270</td><td>980.3</td><td>29.51%</td></tr><tr><td>2025-09</td><td>160.4</td><td>14.98%</td><td>24.63%</td><td>1,098</td><td>834</td><td>31.67%</td></tr><tr><td>2025-08</td><td>139.5</td><td>10.54%</td><td>26.82%</td><td>938.0</td><td>703.4</td><td>33.31%</td></tr><tr><td>2025-07</td><td>126.2</td><td>-5.04%</td><td>27.35%</td><td>798.0</td><td>594.1</td><td>34.35%</td></tr><tr><td>2025-06</td><td>132.9</td><td>1.68%</td><td>26.69%</td><td>672.0</td><td>495.7</td><td>35.57%</td></tr><tr><td>2025-05</td><td>130.7</td><td>6.61%</td><td>36.86%</td><td>539.0</td><td>395.4</td><td>36.34%</td></tr><tr><td>2025-04</td><td>122.6</td><td>-0.89%</td><td>44.24%</td><td>408.0</td><td>298.5</td><td>36.82%</td></tr><tr><td>2025-03</td><td>123.7</td><td>38.68%</td><td>40.09%</td><td>286.0</td><td>211.5</td><td>35.13%</td></tr><tr><td>2025-02</td><td>89.2</td><td>22.36%</td><td>87.00%</td><td>162.0</td><td>125.2</td><td>29.47%</td></tr><tr><td>2025-01</td><td>72.9</td><td>-54.32%</td><td>0.00%</td><td>73.0</td><td>72.9</td><td>0.00%</td></tr><tr><td>2024-12</td><td>159.6</td><td>5.56%</td><td>-</td><td>1,286</td><td>958.7</td><td>34.13%</td></tr><tr><td>2024-11</td><td>151.2</td><td>5.73%</td><td>-</td><td>1,126</td><td>842.6</td><td>33.67%</td></tr><tr><td>2024-10</td><td>143</td><td>11.11%</td><td>-</td><td>975.0</td><td>735.2</td><td>32.63%</td></tr><tr><td>2024-09</td><td>128.7</td><td>17.00%</td><td>-</td><td>832.0</td><td>631.3</td><td>31.81%</td></tr><tr><td>2024-08</td><td>110</td><td>11.00%</td><td>-</td><td>703.0</td><td>543.4</td><td>29.44%</td></tr><tr><td>2024-07</td><td>99.1</td><td>-5.53%</td><td>-</td><td>593.0</td><td>459.1</td><td>29.25%</td></tr><tr><td>2024-06</td><td>104.9</td><td>9.84%</td><td>-</td><td>494.0</td><td>378.8</td><td>30.49%</td></tr><tr><td>2024-05</td><td>95.5</td><td>12.35%</td><td>-</td><td>389.0</td><td>300.5</td><td>29.58%</td></tr></tbody>
+        </table>
+        </div>
+    </div>
+</div>
+        <div class="content-section" id="content-新能源-出口整体">
+    <div class="data-card">
+        <div class="data-card-header">
+            <div class="data-card-title">新能源汽车出口</div>
+            <span>24条</span>
+        </div>
+        <div class="table-container">
+        <table class="data-table">
+            <thead><tr><th>月份</th><th>出口(万辆)</th><th>环比</th><th>同比</th><th>本年YTD</th><th>上一年YTD</th><th>累计同比</th></tr></thead>
+            <tbody><tr><td>2026-04</td><td>43</td><td>15.9%</td><td>110.0%</td><td>138.0</td><td>64.2</td><td>115.73%</td></tr><tr><td>2026-03</td><td>37.1</td><td>31.6%</td><td>130.0%</td><td>96.0</td><td>44.1</td><td>116.55%</td></tr><tr><td>2026-02</td><td>28.2</td><td>-6.6%</td><td>110.0%</td><td>58.0</td><td>28.2</td><td>107.09%</td></tr><tr><td>2026-01</td><td>30.2</td><td>0.5%</td><td>1</td><td>30.0</td><td>15</td><td>101.33%</td></tr><tr><td>2025-12</td><td>30</td><td>-0.1%</td><td>123.9%</td><td>258.0</td><td>127.5</td><td>102.59%</td></tr><tr><td>2025-11</td><td>30</td><td>17.2%</td><td>261.4%</td><td>228.0</td><td>114.1</td><td>100.09%</td></tr><tr><td>2025-10</td><td>25.6</td><td>15.3%</td><td>99.9%</td><td>198.0</td><td>105.8</td><td>87.43%</td></tr><tr><td>2025-09</td><td>22.2</td><td>-0.9%</td><td>1</td><td>173.0</td><td>92.8</td><td>86.10%</td></tr><tr><td>2025-08</td><td>22.4</td><td>-0.6%</td><td>1</td><td>151.0</td><td>81.8</td><td>83.99%</td></tr><tr><td>2025-07</td><td>22.5</td><td>10.0%</td><td>120.0%</td><td>128.0</td><td>70.8</td><td>80.93%</td></tr><tr><td>2025-06</td><td>20.5</td><td>-3.6%</td><td>140.0%</td><td>106.0</td><td>60.5</td><td>74.55%</td></tr><tr><td>2025-05</td><td>21.2</td><td>6.1%</td><td>120.0%</td><td>85.0</td><td>51.9</td><td>63.97%</td></tr><tr><td>2025-04</td><td>20</td><td>27.0%</td><td>76.0%</td><td>64.0</td><td>42.1</td><td>51.78%</td></tr><tr><td>2025-03</td><td>15.8</td><td>20.1%</td><td>26.8%</td><td>44.0</td><td>30.7</td><td>43.00%</td></tr><tr><td>2025-02</td><td>13.1</td><td>-12.6%</td><td>60.5%</td><td>28.0</td><td>18.2</td><td>54.40%</td></tr><tr><td>2025-01</td><td>15</td><td>12.6%</td><td>49.6%</td><td>15.0</td><td>10.1</td><td>48.51%</td></tr><tr><td>2024-12</td><td>13.4</td><td>61.4%</td><td>20.7%</td><td>127.0</td><td>120.3</td><td>5.99%</td></tr><tr><td>2024-11</td><td>8.3</td><td>-35.2%</td><td>-14.1%</td><td>114.0</td><td>109.1</td><td>4.58%</td></tr><tr><td>2024-10</td><td>12.8</td><td>16.0%</td><td>3.6%</td><td>106.0</td><td>99.5</td><td>6.33%</td></tr><tr><td>2024-09</td><td>11.1</td><td>0.9%</td><td>15.6%</td><td>93.0</td><td>82.5</td><td>12.73%</td></tr><tr><td>2024-08</td><td>11</td><td>6.1%</td><td>22.0%</td><td>82.0</td><td>72.7</td><td>12.65%</td></tr><tr><td>2024-07</td><td>10.3</td><td>20.6%</td><td>2.2%</td><td>71.0</td><td>63.6</td><td>11.48%</td></tr><tr><td>2024-06</td><td>8.6</td><td>-13.1%</td><td>10.3%</td><td>61.0</td><td>53.4</td><td>13.48%</td></tr><tr><td>2024-05</td><td>9.9</td><td>-13.2%</td><td>-8.3%</td><td>52.0</td><td>45.7</td><td>13.79%</td></tr></tbody>
+        </table>
+        </div>
+    </div>
+</div>
+        <div class="content-section" id="content-新能源-乘用车零售">
+    <div class="data-card">
+        <div class="data-card-header">
+            <div class="data-card-title">新能源乘用车零售</div>
+            <span>24条</span>
+        </div>
+        <div class="table-container">
+        <table class="data-table">
+            <thead><tr><th>月份</th><th>本期(万辆)</th><th>环比</th><th>同比</th><th>渗透率</th><th>本年YTD</th><th>累计同比</th></tr></thead>
+            <tbody><tr><td>2026-04</td><td>84.9</td><td>0.12%</td><td>-6.81%</td><td>61.4%</td><td>276.0</td><td>-17.26%</td></tr><tr><td>2026-03</td><td>84.8</td><td>82.76%</td><td>-14.43%</td><td>51.5%</td><td>191.0</td><td>-21.19%</td></tr><tr><td>2026-02</td><td>46.4</td><td>-22.15%</td><td>-32.75%</td><td>44.9%</td><td>106.0</td><td>-25.87%</td></tr><tr><td>2026-01</td><td>59.6</td><td>-55.42%</td><td>-19.46%</td><td>38.6%</td><td>60.0</td><td>-19.46%</td></tr><tr><td>2025-12</td><td>133.7</td><td>1.21%</td><td>2.69%</td><td>59.1%</td><td>1,280</td><td>17.50%</td></tr><tr><td>2025-11</td><td>132.1</td><td>3.12%</td><td>4.02%</td><td>59.4%</td><td>1,147</td><td>19.50%</td></tr><tr><td>2025-10</td><td>128.1</td><td>-1.39%</td><td>7.11%</td><td>57.0%</td><td>1,015</td><td>21.84%</td></tr><tr><td>2025-09</td><td>129.9</td><td>16.50%</td><td>15.67%</td><td>57.9%</td><td>886.0</td><td>24.30%</td></tr><tr><td>2025-08</td><td>111.5</td><td>12.97%</td><td>8.78%</td><td>55.2%</td><td>757.0</td><td>25.91%</td></tr><tr><td>2025-07</td><td>98.7</td><td>-11.16%</td><td>12.41%</td><td>54.0%</td><td>645.0</td><td>29.30%</td></tr><tr><td>2025-06</td><td>111.1</td><td>8.81%</td><td>29.64%</td><td>53.3%</td><td>546.0</td><td>32.85%</td></tr><tr><td>2025-05</td><td>102.1</td><td>12.07%</td><td>26.99%</td><td>52.9%</td><td>435.0</td><td>33.73%</td></tr><tr><td>2025-04</td><td>91.1</td><td>-8.07%</td><td>35.16%</td><td>51.5%</td><td>333.0</td><td>36.11%</td></tr><tr><td>2025-03</td><td>99.1</td><td>43.62%</td><td>39.19%</td><td>51.1%</td><td>242.0</td><td>36.63%</td></tr><tr><td>2025-02</td><td>69</td><td>-6.76%</td><td>77.84%</td><td>48.0%</td><td>143.0</td><td>35.03%</td></tr><tr><td>2025-01</td><td>74</td><td>-43.16%</td><td>10.78%</td><td>44.3%</td><td>74.0</td><td>10.78%</td></tr><tr><td>2024-12</td><td>130.2</td><td>2.52%</td><td>-</td><td>49.4%</td><td>1,090</td><td>40.79%</td></tr><tr><td>2024-11</td><td>127</td><td>6.19%</td><td>-</td><td>52.4%</td><td>960.0</td><td>40.94%</td></tr><tr><td>2024-10</td><td>119.6</td><td>6.50%</td><td>-</td><td>52.9%</td><td>832.0</td><td>39.85%</td></tr><tr><td>2024-09</td><td>112.3</td><td>9.56%</td><td>-</td><td>53.2%</td><td>713.0</td><td>37.41%</td></tr><tr><td>2024-08</td><td>102.5</td><td>16.74%</td><td>-</td><td>53.7%</td><td>601.0</td><td>35.24%</td></tr><tr><td>2024-07</td><td>87.8</td><td>2.45%</td><td>-</td><td>51.0%</td><td>498.0</td><td>33.72%</td></tr><tr><td>2024-06</td><td>85.7</td><td>6.59%</td><td>-</td><td>48.6%</td><td>410.0</td><td>32.96%</td></tr><tr><td>2024-05</td><td>80.4</td><td>19.29%</td><td>-</td><td>47.0%</td><td>325.0</td><td>34.08%</td></tr></tbody>
+        </table>
+        </div>
+    </div>
+</div>
+        <div class="content-section" id="content-新能源-商用车零售">
+    <div class="data-card">
+        <div class="data-card-header">
+            <div class="data-card-title">新能源商用车零售</div>
+            <span>24条</span>
+        </div>
+        <div class="table-container">
+        <table class="data-table">
+            <thead><tr><th>月份</th><th>本期(万辆)</th><th>环比</th><th>同比</th><th>渗透率</th><th>本年YTD</th></tr></thead>
+            <tbody><tr><td>2026-03</td><td>9.9</td><td>247.02%</td><td>41.89%</td><td>28.0%</td><td>17.7</td></tr><tr><td>2026-02</td><td>2.9</td><td>-42.89%</td><td>-37.09%</td><td>23.0%</td><td>7.8</td></tr><tr><td>2026-01</td><td>5.0</td><td>-63.84%</td><td>63.61%</td><td>26.0%</td><td>5.0</td></tr><tr><td>2025-12</td><td>13.8</td><td>49.84%</td><td>71.22%</td><td>46.0%</td><td>90.7</td></tr><tr><td>2025-11</td><td>9.2</td><td>15.41%</td><td>45.50%</td><td>36.0%</td><td>76.9</td></tr><tr><td>2025-10</td><td>8.0</td><td>-15.38%</td><td>44.83%</td><td>32.0%</td><td>67.7</td></tr><tr><td>2025-09</td><td>9.4</td><td>28.47%</td><td>73.03%</td><td>32.0%</td><td>59.7</td></tr><tr><td>2025-08</td><td>7.3</td><td>2.66%</td><td>45.92%</td><td>30.0%</td><td>50.3</td></tr><tr><td>2025-07</td><td>7.2</td><td>-4.28%</td><td>52.13%</td><td>29.0%</td><td>43.0</td></tr><tr><td>2025-06</td><td>7.5</td><td>10.67%</td><td>63.10%</td><td>29.0%</td><td>35.8</td></tr><tr><td>2025-05</td><td>6.8</td><td>-3.98%</td><td>47.38%</td><td>26.0%</td><td>28.3</td></tr><tr><td>2025-04</td><td>7.0</td><td>0.86%</td><td>53.16%</td><td>25.0%</td><td>21.6</td></tr><tr><td>2025-03</td><td>7.0</td><td>53.86%</td><td>42.24%</td><td>22.0%</td><td>14.6</td></tr><tr><td>2025-02</td><td>4.5</td><td>48.52%</td><td>181.37%</td><td>19.0%</td><td>7.6</td></tr><tr><td>2025-01</td><td>3.0</td><td>-62.16%</td><td>24.49%</td><td>19.0%</td><td>3.0</td></tr><tr><td>2024-12</td><td>8.1</td><td>27.33%</td><td>-</td><td>29.0%</td><td>57.8</td></tr><tr><td>2024-11</td><td>6.3</td><td>14.88%</td><td>-</td><td>25.0%</td><td>49.7</td></tr><tr><td>2024-10</td><td>5.5</td><td>1.10%</td><td>-</td><td>25.0%</td><td>43.4</td></tr><tr><td>2024-09</td><td>5.5</td><td>8.35%</td><td>-</td><td>24.0%</td><td>37.9</td></tr><tr><td>2024-08</td><td>5.0</td><td>7.02%</td><td>-</td><td>23.0%</td><td>32.4</td></tr><tr><td>2024-07</td><td>4.7</td><td>2.62%</td><td>-</td><td>21.0%</td><td>27.4</td></tr><tr><td>2024-06</td><td>4.6</td><td>0.00%</td><td>-</td><td>21.0%</td><td>22.7</td></tr><tr><td>2024-05</td><td>4.6</td><td>-0.22%</td><td>-</td><td>19.0%</td><td>18.1</td></tr><tr><td>2024-04</td><td>4.6</td><td>-6.33%</td><td>-</td><td>16.0%</td><td>13.6</td></tr></tbody>
+        </table>
+        </div>
+    </div>
+</div>
+        <div class="content-section" id="content-新能源-乘用车分类型">
+    <div class="data-card">
+        <div class="data-card-header">
+            <div class="data-card-title">新能源乘用车分类型(BEV/PHEV)</div>
+            <span>24条</span>
+        </div>
+        <div class="table-container">
+        <table class="data-table">
+            <thead><tr><th>月份</th><th>技术类型</th><th>本期(万辆)</th><th>同期</th><th>同比</th><th>本年YTD</th><th>累计同比</th></tr></thead>
+            <tbody><tr><td>2026-04</td><td>BEV（纯电）</td><td>57.9</td><td>56.5</td><td>2.48%</td><td>177.3</td><td>-13.72%</td></tr><tr><td>2026-04</td><td>PHEV（插电）</td><td>19.2</td><td>25.8</td><td>-25.58%</td><td>70.2</td><td>-27.55%</td></tr><tr><td>2026-04</td><td>EREV（增程）</td><td>7.9</td><td>8.8</td><td>-10.23%</td><td>28.3</td><td>-7.82%</td></tr><tr><td>2026-03</td><td>BEV（纯电）</td><td>56.8</td><td>64.4</td><td>-11.80%</td><td>119.4</td><td>-19.87%</td></tr><tr><td>2026-03</td><td>PHEV（插电）</td><td>20.4</td><td>26.7</td><td>-23.60%</td><td>51.0</td><td>-28.27%</td></tr><tr><td>2026-03</td><td>EREV（增程）</td><td>7.6</td><td>8</td><td>-5.00%</td><td>20.4</td><td>-6.42%</td></tr><tr><td>2026-02</td><td>BEV（纯电）</td><td>27.8</td><td>42.7</td><td>-34.89%</td><td>62.6</td><td>-26.00%</td></tr><tr><td>2026-02</td><td>PHEV（插电）</td><td>13.4</td><td>19.4</td><td>-30.93%</td><td>30.6</td><td>-31.08%</td></tr><tr><td>2026-02</td><td>EREV（增程）</td><td>5.2</td><td>6.2</td><td>-16.13%</td><td>12.8</td><td>-7.25%</td></tr><tr><td>2026-01</td><td>BEV（纯电）</td><td>34.8</td><td>41.9</td><td>-16.95%</td><td>34.8</td><td>-16.95%</td></tr><tr><td>2026-01</td><td>PHEV（插电）</td><td>17.2</td><td>25</td><td>-31.20%</td><td>17.2</td><td>-31.20%</td></tr><tr><td>2026-01</td><td>EREV（增程）</td><td>7.6</td><td>7.6</td><td>0.00%</td><td>7.6</td><td>0.00%</td></tr><tr><td>2025-12</td><td>BEV（纯电）</td><td>78.2</td><td>76.2</td><td>2.62%</td><td>788.5</td><td>24.51%</td></tr><tr><td>2025-12</td><td>PHEV（插电）</td><td>41</td><td>41.5</td><td>-1.20%</td><td>371.2</td><td>9.27%</td></tr><tr><td>2025-12</td><td>EREV（增程）</td><td>14.5</td><td>12.6</td><td>15.08%</td><td>120.9</td><td>3.78%</td></tr><tr><td>2025-11</td><td>BEV（纯电）</td><td>82.7</td><td>75.7</td><td>9.25%</td><td>710.3</td><td>27.52%</td></tr><tr><td>2025-11</td><td>PHEV（插电）</td><td>37.8</td><td>38.9</td><td>-2.83%</td><td>330.2</td><td>10.55%</td></tr><tr><td>2025-11</td><td>EREV（增程）</td><td>11.6</td><td>12.1</td><td>-4.13%</td><td>106.4</td><td>2.90%</td></tr><tr><td>2025-10</td><td>BEV（纯电）</td><td>81.2</td><td>67.4</td><td>20.47%</td><td>627.6</td><td>36.05%</td></tr><tr><td>2025-10</td><td>PHEV（插电）</td><td>36</td><td>40.2</td><td>-10.45%</td><td>292.4</td><td>12.55%</td></tr><tr><td>2025-10</td><td>EREV（增程）</td><td>11.2</td><td>11.9</td><td>-5.88%</td><td>94.8</td><td>3.72%</td></tr><tr><td>2025-09</td><td>BEV（纯电）</td><td>83.2</td><td>64.3</td><td>29.39%</td><td>546.4</td><td>32.01%</td></tr><tr><td>2025-09</td><td>PHEV（插电）</td><td>36</td><td>36.1</td><td>-0.28%</td><td>256.4</td><td>16.76%</td></tr><tr><td>2025-09</td><td>EREV（增程）</td><td>10.6</td><td>11.8</td><td>-10.17%</td><td>83.6</td><td>5.16%</td></tr></tbody>
+        </table>
+        </div>
+    </div>
+</div>
+        <div class="content-section" id="content-新能源-乘用车分级别">
+    <div class="data-card">
+        <div class="data-card-header">
+            <div class="data-card-title">新能源乘用车分级别</div>
+            <span>24条</span>
+        </div>
+        <div class="table-container">
+        <table class="data-table">
+            <thead><tr><th>月份</th><th>级别</th><th>BEV份额</th><th>PHEV份额</th><th>合计份额</th></tr></thead>
+            <tbody><tr><td>2026-04</td><td>A00</td><td>6.1%</td><td>0</td><td>6.09%</td></tr><tr><td>2026-04</td><td>A0</td><td>16.8%</td><td>0.1%</td><td>16.97%</td></tr><tr><td>2026-04</td><td>A</td><td>21.6%</td><td>13.0%</td><td>34.63%</td></tr><tr><td>2026-04</td><td>B</td><td>20.5%</td><td>3.0%</td><td>23.59%</td></tr><tr><td>2026-04</td><td>C</td><td>12.2%</td><td>6.6%</td><td>18.72%</td></tr><tr><td>2026-03</td><td>A00</td><td>6.3%</td><td>0</td><td>6.26%</td></tr><tr><td>2026-03</td><td>A0</td><td>17.4%</td><td>0.1%</td><td>17.52%</td></tr><tr><td>2026-03</td><td>A</td><td>16.4%</td><td>15.4%</td><td>31.87%</td></tr><tr><td>2026-03</td><td>B</td><td>22.1%</td><td>12.4%</td><td>34.53%</td></tr><tr><td>2026-03</td><td>C</td><td>4.2%</td><td>5.6%</td><td>9.82%</td></tr><tr><td>2026-02</td><td>A00</td><td>4.0%</td><td>0</td><td>3.97%</td></tr><tr><td>2026-02</td><td>A0</td><td>14.3%</td><td>0.0%</td><td>14.34%</td></tr><tr><td>2026-02</td><td>A</td><td>10.4%</td><td>16.0%</td><td>26.36%</td></tr><tr><td>2026-02</td><td>B</td><td>26.9%</td><td>15.9%</td><td>42.75%</td></tr><tr><td>2026-02</td><td>C</td><td>4.2%</td><td>8.3%</td><td>12.58%</td></tr><tr><td>2026-01</td><td>A00</td><td>3.3%</td><td>0</td><td>3.32%</td></tr><tr><td>2026-01</td><td>A0</td><td>14.4%</td><td>0.0%</td><td>14.45%</td></tr><tr><td>2026-01</td><td>A</td><td>10.6%</td><td>15.5%</td><td>26.08%</td></tr><tr><td>2026-01</td><td>B</td><td>24.9%</td><td>17.2%</td><td>42.18%</td></tr><tr><td>2026-01</td><td>C</td><td>5.1%</td><td>8.9%</td><td>13.96%</td></tr><tr><td>2025-12</td><td>A00</td><td>5.5%</td><td>0</td><td>5.45%</td></tr><tr><td>2025-12</td><td>A0</td><td>12.9%</td><td>0.2%</td><td>13.12%</td></tr><tr><td>2025-12</td><td>A</td><td>12.7%</td><td>16.0%</td><td>28.67%</td></tr><tr><td>2025-12</td><td>B</td><td>22.6%</td><td>18.0%</td><td>40.65%</td></tr></tbody>
+        </table>
+        </div>
+    </div>
+</div>
+        <div class="content-section" id="content-新能源-乘用车分品牌">
+    <div class="data-card">
+        <div class="data-card-header">
+            <div class="data-card-title">新能源乘用车分品牌TOP</div>
+            <span>24条</span>
+        </div>
+        <div class="table-container">
+        <table class="data-table">
+            <thead><tr><th>月份</th><th>排名</th><th>厂商</th><th>销量(万辆)</th><th>份额</th><th>环比</th><th>同比</th></tr></thead>
+            <tbody><tr><td>2026-04</td><td>1</td><td>比亚迪汽车</td><td>18.20</td><td>21.4%</td><td>-6.2%</td><td>-32.3%</td></tr><tr><td>2026-04</td><td>2</td><td>吉利汽车</td><td>9.56</td><td>11.3%</td><td>-1.3%</td><td>-19.6%</td></tr><tr><td>2026-04</td><td>3</td><td>长安汽车</td><td>6.45</td><td>7.6%</td><td>-5.3%</td><td>6.4%</td></tr><tr><td>2026-04</td><td>4</td><td>零跑汽车</td><td>5.72</td><td>6.7%</td><td>71.0%</td><td>63.5%</td></tr><tr><td>2026-04</td><td>5</td><td>小米汽车</td><td>3.67</td><td>4.3%</td><td>-</td><td>28.4%</td></tr><tr><td>2026-04</td><td>6</td><td>奇瑞汽车</td><td>3.48</td><td>4.1%</td><td>-</td><td>-6.0%</td></tr><tr><td>2026-04</td><td>7</td><td>上汽通用五菱</td><td>3.45</td><td>4.1%</td><td>-14.7%</td><td>-33.4%</td></tr><tr><td>2026-04</td><td>8</td><td>理想汽车</td><td>3.41</td><td>4.0%</td><td>-17.0%</td><td>0.4%</td></tr><tr><td>2026-04</td><td>9</td><td>鸿蒙智行</td><td>3.28</td><td>3.9%</td><td>-</td><td>18.9%</td></tr><tr><td>2026-04</td><td>10</td><td>蔚来汽车</td><td>2.93</td><td>3.5%</td><td>-17.2%</td><td>22.6%</td></tr><tr><td>2026-03</td><td>1</td><td>比亚迪汽车</td><td>19.41</td><td>22.8%</td><td>118.9%</td><td>-33.1%</td></tr><tr><td>2026-03</td><td>2</td><td>吉利汽车</td><td>9.68</td><td>11.4%</td><td>26.4%</td><td>-12.7%</td></tr><tr><td>2026-03</td><td>3</td><td>长安汽车</td><td>6.81</td><td>8.0%</td><td>141.3%</td><td>11.4%</td></tr><tr><td>2026-03</td><td>4</td><td>特斯拉中国</td><td>5.61</td><td>6.6%</td><td>46.9%</td><td>-24.3%</td></tr><tr><td>2026-03</td><td>5</td><td>理想汽车</td><td>4.11</td><td>4.8%</td><td>55.4%</td><td>11.9%</td></tr><tr><td>2026-03</td><td>6</td><td>上汽通用五菱</td><td>4.04</td><td>4.7%</td><td>-</td><td>-41.7%</td></tr><tr><td>2026-03</td><td>7</td><td>蔚来汽车</td><td>3.54</td><td>4.2%</td><td>70.5%</td><td>136.7%</td></tr><tr><td>2026-03</td><td>8</td><td>零跑汽车</td><td>3.34</td><td>3.9%</td><td>82.6%</td><td>0.3%</td></tr><tr><td>2026-03</td><td>9</td><td>广汽埃安</td><td>3.30</td><td>3.9%</td><td>-</td><td>1.7%</td></tr><tr><td>2026-03</td><td>10</td><td>东风汽车</td><td>2.90</td><td>3.4%</td><td>-</td><td>14.3%</td></tr><tr><td>2026-02</td><td>1</td><td>比亚迪汽车</td><td>8.87</td><td>19.1%</td><td>-5.8%</td><td>-56.9%</td></tr><tr><td>2026-02</td><td>2</td><td>吉利汽车</td><td>7.66</td><td>16.5%</td><td>-16.8%</td><td>-17.9%</td></tr><tr><td>2026-02</td><td>3</td><td>特斯拉中国</td><td>3.82</td><td>8.2%</td><td>-</td><td>42.7%</td></tr><tr><td>2026-02</td><td>4</td><td>长安汽车</td><td>2.82</td><td>6.1%</td><td>-9.3%</td><td>-36.4%</td></tr></tbody>
+        </table>
+        </div>
+    </div>
+</div>
+        <div class="content-section" id="content-新能源-乘用车出口分市场">
+    <div class="data-card">
+        <div class="data-card-header">
+            <div class="data-card-title">乘用车出口分市场</div>
+            <span>24条</span>
+        </div>
+        <div class="table-container">
+        <table class="data-table">
+            <thead><tr><th>月份</th><th>技术路线</th><th>排名</th><th>国家</th><th>销量(辆)</th><th>同比</th></tr></thead>
+            <tbody><tr><td>2026-03</td><td>BEV</td><td>1</td><td>巴西</td><td>2.38</td><td>418.0%</td></tr><tr><td>2026-03</td><td>BEV</td><td>2</td><td>比利时</td><td>2.25</td><td>69.0%</td></tr><tr><td>2026-03</td><td>BEV</td><td>3</td><td>泰国</td><td>1.56</td><td>11.0%</td></tr><tr><td>2026-03</td><td>BEV</td><td>4</td><td>英国</td><td>1.41</td><td>145.0%</td></tr><tr><td>2026-03</td><td>BEV</td><td>5</td><td>韩国</td><td>1.24</td><td>11%</td></tr><tr><td>2026-03</td><td>BEV</td><td>6</td><td>中国香港</td><td>1.11</td><td>554.0%</td></tr><tr><td>2026-03</td><td>BEV</td><td>7</td><td>德国</td><td>1.06</td><td>352.0%</td></tr><tr><td>2026-03</td><td>BEV</td><td>8</td><td>澳大利亚</td><td>0.95</td><td>68.0%</td></tr><tr><td>2026-03</td><td>BEV</td><td>9</td><td>意大利</td><td>0.89</td><td>525.0%</td></tr><tr><td>2026-03</td><td>BEV</td><td>10</td><td>菲律宾</td><td>0.74</td><td>-30.0%</td></tr><tr><td>2026-03</td><td>PHEV</td><td>1</td><td>巴西</td><td>2.68</td><td>88.0%</td></tr><tr><td>2026-03</td><td>PHEV</td><td>2</td><td>英国</td><td>0.95</td><td>80.0%</td></tr><tr><td>2026-03</td><td>PHEV</td><td>3</td><td>比利时</td><td>0.94</td><td>90.0%</td></tr><tr><td>2026-03</td><td>PHEV</td><td>4</td><td>德国</td><td>0.6</td><td>10%</td></tr><tr><td>2026-03</td><td>PHEV</td><td>5</td><td>澳大利亚</td><td>0.48</td><td>150.0%</td></tr><tr><td>2026-03</td><td>PHEV</td><td>6</td><td>西班牙</td><td>0.46</td><td>181.0%</td></tr><tr><td>2026-03</td><td>PHEV</td><td>7</td><td>意大利</td><td>0.44</td><td>12%</td></tr><tr><td>2026-03</td><td>PHEV</td><td>8</td><td>墨西哥</td><td>0.44</td><td>-59.0%</td></tr><tr><td>2026-03</td><td>PHEV</td><td>9</td><td>俄罗斯</td><td>0.36</td><td>296.0%</td></tr><tr><td>2026-03</td><td>PHEV</td><td>10</td><td>以色列</td><td>0.32</td><td>-7.0%</td></tr><tr><td>2026-02</td><td>BEV</td><td>1</td><td>巴西</td><td>3.02</td><td>18%</td></tr><tr><td>2026-02</td><td>BEV</td><td>2</td><td>泰国</td><td>1.35</td><td>116.0%</td></tr><tr><td>2026-02</td><td>BEV</td><td>3</td><td>比利时</td><td>1.35</td><td>33.0%</td></tr><tr><td>2026-02</td><td>BEV</td><td>4</td><td>韩国</td><td>1.15</td><td>265.0%</td></tr></tbody>
+        </table>
+        </div>
+    </div>
+</div>
+        <div class="content-section" id="content-新能源-乘用车出口分类型">
+    <div class="data-card">
+        <div class="data-card-header">
+            <div class="data-card-title">乘用车出口分类型</div>
+            <span>24条</span>
+        </div>
+        <div class="table-container">
+        <table class="data-table">
+            <thead><tr><th>月份</th><th>类型</th><th>本期(万辆)</th><th>同比</th><th>当月占比</th></tr></thead>
+            <tbody><tr><td>2026-03</td><td>BEV</td><td>21.3</td><td>116.2%</td><td>28.5%</td></tr><tr><td>2026-03</td><td>PHEV</td><td>15</td><td>200.2%</td><td>20.0%</td></tr><tr><td>2026-03</td><td>单月总计</td><td>36.3</td><td>144.5%</td><td>48.5%</td></tr><tr><td>2026-02</td><td>BEV</td><td>17.1</td><td>118.3%</td><td>29.2%</td></tr><tr><td>2026-02</td><td>PHEV</td><td>10.5</td><td>128.3%</td><td>18.0%</td></tr><tr><td>2026-02</td><td>单月总计</td><td>27.6</td><td>122.1%</td><td>47.2%</td></tr><tr><td>2026-01</td><td>BEV</td><td>19.9</td><td>105.1%</td><td>33.8%</td></tr><tr><td>2026-01</td><td>PHEV</td><td>9.6</td><td>105.2%</td><td>16.3%</td></tr><tr><td>2026-01</td><td>单月总计</td><td>29.5</td><td>105.1%</td><td>50.1%</td></tr><tr><td>2025-12</td><td>BEV</td><td>16.9</td><td>116.9%</td><td>26.3%</td></tr><tr><td>2025-12</td><td>PHEV</td><td>12.6</td><td>167.5%</td><td>19.6%</td></tr><tr><td>2025-12</td><td>单月总计</td><td>29.4</td><td>135.9%</td><td>45.9%</td></tr><tr><td>2025-11</td><td>BEV</td><td>17.4</td><td>210.8%</td><td>27.9%</td></tr><tr><td>2025-11</td><td>PHEV</td><td>12</td><td>436.5%</td><td>19.2%</td></tr><tr><td>2025-11</td><td>单月总计</td><td>29.4</td><td>275.2%</td><td>47.1%</td></tr><tr><td>2025-10</td><td>BEV</td><td>16.3</td><td>62.3%</td><td>28.5%</td></tr><tr><td>2025-10</td><td>PHEV</td><td>8.7</td><td>283.5%</td><td>15.1%</td></tr><tr><td>2025-10</td><td>单月总计</td><td>25</td><td>102.9%</td><td>43.7%</td></tr><tr><td>2025-09</td><td>BEV</td><td>15</td><td>73.9%</td><td>26.7%</td></tr><tr><td>2025-09</td><td>PHEV</td><td>6.7</td><td>227.0%</td><td>12.0%</td></tr><tr><td>2025-09</td><td>单月总计</td><td>21.7</td><td>103.4%</td><td>38.7%</td></tr><tr><td>2025-08</td><td>BEV</td><td>14</td><td>65.0%</td><td>27.5%</td></tr><tr><td>2025-08</td><td>PHEV</td><td>8</td><td>285.0%</td><td>16.5%</td></tr><tr><td>2025-08</td><td>单月总计</td><td>22</td><td>119.3%</td><td>44.1%</td></tr></tbody>
+        </table>
+        </div>
+    </div>
+</div>
+        <div class="content-section" id="content-新能源-乘用车出口分车企">
+    <div class="data-card">
+        <div class="data-card-header">
+            <div class="data-card-title">乘用车出口分车企TOP</div>
+            <span>24条</span>
+        </div>
+        <div class="table-container">
+        <table class="data-table">
+            <thead><tr><th>月份</th><th>整车厂</th><th>销量(万辆)</th><th>同期</th><th>同比</th><th>占比</th></tr></thead>
+            <tbody><tr><td>2026-03</td><td>比亚迪汽车</td><td>11.69</td><td>6.73</td><td>73.7%</td><td>32.2%</td></tr><tr><td>2026-03</td><td>吉利集团</td><td>6.04</td><td>1.26</td><td>381.0%</td><td>16.6%</td></tr><tr><td>2026-03</td><td>奇瑞集团</td><td>4.08</td><td>1.64</td><td>149.4%</td><td>11.2%</td></tr><tr><td>2026-03</td><td>特斯拉</td><td>2.96</td><td>0.47</td><td>528.9%</td><td>8.1%</td></tr><tr><td>2026-03</td><td>上汽集团</td><td>2.23</td><td>1.32</td><td>69.2%</td><td>6.1%</td></tr><tr><td>2026-03</td><td>东风汽车</td><td>1.73</td><td>0.83</td><td>108.4%</td><td>4.8%</td></tr><tr><td>2026-03</td><td>零跑汽车</td><td>1.66</td><td>0.38</td><td>341.3%</td><td>4.6%</td></tr><tr><td>2026-03</td><td>长安汽车</td><td>1.47</td><td>0.22</td><td>570.9%</td><td>4.1%</td></tr><tr><td>2026-03</td><td>广汽集团</td><td>1.16</td><td>0.24</td><td>379.8%</td><td>3.2%</td></tr><tr><td>2026-03</td><td>光束汽车</td><td>0.68</td><td>0.43</td><td>60.3%</td><td>1.9%</td></tr><tr><td>2026-02</td><td>比亚迪汽车</td><td>9.87</td><td>6.7</td><td>47.3%</td><td>35.7%</td></tr><tr><td>2026-02</td><td>吉利集团</td><td>5.10</td><td>0.76</td><td>568.5%</td><td>18.5%</td></tr><tr><td>2026-02</td><td>奇瑞集团</td><td>2.83</td><td>1.11</td><td>155.0%</td><td>10.2%</td></tr><tr><td>2026-02</td><td>特斯拉</td><td>2.04</td><td>0.39</td><td>421.4%</td><td>7.4%</td></tr><tr><td>2026-02</td><td>上汽集团</td><td>1.91</td><td>0.76</td><td>152.2%</td><td>6.9%</td></tr><tr><td>2026-02</td><td>长安汽车</td><td>1.10</td><td>0.42</td><td>159.0%</td><td>4.0%</td></tr><tr><td>2026-02</td><td>零跑汽车</td><td>0.98</td><td>0.16</td><td>504.5%</td><td>3.5%</td></tr><tr><td>2026-02</td><td>东风汽车</td><td>0.97</td><td>0.62</td><td>55.9%</td><td>3.5%</td></tr><tr><td>2026-02</td><td>广汽集团</td><td>0.52</td><td>0.14</td><td>277.1%</td><td>1.9%</td></tr><tr><td>2026-02</td><td>光束汽车</td><td>0.36</td><td>0.37</td><td>-1.7%</td><td>1.3%</td></tr><tr><td>2026-01</td><td>比亚迪汽车</td><td>9.87</td><td>6.7</td><td>47.3%</td><td>35.7%</td></tr><tr><td>2026-01</td><td>吉利集团</td><td>5.10</td><td>0.76</td><td>568.5%</td><td>18.5%</td></tr><tr><td>2026-01</td><td>奇瑞集团</td><td>2.83</td><td>1.11</td><td>155.0%</td><td>10.2%</td></tr><tr><td>2026-01</td><td>特斯拉</td><td>2.04</td><td>0.39</td><td>421.4%</td><td>7.4%</td></tr></tbody>
+        </table>
+        </div>
+    </div>
+</div>
+    </div>
+</div>
+
+<script>
+
+(function() {
+    var updateTime = document.getElementById('updateTime');
+    if (updateTime && window.AUTOMOTIVE_DATA) {
+        updateTime.textContent = window.AUTOMOTIVE_DATA.update_time || '未知';
+    }
+
+    var navItems = document.querySelectorAll('.nav-item');
+    if (navItems.length > 0) {
+        navItems[0].classList.add('active');
+        var match = navItems[0].getAttribute('onclick').match(/'([^']+)'/);
+        if (match) {
+            var sec = document.getElementById('content-' + match[1]);
+            if (sec) sec.classList.add('active');
+        }
+    }
+})();
+
+function switchNav(id, el) {
+    document.querySelectorAll('.nav-item').forEach(function(ni) { ni.classList.remove('active'); });
+    document.querySelectorAll('.content-section').forEach(function(cs) { cs.classList.remove('active'); });
+    if (el) el.classList.add('active');
+    var section = document.getElementById('content-' + id);
+    if (section) section.classList.add('active');
+}
+
+function toggleSidebar() {
+    var sidebar = document.getElementById('sidebar');
+    sidebar.classList.toggle('collapsed');
+    var main = document.querySelector('.main-content');
+    if (main) {
+        main.style.marginLeft = sidebar.classList.contains('collapsed')
+            ? 'var(--sidebar-collapsed)' : 'var(--sidebar-width)';
+    }
+}
+</script>
+</body>
+</html>

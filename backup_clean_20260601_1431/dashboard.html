@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>磷酸铁锂行业综合洞察报告可视化看板 - 2026Q1</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 50px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .header p {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+        
+        .dashboard-info {
+            display: flex;
+            justify-content: space-around;
+            background: #f8f9fa;
+            padding: 20px;
+            border-bottom: 2px solid #e9ecef;
+        }
+        
+        .info-card {
+            text-align: center;
+            padding: 15px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            min-width: 200px;
+        }
+        
+        .info-card h3 {
+            color: #1e3c72;
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+        
+        .info-card p {
+            color: #6c757d;
+            font-size: 14px;
+        }
+        
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(600px, 1fr));
+            gap: 20px;
+            padding: 30px;
+        }
+        
+        .chart-card {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .chart-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        
+        .chart-card h2 {
+            color: #1e3c72;
+            font-size: 20px;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #dee2e6;
+        }
+        
+        .chart-container {
+            background: white;
+            border-radius: 8px;
+            padding: 10px;
+            min-height: 500px;
+        }
+        
+        .footer {
+            background: #1e3c72;
+            color: white;
+            text-align: center;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        
+        .footer p {
+            margin: 5px 0;
+        }
+        
+        iframe {
+            width: 100%;
+            height: 550px;
+            border: none;
+            border-radius: 8px;
+        }
+        
+        @media (max-width: 768px) {
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .dashboard-info {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .header h1 {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔋 磷酸铁锂行业综合洞察报告可视化看板</h1>
+            <p>2026 年第一季度 | 数据截止时间：2026 年 3 月 31 日</p>
+        </div>
+        
+        <div class="dashboard-info">
+            <div class="info-card">
+                <h3>📊</h3>
+                <p>8 个交互式图表</p>
+            </div>
+            <div class="info-card">
+                <h3>📈</h3>
+                <p>产量/产能/利用率</p>
+            </div>
+            <div class="info-card">
+                <h3>💰</h3>
+                <p>价格走势分析</p>
+            </div>
+            <div class="info-card">
+                <h3>🏭</h3>
+                <p>企业竞争格局</p>
+            </div>
+            <div class="info-card">
+                <h3>🔮</h3>
+                <p>2026 年预测</p>
+            </div>
+        </div>
+        
+        <div class="charts-grid">
+            <div class="chart-card">
+                <h2>📊 月度产量/产能/利用率趋势（2024-2026）</h2>
+                <div class="chart-container">
+                    <iframe src="chart1_monthly_trend.html" title="月度趋势图"></iframe>
+                </div>
+            </div>
+            
+            <div class="chart-card">
+                <h2>🏅 2026 年 2 月企业产量与产能利用率排名</h2>
+                <div class="chart-container">
+                    <iframe src="chart2_company_ranking.html" title="企业排名图"></iframe>
+                </div>
+            </div>
+            
+            <div class="chart-card">
+                <h2>💰 LFP 现货市场价格分布（按压实密度/代际）</h2>
+                <div class="chart-container">
+                    <iframe src="chart3_lfp_price.html" title="价格分布图"></iframe>
+                </div>
+            </div>
+            
+            <div class="chart-card">
+                <h2>🔄 LFP 代际产品综合对比分析</h2>
+                <div class="chart-container">
+                    <iframe src="chart4_generation_comparison.html" title="代际对比图"></iframe>
+                </div>
+            </div>
+            
+            <div class="chart-card">
+                <h2>📊 正极材料市场结构与碳酸锂价格分析</h2>
+                <div class="chart-container">
+                    <iframe src="chart5_market_structure.html" title="市场结构图"></iframe>
+                </div>
+            </div>
+            
+            <div class="chart-card">
+                <h2>📋 2025 年磷酸铁锂行业核心数据概览</h2>
+                <div class="chart-container">
+                    <iframe src="chart6_2025_metrics.html" title="2025 数据图"></iframe>
+                </div>
+            </div>
+            
+            <div class="chart-card">
+                <h2>🔮 2026 年磷酸铁锂行业核心预测指标</h2>
+                <div class="chart-container">
+                    <iframe src="chart7_2026_forecast.html" title="2026 预测图"></iframe>
+                </div>
+            </div>
+            
+            <div class="chart-card">
+                <h2>🏗️ 主要企业产能扩张项目对比</h2>
+                <div class="chart-container">
+                    <iframe src="chart8_expansion.html" title="产能扩张图"></iframe>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p><strong>数据来源：</strong>飞书云文档"3.1 铁锂行业数据库"、百川盈孚、SMM、GGII、乘联分会、长江有色金属网等</p>
+            <p><strong>报告编制时间：</strong>2026 年 3 月 31 日</p>
+            <p><strong>可视化看板生成时间：</strong>2026 年 4 月 8 日</p>
+        </div>
+    </div>
+    
+    <script>
+        // 添加一些交互效果
+        document.querySelectorAll('.chart-card').forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.zIndex = '10';
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                this.style.zIndex = '1';
+            });
+        });
+    </script>
+</body>
+</html>

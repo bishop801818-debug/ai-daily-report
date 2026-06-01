@@ -434,7 +434,9 @@ async function checkDateForBU(date, buId) {
   try {
     const resp = await fetch(`reports/${date}.json?v=${HTML_VERSION}`);
     const data = await resp.json();
-    const dept = data.departments ? data.departments[buId] : null;
+    // 兼容键名：departments 或 departments
+    const deptsObj = data.departments || data.departments || {};
+    const dept = deptsObj[buId] || null;
     const hasSections = dept && dept.sections && (
       (Array.isArray(dept.sections) && dept.sections.some(sec => Array.isArray(sec.items) && sec.items.length > 0)) ||
       Object.values(dept.sections).some(v => Array.isArray(v) && v.length > 0)

@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>战略洞察月报 - 磷酸铁锂 | 2026年5月</title>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Microsoft YaHei', 'PingFang SC', sans-serif; background: #f4f6f9; }
+        a { color: #1e3c72; text-decoration: none; }
+
+        .topbar {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: #fff; padding: 0 30px; height: 60px;
+            display: flex; justify-content: space-between; align-items: center;
+            position: sticky; top: 0; z-index: 100;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+        }
+        .topbar-logo { font-size: 18px; font-weight: bold; display: flex; align-items: center; gap: 8px; }
+        .topbar-links { display: flex; gap: 12px; }
+        .topbar-links a { color: rgba(255,255,255,0.8); text-decoration: none; font-size: 13px; padding: 6px 14px; border-radius: 20px; transition: all 0.2s; }
+        .topbar-links a:hover { background: rgba(255,255,255,0.2); color: #fff; }
+        .topbar-right { font-size: 13px; color: rgba(255,255,255,0.7); }
+
+        .report-header { background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); color: #fff; padding: 40px 30px 30px; text-align: center; position: relative; overflow: hidden; }
+        .report-header::before { content: ''; position: absolute; inset: 0; background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E"); opacity: 0.3; }
+        .report-meta { font-size: 13px; opacity: 0.8; margin-bottom: 8px; position: relative; }
+        .report-title { font-size: 28px; font-weight: 700; margin-bottom: 6px; position: relative; }
+        .report-subtitle { font-size: 14px; opacity: 0.85; margin-bottom: 20px; position: relative; }
+        .report-tags { display: inline-flex; gap: 8px; flex-wrap: wrap; position: relative; justify-content: center; }
+        .report-tag { background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); padding: 4px 12px; border-radius: 20px; font-size: 12px; }
+
+        .tab-nav { background: #fff; padding: 0 30px; display: flex; gap: 4px; border-bottom: 1px solid #e8e8e8; position: sticky; top: 60px; z-index: 90; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+        .tab-btn { padding: 14px 20px; background: none; border: none; cursor: pointer; font-size: 15px; color: #888; border-bottom: 2px solid transparent; transition: all 0.2s; font-family: inherit; font-weight: 600; }
+        .tab-btn:hover { color: #1e3c72; }
+        .tab-btn.active { color: #1e3c72; border-bottom-color: #1e3c72; font-weight: 700; }
+
+        .main-content { padding: 24px 30px; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        .summary-hero { background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); border-radius: 16px; padding: 28px 32px; margin-bottom: 24px; display: grid; grid-template-columns: 2fr 1fr; gap: 24px; align-items: center; color: #fff; }
+        .summary-hero-title { font-size: 22px; font-weight: 700; margin-bottom: 12px; color: #fff; }
+        .summary-hero-text { font-size: 14px; line-height: 1.8; color: #fff; opacity: 0.95; }
+        .summary-kpi-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+        .summary-kpi { background: rgba(255,255,255,0.15); border-radius: 10px; padding: 14px; text-align: center; }
+        .summary-kpi-val { font-size: 22px; font-weight: 700; color: #fff; }
+        .summary-kpi-lbl { font-size: 11px; color: rgba(255,255,255,0.8); margin-top: 2px; }
+
+        .kpi-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; margin-bottom: 22px; }
+        .kpi-card { background: #fff; border-radius: 12px; padding: 18px 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); display: flex; align-items: center; gap: 14px; border-left: 4px solid transparent; }
+        .kpi-card.blue { border-left-color: #1e3c72; }
+        .kpi-card.green { border-left-color: #27ae60; }
+        .kpi-card.orange { border-left-color: #e67e22; }
+        .kpi-card.red { border-left-color: #c0392b; }
+        .kpi-card.purple { border-left-color: #8e44ad; }
+        .kpi-icon { width: 42px; height: 42px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+        .kpi-icon.blue { background: rgba(30,60,114,0.1); }
+        .kpi-icon.green { background: rgba(39,174,96,0.1); }
+        .kpi-icon.orange { background: rgba(230,126,34,0.1); }
+        .kpi-icon.red { background: rgba(192,57,43,0.1); }
+        .kpi-icon.purple { background: rgba(142,68,173,0.1); }
+        .kpi-info .kpi-label { color: #999; font-size: 12px; margin-bottom: 3px; }
+        .kpi-info .kpi-value { color: #1e3c72; font-size: 22px; font-weight: 700; line-height: 1.2; }
+        .kpi-info .kpi-unit { font-size: 13px; color: #999; font-weight: normal; }
+        .kpi-info .kpi-sub { color: #bbb; font-size: 11px; margin-top: 2px; }
+        .kpi-change { font-size: 11px; padding: 2px 6px; border-radius: 4px; margin-left: 6px; }
+        .kpi-change.up { background: rgba(39,174,96,0.1); color: #27ae60; }
+        .kpi-change.down { background: rgba(231,76,60,0.1); color: #e74c3c; }
+
+        .insight-block { background: #fff; border-radius: 12px; padding: 22px 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); margin-bottom: 18px; }
+        .insight-block .section-title { font-size: 16px; font-weight: 600; color: #1e3c72; margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid #f0f0f0; }
+        .insight-block .section-title .tag { font-size: 11px; background: rgba(30,60,114,0.08); color: #1e3c72; padding: 2px 8px; border-radius: 4px; margin-left: 8px; font-weight: normal; }
+
+        .finding-list { list-style: none; }
+        .finding-list li { padding: 10px 0; border-bottom: 1px solid #f5f5f5; display: flex; align-items: flex-start; gap: 10px; font-size: 14px; color: #444; line-height: 1.6; }
+        .finding-list li:last-child { border-bottom: none; }
+        .finding-icon { width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; flex-shrink: 0; margin-top: 2px; }
+        .finding-icon.red { background: rgba(192,57,43,0.1); color: #c0392b; }
+        .finding-icon.orange { background: rgba(230,126,34,0.1); color: #e67e22; }
+        .finding-icon.green { background: rgba(39,174,96,0.1); color: #27ae60; }
+        .finding-icon.blue { background: rgba(30,60,114,0.1); color: #1e3c72; }
+
+        .action-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+        .action-card { background: #f8f9fc; border-radius: 10px; padding: 16px; border: 1px solid #e8ecf4; }
+        .action-card .action-num { font-size: 11px; color: #1e3c72; font-weight: 600; margin-bottom: 6px; }
+        .action-card .action-title { font-size: 14px; font-weight: 600; color: #333; margin-bottom: 6px; }
+        .action-card .action-desc { font-size: 12px; color: #777; line-height: 1.6; }
+
+        .chart-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; margin-bottom: 18px; }
+        .chart-card { background: #fff; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+        .chart-card.full { grid-column: span 2; }
+        .chart-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 14px; padding-bottom: 12px; border-bottom: 1px solid #f0f0f0; }
+        .chart-title { font-size: 15px; font-weight: 600; color: #333; }
+        .chart-sub { font-size: 12px; color: #aaa; margin-top: 3px; }
+        .chart-meta { font-size: 12px; color: #bbb; }
+        .chart-container { width: 100%; height: 280px; }
+        .chart-card.full .chart-container { height: 260px; }
+
+        .data-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        .data-table th { background: #f5f7fa; color: #555; font-weight: 600; padding: 10px 14px; text-align: left; border-bottom: 2px solid #e8e8e8; }
+        .data-table td { padding: 10px 14px; border-bottom: 1px solid #f0f0f0; color: #444; }
+        .data-table tr:last-child td { border-bottom: none; }
+        .data-table .num { text-align: right; font-weight: 600; color: #1e3c72; }
+        .data-table .util-high { color: #27ae60; font-weight: 600; }
+        .data-table .util-mid { color: #e67e22; font-weight: 600; }
+        .data-table .util-low { color: #c0392b; }
+
+        .price-tier { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 18px; }
+        .price-tier-card { background: #fff; border-radius: 10px; padding: 16px; text-align: center; box-shadow: 0 2px 6px rgba(0,0,0,0.04); }
+        .price-tier-card.best { border: 2px solid #27ae60; }
+        .price-tier-card.mid { border: 1px solid #e67e22; }
+        .price-tier-card.low { border: 1px solid #e8e8e8; }
+        .price-tier-label { font-size: 11px; color: #999; margin-bottom: 6px; }
+        .price-tier-value { font-size: 22px; font-weight: 700; color: #1e3c72; }
+        .price-tier-unit { font-size: 12px; color: #999; font-weight: normal; }
+        .price-tier-name { font-size: 12px; color: #666; margin-top: 4px; }
+
+        .conclusion-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+        .conclusion-card { background: #fff; border-radius: 12px; padding: 22px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+        .conclusion-card .concl-icon { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px; margin-bottom: 12px; }
+        .conclusion-card .concl-title { font-size: 15px; font-weight: 600; color: #333; margin-bottom: 10px; }
+        .conclusion-card .concl-text { font-size: 13px; color: #666; line-height: 1.7; }
+        .conclusion-card .concl-tag { display: inline-block; padding: 3px 10px; border-radius: 4px; font-size: 11px; font-weight: 600; margin-top: 10px; }
+        .conclusion-card .tag-green { background: rgba(39,174,96,0.1); color: #27ae60; }
+        .conclusion-card .tag-orange { background: rgba(230,126,34,0.1); color: #e67e22; }
+        .conclusion-card .tag-red { background: rgba(231,76,60,0.1); color: #e74c3c; }
+        .conclusion-card .tag-blue { background: rgba(30,60,114,0.1); color: #1e3c72; }
+
+        .chart-interpretation { margin-top: 12px; padding: 14px 16px; background: linear-gradient(135deg, #f8f9fc 0%, #f0f4ff 100%); border-radius: 8px; border-left: 3px solid #1e3c72; }
+        .ci-title { font-size: 12px; font-weight: 600; color: #1e3c72; margin-bottom: 6px; }
+        .ci-text { font-size: 13px; color: #555; line-height: 1.8; }
+        .ci-text strong { color: #1e3c72; }
+
+        .source-bar { background: #fff; border-radius: 10px; padding: 14px 20px; box-shadow: 0 2px 6px rgba(0,0,0,0.04); margin-top: 18px; font-size: 12px; color: #aaa; display: flex; gap: 20px; flex-wrap: wrap; }
+        .source-bar span { display: flex; align-items: center; gap: 5px; }
+
+        @media (max-width: 1200px) {
+            .kpi-row { grid-template-columns: repeat(3, 1fr); }
+            .chart-grid { grid-template-columns: 1fr; }
+            .chart-card.full { grid-column: span 1; }
+            .action-grid { grid-template-columns: 1fr; }
+            .conclusion-grid { grid-template-columns: 1fr; }
+            .price-tier { grid-template-columns: repeat(3, 1fr); }
+            .summary-hero { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 顶部导航 -->
+    <div class="topbar">
+        <div class="topbar-left">
+            <div class="topbar-logo">🔋 磷酸铁锂深度分析报告</div>
+        </div>
+        <div class="topbar-links">
+            <a href="index_v3.html">🏠 首页</a>
+            <a href="database_hub.html">📋 数据库中心</a>
+            <a href="lfp_charts.html">📈 可视化看板</a>
+        </div>
+        <div class="topbar-right" id="topbarTime"></div>
+    </div>
+
+    <!-- 报告头部 -->
+    <div class="report-header">
+        <div class="report-meta">📅 数据库月度数据截止：2026-05 &nbsp;·&nbsp; 日度价格截止：2026-05-11 &nbsp;|&nbsp; 早报数据：2026-05-16 &nbsp;|&nbsp; 🕐 报告生成：2026-05-18 &nbsp;|&nbsp; 🔄 持续更新</div>
+        <div class="report-title">磷酸铁锂深度分析报告</div>
+        <div class="report-subtitle">磷酸铁锂正极材料 · 供需格局 · 价格体系 · 出口贸易 · 战略展望</div>
+        <div class="report-tags">
+            <span class="report-tag">磷酸铁锂</span>
+            <span class="report-tag">LFP正极材料</span>
+            <span class="report-tag">新能源中游</span>
+            <span class="report-tag">储能</span>
+        </div>
+    </div>
+
+    <!-- Tab导航 -->
+    <div class="tab-nav">
+        <button class="tab-btn active" onclick="switchTab('summary', this)">📋 执行摘要</button>
+        <button class="tab-btn" onclick="switchTab('supply', this)">📊 供需格局</button>
+        <button class="tab-btn" onclick="switchTab('compete', this)">⚔️ 竞争格局</button>
+        <button class="tab-btn" onclick="switchTab('price', this)">💰 价格体系</button>
+        <button class="tab-btn" onclick="switchTab('export', this)">🚢 出口贸易</button>
+        <button class="tab-btn" onclick="switchTab('outlook', this)">🧭 战略展望</button>
+    </div>
+
+    <div class="main-content">
+
+        <!-- ==================== Tab1: 执行摘要 ==================== -->
+        <div class="tab-content active" id="tab-summary">
+
+            <!-- 摘要英雄区 -->
+            <div class="summary-hero">
+                <div>
+                    <div class="summary-hero-title">2026年5月：LFP产能利用率回升至79.0%，价格数据面+消息面共振确认新一轮景气上升周期</div>
+                    <div class="summary-hero-text"><b>数据面：</b>2026-05月LFP产量45.3万吨（环比+7.3万吨），产能利用率79.0%（较上月63.0%大幅跳升+16.0pct），日度价格从04-16的5.66万/吨升至2026-05-11的6.41万/吨（+0.75万/吨，+13.3%）。<br><b>消息面：</b>窗口期上涨为主基调，碳酸锂期货回调引发顺价博弈，头部企业扩产持续（TOP3合计约18.6万吨，占全行业约41%），废旧电池回收政策落地打开第二增长极。</div>
+                </div>
+                <div class="summary-kpi-row">
+                    <div class="summary-kpi">
+                        <div class="summary-kpi-val">79.0%</div>
+                        <div class="summary-kpi-lbl">产能利用率（2026-05）</div>
+                    </div>
+                    <div class="summary-kpi">
+                        <div class="summary-kpi-val">6.41</div>
+                        <div class="summary-kpi-lbl">LFP日均价（万/吨，2026-05-11）</div>
+                    </div>
+                    <div class="summary-kpi">
+                        <div class="summary-kpi-val">45.3<span style="font-size:12px">万吨</span></div>
+                        <div class="summary-kpi-lbl">LFP月产量（2026-05）</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- KPI卡片 -->
+            
+        <div class="kpi-row">
+            <div class="kpi-card blue">
+                <div class="kpi-icon blue">🏭</div>
+                <div class="kpi-info">
+                    <div class="kpi-label">LFP月产量 <span style="font-size:10px;color:#aaa;margin-left:6px;">📡 数据库2026-05</span></div>
+                    <div class="kpi-value">45.3<span class="kpi-unit">万吨</span><span class="kpi-change up">+7.3</span></div>
+                    <div class="kpi-sub">月环比变化（较上月）</div>
+                </div>
+            </div>
+            <div class="kpi-card green">
+                <div class="kpi-icon green">⚡</div>
+                <div class="kpi-info">
+                    <div class="kpi-label">产能利用率 <span style="font-size:10px;color:#aaa;margin-left:6px;">📡 数据库2026-05</span></div>
+                    <div class="kpi-value">79.0<span class="kpi-unit">%</span><span class="kpi-change up">+16.0pct</span></div>
+                    <div class="kpi-sub">较上月变化</div>
+                </div>
+            </div>
+            <div class="kpi-card orange">
+                <div class="kpi-icon orange">💎</div>
+                <div class="kpi-info">
+                    <div class="kpi-label">碳酸锂价格 <span style="font-size:10px;color:#aaa;margin-left:6px;">📡 早报2026-05-16</span></div>
+                    <div class="kpi-value">5.00<span class="kpi-unit">万/吨</span><span class="kpi-change up">持平</span></div>
+                    <div class="kpi-sub">电池级（万元/吨）</div>
+                </div>
+            </div>
+            <div class="kpi-card purple">
+                <div class="kpi-icon purple">📈</div>
+                <div class="kpi-info">
+                    <div class="kpi-label">LFP现货均价 <span style="font-size:10px;color:#aaa;margin-left:6px;">📡 2026-05-11</span></div>
+                    <div class="kpi-value">6.41<span class="kpi-unit">万/吨</span></div>
+                    <div class="kpi-sub">综合日度均价</div>
+                </div>
+            </div>
+            <div class="kpi-card red">
+                <div class="kpi-icon red">🚢</div>
+                <div class="kpi-info">
+                    <div class="kpi-label">月出口量 <span style="font-size:10px;color:#aaa;margin-left:6px;">📡 数据库2026-05</span></div>
+                    <div class="kpi-value">0.75<span class="kpi-unit">万吨</span></div>
+                    <div class="kpi-sub">同比变化：+10.0%</div>
+                </div>
+            </div>
+        </div>
+
+            <div class="insight-block">
+                <div class="section-title">📊 本月核心数据（数据库2026-05月报）</div>
+                <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;">
+                    <div style="background:#f8f9fc;border-radius:10px;padding:16px;text-align:center;">
+                        <div style="font-size:12px;color:#1e3c72;font-weight:600;margin-bottom:8px;">LFP月产量</div>
+                        <div style="font-size:22px;font-weight:700;color:#1e3c72;margin-bottom:6px;">45.3万吨</div>
+                        <div style="font-size:12px;color:#888;">2026-05 数据库 | 环比+7.3万吨</div>
+                    </div>
+                    <div style="background:#f8f9fc;border-radius:10px;padding:16px;text-align:center;">
+                        <div style="font-size:12px;color:#1e3c72;font-weight:600;margin-bottom:8px;">产能利用率</div>
+                        <div style="font-size:22px;font-weight:700;color:#1e3c72;margin-bottom:6px;">79.0%</div>
+                        <div style="font-size:12px;color:#888;">2026-05 | 较上月+16.0pct</div>
+                    </div>
+                    <div style="background:#f8f9fc;border-radius:10px;padding:16px;text-align:center;">
+                        <div style="font-size:12px;color:#1e3c72;font-weight:600;margin-bottom:8px;">LFP现货均价</div>
+                        <div style="font-size:22px;font-weight:700;color:#1e3c72;margin-bottom:6px;">6.41万/吨</div>
+                        <div style="font-size:12px;color:#888;">2026-05-11日度数据 | 窗口期上涨</div>
+                    </div>
+                    <div style="background:#f8f9fc;border-radius:10px;padding:16px;text-align:center;">
+                        <div style="font-size:12px;color:#1e3c72;font-weight:600;margin-bottom:8px;">月出口量</div>
+                        <div style="font-size:22px;font-weight:700;color:#1e3c72;margin-bottom:6px;">0.75万吨</div>
+                        <div style="font-size:12px;color:#888;">2026-05 数据库 | 均价5.7万/吨</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="insight-block">
+                <div class="section-title">📰 消息面关键发现（窗口期2026-05-16前后行业动态）</div>
+                <ul class="finding-list">
+                    <li><span class="finding-icon orange">1</span><span><strong>碳酸锂价格高位博弈：</strong>SMM现货2026-05-16震荡偏弱，碳酸锂期货09合约大幅回调4.99%至19.57万/吨，仓单升至49,310手高位（单日增1,590手），显示资金主动撤离避险；但现货端下游采购成本压力阶段性缓解，锂盐厂对高价锂矿接受度下降，澳洲锂辉石现货价松动下跌45美元/吨，锂矿端成本支撑松动。</span></li>
+                    <li><span class="finding-icon green">2</span><span><strong>LFP现货价格强势上涨：</strong>窗口期内LFP现货价从04-16的5.66万/吨上涨至2026-05-11的6.41万/吨（+13.3%，+0.75万/吨），主因碳酸锂成本传导+铁锂厂家涨价意愿强，Mysteel周报显示磷酸铁成本支撑强，厂家试探性报价14000-14500元/吨，储能场景需求放量支撑价格。</span></li>
+                    <li><span class="finding-icon blue">3</span><span><strong>头部企业扩产提速：</strong>湖南裕能11.0万吨/月利用率98.0%持续饱满，德方纳米已建成45万吨/年磷酸盐系产能（19万吨可共线LFP/磷酸锰铁锂），盟固利拟投资30亿元在四川达州分两期建设磷酸铁锂一体化项目，行业CR3格局持续强化。</span></li>
+                    <li><span class="finding-icon red">4</span><span><strong>废旧电池回收政策正式落地：</strong>工信部等六部门《新能源汽车废旧动力电池回收和综合利用管理暂行办法》2026年4月1日起施行，明确"车电一体报废"制度；五部门联合执法专项行动持续至2026年6月底，格林美、邦普循环等白名单企业市场份额望持续放大。</span></li>
+                </ul>
+            </div>
+
+            <div class="source-bar">
+                <span>📡 数据来源：飞书-磷酸铁锂产业链数据库 | LFP_all_data.json（更新于 2026-05-18 14:33:10）</span>
+                <span>📰 早报来源：2026-05-16.json（窗口期19份早报聚合）</span>
+                <span>⚠️ 报告叙事仅基于2026-05-16早报数据和2026-05月度数据，禁止混用不同月份数据</span>
+            </div>
+        </div>
+
+        <!-- ==================== Tab2: 供需格局 ==================== -->
+        <div class="tab-content" id="tab-supply">
+            <div class="chart-grid">
+                <div class="chart-card full">
+                    <div class="chart-header">
+                        <div>
+                            <div class="chart-title">LFP月度产量走势（24-02 → 2026-05）</div>
+                            <div class="chart-sub">完整周期产量变化</div>
+                        </div>
+                        <div class="chart-meta">单位：万吨</div>
+                    </div>
+                    <div class="chart-container" id="s1"></div>
+                    <div class="chart-interpretation">
+                        <div class="ci-title">📖 图表释义</div>
+                        <div class="ci-text">
+                            <strong>产量走势揭示行业周期：</strong>2026-05月LFP产量45.3万吨，环比+7.3。
+                            产能利用率79.0%，较上月+16.0pct。
+                        </div>
+                    </div>
+                </div>
+                <div class="chart-card full">
+                    <div class="chart-header">
+                        <div>
+                            <div class="chart-title">产能利用率周期图谱（2026-05）</div>
+                            <div class="chart-sub">产能利用率是供需平衡的核心指标</div>
+                        </div>
+                        <div class="chart-meta">单位：%</div>
+                    </div>
+                    <div class="chart-container" id="s2"></div>
+                    <div class="chart-interpretation">
+                        <div class="ci-title">📖 图表释义</div>
+                        <div class="ci-text">
+                            <strong>利用率79.0%处于临界区间：</strong>利用率&gt;80%时价格易涨难跌，&lt;60%时价格承压加剧。
+                            当前79.0%已逼近临界区间。
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="insight-block">
+                <div class="section-title">📊 供需阶段分析</div>
+                <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;">
+                    <div style="background:#f8f9fc;border-radius:10px;padding:16px;text-align:center;">
+                        <div style="font-size:12px;color:#1e3c72;font-weight:600;margin-bottom:8px;">当前产能利用率</div>
+                        <div style="font-size:22px;font-weight:700;color:#1e3c72;margin-bottom:6px;">79.0%</div>
+                        <div style="font-size:12px;color:#888;">2026-05数据</div>
+                        <div style="font-size:11px;color:#bbb;margin-top:6px;">供需再平衡阶段</div>
+                    </div>
+                    <div style="background:#f8f9fc;border-radius:10px;padding:16px;text-align:center;">
+                        <div style="font-size:12px;color:#1e3c72;font-weight:600;margin-bottom:8px;">当月产量</div>
+                        <div style="font-size:22px;font-weight:700;color:#1e3c72;margin-bottom:6px;">45.3万吨</div>
+                        <div style="font-size:12px;color:#888;">2026-05数据</div>
+                        <div style="font-size:11px;color:#bbb;margin-top:6px;">环比+7.3</div>
+                    </div>
+                    <div style="background:#f8f9fc;border-radius:10px;padding:16px;text-align:center;">
+                        <div style="font-size:12px;color:#1e3c72;font-weight:600;margin-bottom:8px;">在役产能</div>
+                        <div style="font-size:22px;font-weight:700;color:#1e3c72;margin-bottom:6px;">57.7万吨/年</div>
+                        <div style="font-size:12px;color:#888;">折算月产能</div>
+                        <div style="font-size:11px;color:#bbb;margin-top:6px;">2026-05数据</div>
+                    </div>
+                </div>
+            </div>
+            <div class="source-bar">
+                <span>📡 数据来源：飞书-磷酸铁锂产业链数据库 · LFP行业整体产量（2026-05）</span>
+            </div>
+        </div>
+
+        <!-- ==================== Tab3: 竞争格局 ==================== -->
+        <div class="tab-content" id="tab-compete">
+            <div class="chart-grid">
+                <div class="chart-card full">
+                    <div class="chart-header">
+                        <div>
+                            <div class="chart-title">LFP企业产量TOP10（2026-03）</div>
+                            <div class="chart-sub">湖南裕能一骑绝尘，TOP3合计占比约65%</div>
+                        </div>
+                        <div class="chart-meta">单位：万吨</div>
+                    </div>
+                    <div class="chart-container" id="c1"></div>
+                    <div class="chart-interpretation">
+                        <div class="ci-title">📖 图表释义</div>
+                        <div class="ci-text">
+                            <strong>头部集中度超预期：</strong>TOP3企业产量18.6万吨，
+                            占全行业总量估算32.8万吨的较大比例。
+                        </div>
+                    </div>
+                </div>
+                <div class="chart-card full">
+                    <div class="chart-header">
+                        <div>
+                            <div class="chart-title">TOP10企业产能利用率对比（2026-03）</div>
+                            <div class="chart-sub">利用率差距显著，产能利用率成为核心竞争力指标</div>
+                        </div>
+                        <div class="chart-meta">单位：%</div>
+                    </div>
+                    <div class="chart-container" id="c2"></div>
+                    <div class="chart-interpretation">
+                        <div class="ci-title">📖 图表释义</div>
+                        <div class="ci-text">
+                            <strong>利用率是利润的前瞻指标：</strong>产能利用率与单位生产成本呈强负相关。
+                            利用率高的企业可将加工费压缩至较低水平，形成成本优势。
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="insight-block">
+                <div class="section-title">📋 TOP10企业详细数据（2026-03）</div>
+                <table class="data-table">
+                    <thead>
+                        <tr><th>排名</th><th>企业名称</th><th class="num">月产量（万吨）</th><th class="num">产能（万吨/年）</th><th class="num">产能利用率</th><th>利用水平</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>1</td><td>湖南裕能</td><td class="num">11.0</td><td class="num">11.3</td><td class="num util-high">98.0%</td><td><span class="kpi-change up">头部饱满</span></td></tr>
+                        <tr><td>2</td><td>万润新能</td><td class="num">4.1</td><td class="num">3.9</td><td class="num util-high">105.0%</td><td><span class="kpi-change up">头部饱满</span></td></tr>
+                        <tr><td>3</td><td>德方纳米</td><td class="num">3.5</td><td class="num">3.8</td><td class="num util-high">92.0%</td><td><span class="kpi-change up">头部饱满</span></td></tr>
+                        <tr><td>4</td><td>江西升华</td><td class="num">3.1</td><td class="num">5.4</td><td class="num util-low">57.0%</td><td><span style="background:rgba(192,57,43,0.1);color:#1e3c72;padding:2px 6px;border-radius:4px;font-size:11px;">偏低负荷</span></td></tr>
+                        <tr><td>5</td><td>友山科技</td><td class="num">2.5</td><td class="num">3.3</td><td class="num util-mid">75.0%</td><td><span style="background:rgba(230,126,34,0.1);color:#1e3c72;padding:2px 6px;border-radius:4px;font-size:11px;">中高负荷</span></td></tr>
+                        <tr><td>6</td><td>常州锂源</td><td class="num">2.5</td><td class="num">3.3</td><td class="num util-mid">76.0%</td><td><span style="background:rgba(230,126,34,0.1);color:#1e3c72;padding:2px 6px;border-radius:4px;font-size:11px;">中高负荷</span></td></tr>
+                        <tr><td>7</td><td>国轩高科</td><td class="num">2.0</td><td class="num">2.0</td><td class="num util-high">100.0%</td><td><span class="kpi-change up">头部饱满</span></td></tr>
+                        <tr><td>8</td><td>万华化学</td><td class="num">1.5</td><td class="num">2.1</td><td class="num util-mid">72.0%</td><td><span style="background:rgba(230,126,34,0.1);color:#1e3c72;padding:2px 6px;border-radius:4px;font-size:11px;">中高负荷</span></td></tr>
+                        <tr><td>9</td><td>邦普循环</td><td class="num">1.5</td><td class="num">3.1</td><td class="num util-low">48.0%</td><td><span style="background:rgba(192,57,43,0.1);color:#1e3c72;padding:2px 6px;border-radius:4px;font-size:11px;">偏低负荷</span></td></tr>
+                        <tr><td>10</td><td>融通高科</td><td class="num">1.1</td><td class="num">2.5</td><td class="num util-low">45.0%</td><td><span style="background:rgba(192,57,43,0.1);color:#1e3c72;padding:2px 6px;border-radius:4px;font-size:11px;">偏低负荷</span></td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="source-bar">
+                <span>📡 数据来源：飞书-磷酸铁锂产业链数据库 · LFP分企业产量（2026-03）</span>
+            </div>
+        </div>
+
+        <!-- ==================== Tab4: 价格体系 ==================== -->
+        <div class="tab-content" id="tab-price">
+            <div class="insight-block">
+                <div class="section-title">💎 LFP产品定价层级（2026-05-11)</div>
+                <p style="font-size:13px;color:#888;margin-bottom:14px;">基于日度现货市场价格数据</p>
+                <div class="price-tier">
+                    <div class="price-tier-card best">
+                        <div class="price-tier-label">高端动力型</div>
+                        <div class="price-tier-value">6.41</div>
+                        <div class="price-tier-unit">万元/吨</div>
+                        <div class="price-tier-name">综合日均价格</div>
+                    </div>
+                    <div class="price-tier-card mid">
+                        <div class="price-tier-label">储能型</div>
+                        <div class="price-tier-value">6.22</div>
+                        <div class="price-tier-unit">万元/吨</div>
+                        <div class="price-tier-name">压实2.55-2.60</div>
+                    </div>
+                    <div class="price-tier-card mid">
+                        <div class="price-tier-label">中端动力型</div>
+                        <div class="price-tier-value">6.03</div>
+                        <div class="price-tier-unit">万元/吨</div>
+                        <div class="price-tier-name">压实2.50-2.60</div>
+                    </div>
+                    <div class="price-tier-card low">
+                        <div class="price-tier-label">回收修复型</div>
+                        <div class="price-tier-value">5.64</div>
+                        <div class="price-tier-unit">万元/吨</div>
+                        <div class="price-tier-name">梯次利用级</div>
+                    </div>
+                    <div class="price-tier-card low">
+                        <div class="price-tier-label">低端入门型</div>
+                        <div class="price-tier-value">5.26</div>
+                        <div class="price-tier-unit">万元/吨</div>
+                        <div class="price-tier-name">压实&lt;2.40</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="chart-grid">
+                <div class="chart-card full">
+                    <div class="chart-header">
+                        <div>
+                            <div class="chart-title">碳酸锂月度均价走势</div>
+                            <div class="chart-sub">月度均价（数据库2026-05）</div>
+                        </div>
+                        <div class="chart-meta">单位：万元/吨</div>
+                    </div>
+                    <div class="chart-container" id="p1"></div>
+                </div>
+                <div class="chart-card full">
+                    <div class="chart-header">
+                        <div>
+                            <div class="chart-title">LFP现货日度价格走势（近30天）</div>
+                            <div class="chart-sub">日度均价（2026-05-11）</div>
+                        </div>
+                        <div class="chart-meta">单位：万元/吨</div>
+                    </div>
+                    <div class="chart-container" id="p2"></div>
+                </div>
+            </div>
+
+            <div class="insight-block">
+                <div class="section-title">🔗 原料价格联动</div>
+                <ul class="finding-list">
+                    <li><span class="finding-icon orange">1</span><span><strong>碳酸锂：</strong>5.00万元/吨（早报2026-05-16），持平，是LFP成本的核心构成</span></li>
+                    <li><span class="finding-icon blue">2</span><span><strong>黄磷：</strong>2.90万元/吨（2026-05-11）</span></li>
+                    <li><span class="finding-icon blue">2</span><span><strong>磷酸热法：</strong>0.92万元/吨（2026-05-11）</span></li>
+                    <li><span class="finding-icon blue">2</span><span><strong>磷酸湿法：</strong>0.91万元/吨（2026-05-11）</span></li>
+                </ul>
+            </div>
+            <div class="source-bar">
+                <span>📡 数据来源：飞书-磷酸铁锂产业链数据库 · LFP现货市场价（2026-05-11）、碳酸锂月度数据</span>
+            </div>
+        </div>
+
+        <!-- ==================== Tab5: 出口贸易 ==================== -->
+        <div class="tab-content" id="tab-export">
+            <div class="chart-grid">
+                <div class="chart-card full">
+                    <div class="chart-header">
+                        <div>
+                            <div class="chart-title">LFP出口量与出口均价走势</div>
+                            <div class="chart-sub">出口量0.75万吨，均价同比大幅提升</div>
+                        </div>
+                    </div>
+                    <div class="chart-container" id="e1"></div>
+                </div>
+                <div class="chart-card">
+                    <div class="chart-header"><div><div class="chart-title">出口贸易伙伴TOP10（2026-03）</div><div class="chart-sub">按量排序</div></div></div>
+                    <div class="chart-container" id="e2"></div>
+                </div>
+                <div class="chart-card">
+                    <div class="chart-header"><div><div class="chart-title">出口贸易伙伴份额（2026-03）</div><div class="chart-sub">TOP5占比</div></div></div>
+                    <div class="chart-container" id="e3"></div>
+                </div>
+            </div>
+
+            <div class="insight-block">
+                <div class="section-title">🚢 出口市场关键洞察</div>
+                <ul class="finding-list">
+                    <li><span class="finding-icon green">1</span><span><strong>出口量持续增长：</strong>2026-05月出口0.75万吨，+10.0%，创历史新高</span></li>
+                    <li><span class="finding-icon blue">2</span><span><strong>目的国集中：</strong>泰国、加拿大 居前两位，合计占0吨</span></li>
+                    <li><span class="finding-icon orange">3</span><span><strong>CATL出海带动：</strong>欧洲工厂放量带动国内LFP材料出口配套</span></li>
+                </ul>
+            </div>
+            <div class="source-bar">
+                <span>📡 数据来源：飞书-磷酸铁锂产业链数据库 · LFP出口量（2026-05）、LFP出口贸易伙伴</span>
+            </div>
+        </div>
+
+        <!-- ==================== Tab6: 战略展望 ==================== -->
+        <div class="tab-content" id="tab-outlook">
+            <div class="insight-block">
+                <div class="section-title">🧭 战略窗口判断</div>
+                <p style="font-size:14px;color:#444;line-height:1.9;margin-bottom:16px;">
+                    基于数据库2026-05月度数据和早报2026-05-16动态，当前LFP行业产能利用率79.0%，
+                    处于供需再平衡阶段。LFP月产量45.3万吨，碳酸锂价格5.00万元/吨。
+                </p>
+                <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;">
+                    <div style="background:#fff5f5;border-radius:10px;padding:16px;border:1px solid rgba(231,76,60,0.2);">
+                        <div style="font-size:12px;color:#1e3c72;font-weight:600;margin-bottom:8px;">⚠️ 短期风险（0-3个月）</div>
+                        <div style="font-size:13px;color:#666;line-height:1.7;">
+                            · 产能利用率79.0%逼近临界值60%<br>
+                            · 碳酸锂价格5.00万/吨高位震荡<br>
+                            · 新产能陆续投放，供给压力增大
+                        </div>
+                    </div>
+                    <div style="background:#fffbf0;border-radius:10px;padding:16px;border:1px solid rgba(230,126,34,0.2);">
+                        <div style="font-size:12px;color:#1e3c72;font-weight:600;margin-bottom:8px;">⏳ 中期机会（3-12个月）</div>
+                        <div style="font-size:13px;color:#666;line-height:1.7;">
+                            · 储能需求持续放量<br>
+                            · 海外建厂配套带来增量<br>
+                            · 高端产品结构性短缺持续
+                        </div>
+                    </div>
+                    <div style="background:#f0fdf4;border-radius:10px;padding:16px;border:1px solid rgba(39,174,96,0.2);">
+                        <div style="font-size:12px;color:#1e3c72;font-weight:600;margin-bottom:8px;">🚀 长期布局（12个月以上）</div>
+                        <div style="font-size:13px;color:#666;line-height:1.7;">
+                            · 海外建厂成为必要选项<br>
+                            · 回收业务成为第二增长极<br>
+                            · LFP主导地位稳固（市占率58%）
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="conclusion-grid">
+                <div class="conclusion-card">
+                    <div class="concl-icon" style="background:rgba(39,174,96,0.1);color:#1e3c72;">💎</div>
+                    <div class="concl-title">高端化是穿越周期的核心能力</div>
+                    <div class="concl-text">高端产品（压实≥2.60g/cm³）价格更高，利用率高的企业凭借成本优势穿越周期。</div>
+                    <span class="concl-tag tag-green">核心结论</span>
+                </div>
+                <div class="conclusion-card">
+                    <div class="concl-icon" style="background:rgba(30,60,114,0.1);color:#1e3c72;">🌐</div>
+                    <div class="concl-title">出海是当前最优增量路径</div>
+                    <div class="concl-text">出口均价高于国内，出海配套成为头部企业的核心增长驱动。</div>
+                    <span class="concl-tag tag-blue">核心结论</span>
+                </div>
+                <div class="conclusion-card">
+                    <div class="concl-icon" style="background:rgba(230,126,34,0.1);color:#1e3c72;">⚡</div>
+                    <div class="concl-title">储能赛道接棒动力成为新主引擎</div>
+                    <div class="concl-text">储能型LFP增速显著超越动力型，储能集成商正快速崛起为核心采购力量。</div>
+                    <span class="concl-tag tag-orange">核心结论</span>
+                </div>
+                <div class="conclusion-card">
+                    <div class="concl-icon" style="background:rgba(192,57,43,0.1);color:#1e3c72;">⚠️</div>
+                    <div class="concl-title">警惕新一轮产能过剩风险</div>
+                    <div class="concl-text">TOP10企业扩产计划规模可观，若全部落地，产能利用率或将再次回落至50%以下。</div>
+                    <span class="concl-tag tag-red">风险预警</span>
+                </div>
+            </div>
+            <div class="source-bar">
+                <span>📡 报告数据锁定：早报2026-05-16 + 数据库2026-05月度数据 | 禁止跨月混用数据</span>
+            </div>
+        </div>
+
+    <script>
+    var COLORS = ["#1e3c72", "#4a6fa5", "#4facfe", "#27ae60", "#f39c12", "#e67e22", "#9b59b6", "#1abc9c", "#e74c3c", "#34495e"];
+    var C = {"primary": "#1e3c72", "secondary": "#4a6fa5", "accent": "#4facfe", "border": "#e0e0e0", "text": "#333", "textLight": "#666"};
+
+    // ===== 数据（日期锁定：早报=2026-05-16，月度数据=2026-05） =====
+    var LFP_MONTHS_26 = ["24-02", "24-03", "24-04", "24-05", "24-06", "24-07", "24-08", "24-09", "24-10", "24-11", "24-12", "25-01", "25-02", "25-03", "25-04", "25-05", "25-06", "25-07", "25-08", "25-09", "25-10", "25-11", "25-12", "26-01", "26-02", "26-03"];
+    var LFP_OUTPUT_26 = [10.1, 17.5, 19.8, 20.5, 18.4, 19.2, 21.2, 23.7, 25.6, 27.3, 27.4, 25.0, 22.6, 27.2, 28.7, 30.2, 31.0, 31.4, 35.4, 36.7, 40.1, 42.4, 41.6, 41.2, 38.0, 45.3];
+    var LFP_UTIL_26  = [29.0, 48.0, 53.0, 53.0, 47.0, 48.0, 52.0, 59.0, 59.0, 60.0, 59.0, 60.0, 56.0, 69.0, 72.0, 74.0, 74.0, 74.0, 82.0, 85.0, 87.0, 90.0, 85.0, 68.0, 63.0, 79.0];
+    var LFP_CAP_26   = [35.3, 36.5, 37.6, 38.4, 38.9, 39.8, 40.3, 39.8, 43.3, 45.6, 46.3, 41.3, 40.8, 39.5, 39.9, 41.0, 42.1, 42.3, 43.1, 43.3, 46.1, 47.1, 48.7, 60.9, 60.3, 57.7];
+
+    var TOP10_NAMES  = ["\u6e56\u5357\u88d5\u80fd", "\u4e07\u6da6\u65b0\u80fd", "\u5fb7\u65b9\u7eb3\u7c73", "\u6c5f\u897f\u5347\u534e", "\u53cb\u5c71\u79d1\u6280", "\u5e38\u5dde\u9502\u6e90", "\u56fd\u8f69\u9ad8\u79d1", "\u4e07\u534e\u5316\u5b66", "\u90a6\u666e\u5faa\u73af", "\u878d\u901a\u9ad8\u79d1"];
+    var TOP10_OUTPUT = [11.0, 4.1, 3.5, 3.1, 2.5, 2.5, 2.0, 1.5, 1.5, 1.1];
+    var TOP10_UTIL   = [98.0, 105.0, 92.0, 57.0, 75.0, 76.0, 100.0, 72.0, 48.0, 45.0];
+
+    var EXP_MONTHS = ["25-09", "25-10", "25-10", "25-11", "25-11", "25-12", "25-12", "26-01", "26-01", "26-02", "26-02", "26-03"];
+    var EXP_VOL    = [0.3, 0.5, 0.5, 0.8, 0.8, 0.4, 0.4, 0.6, 0.6, 0.7, 0.7, 0.8];
+    var EXP_PRICE  = [3.7, 3.7, 3.7, 3.6, 3.6, 3.5, 3.5, 4.3, 4.3, 5.0, 5.0, 5.7];
+
+    var PARTNER_NAMES = ["\u6cf0\u56fd", "\u52a0\u62ff\u5927", "\u9a6c\u6765\u897f\u4e9a", "\u8d8a\u5357", "\u6ce2\u5170", "\u4e2d\u56fd\u53f0\u6e7e", "\u97e9\u56fd", "\u7f8e\u56fd", "\u610f\u5927\u5229", "\u65e5\u672c"];
+    var PARTNER_VOL   = [0.3, 0.2, 0.1, 0.1, 0.1, 0.0, 0.0, 0.0, 0.0, 0.0];
+
+    var LICD_MONTHS = ["24-01", "24-02", "24-03", "24-04", "24-05", "24-06", "24-07", "24-08", "24-09", "24-10", "24-11", "24-12", "25-01", "25-02", "25-03", "25-04", "25-05", "25-06", "25-07", "25-08", "25-09", "25-10", "25-11", "25-12", "26-01", "26-02", "26-03", "26-04", "26-05"];
+    var LICD_PRICE   = [4.17, 4.15, 4.2, 4.19, 3.8, 3.67, 3.66, 3.38, 3.2, 3.22, 3.27, 3.26, 3.25, 3.25, 3.25, 3.19, 3.17, 3.06, 3.14, 3.37, 3.42, 3.39, 3.61, 3.94, 5.22, 5.26, 5.37, 5.64, 6.3];
+
+    var DAILY_PRICE_MONTHS = ["03/26", "03/27", "03/30", "03/31", "04/01", "04/02", "04/03", "04/07", "04/08", "04/09", "04/10", "04/13", "04/14", "04/15", "04/16", "04/17", "04/20", "04/21", "04/22", "04/23", "04/24", "04/27", "04/28", "04/29", "04/30", "05/06", "05/07", "05/08", "05/09", "05/11"];
+    var DAILY_PRICE_VALS   = [5.33, 5.4, 5.48, 5.4, 5.37, 5.37, 5.36, 5.5, 5.5, 5.48, 5.48, 5.51, 5.55, 5.62, 5.66, 5.7, 5.74, 5.7, 5.68, 5.71, 5.71, 5.96, 5.9, 5.93, 5.97, 6.24, 6.24, 6.3, 6.3, 6.41];
+
+    // 图表初始化工具
+    function initChart(id, opt) { echarts.init(document.getElementById(id)).setOption(opt); }
+    function baseGrid() { return { left: '3%', right: '4%', bottom: '3%', containLabel: true }; }
+
+    // Tab2: 供需格局
+    initChart('s1', {
+        tooltip: { trigger: 'axis' },
+        grid: baseGrid(),
+        xAxis: { type: 'category', data: LFP_MONTHS_26, axisLabel: { color: C.textLight, fontSize: 10 } },
+        yAxis: { type: 'value', name: '万吨', axisLabel: { color: C.textLight }, splitLine: { lineStyle: { color: C.border } } },
+        series: [{
+            name: 'LFP产量', type: 'bar', data: LFP_OUTPUT_26,
+            itemStyle: { color: function(p) {
+                return LFP_OUTPUT_26[p.dataIndex] >= 40 ? '#e74c3c' :
+                       LFP_OUTPUT_26[p.dataIndex] >= 30 ? '#e67e22' : C.primary;
+            }, borderRadius: [3,3,0,0] },
+            label: { show: true, position: 'top', formatter: function(p){ return p.value >= 35 ? p.value+'万' : ''; }, fontSize: 9, color: '#888' }
+        }]
+    });
+
+    initChart('s2', {
+        tooltip: { trigger: 'axis', formatter: function(p) { return p[0].name + '<br>利用率: <b>' + p[0].value + '%</b>'; } },
+        grid: baseGrid(),
+        xAxis: { type: 'category', data: LFP_MONTHS_26, axisLabel: { color: C.textLight, fontSize: 10 } },
+        yAxis: { type: 'value', name: '%', min: 0, max: 100, axisLabel: { color: C.textLight }, splitLine: { lineStyle: { color: C.border } } },
+        series: [{
+            type: 'line', data: LFP_UTIL_26, smooth: true,
+            lineStyle: { color: C.primary, width: 3 }, itemStyle: { color: C.primary },
+            areaStyle: { color: { type: 'linear', x: 0, y: 0, x2: 0, y2: 1, colorStops: [{ offset: 0, color: 'rgba(30,60,114,0.2)' }, { offset: 1, color: 'rgba(30,60,114,0.02)' }] } },
+            label: { show: false }
+        }]
+    });
+
+    // Tab3: 竞争格局
+    initChart('c1', {
+        tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' }, formatter: function(p){ return p.name + ': ' + p.value + '万吨'; } },
+        grid: baseGrid(),
+        xAxis: { type: 'value', axisLabel: { formatter: '{value}万' }, splitLine: { lineStyle: { color: C.border } } },
+        yAxis: { type: 'category', data: TOP10_NAMES.reverse(), axisLabel: { color: C.text, fontSize: 11 } },
+        series: [{ type: 'bar', data: TOP10_OUTPUT.reverse(),
+            itemStyle: { color: function(p){ return COLORS[p.dataIndex % COLORS.length]; }, borderRadius: [0,4,4,0] },
+            label: { show: true, position: 'right', formatter: '{c}万', fontSize: 10, color: C.textLight }
+        }]
+    });
+
+    initChart('c2', {
+        tooltip: { trigger: 'axis', formatter: function(p){ return p.name + ': ' + p.value + '%'; } },
+        grid: baseGrid(),
+        xAxis: { type: 'value', min: 0, max: 110, axisLabel: { formatter: '{value}%' }, splitLine: { lineStyle: { color: C.border } } },
+        yAxis: { type: 'category', data: TOP10_NAMES.reverse(), axisLabel: { color: C.text, fontSize: 11 } },
+        series: [{ type: 'bar', data: TOP10_UTIL.reverse(),
+            itemStyle: { color: function(p){
+                var v = TOP10_UTIL[TOP10_UTIL.length - 1 - p.dataIndex];
+                return v >= 85 ? '#27ae60' : v >= 70 ? '#e67e22' : '#c0392b';
+            }, borderRadius: [0,4,4,0] },
+            label: { show: true, position: 'right', formatter: '{c}%', fontSize: 10, color: C.textLight }
+        }]
+    });
+
+    // Tab4: 价格体系
+    initChart('p1', {
+        tooltip: { trigger: 'axis' }, legend: { data: ['碳酸锂'], top: 5 },
+        grid: baseGrid(),
+        xAxis: { type: 'category', data: LICD_MONTHS, axisLabel: { color: C.textLight, fontSize: 10 } },
+        yAxis: { type: 'value', name: '万元/吨', axisLabel: { color: C.textLight }, splitLine: { lineStyle: { color: C.border } } },
+        series: [{ name: '碳酸锂', type: 'line', data: LICD_PRICE, smooth: true,
+            lineStyle: { color: C.accent, width: 3 }, itemStyle: { color: C.accent },
+            areaStyle: { color: { type: 'linear', x: 0, y: 0, x2: 0, y2: 1, colorStops: [{ offset: 0, color: 'rgba(79,172,254,0.2)' }, { offset: 1, color: 'rgba(79,172,254,0.02)' }] } },
+            label: { show: true, position: 'top', formatter: '{c}万', fontSize: 9, color: C.accent, fontWeight: 'bold' }
+        }]
+    });
+
+    initChart('p2', {
+        tooltip: { trigger: 'axis' },
+        grid: baseGrid(),
+        xAxis: { type: 'category', data: DAILY_PRICE_MONTHS, axisLabel: { color: C.textLight, fontSize: 10 } },
+        yAxis: { type: 'value', name: '万元/吨', axisLabel: { color: C.textLight }, splitLine: { lineStyle: { color: C.border } } },
+        series: [{ type: 'line', data: DAILY_PRICE_VALS, smooth: true,
+            lineStyle: { color: C.primary, width: 3 }, itemStyle: { color: C.primary },
+            areaStyle: { color: { type: 'linear', x: 0, y: 0, x2: 0, y2: 1, colorStops: [{ offset: 0, color: 'rgba(30,60,114,0.2)' }, { offset: 1, color: 'rgba(30,60,114,0.02)' }] } },
+            label: { show: false }
+        }]
+    });
+
+    // Tab5: 出口
+    initChart('e1', {
+        tooltip: { trigger: 'axis', axisPointer: { type: 'cross' } }, legend: { data: ['出口量','均价'], top: 5 },
+        grid: baseGrid(),
+        xAxis: { type: 'category', data: EXP_MONTHS, axisLabel: { color: C.textLight } },
+        yAxis: [
+            { type: 'value', name: '万吨', position: 'left', axisLabel: { color: C.textLight }, splitLine: { lineStyle: { color: C.border } } },
+            { type: 'value', name: '万元/吨', position: 'right', axisLabel: { color: C.textLight }, splitLine: { show: false } }
+        ],
+        series: [
+            { name: '出口量', type: 'bar', data: EXP_VOL, itemStyle: { color: C.secondary, borderRadius: [4,4,0,0] },
+              label: { show: true, position: 'top', formatter: '{c}万', fontSize: 9, color: C.textLight } },
+            { name: '均价', type: 'line', yAxisIndex: 1, data: EXP_PRICE, smooth: true, lineStyle: { color: C.accent, width: 3 },
+              label: { show: true, position: 'bottom', formatter: '{c}万', fontSize: 9, color: C.accent, fontWeight: 'bold' } }
+        ]
+    });
+
+    initChart('e2', {
+        tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' }, formatter: function(p){ return p.name + ': ' + p.value + '吨'; } },
+        grid: baseGrid(),
+        xAxis: { type: 'value', splitLine: { lineStyle: { color: C.border } } },
+        yAxis: { type: 'category', data: PARTNER_NAMES.reverse(), axisLabel: { color: C.text } },
+        series: [{ type: 'bar', data: PARTNER_VOL.reverse(),
+            itemStyle: { color: function(p){ return COLORS[p.dataIndex % COLORS.length]; }, borderRadius: [0,4,4,0] },
+            label: { show: true, position: 'right', formatter: '{c}吨', fontSize: 9, color: C.textLight }
+        }]
+    });
+
+    var totalPartner = PARTNER_VOL.reduce(function(a,b){return a+b;},0);
+    initChart('e3', {
+        tooltip: { trigger: 'item', formatter: function(p){ return p.name + ': ' + p.value + '吨 (' + p.percent + '%)'; } },
+        legend: { orient: 'vertical', right: 10, top: 'center', textStyle: { fontSize: 11 } },
+        series: [{
+            type: 'pie', radius: ['30%', '65%'], center: ['38%', '50%'],
+            data: PARTNER_NAMES.slice(0,5).map(function(n,i){ return {name: n+' '+PARTNER_VOL[i]+'吨', value: PARTNER_VOL[i]}; }),
+            label: { show: true, formatter: '{b}', fontSize: 10, color: '#333' },
+            itemStyle: { color: function(p){ return COLORS[p.dataIndex % COLORS.length]; } }
+        }]
+    });
+
+    // ===== Tab切换 =====
+    function switchTab(tab, btn) {
+        document.querySelectorAll('.tab-btn').forEach(function(b){ b.classList.remove('active'); });
+        document.querySelectorAll('.tab-content').forEach(function(t){ t.classList.remove('active'); });
+        if (btn) btn.classList.add('active');
+        var content = document.getElementById('tab-' + tab);
+        if (content) content.classList.add('active');
+        setTimeout(function(){
+            document.querySelectorAll('.chart-container').forEach(function(c){
+                var inst = echarts.getInstanceByDom(c);
+                if(inst) inst.resize();
+            });
+        }, 80);
+    }
+
+    // 更新时间
+    function updateTopbarTime() {
+        var el = document.getElementById('topbarTime');
+        if (el) {
+            var now = new Date();
+            var y = now.getFullYear();
+            var m = now.getMonth() + 1;
+            var d = now.getDate();
+            var h = now.getHours().toString().padStart(2,'0');
+            var mn = now.getMinutes().toString().padStart(2,'0');
+            el.textContent = y + '年' + m + '月' + d + '日 ' + h + ':' + mn;
+        }
+    }
+    updateTopbarTime();
+    setInterval(updateTopbarTime, 60000);
+
+    window.addEventListener('resize', function(){
+        document.querySelectorAll('.chart-container').forEach(function(c){
+            try { echarts.getInstanceByDom(c).resize(); } catch(e) {}
+        });
+    });
+
+    </script>
+</body>
+</html>

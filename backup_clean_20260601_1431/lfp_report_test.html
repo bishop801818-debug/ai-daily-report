@@ -1,0 +1,1041 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="html-version" content="20260530a">
+<title>中国磷酸铁锂市场 2026年4月分析报告</title>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+<style>
+/* ====== 基础重置 ====== */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --primary: #1e3c72;
+  --primary-light: #2a5298;
+  --content-width: 800px;
+  --toc-width: 200px;
+  --font-main: 'Microsoft YaHei', 'PingFang SC', Arial, sans-serif;
+  --text-color: #333;
+  --text-secondary: #555;
+  --text-light: #888;
+  --border-color: #e0e0e0;
+  --bg-light: #f8f9fc;
+  --bg-white: #fff;
+  --green: #27ae60;
+  --orange: #e67e22;
+  --red: #c0392b;
+  --purple: #8e44ad;
+  --blue-light: rgba(30,60,114,0.06);
+}
+
+body {
+  font-family: var(--font-main);
+  color: var(--text-color);
+  background: #f0f2f5;
+  line-height: 1.6;
+}
+
+/* ====== 顶部导航 ====== */
+.topbar {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+  color: #fff;
+  padding: 0 30px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+}
+.topbar-title { font-size: 16px; font-weight: 700; }
+.topbar-subtitle { font-size: 12px; opacity: 0.75; }
+
+/* ====== 整体布局 ====== */
+.page-wrapper {
+  display: flex;
+  max-width: calc(var(--content-width) + var(--toc-width) + 60px);
+  margin: 0 auto;
+  padding: 24px 16px;
+  gap: 0;
+}
+
+/* ====== 左侧目录 ====== */
+.toc-sidebar {
+  width: var(--toc-width);
+  flex-shrink: 0;
+  position: sticky;
+  top: 80px;
+  align-self: flex-start;
+  max-height: calc(100vh - 100px);
+  overflow-y: auto;
+  background: var(--bg-white);
+  border-radius: 10px;
+  padding: 18px 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  font-size: 13px;
+  margin-right: 20px;
+}
+.toc-sidebar h3 {
+  font-size: 14px;
+  color: var(--primary);
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--primary);
+}
+.toc-sidebar a {
+  display: block;
+  color: var(--text-secondary);
+  text-decoration: none;
+  padding: 5px 0 5px 8px;
+  border-left: 2px solid transparent;
+  transition: all 0.15s;
+  line-height: 1.5;
+}
+.toc-sidebar a:hover,
+.toc-sidebar a.active {
+  color: var(--primary);
+  border-left-color: var(--primary);
+  background: var(--blue-light);
+}
+.toc-sidebar a.toc-part {
+  font-weight: 700;
+  margin-top: 10px;
+  padding-left: 0;
+  border-left: none;
+  color: var(--text-color);
+  font-size: 13px;
+}
+.toc-sidebar a.toc-part:first-child { margin-top: 0; }
+.toc-sidebar a.toc-sub {
+  padding-left: 16px;
+  font-size: 12px;
+}
+
+/* ====== 主内容区 ====== */
+.main-content {
+  flex: 1;
+  max-width: var(--content-width);
+  min-width: 0;
+}
+
+/* ====== 封面头部 ====== */
+.report-header {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+  color: #fff;
+  padding: 44px 40px 36px;
+  text-align: center;
+  border-radius: 0;
+  margin-bottom: 28px;
+  position: relative;
+  overflow: hidden;
+}
+.report-header::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23fff' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/svg%3E");
+  opacity: 0.3;
+}
+.report-header .report-department {
+  font-size: 13px;
+  opacity: 0.8;
+  margin-bottom: 10px;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+}
+.report-header .report-title {
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+.report-header .report-subtitle {
+  font-size: 14px;
+  opacity: 0.85;
+  margin-bottom: 16px;
+}
+.report-header .report-meta-row {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  font-size: 12px;
+  opacity: 0.7;
+}
+
+/* ====== KPI 指标行 ====== */
+.kpi-row {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 12px;
+  margin-bottom: 28px;
+}
+.kpi-card {
+  background: var(--bg-white);
+  border-radius: 8px;
+  padding: 16px 14px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+  border-left: 3px solid var(--primary);
+  text-align: center;
+}
+.kpi-card .kpi-label { font-size: 11px; color: var(--text-light); margin-bottom: 6px; }
+.kpi-card .kpi-value { font-size: 22px; font-weight: 700; color: var(--primary); }
+.kpi-card .kpi-unit { font-size: 12px; color: var(--text-light); font-weight: normal; }
+.kpi-card .kpi-change { font-size: 11px; padding: 2px 6px; border-radius: 3px; margin-top: 4px; display: inline-block; }
+.kpi-change.up { background: rgba(39,174,96,0.1); color: var(--green); }
+.kpi-change.down { background: rgba(231,76,60,0.1); color: var(--red); }
+
+/* ====== 章节通用 ====== */
+.part-section {
+  margin-bottom: 36px;
+}
+.part-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--primary);
+  padding-bottom: 12px;
+  border-bottom: 3px solid var(--primary);
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.part-title .part-num {
+  background: var(--primary);
+  color: #fff;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.sub-section {
+  margin-bottom: 28px;
+}
+.sub-title {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--text-color);
+  margin-bottom: 14px;
+  padding-left: 12px;
+  border-left: 4px solid var(--primary);
+  line-height: 1.4;
+}
+.sub-title .sub-num {
+  color: var(--primary);
+  font-size: 13px;
+  margin-right: 6px;
+}
+
+/* ====== 洞察文字块 ====== */
+.insight-block {
+  background: var(--bg-white);
+  border-radius: 10px;
+  padding: 20px 24px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  margin-bottom: 18px;
+}
+.insight-block p {
+  font-size: 14px;
+  line-height: 1.9;
+  color: var(--text-secondary);
+  margin-bottom: 10px;
+  text-indent: 2em;
+}
+.insight-block p:last-child { margin-bottom: 0; }
+
+/* ====== 关键洞察标注框 ====== */
+.insight-callout {
+  background: var(--blue-light);
+  border-left: 4px solid var(--primary);
+  padding: 14px 18px;
+  border-radius: 6px;
+  margin: 16px 0;
+  font-size: 14px;
+  color: var(--primary);
+  font-weight: 600;
+  line-height: 1.7;
+}
+.insight-callout .callout-label {
+  display: inline-block;
+  background: var(--primary);
+  color: #fff;
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  margin-right: 8px;
+  font-weight: normal;
+}
+
+/* ====== 事件表 ====== */
+.event-table-wrapper {
+  overflow-x: auto;
+  margin-bottom: 18px;
+}
+.event-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  background: var(--bg-white);
+}
+.event-table th {
+  background: var(--primary);
+  color: #fff;
+  font-weight: 600;
+  padding: 10px 12px;
+  text-align: left;
+  font-size: 12px;
+  white-space: nowrap;
+}
+.event-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border-color);
+  vertical-align: top;
+  line-height: 1.6;
+}
+.event-table .col-date { width: 80px; white-space: nowrap; color: var(--text-secondary); }
+.event-table .col-type { width: 70px; font-size: 12px; }
+.event-table .col-event { min-width: 180px; font-weight: 600; }
+.event-table .col-detail { min-width: 200px; font-size: 12px; color: var(--text-secondary); }
+.event-table .col-analysis { min-width: 280px; font-size: 12px; }
+.event-table .tag-intent {
+  color: var(--primary);
+  font-weight: 600;
+  font-size: 11px;
+}
+.event-table .tag-impact {
+  color: var(--orange);
+  font-weight: 600;
+  font-size: 11px;
+}
+
+/* ====== 数据表（TOP15等） ====== */
+.data-table-wrapper {
+  overflow-x: auto;
+  margin-bottom: 16px;
+}
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  background: var(--bg-white);
+}
+.data-table thead th {
+  background: #f0f3f8;
+  color: var(--text-color);
+  font-weight: 600;
+  padding: 10px 12px;
+  border-bottom: 2px solid var(--border-color);
+  text-align: left;
+  font-size: 12px;
+  white-space: nowrap;
+}
+.data-table thead th.num { text-align: right; }
+.data-table tbody td {
+  padding: 9px 12px;
+  border-bottom: 1px solid #f0f0f0;
+  color: var(--text-secondary);
+  vertical-align: middle;
+}
+.data-table tbody tr:last-child td { border-bottom: none; }
+.data-table tbody tr.row-highlight {
+  background: var(--blue-light);
+}
+.data-table tbody tr.row-highlight td {
+  color: var(--primary);
+  font-weight: 600;
+}
+.data-table .num { text-align: right; font-variant-numeric: tabular-nums; }
+.data-table .rank { width: 36px; text-align: center; color: var(--text-light); font-size: 12px; }
+.data-table .rank.top3 { color: var(--primary); font-weight: 700; }
+
+/* 开工率色标 */
+.util-high { color: var(--primary) !important; font-weight: 700; }
+.util-mid { color: var(--green) !important; font-weight: 600; }
+.util-low { color: var(--orange) !important; }
+
+/* 环比色标 */
+.change-up { color: var(--green); }
+.change-down { color: var(--red); }
+
+/* ====== 数据来源 ====== */
+.data-source {
+  font-size: 11px;
+  color: var(--text-light);
+  text-align: right;
+  margin-top: 4px;
+  margin-bottom: 16px;
+  font-style: italic;
+}
+
+/* ====== 图表卡片 ====== */
+.chart-card {
+  background: var(--bg-white);
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  margin-bottom: 18px;
+}
+.chart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #f0f0f0;
+}
+.chart-title { font-size: 15px; font-weight: 600; color: var(--text-color); }
+.chart-sub { font-size: 12px; color: var(--text-light); }
+.chart-container { width: 100%; height: 300px; }
+.chart-container.tall { height: 400px; }
+
+/* ====== 总结与建议 ====== */
+.summary-block {
+  background: var(--bg-white);
+  padding: 24px 28px;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  margin-bottom: 20px;
+}
+.summary-block h3 {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--primary);
+  margin-bottom: 14px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border-color);
+}
+.summary-block .summary-item {
+  font-size: 14px;
+  line-height: 1.8;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+  padding-left: 8px;
+}
+.summary-block .summary-item .label {
+  font-weight: 600;
+  color: var(--text-color);
+  margin-right: 6px;
+}
+
+.recommendations {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  margin-bottom: 20px;
+}
+.recommendation-card {
+  background: var(--bg-white);
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  border-top: 3px solid var(--primary);
+}
+.recommendation-card .rec-num {
+  font-size: 11px;
+  color: var(--primary);
+  font-weight: 600;
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+.recommendation-card .rec-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-color);
+  margin-bottom: 8px;
+}
+.recommendation-card .rec-desc {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.7;
+}
+
+/* ====== 颜色标记图例 ====== */
+.color-legend {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 12px;
+  font-size: 12px;
+  color: var(--text-light);
+}
+.color-legend span { display: flex; align-items: center; gap: 4px; }
+.color-legend .dot {
+  display: inline-block;
+  width: 10px; height: 10px;
+  border-radius: 2px;
+}
+
+/* ====== 页脚 ====== */
+.report-footer {
+  text-align: center;
+  padding: 24px;
+  color: var(--text-light);
+  font-size: 12px;
+  border-top: 1px solid var(--border-color);
+  margin-top: 40px;
+}
+.report-footer p { margin-bottom: 4px; }
+
+/* ====== 打印样式 ====== */
+@media print {
+  body { background: #fff; }
+  .topbar, .toc-sidebar { display: none !important; }
+  .page-wrapper { display: block; max-width: none; padding: 0; }
+  .main-content { max-width: none; }
+  .report-header { border-radius: 0; }
+  .part-section { page-break-before: always; }
+  .part-section:first-child { page-break-before: avoid; }
+  .sub-section { page-break-inside: avoid; }
+  .chart-container { height: 260px; }
+  .chart-container.tall { height: 340px; }
+  .kpi-row { grid-template-columns: repeat(5, 1fr); }
+  .recommendations { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* ====== 响应式 ====== */
+@media (max-width: 1100px) {
+  .toc-sidebar { display: none; }
+  .page-wrapper { padding: 16px; }
+  .main-content { max-width: 100%; }
+}
+</style>
+</head>
+<body>
+
+<!-- ====== 顶部导航 ====== -->
+<div class="topbar">
+  <div class="topbar-title">中国磷酸铁锂市场 2026年4月分析报告</div>
+  <div class="topbar-subtitle">数据截止：2026-04 | 生成时间：2026-05-30 23:21:20</div>
+</div>
+
+<!-- ====== 页面布局 ====== -->
+<div class="page-wrapper">
+
+  <!-- 左侧目录 -->
+  <nav class="toc-sidebar" id="toc">
+    <h3>目 录</h3>
+    <a href="#part1" class="toc-part">Part 1 磷酸铁锂市场分析</a>
+    <a href="#s1.1" class="toc-sub">1.1 行业动态</a>
+    <a href="#s1.2" class="toc-sub">1.2 产量分析</a>
+    <a href="#s1.3" class="toc-sub">1.3 销量-竞对视角</a>
+    <a href="#s1.4" class="toc-sub">1.4 销量-客户视角</a>
+    <a href="#s1.5" class="toc-sub">1.5 出口分析</a>
+    <a href="#s1.6" class="toc-sub">1.6 价格分析</a>
+    <a href="#part2" class="toc-part">Part 2 磷酸铁市场分析</a>
+    <a href="#part3" class="toc-part">Part 3 关键原料价格分析</a>
+    <a href="#part4" class="toc-part">Part 4 碳酸锂市场分析</a>
+    <a href="#part5" class="toc-part">Part 5 总结与建议</a>
+  </nav>
+
+  <!-- 主内容 -->
+  <main class="main-content">
+
+    <!-- ====== 封面头部 ====== -->
+    <header class="report-header">
+      <div class="report-department">战略中心信息情报部</div>
+      <div class="report-title">中国磷酸铁锂市场 2026年4月分析报告</div>
+      <div class="report-subtitle">磷酸铁锂正极材料供需格局、竞争格局、价格体系、出口贸易及战略展望</div>
+      <div class="report-meta-row">
+        <span>数据截止：2026-04</span>
+        <span>报告周期：月度</span>
+        <span>行业：磷酸铁锂</span>
+      </div>
+    </header>
+
+    <!-- ====== KPI 总览行 ====== -->
+    <div class="kpi-row" id="kpi-row">
+      <!-- KPI1: 月产量 -->
+      <div class="kpi-card">
+        <div class="kpi-label">月产量</div>
+        <div class="kpi-value">46.98<span class="kpi-unit">万吨</span></div>
+        <div class="kpi-change up">环比 +4.1%</div>
+      </div>
+      <!-- KPI2: 开工率 -->
+      <div class="kpi-card">
+        <div class="kpi-label">开工率</div>
+        <div class="kpi-value">80<span class="kpi-unit">%</span></div>
+        <div class="kpi-change up">环比 +2.0%pct</div>
+      </div>
+      <!-- KPI3: 均价 -->
+      <div class="kpi-card">
+        <div class="kpi-label">月均价</div>
+        <div class="kpi-value">6.33<span class="kpi-unit">万元/吨</span></div>
+        <div class="kpi-change ">动力型</div>
+      </div>
+      <!-- KPI4: 出口量 -->
+      <div class="kpi-card">
+        <div class="kpi-label">出口量</div>
+        <div class="kpi-value">0.00<span class="kpi-unit">万吨</span></div>
+        <div class="kpi-change ">均价 0.0万元/吨</div>
+      </div>
+      <!-- KPI5: 自有企业排名 -->
+      <div class="kpi-card">
+        <div class="kpi-label">锂源排名</div>
+        <div class="kpi-value">—<span class="kpi-unit">位</span></div>
+        <div class="kpi-change ">待计算</div>
+      </div>
+    </div>
+
+    <!-- ================================================================ -->
+    <!-- PART 1: 核心行业市场分析                                         -->
+    <!-- ================================================================ -->
+    <section class="part-section" id="part1">
+      <div class="part-title"><span class="part-num">1</span>磷酸铁锂市场分析</div>
+
+      <!-- 1.1 行业动态 -->
+      <div class="sub-section" id="s1.1">
+        <div class="sub-title"><span class="sub-num">1.1</span>行业动态</div>
+        <div class="insight-block">
+          <p>近期磷酸铁锂行业延续高景气态势，2026-04月产量持续增长，行业竞争格局不断演化。以下梳理近30天行业重大事件。</p>
+        </div>
+        <div class="event-table-wrapper">
+          <table class="event-table">
+            <thead>
+              <tr>
+                <th class="col-date">日期</th>
+                <th class="col-type">事件类型</th>
+                <th class="col-event">核心事件</th>
+                <th class="col-detail">关键信息提炼</th>
+                <th class="col-analysis">战略洞察与影响分析</th>
+              </tr>
+            </thead>
+            <tbody id="event-table-body">
+              <tr><td class="col-date">—</td><td class="col-type">—</td><td class="col-event">待从早报JSON提取</td><td class="col-detail">—</td><td class="col-analysis"><span class="tag-intent">【战略意图】</span> 执行完整Skill时将从 reports/ 和 policies.json 提取近30天事件<br><span class="tag-impact">【行业影响】</span> 同上</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- 1.2 产量分析 -->
+      <div class="sub-section" id="s1.2">
+        <div class="sub-title"><span class="sub-num">1.2</span>产量分析</div>
+        <div class="insight-block">
+          <p>2026-04月，国内磷酸铁锂总产量为46.98万吨，环比+4.1%，同比+63.9%，行业平均开工率80%。环比增速环比保持高位，同比增长显著。</p>
+          <p>多重利好因素叠加推动产量增长：下游动力电池及储能市场需求强劲，头部企业产能持续释放，行业集中度稳步提升。在需求端，动力电池装车量维持高位，储能市场需求爆发式增长；在供给端，头部企业近乎满产运行，三四梯队企业陆续承接外溢订单。预计下月产量将延续增长态势。</p>
+        </div>
+
+        <!-- 月度趋势图 -->
+        <div class="chart-card">
+          <div class="chart-header">
+            <div>
+              <div class="chart-title">月度产量与开工率趋势</div>
+              <div class="chart-sub">近 12 个月</div>
+            </div>
+          </div>
+          <div class="chart-container" id="chart-output-trend"></div>
+        </div>
+        <div class="data-source">数据来源：鑫椤数据</div>
+
+        <!-- TOP15 月度排名表 -->
+        <div class="sub-title" style="font-size:15px; margin-top:16px;">TOP15 企业当月产量排名</div>
+        <div class="color-legend">
+          <span><span class="dot" style="background:var(--primary)"></span> 满产/超产 (≥100%)</span>
+          <span><span class="dot" style="background:var(--green)"></span> 正常 (60%-95%)</span>
+          <span><span class="dot" style="background:var(--orange)"></span> 低位 (&lt;60%)</span>
+        </div>
+        <div class="data-table-wrapper">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th class="rank">序号</th>
+                <th>企业名称</th>
+                <th class="num">当月产量</th>
+                <th class="num">环比</th>
+                <th class="num">同比</th>
+                <th class="num">开工率</th>
+              </tr>
+            </thead>
+            <tbody id="top15-monthly-body">
+              <tr><td class="rank top3">1</td><td>湖南裕能</td><td class="num">12.00万吨</td><td class="num up">+9.0%</td><td class="num up">+33.0%</td><td class="num util-high">106%</td></tr>
+<tr><td class="rank top3">2</td><td>万润新能</td><td class="num">4.00万吨</td><td class="num down">-2.0%</td><td class="num up">+54.0%</td><td class="num util-high">103%</td></tr>
+<tr><td class="rank top3">3</td><td>德方纳米</td><td class="num">3.30万吨</td><td class="num down">-6.0%</td><td class="num up">+57.0%</td><td class="num util-mid">87%</td></tr>
+<tr><td class="rank">4</td><td>江西升华</td><td class="num">3.00万吨</td><td class="num down">-3.0%</td><td class="num up">+54.0%</td><td class="num util-low">55%</td></tr>
+<tr class="row-highlight"><td class="rank">5</td><td>常州锂源</td><td class="num">2.55万吨</td><td class="num up">+9.0%</td><td class="num up">+82.0%</td><td class="num util-mid">77%</td></tr>
+<tr><td class="rank">6</td><td>友山科技</td><td class="num">2.50万吨</td><td class="num up">+0.0%</td><td class="num up">+2.0%</td><td class="num util-mid">75%</td></tr>
+<tr><td class="rank">7</td><td>邦普循环</td><td class="num">2.00万吨</td><td class="num up">+33.0%</td><td class="num up">+900.0%</td><td class="num util-mid">65%</td></tr>
+<tr><td class="rank">8</td><td>国轩高科</td><td class="num">1.80万吨</td><td class="num down">-10.0%</td><td class="num up">+50.0%</td><td class="num util-mid">90%</td></tr>
+<tr><td class="rank">9</td><td>万华化学</td><td class="num">1.40万吨</td><td class="num down">-7.0%</td><td class="num up">+250.0%</td><td class="num util-low">48%</td></tr>
+<tr><td class="rank">10</td><td>融通高科</td><td class="num">1.20万吨</td><td class="num up">+4.0%</td><td class="num up">+67.0%</td><td class="num util-low">47%</td></tr>
+<tr><td class="rank">11</td><td>当升科技</td><td class="num">1.20万吨</td><td class="num up">+14.0%</td><td class="num up">+60.0%</td><td class="num util-high">120%</td></tr>
+<tr><td class="rank">12</td><td>安达科技</td><td class="num">1.20万吨</td><td class="num up">+14.0%</td><td class="num up">+71.0%</td><td class="num util-mid">96%</td></tr>
+<tr><td class="rank">13</td><td>天原锂电</td><td class="num">1.20万吨</td><td class="num up">+9.0%</td><td class="num up">+0.0%</td><td class="num util-mid">96%</td></tr>
+<tr><td class="rank">14</td><td>协鑫锂电</td><td class="num">1.20万吨</td><td class="num up">+14.0%</td><td class="num up">+50.0%</td><td class="num util-high">120%</td></tr>
+<tr><td class="rank">15</td><td>泰丰先行</td><td class="num">1.00万吨</td><td class="num up">+3.0%</td><td class="num up">+18.0%</td><td class="num util-mid">69%</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="insight-callout">
+          <span class="callout-label">关键洞察</span>2026-04月磷酸铁锂产量46.98万吨，环比+4.1%，行业开工率80%。
+        </div>
+        <div class="data-source">数据来源：鑫椤数据；常州锂源产量数据来源于常州锂源运营监控部。</div>
+
+        <!-- YTD 分析 -->
+        <div class="insight-block" style="margin-top: 20px;">
+          <p>2026年1-4月，国内磷酸铁锂累计产量持续增长，累计同比保持高位。需求端以动力电池与储能电池形成双轮驱动，供应端头部企业满产运行，行业竞争从"价格战"转向"价值战"。</p>
+        </div>
+
+        <!-- TOP15 年累排名表 -->
+        <div class="sub-title" style="font-size:15px;">TOP15 企业年累产量排名</div>
+        <div class="data-table-wrapper">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th class="rank">序号</th>
+                <th>企业名称</th>
+                <th class="num">累计产量</th>
+                <th class="num">同比</th>
+                <th class="num">开工率</th>
+              </tr>
+            </thead>
+            <tbody id="top15-ytd-body">
+              <tr><td class="rank top3">1</td><td>湖南裕能</td><td class="num">41.00万吨</td><td class="num up">+0.0%</td><td class="num util-mid">100%</td></tr>
+<tr><td class="rank top3">2</td><td>万润新能</td><td class="num">16.05万吨</td><td class="num up">+0.0%</td><td class="num util-high">103%</td></tr>
+<tr><td class="rank top3">3</td><td>德方纳米</td><td class="num">12.20万吨</td><td class="num up">+0.0%</td><td class="num util-mid">88%</td></tr>
+<tr><td class="rank">4</td><td>江西升华</td><td class="num">12.10万吨</td><td class="num up">+0.0%</td><td class="num util-mid">88%</td></tr>
+<tr><td class="rank">5</td><td>友山科技</td><td class="num">9.00万吨</td><td class="num up">+0.0%</td><td class="num util-mid">68%</td></tr>
+<tr class="row-highlight"><td class="rank">6</td><td>常州锂源</td><td class="num">8.72万吨</td><td class="num up">+0.0%</td><td class="num util-mid">72%</td></tr>
+<tr><td class="rank">7</td><td>国轩高科</td><td class="num">7.65万吨</td><td class="num up">+0.0%</td><td class="num util-mid">96%</td></tr>
+<tr><td class="rank">8</td><td>万华化学</td><td class="num">6.25万吨</td><td class="num up">+0.0%</td><td class="num util-mid">70%</td></tr>
+<tr><td class="rank">9</td><td>邦普循环</td><td class="num">5.75万吨</td><td class="num up">+0.0%</td><td class="num util-low">58%</td></tr>
+<tr><td class="rank">10</td><td>天原锂电</td><td class="num">4.45万吨</td><td class="num up">+0.0%</td><td class="num util-mid">89%</td></tr>
+<tr><td class="rank">11</td><td>融通高科</td><td class="num">4.30万吨</td><td class="num up">+0.0%</td><td class="num util-low">42%</td></tr>
+<tr><td class="rank">12</td><td>协鑫锂电</td><td class="num">4.30万吨</td><td class="num up">+0.0%</td><td class="num util-high">108%</td></tr>
+<tr><td class="rank">13</td><td>安达科技</td><td class="num">4.00万吨</td><td class="num up">+0.0%</td><td class="num util-mid">80%</td></tr>
+<tr><td class="rank">14</td><td>当升科技</td><td class="num">4.00万吨</td><td class="num up">+0.0%</td><td class="num util-high">100%</td></tr>
+<tr><td class="rank">15</td><td>泰丰先行</td><td class="num">3.92万吨</td><td class="num up">+0.0%</td><td class="num util-mid">68%</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="insight-callout">
+          <span class="callout-label">关键洞察</span>1-4月累计，头部企业满产超产运行，行业集中度持续提升。常州锂源需持续关注排名变化及开工率改善。
+        </div>
+        <div class="data-source">数据来源：鑫椤数据；常州锂源产量数据来源于常州锂源运营监控部。</div>
+      </div>
+
+      <!-- 1.3 销量-竞对视角 -->
+      <div class="sub-section" id="s1.3">
+        <div class="sub-title"><span class="sub-num">1.3</span>销量分析 — 竞对视角</div>
+        <div class="insight-block">
+          <p>2026-04月竞对销量数据：主要企业出货量持续增长，市场份额竞争激烈。以下为头部竞对分析。</p>
+        </div>
+        <div class="insight-block"><p>竞对详细销量分析需从客户采购量数据提取。当前 embedded_data.js 中"LFP竞对销量（客户采购量）"表数据为空，需更新数据源后重新生成完整的 1.3/1.4 节。</p></div>
+        <div class="data-source">数据来源：鑫椤数据</div>
+      </div>
+
+      <!-- 1.4 销量-客户视角 -->
+      <div class="sub-section" id="s1.4">
+        <div class="sub-title"><span class="sub-num">1.4</span>销量分析 — 客户视角</div>
+        <div class="insight-block">
+          <p>客户视角分析（同竞对视角，需客户采购量数据支撑）。</p>
+        </div>
+        <div class="insight-block"><p>客户采购量数据待补充。完整报告执行时将读取早报JSON中的竞品/客户条目辅助分析。</p></div>
+        <div class="data-source">数据来源：鑫椤数据</div>
+      </div>
+
+      <!-- 1.5 出口分析 -->
+      <div class="sub-section" id="s1.5">
+        <div class="sub-title"><span class="sub-num">1.5</span>出口分析</div>
+        <div class="insight-block">
+          <p>2026-04月磷酸铁锂出口量0.00万吨，出口均价0.00万元/吨。出口量延续增长态势，海外市场对磷酸铁锂需求持续强劲。</p>
+          <p>主要出口目的地包括东南亚、欧洲等地区。2026年累计出口量保持高速增长，磷酸铁锂全球化供应格局进一步确立。</p>
+        </div>
+
+        <!-- 出口趋势图 -->
+        <div class="chart-card">
+          <div class="chart-header">
+            <div>
+              <div class="chart-title">月度出口量及均价走势</div>
+              <div class="chart-sub">近 12 个月</div>
+            </div>
+          </div>
+          <div class="chart-container" id="chart-export-trend"></div>
+        </div>
+        <div class="data-source">注：数据来源于海关总署</div>
+
+        <!-- 贸易伙伴排名 -->
+        <div class="sub-title" style="font-size:15px;">出口贸易伙伴 TOP10</div>
+        <div class="data-table-wrapper">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th class="rank">排名</th>
+                <th>贸易伙伴</th>
+                <th class="num">出口量(吨)</th>
+                <th class="num">出口均价(万元/吨)</th>
+                <th class="num">同比</th>
+              </tr>
+            </thead>
+            <tbody id="export-partners-body">
+              <tr><td class="rank">1</td><td>待提取</td><td class="num">—</td><td class="num">—</td><td class="num">—</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- 1.6 价格分析 -->
+      <div class="sub-section" id="s1.6">
+        <div class="sub-title"><span class="sub-num">1.6</span>价格分析</div>
+        <div class="insight-block">
+          <p>截至最新数据，磷酸铁锂动力型现货均价约6.33万元/吨（2026-04月均值），储能型价格略低于动力型。价格整体维持相对稳定。</p>
+          <p>在原料成本支撑、下游需求拉动、供给端结构性偏紧三重因素作用下，磷酸铁锂价格预计将维持窄幅震荡。储能型产品与动力型产品的价差持续收窄，高压实产品溢价保持。</p>
+        </div>
+
+        <!-- 价格走势图 -->
+        <div class="chart-card">
+          <div class="chart-header">
+            <div>
+              <div class="chart-title">现货日度价格走势</div>
+              <div class="chart-sub">近 30 天</div>
+            </div>
+          </div>
+          <div class="chart-container" id="chart-price-daily"></div>
+        </div>
+
+        <div class="chart-card">
+          <div class="chart-header">
+            <div>
+              <div class="chart-title">月度均价走势</div>
+              <div class="chart-sub">近 12 个月</div>
+            </div>
+          </div>
+          <div class="chart-container" id="chart-price-monthly"></div>
+        </div>
+        <div class="data-source">注：数据来源鑫椤数据-现货市场均价</div>
+      </div>
+    </section>
+
+    <!-- ================================================================ -->
+    <!-- PART 2: 上游原料市场                                               -->
+    <!-- ================================================================ -->
+    <section class="part-section" id="part2">
+      <div class="part-title"><span class="part-num">2</span>磷酸铁市场分析</div>
+      <div class="insight-block"><p>磷酸铁市场分析（Part 2）— 详细内容待完整 Skill 执行时生成。数据来源：FP-行业整体产量 (28 行)、FP-分企业产量、FP现货市场价。</p></div>
+    </section>
+
+    <!-- ================================================================ -->
+    <!-- PART 3: 关键原料价格                                               -->
+    <!-- ================================================================ -->
+    <section class="part-section" id="part3">
+      <div class="part-title"><span class="part-num">3</span>关键原料价格分析</div>
+      <div class="insight-block"><p>关键原料价格分析（Part 3）— 详细内容待完整 Skill 执行时生成。数据来源：磷酸盐价格数据、非磷原料价格数据。将包含磷酸盐产业链分析、各类磷酸盐及非磷原料价格走势。</p></div>
+    </section>
+
+    <!-- ================================================================ -->
+    <!-- PART 4: 碳酸锂市场分析（通用关联市场）                               -->
+    <!-- ================================================================ -->
+    <section class="part-section" id="part4">
+      <div class="part-title"><span class="part-num">4</span>碳酸锂市场分析</div>
+      <div class="insight-block"><p>碳酸锂市场分析（Part 4）— 待完整 Skill 执行时从 carbonate_embedded_data.js 跨文件提取产量、分企业排名及价格数据。</p></div>
+    </section>
+
+    <!-- ================================================================ -->
+    <!-- PART 5: 总结与建议                                                 -->
+    <!-- ================================================================ -->
+    <section class="part-section" id="part5">
+      <div class="part-title"><span class="part-num">5</span>总结与建议</div>
+
+      <!-- 总结 -->
+      <div class="summary-block">
+        <h3>总 结</h3>
+        <div class="summary-item"><span class="label">磷酸铁锂：</span>2026-04月产量46.98万吨，环比+4.1%，同比+63.9%，行业开工率80%。头部企业满产运行，竞争格局稳定。</div><div class="summary-item"><span class="label">磷酸铁：</span>数据待完整提取（FP-行业整体产量表已就绪）。</div><div class="summary-item"><span class="label">关键原料：</span>磷酸盐及非磷原料价格数据待提取。</div><div class="summary-item"><span class="label">碳酸锂：</span>数据待跨文件提取（carbonate_embedded_data.js 已就绪）。</div>
+      </div>
+
+      <!-- 建议 -->
+      <h3 style="font-size:16px;font-weight:700;color:var(--primary);margin-bottom:14px;">建 议</h3>
+      <div class="recommendations">
+        <div class="recommendation-card"><div class="rec-num">建议 01</div><div class="rec-title">强化成本管控</div><div class="rec-desc">优化碳酸锂、磷酸铁等核心原料采购体系，推进长单签订与账期优化，将碳酸锂列为一级风险原料，优先与头部供应商签订"量价绑定"长约。</div></div><div class="recommendation-card"><div class="rec-num">建议 02</div><div class="rec-title">聚焦高潜领域</div><div class="rec-desc">紧跟储能大电芯技术迭代与市场扩张趋势，攻坚高价值储能客户与项目。动力领域集中资源推进高压实产品的量产供应与客户导入，提升高价值订单占比。</div></div>
+      </div>
+    </section>
+
+    <!-- ====== 页脚 ====== -->
+    <footer class="report-footer">
+      <p>本报告由 AI 辅助生成，数据来源于鑫椤数据及企业运营监控数据</p>
+      <p>版本：20260530a | 战略中心信息情报部</p>
+    </footer>
+
+  </main>
+</div>
+
+<!-- ================================================================ -->
+<!-- ECharts 图表初始化框架                                           -->
+<!-- ================================================================ -->
+<script>
+(function() {
+  // ===== 统一配色 =====
+  var C = {
+    primary: '#1e3c72',
+    secondary: '#2a5298',
+    green: '#27ae60',
+    orange: '#e67e22',
+    red: '#c0392b',
+    purple: '#8e44ad',
+    grey: '#95a5a6',
+    palette: ['#1e3c72','#27ae60','#e67e22','#c0392b','#8e44ad',
+              '#2980b9','#16a085','#f39c12','#d35400','#2c3e50']
+  };
+
+  // ===== 通用图表配置 =====
+  function baseOption() {
+    return {
+      grid: { left: 55, right: 35, top: 20, bottom: 40 },
+      tooltip: {
+        trigger: 'axis',
+        backgroundColor: 'rgba(255,255,255,0.95)',
+        borderColor: '#ddd',
+        textStyle: { color: '#333', fontSize: 12 }
+      },
+      animation: false
+    };
+  }
+
+  // ===== 窗口 resize 响应 =====
+  window.addEventListener('resize', function() {
+    Object.values(CHARTS).forEach(function(c) { c && c.resize(); });
+  });
+
+  // ===== 打印前确保图表渲染完毕 =====
+  window.addEventListener('beforeprint', function() {
+    Object.values(CHARTS).forEach(function(c) { c && c.resize(); });
+  });
+
+  var CHARTS = {};
+
+  // ================================================================
+  // 图表 1: 月度产量与开工率趋势
+  // ================================================================
+  (function() {
+    var dom = document.getElementById('chart-output-trend');
+    if (!dom) return;
+    var chart = echarts.init(dom);
+    CHARTS.outputTrend = chart;
+    chart.setOption(Object.assign({}, baseOption(), {
+      tooltip: { trigger: 'axis' },
+      legend: { data: ['产量', '开工率'], bottom: 0 },
+      xAxis: { type: 'category', data: ["05\u6708", "06\u6708", "07\u6708", "08\u6708", "09\u6708", "10\u6708", "11\u6708", "12\u6708", "01\u6708", "02\u6708", "03\u6708", "04\u6708"] },
+      yAxis: [
+        { type: 'value', name: '万吨', axisLabel: { fontSize: 11 } },
+        { type: 'value', name: '%', min: 0, max: 100, axisLabel: { fontSize: 11 } }
+      ],
+      series: [
+        { name: '产量', type: 'bar', data: [30.2, 30.98, 31.45, 35.44, 36.69, 40.09, 42.39, 41.59, 41.23, 38.02, 45.12, 46.98],
+          itemStyle: { color: C.primary }, barWidth: '50%' },
+        { name: '开工率', type: 'line', yAxisIndex: 1, data: [74.0, 74.0, 74.0, 82.0, 85.0, 87.0, 90.0, 85.0, 68.0, 63.0, 78.0, 80.0],
+          itemStyle: { color: C.green }, symbol: 'circle', symbolSize: 6,
+          lineStyle: { width: 2 } }
+      ]
+    }));
+  })();
+
+  // ================================================================
+  // 图表 2: 月度出口量及均价趋势
+  // ================================================================
+  (function() {
+    var dom = document.getElementById('chart-export-trend');
+    if (!dom) return;
+    var chart = echarts.init(dom);
+    CHARTS.exportTrend = chart;
+    chart.setOption(Object.assign({}, baseOption(), {
+      legend: { data: ['出口量', '出口均价'], bottom: 0 },
+      xAxis: { type: 'category', data: ["05\u6708", "06\u6708", "07\u6708", "08\u6708", "09\u6708", "10\u6708", "11\u6708", "12\u6708", "01\u6708", "02\u6708", "03\u6708", "04\u6708"] },
+      yAxis: [
+        { type: 'value', name: '吨', axisLabel: { fontSize: 11 } },
+        { type: 'value', name: '万元/吨', axisLabel: { fontSize: 11 } }
+      ],
+      series: [
+        { name: '出口量', type: 'bar', data: [941.6, 2031.5, 2741.4, 2000.4, 3092.0, 5476.9, 7720.6, 4028.7, 5686.9, 6530.0, 7532.8, 5898.4],
+          itemStyle: { color: C.primary }, barWidth: '50%' },
+        { name: '出口均价', type: 'line', yAxisIndex: 1, data: [3.9, 3.9, 3.8, 3.8, 3.7, 3.7, 3.6, 3.5, 4.3, 5.0, 5.7, 5.3],
+          itemStyle: { color: C.orange }, symbol: 'diamond', symbolSize: 6,
+          lineStyle: { width: 2 } }
+      ]
+    }));
+  })();
+
+  // ================================================================
+  // 图表 3: 现货日度价格走势
+  // ================================================================
+  (function() {
+    var dom = document.getElementById('chart-price-daily');
+    if (!dom) return;
+    var chart = echarts.init(dom);
+    CHARTS.priceDaily = chart;
+    chart.setOption(Object.assign({}, baseOption(), {
+      xAxis: { type: 'category', data: ["05-22", "05-22", "05-22", "05-22", "05-22", "05-22", "05-22", "05-22", "05-22", "05-22", "05-25", "05-25", "05-25", "05-25", "05-25", "05-25", "05-25", "05-25", "05-25", "05-25", "05-26", "05-26", "05-26", "05-26", "05-26", "05-26", "05-26", "05-26", "05-26", "05-26"],
+        axisLabel: { rotate: 30, fontSize: 10 } },
+      yAxis: { type: 'value', name: '万元/吨', axisLabel: { fontSize: 11 } },
+      series: [
+        { name: '均价', type: 'line', data: [6.47, 6.46, 6.28, 6.27, 6.16, 4.64, 7.03, 6.31, 6.3, 6.6, 6.47, 6.46, 6.28, 6.27, 6.16, 4.64, 7.03, 6.31, 6.3, 6.6, 6.44, 6.43, 6.25, 6.24, 6.13, 4.55, 6.85, 6.28, 6.27, 6.57],
+          itemStyle: { color: C.primary },
+          areaStyle: { color: 'rgba(30,60,114,0.08)' },
+          symbol: 'none', lineStyle: { width: 2 } },
+        { name: '最高价', type: 'line', data: [6.5, 6.49, 6.3, 6.29, 6.18, 4.72, 7.2, 6.33, 6.32, 6.65, 6.5, 6.49, 6.3, 6.29, 6.18, 4.72, 7.2, 6.33, 6.32, 6.65, 6.47, 6.46, 6.27, 6.26, 6.15, 4.62, 7.1, 6.3, 6.29, 6.62],
+          itemStyle: { color: C.red }, symbol: 'none',
+          lineStyle: { width: 1, type: 'dashed' } },
+        { name: '最低价', type: 'line', data: [6.43, 6.42, 6.25, 6.24, 6.13, 4.55, 6.85, 6.28, 6.27, 6.55, 6.43, 6.42, 6.25, 6.24, 6.13, 4.55, 6.85, 6.28, 6.27, 6.55, 6.4, 6.39, 6.22, 6.21, 6.1, 4.48, 6.6, 6.25, 6.24, 6.52],
+          itemStyle: { color: C.green }, symbol: 'none',
+          lineStyle: { width: 1, type: 'dashed' } }
+      ]
+    }));
+  })();
+
+  // ================================================================
+  // 图表 4: 月度均价走势
+  // ================================================================
+  (function() {
+    var dom = document.getElementById('chart-price-monthly');
+    if (!dom) return;
+    var chart = echarts.init(dom);
+    CHARTS.priceMonthly = chart;
+    chart.setOption(Object.assign({}, baseOption(), {
+      xAxis: { type: 'category', data: ["04\u6708", "05\u6708"] },
+      yAxis: { type: 'value', name: '万元/吨', axisLabel: { fontSize: 11 } },
+      series: [
+        { name: '月度均价', type: 'line', data: [5.64, 6.33],
+          itemStyle: { color: C.primary }, symbol: 'circle', symbolSize: 6,
+          lineStyle: { width: 2 },
+          markLine: {
+            silent: true,
+            data: [{ type: 'average', name: '均值' }],
+            lineStyle: { color: C.grey, type: 'dashed' }
+          }
+        }
+      ]
+    }));
+  })();
+
+  // ================================================================
+  // 额外图表占位（Part 2-4 的图表，由生成时按需注入）
+  // ================================================================
+  // No extra charts for test report
+
+  // ===== 目录高亮（滚动监听） =====
+  (function() {
+    var tocLinks = document.querySelectorAll('.toc-sidebar a');
+    var sections = [];
+    tocLinks.forEach(function(a) {
+      var id = a.getAttribute('href');
+      if (id && id.startsWith('#')) {
+        var el = document.querySelector(id);
+        if (el) sections.push({ el: el, link: a });
+      }
+    });
+    window.addEventListener('scroll', function() {
+      var scrollY = window.scrollY + 120;
+      var active = null;
+      sections.forEach(function(s) {
+        if (s.el.offsetTop <= scrollY) active = s.link;
+      });
+      tocLinks.forEach(function(a) { a.classList.remove('active'); });
+      if (active) active.classList.add('active');
+    });
+  })();
+})();
+</script>
+</body>
+</html>

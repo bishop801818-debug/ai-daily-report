@@ -59,11 +59,18 @@ def update_spodumene_history(latest_data, history_path):
     
     added_count = 0
     for record in latest_data.get('data', []):
-        # 只保留 5% 澳洲
-        if record.get('grade') != '5%' or record.get('origin') != '澳洲':
+        # 只保留 5% 澳洲（兼容旧格式'5%'和新格式'5.0-5.5%'）
+        grade_raw = record.get('grade', '')
+        origin_raw = record.get('origin', '')
+        # 品位匹配：包含5%即可（匹配 '5%', '5.0-5.5%' 等）
+        is_5pct = '5%' in grade_raw or ('5' in grade_raw and '%' in grade_raw)
+        # 产地匹配：澳大利亚或澳洲
+        is_australia = '澳' in origin_raw or '澳大利亚' in origin_raw
+        if not is_5pct or not is_australia:
             continue
-        grade = record.get('grade', '')
-        origin = record.get('origin', '')
+        # 标准化 grade 为 '5%'，origin 为 '澳洲'
+        grade = '5%'
+        origin = '澳洲'
         min_price = record.get('min_price', 0)
         max_price = record.get('max_price', 0)
         avg_price = record.get('avg_price', 0)
@@ -149,9 +156,10 @@ def update_lepidolite_history(latest_data, history_path):
     
     added_count = 0
     for record in latest_data.get('data', []):
-        # 只保留2.5%品种
+        # Mysteel 2026-05-29 起锂云母页面格式变更：改为表格格式，品位变为 3.0-3.5% 等
+        # 优先保留 3.0-3.5% 品种（最接近旧版 2-2.5% 品位）
         grade = record.get('grade', '')
-        if '2.5%' not in grade:
+        if '3.0-3.5%' not in grade and '2.5%' not in grade:
             continue
         # 判断数据格式：表格格式 vs 指数格式
         if 'min_price' in record and 'max_price' in record and 'avg_price' in record:

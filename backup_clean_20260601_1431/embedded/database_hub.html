@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数据库 - 龙蟠科技行业数据库</title>
+    <meta name="html-version" content="20260424a">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #c1c1c1; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #a1a1a1; }
+
+        body {
+            font-family: 'Microsoft YaHei', 'PingFang SC', Arial, sans-serif;
+            background: #f0f2f5;
+            min-height: 100vh;
+        }
+
+        /* ========== 顶部导航 ========== */
+        .topbar {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: #fff;
+            padding: 0 30px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+        }
+        .topbar-left { display: flex; align-items: center; gap: 16px; }
+        .topbar-logo { font-size: 18px; font-weight: bold; display: flex; align-items: center; gap: 8px; }
+        .topbar-nav { display: flex; gap: 6px; }
+        .topbar-nav a {
+            color: rgba(255,255,255,0.8);
+            text-decoration: none;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            transition: all 0.2s;
+        }
+        .topbar-nav a:hover, .topbar-nav a.active {
+            background: rgba(255,255,255,0.2);
+            color: #fff;
+        }
+                .topbar-right { font-size: 13px; color: rgba(255,255,255,0.7); }
+
+        /* ========== 主内容区 ========== */
+        .main-content { padding: 28px 30px; max-width: 1400px; margin: 0 auto; }
+
+        /* 页面标题 */
+        .page-header { margin-bottom: 24px; }
+        .page-title { font-size: 22px; font-weight: 700; color: #1a1a2e; margin-bottom: 4px; }
+        .page-subtitle { font-size: 13px; color: #888; }
+
+        /* ========== 数据库卡片网格 ========== */
+        .db-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 18px;
+        }
+
+        .db-card {
+            background: #fff;
+            border-radius: 14px;
+            padding: 22px 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            border: 1px solid #eee;
+            transition: all 0.25s;
+            cursor: pointer;
+            position: relative;
+            overflow: visible;
+        }
+        .db-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0;
+            width: 5px;
+            height: 100%;
+        }
+        .db-card:hover {
+            box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+        .db-card .card-top {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+        .db-card .card-icon-wrap {
+            width: 44px; height: 44px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+        }
+        .db-card .card-badge {
+            font-size: 11px;
+            padding: 3px 8px;
+            border-radius: 10px;
+            background: #f0f0f0;
+            color: #888;
+            font-weight: 500;
+        }
+        .db-card .card-badge.has-data { background: #e8f5e9; color: #2e7d32; }
+        .db-card .card-badge.building { background: #fff3e0; color: #e65100; }
+        .db-card .card-name { font-size: 17px; font-weight: 700; color: #1a1a2e; margin-bottom: 4px; }
+        .db-card .card-desc { font-size: 13px; color: #888; line-height: 1.6; margin-bottom: 16px; }
+        .db-card .card-stats {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 16px;
+            padding: 10px 0;
+            border-top: 1px solid #f0f0f0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .db-card .stat-item { text-align: center; flex: 1; }
+        .db-card .stat-val { font-size: 18px; font-weight: 700; color: #1e3c72; }
+        .db-card .stat-label { font-size: 11px; color: #aaa; margin-top: 2px; }
+
+        .db-card .card-actions {
+            display: flex;
+            gap: 8px;
+        }
+        .db-card .card-actions a {
+            flex: 1;
+            text-align: center;
+            padding: 8px 0;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+        }
+        .db-card .btn-data {
+            background: #1e3c72;
+            color: #fff;
+        }
+        .db-card .btn-data:hover { background: #2a5298; }
+        .db-card .btn-chart {
+            background: #f0f4ff;
+            color: #1e3c72;
+        }
+        .db-card .btn-chart:hover { background: #e0e8ff; }
+        .db-card .btn-analysis {
+            background: #f5f5f5;
+            color: #666;
+        }
+        .db-card .btn-analysis:hover { background: #eee; }
+        .db-card .btn-data.disabled,
+        .db-card .btn-chart.disabled,
+        .db-card .btn-analysis.disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        /* ========== 深度分析报告子目录 ========== */
+        .card-actions { display: flex; gap: 8px; align-items: stretch; }
+
+        /* ========== 深度分析下拉菜单 ========== */
+        .analysis-wrap {
+            position: relative;
+            flex: 1;
+            display: flex;
+            align-items: stretch;
+        }
+        .btn-analysis {
+            flex: 1;
+            padding: 8px 10px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            background: #f5f5f5;
+            color: #666;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            white-space: nowrap;
+            min-width: 0;
+        }
+        .btn-analysis.has-reports {
+            background: #f0f0f0;
+            color: #555;
+        }
+        .btn-analysis.has-reports:hover {
+            background: #e8e8e8;
+            color: #1e3c72;
+        }
+        .btn-analysis:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+        .analysis-arrow {
+            font-size: 10px;
+            margin-left: 2px;
+            transition: transform 0.2s;
+            flex-shrink: 0;
+        }
+        .analysis-wrap.open .analysis-arrow {
+            transform: rotate(180deg);
+        }
+        .analysis-wrap.open .btn-analysis {
+            border-radius: 8px 0 0 8px;
+        }
+        .report-dropdown {
+            position: absolute;
+            left: 100%;
+            top: 0;
+            background: #fff;
+            border: 1px solid #e0e0e0;
+            border-left: none;
+            border-radius: 0 8px 8px 8px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+            z-index: 9999;
+            display: none;
+            overflow: hidden;
+            min-width: 160px;
+        }
+        .analysis-wrap.open .report-dropdown {
+            display: block;
+        }
+        .report-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 9px 14px;
+            font-size: 13px;
+            color: #555;
+            text-decoration: none;
+            transition: all 0.15s;
+            border-bottom: 1px solid #f5f5f5;
+            white-space: nowrap;
+        }
+        .report-option:last-child { border-bottom: none; }
+        .report-option:hover {
+            background: #f0f4ff;
+            color: #1e3c72;
+        }
+        .report-option.current {
+            color: #1e3c72;
+            font-weight: 600;
+            background: #f5f8ff;
+        }
+        .report-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #ccc;
+            flex-shrink: 0;
+        }
+        .report-dot.active { background: #1e3c72; }
+        .report-new-tag {
+            font-size: 10px;
+            padding: 1px 5px;
+            border-radius: 4px;
+            background: #ff3b30;
+            color: #fff;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        /* ========== 各库配色 ========== */
+        .db-card[data-db="lfp"]       { --db-color: #1e3c72; }
+        .db-card[data-db="ternary"]   { --db-color: #e67e22; }
+        .db-card[data-db="electrolyte"]{ --db-color: #8e44ad; }
+        .db-card[data-db="carbonate"] { --db-color: #27ae60; }
+        .db-card[data-db="recycling"] { --db-color: #d35400; }
+        .db-card[data-db="lib_battery"]{ --db-color: #e74c3c; }
+        .db-card[data-db="automotive"]{ --db-color: #3498db; }
+
+        .db-card::before { background: var(--db-color); }
+        .db-card .card-icon-wrap { background: color-mix(in srgb, var(--db-color) 12%, white); }
+        .db-card .stat-val { color: var(--db-color); }
+        .db-card .btn-data { background: var(--db-color); }
+        .db-card .btn-data:hover { background: color-mix(in srgb, var(--db-color) 85%, black); }
+        .db-card .btn-chart { background: color-mix(in srgb, var(--db-color) 10%, white); color: var(--db-color); }
+        .db-card .btn-chart:hover { background: color-mix(in srgb, var(--db-color) 18%, white); }
+
+        /* ========== 统计总览区 ========== */
+        .overview-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 28px;
+        }
+        .overview-card {
+            background: #fff;
+            border-radius: 12px;
+            padding: 18px 20px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
+        .overview-icon {
+            width: 50px; height: 50px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 26px;
+        }
+        .overview-info .label { font-size: 12px; color: #aaa; margin-bottom: 4px; }
+        .overview-info .value { font-size: 26px; font-weight: 700; color: #1a1a2e; line-height: 1; }
+        .overview-info .sub { font-size: 12px; color: #888; margin-top: 3px; }
+
+        /* ========== 建设中遮罩 ========== */
+        .building-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(255,255,255,0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 14px;
+            font-size: 14px;
+            color: #e65100;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+
+<!-- 顶部导航 -->
+<div class="topbar">
+    <div class="topbar-left">
+        <div class="topbar-logo">
+            🔋 龙蟠行业数据库
+        </div>
+        <div class="topbar-nav">
+            <a href="index_v3.html">首页</a>
+            <a href="policy_center_v4.html">政策中心</a>
+            <a href="industry_news.html">行业新闻</a>
+            <a href="archive_v3.html">历史数据</a>
+            <a href="database_hub.html" class="active">数据库</a>
+            <a href="analysis_hub.html">分析报告</a>
+            <a href="#market">市场行情</a>
+        </div>
+    </div>
+    <div class="topbar-right">数据更新时间：加载中...</div>
+</div>
+
+<!-- 主内容 -->
+<div class="main-content">
+
+    <!-- ========== 数据表 Tab ========== -->
+    <div id="panel-data" class="tab-panel active">
+        <div class="page-header">
+            <div class="page-title">📋 数据表总览</div>
+            <div class="page-subtitle">点击卡片进入各行业数据库，支持查看详细数据、导出、筛选</div>
+        </div>
+        <div class="db-grid" id="db-grid-data"></div>
+    </div>
+
+</div>
+
+<script>
+/* =====================================================
+   数据库配置
+   ===================================================== */
+const DB_LIST = [
+    {
+        id: 'lfp',
+        name: '磷酸铁锂数据库',
+        icon: '🔋',
+        desc: '磷酸铁锂正极材料产量、产能、价格、进出口等全维度数据',
+        hasData: true,
+        tableCount: 12,
+        updateDate: null,
+        tables: ['行业整体产量', '企业产量排名', '价格走势', '进出口数据', '项目动态', '库存数据', '成本利润', '终端需求'],
+        charts: 'lfp_charts.html',
+        data: 'lfp_data_v2.html',
+        reportMonths: [
+            { label: '2026年4月', href: 'lfp_report_2026_04.html', current: false },
+            { label: '2026年5月', href: 'lfp_report.html', current: true }
+        ]
+    },
+    {
+        id: 'ternary',
+        name: '三元材料数据库',
+        icon: '⚡',
+        desc: '三元正极材料（NCM/NCA）产量、价格、原料成本分析',
+        hasData: false,
+        tableCount: 6,
+        updateDate: '—',
+        tables: ['行业整体产量', '企业产量排名', '价格走势', '硫酸镍钴成本', '进出口数据', '项目动态'],
+        reportMonths: []
+    },
+    {
+        id: 'electrolyte',
+        name: '电解液数据库',
+        icon: '🧪',
+        desc: '电解液及六氟磷酸锂、溶剂溶质价格、产能、出货量数据',
+        hasData: true,
+        tableCount: 28,
+        updateDate: null,
+        tables: ['电解液行业产量', '电解液分企业产量', '电解液企业top15排名', '电解液年累top15排名',
+                 '电解液价格(LFP动力/储能/三元/圆柱)', '高压电解液价格', '六氟磷酸锂行业产量', '六氟磷酸锂分企业产量',
+                 '六氟磷酸锂top15排名', '六氟磷酸锂价格(主流/出口)', 'LiFSI价格(固态/液态)', '六氟出口总量',
+                 '六氟出口分国别', '添加剂VC/FEC产量', '添加剂VC/PS/FEC价格'],
+        charts: 'electrolyte_charts.html',
+        data: 'electrolyte_data_v2.html',
+        reportMonths: [
+            { label: '2026年5月', href: 'electrolyte_report.html', current: true }
+        ]
+    },
+    {
+        id: 'carbonate',
+        name: '碳酸锂及原料数据库',
+        icon: '⛏️',
+        desc: '碳酸锂、锂辉石、锂云母等上游原料全链条',
+        hasData: true,
+        tableCount: 12,
+        updateDate: null,
+        tables: ['碳酸锂行业产量', '碳酸锂分企业产量', '碳酸锂出口量', '碳酸锂出口贸易伙伴', '碳酸锂现货价',
+                 '氢氧化锂行业产量', '氢氧化锂分企业产量', '氢氧化锂出口量', '氢氧化锂出口贸易伙伴', '氢氧化锂现货价',
+                 '锂云母价格', '锂辉石精矿价格'],
+        charts: 'carbonate_charts.html',
+        data: 'carbonate_data_v2.html',
+        reportMonths: [
+            { label: '2026年4月', href: 'carbonate_report.html', current: true }
+        ]
+    },
+    {
+        id: 'recycling',
+        name: '锂电池回收行业数据库',
+        icon: '♻️',
+        desc: '动力电池回收量、梯次利用、再生利用市场规模与白名单企业',
+        hasData: true,
+        tableCount: 27,
+        updateDate: null,
+        tables: ['黑粉处理量-总计', '黑粉处理量-三元+钴酸锂', '黑粉处理量-铁锂', '黑粉整体处理量-分企业', '锂电池价格', '极片价格', '辅料价格', '黑粉价格'],
+        data: 'recycling_data_v2.html',
+        charts: 'recycling_charts.html',
+        reportMonths: []
+    },
+    {
+        id: 'lib_battery',
+        name: '锂电池行业数据库',
+        icon: '🔋',
+        desc: '锂电池产量、产能、分企业数据、电池排产预测等全维度数据',
+        hasData: true,
+        tableCount: 5,
+        updateDate: '2026-05-09',
+        tables: ['行业产量（分规格）', '行业产量产能', '分企业产量（分规格）', '分企业产量产能', '电池排产预测'],
+        charts: 'lib_battery_charts.html',
+        analysis: 'lib_battery_analysis.html',
+        reportMonths: [
+            { label: '2026年5月', href: 'lib_battery_report.html', current: true }
+        ]
+    },
+    {
+        id: 'automotive',
+        name: '汽车行业数据库',
+        icon: '🚗',
+        desc: '新能源汽车、动力电池装车量、渗透率、召回数据与政策汇总',
+        hasData: true,
+        tableCount: 22,
+        updateDate: '2026-05-18',
+        tables: ['全球分区域销量', '全球分国家销量', '中国汽车整体', '中国乘用车', '乘用车出口', '乘用车分整车厂',
+                 '中国商用车', '商用车分整车厂', '中重卡分整车厂', '轻卡分整车厂',
+                 '新能源全球整体', '新能源全球分地区', '新能源中国整体', '新能源出口',
+                 '乘用车零售', '商用车零售', '乘用车分类型', '乘用车分级别', '乘用车分品牌',
+                 '乘用车出口分市场', '乘用车出口分类型', '乘用车出口分车企'],
+        charts: 'automotive_charts.html',
+        data: 'automotive_data_v2.html',
+        reportMonths: [
+            { label: '2026年5月', href: 'automotive_report.html', current: true }
+        ]
+    }
+];
+
+/* =====================================================
+   渲染函数
+   ===================================================== */
+function buildCardHTML(db, viewType) {
+    const suffix = {
+        data: 'data_v2.html',
+        chart: 'charts.html'
+    }[viewType];
+
+    const labels = {
+        data: '数据表',
+        chart: '看板',
+        analysis: '深度分析'
+    };
+
+    const icons = {
+        data: '📋',
+        chart: '📈',
+        analysis: '🔍'
+    };
+
+    const badge = db.hasData
+        ? '<span class="card-badge has-data">✓ 已录入</span>'
+        : '<span class="card-badge building">🚧 建设中</span>';
+
+    const btnDataHref = db.hasData ? `${db.id}_data_v2.html` : 'javascript:void(0)';
+    const btnChartHref = db.hasData ? `${db.id}_charts.html` : 'javascript:void(0)';
+    const btnAnalysisHref = db.hasData ? `${db.id}_analysis.html` : 'javascript:void(0)';
+
+    return `
+    <div class="db-card" data-db="${db.id}">
+        ${db.hasData ? '' : '<div class="building-overlay">🚧 数据录入中</div>'}
+        <div class="card-top">
+            <div class="card-icon-wrap">${db.icon}</div>
+            ${badge}
+        </div>
+        <div class="card-name">${db.name}</div>
+        <div class="card-desc">${db.desc}</div>
+        <div class="card-stats">
+            <div class="stat-item">
+                <div class="stat-val">${db.tableCount}</div>
+                <div class="stat-label">数据表</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-val">${db.hasData ? '12' : '—'}</div>
+                <div class="stat-label">核心指标</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-val">${db.updateDate === null ? '加载中...' : db.updateDate}</div>
+                <div class="stat-label">更新日期</div>
+            </div>
+        </div>
+        <div class="card-actions">
+            <a href="${btnDataHref}" class="${db.hasData ? 'btn-data' : 'btn-data disabled'}">${icons.data} ${labels.data}</a>
+            <a href="${btnChartHref}" class="${db.hasData ? 'btn-chart' : 'btn-chart disabled'}">${icons.chart} ${labels.chart}</a>
+            <div class="analysis-wrap">
+                <button class="${db.hasData && db.reportMonths && db.reportMonths.length > 0 ? 'btn-analysis has-reports' : (db.hasData ? 'btn-analysis' : 'btn-analysis disabled')}"
+                        onclick="${db.hasData && db.reportMonths && db.reportMonths.length > 0 ? `toggleReportMenu('${db.id}', this)` : 'javascript:void(0)'}"
+                        ${!db.hasData || !db.reportMonths || db.reportMonths.length === 0 ? 'disabled' : ''}>
+                    ${icons.analysis} ${labels.analysis} <span class="analysis-arrow">▾</span>
+                </button>
+                ${db.reportMonths && db.reportMonths.length > 0 ? `
+                <div class="report-dropdown" id="report-menu-${db.id}">
+                    ${db.reportMonths.map(m => `
+                        <a href="${m.href}" class="report-option ${m.current ? 'current' : ''}">
+                            <span class="report-dot ${m.current ? 'active' : ''}"></span>
+                            <span>${m.label}</span>
+                            ${m.current ? '<span class="report-new-tag">NEW</span>' : ''}
+                        </a>`).join('')}
+                </div>` : ''}
+            </div>
+        </div>
+    </div>`;
+}
+
+const DB_UPDATE_MAP = {
+    lfp:        { file: 'embedded/embedded_data.js',              key: 'update_time' },
+    electrolyte:{ file: 'embedded/electrolyte_embedded_data.js', key: 'update_time' },
+    carbonate:  { file: 'embedded/carbonate_embedded_data.js',  key: 'update_time' },
+    lib_battery:{ file: 'embedded/lib_battery_embedded_data.js',  key: 'update_time' },
+    automotive: { file: 'embedded/automotive_embedded_data.js',   key: 'update_time' },
+    recycling:  { file: 'embedded/recycling_embedded_data.js',   key: 'update_time' },
+};
+
+async function fetchDbUpdateDate(dbId) {
+    const info = DB_UPDATE_MAP[dbId];
+    if (!info) return null;
+    try {
+        const r = await fetch(info.file + '?_=' + Date.now());
+        if (!r.ok) return null;
+        const text = await r.text();
+        const m = text.match(/"update_time"\s*:\s*"([^"]+)"/);
+        return m ? m[1].slice(0, 10) : null;
+    } catch { return null; }
+}
+
+function renderAllPanels() {
+    const container = document.getElementById('db-grid-data');
+    if (container) {
+        container.innerHTML = DB_LIST.map(db => buildCardHTML(db, 'data')).join('');
+        DB_LIST.forEach(db => {
+            fetchDbUpdateDate(db.id).then(date => {
+                if (date) {
+                    const card = document.querySelector(`.db-card[data-db="${db.id}"]`);
+                    if (card) {
+                        const val = card.querySelector('.stat-item:last-child .stat-val');
+                        if (val) val.textContent = date;
+                    }
+                }
+            });
+        });
+    }
+}
+
+function updateTopbarTime() {
+    const topbarRight = document.querySelector('.topbar-right');
+    if (topbarRight) {
+        const now = new Date();
+        topbarRight.textContent = `更新时间：${now.toLocaleDateString('zh-CN')} ${now.toLocaleTimeString('zh-CN', {hour:'2-digit', minute:'2-digit'})}`;
+    }
+}
+
+/* =====================================================
+   深度分析报告下拉菜单
+   ===================================================== */
+let openReportMenuId = null;
+
+function toggleReportMenu(dbId, btn) {
+    const wrap = btn.closest('.analysis-wrap');
+    const card = btn.closest('.db-card');
+    const isOpen = wrap.classList.contains('open');
+
+    // Close all menus first, reset all z-indices
+    document.querySelectorAll('.analysis-wrap.open').forEach(el => el.classList.remove('open'));
+    document.querySelectorAll('.db-card').forEach(el => el.style.zIndex = '');
+
+    if (!isOpen) {
+        wrap.classList.add('open');
+        card.style.zIndex = '999';
+        openReportMenuId = dbId;
+    } else {
+        openReportMenuId = null;
+    }
+}
+
+document.addEventListener('click', function(e) {
+    if (openReportMenuId !== null) {
+        const menu = document.getElementById('report-menu-' + openReportMenuId);
+        if (menu && !menu.contains(e.target) && !e.target.closest('.btn-analysis')) {
+            document.querySelectorAll('.analysis-wrap.open').forEach(el => el.classList.remove('open'));
+            document.querySelectorAll('.db-card').forEach(el => el.style.zIndex = '');
+            openReportMenuId = null;
+        }
+    }
+});
+
+/* =====================================================
+   初始化
+   ===================================================== */
+renderAllPanels();
+updateTopbarTime();
+</script>
+</body>
+</html>

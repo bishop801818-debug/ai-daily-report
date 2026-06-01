@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>磷酸铁锂分析报告 - 龙蟠行业数据库</title>
+    <meta name="html-version" content="20260428c">
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Microsoft YaHei', 'PingFang SC', Arial, sans-serif; background: #f0f2f5; min-height: 100vh; }
+
+        /* ===== 顶部导航 ===== */
+        .topbar {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: #fff;
+            padding: 0 30px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+        }
+        .topbar-left { display: flex; align-items: center; gap: 16px; }
+        .topbar-logo { font-size: 18px; font-weight: bold; display: flex; align-items: center; gap: 8px; }
+        .topbar-links { display: flex; gap: 12px; }
+        .topbar-links a { color: rgba(255,255,255,0.8); text-decoration: none; font-size: 13px; padding: 6px 14px; border-radius: 20px; transition: all 0.2s; }
+        .topbar-links a:hover { background: rgba(255,255,255,0.2); color: #fff; }
+        .topbar-right { font-size: 13px; color: rgba(255,255,255,0.7); }
+
+        /* ===== 报告头部 ===== */
+        .report-header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: #fff;
+            padding: 40px 30px 30px;
+            position: relative;
+            overflow: hidden;
+            text-align: center;
+        }
+        .report-header::before {
+            content: '';
+            position: absolute;
+            top: 0; right: 0; bottom: 0; left: 0;
+            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            opacity: 0.3;
+        }
+        .report-meta { font-size: 13px; opacity: 0.8; margin-bottom: 8px; position: relative; }
+        .report-title { font-size: 28px; font-weight: 700; margin-bottom: 6px; position: relative; }
+        .report-subtitle { font-size: 14px; opacity: 0.85; margin-bottom: 20px; position: relative; }
+        .report-tags { display: inline-flex; gap: 8px; flex-wrap: wrap; position: relative; justify-content: center; }
+        .report-tag { background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); padding: 4px 12px; border-radius: 20px; font-size: 12px; }
+
+        /* ===== Tab导航 ===== */
+        .tab-nav {
+            background: #fff;
+            border-bottom: 1px solid #e8e8e8;
+            padding: 0 30px;
+            display: flex;
+            gap: 0;
+            position: sticky;
+            top: 60px;
+            z-index: 90;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
+        .tab-btn {
+            padding: 14px 22px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            color: #666;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+            font-family: inherit;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .tab-btn:hover { color: #1e3c72; }
+        .tab-btn.active { color: #1e3c72; border-bottom-color: #1e3c72; font-weight: 600; }
+        .tab-count { background: rgba(30,60,114,0.1); color: #1e3c72; font-size: 11px; padding: 1px 6px; border-radius: 10px; }
+
+        /* ===== 主内容区 ===== */
+        .tab-content { display: none; padding: 28px 30px; max-width: 1400px; margin: 0 auto; }
+        .tab-content.active { display: block; }
+
+        /* ===== KPI卡片 ===== */
+        .kpi-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; margin-bottom: 22px; }
+        .kpi-card {
+            background: #fff; border-radius: 12px; padding: 18px 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            display: flex; align-items: center; gap: 14px;
+            border-left: 4px solid transparent;
+        }
+        .kpi-card.blue { border-left-color: #1e3c72; }
+        .kpi-card.green { border-left-color: #27ae60; }
+        .kpi-card.orange { border-left-color: #e67e22; }
+        .kpi-card.red { border-left-color: #c0392b; }
+        .kpi-card.purple { border-left-color: #8e44ad; }
+        .kpi-icon { width: 42px; height: 42px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+        .kpi-icon.blue { background: rgba(30,60,114,0.1); }
+        .kpi-icon.green { background: rgba(39,174,96,0.1); }
+        .kpi-icon.orange { background: rgba(230,126,34,0.1); }
+        .kpi-icon.red { background: rgba(192,57,43,0.1); }
+        .kpi-icon.purple { background: rgba(142,68,173,0.1); }
+        .kpi-info .kpi-label { color: #999; font-size: 12px; margin-bottom: 3px; }
+        .kpi-info .kpi-value { color: #1e3c72; font-size: 22px; font-weight: 700; line-height: 1.2; }
+        .kpi-info .kpi-unit { font-size: 13px; color: #999; font-weight: normal; }
+        .kpi-info .kpi-sub { color: #bbb; font-size: 11px; margin-top: 2px; }
+        .kpi-change { font-size: 11px; padding: 2px 6px; border-radius: 4px; margin-left: 6px; }
+        .kpi-change.up { background: rgba(39,174,96,0.1); color: #27ae60; }
+        .kpi-change.down { background: rgba(231,76,60,0.1); color: #e74c3c; }
+
+        /* ===== 区块通用 ===== */
+        .section-block { background: #fff; border-radius: 12px; padding: 24px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); border: 1px solid #eee; }
+        .section-title { font-size: 16px; font-weight: 700; color: #1a1a2e; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; padding-bottom: 12px; border-bottom: 1px solid #f0f0f0; }
+        .section-title .icon { font-size: 18px; }
+
+        /* ===== 摘要英雄区 ===== */
+        .summary-hero {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            border-radius: 16px;
+            padding: 28px 32px;
+            color: #fff;
+            margin-bottom: 24px;
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 24px;
+            align-items: center;
+        }
+        .summary-hero-title { font-size: 22px; font-weight: 700; margin-bottom: 12px; color: #fff; }
+        .summary-hero-text { font-size: 14px; line-height: 1.8; color: #fff; opacity: 0.95; }
+        .summary-kpi-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+        .summary-kpi { background: rgba(255,255,255,0.15); border-radius: 10px; padding: 14px; text-align: center; }
+        .summary-kpi-val { font-size: 22px; font-weight: 700; color: #fff; }
+        .summary-kpi-lbl { font-size: 11px; color: rgba(255,255,255,0.8); margin-top: 2px; }
+
+        /* ===== 洞察块 ===== */
+        .insight-block { background: linear-gradient(135deg, #f0f7ff 0%, #e3f2fd 100%); border-left: 4px solid #1e3c72; border-radius: 8px; padding: 16px 20px; margin-bottom: 16px; }
+        .insight-block.blue { background: linear-gradient(135deg, #f0f7ff 0%, #e3f2fd 100%); border-left-color: #3498db; }
+        .insight-block.orange { background: linear-gradient(135deg, #fff8f0 0%, #fff3e0 100%); border-left-color: #e67e22; }
+        .insight-block.purple { background: linear-gradient(135deg, #f8f0ff 0%, #f3e5f5 100%); border-left-color: #9b59b6; }
+        .insight-title { font-size: 14px; font-weight: 700; color: #1a1a2e; margin-bottom: 6px; }
+        .insight-text { font-size: 13px; color: #444; line-height: 1.7; }
+
+        /* ===== 发现列表 ===== */
+        .finding-list { list-style: none; }
+        .finding-list li { padding: 10px 16px; border-radius: 8px; margin-bottom: 8px; font-size: 13px; line-height: 1.6; display: flex; gap: 10px; }
+        .finding-list li:nth-child(odd) { background: #f8f9fa; }
+        .finding-tag { flex-shrink: 0; font-size: 11px; font-weight: 700; padding: 2px 7px; border-radius: 4px; height: fit-content; }
+        .finding-tag.p0 { background: #fee2e2; color: #991b1b; }
+        .finding-tag.p1 { background: #fef3c7; color: #92400e; }
+        .finding-tag.p2 { background: #e0f2fe; color: #075985; }
+
+        /* ===== 行动卡片 ===== */
+        .action-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+        .action-card { border: 1px solid #e0e0e0; border-radius: 10px; padding: 16px; text-align: center; transition: all 0.2s; }
+        .action-card:hover { border-color: #1e3c72; box-shadow: 0 4px 12px rgba(30,60,114,0.12); }
+        .action-icon { font-size: 28px; margin-bottom: 8px; }
+        .action-title { font-size: 14px; font-weight: 700; color: #1a1a2e; margin-bottom: 4px; }
+        .action-desc { font-size: 12px; color: #888; line-height: 1.5; }
+        .action-priority { display: inline-block; font-size: 10px; padding: 2px 6px; border-radius: 4px; margin-top: 6px; font-weight: 600; }
+        .action-priority.high { background: #fee2e2; color: #991b1b; }
+        .action-priority.medium { background: #fef3c7; color: #92400e; }
+
+        /* ===== 图表网格 ===== */
+        .chart-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; margin-bottom: 18px; }
+        .chart-card { background: #fff; border-radius: 12px; padding: 20px; border: 1px solid #eee; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+        .chart-card.full { grid-column: span 2; }
+        .chart-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 14px; padding-bottom: 12px; border-bottom: 1px solid #f0f0f0; }
+        .chart-title { font-size: 15px; font-weight: 600; color: #333; }
+        .chart-sub { font-size: 12px; color: #aaa; margin-top: 3px; }
+        .chart-meta { font-size: 12px; color: #bbb; }
+        .chart-container { width: 100%; height: 280px; }
+        .chart-card.full .chart-container { height: 260px; }
+
+        /* ===== 数据表格 ===== */
+        .data-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        .data-table th { background: #f5f7fa; color: #555; font-weight: 600; padding: 10px 14px; text-align: left; border-bottom: 2px solid #e8e8e8; }
+        .data-table td { padding: 10px 14px; border-bottom: 1px solid #f0f0f0; color: #444; }
+        .data-table tr:last-child td { border-bottom: none; }
+        .data-table .num { text-align: right; font-weight: 600; color: #1e3c72; }
+        .data-table .util-high { color: #27ae60; font-weight: 600; }
+        .data-table .util-mid { color: #e67e22; font-weight: 600; }
+        .data-table .util-low { color: #c0392b; }
+
+        /* ===== 结论卡片 ===== */
+        .conclusion-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+        .conclusion-card { background: #fff; border-radius: 12px; padding: 22px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+        .conclusion-card .concl-icon { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px; margin-bottom: 12px; }
+        .conclusion-card .concl-title { font-size: 15px; font-weight: 600; color: #333; margin-bottom: 10px; }
+        .conclusion-card .concl-text { font-size: 13px; color: #666; line-height: 1.7; }
+        .conclusion-card .concl-tag { display: inline-block; padding: 3px 10px; border-radius: 4px; font-size: 11px; font-weight: 600; margin-top: 10px; }
+        .conclusion-card .tag-green { background: rgba(39,174,96,0.1); color: #27ae60; }
+        .conclusion-card .tag-orange { background: rgba(230,126,34,0.1); color: #e67e22; }
+        .conclusion-card .tag-red { background: rgba(231,76,60,0.1); color: #e74c3c; }
+        .conclusion-card .tag-blue { background: rgba(30,60,114,0.1); color: #1e3c72; }
+
+        /* ===== 图表释义 ===== */
+        .chart-interpretation { margin-top: 12px; padding: 14px 16px; background: linear-gradient(135deg, #f8f9fc 0%, #f0f4ff 100%); border-radius: 8px; border-left: 3px solid #1e3c72; }
+        .ci-title { font-size: 12px; font-weight: 600; color: #1e3c72; margin-bottom: 6px; }
+        .ci-text { font-size: 13px; color: #555; line-height: 1.8; }
+        .ci-text strong { color: #1e3c72; }
+
+        /* ===== 数据来源 ===== */
+        .source-bar { background: #fff; border-radius: 10px; padding: 14px 20px; box-shadow: 0 2px 6px rgba(0,0,0,0.04); margin-top: 18px; font-size: 12px; color: #aaa; display: flex; gap: 20px; flex-wrap: wrap; }
+        .source-bar span { display: flex; align-items: center; gap: 5px; }
+
+        @media (max-width: 1200px) {
+            .kpi-row { grid-template-columns: repeat(3, 1fr); }
+            .chart-grid { grid-template-columns: 1fr; }
+            .chart-card.full { grid-column: span 1; }
+            .action-grid { grid-template-columns: 1fr; }
+            .conclusion-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- 顶部导航 -->
+<div class="topbar">
+    <div class="topbar-left">
+        <div class="topbar-logo">🔋 磷酸铁锂分析报告</div>
+    </div>
+    <div class="topbar-links">
+        <a href="index_v3.html">🏠 首页</a>
+        <a href="database_hub.html">📋 数据库中心</a>
+        <a href="carbonate_analysis.html">⛏️ 碳酸锂报告</a>
+    </div>
+    <div class="topbar-right" id="topbarTime"></div>
+</div>
+
+<!-- 报告头部 -->
+<div class="report-header">
+    <div class="report-meta">📅 数据截止：2026-04-20 &nbsp;|&nbsp; 早报数据：2026-04-22-23 &nbsp;|&nbsp; 🕐 报告生成：2026-04-25 &nbsp;|&nbsp; 🔄 持续更新</div>
+    <div class="report-title">磷酸铁锂深度分析报告</div>
+    <div class="report-subtitle">磷酸铁锂正极材料 · 供需格局 · 价格体系 · 出口贸易 · 战略展望</div>
+    <div class="report-tags">
+        <span class="report-tag">磷酸铁锂</span>
+        <span class="report-tag">LFP正极材料</span>
+        <span class="report-tag">新能源中游</span>
+        <span class="report-tag">储能</span>
+    </div>
+</div>
+
+<!-- Tab导航 -->
+<div class="tab-nav">
+    <button class="tab-btn active" onclick="switchTab('s1', this)">📋 执行摘要</button>
+    <button class="tab-btn" onclick="switchTab('s2', this)">🔄 供需格局</button>
+    <button class="tab-btn" onclick="switchTab('s3', this)">⚔️ 竞争格局</button>
+    <button class="tab-btn" onclick="switchTab('s4', this)">💰 价格体系</button>
+    <button class="tab-btn" onclick="switchTab('s5', this)">🚢 出口贸易</button>
+    <button class="tab-btn" onclick="switchTab('s6', this)">🧭 战略展望</button>
+</div>
+
+<!-- ====== S1: 执行摘要 ====== -->
+<div id="tab-s1" class="tab-content active">
+
+    <!-- 摘要英雄区 -->
+    <div class="summary-hero">
+        <div>
+            <div class="summary-hero-title">2026年4月：利用率骤降预警，储能三日信号共振确认拐点</div>
+            <div class="summary-hero-text">
+                磷酸铁锂行业正经历从"结构性紧平衡"向"供需再平衡"的关键转折——产能利用率从2025年11月峰值<strong>90%</strong>骤降至2026年2月<strong>63%</strong>，
+                降幅达27个百分点，释放明确的产能过剩预警信号。但同日出现三重共振：<strong>4月10日</strong>锂电板块涨停潮（储能概念领涨）
+                → <strong>4月14日</strong>排产数据确认4月环比+6%至45万吨 → <strong>4月17日</strong>出货数据验证储能电芯占比首超动力电池，
+                三日信号共振确认需求结构的历史性拐点确立。4月16日，容百科技（43亿）与盟固利（18亿）两家三元龙头同日官宣全面转型LFP，
+                标志着LFP路线已从"传统铁锂企业赛道"升级为"全行业共识"，新一轮扩产竞赛山雨欲来。
+            </div>
+        </div>
+        <div class="summary-kpi-row">
+            <div class="summary-kpi">
+                <div class="summary-kpi-val">63%</div>
+                <div class="summary-kpi-lbl">产能利用率</div>
+            </div>
+            <div class="summary-kpi">
+                <div class="summary-kpi-val">5.81</div>
+                <div class="summary-kpi-lbl">高端LFP(万元/吨)</div>
+            </div>
+            <div class="summary-kpi">
+                <div class="summary-kpi-val">45<span style="font-size:12px">万吨</span></div>
+                <div class="summary-kpi-lbl">4月排产预测</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- KPI卡片 -->
+    <div class="kpi-row">
+        <div class="kpi-card blue">
+            <div class="kpi-icon blue">🏭</div>
+            <div class="kpi-info">
+                <div class="kpi-label">LFP月产量</div>
+                <div class="kpi-value">38.0<span class="kpi-unit">万吨</span><span class="kpi-change down">↓7.8%</span></div>
+                <div class="kpi-sub">2026年2月，环比2026年1月</div>
+            </div>
+        </div>
+        <div class="kpi-card green">
+            <div class="kpi-icon green">⚡</div>
+            <div class="kpi-info">
+                <div class="kpi-label">产能利用率</div>
+                <div class="kpi-value">63<span class="kpi-unit">%</span><span class="kpi-change down">↓22pct</span></div>
+                <div class="kpi-sub">2026年2月，距峰值90%差距27pct</div>
+            </div>
+        </div>
+        <div class="kpi-card orange">
+            <div class="kpi-icon orange">💎</div>
+            <div class="kpi-info">
+                <div class="kpi-label">碳酸锂价格</div>
+                <div class="kpi-value">16.78<span class="kpi-unit">万元/吨</span><span class="kpi-change up">↑+0.18%</span></div>
+                <div class="kpi-sub">电池级，2026-04-15（SMM），9连涨延续</div>
+            </div>
+        </div>
+        <div class="kpi-card red">
+            <div class="kpi-icon red">🔋</div>
+            <div class="kpi-info">
+                <div class="kpi-label">LFP高端现货价</div>
+                <div class="kpi-value">5.81<span class="kpi-unit">万元/吨</span></div>
+                <div class="kpi-sub">动力型（压实≥2.60g/cm³），4月15日报价</div>
+            </div>
+        </div>
+        <div class="kpi-card purple">
+            <div class="kpi-icon purple">🚢</div>
+            <div class="kpi-info">
+                <div class="kpi-label">月出口量</div>
+                <div class="kpi-value">0.65<span class="kpi-unit">万吨</span><span class="kpi-change up">↑+14%</span></div>
+                <div class="kpi-sub">2026年2月，出口均价5.0万元/吨</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 核心叙事 -->
+    <div class="section-block">
+        <div class="section-title"><span class="icon">📖</span> 核心叙事</div>
+        <p style="font-size:14px;color:#444;line-height:1.9;margin-bottom:12px;">
+            磷酸铁锂行业正经历<span style="color:#1e3c72;font-weight:600;">从"结构性紧平衡"向"供需再平衡"</span>的关键转折。2024年初全行业产能利用率仅34%，经历2025年下游需求爆发式增长后，2025年11月行业产能利用率冲高至<strong>90%</strong>的峰值。2026年初，受碳酸锂价格暴涨传导影响，下游电池厂开始主动去库存，产量与利用率双双回落，呈现"量降价稳"的典型周期中段特征。
+        </p>
+        <p style="font-size:14px;color:#444;line-height:1.9;">
+            当前行业处于<strong>结构性分化窗口</strong>：高端动力型LFP（压实≥2.60 g/cm³）均价维持在<strong>5.81万元/吨</strong>的高位，回收修复型仅3.92万元/吨，价差达<strong>1.89万元/吨</strong>；湖南裕能凭借97%超高产能利用率稳居行业第一，尾部企业利用率已降至50%以下。<span style="color:#1e3c72;font-weight:600;">碳酸锂本轮涨价并非昙花一现——自2026年1月初企稳后进入连续上涨通道，4月10日至4月16日呈现9连涨走势：15.55万→15.80万→16.20万→16.36万→16.50万→16.68万→16.78万→期货突破17万/吨，津巴布韦出口配额缺口3-4万吨LCE构成持续供给扰动。</span><span style="color:#1e3c72;font-weight:600;">2026年4月9日四部门首次座谈后，4月14日二次座谈进一步升级——治理范围从"产能管控"扩展为六方面全链条治理，政策信号持续加码。</span><span style="color:#1e3c72;font-weight:600;">4月储能电芯占比首次超越动力电池</span>，成为需求结构的历史性拐点，背后是4月10日锂电板块涨停潮→4月14日储能数据首超→4月17日三方数据确认的连续三日信号共振。<span style="color:#1e3c72;font-weight:600;">4月16日，容百科技（43亿）与盟固利（30亿）两家三元龙头同日宣布全面转型LFP——这不仅是两家公司的战略背书，更标志着三元阵营对LFP路线长达两年判断的正确性已在行业层面形成共识，新一轮产能过剩风险或在2026年下半年再次显现。</span>
+        </p>
+    </div>
+
+    <!-- 关键发现 -->
+    <div class="section-block">
+        <div class="section-title"><span class="icon">🔍</span> 关键发现</div>
+        <ul class="finding-list">
+            <li>
+                <span class="finding-tag p0">P0</span>
+                <strong>利用率骤降预警 + 政策信号持续加码：</strong>产能利用率从2025年11月峰值90%骤降至2026年2月63%，降幅达27个百分点。<span style="color:#1e3c72;">4月9日，工信部/发改委/商务部/能源局四部门首次约谈，直指"内卷式竞争"；4月14日二次座谈升级为六方面全链条治理</span>——从"产能管控"升级为"规范价格竞争、压缩供应商账期、打击知识产权侵权"等全面监管，政策底已出现但执行力度待观察。4月10日A股锂电板块出现涨停潮（国轩高科等十余股封板），反映市场对政策底的提前反应，部分无序扩产项目或被叫停，行业供给侧收缩速度或超预期。
+            </li>
+            <li>
+                <span class="finding-tag p0">P0</span>
+                <strong>储能三日信号共振确认超越动力，结构性拐点已确立：</strong><span style="color:#1e3c72;">储能电芯占比4月首次超越动力电池</span>，这一拐点并非单一数据——4月10日锂电板块涨停潮（储能概念领涨）→4月14日LFP排产数据确认4月环比+6%至45万吨（鑫椤数据）→4月17日实际出货数据验证，三日信号共振形成确定性拐点。GGII预测2026年全年储能型LFP需求同比+40%，动力型仅+15%，储能赛道已成增量主引擎。
+            </li>
+            <li>
+                <span class="finding-tag p1">P1</span>
+                <strong>头部集中度持续提升 + 宁德融资信号：</strong>湖南裕能月产量8.5万吨（利用率92%），是第五名德方纳米的4倍以上，强者恒强的马太效应在扩产竞赛后更加显著。<span style="color:#1e3c72;">宁德时代Q1营收1291亿（+52%）、净利207亿（+48%），印证大客户绑定逻辑——4月14日，宁德时代正考虑在香港配股融资最高50亿美元</span>，市场分析意在锁定上游资源、加大海外产能布局，对核心LFP供应商的订单稳定性形成直接利好。
+            </li>
+            <li>
+                <span class="finding-tag p1">P1</span>
+                <strong>碳酸锂9连涨确认强势格局，传导时滞问题突出：</strong><span style="color:#1e3c72;">本轮碳酸锂涨价并非昙花一现——4月10日至16日呈现9连涨：15.55万→15.80万→16.20万→16.36万→16.50万→16.68万→16.78万→期货LC2609突破17万/吨，津巴布韦配额缺口3-4万吨LCE叠加江西矿山环保整改，构成持续供给扰动。</span>LFP高端产品同期从3.92万涨至5.81万（+48%），涨幅仅为碳酸锂涨幅的约1/4，4月15日SMM数据显示LFP材料周涨2900元/吨，<strong>传导正在加速但仍有滞后</strong>。
+            </li>
+            <li>
+                <span class="finding-tag p2">P2</span>
+                <strong>行业扩产出现结构性质变——三元龙头同日集体背书：</strong><span style="color:#1e3c72;">4月16日，容百科技（43亿）与盟固利（18亿）两家三元材料龙头同日宣布全面转型LFP</span>——这是行业史上首次两家头部企业同天官宣战略转向，标志着LFP路线已从"传统铁锂企业的赛道"升级为"全行业共识"。TOP10企业已公布扩产计划合计超410万吨/年，四部门二次座谈已发出明确警示，部分项目面临被叫停压力。
+            </li>
+            <li>
+                <span class="finding-tag p2">P2</span>
+                <strong>出海窗口期仍在，但目的国结构出现变化：</strong>2026年2月出口量同比增长365%，<span style="color:#1e3c72;">宁德时代匈牙利工厂已开始放量</span>，带动LFP材料出口配套加速。<span style="color:#1e3c72;">越南市场4月飙升至出口目的国第二位（968吨）</span>，主因LG新能源在北江省扩建LFP产能，格林美超高镍9系前驱体4月13日首批200吨出口韩国（月规划3000吨），显示韩国市场正快速放量。
+            </li>
+        </ul>
+    </div>
+
+    <!-- 行动建议 -->
+    <div class="section-block">
+        <div class="section-title"><span class="icon">🎯</span> 行动建议</div>
+        <div class="action-grid">
+            <div class="action-card">
+                <div class="action-icon">⚡</div>
+                <div class="action-title">加速储能型产品认证</div>
+                <div class="action-desc" style="text-align:left;font-size:12px;color:#666;line-height:1.7;">
+                    <span style="color:#1e3c72;font-weight:600;">4月储能电芯占比首次超越动力电池</span>（三日信号共振确认：4月10日板块涨停→4月14日排产+6%至45万吨→4月17日出货验证），储能市场需求增速（+40%）已显著超越动力（+15%），历史性拐点已确立。建议尽快完成头部储能集成商（海辰、远景、亿纬）的储能型LFP产品认证，抢占增量赛道。邦普Q1业绩预增75%-150%印证回收+储能联动赛道高景气，可借龙蟠回收体系切入储能供应链。
+                </div>
+                <div class="action-priority high">高优先级</div>
+            </div>
+            <div class="action-card">
+                <div class="action-icon">💎</div>
+                <div class="action-title">锁定长单对冲原料风险</div>
+                <div class="action-desc" style="text-align:left;font-size:12px;color:#666;line-height:1.7;">
+                    碳酸锂价格<span style="color:#1e3c72;font-weight:600;">4月10日至16日9连涨至16.78万/吨</span>，本轮涨价持续性超出市场预期——津巴布韦配额缺口3-4万吨LCE叠加江西矿山环保整改，供给扰动短期难以消退。<strong>新信号：</strong>4月12日碳酸锂周度累库1453吨（年内首次），是需求边际走弱的早期预警，提示涨价不可盲目追高。建议与锂盐供应商签订6个月以上锁价长单（覆盖50%用量），同时建立"长单（50%）+ 现货（30%）+ 期货对冲（20%）"分层采购机制。
+                </div>
+                <div class="action-priority high">高优先级</div>
+            </div>
+            <div class="action-card">
+                <div class="action-icon">🌐</div>
+                <div class="action-title">多元化布局海外出口市场</div>
+                <div class="action-desc" style="text-align:left;font-size:12px;color:#666;line-height:1.7;">
+                    欧洲市场溢价稳定在0.8-1.0万/吨，<span style="color:#1e3c72;font-weight:600;">宁德时代匈牙利工厂已开始放量</span>，是当前最优量价双升市场。<span style="color:#1e3c72;font-weight:600;">越南市场4月飙升至出口目的国第二位（968吨）</span>，主因LG新能源北江省扩建LFP产能。建议三线并行：①优先稳固波兰、德国、加拿大三大存量市场；②加速布局越南（LG系）和韩国（SK On/ECC）新兴市场；③关注CATL匈牙利放量带动的欧洲本地化认证机会。
+                </div>
+                <div class="action-priority medium">中优先级</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="source-bar">
+        <span>📡 数据来源：飞书多维表格-铁锂行业数据库（月度数据截至2026-02，日价格截至2026-04-20）</span>
+        <span>📡 补充来源：百川盈孚、SMM、上海有色金属网、GGII、广期所、Wind、鑫椤资讯、聚金数据</span>
+        <span>⏱ 更新周期：月度（每月第3个工作日发布）</span>
+    </div>
+</div>
+
+<!-- ====== S2-S6: 其他Tab，引用 lfp_report.html 的内容结构 ====== -->
+<div id="tab-s2" class="tab-content">
+    <div id="s2-placeholder" style="background:#fff;border-radius:12px;padding:48px;text-align:center;color:#888;font-size:14px;">
+        🔄 供需格局数据加载中，请访问 <a href="lfp_report.html" style="color:#1e3c72;">完整磷酸铁锂战略洞察月报 →</a>
+    </div>
+</div>
+<div id="tab-s3" class="tab-content">
+    <div style="background:#fff;border-radius:12px;padding:48px;text-align:center;color:#888;font-size:14px;">
+        🔄 竞争格局数据加载中，请访问 <a href="lfp_report.html" style="color:#1e3c72;">完整磷酸铁锂战略洞察月报 →</a>
+    </div>
+</div>
+<div id="tab-s4" class="tab-content">
+    <div style="background:#fff;border-radius:12px;padding:48px;text-align:center;color:#888;font-size:14px;">
+        🔄 价格体系数据加载中，请访问 <a href="lfp_report.html" style="color:#1e3c72;">完整磷酸铁锂战略洞察月报 →</a>
+    </div>
+</div>
+<div id="tab-s5" class="tab-content">
+    <div style="background:#fff;border-radius:12px;padding:48px;text-align:center;color:#888;font-size:14px;">
+        🔄 出口贸易数据加载中，请访问 <a href="lfp_report.html" style="color:#1e3c72;">完整磷酸铁锂战略洞察月报 →</a>
+    </div>
+</div>
+<div id="tab-s6" class="tab-content">
+    <div style="background:#fff;border-radius:12px;padding:48px;text-align:center;color:#888;font-size:14px;">
+        🔄 战略展望数据加载中，请访问 <a href="lfp_report.html" style="color:#1e3c72;">完整磷酸铁锂战略洞察月报 →</a>
+    </div>
+</div>
+
+<script>
+function switchTab(tab, btn) {
+    document.querySelectorAll('.tab-btn').forEach(function(b){ b.classList.remove('active'); });
+    document.querySelectorAll('.tab-content').forEach(function(t){ t.classList.remove('active'); });
+    btn.classList.add('active');
+    document.getElementById('tab-' + tab).classList.add('active');
+}
+document.getElementById('topbarTime').textContent = new Date().toLocaleString('zh-CN');
+</script>
+</body>
+</html>

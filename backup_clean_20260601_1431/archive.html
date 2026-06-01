@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="html-version" content="20260419">
+    <script>
+      window.HTML_VERSION = document.querySelector('meta[name="html-version"]').content;
+    </script>
+    <title>早报历史数据 - 事业部导航</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: "Microsoft YaHei", "PingFang SC", sans-serif; background: #f0f2f5; min-height: 100vh; }
+
+        .page-header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 24px 40px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 12px rgba(30,60,114,0.3);
+        }
+        .page-header .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: rgba(255,255,255,0.85);
+            text-decoration: none;
+            font-size: 14px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        .page-header .back-btn:hover { color: white; }
+        .page-header h1 { font-size: 22px; font-weight: bold; margin-bottom: 4px; }
+        .page-header .date-badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            padding: 4px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            margin-top: 6px;
+        }
+
+        .container { max-width: 1100px; margin: 30px auto; padding: 0 20px; }
+
+        .section-label {
+            font-size: 13px;
+            color: #888;
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .section-label::after { content: ""; flex: 1; height: 1px; background: #ddd; }
+
+        /* 锂电系 */
+        .dept-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 36px; }
+        /* 非锂电 */
+        .dept-grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 36px; }
+
+        .dept-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            border-left: 4px solid #1e3c72;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+        .dept-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(30,60,114,0.15);
+        }
+        .dept-card.lithium { border-left-color: #1e3c72; }
+        .dept-card.longpan { border-left-color: #2e75b6; }
+        .dept-card.other { border-left-color: #7030a0; }
+
+        .dept-icon { font-size: 28px; margin-bottom: 10px; }
+        .dept-name { font-size: 16px; font-weight: bold; color: #1e3c72; margin-bottom: 4px; }
+        .dept-tag { font-size: 11px; color: #888; margin-bottom: 14px; }
+
+        .dept-summary {
+            background: #f8f9fc;
+            border-radius: 6px;
+            padding: 10px 12px;
+            font-size: 12.5px;
+            color: #444;
+            line-height: 1.6;
+            max-height: 72px;
+            overflow: hidden;
+            position: relative;
+        }
+        .dept-summary::after {
+            content: "...";
+            position: absolute;
+            bottom: 4px;
+            right: 10px;
+            color: #888;
+            font-size: 12px;
+        }
+
+        .dept-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 12px;
+            font-size: 12px;
+            color: #aaa;
+        }
+        .dept-meta .count { color: #1e3c72; font-weight: bold; }
+
+        .footer-note {
+            text-align: center;
+            color: #bbb;
+            font-size: 12px;
+            padding: 24px;
+            border-top: 1px solid #eee;
+            margin-top: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .dept-grid, .dept-grid-3 { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="page-header">
+    <a class="back-btn" href="index_v3.html">← 返回首页</a>
+    <h1>📁 早报历史数据</h1>
+    <div class="date-badge">📅 选择任意事业部查看历史存档</div>
+</div>
+
+<div class="container">
+
+    <!-- 锂电系 5BU -->
+    <div class="section-label">🔋 锂电系事业部（5BU）</div>
+    <div class="dept-grid">
+        <a class="dept-card lithium" href="dept-archive.html?id=czly">
+            <div class="dept-icon">🔋</div>
+            <div class="dept-name">常州锂源</div>
+            <div class="dept-tag">磷酸铁锂正极材料</div>
+            <div class="dept-summary">磷酸铁锂正极材料事业部，查看各期历史早报及详细分析。</div>
+            <div class="dept-meta">
+                <span class="count">▶ 查看历史存档 →</span>
+                <span>多期数据</span>
+            </div>
+        </a>
+
+        <a class="dept-card lithium" href="dept-archive.html?id=sdmd">
+            <div class="dept-icon">♻️</div>
+            <div class="dept-name">山东美多</div>
+            <div class="dept-tag">动力电池回收</div>
+            <div class="dept-summary">动力电池回收事业部，查看各期历史早报及详细分析。</div>
+            <div class="dept-meta">
+                <span class="count">▶ 查看历史存档 →</span>
+                <span>多期数据</span>
+            </div>
+        </a>
+
+        <a class="dept-card lithium" href="dept-archive.html?id=sjld">
+            <div class="dept-icon">🧪</div>
+            <div class="dept-name">三金锂电</div>
+            <div class="dept-tag">三元前驱体</div>
+            <div class="dept-summary">三元前驱体事业部，查看各期历史早报及详细分析。</div>
+            <div class="dept-meta">
+                <span class="count">▶ 查看历史存档 →</span>
+                <span>多期数据</span>
+            </div>
+        </a>
+    </div>
+
+    <div class="dept-grid">
+        <a class="dept-card longpan" href="dept-archive.html?id=lpsd">
+            <div class="dept-icon">🔋</div>
+            <div class="dept-name">龙蟠时代</div>
+            <div class="dept-tag">磷酸铁锂正极材料</div>
+            <div class="dept-summary">磷酸铁锂正极材料事业部，查看各期历史早报及详细分析。</div>
+            <div class="dept-meta">
+                <span class="count">▶ 查看历史存档 →</span>
+                <span>多期数据</span>
+            </div>
+        </a>
+
+        <a class="dept-card longpan" href="dept-archive.html?id=felt">
+            <div class="dept-icon">⚗️</div>
+            <div class="dept-name">法恩莱特</div>
+            <div class="dept-tag">电解液</div>
+            <div class="dept-summary">电解液事业部，查看各期历史早报及详细分析。</div>
+            <div class="dept-meta">
+                <span class="count">▶ 查看历史存档 →</span>
+                <span>多期数据</span>
+            </div>
+        </a>
+
+        <a class="dept-card longpan" href="dept-archive.html?id=kls">
+            <div class="dept-icon">🚛</div>
+            <div class="dept-name">可兰素</div>
+            <div class="dept-tag">车用尿素</div>
+            <div class="dept-summary">车用尿素事业部，查看各期历史早报及详细分析。</div>
+            <div class="dept-meta">
+                <span class="count">▶ 查看历史存档 →</span>
+                <span>多期数据</span>
+            </div>
+        </a>
+    </div>
+
+    <!-- 非锂电系 4BU -->
+    <div class="section-label">🏭 非锂电系事业部（4BU）</div>
+    <div class="dept-grid-3">
+        <a class="dept-card other" href="dept-archive.html?id=lhy">
+            <div class="dept-icon">🛢️</div>
+            <div class="dept-name">润滑油</div>
+            <div class="dept-tag">润滑油</div>
+            <div class="dept-summary">润滑油事业部，查看各期历史早报及详细分析。</div>
+            <div class="dept-meta">
+                <span class="count">▶ 查看历史存档 →</span>
+                <span>多期数据</span>
+            </div>
+        </a>
+
+        <a class="dept-card other" href="dept-archive.html?id=dhx">
+            <div class="dept-icon">🧬</div>
+            <div class="dept-name">迪克化学</div>
+            <div class="dept-tag">制动液 / 防冻液</div>
+            <div class="dept-summary">汽车化学品事业部，查看各期历史早报及详细分析。</div>
+            <div class="dept-meta">
+                <span class="count">▶ 查看历史存档 →</span>
+                <span>多期数据</span>
+            </div>
+        </a>
+
+        <a class="dept-card other" href="dept-archive.html?id=bych">
+            <div class="dept-icon">⚛️</div>
+            <div class="dept-name">铂源催化</div>
+            <div class="dept-tag">铂族催化剂</div>
+            <div class="dept-summary">氢能/催化事业部，查看各期历史早报及详细分析。</div>
+            <div class="dept-meta">
+                <span class="count">▶ 查看历史存档 →</span>
+                <span>多期数据</span>
+            </div>
+        </a>
+    </div>
+
+</div>
+
+<div class="footer-note">
+    📋 各事业部历史存档 · 由系统自动生成 · 数据来自 reports/ 目录
+</div>
+
+</body>
+</html>

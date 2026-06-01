@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>可视化看板 - 电解液行业数据</title>
+    <meta name="html-version" content="20260518b">
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <script src="electrolyte_embedded_data.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Microsoft YaHei', sans-serif; background: #f5f5f5; }
+
+        .topbar { background: #fff; padding: 15px 30px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
+        .topbar h1 { color: #1e3c72; font-size: 20px; }
+        .topbar-links { display: flex; gap: 4px; }
+        .topbar-links a { color: #666; text-decoration: none; margin-left: 16px; font-size: 14px; padding: 6px 12px; border-radius: 6px; transition: all 0.2s; }
+        .topbar-links a:hover { color: #1e3c72; background: #f0f4ff; }
+
+        .tab-nav { background: #fff; padding: 0 30px; display: flex; gap: 5px; border-bottom: 1px solid #eee; }
+        .tab-btn { padding: 12px 20px; background: none; border: none; cursor: pointer; font-size: 14px; color: #666; border-bottom: 2px solid transparent; transition: all 0.2s; }
+        .tab-btn:hover { color: #1e3c72; }
+        .tab-btn.active { color: #1e3c72; border-bottom-color: #1e3c72; font-weight: 600; }
+
+        .main-content { padding: 20px 30px; }
+
+        .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 20px; }
+        .stat-card { background: #fff; border-radius: 12px; padding: 16px 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); display: flex; align-items: center; gap: 16px; }
+        .stat-icon { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px; }
+        .stat-icon.purple { background: rgba(142,68,173,0.1); }
+        .stat-icon.blue { background: rgba(30,60,114,0.1); }
+        .stat-icon.green { background: rgba(39,174,96,0.1); }
+        .stat-icon.orange { background: rgba(255,152,0,0.1); }
+        .stat-info .label { color: #888; font-size: 12px; margin-bottom: 4px; }
+        .stat-info .value { color: #1e3c72; font-size: 24px; font-weight: 600; }
+        .stat-info .unit { font-size: 14px; color: #999; font-weight: normal; }
+        .stat-info .sub { font-size: 12px; color: #888; margin-top: 2px; }
+
+        .chart-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+        .chart-card { background: #fff; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+        .chart-card.full { grid-column: span 2; }
+        .chart-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid #f0f0f0; }
+        .chart-title { font-size: 15px; font-weight: 600; color: #333; }
+        .chart-subtitle { font-size: 12px; color: #999; margin-top: 4px; }
+        .chart-meta { font-size: 12px; color: #999; }
+        .chart-container { width: 100%; height: 300px; }
+        .chart-card.full .chart-container { height: 280px; }
+
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        .source-bar { background: #fff; border-radius: 8px; padding: 10px 20px; margin-bottom: 16px; font-size: 12px; color: #aaa; display: flex; align-items: center; gap: 8px; }
+        .source-bar strong { color: #1e3c72; }
+
+        @media (max-width: 1200px) {
+            .stats-row { grid-template-columns: repeat(2, 1fr); }
+            .chart-grid { grid-template-columns: 1fr; }
+            .chart-card.full { grid-column: span 1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="topbar">
+        <h1>🧪 可视化看板 - 电解液行业数据</h1>
+        <div class="topbar-links">
+            <a href="index_v3.html">🏠 首页</a>
+            <a href="database_hub.html">📋 数据库</a>
+            <a href="electrolyte_data_v2.html">📊 数据表格</a>
+        </div>
+    </div>
+
+    <div class="tab-nav">
+        <button class="tab-btn active" onclick="switchTab('overview', this)">📈 概览</button>
+        <button class="tab-btn" onclick="switchTab('production', this)">🏭 产量</button>
+        <button class="tab-btn" onclick="switchTab('price', this)">💰 价格</button>
+        <button class="tab-btn" onclick="switchTab('raw', this)">⚗️ 原料</button>
+    </div>
+
+    <div class="main-content">
+        <div class="source-bar">
+            📌 数据来源：电解液行业数据库 &nbsp;|&nbsp; 更新时间：<strong id="data-time">加载中...</strong>
+        </div>
+
+        <!-- Tab1: 概览 -->
+        <div class="tab-content active" id="tab-overview">
+            <div class="stats-row">
+                <div class="stat-card">
+                    <div class="stat-icon purple">🏭</div>
+                    <div class="stat-info">
+                        <div class="label">电解液月产量（最新）</div>
+                        <div class="value" id="stat-output">—</div>
+                        <div class="sub" id="stat-util">—</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon blue">⚗️</div>
+                    <div class="stat-info">
+                        <div class="label">六氟磷酸锂月产量</div>
+                        <div class="value" id="stat-lipf6-output">—</div>
+                        <div class="sub" id="stat-lipf6-date">—</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon green">💰</div>
+                    <div class="stat-info">
+                        <div class="label">LFP动力电解液均价</div>
+                        <div class="value" id="stat-lfp-price">—</div>
+                        <div class="sub" id="stat-lfp-price-date">—</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon orange">📦</div>
+                    <div class="stat-info">
+                        <div class="label">六氟磷酸锂均价</div>
+                        <div class="value" id="stat-lipf6-price">—</div>
+                        <div class="sub" id="stat-lipf6-price-date">—</div>
+                    </div>
+                </div>
+            </div>
+            <div class="chart-grid">
+                <div class="chart-card full">
+                    <div class="chart-header">
+                        <div class="chart-title">电解液行业月度产量走势</div>
+                        <div class="chart-meta">近12个月 | 单位：吨</div>
+                    </div>
+                    <div class="chart-container" id="c1"></div>
+                </div>
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <div class="chart-title">产能利用率趋势</div>
+                        <div class="chart-meta">近12个月</div>
+                    </div>
+                    <div class="chart-container" id="c2"></div>
+                </div>
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <div class="chart-title">六氟磷酸锂月度产量</div>
+                        <div class="chart-meta">近12个月 | 单位：吨</div>
+                    </div>
+                    <div class="chart-container" id="c3"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab2: 产量 -->
+        <div class="tab-content" id="tab-production">
+            <div class="chart-grid">
+                <div class="chart-card full">
+                    <div class="chart-header">
+                        <div class="chart-title">电解液行业月度产量</div>
+                        <div class="chart-meta">近12个月趋势 | 单位：吨</div>
+                    </div>
+                    <div class="chart-container" id="p1"></div>
+                </div>
+                <div class="chart-card full">
+                    <div class="chart-header">
+                        <div class="chart-title">六氟磷酸锂(LiPF6)月度产量</div>
+                        <div class="chart-meta">近12个月趋势 | 单位：吨</div>
+                    </div>
+                    <div class="chart-container" id="p2"></div>
+                </div>
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <div class="chart-title">电解液产量TOP10企业（最新）</div>
+                        <div class="chart-meta">当期产量（吨）</div>
+                    </div>
+                    <div class="chart-container" id="p3"></div>
+                </div>
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <div class="chart-title">六氟产量TOP10企业（最新）</div>
+                        <div class="chart-meta">当期产量（吨）</div>
+                    </div>
+                    <div class="chart-container" id="p4"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab3: 价格 -->
+        <div class="tab-content" id="tab-price">
+            <div class="chart-grid">
+                <div class="chart-card full">
+                    <div class="chart-header">
+                        <div class="chart-title">电解液主流价格走势（万元/吨）</div>
+                        <div class="chart-subtitle">LFP动力型 / LFP储能型 / 三元动力型 / 圆柱2600</div>
+                    </div>
+                    <div class="chart-container" id="x1"></div>
+                </div>
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <div class="chart-title">六氟磷酸锂价格走势</div>
+                        <div class="chart-meta">主流市场价（万元/吨）</div>
+                    </div>
+                    <div class="chart-container" id="x2"></div>
+                </div>
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <div class="chart-title">LiFSI添加剂价格走势</div>
+                        <div class="chart-meta">固态/液态（万元/吨）</div>
+                    </div>
+                    <div class="chart-container" id="x3"></div>
+                </div>
+                <div class="chart-card full">
+                    <div class="chart-header">
+                        <div class="chart-title">添加剂VC/FEC/PS价格走势</div>
+                        <div class="chart-meta">万元/吨</div>
+                    </div>
+                    <div class="chart-container" id="x4"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab4: 原料 -->
+        <div class="tab-content" id="tab-raw">
+            <div class="stats-row">
+                <div class="stat-card">
+                    <div class="stat-icon purple">⚗️</div>
+                    <div class="stat-info">
+                        <div class="label">六氟磷酸锂均价（最新）</div>
+                        <div class="value" id="stat-raw-lipf6">—</div>
+                        <div class="sub" id="stat-raw-lipf6-date">—</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon blue">💧</div>
+                    <div class="stat-info">
+                        <div class="label">VC添加剂均价</div>
+                        <div class="value" id="stat-vc-price">—</div>
+                        <div class="sub">氟代碳酸乙烯酯</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon green">🔬</div>
+                    <div class="stat-info">
+                        <div class="label">FEC添加剂均价</div>
+                        <div class="value" id="stat-fec-price">—</div>
+                        <div class="sub">氟代碳酸乙烯酯</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon orange">📦</div>
+                    <div class="stat-info">
+                        <div class="label">LiFSI固态均价</div>
+                        <div class="value" id="stat-lifsi-price">—</div>
+                        <div class="sub">新型锂盐添加剂</div>
+                    </div>
+                </div>
+            </div>
+            <div class="chart-grid">
+                <div class="chart-card full">
+                    <div class="chart-header">
+                        <div class="chart-title">电解液成本结构 — 六氟磷酸锂 vs 添加剂</div>
+                        <div class="chart-meta">均价对比（万元/吨）</div>
+                    </div>
+                    <div class="chart-container" id="r1"></div>
+                </div>
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <div class="chart-title">添加剂VC产量走势</div>
+                        <div class="chart-meta">吨 | 近12个月</div>
+                    </div>
+                    <div class="chart-container" id="r2"></div>
+                </div>
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <div class="chart-title">添加剂FEC产量走势</div>
+                        <div class="chart-meta">吨 | 近12个月</div>
+                    </div>
+                    <div class="chart-container" id="r3"></div>
+                </div>
+                <div class="chart-card full">
+                    <div class="chart-header">
+                        <div class="chart-title">添加剂产量对比（近12个月）</div>
+                        <div class="chart-meta">单位：吨</div>
+                    </div>
+                    <div class="chart-container" id="r4"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    var COLORS = ['#1e3c72', '#4a6fa5', '#4facfe', '#667eea', '#764ba2', '#f59e0b', '#10b981', '#ef4444', '#3b82f6', '#8b5cf6'];
+    var C = { primary: '#1e3c72', secondary: '#4a6fa5', accent: '#4facfe', border: '#e0e0e0', text: '#333', textLight: '#666' };
+
+    /* =====================================================
+       数据提取辅助
+       ===================================================== */
+    function getTable(name) {
+        var t = ELECTROLYTE_DATA.tables.find(function(t){ return t.table_name === name; });
+        return t ? t.data : [];
+    }
+
+    function getLastN(d, n) { return d.slice(-n); }
+
+    function toNum(v) {
+        if (typeof v === 'number') return v;
+        if (typeof v === 'string') return parseFloat(v.replace(/[,%]/g, '')) || 0;
+        return 0;
+    }
+
+    function fmtMonth(d) {
+        var m = d['月份'] || d['日期'] || '?';
+        if (m.length === 7) return m.slice(2, 4) + '年' + m.slice(5, 7) + '月';
+        if (m.length === 10) return m.slice(2, 4) + '年' + m.slice(5, 7) + '月';
+        return m;
+    }
+
+    // 日频数据格式化：显示 MM-DD
+    function fmtDate(d) {
+        var m = d['日期'] || d['月份'] || '?';
+        if (m.length === 10) return m.slice(5); // "03-02"
+        return m;
+    }
+
+    // 取月频数据最近 N 个月（去重）
+    function getLastNMonths(data, n) {
+        var seen = {};
+        var result = [];
+        for (var i = data.length - 1; i >= 0; i--) {
+            var key = data[i]['月份'] || data[i]['日期'];
+            if (!seen[key]) {
+                seen[key] = true;
+                result.unshift(data[i]);
+                if (result.length >= n) break;
+            }
+        }
+        return result;
+    }
+
+    // 取日频数据最近 N 天（去重同日期多条）
+    function getLastNDays(data, n) {
+        var seen = {};
+        var result = [];
+        for (var i = data.length - 1; i >= 0; i--) {
+            var key = data[i]['日期'] || data[i]['月份'];
+            if (!seen[key]) {
+                seen[key] = true;
+                result.unshift(data[i]);
+                if (result.length >= n) break;
+            }
+        }
+        return result;
+    }
+
+    // 日频数据横轴标签：每隔一段显示，避免太密集
+    // 每隔 N 个点显示一个标签（约5-7天一个刻度）
+    function makeDateLabels(data, step) {
+        var labels = [];
+        for (var i = 0; i < data.length; i++) {
+            labels.push(i % step === 0 ? fmtDate(data[i]) : '');
+        }
+        return labels;
+    }
+
+    /* =====================================================
+       更新时间
+       ===================================================== */
+    document.getElementById('data-time').textContent = ELECTROLYTE_DATA.update_time || '—';
+
+    /* =====================================================
+       概览统计卡片
+       ===================================================== */
+    (function() {
+        // 电解液行业产量（最新）
+        var el = getTable('电解液-行业整体产量');
+        if (el.length > 0) {
+            var last = el[el.length - 1];
+            document.getElementById('stat-output').innerHTML = (toNum(last['产量'])/10000).toFixed(1) + '<span class="unit">万吨</span>';
+            document.getElementById('stat-util').textContent = '产能利用率 ' + (last['产能利用率'] || '—');
+        }
+        // 六氟磷酸锂产量（最新）
+        var lipf6 = getTable('六氟磷酸锂-行业总产量');
+        if (lipf6.length > 0) {
+            var last = lipf6[lipf6.length - 1];
+            document.getElementById('stat-lipf6-output').innerHTML = (toNum(last['产量'])/10000).toFixed(2) + '<span class="unit">万吨</span>';
+            document.getElementById('stat-lipf6-date').textContent = last['月份'] || last['日期'] || '—';
+        }
+        // LFP动力电解液均价
+        var lfpP = getTable('电解液价格-磷酸铁锂动力型');
+        if (lfpP.length > 0) {
+            var last = lfpP[lfpP.length - 1];
+            document.getElementById('stat-lfp-price').innerHTML = toNum(last['均价']).toFixed(2) + '<span class="unit">万/吨</span>';
+            document.getElementById('stat-lfp-price-date').textContent = last['月份'] || last['日期'] || '—';
+        }
+        // 六氟磷酸锂均价
+        var lpP = getTable('六氟磷酸锂价格-主流市场');
+        if (lpP.length > 0) {
+            var last = lpP[lpP.length - 1];
+            document.getElementById('stat-lipf6-price').innerHTML = toNum(last['均价']).toFixed(1) + '<span class="unit">万/吨</span>';
+            document.getElementById('stat-lipf6-price-date').textContent = last['月份'] || last['日期'] || '—';
+        }
+    })();
+
+    /* =====================================================
+       图表初始化
+       ===================================================== */
+    function initChart(id, opt) {
+        var dom = document.getElementById(id);
+        if (!dom) return;
+        echarts.init(dom).setOption(opt);
+    }
+
+    // ===== 概览Tab图表 =====
+    (function() {
+        var elData = getLastN(getTable('电解液-行业整体产量'), 12);
+        var months = elData.map(fmtMonth);
+        var outputs = elData.map(function(d){ return toNum(d['产量']); });
+        var utils = elData.map(function(d){ return parseFloat((d['产能利用率']||'0').replace('%','')); });
+
+        var lipf6Data = getLastN(getTable('六氟磷酸锂-行业总产量'), 12);
+        var lipf6Months = lipf6Data.map(fmtMonth);
+        var lipf6Outputs = lipf6Data.map(function(d){ return toNum(d['产量']); });
+
+        initChart('c1', {
+            tooltip: { trigger: 'axis' },
+            grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+            xAxis: { type: 'category', data: months, axisLabel: { color: C.textLight, fontSize: 11 } },
+            yAxis: { type: 'value', name: '吨', axisLabel: { color: C.textLight, formatter: function(v){ return v>=10000?(v/10000).toFixed(0)+'万':v; } }, splitLine: { lineStyle: { color: C.border } } },
+            series: [{
+                name: '电解液产量',
+                type: 'bar',
+                data: outputs,
+                itemStyle: { color: C.primary, borderRadius: [4,4,0,0] },
+                label: { show: true, position: 'top', formatter: function(p){ return (p.data/10000).toFixed(1)+'万'; }, fontSize: 9, color: C.textLight }
+            }]
+        });
+
+        initChart('c2', {
+            tooltip: { trigger: 'axis', formatter: '{b}: {c}%' },
+            grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+            xAxis: { type: 'category', data: months, axisLabel: { color: C.textLight, fontSize: 11 } },
+            yAxis: { type: 'value', name: '%', min: 0, max: 100, axisLabel: { color: C.textLight }, splitLine: { lineStyle: { color: C.border } } },
+            series: [{
+                type: 'line', data: utils, smooth: true,
+                lineStyle: { color: C.primary, width: 3 },
+                areaStyle: { color: { type: 'linear', x: 0, y: 0, x2: 0, y2: 1, colorStops: [{ offset: 0, color: 'rgba(30,60,114,0.2)' }, { offset: 1, color: 'rgba(30,60,114,0.02)' }] } },
+                label: { show: true, position: 'top', formatter: '{c}%', fontSize: 9, color: C.primary, fontWeight: 'bold' }
+            }]
+        });
+
+        initChart('c3', {
+            tooltip: { trigger: 'axis' },
+            grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+            xAxis: { type: 'category', data: lipf6Months, axisLabel: { color: C.textLight, fontSize: 11 } },
+            yAxis: { type: 'value', name: '吨', axisLabel: { color: C.textLight, formatter: function(v){ return v>=10000?(v/10000).toFixed(1)+'万':v; } }, splitLine: { lineStyle: { color: C.border } } },
+            series: [{
+                type: 'bar',
+                data: lipf6Outputs,
+                itemStyle: { color: C.secondary, borderRadius: [4,4,0,0] },
+                label: { show: true, position: 'top', formatter: function(p){ return (p.data/10000).toFixed(1)+'万'; }, fontSize: 9, color: C.textLight }
+            }]
+        });
+    })();
+
+    // ===== 产量Tab图表 =====
+    (function() {
+        var elData = getLastN(getTable('电解液-行业整体产量'), 12);
+        var months = elData.map(fmtMonth);
+        var outputs = elData.map(function(d){ return toNum(d['产量']); });
+
+        var lipf6Data = getLastN(getTable('六氟磷酸锂-行业总产量'), 12);
+        var lipf6Months = lipf6Data.map(fmtMonth);
+        var lipf6Outputs = lipf6Data.map(function(d){ return toNum(d['产量']); });
+
+        initChart('p1', {
+            tooltip: { trigger: 'axis' },
+            grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+            xAxis: { type: 'category', data: months, axisLabel: { color: C.textLight, fontSize: 11 } },
+            yAxis: { type: 'value', name: '吨', axisLabel: { color: C.textLight, formatter: function(v){ return v>=10000?(v/10000).toFixed(0)+'万':v; } }, splitLine: { lineStyle: { color: C.border } } },
+            series: [{
+                type: 'line', data: outputs, smooth: true,
+                lineStyle: { color: C.primary, width: 3 },
+                areaStyle: { color: { type: 'linear', x: 0, y: 0, x2: 0, y2: 1, colorStops: [{ offset: 0, color: 'rgba(30,60,114,0.2)' }, { offset: 1, color: 'rgba(30,60,114,0.02)' }] } },
+                label: { show: true, position: 'top', formatter: function(p){ return (p.data/10000).toFixed(1)+'万'; }, fontSize: 9, color: C.primary, fontWeight: 'bold' }
+            }]
+        });
+
+        initChart('p2', {
+            tooltip: { trigger: 'axis' },
+            grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+            xAxis: { type: 'category', data: lipf6Months, axisLabel: { color: C.textLight, fontSize: 11 } },
+            yAxis: { type: 'value', name: '吨', axisLabel: { color: C.textLight, formatter: function(v){ return v>=10000?(v/10000).toFixed(1)+'万':v; } }, splitLine: { lineStyle: { color: C.border } } },
+            series: [{
+                type: 'line', data: lipf6Outputs, smooth: true,
+                lineStyle: { color: C.secondary, width: 3 },
+                areaStyle: { color: { type: 'linear', x: 0, y: 0, x2: 0, y2: 1, colorStops: [{ offset: 0, color: 'rgba(74,111,165,0.2)' }, { offset: 1, color: 'rgba(74,111,165,0.02)' }] } },
+                label: { show: true, position: 'top', formatter: function(p){ return (p.data/10000).toFixed(1)+'万'; }, fontSize: 9, color: C.secondary, fontWeight: 'bold' }
+            }]
+        });
+
+        // 电解液TOP10（行格式：企业名称 + 当期产量）
+        var elTop = getTable('电解液-企业产量top15');
+        if (elTop && elTop.length > 0) {
+            // 取最后月份的数据
+            var lastMonth = elTop[elTop.length - 1]['月份'];
+            var monthData = elTop.filter(function(d){ return d['月份'] === lastMonth; });
+            // 按当期产量排序取前10
+            monthData.sort(function(a, b){ return toNum(b['当期产量']) - toNum(a['当期产量']); });
+            var top10 = monthData.slice(0, 10);
+            var names = top10.map(function(d){ return d['企业名称'] || ''; });
+            var vals = top10.map(function(d){ return toNum(d['当期产量']); });
+            if (names.length > 0 && vals.length > 0) {
+                initChart('p3', {
+                    tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' }, formatter: function(p){ return p.name + ': ' + p.value + '吨'; } },
+                    grid: { left: '3%', right: '15%', bottom: '3%', containLabel: true },
+                    xAxis: { type: 'value', splitLine: { lineStyle: { color: C.border } } },
+                    yAxis: { type: 'category', data: names.reverse(), axisLabel: { color: C.text, fontSize: 11 } },
+                    series: [{
+                        type: 'bar', data: vals.reverse(),
+                        itemStyle: { color: function(p){ return COLORS[p.dataIndex % COLORS.length]; }, borderRadius: [0,4,4,0] },
+                        label: { show: true, position: 'right', formatter: function(p){ return (p.data/10000).toFixed(2)+'万'; }, fontSize: 9, color: C.textLight }
+                    }]
+                });
+            }
+        }
+
+        // 六氟TOP10（行格式）
+        var lipf6Top = getTable('六氟磷酸锂-企业产量top15');
+        if (lipf6Top && lipf6Top.length > 0) {
+            var lastMonth = lipf6Top[lipf6Top.length - 1]['月份'];
+            var monthData = lipf6Top.filter(function(d){ return d['月份'] === lastMonth; });
+            monthData.sort(function(a, b){ return toNum(b['当期产量']) - toNum(a['当期产量']); });
+            var top10 = monthData.slice(0, 10);
+            var names = top10.map(function(d){ return d['企业名称'] || ''; });
+            var vals = top10.map(function(d){ return toNum(d['当期产量']); });
+            if (names.length > 0 && vals.length > 0) {
+                initChart('p4', {
+                    tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' }, formatter: function(p){ return p.name + ': ' + p.value + '吨'; } },
+                    grid: { left: '3%', right: '15%', bottom: '3%', containLabel: true },
+                    xAxis: { type: 'value', splitLine: { lineStyle: { color: C.border } } },
+                    yAxis: { type: 'category', data: names.reverse(), axisLabel: { color: C.text, fontSize: 11 } },
+                    series: [{
+                        type: 'bar', data: vals.reverse(),
+                        itemStyle: { color: function(p){ return COLORS[p.dataIndex % COLORS.length]; }, borderRadius: [0,4,4,0] },
+                        label: { show: true, position: 'right', formatter: function(p){ return (p.data/10000).toFixed(2)+'万'; }, fontSize: 9, color: C.textLight }
+                    }]
+                });
+            }
+        }
+    })();
+
+    // ===== 价格Tab图表 =====
+    (function() {
+        // 电解液四种价格走势（日频数据，取近60天，每天一个点）
+        var priceTables = [
+            { name: '电解液价格-磷酸铁锂动力型', label: 'LFP动力型' },
+            { name: '电解液价格-磷酸铁锂储能型', label: 'LFP储能型' },
+            { name: '电解液价格-三元动力型', label: '三元动力型' },
+            { name: '电解液价格-圆柱2600mAh', label: '圆柱2600' }
+        ];
+
+        var firstValid = null;
+        for (var i = 0; i < priceTables.length; i++) {
+            var d = getLastNDays(getTable(priceTables[i].name), 180);
+            if (d.length > 0) { firstValid = d; break; }
+        }
+        var xLabels = firstValid ? makeDateLabels(firstValid, 5) : [];
+
+        var priceSeries = priceTables.map(function(t, i) {
+            var d = getLastNDays(getTable(t.name), 180);
+            return {
+                name: t.label,
+                type: 'line',
+                data: d.length > 0 ? d.map(function(r){ return toNum(r['均价']); }) : [],
+                smooth: true,
+                lineStyle: { color: COLORS[i], width: 2 }
+            };
+        });
+
+        initChart('x1', {
+            tooltip: { trigger: 'axis' },
+            legend: { data: priceTables.map(function(t){ return t.label; }), top: 5 },
+            grid: { left: '3%', right: '4%', bottom: '8%', containLabel: true },
+            xAxis: { type: 'category', data: xLabels, axisLabel: { color: C.textLight, fontSize: 10, rotate: 45 }, boundaryGap: false },
+            yAxis: { type: 'value', name: '万元/吨', axisLabel: { color: C.textLight }, splitLine: { lineStyle: { color: C.border } } },
+            series: priceSeries
+        });
+
+        // 六氟磷酸锂价格（日频数据，近6个月）
+        var lpPrice = getLastNDays(getTable('六氟磷酸锂价格-主流市场'), 180);
+        var lpX = makeDateLabels(lpPrice, 5);
+        var lpAvg = lpPrice.map(function(d){ return toNum(d['均价']); });
+        var lpLow = lpPrice.map(function(d){ return toNum(d['低价']); });
+        var lpHigh = lpPrice.map(function(d){ return toNum(d['高价']); });
+
+        initChart('x2', {
+            tooltip: { trigger: 'axis' },
+            legend: { data: ['低价', '高价', '均价'], top: 5 },
+            grid: { left: '3%', right: '4%', bottom: '8%', containLabel: true },
+            xAxis: { type: 'category', data: lpX, axisLabel: { color: C.textLight, fontSize: 10, rotate: 45 }, boundaryGap: false },
+            yAxis: { type: 'value', name: '万元/吨', axisLabel: { color: C.textLight }, splitLine: { lineStyle: { color: C.border } } },
+            series: [
+                { name: '低价', type: 'line', data: lpLow, smooth: true, lineStyle: { color: '#aaa', width: 1, type: 'dashed' } },
+                { name: '高价', type: 'line', data: lpHigh, smooth: true, lineStyle: { color: '#aaa', width: 1, type: 'dashed' } },
+                { name: '均价', type: 'line', data: lpAvg, smooth: true, lineStyle: { color: C.primary, width: 3 } }
+            ]
+        });
+
+        // LiFSI价格（日频数据，近6个月）
+        var lifsiS = getLastNDays(getTable('LiFSI价格-固态'), 180);
+        var lifsiL = getLastNDays(getTable('LiFSI价格-液态'), 180);
+        var lifsiAll = lifsiS.length >= lifsiL.length ? lifsiS : lifsiL;
+        var lifsiX = makeDateLabels(lifsiAll, 5);
+        initChart('x3', {
+            tooltip: { trigger: 'axis' },
+            legend: { data: ['固态LiFSI', '液态LiFSI'], top: 5 },
+            grid: { left: '3%', right: '4%', bottom: '8%', containLabel: true },
+            xAxis: { type: 'category', data: lifsiX, axisLabel: { color: C.textLight, fontSize: 10, rotate: 45 }, boundaryGap: false },
+            yAxis: { type: 'value', name: '万元/吨', axisLabel: { color: C.textLight }, splitLine: { lineStyle: { color: C.border } } },
+            series: [
+                { name: '固态LiFSI', type: 'line', data: lifsiS.map(function(d){ return toNum(d['均价']); }), smooth: true, lineStyle: { color: COLORS[0], width: 2 } },
+                { name: '液态LiFSI', type: 'line', data: lifsiL.map(function(d){ return toNum(d['均价']); }), smooth: true, lineStyle: { color: COLORS[4], width: 2 } }
+            ]
+        });
+
+        // 添加剂VC/PS/FEC价格走势（日频数据，近6个月）
+        var vcPrice = getLastNDays(getTable('添加剂VC-价格'), 180);
+        var psPrice = getLastNDays(getTable('添加剂PS-价格'), 180);
+        var fecPrice = getLastNDays(getTable('添加剂FEC-价格'), 180);
+        var addAll = vcPrice.length >= psPrice.length ? (vcPrice.length >= fecPrice.length ? vcPrice : fecPrice) : (psPrice.length >= fecPrice.length ? psPrice : fecPrice);
+        var addX = makeDateLabels(addAll, 5);
+
+        initChart('x4', {
+            tooltip: { trigger: 'axis' },
+            legend: { data: ['VC', 'PS', 'FEC'], top: 5 },
+            grid: { left: '3%', right: '4%', bottom: '8%', containLabel: true },
+            xAxis: { type: 'category', data: addX, axisLabel: { color: C.textLight, fontSize: 10, rotate: 45 }, boundaryGap: false },
+            yAxis: { type: 'value', name: '万元/吨', axisLabel: { color: C.textLight }, splitLine: { lineStyle: { color: C.border } } },
+            series: [
+                { name: 'VC', type: 'line', data: vcPrice.map(function(d){ return toNum(d['均价']); }), smooth: true, lineStyle: { color: COLORS[0], width: 2 } },
+                { name: 'PS', type: 'line', data: psPrice.map(function(d){ return toNum(d['均价']); }), smooth: true, lineStyle: { color: COLORS[2], width: 2 } },
+                { name: 'FEC', type: 'line', data: fecPrice.map(function(d){ return toNum(d['均价']); }), smooth: true, lineStyle: { color: COLORS[5], width: 2 } }
+            ]
+        });
+    })();
+
+    // ===== 原料Tab图表 =====
+    (function() {
+        // 更新统计卡片
+        var lpPrice = getTable('六氟磷酸锂价格-主流市场');
+        if (lpPrice.length > 0) {
+            var last = lpPrice[lpPrice.length - 1];
+            document.getElementById('stat-raw-lipf6').innerHTML = toNum(last['均价']).toFixed(1) + '<span class="unit">万/吨</span>';
+            document.getElementById('stat-raw-lipf6-date').textContent = last['月份'] || last['日期'] || '—';
+        }
+        var vcP = getTable('添加剂VC-价格');
+        if (vcP.length > 0) {
+            document.getElementById('stat-vc-price').innerHTML = toNum(vcP[vcP.length - 1]['均价']).toFixed(1) + '<span class="unit">万/吨</span>';
+        }
+        var fecP = getTable('添加剂FEC-价格');
+        if (fecP.length > 0) {
+            document.getElementById('stat-fec-price').innerHTML = toNum(fecP[fecP.length - 1]['均价']).toFixed(1) + '<span class="unit">万/吨</span>';
+        }
+        var lifsiS = getTable('LiFSI价格-固态');
+        if (lifsiS.length > 0) {
+            document.getElementById('stat-lifsi-price').innerHTML = toNum(lifsiS[lifsiS.length - 1]['均价']).toFixed(1) + '<span class="unit">万/吨</span>';
+        }
+
+        // 成本结构对比（日频，取近6个月，每5天显示一个刻度）
+        var lpPriceAll = getLastNDays(getTable('六氟磷酸锂价格-主流市场'), 180);
+        var lpX = makeDateLabels(lpPriceAll, 5);
+        var lpAvgPrices = lpPriceAll.map(function(d){ return toNum(d['均价']); });
+        var vcPAll = getLastNDays(getTable('添加剂VC-价格'), 60);
+        var fecPAll = getLastNDays(getTable('添加剂FEC-价格'), 60);
+        var psPAll = getLastNDays(getTable('添加剂PS-价格'), 60);
+
+        initChart('r1', {
+            tooltip: { trigger: 'axis' },
+            legend: { data: ['六氟磷酸锂', 'VC', 'FEC', 'PS'], top: 5 },
+            grid: { left: '3%', right: '4%', bottom: '8%', containLabel: true },
+            xAxis: { type: 'category', data: lpX, axisLabel: { color: C.textLight, fontSize: 10, rotate: 45 }, boundaryGap: false },
+            yAxis: { type: 'value', name: '万元/吨', axisLabel: { color: C.textLight }, splitLine: { lineStyle: { color: C.border } } },
+            series: [
+                { name: '六氟磷酸锂', type: 'line', data: lpAvgPrices, smooth: true, lineStyle: { color: C.primary, width: 3 } },
+                { name: 'VC', type: 'line', data: vcPAll.map(function(d){ return toNum(d['均价']); }), smooth: true, lineStyle: { color: COLORS[2], width: 2 } },
+                { name: 'FEC', type: 'line', data: fecPAll.map(function(d){ return toNum(d['均价']); }), smooth: true, lineStyle: { color: COLORS[5], width: 2 } },
+                { name: 'PS', type: 'line', data: psPAll.map(function(d){ return toNum(d['均价']); }), smooth: true, lineStyle: { color: COLORS[7], width: 2 } }
+            ]
+        });
+
+        // VC产量走势（月频，取近12个月）
+        var vcOutput = getLastNMonths(getTable('添加剂VC-产量'), 12);
+        var vcMonths = vcOutput.map(fmtMonth);
+        initChart('r2', {
+            tooltip: { trigger: 'axis' },
+            grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+            xAxis: { type: 'category', data: vcMonths, axisLabel: { color: C.textLight, fontSize: 11 } },
+            yAxis: { type: 'value', name: '吨', axisLabel: { color: C.textLight }, splitLine: { lineStyle: { color: C.border } } },
+            series: [{
+                type: 'bar', data: vcOutput.map(function(d){ return toNum(d['产量']); }),
+                itemStyle: { color: C.primary, borderRadius: [4,4,0,0] },
+                label: { show: true, position: 'top', formatter: function(p){ return p.value + ''; }, fontSize: 9, color: C.textLight }
+            }]
+        });
+
+        // FEC产量走势（月频，取近12个月）
+        var fecOutput = getLastNMonths(getTable('添加剂FEC-产量'), 12);
+        var fecMonths = fecOutput.map(fmtMonth);
+        initChart('r3', {
+            tooltip: { trigger: 'axis' },
+            grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+            xAxis: { type: 'category', data: fecMonths, axisLabel: { color: C.textLight, fontSize: 11 } },
+            yAxis: { type: 'value', name: '吨', axisLabel: { color: C.textLight }, splitLine: { lineStyle: { color: C.border } } },
+            series: [{
+                type: 'bar', data: fecOutput.map(function(d){ return toNum(d['产量']); }),
+                itemStyle: { color: C.secondary, borderRadius: [4,4,0,0] },
+                label: { show: true, position: 'top', formatter: function(p){ return p.value + ''; }, fontSize: 9, color: C.textLight }
+            }]
+        });
+
+        // VC/FEC产量对比（月频，取近12个月）
+        var all12 = vcOutput.length <= fecOutput.length ? vcOutput : fecOutput;
+        initChart('r4', {
+            tooltip: { trigger: 'axis' },
+            legend: { data: ['VC产量', 'FEC产量'], top: 5 },
+            grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+            xAxis: { type: 'category', data: all12.map(fmtMonth), axisLabel: { color: C.textLight, fontSize: 11 } },
+            yAxis: { type: 'value', name: '吨', axisLabel: { color: C.textLight }, splitLine: { lineStyle: { color: C.border } } },
+            series: [
+                { name: 'VC产量', type: 'bar', data: vcOutput.map(function(d){ return toNum(d['产量']); }), itemStyle: { color: C.primary } },
+                { name: 'FEC产量', type: 'bar', data: fecOutput.map(function(d){ return toNum(d['产量']); }), itemStyle: { color: C.secondary } }
+            ]
+        });
+    })();
+
+    /* =====================================================
+       Tab切换
+       ===================================================== */
+    function switchTab(tab, btn) {
+        document.querySelectorAll('.tab-btn').forEach(function(b){ b.classList.remove('active'); });
+        document.querySelectorAll('.tab-content').forEach(function(t){ t.classList.remove('active'); });
+        if (btn) btn.classList.add('active');
+        var target = document.getElementById('tab-' + tab);
+        if (target) target.classList.add('active');
+        setTimeout(function(){
+            document.querySelectorAll('.chart-container').forEach(function(c){
+                var chart = echarts.getInstanceByDom(c);
+                if (chart) chart.resize();
+            });
+        }, 100);
+    }
+
+    window.addEventListener('resize', function(){
+        document.querySelectorAll('.chart-container').forEach(function(c){
+            var chart = echarts.getInstanceByDom(c);
+            if (chart) chart.resize();
+        });
+    });
+    </script>
+</body>
+</html>

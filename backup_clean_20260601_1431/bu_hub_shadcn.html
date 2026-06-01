@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>晨会指挥中心 - 事业部矩阵 (shadcn版)</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=Noto+Sans+SC:wght@300;400;500;600&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* shadcn 风格配色 - 浅色科技风 */
+            --background: #ffffff;
+            --foreground: #0f172a;
+            --card: #ffffff;
+            --card-foreground: #0f172a;
+            --popover: #ffffff;
+            --popover-foreground: #0f172a;
+            --primary: #0f172a;
+            --primary-foreground: #f8fafc;
+            --secondary: #f1f5f9;
+            --secondary-foreground: #0f172a;
+            --muted: #f1f5f9;
+            --muted-foreground: #64748b;
+            --accent: #f1f5f9;
+            --accent-foreground: #0f172a;
+            --destructive: #ef4444;
+            --destructive-foreground: #f8fafc;
+            --border: #e2e8f0;
+            --input: #e2e8f0;
+            --ring: #0f172a;
+            
+            /* 原有配色保留 */
+            --navy: #0d1b2e;
+            --navy-mid: #152339;
+            --navy-light: #1e3356;
+            --gold: #c9a84c;
+            --gold-light: #e8c96a;
+            --cream: #f8f4ec;
+            --text-dark: #1a2535;
+            --text-mid: #4a5568;
+            --text-light: #718096;
+            --d1: #1a6b9e;
+            --d2: #2e7d5a;
+            --d3: #7b4fa8;
+            --d4: #c0572a;
+            --d5: #b5862a;
+            --d6: #2a6b7c;
+            --panel-bg: rgba(230,238,250,0.97);
+            --panel-surface: rgba(240,245,255,0.85);
+            --panel-border: rgba(30,60,114,0.1);
+            --panel-text: #1e3c72;
+            --panel-muted: rgba(30,60,114,0.45);
+            --panel-accent: #1e3c72;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Noto Sans SC', 'Microsoft YaHei', 'PingFang SC', Arial, sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+            color: var(--text-dark);
+            background: linear-gradient(165deg, #eaedf6 0%, #dde3ee 50%, #d4dbe8 100%);
+        }
+
+        /* ========== shadcn 风格基础组件 ========== */
+        
+        /* Button */
+        .shadcn-btn {
+            display: inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50;
+            height: 10px 16px px-4 py-2;
+        }
+        .btn-primary {
+            background: var(--primary); color: var(--primary-foreground);
+        }
+        .btn-primary:hover { background: #1e293b; }
+        .btn-secondary {
+            background: var(--secondary); color: var(--secondary-foreground);
+        }
+        .btn-secondary:hover { background: #e2e8f0; }
+        .btn-destructive {
+            background: var(--destructive); color: var(--destructive-foreground);
+        }
+        .btn-ghost {
+            background: transparent;
+        }
+        .btn-ghost:hover { background: var(--accent); }
+        .btn-outline {
+            border: 1px solid var(--border); background: transparent;
+        }
+        .btn-outline:hover { background: var(--accent); }
+        
+        /* Card */
+        .shadcn-card {
+            border-radius: 0.75rem;
+            background: var(--card);
+            color: var(--card-foreground);
+            box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+        }
+        .shadcn-card-header {
+            display: flex flex-col space-y-1.5 p-6;
+        }
+        .shadcn-card-title {
+            font-size: 1.5rem font-semibold leading-none tracking-tight;
+        }
+        .shadcn-card-description {
+            font-size: 0.875rem color: var(--muted-foreground);
+        }
+        .shadcn-card-content {
+            p-6 pt-0;
+        }
+        .shadcn-card-footer {
+            flex items-center p-6 pt-0;
+        }
+        
+        /* Tabs */
+        .shadcn-tabs {
+            display: flex flex-col;
+        }
+        .shadcn-tabs-list {
+            display: inline-flex h-10 items-center justify-center rounded-md bg-muted p-1 text-muted-foreground;
+        }
+        .shadcn-tabs-trigger {
+            display: inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50;
+        }
+        .shadcn-tabs-trigger[data-state="active"] {
+            background: var(--background); color: var(--foreground); shadow-sm;
+        }
+        
+        /* Progress */
+        .shadcn-progress {
+            position: relative height-4 w-full overflow-hidden rounded-full bg-secondary;
+        }
+        .shadcn-progress-indicator {
+            h-full w-full flex-1 bg-primary transition-all;
+        }
+        
+        /* Badge */
+        .shadcn-badge {
+            display: inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2;
+        }
+        .badge-default { border-transparent bg-primary text-primary-foreground; }
+        .badge-secondary { border-transparent bg-secondary text-secondary-foreground; }
+        .badge-outline { color: var(--foreground); }
+        .badge-destructive { border-transparent bg-destructive text-destructive-foreground; }
+        
+        /* Separator */
+        .shadcn-separator {
+            background: var(--border);
+        }
+        .shadcn-separator-horizontal { height-px w-full; }
+        .shadcn-separator-vertical { h-full w-px; }
+        
+        /* Dialog */
+        .dialog-overlay {
+            position: fixed inset-0 z-50 bg-background/80 backdrop-blur-sm;
+        }
+        .dialog-content {
+            position: fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border bg-background p-6 shadow-lg duration-200;
+        }
+        
+        /* ========== 原有样式保留 ========== */
+        
+        /* 背景 */
+        .tech-stage { position: fixed; inset: 0; z-index: 0; }
+        .bg-atmo { position: fixed; top: 0; left: 0; right: 0; height: 42%; z-index: 0; pointer-events: none; }
+        
+        .perspective-grid { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 300vw; height: 55vh; z-index: 1; overflow: hidden; perspective: 500px; perspective-origin: 50% 100%; }
+        .grid-plane { width: 100%; height: 100%; transform: rotateX(70deg); transform-origin: 50% 0%; background: linear-gradient(rgba(30,60,114,0.2) 1.5px, transparent 1.5px), linear-gradient(90deg, rgba(30,60,114,0.2) 1.5px, transparent 1.5px); background-size: 70px 70px; animation: gridDrift 16s linear infinite; }
+        @keyframes gridDrift { 0% { background-position: 0 0; } 100% { background-position: 70px 70px; } }
+        
+        #particleCanvas { position: fixed; inset: 0; z-index: 2; pointer-events: none; opacity: 0.7; }
+        
+        /* 页面主内容 */
+        .page-content { position: relative; z-index: 20; max-width: 1400px; margin: 0 auto; padding: 28px 30px 0; }
+        
+        /* 顶部导航栏 - shadcn 风格 */
+        .top-bar {
+            background: rgba(255,255,255,0.95);
+            border: 1px solid var(--border);
+            border-radius: 0.75rem;
+            padding: 14px 24px;
+            margin-bottom: 18px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .top-bar-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            background: linear-gradient(90deg, #1e3c72, #00d4ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .top-bar-nav { display: flex; gap: 6px; }
+        
+        /* shadcn 按钮导航 */
+        .nav-btn {
+            display: inline-flex; align-items: center; justify-content: center;
+            padding: 8px 16px;
+            border-radius: 0.375rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+        .nav-btn-active {
+            background: var(--primary);
+            color: white;
+        }
+        .nav-btn-default {
+            background: transparent;
+            color: var(--muted-foreground);
+        }
+        .nav-btn-default:hover {
+            background: var(--accent);
+            color: var(--foreground);
+        }
+        
+        /* 事业部区块布局 */
+        .bu-hub-body { display: flex; gap: 32px; align-items: flex-start; }
+        .li-matrix-wrap { flex: 1.2; }
+        .chem-matrix-wrap { flex: 1; }
+        
+        .matrix-label { display: flex; align-items: center; gap: 10px; margin-bottom: 18px; }
+        .matrix-pill { padding: 6px 16px; border-radius: 9999px; font-size: 0.875rem; font-weight: 600; }
+        .matrix-pill-li { background: rgba(0,212,255,0.1); border: 1px solid rgba(0,212,255,0.3); color: #1e3c72; }
+        .matrix-pill-chem { background: rgba(138,43,226,0.08); border: 1px solid rgba(138,43,226,0.2); color: #6a1b9a; }
+        
+        /* 五边形布局 */
+        .pentagon-wrap { position: relative; width: 100%; max-width: 500px; margin: 0 auto; padding-top: 50px; }
+        .constellation-core { position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 72px; height: 72px; display: flex; align-items: center; justify-content: center; z-index: 2; }
+        .core-hex { width: 72px; height: 72px; background: linear-gradient(135deg, rgba(30,60,114,0.08), rgba(0,212,255,0.06)); clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%); display: flex; align-items: center; justify-content: center; border: 1px solid rgba(30,60,114,0.12); backdrop-filter: blur(8px); animation: coreBreath 3s ease-in-out infinite; }
+        @keyframes coreBreath { 0%, 100% { box-shadow: 0 0 18px rgba(30,60,114,0.08); } 50% { box-shadow: 0 0 30px rgba(0,212,255,0.2); } }
+        
+        .pent-wrap { position: relative; width: 100%; height: 480px; }
+        .pent-card { position: absolute; width: 162px; }
+        .pent-card.p1 { top: 52px; left: 50%; transform: translateX(-50%); }
+        .pent-card.p2 { top: 168px; right: 8px; }
+        .pent-card.p3 { top: 308px; right: 8px; }
+        .pent-card.p4 { top: 308px; left: 8px; }
+        .pent-card.p5 { top: 168px; left: 8px; }
+        
+        /* 事业部卡片 - shadcn 风格 */
+        .bu-card {
+            border-radius: 0.75rem;
+            padding: 16px 14px 13px;
+            cursor: pointer;
+            position: relative;
+            overflow: visible;
+            border: 1px solid var(--border);
+            background: var(--card);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            transition: all 0.3s;
+        }
+        .bu-card:hover {
+            transform: translateY(-4px) scale(1.02);
+            border-color: var(--primary);
+            box-shadow: 0 10px 40px rgba(30,60,114,0.15);
+        }
+        
+        /* 卡片内元素 */
+        .card-logo-wrap { display: flex; align-items: center; gap: 10px; margin-bottom: 9px; }
+        .card-logo-placeholder { width: 48px; height: 48px; border-radius: 0.5rem; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 800; flex-shrink: 0; }
+        .card-name-block { flex: 1; min-width: 0; }
+        .card-fullname { font-size: 0.875rem; font-weight: 700; color: var(--foreground); margin-bottom: 2px; }
+        .card-tag { display: inline-block; padding: 2px 8px; border-radius: 9999px; font-size: 0.625rem; font-weight: 600; background: var(--secondary); color: var(--foreground); border: 1px solid var(--border); }
+        .card-meta { font-size: 0.625rem; color: var(--muted-foreground); line-height: 1.5; margin-top: 6px; }
+        
+        /* shadcn Badge 样式 */
+        .bu-badge { display: inline-flex; align-items: center; border-radius: 9999px; padding: 2px 8px; font-size: 0.625rem; font-weight: 600; }
+        .bu-badge-primary { background: var(--primary); color: white; border: none; }
+        .bu-badge-secondary { background: var(--secondary); color: var(--foreground); border: 1px solid var(--border); }
+        
+        /* shadcn Progress 样式 */
+        .bu-progress { width: 100%; height: 6px; background: var(--secondary); border-radius: 9999px; overflow: hidden; }
+        .bu-progress-bar { height: 100%; background: var(--primary); border-radius: 9999px; transition: width 0.3s; }
+        
+        .page-bottom { height: 60px; }
+    </style>
+</head>
+<body>
+    <!-- 背景 -->
+    <div class="tech-stage"></div>
+    <div class="bg-atmo"></div>
+    <div class="perspective-grid"><div class="grid-plane"></div></div>
+    <canvas id="particleCanvas"></canvas>
+    
+    <!-- 页面主内容 -->
+    <div class="page-content">
+        <!-- 顶部导航栏 - shadcn 风格 -->
+        <div class="top-bar">
+            <div class="top-bar-title">晨会指挥中心</div>
+            <div class="top-bar-nav">
+                <!-- shadcn 风格按钮 -->
+                <a href="#" class="nav-btn nav-btn-active">事业部</a>
+                <a href="index_v3.html" class="nav-btn nav-btn-default">早报</a>
+                <a href="#" class="nav-btn nav-btn-default">数据</a>
+                <a href="#" class="nav-btn nav-btn-default">设置</a>
+            </div>
+        </div>
+        
+        <div class="bu-hub-body">
+            <!-- 锂电事业部 -->
+            <div class="li-matrix-wrap">
+                <div class="matrix-label">
+                    <!-- shadcn Badge -->
+                    <span class="matrix-pill matrix-pill-li bu-badge bu-badge-primary">锂电系</span>
+                    <span style="font-size: 0.625rem; color: var(--muted-foreground)">磷酸铁锂/碳酸锂/电解液</span>
+                </div>
+                
+                <div class="pentagon-wrap">
+                    <!-- 中央核心 -->
+                    <div class="constellation-core">
+                        <div class="core-hex">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="#1e3c72" stroke-width="2" width="32" height="32">
+                                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+                            </svg>
+                        </div>
+                    </div>
+                    
+                    <div class="pent-wrap">
+                        <!-- 事业部卡片 - shadcn 风格 -->
+                        <div class="bu-card p1" data-bu="常州锂源">
+                            <div class="card-logo-wrap">
+                                <div class="card-logo-placeholder" style="background: #0d9488; color: white;">LBM</div>
+                                <div class="card-name-block">
+                                    <div class="card-fullname">常州锂源</div>
+                                    <span class="bu-badge bu-badge-secondary">磷酸铁锂</span>
+                                </div>
+                            </div>
+                            <div class="card-meta">
+                                磷酸铁锂正极材料头部<br>
+                                <span style="color: #10b981;">▲ 订单饱和度 92%</span>
+                            </div>
+                        </div>
+                        
+                        <div class="bu-card p2">
+                            <div class="card-logo-wrap">
+                                <div class="card-logo-placeholder" style="background: #0891b2; color: white;">SMD</div>
+                                <div class="card-name-block">
+                                    <div class="card-fullname">山东美多</div>
+                                    <span class="bu-badge bu-badge-secondary">磷酸铁锂</span>
+                                </div>
+                            </div>
+                            <div class="card-meta">
+                                LFP产能 3万吨/年<br>
+                                <span style="color: #10b981;">▲ 开工率 85%</span>
+                            </div>
+                        </div>
+                        
+                        <div class="bu-card p3">
+                            <div class="card-logo-wrap">
+                                <div class="card-logo-placeholder" style="background: #7c3aed; color: white;">SJL</div>
+                                <div class="card-name-block">
+                                    <div class="card-fullname">三金锂电</div>
+                                    <span class="bu-badge bu-badge-secondary">碳酸锂</span>
+                                </div>
+                            </div>
+                            <div class="card-meta">
+                                盐湖提锂技术领先<br>
+                                <span style="color: #f59e0b;">● 产能建设中</span>
+                            </div>
+                        </div>
+                        
+                        <div class="bu-card p4">
+                            <div class="card-logo-wrap">
+                                <div class="card-logo-placeholder" style="background: #ea580c; color: white;">LPS</div>
+                                <div class="card-name-block">
+                                    <div class="card-fullname">龙蟠时代</div>
+                                    <span class="bu-badge bu-badge-secondary">电池</span>
+                                </div>
+                            </div>
+                            <div class="card-meta">
+                                动力/储能电池<br>
+                                <span style="color: #10b981;">▲ 配套宁德/BYD</span>
+                            </div>
+                        </div>
+                        
+                        <div class="bu-card p5">
+                            <div class="card-logo-wrap">
+                                <div class="card-logo-placeholder" style="background: #be123c; color: white;">FEL</div>
+                                <div class="card-name-block">
+                                    <div class="card-fullname">法恩莱特</div>
+                                    <span class="bu-badge bu-badge-secondary">电解液</span>
+                                </div>
+                            </div>
+                            <div class="card-meta">
+                                电解液+甲醇<br>
+                                <span style="color: #ef4444;">▼ 毛利率-1.69%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 化学品事业部 -->
+            <div class="chem-matrix-wrap">
+                <div class="matrix-label">
+                    <span class="matrix-pill matrix-pill-chem bu-badge bu-badge-primary">非锂电系</span>
+                    <span style="font-size: 0.625rem; color: var(--muted-foreground)">润滑油/化工/催化</span>
+                </div>
+                
+                <div class="pentagon-wrap" style="padding-top: 24px;">
+                    <div class="pent-wrap" style="height: 400px;">
+                        <div class="bu-card p1" style="top: 20px; left: 50%; transform: translateX(-50%);">
+                            <div class="card-logo-wrap">
+                                <div class="card-logo-placeholder" style="background: #4f46e5; color: white;">KLS</div>
+                                <div class="card-name-block">
+                                    <div class="card-fullname">可兰素</div>
+                                    <span class="bu-badge bu-badge-secondary">车用尿素</span>
+                                </div>
+                            </div>
+                            <div class="card-meta">车用尿素龙头</div>
+                        </div>
+                        
+                        <div class="bu-card p2" style="top: 160px; left: 0;">
+                            <div class="card-logo-wrap">
+                                <div class="card-logo-placeholder" style="background: #0891b2; color: white;">RHY</div>
+                                <div class="card-name-block">
+                                    <div class="card-fullname">润滑油</div>
+                                    <span class="bu-badge bu-badge-secondary">润滑油</span>
+                                </div>
+                            </div>
+                            <div class="card-meta">龙蟠润滑油</div>
+                        </div>
+                        
+                        <div class="bu-card p3" style="top: 160px; left: 50%; transform: translateX(-50%);">
+                            <div class="card-logo-wrap">
+                                <div class="card-logo-placeholder" style="background: #7c3aed; color: white;">DHC</div>
+                                <div class="card-name-block">
+                                    <div class="card-fullname">迪克化学</div>
+                                    <span class="bu-badge bu-badge-secondary">冷却液</span>
+                                </div>
+                            </div>
+                            <div class="card-meta">汽车化学品的</div>
+                        </div>
+                        
+                        <div class="bu-card p4" style="top: 160px; right: 0;">
+                            <div class="card-logo-wrap">
+                                <div class="card-logo-placeholder" style="background: #ea580c; color: white;">PTC</div>
+                                <div class="card-name-block">
+                                    <div class="card-fullname">铂源催化</div>
+                                    <span class="bu-badge bu-badge-secondary">催化</span>
+                                </div>
+                            </div>
+                            <div class="card-meta">催化材料</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="page-bottom"></div>
+    </div>
+    
+    <script>
+        // 简单的粒子动画
+        const canvas = document.getElementById('particleCanvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        
+        const particles = [];
+        for (let i = 0; i < 50; i++) {
+            particles.push({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height,
+                vx: (Math.random() - 0.5) * 0.5,
+                vy: (Math.random() - 0.5) * 0.5,
+                size: Math.random() * 2 + 1
+            });
+        }
+        
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => {
+                p.x += p.vx;
+                p.y += p.vy;
+                if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
+                if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
+                ctx.fillStyle = 'rgba(30,60,114,0.3)';
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                ctx.fill();
+            });
+            requestAnimationFrame(animate);
+        }
+        animate();
+        
+        // 卡片交互
+        document.querySelectorAll('.bu-card').forEach(card => {
+            card.addEventListener('click', () => {
+                const buName = card.dataset.bu || card.querySelector('.card-fullname').textContent;
+                alert('点击查看: ' + buName + ' 的详细信息');
+            });
+        });
+        
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+    </script>
+</body>
+</html>

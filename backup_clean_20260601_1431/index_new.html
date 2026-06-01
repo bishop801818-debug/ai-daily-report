@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>战略中心信息中台</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Microsoft YaHei', 'PingFang SC', Arial, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh; padding: 20px;
+        }
+        .container {
+            max-width: 1400px; margin: 0 auto;
+            display: flex; flex-direction: column; gap: 15px;
+        }
+        /* === 导航栏 === */
+        .header {
+            background: linear-gradient(135deg, #f0f4ff 0%, #e8f0ff 100%);
+            border-radius: 16px; padding: 20px 30px;
+            box-shadow: 0 4px 20px rgba(30,60,114,0.12);
+            display: flex; justify-content: center; align-items: center;
+            position: relative; border: 1px solid rgba(30,60,114,0.1);
+        }
+        .header::before {
+            content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px;
+            background: linear-gradient(180deg, #00d4ff, #1e3c72, #00d4ff);
+            border-radius: 16px 0 0 16px;
+        }
+        .logo { font-size: 32px; font-weight: bold; color: #1e3c72; cursor: pointer; }
+        /* === 事业部矩阵 === */
+        .bu-section { margin: 20px 0; }
+        .bu-matrix-grid {
+            display: grid; grid-template-columns: 1fr 1.3fr 1fr;
+            gap: 24px; align-items: stretch;
+        }
+        .bu-matrix-panel {
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9ff 100%);
+            border-radius: 16px; padding: 22px 20px;
+            box-shadow: 0 4px 20px rgba(30,60,114,0.10);
+            border: 1px solid rgba(30,60,114,0.08);
+            position: relative; overflow: hidden;
+        }
+        .bu-matrix-panel::before {
+            content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px;
+            background: linear-gradient(180deg, #00d4ff, #1e3c72, #00d4ff);
+            border-radius: 16px 0 0 16px;
+        }
+        .panel-title {
+            font-size: 0.7rem; font-weight: 700; color: rgba(30,60,114,0.5);
+            letter-spacing: 2px; text-transform: uppercase;
+            padding-bottom: 8px; border-bottom: 1px solid rgba(30,60,114,0.08);
+            margin-bottom: 14px;
+        }
+        .bu-card {
+            background: #fff; border: 1px solid rgba(30,60,114,0.10);
+            border-radius: 12px; padding: 14px; margin-bottom: 10px;
+            transition: all 0.3s; cursor: pointer;
+        }
+        .bu-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(30,60,114,0.12);
+            border-color: rgba(30,60,114,0.20);
+        }
+        .bu-card-name { font-size: 0.85rem; font-weight: 700; color: #1e3c72; }
+        .bu-card-tag {
+            display: inline-block; padding: 2px 8px; border-radius: 20px;
+            font-size: 0.55rem; font-weight: 600;
+            background: rgba(30,60,114,0.06); border: 1px solid rgba(30,60,114,0.10);
+            color: #1e3c72;
+        }
+        /* === 市场监控（占位）=== */
+        .market-monitor {
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9ff 100%);
+            border-radius: 16px; padding: 20px;
+            box-shadow: 0 4px 20px rgba(30,60,114,0.10);
+        }
+        .section-title { font-size: 1.1rem; font-weight: 700; color: #1e3c72; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 导航栏 -->
+        <div class="header">
+            <div class="logo" onclick="location.reload()">⚡ 战略中心信息中台</div>
+        </div>
+
+        <!-- 事业部矩阵 -->
+        <div class="bu-section">
+            <div class="bu-matrix-grid">
+                <div class="bu-matrix-panel">
+                    <div class="panel-title">⚡ 新能源矩阵</div>
+                    <div class="bu-card">
+                        <div class="bu-card-name">常州锂源</div>
+                        <span class="bu-card-tag">新能源材料</span>
+                        <div style="margin-top:6px;font-size:0.8rem;color:rgba(30,60,114,0.5);">六维评分 72分</div>
+                    </div>
+                    <div class="bu-card">
+                        <div class="bu-card-name">龙蟠时代</div>
+                        <span class="bu-card-tag">电芯智造</span>
+                        <div style="margin-top:6px;font-size:0.8rem;color:rgba(30,60,114,0.5);">六维评分 65分</div>
+                    </div>
+                </div>
+                <div class="bu-matrix-panel">
+                    <div class="panel-title">🧪 化学品矩阵</div>
+                    <div class="bu-card">
+                        <div class="bu-card-name">润滑油</div>
+                        <span class="bu-card-tag">润滑防护</span>
+                        <div style="margin-top:6px;font-size:0.8rem;color:rgba(30,60,114,0.5);">六维评分 78分</div>
+                    </div>
+                </div>
+                <div class="bu-matrix-panel">
+                    <div class="panel-title">⚛️ 氢能业务</div>
+                    <div class="bu-card">
+                        <div class="bu-card-name">铂源催化</div>
+                        <span class="bu-card-tag">催化材料</span>
+                        <div style="margin-top:6px;font-size:0.8rem;color:rgba(30,60,114,0.5);">六维评分 72分</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 市场行情监控（占位） -->
+        <div class="market-monitor">
+            <div class="section-title">📊 市场行情监控（占位）</div>
+            <p style="color:#999;margin-top:10px;">此处后续迁入完整市场监控模块</p>
+        </div>
+    </div>
+</body>
+</html>
