@@ -14418,8 +14418,11 @@ document.addEventListener('DOMContentLoaded', function() {
                             break;
                         }
                     }
-                    // 如果所有图都重复，就用第一张
-                    if (!chosenUrl) chosenUrl = data.results[0].urls.regular;
+                    // 如果所有图都重复，返回null让调用方重试（避免重复图片）
+                    if (!chosenUrl) {
+                        console.warn('[Unsplash] 所有图片均重复，返回null');
+                        return null;
+                    }
                     cache[cacheKey] = chosenUrl;
                     saveUnsplashCache(cache);
                     console.log('[Unsplash] API成功: ' + query + ' -> ' + chosenUrl);
