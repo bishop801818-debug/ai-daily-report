@@ -1,5 +1,5 @@
 const ELECTROLYTE_DATA = {
-    "update_time": "2026-05-14 13:50:00",
+    P26-06-01",
     "source": "电解液行业数据库.xlsx",
     "tables": [
         {

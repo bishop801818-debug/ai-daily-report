@@ -1,7 +1,7 @@
 // 汽车行业数据库嵌入数据
 // 来源：全球汽车市场数据库.xlsx 更新时间：2026-05-18
 const AUTOMOTIVE_DATA = {
-  "update_time": "2026-05-18",
+  P26-06-01",
   "source": "全球汽车市场数据库.xlsx",
   "tables": [
     {
