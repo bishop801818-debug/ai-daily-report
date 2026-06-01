@@ -14980,6 +14980,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     // 解析数据：提取时间和数值，按时间正序排列
                     var parsed = rows.map(function(r) {
                         var timeVal = String(r[db.timeKey] || r['日期'] || r['月份'] || '');
+                        // 清理时间字符串：去掉 T00:00:00 或  **********************************************
+                        timeVal = timeVal.replace(/[T ]00:00:00/, '').replace(/ 00:00$/,'');
                         var numVal = findNumericField(r, db.valueKey);
                         // 统一时间格式
                         var label = timeVal;
@@ -14987,7 +14989,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             label = label.slice(5) + '月';
                         } else if (label.length === 10 && label.indexOf('-') === 4) {
                             label = label.slice(5, 7) + '/' + label.slice(8, 10);
-                        } else if (label.length > 7) {
+                        } else if (label.length > 7 && label.length <= 10) {
                             label = label.slice(5);
                         }
                         return { time: timeVal, label: label, value: numVal * db.scale };
