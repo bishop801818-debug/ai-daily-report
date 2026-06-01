@@ -14710,19 +14710,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     data: xData,
                     axisLine: { lineStyle: { color: 'rgba(61,41,20,0.15)', width: 1 } },
                     axisTick: { show: false },
-                    axisLabel: { show: showAxis, color: '#8C7B6B', fontSize: 10, interval: interval,
-                        formatter: function(v) {
-                            var s = String(v || '');
-                            // 清理 00:00:00，格式化日期
-                            s = s.replace(/[T ]00:00:00\.?\d*Z?/, '').replace(/ 00:00$/,');
-                            if (s.length === 10 && s.indexOf('-') === 4) {
-                                return s.slice(5, 7) + '/' + s.slice(8, 10);
-                            } else if (s.length === 7 && s.indexOf('-') === 4) {
-                                return s.slice(5) + '月';
-                            }
-                            return s;
-                        }
-                    },
+                    axisLabel: { show: showAxis, color: '#8C7B6B', fontSize: 10, interval: interval },
                     splitLine: { show: false }
                 },
                 yAxis: {
@@ -14760,15 +14748,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     textStyle: { color: '#3D2914', fontSize: 12 },
                     formatter: function(params) {
                         var p = params[0];
-                        // 格式化日期：去掉 00:00:00，显示 MM/DD 或 M月
-                        var name = String(p.name || '');
-                        name = name.replace(/[T ]00:00:00\.?\d*Z?/, '').replace(/ 00:00$/,'');
-                        if (name.length === 10 && name.indexOf('-') === 4) {
-                            name = name.slice(5, 7) + '/' + name.slice(8, 10);
-                        } else if (name.length === 7 && name.indexOf('-') === 4) {
-                            name = name.slice(5) + '月';
-                        }
-                        return '<div style="font-weight:600">' + name + '</div>' +
+                        return '<div style="font-weight:600">' + p.name + '</div>' +
                                '<div style="color:' + color + '">● ' + p.value.toFixed(2) + '</div>';
                     }
                 },
@@ -14841,19 +14821,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     data: xData,
                     axisLine: { lineStyle: { color: 'rgba(61,41,20,0.15)', width: 1 } },
                     axisTick: { show: false },
-                    axisLabel: { show: showAxis, color: '#8C7B6B', fontSize: 10, interval: interval,
-                        formatter: function(v) {
-                            var s = String(v || '');
-                            // 清理 00:00:00，格式化日期
-                            s = s.replace(/[T ]00:00:00\.?\d*Z?/, '').replace(/ 00:00$/,');
-                            if (s.length === 10 && s.indexOf('-') === 4) {
-                                return s.slice(5, 7) + '/' + s.slice(8, 10);
-                            } else if (s.length === 7 && s.indexOf('-') === 4) {
-                                return s.slice(5) + '月';
-                            }
-                            return s;
-                        }
-                    },
+                    axisLabel: { show: showAxis, color: '#8C7B6B', fontSize: 10, interval: interval },
                     splitLine: { show: false }
                 },
                 yAxis: {
@@ -14887,15 +14855,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     textStyle: { color: '#3D2914', fontSize: 12 },
                     formatter: function(params) {
                         var p = params[0];
-                        // 格式化日期：去掉 00:00:00，显示 MM/DD 或 M月
-                        var name = String(p.name || '');
-                        name = name.replace(/[T ]00:00:00\.?\d*Z?/, '').replace(/ 00:00$/,'');
-                        if (name.length === 10 && name.indexOf('-') === 4) {
-                            name = name.slice(5, 7) + '/' + name.slice(8, 10);
-                        } else if (name.length === 7 && name.indexOf('-') === 4) {
-                            name = name.slice(5) + '月';
-                        }
-                        return '<div style="font-weight:600">' + name + '</div>' +
+                        return '<div style="font-weight:600">' + p.name + '</div>' +
                                '<div style="color:' + color + '">● ' + p.value.toFixed(2) + '</div>';
                     }
                 },
@@ -15020,8 +14980,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     // 解析数据：提取时间和数值，按时间正序排列
                     var parsed = rows.map(function(r) {
                         var timeVal = String(r[db.timeKey] || r['日期'] || r['月份'] || '');
-                        // 清理时间字符串：去掉 T00:00:00 或  **********************************************
-                        timeVal = timeVal.replace(/[T ]00:00:00/, '').replace(/ 00:00$/,'');
                         var numVal = findNumericField(r, db.valueKey);
                         // 统一时间格式
                         var label = timeVal;
@@ -15029,7 +14987,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             label = label.slice(5) + '月';
                         } else if (label.length === 10 && label.indexOf('-') === 4) {
                             label = label.slice(5, 7) + '/' + label.slice(8, 10);
-                        } else if (label.length > 7 && label.length <= 10) {
+                        } else if (label.length > 7) {
                             label = label.slice(5);
                         }
                         return { time: timeVal, label: label, value: numVal * db.scale };
