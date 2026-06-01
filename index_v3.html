@@ -14606,7 +14606,9 @@ document.addEventListener('DOMContentLoaded', function() {
                         if (slide) {
                             const bg = slide.querySelector('.news-slide-bg');
                             if (bg) {
-                                bg.style.backgroundImage = 'url(' + imageUrl + ')';
+                                // 清理URL可能的引号，然后用单引号包裹避免与style属性双引号冲突
+                                var cleanUrl = imageUrl.replace(/^["']|["']$/g, '');
+                                bg.style.backgroundImage = 'url(\'' + cleanUrl + '\')';
                                 bg.style.backgroundSize = 'cover';
                                 bg.style.backgroundPosition = 'center';
                             }
