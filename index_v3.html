@@ -14436,23 +14436,25 @@ document.addEventListener('DOMContentLoaded', function() {
         
         function extractKeywords(title) {
             // 中文关键词→英文搜索词映射（Unsplash对英文搜索更友好）
-            const topicMap = [
-                { cn: ['原油', '石油', '油价', 'WTI', '布伦特', '油气', '炼油'], en: 'oil refinery' },
-                { cn: ['尿素', '化肥', '氮肥', '农业'], en: 'fertilizer agriculture' },
-                { cn: ['煤矿', '煤炭', '矿工', '矿井'], en: 'coal mine' },
-                { cn: ['锂', '锂电', '锂电池', '磷酸铁锂', 'LFP', '碳酸锂'], en: 'lithium battery' },
-                { cn: ['新能源', '电动', '电动车', 'EV', '特斯拉'], en: 'electric vehicle' },
-                { cn: ['化工', '化学', '化学品', '材料'], en: 'chemical plant' },
-                { cn: ['汽车', '车企', '整车', '丰田', '大众', '宝马'], en: 'car factory' },
-                { cn: ['经济', '市场', '金融', '股市', '股价', '财报'], en: 'business news' },
-                { cn: ['政策', '法规', '监管', '发改委', '工信部'], en: 'government policy' },
-                { cn: ['技术', '创新', '研发', '专利'], en: 'technology innovation' },
-                { cn: ['环境', '环保', '碳排放', '绿色'], en: 'environment green' },
-                { cn: ['储能', '太阳能', '光伏', '风电'], en: 'energy storage' },
-                { cn: ['电解液', '六氟', '溶剂'], en: 'chemical laboratory' },
-                { cn: ['事故', '爆炸', '安全'], en: 'industrial accident' },
-                { cn: ['出口', '进口', '贸易'], en: 'international trade' },
-                { cn: ['公司', '企业', '集团'], en: 'company office' },
+                        const topicMap = [
+                { cn: ['碳酸锂', '锂辉石', '锂云母', '锂矿'], en: 'lithium carbonate mine' },
+                { cn: ['磷酸铁锂', 'LFP', '正极材料'], en: 'LFP battery cathode' },
+                { cn: ['电解液', '六氟', '溶剂', '添加剂'], en: 'battery electrolyte' },
+                { cn: ['原油', '石油', 'WTI', '布伦特', '油气'], en: 'oil refinery plant' },
+                { cn: ['尿素', '化肥', '氮肥'], en: 'fertilizer agriculture' },
+                { cn: ['煤矿', '煤炭', '矿工'], en: 'coal mine' },
+                { cn: ['锂电', '锂电池', '锂电子'], en: 'lithium ion battery' },
+                { cn: ['新能源', '电动', '电动车', 'EV'], en: 'electric car charging' },
+                { cn: ['车企', '整车', '丰田', '大众', '宝马', '特斯拉'], en: 'car manufacturing plant' },
+                { cn: ['化工', '化学', '化学品'], en: 'chemical laboratory' },
+                { cn: ['经济', '市场', '金融', '股市', '股价'], en: 'stock market chart' },
+                { cn: ['政策', '法规', '监管', '发改委', '工信部'], en: 'government building' },
+                { cn: ['技术', '创新', '研发', '专利'], en: 'research laboratory' },
+                { cn: ['环境', '环保', '碳排放', '绿色'], en: 'solar panel green' },
+                { cn: ['储能', '太阳能', '光伏', '风电'], en: 'energy storage battery' },
+                { cn: ['事故', '爆炸', '安全'], en: 'factory safety' },
+                { cn: ['出口', '进口', '贸易'], en: 'shipping port container' },
+                { cn: ['公司', '企业', '集团'], en: 'corporate office building' },
             ];
             const lowerTitle = title.toLowerCase();
             for (var i = 0; i < topicMap.length; i++) {
