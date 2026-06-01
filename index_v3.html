@@ -14380,11 +14380,17 @@ document.addEventListener('DOMContentLoaded', function() {
             // excludeUrls: 已使用的图片URL列表，避免重复
             excludeUrls = excludeUrls || [];
             const cache = getUnsplashCache();
-            // 缓存key包含excludeUrls信息，避免返回已用图片
-            const cacheKey = query + '|' + excludeUrls.join(',');
+            // 缓存key只用query（不含excludeUrls），避免缓存key爆炸
+            const cacheKey = query;
             if (cache[cacheKey]) {
                 console.log('[Unsplash] 缓存命中: ' + query);
-                return cache[cacheKey];
+                // 检查缓存的URL是否在excludeUrls中，如果是则返回null让调用方重试
+                const cachedUrl = cache[cacheKey];
+                if (excludeUrls.includes(cachedUrl)) {
+                    console.log('[Unsplash] 缓存URL已使用，返回null');
+                    return null;
+                }
+                return cachedUrl;
             }
             const requestCount = parseInt(localStorage.getItem('unsplash_request_count') || '0');
             const lastReset = parseInt(localStorage.getItem('unsplash_last_reset') || '0');
@@ -14553,7 +14559,13 @@ document.addEventListener('DOMContentLoaded', function() {
                     var item = items[i];
                     try {
                         const searchQuery = extractKeywords(item.title);
-                        const imageUrl = await fetchUnsplashImage(searchQuery, usedImageUrls);
+                        let imageUrl = await fetchUnsplashImage(searchQuery, usedImageUrls);
+                        // 去重检查：如果返回的图片已用过，尝试从缓存/API重新获取
+                        if (imageUrl && usedImageUrls.includes(imageUrl)) {
+                            console.warn('[Unsplash] 图片重复，重试:', imageUrl.slice(0,60));
+                            // 重试：不带excludeUrls（可能会得到不同结果）
+                            imageUrl = await fetchUnsplashImage(searchQuery, []);
+                        }
                         if (imageUrl) {
                             usedImageUrls.push(imageUrl);  // 记录已用URL，后续排除
                             const slide = newsCarousel.children[i];
@@ -14980,9 +14992,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     // 解析数据：提取时间和数值，按时间正序排列
                     var parsed = rows.map(function(r) {
                         var timeVal = String(r[db.timeKey] || r['日期'] || r['月份'] || '');
-                        // 安全清理：只保留日期部分（去掉 T... 或 空格... 后缀）
-                        var tv = timeVal.indexOf('T') >= 0 ? timeVal.split('T')[0] : timeVal.split(' ')[0];
-                        timeVal = tv;
+                        // 清理时间字符串：去掉 T00:00:00 或  **********************************************
+                        timeVal = timeVal.replace(/[T ]00:00:00/, '').replace(/ 00:00$/,'');
                         var numVal = findNumericField(r, db.valueKey);
                         // 统一时间格式
                         var label = timeVal;
