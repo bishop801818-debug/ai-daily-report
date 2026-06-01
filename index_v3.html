@@ -14380,18 +14380,26 @@ document.addEventListener('DOMContentLoaded', function() {
             // excludeUrls: 已使用的图片URL列表，避免重复
             excludeUrls = excludeUrls || [];
             const cache = getUnsplashCache();
-            // 缓存key只用query（不含excludeUrls），避免缓存key爆炸
             const cacheKey = query;
-            if (cache[cacheKey]) {
-                console.log('[Unsplash] 缓存命中: ' + query);
-                // 检查缓存的URL是否在excludeUrls中，如果是则返回null让调用方重试
-                const cachedUrl = cache[cacheKey];
-                if (excludeUrls.includes(cachedUrl)) {
-                    console.log('[Unsplash] 缓存URL已使用，返回null');
-                    return null;
-                }
-                return cachedUrl;
+
+            // 1. 先从缓存中找一张未使用的图（缓存值是URL数组）
+            var cachedUrls = cache[cacheKey];
+            // 兼容旧缓存格式（单字符串）
+            if (typeof cachedUrls === 'string') {
+                cachedUrls = [cachedUrls];
+                cache[cacheKey] = cachedUrls;
             }
+            if (Array.isArray(cachedUrls)) {
+                for (var i = 0; i < cachedUrls.length; i++) {
+                    if (excludeUrls.indexOf(cachedUrls[i]) === -1) {
+                        console.log('[Unsplash] 缓存命中: ' + query + ' (第' + (i+1) + '张)');
+                        return cachedUrls[i];
+                    }
+                }
+                console.log('[Unsplash] 缓存中所有图都已使用，尝试API获取新图');
+            }
+
+            // 2. 缓存没有可用图，调用API（获取更多图，per_page=12）
             const requestCount = parseInt(localStorage.getItem('unsplash_request_count') || '0');
             const lastReset = parseInt(localStorage.getItem('unsplash_last_reset') || '0');
             const now = Date.now();
@@ -14403,30 +14411,44 @@ document.addEventListener('DOMContentLoaded', function() {
                 return null;
             }
             try {
-                const url = 'https://api.unsplash.com/search/photos?query=' + encodeURIComponent(query) + '&client_id=' + UNSPLASH_ACCESS_KEY + '&per_page=5&orientation=landscape';
+                const url = 'https://api.unsplash.com/search/photos?query=' + encodeURIComponent(query) + '&client_id=' + UNSPLASH_ACCESS_KEY + '&per_page=12&orientation=landscape';
                 const response = await fetch(url);
                 if (!response.ok) throw new Error('HTTP ' + response.status);
                 const data = await response.json();
                 localStorage.setItem('unsplash_request_count', (requestCount + 1).toString());
                 if (data.results && data.results.length > 0) {
-                    // 从结果中找一张不在excludeUrls里的图
+                    // 收集所有返回的URL
+                    var newUrls = [];
                     var chosenUrl = null;
                     for (var i = 0; i < data.results.length; i++) {
                         var candidateUrl = data.results[i].urls.regular;
-                        if (excludeUrls.indexOf(candidateUrl) === -1) {
+                        newUrls.push(candidateUrl);
+                        if (!chosenUrl && excludeUrls.indexOf(candidateUrl) === -1) {
                             chosenUrl = candidateUrl;
-                            break;
                         }
                     }
-                    // 如果所有图都重复，返回null让调用方重试（避免重复图片）
-                    if (!chosenUrl) {
-                        console.warn('[Unsplash] 所有图片均重复，返回null');
-                        return null;
+                    // 保存到缓存（合并新旧URL，去重）
+                    var allUrls = cachedUrls || [];
+                    for (var j = 0; j < newUrls.length; j++) {
+                        if (allUrls.indexOf(newUrls[j]) === -1) {
+                            allUrls.push(newUrls[j]);
+                        }
                     }
-                    cache[cacheKey] = chosenUrl;
+                    // 限制缓存大小（每个query最多存20张）
+                    if (allUrls.length > 20) {
+                        allUrls = allUrls.slice(-20);
+                    }
+                    cache[cacheKey] = allUrls;
                     saveUnsplashCache(cache);
-                    console.log('[Unsplash] API成功: ' + query + ' -> ' + chosenUrl);
-                    return chosenUrl;
+
+                    if (chosenUrl) {
+                        console.log('[Unsplash] API成功: ' + query + ' -> ' + chosenUrl);
+                        return chosenUrl;
+                    } else {
+                        console.warn('[Unsplash] API返回的图全部重复: ' + query);
+                        // 返回第一张（即使重复，避免空白）
+                        return newUrls[0];
+                    }
                 } else {
                     console.warn('[Unsplash] 未找到图片: ' + query);
                     return null;
@@ -14565,12 +14587,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     try {
                         const searchQuery = extractKeywords(item.title);
                         let imageUrl = await fetchUnsplashImage(searchQuery, usedImageUrls);
-                        // 去重检查：如果返回的图片已用过，尝试从缓存/API重新获取
-                        if (imageUrl && usedImageUrls.includes(imageUrl)) {
-                            console.warn('[Unsplash] 图片重复，重试:', imageUrl.slice(0,60));
-                            // 重试：不带excludeUrls（可能会得到不同结果）
-                            imageUrl = await fetchUnsplashImage(searchQuery, []);
-                        }
+                        // 新缓存机制已内部处理去重，无需额外重试
                         if (imageUrl) {
                             usedImageUrls.push(imageUrl);  // 记录已用URL，后续排除
                             const slide = newsCarousel.children[i];
