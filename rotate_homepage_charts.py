@@ -13,14 +13,16 @@ import sys
 import os
 from datetime import datetime
 import hashlib
+import glob
 
 # ============================================================
 # 图表目录 CHART_CATALOG
 # 每个条目对应一个可展示在首页的图表
+# division: 所属事业部代码，用于从早报中提取对应事业部的分析内容
 # ============================================================
 CHART_CATALOG = [
 
-    # =========== 碳酸锂及原料数据库 (carbonate) ===========
+    # =========== 碳酸锂及原料数据库 (carbonate) → 常州锂源事业部 (czly) ===========
     {
         "id": "carbonate_price",
         "tag": "碳酸锂·现货价格",
@@ -34,7 +36,7 @@ CHART_CATALOG = [
         "unit": "万元/吨",
         "scale": 1,
         "color": "#1e3c72",
-        "insightTemplate": "function(m){var t=m.trend==='up'?'上涨':'下跌';return '碳酸锂现货均价'+m.latest.toFixed(2)+'万元/吨，环比'+t+Math.abs(m.change).toFixed(1)+'%。近3期均价'+(m.trend3==='up'?'回升':'走弱')+'。';}"
+        "division": "czly",
     },
     {
         "id": "carbonate_prod",
@@ -49,7 +51,7 @@ CHART_CATALOG = [
         "unit": "吨",
         "scale": 1,
         "color": "#1e3c72",
-        "insightTemplate": "function(m){var yoy=m.yoyChange!==null?(m.latest>=m.samePeriodLastYear?'同比增产':'同比减产')+Math.abs(m.yoyChange).toFixed(1)+'%':'暂无同比';return '碳酸锂产量'+(m.latest/10000).toFixed(2)+'万吨，环比'+(m.change>=0?'增长':'下降')+Math.abs(m.change).toFixed(1)+'%。'+yoy+'。';}"
+        "division": "czly",
     },
     {
         "id": "lh_price",
@@ -64,7 +66,7 @@ CHART_CATALOG = [
         "unit": "万元/吨",
         "scale": 1,
         "color": "#9b59b6",
-        "insightTemplate": "function(m){return '氢氧化锂现货均价'+m.latest.toFixed(2)+'万元/吨，环比'+(m.change>=0?'回升':'回落')+Math.abs(m.change).toFixed(1)+'%。近3期均价'+(m.trend3==='up'?'企稳':'承压')+'。';}"
+        "division": "czly",
     },
     {
         "id": "lsp_price",
@@ -79,7 +81,7 @@ CHART_CATALOG = [
         "unit": "美元/吨",
         "scale": 1,
         "color": "#e67e22",
-        "insightTemplate": "function(m){return '锂辉石精矿均价'+m.latest.toFixed(0)+'美元/吨，环比'+(m.change>=0?'上涨':'下跌')+Math.abs(m.change).toFixed(0)+'。澳洲SC5.5报价'+(m.trend3==='up'?'偏强':'偏弱')+'。';}"
+        "division": "czly",
     },
     {
         "id": "lym_price",
@@ -87,17 +89,17 @@ CHART_CATALOG = [
         "title": "锂云母价格走势",
         "link": "carbonate_charts.html",
         "dataFile": "carbonate_all_data.json",
-        "tableName": "锂云母—价格",
+        "tableName": "锂云母-价格",
         "valueKey": "均价（万元/吨）",
         "timeKey": "日期",
         "isBar": False,
         "unit": "万元/吨",
         "scale": 1,
         "color": "#27ae60",
-        "insightTemplate": "function(m){return '锂云母均价'+m.latest.toFixed(2)+'万元/吨，环比'+(m.change>=0?'上涨':'下跌')+Math.abs(m.change).toFixed(2)+'%。江西矿区开工率'+(m.trend3==='up'?'回升':'偏低')+'。';}"
+        "division": "czly",
     },
 
-    # =========== 电解液数据库 (electrolyte) ===========
+    # =========== 电解液数据库 (electrolyte) → 法恩莱特事业部 (felt) ===========
     {
         "id": "lipf6_price",
         "tag": "六氟磷酸锂·价格",
@@ -111,7 +113,7 @@ CHART_CATALOG = [
         "unit": "万元/吨",
         "scale": 1,
         "color": "#c0392b",
-        "insightTemplate": "function(m){return '六氟磷酸锂价格'+m.latest.toFixed(2)+'万元/吨，环比'+(m.change>=0?'回升':'回落')+Math.abs(m.change).toFixed(1)+'%。近3期均价'+(m.trend3==='up'?'企稳':'承压')+'。';}"
+        "division": "felt",
     },
     {
         "id": "electrolyte_prod",
@@ -126,7 +128,7 @@ CHART_CATALOG = [
         "unit": "吨",
         "scale": 1,
         "color": "#1e3c72",
-        "insightTemplate": "function(m){var yoy=m.yoyChange!==null?(m.latest>=m.samePeriodLastYear?'同比增产':'同比减产')+Math.abs(m.yoyChange).toFixed(1)+'%':'暂无同比';return '电解液产量'+(m.latest/10000).toFixed(2)+'万吨，环比'+(m.change>=0?'增长':'下降')+Math.abs(m.change).toFixed(1)+'%。'+yoy+'。';}"
+        "division": "felt",
     },
     {
         "id": "electrolyte_price_lfp",
@@ -141,7 +143,7 @@ CHART_CATALOG = [
         "unit": "万元/吨",
         "scale": 1,
         "color": "#2980b9",
-        "insightTemplate": "function(m){return 'LFP电解液均价'+m.latest.toFixed(2)+'万元/吨，环比'+(m.change>=0?'上涨':'下跌')+Math.abs(m.change).toFixed(2)+'%。储能需求'+(m.trend3==='up'?'旺盛':'偏弱')+'。';}"
+        "division": "felt",
     },
     {
         "id": "lfp_price_ternary",
@@ -156,10 +158,10 @@ CHART_CATALOG = [
         "unit": "万元/吨",
         "scale": 1,
         "color": "#8e44ad",
-        "insightTemplate": "function(m){return '三元电解液均价'+m.latest.toFixed(2)+'万元/吨，环比'+(m.change>=0?'上涨':'下跌')+Math.abs(m.change).toFixed(2)+'%。高镍化趋势下需求'+(m.trend3==='up'?'回暖':'承压')+'。';}"
+        "division": "felt",
     },
 
-    # =========== 磷酸铁锂数据库 (lfp) ===========
+    # =========== 磷酸铁锂数据库 (lfp) → 常州锂源事业部 (czly) ===========
     {
         "id": "lfp_prod",
         "tag": "磷酸铁锂·行业产量",
@@ -173,7 +175,7 @@ CHART_CATALOG = [
         "unit": "吨",
         "scale": 1,
         "color": "#27ae60",
-        "insightTemplate": "function(m){return 'LFP产量'+(m.latest/10000).toFixed(2)+'万吨，环比'+(m.change>=0?'增长':'下降')+Math.abs(m.change).toFixed(1)+'%。产能利用率'+(m.trend3==='up'?'提升':'承压')+'。';}"
+        "division": "czly",
     },
     {
         "id": "lfp_export",
@@ -188,10 +190,10 @@ CHART_CATALOG = [
         "unit": "吨",
         "scale": 1,
         "color": "#f39c12",
-        "insightTemplate": "function(m){return 'LFP出口量'+(m.latest/10000).toFixed(2)+'万吨，环比'+(m.change>=0?'增长':'下降')+Math.abs(m.change).toFixed(1)+'%。海外需求'+(m.trend3==='up'?'旺盛':'偏弱')+'。';}"
+        "division": "czly",
     },
 
-    # =========== 三元材料数据库 (ternary) ===========
+    # =========== 三元材料数据库 (ternary) → 常州锂源事业部 (czly) ===========
     {
         "id": "ternary_prod",
         "tag": "三元正极·行业产量",
@@ -205,10 +207,10 @@ CHART_CATALOG = [
         "unit": "吨",
         "scale": 1,
         "color": "#8e44ad",
-        "insightTemplate": "function(m){return '三元正极产量'+(m.latest/10000).toFixed(2)+'万吨，环比'+(m.change>=0?'增长':'下降')+Math.abs(m.change).toFixed(1)+'%。高镍化趋势'+(m.trend3==='up'?'延续':'放缓')+'。';}"
+        "division": "czly",
     },
 
-    # =========== 锂电池回收数据库 (recycling) ===========
+    # =========== 锂电池回收数据库 (recycling) → 山东美多事业部 (sdmd) ===========
     {
         "id": "recycling_blackmass",
         "tag": "回收·黑粉处理量",
@@ -216,16 +218,16 @@ CHART_CATALOG = [
         "link": "recycling_charts.html",
         "dataFile": "recycling_all_data.json",
         "tableName": "黑粉处理量-总计",
-        "valueKey": "处理量（吨）",
-        "timeKey": "月份",
+        "valueKey": "总计",
+        "timeKey": "当前日期",
         "isBar": True,
         "unit": "吨",
         "scale": 1,
         "color": "#e67e22",
-        "insightTemplate": "function(m){return '黑粉处理量'+(m.latest/10000).toFixed(2)+'万吨，环比'+(m.change>=0?'增长':'下降')+Math.abs(m.change).toFixed(1)+'%。回收率'+(m.trend3==='up'?'提升':'偏低')+'。';}"
+        "division": "sdmd",
     },
 
-    # =========== 锂电池行业数据库 (lib_battery) ===========
+    # =========== 锂电池行业数据库 (lib_battery) → 常州锂源事业部 (czly) ===========
     {
         "id": "lib_battery_prod",
         "tag": "锂电池·行业产量",
@@ -239,26 +241,27 @@ CHART_CATALOG = [
         "unit": "GWh",
         "scale": 1,
         "color": "#2c3e50",
-        "insightTemplate": "function(m){return '锂电池产量'+m.latest.toFixed(1)+'GWh，环比'+(m.change>=0?'增长':'下降')+Math.abs(m.change).toFixed(1)+'%。储能装机'+(m.trend3==='up'?'超预期':'符合预期')+'。';}"
+        "division": "czly",
     },
 
-    # =========== 汽车行业数据库 (automotive) ===========
+    # =========== 汽车行业数据库 (automotive) → 常州锂源事业部 (czly) ===========
     {
         "id": "automotive_ev_sales",
         "tag": "汽车·新能源销量",
         "title": "新能源汽车销量走势",
         "link": "automotive_charts.html",
         "dataFile": "automotive_all_data.json",
-        "tableName": "新能源中国整体",
-        "valueKey": "销量（万辆）",
+        "tableName": "新能源汽车销量-中国市场",
+        "valueKey": "本期销量（万辆）",
         "timeKey": "月份",
         "isBar": True,
         "unit": "万辆",
         "scale": 1,
         "color": "#e74c3c",
-        "insightTemplate": "function(m){return '新能源车销量'+m.latest.toFixed(1)+'万辆，环比'+(m.change>=0?'增长':'下降')+Math.abs(m.change).toFixed(1)+'%。渗透率'+(m.trend3==='up'?'提升':'承压')+'。';}"
+        "division": "czly",
     },
 ]
+
 
 # ============================================================
 # 工具函数
@@ -337,6 +340,118 @@ def compute_metrics(rows, value_key, time_key):
     }
 
 
+def load_latest_report(base_dir):
+    """加载最新的早报JSON文件"""
+    reports_dir = os.path.join(base_dir, 'reports')
+    if not os.path.exists(reports_dir):
+        return None
+    pattern = os.path.join(reports_dir, '[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9].json')
+    files = glob.glob(pattern)
+    if not files:
+        return None
+    files.sort(reverse=True)
+    latest_file = files[0]
+    try:
+        with open(latest_file, 'r', encoding='utf-8') as f:
+            return json.load(f)
+    except Exception as e:
+        print(f"  [错误] 读取早报文件失败 {latest_file}: {e}")
+        return None
+
+
+def generate_insight_with_news(chart, metrics, report, division):
+    """生成数据洞察文案（50-80字），含早报分析"""
+    if metrics is None:
+        return '数据不足，无法生成分析。'
+
+    latest = metrics['latest']
+    change = metrics['change']
+    unit = chart['unit']
+    trend = '上涨' if change >= 0 else '下跌'
+    abs_change = abs(change)
+
+    # 格式化数值
+    if unit in ['万元/吨', 'GWh', '万辆']:
+        latest_str = f"{latest:.2f}"
+    elif unit == '美元/吨':
+        latest_str = f"{latest:.0f}"
+    elif unit == '吨':
+        if latest >= 10000:
+            latest_str = f"{(latest/10000):.2f}万"
+        else:
+            latest_str = f"{latest:.0f}"
+    else:
+        latest_str = f"{latest:.2f}"
+
+    # 1. 数据描述部分（约20字）
+    data_part = f"最新值{latest_str}{unit}，环比{trend}{abs_change:.1f}%。"
+
+    # 2. 同环比分析（约20字）
+    yoy = metrics.get('yoyChange')
+    trend3 = metrics.get('trend3', 'up')
+    if yoy is not None:
+        yoy_str = f"同比{'增' if yoy >= 0 else '减'}{abs(yoy):.1f}%"
+    else:
+        yoy_str = "暂无同比"
+
+    trend3_str = "近期走强" if trend3 == 'up' else "近期承压"
+    compare_part = f"{yoy_str}，{trend3_str}。"
+
+    # 3. 行业消息分析（从早报中提取，约30字）
+    news_part = ""
+    if report and division:
+        dept = report.get('departments', {}).get(division, {})
+        if dept:
+            market = dept.get('sections', {}).get('market', {})
+            supply_signals = market.get('供给信号', [])
+            risk_signals = market.get('争议风险', [])
+
+            # 优先使用供给信号
+            if supply_signals:
+                signal = supply_signals[0]
+                title = signal.get('标题', '')
+                # 清洗标题：去掉末尾的句号（如果有）
+                title = title.rstrip('。')
+                if len(title) > 24:
+                    title = title[:24] + '…'
+                news_part = f"{title}。"
+            elif risk_signals:
+                signal = risk_signals[0]
+                title = signal.get('标题', '')
+                title = title.rstrip('。')
+                if len(title) > 24:
+                    title = title[:24] + '…'
+                news_part = f"{title}。"
+
+    # 组合文案，控制总长度50-80字
+    full_text = data_part + compare_part + news_part
+
+    # 如果太长，截断行业消息部分
+    if len(full_text) > 80:
+        max_news_len = 80 - len(data_part) - len(compare_part) - 3
+        if max_news_len > 10:
+            news_part = news_part[:max_news_len] + '…'
+            full_text = data_part + compare_part + news_part
+        else:
+            full_text = (data_part + compare_part)[:77] + '…'
+
+    # 如果太短，尝试补充topnews
+    if len(full_text) < 50 and report and division:
+        dept = report.get('departments', {}).get(division, {})
+        if dept:
+            topnews = dept.get('sections', {}).get('topnews', [])
+            if topnews:
+                title = topnews[0].get('标题', '')
+                title = title.rstrip('。')
+                if len(title) > 20:
+                    title = title[:20] + '…'
+                supplement = f"关注：{title}。"
+                if len(full_text) + len(supplement) <= 80:
+                    full_text = full_text + supplement
+
+    return full_text[:80]
+
+
 def select_random_charts(catalog, n=4, seed=None):
     """从目录中随机选n个图表"""
     if seed is not None:
@@ -355,7 +470,10 @@ def build_dashboards_js(selected_charts):
     """根据选中的图表，生成 DASHBOARDS JS 数组字符串"""
     items = []
     for c in selected_charts:
-        # insightTemplate 是函数字符串，直接拼入JS
+        # insight 是文案字符串（由Python生成），直接拼入JS
+        insight_text = c.get('_insight', '数据加载中...')
+        # 转义JS字符串中的单引号
+        insight_escaped = insight_text.replace('\\', '\\\\').replace("'", "\\'")
         item = f"""        {{
             id: '{c['id']}',
             tag: '{c['tag']}',
@@ -368,7 +486,7 @@ def build_dashboards_js(selected_charts):
             timeKey: '{c['timeKey']}',
             isBar: {'true' if c['isBar'] else 'false'},
             scale: {c['scale']},
-            insightTemplate: {c['insightTemplate']}
+            insight: '{insight_escaped}'
         }}"""
         items.append(item)
 
@@ -382,7 +500,6 @@ def update_index_html(html_path, new_dashboards_js):
         content = f.read()
 
     # 找到 DASHBOARDS = [ 到 ]; 的范围
-    # 匹配：var DASHBOARDS = [\n 直到 ];\n
     pattern = r'(var DASHBOARDS\s*=\s*\[)(.*?)(\n\s*\]\s*;)'
     match = re.search(pattern, content, re.DOTALL)
     if not match:
@@ -413,8 +530,16 @@ def main():
     print("  " + datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
     print("=" * 60)
 
-    # 1. 加载行业消息
-    print("\n[1/4] 加载行业消息...")
+    # 0. 加载最新早报JSON文件
+    print("\n[0/5] 加载最新早报...")
+    latest_report = load_latest_report(BASE_DIR)
+    if latest_report:
+        print(f"  已加载早报: {latest_report.get('date', 'unknown')}")
+    else:
+        print("  [警告] 未找到早报JSON文件")
+
+    # 1. 加载行业消息（hot_news_data.json）
+    print("\n[1/5] 加载行业消息...")
     industry_news = []
     hot_news_path = os.path.join(BASE_DIR, 'hot_news_data.json')
     if os.path.exists(hot_news_path):
@@ -426,7 +551,7 @@ def main():
         print("  [警告] hot_news_data.json 不存在")
 
     # 2. 随机选择4个图表
-    print("\n[2/4] 随机选择图表...")
+    print("\n[2/5] 随机选择图表...")
     today = datetime.now().strftime("%Y-%m-%d")
     seed = int(hashlib.md5(today.encode()).hexdigest()[:8], 16)
     selected = select_random_charts(CHART_CATALOG, n=4, seed=seed)
@@ -434,13 +559,14 @@ def main():
     for i, c in enumerate(selected):
         print(f"    {i+1}. [{c['id']}] {c['title']}")
 
-    # 3. 为每个选中图表计算指标
-    print("\n[3/4] 计算数据指标...")
+    # 3. 为每个选中图表计算指标并生成数据洞察文案
+    print("\n[3/5] 计算数据指标并生成洞察文案...")
     for c in selected:
         data_json = load_data_file(BASE_DIR, c['dataFile'])
         if data_json is None:
             print(f"  [{c['id']}] 数据文件不存在，跳过")
             c['_metrics'] = None
+            c['_insight'] = '数据不足，无法生成分析。'
             continue
         rows = get_table_rows(data_json, c['tableName'])
         metrics = compute_metrics(rows, c['valueKey'], c['timeKey'])
@@ -450,8 +576,14 @@ def main():
         else:
             print(f"  [{c['id']}] 数据不足")
 
+        # 生成数据洞察文案
+        division = c.get('division', '')
+        insight = generate_insight_with_news(c, metrics, latest_report, division)
+        c['_insight'] = insight
+        print(f"  文案: {insight[:60]}...")
+
     # 4. 更新 index_v3.html
-    print("\n[4/4] 更新 index_v3.html...")
+    print("\n[4/5] 更新 index_v3.html...")
     html_path = os.path.join(BASE_DIR, 'index_v3.html')
     new_dashboards_js = build_dashboards_js(selected)
     success = update_index_html(html_path, new_dashboards_js)

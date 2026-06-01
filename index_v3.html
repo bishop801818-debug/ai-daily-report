@@ -14613,7 +14613,21 @@ document.addEventListener('DOMContentLoaded', function() {
         };
 
         // 所有可用的数据库看板配置（已根据实际数据文件校准）
-                        var DASHBOARDS = [
+                                        var DASHBOARDS = [
+        {
+            id: 'automotive_ev_sales',
+            tag: '汽车·新能源销量',
+            title: '新能源汽车销量走势',
+            link: 'automotive_charts.html',
+            dataFile: 'automotive_all_data.json',
+            tableName: '新能源汽车销量-中国市场',
+            unit: '万辆',
+            valueKey: '本期销量（万辆）',
+            timeKey: '月份',
+            isBar: true,
+            scale: 1,
+            insight: '最新值134.40万辆，环比上涨7.3%。同比增9.6%，近期承压。6月电池排产环增6%-9%，正极材料环增9%。'
+        },
         {
             id: 'recycling_blackmass',
             tag: '回收·黑粉处理量',
@@ -14622,11 +14636,11 @@ document.addEventListener('DOMContentLoaded', function() {
             dataFile: 'recycling_all_data.json',
             tableName: '黑粉处理量-总计',
             unit: '吨',
-            valueKey: '处理量（吨）',
-            timeKey: '月份',
+            valueKey: '总计',
+            timeKey: '当前日期',
             isBar: true,
             scale: 1,
-            insightTemplate: function(m){return '黑粉处理量'+(m.latest/10000).toFixed(2)+'万吨，环比'+(m.change>=0?'增长':'下降')+Math.abs(m.change).toFixed(1)+'%。回收率'+(m.trend3==='up'?'提升':'偏低')+'。';}
+            insight: '最新值2.59万吨，环比上涨5.7%。同比增26.9%，近期承压。五月废旧电芯先扬后抑冲高回落。关注：工信部专班二次会议部署回收监管执法。'
         },
         {
             id: 'lfp_export',
@@ -14640,7 +14654,7 @@ document.addEventListener('DOMContentLoaded', function() {
             timeKey: '月份',
             isBar: true,
             scale: 1,
-            insightTemplate: function(m){return 'LFP出口量'+(m.latest/10000).toFixed(2)+'万吨，环比'+(m.change>=0?'增长':'下降')+Math.abs(m.change).toFixed(1)+'%。海外需求'+(m.trend3==='up'?'旺盛':'偏弱')+'。';}
+            insight: '最新值5898吨，环比下跌21.7%。同比增412.1%，近期走强。6月电池排产环增6%-9%，正极材料环增9%。'
         },
         {
             id: 'lym_price',
@@ -14648,29 +14662,17 @@ document.addEventListener('DOMContentLoaded', function() {
             title: '锂云母价格走势',
             link: 'carbonate_charts.html',
             dataFile: 'carbonate_all_data.json',
-            tableName: '锂云母—价格',
+            tableName: '锂云母-价格',
             unit: '万元/吨',
             valueKey: '均价（万元/吨）',
             timeKey: '日期',
             isBar: false,
             scale: 1,
-            insightTemplate: function(m){return '锂云母均价'+m.latest.toFixed(2)+'万元/吨，环比'+(m.change>=0?'上涨':'下跌')+Math.abs(m.change).toFixed(2)+'%。江西矿区开工率'+(m.trend3==='up'?'回升':'偏低')+'。';}
-        },
-        {
-            id: 'automotive_ev_sales',
-            tag: '汽车·新能源销量',
-            title: '新能源汽车销量走势',
-            link: 'automotive_charts.html',
-            dataFile: 'automotive_all_data.json',
-            tableName: '新能源中国整体',
-            unit: '万辆',
-            valueKey: '销量（万辆）',
-            timeKey: '月份',
-            isBar: true,
-            scale: 1,
-            insightTemplate: function(m){return '新能源车销量'+m.latest.toFixed(1)+'万辆，环比'+(m.change>=0?'增长':'下降')+Math.abs(m.change).toFixed(1)+'%。渗透率'+(m.trend3==='up'?'提升':'承压')+'。';}
+            insight: '最新值0.55万元/吨，环比下跌9.8%。同比减22.5%，近期走强。6月电池排产环增6%-9%，正极材料环增9%。'
         }
         ];
+        
+        
         
 
         var chartInstances = [null, null, null, null];
@@ -14755,8 +14757,14 @@ document.addEventListener('DOMContentLoaded', function() {
             };
         }
 
-        // 通用数据洞察生成函数
+        // 通用数据洞察生成函数（新版：优先使用预生成文案 db.insight）
         function generateInsight(db, data) {
+            // 新方法：直接返回预生成的洞察文案（由Python脚本生成，含早报分析）
+            if (db.insight) {
+                return db.insight;
+            }
+            
+            // 旧方法兜底（兼容历史数据 / 无预生成文案时）
             if (!data || data.length < 2) return '数据不足，无法生成分析。';
             
             // 1. 计算基础数据
@@ -14778,7 +14786,7 @@ document.addEventListener('DOMContentLoaded', function() {
             var yoyChange = samePeriodLastYear && samePeriodLastYear !== 0 ? 
                 ((latest - samePeriodLastYear) / samePeriodLastYear * 100) : null;
             
-            // 4. 调用看板专属模板生成文字
+            // 4. 调用看板专属模板生成文字（兼容旧数据）
             if (db.insightTemplate && typeof db.insightTemplate === 'function') {
                 return db.insightTemplate({
                     latest: latest,
