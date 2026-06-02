@@ -1,10 +1,17 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
+  <meta name="html-version" content="20260601_2249">
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>数据库 - 铁锂行业数据</title>
-    <script src="embedded_data.js"></script>
+    <title>数据
+  // 每次修改此文件后，content 值自动更新为今天日期（如 20260601 2249）
+  // 浏览器遇到新的 html-version 会强制重新加载，永久告别缓存问题
+  window.HTML_VERSION = '20260601_2249';
+
+库 - 铁锂行业数据</title>
+    <script src="lfp_embedded_data.js"></script>
     <style>
         /* 滚动条样式 */
         ::-webkit-scrollbar { width: 6px; height: 6px; }
@@ -1054,16 +1061,16 @@
             const badgeMap = {
                 'LFP-行业整体产量': 'badge-lfp-industry',
                 'LFP-分企业产量': 'badge-lfp-company',
-                'LFP竞对销量（客户采购量）': 'badge-lfp-competitor',
+                'LFP竞对销量': 'badge-lfp-competitor',
                 'LFP-出口量': 'badge-lfp-export',
                 'LFP-出口贸易伙伴': 'badge-lfp-export-partner',
                 'LFP现货市场价': 'badge-lfp-price',
                 'FP-行业整体产量': 'badge-fp-industry',
                 'FP-分企业产量': 'badge-fp-company',
                 'FP现货市场价': 'badge-fp-price',
-                '现货市场价（分压实密度）': 'badge-price-density',
-                '磷酸盐价格数据': 'badge-phosphate',
-                '非磷原料价格数据': 'badge-raw-material'
+                'LFP现货市场价-分压实密度': 'badge-price-density',
+                '磷酸盐价格': 'badge-phosphate',
+                '非磷原料价格': 'badge-raw-material'
             };
             
             const badgeId = badgeMap[tableName];
@@ -1179,7 +1186,7 @@
         
         // LFP竞对销量
         function renderLFPCompetitor() {
-            const data = allData['LFP竞对销量（客户采购量）'] || [];
+            const data = allData['LFP竞对销量'] || [];
             tableData['lfp-competitor'] = data;
             const sorted = [...data].sort((a, b) => String(b['月份']||'').localeCompare(String(a['月份']||'')));
 
@@ -1349,7 +1356,7 @@
         
         // 现货价(分压实密度)
         function renderPriceDensity() {
-            const data = allData['现货市场价（分压实密度）'] || [];
+            const data = allData['LFP现货市场价-分压实密度'] || [];
             tableData['price-density'] = data;
             if (!data.length) {
                 document.getElementById('price-density-body').innerHTML = '<tr><td colspan="6" class="loading">暂无数据</td></tr>';
@@ -1432,7 +1439,7 @@
         
         // 磷酸盐价格数据
         function renderPhosphate() {
-            const data = allData['磷酸盐价格数据'] || [];
+            const data = allData['磷酸盐价格'] || [];
             tableData['phosphate'] = data;
             if (!data.length) {
                 document.getElementById('phosphate-body').innerHTML = '<tr><td colspan="5" class="loading">暂无数据</td></tr>';
@@ -1467,7 +1474,7 @@
 
         // 非磷原料价格数据
         function renderRawMaterial() {
-            const data = allData['非磷原料价格数据'] || [];
+            const data = allData['非磷原料价格'] || [];
             tableData['raw-material'] = data;
             if (!data.length) {
                 document.getElementById('raw-material-body').innerHTML = '<tr><td colspan="5" class="loading">暂无数据</td></tr>';

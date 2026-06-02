@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>数据库 - 碳酸锂及原料数据</title>
-    <meta name="html-version" content="20260423a">
+    <meta name="html-version" content="20260602_121924">
     <script src="carbonate_embedded_data.js"></script>
     <style>
         ::-webkit-scrollbar { width: 6px; height: 6px; }
@@ -501,7 +501,7 @@
                 </div>
                 <div class="table-container">
                     <table class="data-table" id="lh-export-table">
-                        <thead><tr><th>月份</th><th>出口量（吨）</th><th>出口金额（万元）</th><th>出口均价（万元/吨）</th><th>环比</th><th>同比</th></tr></thead>
+                        <thead><tr><th>月份</th><th>出口量（吨）</th><th>出口金额（元）</th><th>出口均价（万元/吨）</th><th>环比</th><th>同比</th></tr></thead>
                         <tbody id="lh-export-body"><tr><td colspan="6" class="loading">数据加载中</td></tr></tbody>
                     </table>
                 </div>
@@ -729,13 +729,12 @@ function updateBadge(tableName, count) {
         '碳酸锂-分企业产量': 'badge-lc-company',
         '碳酸锂-出口量': 'badge-lc-export',
         '碳酸锂-出口贸易伙伴': 'badge-lc-export-partner',
-        '碳酸锂—价格': 'badge-lc-price',
-        '氢氧化锂-行业总产量': 'badge-lh-industry',
-        '氢氧化锂—分企业产量': 'badge-lh-company',
-        '氢氧化锂-出口量': 'badge-lh-export',
-        '氢氧化锂—出口贸易伙伴': 'badge-lh-export-partner',
+        '碳酸锂-价格': 'badge-lc-price',
+        '氢氧化锂-分企业产量': 'badge-lh-company',
+        '氢氧化锂-出口贸易伙伴': 'badge-lh-export-partner',
+        '锂云母-价格': 'badge-lym-price',
         '氢氧化锂-价格': 'badge-lh-price',
-        '锂云母—价格': 'badge-lym-price',
+        '锂云母-价格': 'badge-lym-price',
         '锂辉石精矿-价格': 'badge-lsp-price',
         '碳酸锂-进口量': 'badge-lc-import',
         '碳酸锂-进口贸易伙伴': 'badge-lc-import-partner',
@@ -744,7 +743,7 @@ function updateBadge(tableName, count) {
         '锂辉石-进口量': 'badge-li-import',
         '锂辉石-进口贸易伙伴': 'badge-li-import-partner',
         '锂辉石-出口量': 'badge-li-export',
-        '锂辉石—出口贸易伙伴': 'badge-li-export-partner',
+        '锂辉石-出口贸易伙伴': 'badge-li-export-partner',
     };
     const id = map[tableName];
     if (!id) return;
@@ -842,7 +841,7 @@ function renderLcExportPartner() {
 
 // 碳酸锂现货价
 function renderLcPrice() {
-    const data = allData['碳酸锂—价格'] || [];
+    const data = allData['碳酸锂-价格'] || [];
     if (!data.length) { document.getElementById('lc-price-body').innerHTML='<tr><td colspan="5" class="loading">暂无数据</td></tr>'; return; }
     const grouped = {};
     data.forEach(d => { const dt = fmtDate(d['日期']); if(!grouped[dt]) grouped[dt]=[]; grouped[dt].push(d); });
@@ -901,7 +900,7 @@ function renderLhIndustry() {
 
 // 氢氧化锂分企业产量
 function renderLhCompany() {
-    const data = allData['氢氧化锂—分企业产量'] || [];
+    const data = allData['氢氧化锂-分企业产量'] || [];
     const sorted = [...data].sort((a,b) => String(b['月份']||'').localeCompare(a['月份']||''));
     const latestMonth = sorted[0] ? sorted[0]['月份'] : '';
     const latest = sorted.filter(d => d['月份'] === latestMonth);
@@ -919,7 +918,7 @@ function renderLhExport() {
     const data = allData['氢氧化锂-出口量'] || [];
     const sorted = [...data].sort((a,b) => String(b['日期']||'').localeCompare(a['日期']||''));
     let html = sorted.map(d =>
-        `<tr><td>${fmtDate(d['日期'])}</td><td>${fmtNum(d['出口量（吨）'])}</td><td>${pct(d['出口金额（万元）'])}</td>
+        `<tr><td>${fmtDate(d['日期'])}</td><td>${fmtNum(d['出口量（吨）'])}</td><td>${fmtNum(d['出口金额（元）'])}</td>
             <td>${pct(d['出口均价（万元/吨）'])}</td><td>${pct(d['环比'])}</td><td>${pct(d['同比'])}</td></tr>`
     ).join('');
     document.getElementById('lh-export-body').innerHTML = html || '<tr><td colspan="6" class="loading">暂无数据</td></tr>';
@@ -927,7 +926,7 @@ function renderLhExport() {
 
 // 氢氧化锂出口贸易伙伴
 function renderLhExportPartner() {
-    const data = allData['氢氧化锂—出口贸易伙伴'] || [];
+    const data = allData['氢氧化锂-出口贸易伙伴'] || [];
     const sorted = [...data].sort((a,b) => String(b['日期']||'').localeCompare(a['日期']||''));
     let html = sorted.slice(0,200).map(d =>
         `<tr><td>${fmtDate(d['日期'])}</td><td>${d['贸易伙伴名称']||'-'}</td><td>${pct(d['出口量（吨）'])}</td>
@@ -1011,7 +1010,7 @@ function renderLiExport() {
 
 // 锂辉石出口贸易伙伴
 function renderLiExportPartner() {
-    const data = allData['锂辉石—出口贸易伙伴'] || [];
+    const data = allData['锂辉石-出口贸易伙伴'] || [];
     const sorted = [...data].sort((a,b) => String(b['月份']||'').localeCompare(a['月份']||''));
     let html = sorted.slice(0,200).map(d =>
         `<tr><td>${pct(d['月份'])}</td><td>${d['贸易伙伴名称']||'-'}</td><td>${pct(d['出口量（吨）'])}</td>
@@ -1022,7 +1021,7 @@ function renderLiExportPartner() {
 
 // 锂云母价格
 function renderLymPrice() {
-    const data = allData['锂云母—价格'] || [];
+    const data = allData['锂云母-价格'] || [];
     if (!data.length) { document.getElementById('lym-price-body').innerHTML='<tr><td colspan="5" class="loading">暂无数据</td></tr>'; return; }
     const grouped = {};
     data.forEach(d => { const dt = fmtDate(d['日期']); if(!grouped[dt]) grouped[dt]=[]; grouped[dt].push(d); });
@@ -1048,13 +1047,7 @@ function renderLspPrice() {
     let html = '';
     dates.slice(0,20).forEach(dt => {
         grouped[dt].slice(0,5).forEach(d => {
-            // 统一规格显示：5.00% → 5%
-            let spec = d['规格'] || '';
-            if (spec === '5.00%') spec = '5%';
-            if (spec === '5.50%') spec = '5.5%';
-            if (spec === '4.50%') spec = '4.5%';
-            if (spec === '4.00%') spec = '4%';
-            html += `<tr><td>${dt}</td><td>${fmtSpec(spec, 20)}</td><td>${d['产地']||'-'}</td>
+            html += `<tr><td>${dt}</td><td>${fmtSpec(d['规格'], 20)}</td><td>${d['产地']||'-'}</td>
                 <td>${num(d['最低价（美元/吨）']).toLocaleString()}</td><td>${num(d['最高价（美元/吨）']).toLocaleString()}</td>
                 <td>${num(d['均价（美元/吨）']).toLocaleString()}</td></tr>`;
         });

@@ -1,4 +1,4 @@
-const LFP_DATA = {
+const EMBEDDED_DATA = {
   "update_time": "2026-06-01 16:45:37",
   "source": "🔋 【常州锂源】磷酸铁锂产业链数据库 (1).xlsx",
   "tables": [

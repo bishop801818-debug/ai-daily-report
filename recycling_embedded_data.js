@@ -1,4 +1,4 @@
-const RECYCLING_DATA = {
+const EMBEDDED_DATA = {
   "update_time": "2026-06-01 16:45:43",
   "source": "锂电池回收行业数据库.xlsx",
   "tables": [

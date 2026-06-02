@@ -982,9 +982,18 @@
             const thead = headers.map(h => `<th>${h}</th>`).join('');
             document.querySelector('#table-' + idx + ' thead tr').innerHTML = thead;
             let rows = '';
-            const showRows = data.slice(0, 200);
+            const dateCol = headers.find(h => h.includes('日期') || h.includes('月份') || h.includes('当前日期'));
+            let sorted = data;
+            if (dateCol) {
+                sorted = [...data].sort((a, b) => String(b[dateCol] || '').localeCompare(String(a[dateCol] || '')));
+            }
+            const showRows = sorted.slice(0, 200);
             showRows.forEach(d => {
-                rows += '<tr>' + headers.map(h => `<td>${pct(d[h])}</td>`).join('') + '</tr>';
+                rows += '<tr>' + headers.map(h => {
+                    let v = pct(d[h]);
+                    if (h.includes('\u65e5\u671f')) v = fmtDate(d[h]);
+                    return `<td>${v}</td>`;
+                }).join('') + '</tr>';
             });
             if (data.length > 200) rows += '<tr><td colspan="' + headers.length + '" class="loading">仅显示前200条（共' + data.length + '条）</td></tr>';
             document.getElementById('body-' + idx).innerHTML = rows;
