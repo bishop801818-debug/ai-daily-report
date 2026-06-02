@@ -6,7 +6,8 @@
     "update_time": "2026-06-02 11:46:54",
     "data_source": "carbonate_spot_price_merged.json / lc_futures_history.json",
     "generated_at": "2026-06-02T11:46:54.356554",
-    "generator_version": "20260602_v2"
+    "generator_version": "20260602_v2",
+    "warning": "⚠️ 此文件不允许回滚到旧版本！当前版本：20260602_v2。如果检测到版本倒退，请从Git历史恢复：git checkout HEAD -- reports/market_cumulative.json。详见 PROTECTED_FILES.md"
   },
   "products": [
     {
