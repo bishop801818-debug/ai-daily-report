@@ -11,11 +11,11 @@ from datetime import datetime
 # ========== 配置：7个数据库 =========
 DB_CONFIGS = [
     {
-        'name': '电解液',
+        'name': 'Carbonate',
         'excel_glob': 'C:/Users/1/Downloads/*电解液行业数据库*.xlsx',
         'output_js': 'D:/trae/AI Daily report/electrolyte_embedded_data.js',
         'output_json': 'D:/trae/AI Daily report/electrolyte_all_data.json',
-        'js_var': 'ELECTROLYTE_DATA',
+        'js_var': 'EMBEDDED_DATA',
         'source_name': '电解液行业数据库.xlsx',
         'sheet_table_map': {
             '电解液产量-全企业': '电解液-行业整体产量',
@@ -49,7 +49,7 @@ DB_CONFIGS = [
         }
     },
     {
-        'name': '碳酸锂',
+        'name': 'Carbonate_Li',
         'excel_glob': 'C:/Users/1/Downloads/*碳酸锂产业链数据库*.xlsx',
         'output_js': 'D:/trae/AI Daily report/carbonate_embedded_data.js',
         'js_var': 'EMBEDDED_DATA',
@@ -78,10 +78,10 @@ DB_CONFIGS = [
         }
     },
     {
-        'name': '磷酸铁锂',
+        'name': 'LFP',
         'excel_glob': 'C:/Users/1/Downloads/*磷酸铁锂产业链数据库*.xlsx',
         'output_js': 'D:/trae/AI Daily report/lfp_embedded_data.js',
-        'js_var': 'LFP_DATA',
+        'js_var': 'EMBEDDED_DATA',
         'source_name': '磷酸铁锂产业链数据库.xlsx',
         'sheet_table_map': {
             'LFP-行业整体产量': 'LFP-行业整体产量',
@@ -100,10 +100,10 @@ DB_CONFIGS = [
         }
     },
     {
-        'name': '三元',
+        'name': 'NCM',
         'excel_glob': 'C:/Users/1/Downloads/*三元前驱体产业链数据库*.xlsx',
         'output_js': 'D:/trae/AI Daily report/ternary_embedded_data.js',
-        'js_var': 'TERNARY_DATA',
+        'js_var': 'EMBEDDED_DATA',
         'source_name': '三元前驱体产业链数据库.xlsx',
         'sheet_table_map': {
             'NCM-行业整体产量': 'NCM-行业整体产量',
@@ -128,10 +128,10 @@ DB_CONFIGS = [
         }
     },
     {
-        'name': '锂电池',
+        'name': 'LIB_BATT',
         'excel_glob': 'C:/Users/1/Downloads/*锂电池行业数据库*.xlsx',
         'output_js': 'D:/trae/AI Daily report/lib_battery_embedded_data.js',
-        'js_var': 'LIB_BATTERY_DATA',
+        'js_var': 'EMBEDDED_DATA',
         'source_name': '锂电池行业数据库.xlsx',
         'sheet_table_map': {
             '锂电池行业产量（分规格）': '锂电池行业产量-分规格',
@@ -142,10 +142,10 @@ DB_CONFIGS = [
         }
     },
     {
-        'name': '回收',
+        'name': 'Recycling',
         'excel_glob': 'C:/Users/1/Downloads/*锂电池回收行业数据库*.xlsx',
         'output_js': 'D:/trae/AI Daily report/recycling_embedded_data.js',
-        'js_var': 'RECYCLING_DATA',
+        'js_var': 'EMBEDDED_DATA',
         'source_name': '锂电池回收行业数据库.xlsx',
         'sheet_table_map': {
             '黑粉处理量-总计': '黑粉处理量-总计',
@@ -178,10 +178,10 @@ DB_CONFIGS = [
         }
     },
     {
-        'name': '汽车',
+        'name': 'Auto',
         'excel_glob': 'C:/Users/1/Downloads/*全球汽车市场数据库*.xlsx',
         'output_js': 'D:/trae/AI Daily report/automotive_embedded_data.js',
-        'js_var': 'AUTOMOTIVE_DATA',
+        'js_var': 'EMBEDDED_DATA',
         'source_name': '全球汽车市场数据库.xlsx',
         'sheet_table_map': {
             '汽车销量—全球分区域市场': '汽车销量-全球分区域',
@@ -212,22 +212,68 @@ DB_CONFIGS = [
     },
 ]
 
+def to_utf8(v):
+    """Force value to clean UTF-8 string, eliminating GBK/latin1 mixed-encoding hazards.
+
+    When openpyxl reads Excel files, non-ASCII characters in sheet names / column names
+    may be decoded as latin1 instead of UTF-8, producing garbled strings like
+    '����Ų�Ԥ��'. These byte sequences are valid UTF-8 encoded as latin1.
+    We detect this by trying to re-encode as UTF-8 and decode as GBK (which is
+    compatible with the mis-decoded bytes) to recover the original Chinese text.
+    """
+    if v is None:
+        return None
+    if isinstance(v, (int, float)):
+        return v
+    if isinstance(v, bytes):
+        return v.decode('utf-8', errors='replace')
+    if isinstance(v, str):
+        # Already valid UTF-8?
+        try:
+            v.encode('utf-8')
+            return v
+        except UnicodeEncodeError:
+            pass
+        # openpyxl latin1 mis-decode fix: bytes are valid UTF-8 encoded text,
+        # but opened as latin1. Re-encode as latin1 (getting the raw UTF-8 bytes)
+        # then decode as GBK -> re-encode as UTF-8.
+        # This works because latin1 decode of UTF-8 bytes gives garbage that,
+        # when re-encoded as latin1, produces the original UTF-8 byte sequence.
+        try:
+            raw_bytes = v.encode('latin1')
+            # Only fix if the resulting bytes look like valid UTF-8 (high byte set)
+            # and GBK decode of those bytes gives readable Chinese
+            try:
+                gbk_decoded = raw_bytes.decode('gbk')
+                # Verify it's actually Chinese-rich (not a random latin1 string)
+                chinese_count = sum(1 for c in gbk_decoded if '\u4e00' <= c <= '\u9fff')
+                if chinese_count >= len(gbk_decoded) * 0.3:
+                    return gbk_decoded
+            except (UnicodeDecodeError, LookupError):
+                pass
+        except (UnicodeEncodeError, UnicodeDecodeError):
+            pass
+        # Fallback: latin1 round-trip
+        return v.encode('latin1').decode('utf-8', errors='replace')
+    return str(v)
+
 def excel_to_records(df):
-    """将DataFrame转换为records列表，处理NaN"""
+    """Convert DataFrame to records list, handle NaN."""
     records = []
     for idx, row in df.iterrows():
         record = {}
         for col in df.columns:
+            col_name = to_utf8(col)
             val = row[col]
             if pd.isna(val):
-                record[str(col)] = None
+                record[col_name] = None
             elif isinstance(val, (int, float)):
                 if pd.isna(val):
-                    record[str(col)] = None
+                    record[col_name] = None
                 else:
-                    record[str(col)] = val
+                    record[col_name] = val
             else:
-                record[str(col)] = str(val)
+                record[col_name] = to_utf8(val)
         records.append(record)
     return records
 
@@ -243,67 +289,112 @@ def generate_db(db_config):
     # 找到Excel文件
     files = glob.glob(excel_glob)
     if not files:
-        print(f'[WARN] {name}: 未找到Excel文件, glob={excel_glob}')
+        print(f'[WARN] {name}: Excel file not found, glob={excel_glob}')
         return False
-    
+
     excel_file = files[0]
-    print(f'[INFO] {name}: 读取 {os.path.basename(excel_file)}')
-    
+    print('[INFO] ' + name + ': reading ' + ''.join([c if ord(c) < 128 or c in ' ()-.' else '_' for c in os.path.basename(excel_file)]))
+
+    # Fix: openpyxl mis-decodes some sheet names as GBK (locale default) when the XML
+    # stores them as UTF-8. We read the raw UTF-8 bytes directly from the xlsx zip
+    # (workbook.xml is always UTF-8 encoded per the XML declaration) and extract
+    # the correct sheet names to replace the garbled ones from pandas.
+    def _fix_openpyxl_sheet_names(excel_file, sheet_names):
+        try:
+            import zipfile, re as re_module
+            with zipfile.ZipFile(excel_file) as z:
+                with z.open('xl/workbook.xml') as f:
+                    raw_bytes = f.read()
+            # Extract sheet names from raw UTF-8 bytes.
+            # The XML encoding declaration says UTF-8, so attribute values ARE UTF-8.
+            # We scan byte-by-byte to extract the name attribute values.
+            xml_sheet_names = []
+            needle = b'<sheet name="'
+            pos = 0
+            while True:
+                idx = raw_bytes.find(needle, pos)
+                if idx < 0:
+                    break
+                # Find the closing quote
+                start = idx + len(needle)
+                end = raw_bytes.find(b'"', start)
+                if end < 0:
+                    break
+                name_bytes = raw_bytes[start:end]
+                # Decode this UTF-8 name to a Python string
+                name = name_bytes.decode('utf-8', errors='replace')
+                xml_sheet_names.append(name)
+                pos = end
+            # Match by position: both pandas and XML give sheets in same order
+            if len(xml_sheet_names) == len(sheet_names):
+                # Verify at least one name is different (fix is actually needed)
+                changed = any(a != b for a, b in zip(sheet_names, xml_sheet_names))
+                if changed:
+                    return xml_sheet_names
+            return sheet_names
+        except Exception:
+            return sheet_names
+
     try:
         xl = pd.ExcelFile(excel_file)
     except Exception as e:
-        print(f'[ERROR] {name}: 无法读取Excel - {e}')
+        print(f'[ERROR] {name}: Excel read error - {e}')
         return False
-    
+
     tables = []
     update_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    
-    for sheet_name in xl.sheet_names:
+
+    # Fix openpyxl sheet name encoding (GBK mis-decode issue)
+    fixed_sheet_names = _fix_openpyxl_sheet_names(excel_file, xl.sheet_names)
+
+    for i, sheet_name in enumerate(xl.sheet_names):
+        # Use fixed name for both data reading and table naming
+        fixed_name = fixed_sheet_names[i] if i < len(fixed_sheet_names) else sheet_name
         try:
             df = pd.read_excel(excel_file, sheet_name=sheet_name)
             records = excel_to_records(df)
-            table_name = sheet_table_map.get(sheet_name, sheet_name)
+            table_name = sheet_table_map.get(fixed_name, fixed_name)
             tables.append({
                 'table_name': table_name,
-                'sheet_name': sheet_name,
+                'sheet_name': fixed_name,
                 'data': records,
                 'row_count': len(records)
             })
-            print(f'  ✓ {sheet_name} -> {table_name}: {len(records)} 条')
+            print(f'  [OK] {fixed_name} -> {table_name}: {len(records)} rows')
         except Exception as e:
-            print(f'  ✗ {sheet_name}: 错误 - {e}')
-    
-    # 生成JS文件
+            print(f'  [FAIL] {sheet_name}: error - {e}')
+
+    # Generate JS file
     js_content = f'''const {js_var} = {json.dumps({
         "update_time": update_time,
         "source": os.path.basename(excel_file),
         "tables": tables
     }, ensure_ascii=False, indent=2)};
 '''
-    
+
     try:
         with open(output_js, 'w', encoding='utf-8') as f:
             f.write(js_content)
-        print(f'[成功] {name}: 已生成 {output_js}')
-        print(f'  共 {len(tables)} 个表格, update_time={update_time}')
+        print(f'[OK] {name}: generated {output_js}')
+        print(f'  tables={len(tables)}, update={update_time}')
         return True
     except Exception as e:
-        print(f'[ERROR] {name}: 写入JS文件失败 - {e}')
+        print(f'[ERROR] {name}: JS write failed - {e}')
         return False
 
 if __name__ == '__main__':
     print('=' * 60)
-    print('生成所有数据库的嵌入数据JS文件')
+    print('Generate all DB embedded JS files')
     print('=' * 60)
-    
+
     success_count = 0
     for db_config in DB_CONFIGS:
         print()
         ok = generate_db(db_config)
         if ok:
             success_count += 1
-    
+
     print()
     print('=' * 60)
-    print(f'完成: {success_count}/{len(DB_CONFIGS)} 个数据库生成成功')
+    print(f'Done: {success_count}/{len(DB_CONFIGS)} DB generated')
     print('=' * 60)
