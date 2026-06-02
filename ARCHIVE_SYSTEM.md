@@ -1,5 +1,5 @@
 # 信息中台存档体系文档
-> 最后更新：2026-06-02 | 状态：已锁定，15天内不更新
+> 最后更新：2026-06-02（碳酸锂看板修复） | 状态：已锁定，15天内不更新
 
 ---
 
@@ -11,6 +11,7 @@
 |--------|---------|--------------------------|--------------|----------|------------|
 | 电解液 | [electrolyte_data_v2.html](electrolyte_data_v2.html) | 1,950,530 bytes | 1,950,530 bytes | ✅ 已同步 | 2026年1-4月 |
 | 碳酸锂 | [carbonate_data_v2.html](carbonate_data_v2.html) | 4,002,731 bytes | 4,002,731 bytes | ✅ 已同步 | 2026年5月 |
+| 碳酸锂看板 | [carbonate_charts.html](carbonate_charts.html) | 620行 | 620行 | ✅ 已同步 | 2026-05-27 |
 | 磷酸铁锂 | [lfp_data_v2.html](lfp_data_v2.html) | 3,877,519 bytes | 不存在（无src引用） | ✅ 正常 | 2026年4月 |
 | 三元材料 | [ternary_data_v2.html](ternary_data_v2.html) | 3,118,344 bytes | 3,118,344 bytes | ✅ 已同步 | 2026年4月 |
 | 锂电池 | [lib_battery_data_v2.html](lib_battery_data_v2.html) | 636,158 bytes | 636,158 bytes | ✅ 已同步 | 2026年4月 |
@@ -22,10 +23,12 @@
 ### Git 提交历史（2026-06-02 修复链）
 
 ```
+747a4a8 fix(carbonate_charts): 更新图表数据至embedded_data.js真实数据 (2026-04) ← 碳酸锂看板修复
 2f28598 fix(electrolyte): 修复fieldMap空格/静态tbody/FEC日期/六氟年累字段显示问题
 8a0c2de auto: 更新数据 2026-06-02
 1b528ab sync: 同步embedded/目录至2026-06-02修复版本
 c65239e fix: 修复6个数据库页面展示问题，2026-06-02数据恢复
+cc73e36 docs: 建立存档体系文档 + 数据库完整性验证脚本
 ```
 
 ---
