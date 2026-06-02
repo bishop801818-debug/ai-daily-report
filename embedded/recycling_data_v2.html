@@ -198,6 +198,8 @@
             box-shadow: 0 4px 20px rgba(30,60,114,0.1);
             display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;
         }
+        .toolbar-left { display: flex; align-items: center; gap: 10px; }
+        .toolbar-right { display: flex; align-items: center; gap: 15px; }
         .toolbar-title { font-size: 20px; font-weight: bold; color: var(--primary-dark); }
         .update-info { color: #888; font-size: 13px; }
         .update-info span { color: var(--primary-dark); font-weight: 500; }
@@ -406,8 +408,16 @@
     <div class="main-content">
         <div class="toolbar">
             <div class="toolbar-left">
-                <button class="toolbar-btn toolbar-btn-secondary" onclick="window.location.href='database_hub.html'">← 数据库首页</button>
-                <span class="toolbar-title">♻️ 锂电池回收行业数据库</span>
+                <button class="toolbar-btn toolbar-btn-secondary" onclick="window.location.href='index_v3.html'">
+                    ← 返回首页
+                </button>
+                <button class="toolbar-btn toolbar-btn-secondary" onclick="window.location.href='database_hub.html'">
+                    ← 返回数据库
+                </button>
+                <button class="toolbar-btn toolbar-btn-secondary" onclick="window.location.href='recycling_charts.html'">
+                    📈 可视化看板
+                </button>
+                <div class="toolbar-title">♻️ 锂电池回收行业数据库</div>
             </div>
             <div class="toolbar-right">
                 <div class="update-info">更新时间: <span id="updateTime">加载中...</span></div>
@@ -425,7 +435,7 @@
                 </div>
             </div>
         </div>
-        <div id="sec-0" class="content-section">
+        <div id="sec-0" class="content-section active">
             <div class="data-card">
                 <div class="data-card-header">
                     <div class="data-card-title">📋 黑粉处理量-总计</div>
@@ -972,9 +982,18 @@
             const thead = headers.map(h => `<th>${h}</th>`).join('');
             document.querySelector('#table-' + idx + ' thead tr').innerHTML = thead;
             let rows = '';
-            const showRows = data.slice(0, 200);
+            const dateCol = headers.find(h => h.includes('日期') || h.includes('月份') || h.includes('当前日期'));
+            let sorted = data;
+            if (dateCol) {
+                sorted = [...data].sort((a, b) => String(b[dateCol] || '').localeCompare(String(a[dateCol] || '')));
+            }
+            const showRows = sorted.slice(0, 200);
             showRows.forEach(d => {
-                rows += '<tr>' + headers.map(h => `<td>${pct(d[h])}</td>`).join('') + '</tr>';
+                rows += '<tr>' + headers.map(h => {
+                    let v = pct(d[h]);
+                    if (h.includes('\u65e5\u671f')) v = fmtDate(d[h]);
+                    return `<td>${v}</td>`;
+                }).join('') + '</tr>';
             });
             if (data.length > 200) rows += '<tr><td colspan="' + headers.length + '" class="loading">仅显示前200条（共' + data.length + '条）</td></tr>';
             document.getElementById('body-' + idx).innerHTML = rows;

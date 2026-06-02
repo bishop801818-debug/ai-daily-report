@@ -287,7 +287,7 @@
        数据提取辅助
        ===================================================== */
     function getTable(name) {
-        var t = ELECTROLYTE_DATA.tables.find(function(t){ return t.table_name === name; });
+        var t = EMBEDDED_DATA.tables.find(function(t){ return t.table_name === name; });
         return t ? t.data : [];
     }
 
@@ -356,7 +356,7 @@
     /* =====================================================
        更新时间
        ===================================================== */
-    document.getElementById('data-time').textContent = ELECTROLYTE_DATA.update_time || '—';
+    document.getElementById('data-time').textContent = EMBEDDED_DATA.update_time || '—';
 
     /* =====================================================
        概览统计卡片

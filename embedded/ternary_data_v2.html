@@ -262,55 +262,55 @@
 
 const TAB_CONFIG = [
     // === 三元正极 (NCM Cathode) ===
-    { id:'ncm-industry', group:'三元正极', table:'三元正极-行业产量规模',
+    { id:'ncm-industry', group:'三元正极', table:'NCM-行业整体产量',
       icon:'📊', title:'行业整体产量', type:'industry' },
-    { id:'ncm-model', group:'三元正极', table:'三元正极-型号产量',
+    { id:'ncm-model', group:'三元正极', table:'NCM-分型号产量',
       icon:'📊', title:'分型号产量', type:'model-output' },
-    { id:'ncm-company', group:'三元正极', table:'三元正极-分企业产量',
+    { id:'ncm-company', group:'三元正极', table:'NCM-分企业产量',
       icon:'🏭', title:'分企业产量', type:'company' },
-    { id:'ncm-export', group:'三元正极', table:'三元正极-出口总额',
+    { id:'ncm-export', group:'三元正极', table:'NCM-出口总量',
       icon:'🚢', title:'出口总量', type:'trade-total' },
-    { id:'ncm-export-partner', group:'三元正极', table:'三元正极-出口目的地',
+    { id:'ncm-export-partner', group:'三元正极', table:'NCM-出口目的地',
       icon:'🌏', title:'出口目的地', type:'trade-partner' },
-    { id:'ncm-import', group:'三元正极', table:'三元正极-进口总额',
+    { id:'ncm-import', group:'三元正极', table:'NCM-进口总量',
       icon:'🛥️', title:'进口总量', type:'trade-total' },
-    { id:'ncm-import-partner', group:'三元正极', table:'三元正极-进口目的地',
+    { id:'ncm-import-partner', group:'三元正极', table:'NCM-进口目的地',
       icon:'🌏', title:'进口目的地', type:'trade-partner' },
-    { id:'ncm-price', group:'三元正极', table:'三元正极-现货市场价',
+    { id:'ncm-price', group:'三元正极', table:'NCM-现货市场价',
       icon:'💰', title:'现货市场价', type:'spot-price' },
 
     // === 三元前驱体 (NCM Precursor) ===
-    { id:'pre-industry', group:'三元前驱体', table:'三元前驱体-行业产量规模',
+    { id:'pre-industry', group:'三元前驱体', table:'NCMpre-行业整体产量',
       icon:'📊', title:'行业整体产量', type:'industry' },
-    { id:'pre-model', group:'三元前驱体', table:'三元前驱体-型号产量',
+    { id:'pre-model', group:'三元前驱体', table:'NCMpre-分型号产量',
       icon:'📊', title:'分型号产量', type:'model-output' },
-    { id:'pre-company', group:'三元前驱体', table:'三元前驱体-分企业产量',
+    { id:'pre-company', group:'三元前驱体', table:'NCMpre-分企业产量',
       icon:'🏭', title:'分企业产量', type:'company' },
-    { id:'pre-export', group:'三元前驱体', table:'三元前驱体-出口总额',
+    { id:'pre-export', group:'三元前驱体', table:'NCMpre-出口总量',
       icon:'🚢', title:'出口总量', type:'trade-total' },
-    { id:'pre-export-partner', group:'三元前驱体', table:'三元前驱体-出口目的地',
+    { id:'pre-export-partner', group:'三元前驱体', table:'NCMpre-出口目的地',
       icon:'🌏', title:'出口目的地', type:'trade-partner' },
-    { id:'pre-import', group:'三元前驱体', table:'三元前驱体-进口总额',
+    { id:'pre-import', group:'三元前驱体', table:'NCMpre-进口总量',
       icon:'🛥️', title:'进口总量', type:'trade-total' },
-    { id:'pre-import-partner', group:'三元前驱体', table:'三元前驱体-进口目的地',
+    { id:'pre-import-partner', group:'三元前驱体', table:'NCMpre-进口目的地',
       icon:'🌏', title:'进口目的地', type:'trade-partner' },
-    { id:'pre-price', group:'三元前驱体', table:'三元前驱体-现货市场价',
+    { id:'pre-price', group:'三元前驱体', table:'NCMpre-现货市场价',
       icon:'💰', title:'现货市场价', type:'spot-price' },
 
     // === 关键原料 (Key Raw Materials) ===
     { id:'raw-price', group:'关键原料', table:'关键原料-现货市场价',
       icon:'💰', title:'关键原料现货价', type:'spot-price' },
-    { id:'cobalt-industry', group:'关键原料', table:'硫酸钴镍-行业产量规模',
-      icon:'📊', title:'硫酸钴镍产量规模', type:'industry' },
-    { id:'cobalt-price', group:'关键原料', table:'硫酸钴镍-现货市场价',
-      icon:'💰', title:'硫酸钴镍现货价', type:'spot-price' }
+    { id:'cobalt-industry', group:'关键原料', table:'四氧化三钴-行业整体产量',
+      icon:'📊', title:'四氧化三钴产量规模', type:'industry' },
+    { id:'cobalt-price', group:'关键原料', table:'四氧化三钴-现货市场价',
+      icon:'💰', title:'四氧化三钴现货价', type:'spot-price' }
 ];
 
 const GROUP_ICONS = { '三元正极':'🔋', '三元前驱体':'⚗️', '关键原料':'🧪' };
 
 // === UTILITY FUNCTIONS ===
 function num(v) { const n = parseFloat(v); return isNaN(n) ? 0 : n; }
-function pct(v) { return v == null || v === '' ? '-' : String(v); }
+function pct(v) { if (v == null || v === '') return '-'; var s = String(v); return s.includes(' ') && /\d{2}:\d{2}:\d{2}$/.test(s) ? s.split(' ')[0] : s; }
 function fmtNum(v) { const n = num(v); return n ? n.toLocaleString() : '-'; }
 function fmtDate(v) { return v ? String(v).split(' ')[0] : '-'; }
 
@@ -616,8 +616,8 @@ function exportTable(tableId) {
 
 // === DATA LOADING ===
 async function loadAllData() {
-    if (typeof TERNARY_DATA !== 'undefined' && TERNARY_DATA.tables) {
-        TERNARY_DATA.tables.forEach(t => {
+    if (typeof EMBEDDED_DATA !== 'undefined' && EMBEDDED_DATA.tables) {
+        EMBEDDED_DATA.tables.forEach(t => {
             allData[t.table_name] = t.data;
             const cfg = TAB_CONFIG.find(c => c.table === t.table_name);
             if (cfg) {
@@ -625,8 +625,8 @@ async function loadAllData() {
                 if (badge) badge.textContent = t.data.length > 999 ? Math.floor(t.data.length/100)*10 + '+' : t.data.length;
             }
         });
-        document.getElementById('updateTime').textContent = TERNARY_DATA.update_time || '-';
-        const total = TERNARY_DATA.tables.reduce((s,t) => s + (t.row_count || t.data.length), 0);
+        document.getElementById('updateTime').textContent = EMBEDDED_DATA.update_time || '-';
+        const total = EMBEDDED_DATA.tables.reduce((s,t) => s + (t.row_count || t.data.length), 0);
         document.getElementById('totalRecords').textContent = (total/10000).toFixed(1) + '万';
         // Render first tab
         const first = TAB_CONFIG[0];

@@ -6,7 +6,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <meta name="html-version" content="20260517_135159">
+    <meta name="html-version" content="20260602_1330">
     <script>
       window.HTML_VERSION = document.querySelector('meta[name="html-version"]').content;
     </script>
@@ -5712,7 +5712,60 @@ window.addEventListener('DOMContentLoaded', function() {
             const result = {};
             if (!jsonReport || !jsonReport.departments) return result;
 
+            // CN_KEY_MAP: JSON 中文键名 → sectionsToHTML 旧dict键名
+            const SEC_KEY_MAP = {
+                '今日关注': 'topnews', '市场_价格': '市场', '政策_行业': '政策',
+                '企业动态': '竞品', '技术_产品': '前沿', '项目_招标': '客户', '专属提示': 'tips'
+            };
             for (const [deptId, deptData] of Object.entries(jsonReport.departments)) {
+                // 规范化 dict 格式 sections（如果 JSON 中是中文键名的 dict）
+                if (deptData.sections && !Array.isArray(deptData.sections) && typeof deptData.sections === 'object') {
+                    const norm = {};
+                    let tipsHtml = '';
+                    for (const [rawKey, value] of Object.entries(deptData.sections)) {
+                        const key = SEC_KEY_MAP[rawKey] || rawKey;
+                        if (key === '市场' && value && typeof value === 'object') {
+                            let items = [];
+                            if (value['价格数据表'] && Array.isArray(value['价格数据表'])) {
+                                const mrows = value['价格数据表'].map(r => ({
+                                    name: r.品类 || r.name || '',
+                                    price: r.价格 || r.price || '',
+                                    unit: r.单位 || r.unit || r.涨跌 || r.change || '',
+                                    source: r.来源 || r.source || ''
+                                }));
+                                items.push({ title: '价格数据表', market_table: { type: 'price_list', rows: mrows } });
+                            }
+                            for (const subKey of ['供给信号', '争议风险', '需求信号', '行业动态']) {
+                                if (value[subKey] && Array.isArray(value[subKey])) {
+                                    for (const item of value[subKey]) {
+                                        items.push({ title: item.标题 || '', content: item.正文 || '' });
+                                    }
+                                }
+                            }
+                            norm[key] = items;
+                        } else if (key === 'tips' && value && typeof value === 'object') {
+                            tipsHtml += '<div class="report-section"><div class="report-section-title">💡 专属提示</div>';
+                            for (const tipKey of ['机会', '风险', '行动建议', '重点关注']) {
+                                if (value[tipKey] && Array.isArray(value[tipKey])) {
+                                    tipsHtml += `<div style="margin-bottom:12px"><b>【${tipKey}】</b></div>`;
+                                    for (const item of value[tipKey]) {
+                                        const summary = item.总结 || item.content || '';
+                                        tipsHtml += `<div style="margin:4px 0 8px 12px;font-size:14px;color:#555">${summary}</div>`;
+                                    }
+                                }
+                            }
+                            tipsHtml += '</div>';
+                        } else if (Array.isArray(value)) {
+                            norm[key] = value.map(item => typeof item === 'string' ? { title: item, content: '' } : {
+                                title: item.标题 || item.title || '',
+                                content: item.摘要 || item.正文 || item.content || ''
+                            });
+                        }
+                    }
+                    deptData.sections = norm;
+                    deptData._tips_html = tipsHtml;
+                }
+
                 // 优先使用 _raw_content（旧格式兼容）
                 const rawContent = deptData._raw_content || '';
                 if (rawContent && rawContent.trim()) {
@@ -5720,7 +5773,7 @@ window.addEventListener('DOMContentLoaded', function() {
                         title: deptData.name || deptId,
                         subtitle: deptData.subtitle || '',
                         date: jsonReport.date || CURRENT_REPORT_DATE,
-                        content: rawContent,
+                        content: rawContent + (deptData._tips_html || ''),
                         headline: deptData.headline || '',
                         lead: deptData.lead_judgment || deptData.lead || '',
                         risk: deptData.risk_tip || deptData.risk || '',
@@ -5734,6 +5787,7 @@ window.addEventListener('DOMContentLoaded', function() {
                 } else if (Array.isArray(deptData.sections)) {
                     // 新格式（数组）：sections 自包含全部内容
                     let html = sectionsToHTML(deptData.sections, deptData.window_end);
+                    html += (deptData._tips_html || '');
                     if (deptData.risk_tip || deptData.risk) {
                         html += `<div class="report-risk"><b>⚠️ 风险提示：</b>${deptData.risk_tip || deptData.risk}</div>\n`;
                     }
@@ -5773,8 +5827,51 @@ ${formattedSummary}
                         window_end: deptData.window_end || '',
                         sections: deptData.sections || [],
                     };
+                } else if (deptData.sections && typeof deptData.sections === 'object' && !Array.isArray(deptData.sections)) {
+                    // 旧dict格式（已通过 SEC_KEY_MAP 规范化）
+                    let html = sectionsToHTML(deptData.sections, deptData.window_end);
+                    html += (deptData._tips_html || '');
+                    if (deptData.risk_tip || deptData.risk) {
+                        html += `<div class="report-risk"><b>⚠️ 风险提示：</b>${deptData.risk_tip || deptData.risk}</div>\n`;
+                    }
+                    if (deptData.summary) {
+                        const summaryText = deptData.summary;
+                        const rawParts = summaryText.replace(/^[\s\n]+/, '').split(/\n/).filter(s => s.trim());
+                        let bulletLines = rawParts.length <= 2 && summaryText.includes(' - ')
+                            ? summaryText.split(/ *- */).filter(s => s.trim())
+                            : rawParts;
+                        const formattedSummary = bulletLines
+                            .map(line => {
+                                const trimmed = line.trim();
+                                if (!trimmed || trimmed.startsWith('数据来源') || trimmed.startsWith('🦞')) return '';
+                                const cleaned = trimmed.replace(/^[💡📌🔔\s]+/, '').trim();
+                                return `  <div class="summary-bullet">${cleaned}</div>`;
+                            })
+                            .filter(h => h.trim())
+                            .join('\n');
+                        if (formattedSummary) {
+                            html += `<div class="report-summary">
+  <div class="report-summary-title">💡 今日小结</div>
+${formattedSummary}
+</div>\n`;
+                        }
+                    }
+                    result[deptId] = {
+                        title: deptData.name || deptId,
+                        subtitle: deptData.subtitle || '',
+                        date: jsonReport.date || CURRENT_REPORT_DATE,
+                        content: html,
+                        headline: deptData.headline || '',
+                        lead: deptData.lead_judgment || deptData.lead || '',
+                        risk: deptData.risk_tip || deptData.risk || '',
+                        summary: deptData.summary || '',
+                        conclusion: deptData.conclusion || '',
+                        window_start: deptData.window_start || '',
+                        window_end: deptData.window_end || '',
+                        sections: deptData.sections || {},
+                    };
                 } else {
-                    // 兜底：既无 _raw_content 也无 sections 数组（理论上不会出现）
+                    // 兜底：既无 _raw_content 也无 sections 对象
                     result[deptId] = {
                         title: deptData.name || deptId,
                         subtitle: deptData.subtitle || '',

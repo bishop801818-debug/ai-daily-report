@@ -438,8 +438,8 @@ document.getElementById('data-time').textContent = TERNARY_DATA.update_time || '
 // ============================================================
 (function() {
     // NCM industry data
-    var ncmInd = getTable('三元正极-行业产量规模');
-    var preInd = getTable('三元前驱体-行业产量规模');
+    var ncmInd = getTable('NCM-行业整体产量');
+    var preInd = getTable('NCMpre-行业整体产量');
     var ncmLast12 = getLastNMonths(ncmInd, 12);
     var preLast12 = getLastNMonths(preInd, 12);
 
@@ -455,7 +455,7 @@ document.getElementById('data-time').textContent = TERNARY_DATA.update_time || '
         document.getElementById('stat-pre-date').textContent = last['月份'] + ' | 利用率 ' + (last['产能利用率']||'—');
     }
     // NCM811 latest price
-    var ncmPrice = getTable('三元正极-现货市场价');
+    var ncmPrice = getTable('NCM-现货市场价');
     if (ncmPrice.length) {
         var last = ncmPrice[ncmPrice.length-1];
         var dk = Object.keys(last)[0];
@@ -519,12 +519,12 @@ document.getElementById('data-time').textContent = TERNARY_DATA.update_time || '
 //  TAB 2: 三元正极
 // ============================================================
 (function() {
-    var ncmInd = getTable('三元正极-行业产量规模');
-    var ncmModel = getTable('三元正极-型号产量');
-    var ncmCompany = getTable('三元正极-分企业产量');
-    var ncmPrice = getTable('三元正极-现货市场价');
-    var ncmExport = getTable('三元正极-出口总额');
-    var ncmExpPartner = getTable('三元正极-出口目的地');
+    var ncmInd = getTable('NCM-行业整体产量');
+    var ncmModel = getTable('NCM-分型号产量');
+    var ncmCompany = getTable('NCM-分企业产量');
+    var ncmPrice = getTable('NCM-现货市场价');
+    var ncmExport = getTable('NCM-出口总量');
+    var ncmExpPartner = getTable('NCM-出口目的地');
 
     // ca1: NCM产量走势 (line + area, all data)
     var allMonths = ncmInd.map(fmtMonth);
@@ -675,12 +675,12 @@ document.getElementById('data-time').textContent = TERNARY_DATA.update_time || '
 //  TAB 3: 三元前驱体
 // ============================================================
 (function() {
-    var preInd = getTable('三元前驱体-行业产量规模');
-    var preModel = getTable('三元前驱体-型号产量');
-    var preCompany = getTable('三元前驱体-分企业产量');
-    var prePrice = getTable('三元前驱体-现货市场价');
-    var preExport = getTable('三元前驱体-出口总额');
-    var preExpPartner = getTable('三元前驱体-出口目的地');
+    var preInd = getTable('NCMpre-行业整体产量');
+    var preModel = getTable('NCMpre-分型号产量');
+    var preCompany = getTable('NCMpre-分企业产量');
+    var prePrice = getTable('NCMpre-现货市场价');
+    var preExport = getTable('NCMpre-出口总量');
+    var preExpPartner = getTable('NCMpre-出口目的地');
 
     // pr1: Precursor output line
     var allMonths = preInd.map(fmtMonth);
@@ -826,8 +826,8 @@ document.getElementById('data-time').textContent = TERNARY_DATA.update_time || '
 // ============================================================
 (function() {
     var rawPrice = getTable('关键原料-现货市场价');
-    var coInd = getTable('硫酸钴镍-行业产量规模');
-    var coPrice = getTable('硫酸钴镍-现货市场价');
+    var coInd = getTable('四氧化三钴-行业整体产量');
+    var coPrice = getTable('四氧化三钴-现货市场价');
 
     // Stats
     if (rawPrice.length) {

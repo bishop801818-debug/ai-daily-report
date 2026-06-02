@@ -99,24 +99,21 @@
         .sidebar.collapsed ~ .main-content { margin-left: var(--sidebar-collapsed); }
 
         .toolbar {
-            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-light) 100%);
-            color: #fff; padding: 16px 24px;
-            display: flex; align-items: center;
-            justify-content: space-between; flex-wrap: wrap; gap: 12px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+            background: white;
+            border-radius: 12px;
+            padding: 15px 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 20px rgba(30,60,114,0.1);
+            display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;
         }
-        .toolbar-title { font-size: 18px; font-weight: bold; display: flex; align-items: center; gap: 8px; }
-        .nav-buttons { display: flex; gap: 8px; }
-        .nav-btn {
-            padding: 7px 14px; border-radius: 20px;
-            font-size: 12px; text-decoration: none;
-            transition: all 0.2s; font-weight: 500;
-        }
-        .nav-btn-home { background: rgba(255,255,255,0.2); color: #fff; }
-        .nav-btn-home:hover { background: rgba(255,255,255,0.3); }
-        .nav-btn-db { background: rgba(255,255,255,0.2); color: #fff; }
-        .nav-btn-db:hover { background: rgba(255,255,255,0.3); }
-        .update-info { font-size: 12px; opacity: 0.8; }
+        .toolbar-left { display: flex; align-items: center; gap: 10px; }
+        .toolbar-right { display: flex; align-items: center; gap: 15px; }
+        .toolbar-title { font-size: 20px; font-weight: bold; color: var(--primary-dark); }
+        .toolbar-btn { display: flex; align-items: center; gap: 8px; padding: 10px 18px; border-radius: 8px; border: none; cursor: pointer; font-size: 14px; font-weight: 500; transition: all 0.2s; }
+        .toolbar-btn-secondary { background: #f5f7fa; color: #666; }
+        .toolbar-btn-secondary:hover { background: #e9ecef; }
+        .update-info { color: #888; font-size: 13px; }
+        .update-info span { color: var(--primary-dark); font-weight: 500; }
 
         .page-content { padding: 24px; }
 
@@ -221,12 +218,21 @@
 <!-- 主内容区 -->
 <div class="main-content">
     <div class="toolbar">
-        <div class="toolbar-title">🚗 汽车行业数据库</div>
-        <div class="nav-buttons">
-            <a href="http://localhost:8888/index_v3.html" class="nav-btn nav-btn-home">🏠 返回首页</a>
-            <a href="http://localhost:8888/database_hub.html" class="nav-btn nav-btn-db">📊 返回数据库</a>
+        <div class="toolbar-left">
+            <button class="toolbar-btn toolbar-btn-secondary" onclick="window.location.href='index_v3.html'">
+                ← 返回首页
+            </button>
+            <button class="toolbar-btn toolbar-btn-secondary" onclick="window.location.href='database_hub.html'">
+                ← 返回数据库
+            </button>
+            <button class="toolbar-btn toolbar-btn-secondary" onclick="window.location.href='automotive_charts.html'">
+                📈 可视化看板
+            </button>
+            <div class="toolbar-title">🚗 汽车行业数据库</div>
         </div>
-        <div class="update-info">数据更新时间: <span id="updateTime">加载中...</span></div>
+        <div class="toolbar-right">
+            <div class="update-info">更新时间: <span id="updateTime">加载中...</span></div>
+        </div>
     </div>
 
     <div class="page-content">
@@ -545,8 +551,8 @@
 
 (function() {
     var updateTime = document.getElementById('updateTime');
-    if (updateTime && window.AUTOMOTIVE_DATA) {
-        updateTime.textContent = window.AUTOMOTIVE_DATA.update_time || '未知';
+    if (updateTime && window.EMBEDDED_DATA) {
+        updateTime.textContent = window.EMBEDDED_DATA.update_time || '未知';
     }
 
     var navItems = document.querySelectorAll('.nav-item');
