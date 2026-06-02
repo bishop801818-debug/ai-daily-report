@@ -7,9 +7,31 @@
 计算方式：2026年第一期数据 → 最新期数据的涨跌幅
 """
 
-import json, datetime, sys, os
+import json, datetime, sys, os, math
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+# 价格合理性验证规则（防止写入异常数据）
+PRICE_VALIDATION = {
+    "电池级碳酸锂": {"min": 80000, "max": 300000, "unit": "元/吨"},
+    "工业级碳酸锂": {"min": 70000, "max": 250000, "unit": "元/吨"},
+    "碳酸锂期货": {"min": 80000, "max": 300000, "unit": "元/吨"},
+    "磷酸铁锂动力型": {"min": 30000, "max": 150000, "unit": "元/吨"},
+    "磷酸铁锂储能型": {"min": 30000, "max": 150000, "unit": "元/吨"},
+    "磷酸铁": {"min": 8000, "max": 40000, "unit": "元/吨"},
+    "锂辉石": {"min": 300, "max": 3000, "unit": "元/吨度"},
+    "锂云母": {"min": 2000, "max": 20000, "unit": "元/吨"},
+}
+
+def validate_price(name, price):
+    """验证价格是否在合理范围内，返回 (is_valid, message)"""
+    for key, rule in PRICE_VALIDATION.items():
+        if key in name:
+            if price < rule["min"] or price > rule["max"]:
+                return False, f"价格 {price} 超出合理范围 [{rule['min']}, {rule['max']}] ({rule['unit']})"
+            return True, "OK"
+    # 未找到匹配规则，不验证
+    return True, "NO_RULE"
 
 def calculate_cumulative(price_series, year=2026):
     """
@@ -56,6 +78,17 @@ def calculate_cumulative(price_series, year=2026):
 
 def update_product(products, name_key, new_cum):
     """更新products列表中匹配name_key的产品，返回是否成功"""
+    # 验证价格合理性
+    start_valid, start_msg = validate_price(name_key, new_cum['start_price'])
+    end_valid, end_msg = validate_price(name_key, new_cum['end_price'])
+    
+    if not start_valid:
+        print(f"  ❌ 拒绝更新 {name_key}：起始价格异常 - {start_msg}")
+        return False
+    if not end_valid:
+        print(f"  ❌ 拒绝更新 {name_key}：结束价格异常 - {end_msg}")
+        return False
+    
     for p in products:
         if name_key in p['name']:
             # 更新所有字段
@@ -183,6 +216,8 @@ def main():
     now = datetime.datetime.now()
     cum_data['meta']['update_time'] = now.strftime("%Y-%m-%d %H:%M:%S")
     cum_data['meta']['data_source'] = "carbonate_spot_price_merged.json / lc_futures_history.json"
+    cum_data['meta']['generated_at'] = now.isoformat()  # ISO时间戳，用于检测回滚
+    cum_data['meta']['generator_version'] = "20260602_v2"  # 脚本版本，升级时修改
     cum_data['products'] = products
     
     # 写入文件

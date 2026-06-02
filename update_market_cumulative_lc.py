@@ -11,6 +11,21 @@ import os
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
+# 价格合理性验证规则（防止写入异常数据）
+PRICE_VALIDATION = {
+    "电池级碳酸锂": {"min": 80000, "max": 300000, "unit": "元/吨"},
+    "工业级碳酸锂": {"min": 70000, "max": 250000, "unit": "元/吨"},
+}
+
+def validate_price(name, price):
+    """验证价格是否在合理范围内，返回 (is_valid, message)"""
+    for key, rule in PRICE_VALIDATION.items():
+        if key in name:
+            if price < rule["min"] or price > rule["max"]:
+                return False, f"价格 {price} 超出合理范围 [{rule['min']}, {rule['max']}] ({rule['unit']})"
+            return True, "OK"
+    return True, "NO_RULE"
+
 def calculate_cumulative(price_series, year=2026):
     """
     计算年初至今涨跌幅
@@ -86,6 +101,15 @@ def main():
         # 重新计算 cumulative
         new_cum = calculate_cumulative(new_price_series, 2026)
         if new_cum:
+            # 验证价格合理性
+            start_valid, start_msg = validate_price('电池级碳酸锂', new_cum['start_price'])
+            end_valid, end_msg = validate_price('电池级碳酸锂', new_cum['end_price'])
+            if not start_valid:
+                print(f"❌ 电池级碳酸锂起始价格异常 - {start_msg}，拒绝更新")
+                return
+            if not end_valid:
+                print(f"❌ 电池级碳酸锂结束价格异常 - {end_msg}，拒绝更新")
+                return
             # 更新所有字段
             bg['start_date'] = new_cum['start_date']
             bg['start_price'] = new_cum['start_price']
@@ -115,6 +139,15 @@ def main():
         # 重新计算 cumulative
         new_cum = calculate_cumulative(new_price_series, 2026)
         if new_cum:
+            # 验证价格合理性
+            start_valid, start_msg = validate_price('工业级碳酸锂', new_cum['start_price'])
+            end_valid, end_msg = validate_price('工业级碳酸锂', new_cum['end_price'])
+            if not start_valid:
+                print(f"❌ 工业级碳酸锂起始价格异常 - {start_msg}，拒绝更新")
+                return
+            if not end_valid:
+                print(f"❌ 工业级碳酸锂结束价格异常 - {end_msg}，拒绝更新")
+                return
             # 更新所有字段
             ig['start_date'] = new_cum['start_date']
             ig['start_price'] = new_cum['start_price']
@@ -135,6 +168,8 @@ def main():
     now = datetime.now()
     cum['meta']['update_time'] = now.strftime("%Y-%m-%d %H:%M:%S")
     cum['meta']['data_source'] = "carbonate_spot_price_merged.json"
+    cum['meta']['generated_at'] = now.isoformat()  # ISO时间戳，用于检测回滚
+    cum['meta']['generator_version'] = "20260602_v2"  # 脚本版本，升级时修改
     
     # 6. 写回文件
     print("\n正在写回 reports/market_cumulative.json...")
