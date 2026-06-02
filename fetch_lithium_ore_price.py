@@ -179,6 +179,10 @@ def fetch_lepidolite_data():
                 if not product_name or not min_price:
                     continue
                 
+                # 只保留锂云母数据（过滤掉锂辉石等无关数据）
+                if '锂云母' not in product_name:
+                    continue
+                
                 try:
                     min_price = int(min_price)
                     max_price = int(max_price)
