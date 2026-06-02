@@ -17,7 +17,7 @@
     <meta http-equiv="Expires" content="0">
     <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
     <script>
-      window.HTML_VERSION = '20260602_1130'; // 简单版本号，用于fetch缓存刷新
+      window.HTML_VERSION = '20260602_1330'; // 简单版本号，用于fetch缓存刷新
 
       /* ---------- 彻底防止图表旧内容闪屏（bfcache + 渲染残留）----------
        * 问题：浏览器前进后退缓存(bfcache)会保存完整页面状态，
@@ -8402,13 +8402,15 @@ window.addEventListener('DOMContentLoaded', function() {
                             }));
                         } else if (key === 'market' && value && typeof value === 'object') {
                             let items = [];
-                            // 价格数据表 → markdown 表格
+                            // 价格数据表 → market_table 对象（renderItem 直接渲染，不依赖 _extractTable）
                             if (value['价格数据表'] && Array.isArray(value['价格数据表'])) {
-                                let md = '| 品类 | 价格 | 涨跌 | 来源 |\n|:---|:---|:---|:---|\n';
-                                for (const row of value['价格数据表']) {
-                                    md += `| ${row.品类 || ''} | ${row.价格 || ''} | ${row.涨跌 || ''} | ${row.来源 || ''} |\n`;
-                                }
-                                items.push({ title: '价格数据表', content: md });
+                                const mrows = value['价格数据表'].map(r => ({
+                                    name: r.品类 || r.name || '',
+                                    price: r.价格 || r.price || '',
+                                    change: r.涨跌 || r.change || '',
+                                    source: r.来源 || r.source || ''
+                                }));
+                                items.push({ title: '价格数据表', market_table: { type: 'price_list', rows: mrows } });
                             }
                             // 供给信号、争议风险、需求信号、行业动态
                             for (const subKey of ['供给信号', '争议风险', '需求信号', '行业动态']) {
@@ -8435,7 +8437,7 @@ window.addEventListener('DOMContentLoaded', function() {
                             }));
                         } else if (key === 'tips' && value && typeof value === 'object') {
                             let items = [];
-                            for (const tipKey of ['机会', '风险', '行动建议']) {
+                            for (const tipKey of ['机会', '风险', '行动建议', '重点关注']) {
                                 if (value[tipKey] && Array.isArray(value[tipKey])) {
                                     for (const item of value[tipKey]) {
                                         items.push({ title: tipKey, content: item.总结 || item.content || '' });
@@ -9787,7 +9789,51 @@ function updatePageData(chainConfig, marketData) {
                     };
                     const norm = {};
                     for (const [k, v] of Object.entries(dept.sections)) {
-                        norm[CN_KEY_MAP[k] || k] = v;
+                        const key = CN_KEY_MAP[k] || k;
+                        if (key === 'market' && v && typeof v === 'object') {
+                            let mitems = [];
+                            if (v['价格数据表'] && Array.isArray(v['价格数据表'])) {
+                                mitems.push({ title: '价格数据表', market_table: {
+                                    type: 'price_list',
+                                    rows: v['价格数据表'].map(r => ({
+                                        name: r.品类 || r.name || '',
+                                        price: r.价格 || r.price || '',
+                                        change: r.涨跌 || r.change || '',
+                                        source: r.来源 || r.source || ''
+                                    }))
+                                }});
+                            }
+                            for (const subKey of ['供给信号', '争议风险', '需求信号', '行业动态']) {
+                                if (v[subKey]) {
+                                    for (const item of (Array.isArray(v[subKey]) ? v[subKey] : [])) {
+                                        mitems.push({ title: item.标题 || '', content: item.正文 || '' });
+                                    }
+                                }
+                            }
+                            norm[key] = mitems;
+                        } else if (key === 'tips' && v && typeof v === 'object') {
+                            let titems = [];
+                            for (const tipKey of ['机会', '风险', '行动建议', '重点关注']) {
+                                if (v[tipKey] && Array.isArray(v[tipKey])) {
+                                    for (const item of v[tipKey]) {
+                                        titems.push({ title: tipKey, content: item.总结 || item.content || '' });
+                                    }
+                                }
+                            }
+                            norm[key] = titems;
+                        } else if (key === 'topnews' && Array.isArray(v)) {
+                            norm[key] = v.map(item => ({ title: item.标题 || item.title || '', content: '' }));
+                        } else if (['policy', 'enterprise', 'tech', 'project'].includes(key) && Array.isArray(v)) {
+                            norm[key] = v.map(item => ({
+                                title: item.标题 || item.title || '',
+                                content: (item.摘要 || item.content || '') + (item.来源 ? '\n\n' + item.来源 : '') + (item.日期 ? ' ' + item.日期 : '')
+                            }));
+                        } else if (Array.isArray(v)) {
+                            norm[key] = v.map(item => typeof item === 'string' ? item : {
+                                title: item.标题 || item.title || '',
+                                content: item.摘要 || item.正文 || item.content || ''
+                            });
+                        }
                     }
                     const html = sectionsToHTML(norm, dept.window_end);
                     return {
