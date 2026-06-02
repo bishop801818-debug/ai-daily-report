@@ -13,9 +13,9 @@
 <script src="./echarts.min.js">
 
 </script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js">
-
-</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:-apple-system,'Microsoft YaHei',sans-serif;background:#f4f6fa;color:#1a1a2e}
@@ -63,20 +63,55 @@ body{font-family:-apple-system,'Microsoft YaHei',sans-serif;background:#f4f6fa;c
 .detail-table td{padding:8px 12px;border-bottom:1px solid #f0f0f0}
 .detail-table .total-row td{background:#fafafa;font-weight:700;border-top:2px solid #e0e0e0}
 .detail-table tr:last-child td{border-bottom:none}
-@media(max-width:900px){.dashboard-row{flex-direction:column}.dashboard-left{flex:1}}
+#quarter-select{appearance:none;-webkit-appearance:none;padding:5px 28px 5px 12px;border:1px solid rgba(255,255,255,0.4);border-radius:6px;background:rgba(255,255,255,0.1) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 6 5-6' fill='none' stroke='%23fff' stroke-width='1.5'/%3E%3C/svg%3E") no-repeat right 10px center/12px 8px;color:#fff;font-size:13px;font-family:inherit;cursor:pointer}
+#quarter-select option{background:#1e3c72;color:#fff}
+@media(max-width:900px){
+  .topbar{padding:0 12px;font-size:13px}
+  .topbar-center{font-size:14px}
+  .hero{padding:20px 16px 16px}
+  .hero h1{font-size:18px}
+  .dashboard-body{padding:12px 12px 24px}
+  .dashboard-row{flex-direction:column}
+  .dashboard-left,.dashboard-right{flex:1;width:100%}
+}
+@media(max-width:600px){
+  .topbar-center{display:none}
+  .hero{padding:16px 12px 12px}
+  .hero h1{font-size:16px}
+  .hero p{font-size:12px}
+  .dashboard-body{padding:8px 8px 16px}
+  .card{padding:12px}
+  #detail-table{font-size:12px}
+  #detail-table th,#detail-table td{padding:6px 8px}
+  .signal-card{padding:10px 12px}
+}
 </style>
 </head>
 <body>
 <div class="topbar">
   <a href="strategy_hub.html">← 返回战略洞察中心</a>
-  <span class="topbar-center" id="bu-title">常州锂源 · 战略洞察</span>
-  <button class="btn-export" onclick="exportReport()">导出报告</button>
+  <span class="topbar-center" id="bu-title">常州锂源 · 战略洞察  </span>
+  <div style="position:relative">
+    <button class="btn-export" onclick="toggleExportPop()">导出报告 ▾</button>
+    <div id="export-pop" style="display:none;position:absolute;top:100%;right:0;margin-top:6px;background:#1e3c72;border:1px solid rgba(255,255,255,0.25);border-radius:8px;padding:6px 0;min-width:150px;box-shadow:0 8px 24px rgba(0,0,0,0.35);z-index:200;">
+      <div onclick="exportExcel()" style="padding:8px 18px;cursor:pointer;font-size:13px;color:rgba(255,255,255,0.9);display:flex;align-items:center;gap:8px;" onmouseover="this.style.background='rgba(255,255,255,0.12)'" onmouseout="this.style.background='transparent'">📊 导出 Excel</div>
+      <div onclick="exportPDF()" style="padding:8px 18px;cursor:pointer;font-size:13px;color:rgba(255,255,255,0.9);display:flex;align-items:center;gap:8px;" onmouseover="this.style.background='rgba(255,255,255,0.12)'" onmouseout="this.style.background='transparent'">📄 导出 PDF</div>
+    </div>
+  </div>
 </div>
 <div class="hero">
   <h1 id="bu-title2">常州锂源 · 战略洞察</h1>
   <p id="bu-sub">磸酸铴酱事业部</p>
-  <p id="update-time">数据更新：2026-05-28</p>
-</div>
+      <p id="update-time">数据更新：2026-05-28</p>
+      <div id="time-selector-wrap" style="margin-top:10px;display:flex;gap:8px;align-items:center;position:relative;">
+        <span style="color:rgba(255,255,255,0.7);font-size:13px;">查看季度：</span>
+        <button id="quarter-btn" onclick="toggleQuarterPop()" style="padding:5px 12px;border:1px solid rgba(255,255,255,0.4);border-radius:6px;background:rgba(255,255,255,0.1);color:#fff;font-size:13px;font-family:inherit;cursor:pointer;display:flex;align-items:center;gap:4px;">
+          <span id="quarter-btn-text">Q3-2024（最新）</span>
+          <span style="font-size:10px;">▸</span>
+        </button>
+        <div id="quarter-pop" style="display:none;position:absolute;top:0;left:100%;margin-left:8px;background:#1e3c72;border:1px solid rgba(255,255,255,0.2);border-radius:8px;padding:4px 0;min-width:140px;box-shadow:0 4px 16px rgba(0,0,0,0.3);z-index:100;"></div>
+      </div>
+    </div>
 <div class="dashboard-body" id="dashboard-page">
   <div class="dashboard-row">
     <div class="dashboard-left">
@@ -206,6 +241,7 @@ var BU_STRATEGY_DATA = {
 </script>
 <script>
 var currentDim = 'scale';
+var selectedQuarterIdx = null;  // null=最新季度
 
 function initRouter() {
     var params = new URLSearchParams(location.search);
@@ -216,6 +252,7 @@ function initRouter() {
 function renderDashboard(buId) {
     var data = BU_STRATEGY_DATA[buId] || BU_STRATEGY_DATA['czly'];
     window.currentData = data;
+    selectedQuarterIdx = data.quarters.length - 1; // 默认最新季度
     var meta = {
         czly: { name: '常州锂源', sub: '磷酸铁锂事业部' },
         hnyn: { name: '湖南裕能', sub: '磷酸铁锂事业部' },
@@ -223,7 +260,10 @@ function renderDashboard(buId) {
     };
     var m = meta[buId] || meta['czly'];
     document.getElementById('bu-title').textContent = m.name + ' · 战略洞察';
+    document.getElementById('bu-title2').textContent = m.name + ' · 战略洞察';
+    document.getElementById('bu-sub').textContent = m.sub;
     document.getElementById('update-time').textContent = '数据更新：' + data.update_time;
+    renderQuarterSelect(data);
     renderRadar(data);
     renderTrendMini(data);
     renderSignalBoard(data);
@@ -235,7 +275,7 @@ function renderRadar(data) {
     var chart = echarts.init(document.getElementById('radar-chart'));
     var dimKeys = ['scale','profit','cost_eff','finance','growth'];
     var dimNames = ['规模与市场地位','盈利质量','成本与效率','运营与财务健康','成长潜力'];
-    var last = data.quarters.length - 1;
+    var qIdx = selectedQuarterIdx !== null ? selectedQuarterIdx : data.quarters.length - 1;
     var option = {
         backgroundColor: '#fff',
         legend: { data: ['常州锂源','湖南裕能','万润新能','行业均值'], bottom: 0, textStyle: { fontSize: 12 } },
@@ -244,15 +284,14 @@ function renderRadar(data) {
             formatter: function(params) {
                 var dimIdx = params.dataIndex !== undefined ? params.dataIndex : 0;
                 var dimName = dimNames[dimIdx];
-                var last = data.quarters.length - 1;
                 var html = '<strong style="font-size:13px">' + dimName + '</strong><br/>';
                 var keys = ['czly','hnyn','wrxn','avg'];
                 var names = ['常州锂源','湖南裕能','万润新能','行业均值'];
                 keys.forEach(function(k, ki) {
-                    var val = data.scores[k][dimKeys[dimIdx]][last];
+                    var val = data.scores[k][dimKeys[dimIdx]][qIdx];
                     var diffStr = '';
                     if (ki !== 3) {
-                        var avgVal = data.scores.avg[dimKeys[dimIdx]][last];
+                        var avgVal = data.scores.avg[dimKeys[dimIdx]][qIdx];
                         var diff = (val - avgVal).toFixed(1);
                         diffStr = ' <span style="color:' + (diff >= 0 ? '#1e3c72' : '#a8c8e8') + '">(' + (diff >= 0 ? '+' : '') + diff + ')</span>';
                     }
@@ -272,20 +311,19 @@ function renderRadar(data) {
         series: [{
             type: 'radar',
             data: [
-                { value: dimKeys.map(function(k){ return data.scores.czly[k][last]; }), name: '常州锂源',
+                { value: dimKeys.map(function(k){ return data.scores.czly[k][qIdx]; }), name: '常州锂源',
                   areaStyle: { color: 'rgba(30,60,114,0.25)' }, lineStyle: { color: '#1e3c72', width: 2 }, itemStyle: { color: '#1e3c72' } },
-                { value: dimKeys.map(function(k){ return data.scores.hnyn[k][last]; }), name: '湖南裕能',
+                { value: dimKeys.map(function(k){ return data.scores.hnyn[k][qIdx]; }), name: '湖南裕能',
                   lineStyle: { color: '#6a9fd8', width: 1.5, type: 'dashed' }, itemStyle: { color: '#6a9fd8' } },
-                { value: dimKeys.map(function(k){ return data.scores.wrxn[k][last]; }), name: '万润新能',
+                { value: dimKeys.map(function(k){ return data.scores.wrxn[k][qIdx]; }), name: '万润新能',
                   lineStyle: { color: '#7f8c8d', width: 1.5, type: 'dashed' }, itemStyle: { color: '#7f8c8d' } },
-                { value: dimKeys.map(function(k){ return data.scores.avg[k][last]; }), name: '行业均值',
+                { value: dimKeys.map(function(k){ return data.scores.avg[k][qIdx]; }), name: '行业均值',
                   lineStyle: { color: '#b0c4de', width: 1, type: 'dotted' }, itemStyle: { color: '#b0c4de' } }
             ]
         }]
     };
     chart.setOption(option);
     chart.on('click', function(params) {
-        // 雷达图点击：componentType='series', dataIndex=维度索引
         if (params.componentType === 'series' && params.dataIndex !== undefined && params.dataIndex < dimKeys.length) {
             var dimKey = dimKeys[params.dataIndex];
             switchDim(dimKey);
@@ -358,10 +396,10 @@ function renderTrendMini(data) {
     chart.setOption(option);
     chart.on('click', function(params) {
         if (params.componentType === 'series' && params.dataIndex !== undefined) {
-            // 触发全局时间切换（暂存选中季度，供未来扩展）
-            window.selectedQuarter = quarters[params.dataIndex];
-            // 高亮选中时间点
-            chart.dispatchAction({ type: 'highlight', seriesIndex: params.seriesIndex, dataIndex: params.dataIndex });
+            selectedQuarterIdx = params.dataIndex;
+            renderQuarterSelect(data);
+            renderRadar(data);
+            // renderTrendMini不重刷，避免死循环
         }
     });
     window.addEventListener('resize', function(){ chart.resize(); });
@@ -398,6 +436,50 @@ function renderSignalBoard(data) {
         html += '</div></div>';
     });
     board.innerHTML = html;
+}
+
+function renderQuarterSelect(data) {
+    // 更新按钮文字
+    var isLatest = selectedQuarterIdx === null || selectedQuarterIdx === data.quarters.length - 1;
+    var displayIdx = selectedQuarterIdx !== null ? selectedQuarterIdx : data.quarters.length - 1;
+    document.getElementById('quarter-btn-text').textContent = data.quarters[displayIdx] + (isLatest ? '（最新）' : '');
+    // 渲染popover选项
+    var pop = document.getElementById('quarter-pop');
+    var html = '';
+    data.quarters.forEach(function(q, idx) {
+        var isLast = idx === data.quarters.length - 1;
+        var isActive = idx === displayIdx;
+        html += '<div onclick="selectQuarterFromPop(' + idx + ')" style="padding:6px 16px;cursor:pointer;font-size:13px;color:' + (isActive ? '#fff' : 'rgba(255,255,255,0.7)') + ';background:' + (isActive ? 'rgba(255,255,255,0.15)' : 'transparent') + ';white-space:nowrap;" onmouseover="this.style.background=\'rgba(255,255,255,0.1)\'" onmouseout="this.style.background=\'' + (isActive ? 'rgba(255,255,255,0.15)' : 'transparent') + '\'">' + q + (isLast ? ' ✓' : '') + '</div>';
+    });
+    pop.innerHTML = html;
+}
+
+function toggleQuarterPop() {
+    var pop = document.getElementById('quarter-pop');
+    if (pop.style.display === 'block') {
+        pop.style.display = 'none';
+    } else {
+        pop.style.display = 'block';
+        // 点击外部关闭
+        setTimeout(function() {
+            var closeFn = function(e) {
+                if (!document.getElementById('time-selector-wrap').contains(e.target)) {
+                    pop.style.display = 'none';
+                    document.removeEventListener('click', closeFn);
+                }
+            };
+            document.addEventListener('click', closeFn);
+        }, 10);
+    }
+}
+
+function selectQuarterFromPop(idx) {
+    selectedQuarterIdx = idx;
+    var data = window.currentData;
+    renderQuarterSelect(data);
+    renderRadar(data);
+    renderTrendMini(data);
+    document.getElementById('quarter-pop').style.display = 'none';
 }
 
 function switchDim(dim) {
@@ -550,17 +632,82 @@ function renderCompare() {
     window.addEventListener('resize',function(){chart.resize();});
 }
 
-function exportReport() {
+function toggleExportPop() {
+    var pop = document.getElementById('export-pop');
+    if (pop.style.display === 'block') {
+        pop.style.display = 'none';
+    } else {
+        pop.style.display = 'block';
+        setTimeout(function() {
+            var closeFn = function(e) {
+                if (!e.target.closest('#export-pop') && !e.target.closest('.btn-export')) {
+                    pop.style.display = 'none';
+                    document.removeEventListener('click', closeFn);
+                }
+            };
+            document.addEventListener('click', closeFn);
+        }, 10);
+    }
+}
+
+function exportExcel() {
+    document.getElementById('export-pop').style.display = 'none';
+    var data = window.currentData;
+    if (!data) return;
+    var buId = new URLSearchParams(location.search).get('id') || 'czly';
+    var wb = XLSX.utils.book_new();
+
+    // Sheet1: 战略维度得分
+    var dimKeys = ['scale','profit','cost_eff','finance','growth'];
+    var dimNames = ['规模与市场地位','盈利质量','成本与效率','运营与财务健康','成长潜力'];
+    var qIdx = selectedQuarterIdx !== null ? selectedQuarterIdx : data.quarters.length - 1;
+    var ws1Data = [['维度','常州锂源','湖南裕能','万润新能','行业均值']];
+    dimKeys.forEach(function(k, i) {
+        ws1Data.push([dimNames[i], data.scores.czly[k][qIdx], data.scores.hnyn[k][qIdx], data.scores.wrxn[k][qIdx], data.scores.avg[k][qIdx]]);
+    });
+    var ws1 = XLSX.utils.aoa_to_sheet(ws1Data);
+    XLSX.utils.book_append_sheet(wb, ws1, '战略维度得分');
+
+    // Sheet2: 详细指标（从当前表格提取）
+    var tableEl = document.getElementById('detail-table');
+    if (tableEl) {
+        var ws2 = XLSX.utils.table_to_sheet(tableEl);
+        XLSX.utils.book_append_sheet(wb, ws2, '详细指标');
+    }
+
+    var wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+    var blob = new Blob([wbout], { type: 'application/octet-stream' });
+    var link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    var d = new Date();
+    link.download = '战略洞察_' + buId + '_' + d.getFullYear() + (d.getMonth()+1) + d.getDate() + '.xlsx';
+    link.click();
+    URL.revokeObjectURL(link.href);
+}
+
+function exportPDF() {
+    document.getElementById('export-pop').style.display = 'none';
     var el = document.getElementById('dashboard-page');
-    html2canvas(el, { scale: 2, useCORS: true }).then(function(canvas) {
-        var link = document.createElement('a');
-        var d = new Date();
-        var dateStr = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
-        link.download = '战略洞察报告_' + dateStr + '.png';
-        link.href = canvas.toDataURL('image/png');
-        link.click();
+    var btn = document.querySelector('.btn-export');
+    var origText = btn.textContent;
+    btn.textContent = '正在生成PDF...';
+    html2canvas(el, { scale: 1.5, useCORS: true, logging: false, backgroundColor: '#f4f6fa' }).then(function(canvas) {
+        var imgData = canvas.toDataURL('image/jpeg', 0.85);
+        var pdf = new window.jspdf.jsPDF('l', 'mm', 'a4');
+        var pdfW = pdf.internal.pageSize.getWidth() - 20;
+        var imgH = canvas.height * pdfW / canvas.width;
+        var maxH = pdf.internal.pageSize.getHeight() - 20;
+        if (imgH > maxH) imgH = maxH;
+        pdf.addImage(imgData, 'JPEG', 10, 10, pdfW, imgH);
+        pdf.save('战略洞察报告.pdf');
+        btn.textContent = origText;
+    }).catch(function() {
+        btn.textContent = origText;
+        alert('PDF生成失败，请重试');
     });
 }
+
+
 
 document.addEventListener('DOMContentLoaded', initRouter);
 
