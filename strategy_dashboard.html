@@ -165,16 +165,16 @@ var BU_STRATEGY_DATA = {
     update_time: '2026-06-03',
     quarters: ['Q1-2026'],
     scores: {
-        czly: { scale:[3.0], profit:[3.0], cost_eff:[3.0], finance:[2.0], growth:[4.0] },
-        hnyn: { scale:[10.0], profit:[7.7], cost_eff:[3.9], finance:[5.5], growth:[7.5] },
-        wrxn: { scale:[5.2], profit:[5.9], cost_eff:[3.5], finance:[4.2], growth:[7.5] },
-        avg:  { scale:[6.2], profit:[5.5], cost_eff:[3.5], finance:[4.3], growth:[7.5] }
+        czly: { scale:[2.0], profit:[4.5], cost_eff:[2.0], finance:[1.5], growth:[4.0] },
+        hnyn: { scale:[10.0], profit:[9.5], cost_eff:[9.5], finance:[9.5], growth:[9.5] },
+        wrxn: { scale:[6.0], profit:[7.5], cost_eff:[7.5], finance:[5.5], growth:[7.5] },
+        avg:  { scale:[6.0], profit:[7.0], cost_eff:[6.5], finance:[5.5], growth:[7.0] }
     },
     current: {
-        scale:    { val: 3.0, target: 5.0, mom: 0.0 },
-        profit:   { val: 3.0, target: 5.0, mom: 0.0 },
-        cost_eff: { val: 3.0, target: 5.0, mom: 0.0 },
-        finance:  { val: 2.0, target: 5.0, mom: 0.0 },
+        scale:    { val: 2.0, target: 5.0, mom: 0.0 },
+        profit:   { val: 4.5, target: 5.0, mom: 0.0 },
+        cost_eff: { val: 2.0, target: 5.0, mom: 0.0 },
+        finance:  { val: 1.5, target: 5.0, mom: 0.0 },
         growth:   { val: 4.0, target: 7.0, mom: 0.0 }
     }
 };
@@ -446,36 +446,36 @@ function renderDetailTable(data, dim) {
         scale: {
             name: '规模与市场地位',
             sub: [
-                { label:'营业收入', unit:'亿元', w:50, czly:10.13, hnyn:149.65, wrxn:9.8, avg:56.53 },
-                { label:'总资产', unit:'亿元', w:50, czly:146.17, hnyn:492.71, wrxn:60.0, avg:232.96 }
+                { label:'营业收入', unit:'亿元', w:50, czly:10.13, hnyn:149.65, wrxn:53.80, avg:71.19 },
+                { label:'总资产', unit:'亿元', w:50, czly:146.17, hnyn:492.71, wrxn:234.75, avg:291.21 }
             ]
         },
         profit: {
             name: '盈利质量',
             sub: [
-                { label:'毛利率', unit:'%', w:50, czly:9.54, hnyn:16.16, wrxn:10.8, avg:12.17 },
-                { label:'净利率', unit:'%', w:50, czly:5.3, hnyn:9.08, wrxn:7.8, avg:7.39 }
+                { label:'毛利率', unit:'%', w:50, czly:9.54, hnyn:16.16, wrxn:14.35, avg:13.35 },
+                { label:'净利率', unit:'%', w:50, czly:5.30, hnyn:9.08, wrxn:7.84, avg:7.41 }
             ]
         },
         cost_eff: {
             name: '成本与效率',
             sub: [
-                { label:'营业成本率', unit:'%', w:50, czly:90.46, hnyn:83.84, wrxn:89.2, avg:87.83 },
-                { label:'存货周转天数', unit:'天', w:50, czly:70.28, hnyn:36.67, wrxn:75.0, avg:60.65 }
+                { label:'营业成本率', unit:'%', w:50, czly:90.46, hnyn:83.84, wrxn:85.65, avg:86.65 },
+                { label:'存货周转天数', unit:'天', w:50, czly:70.28, hnyn:36.67, wrxn:37.72, avg:48.22 }
             ]
         },
         finance: {
             name: '运营与财务健康',
             sub: [
-                { label:'资产负债率', unit:'%', w:50, czly:87.7, hnyn:61.23, wrxn:60.0, avg:69.64 },
-                { label:'经营现金流/营收', unit:'%', w:50, czly:-32.5, hnyn:-6.98, wrxn:-5.0, avg:-14.83 }
+                { label:'资产负债率', unit:'%', w:50, czly:87.70, hnyn:61.23, wrxn:76.62, avg:75.18 },
+                { label:'经营现金流/营收', unit:'%', w:50, czly:-32.50, hnyn:-6.98, wrxn:-20.45, avg:-19.98 }
             ]
         },
         growth: {
             name: '成长潜力',
             sub: [
-                { label:'营收同比增长率', unit:'%', w:50, czly:0, hnyn:160.0, wrxn:22.0, avg:60.67 },
-                { label:'研发费用率', unit:'%', w:50, czly:2.53, hnyn:1.20, wrxn:3.8, avg:2.51 }
+                { label:'营收同比增长率', unit:'%', w:50, czly:0, hnyn:160.0, wrxn:136.2, avg:98.73 },
+                { label:'研发费用率', unit:'%', w:50, czly:2.53, hnyn:1.20, wrxn:0.85, avg:1.53 }
             ]
         }
     };
