@@ -3,10 +3,13 @@
 """
 生成/更新 market_cumulative.json - 磷酸铁锂产业链2026年累计涨跌幅
 策略：从各产品源数据文件重新生成所有8个产品的 price_series 和汇总字段
-防回滚：检查 meta.generated_at，如果过期则强制重新生成
+防回滚：检查 meta.generator_version，如果不匹配则强制重新生成
 """
 
 import json, datetime, sys, os, math
+
+# 脚本版本号（修改脚本时必须更新此版本号）
+GENERATOR_VERSION = "20260603_v3"
 
 # 产品配置：源数据文件和读取方式
 # reader 函数从源数据中提取 [{date, price}] 列表
@@ -124,23 +127,39 @@ def main():
     
     cum_file = os.path.join(REPORTS_DIR, "market_cumulative.json")
     
-    # 0. 防回滚检查：如果文件存在，检查 generated_at 是否过期
+    # 0. 防回滚检查：如果文件存在，检查是否可信
     rollback_warning = False
     if os.path.exists(cum_file):
         with open(cum_file, 'r', encoding='utf-8') as f:
             old_data = json.load(f)
         old_meta = old_data.get('meta', {})
-        old_generated_at = old_meta.get('generated_at', '')
-        if old_generated_at:
-            try:
-                old_time = datetime.datetime.fromisoformat(old_generated_at)
-                age_hours = (datetime.datetime.now() - old_time).total_seconds() / 3600
-                if age_hours > 48:  # 超过48小时，可能是回滚版本
-                    print(f"⚠️  警告：文件 generated_at={old_generated_at}，已过期 {age_hours:.1f} 小时")
-                    print(f"   这可能是回滚版本，将强制重新生成所有产品数据")
-                    rollback_warning = True
-            except:
-                pass
+        
+        # 检查1：generator_version 是否存在（不存在说明是2026-06-02之前的旧版本）
+        old_version = old_meta.get('generator_version', '')
+        if not old_version:
+            print(f"⚠️  警告：文件无 generator_version（可能是2026-06-02之前的旧版本）")
+            print(f"   将强制重新生成所有产品数据")
+            rollback_warning = True
+        else:
+            # 检查2：产品数量是否为8（防止回滚到只有2-3个产品的旧版本）
+            old_products_count = len(old_data.get('products', []))
+            if old_products_count != 8:
+                print(f"⚠️  警告：文件只有 {old_products_count} 个产品（应为8个）")
+                print(f"   这可能是回滚版本，将强制重新生成所有产品数据")
+                rollback_warning = True
+            else:
+                # 检查3：generated_at 是否超过24小时（过期数据）
+                old_generated_at = old_meta.get('generated_at', '')
+                if old_generated_at:
+                    try:
+                        old_time = datetime.datetime.fromisoformat(old_generated_at)
+                        age_hours = (datetime.datetime.now() - old_time).total_seconds() / 3600
+                        if age_hours > 24:  # 超过24小时，数据可能过期
+                            print(f"⚠️  警告：文件 generated_at={old_generated_at}，已过期 {age_hours:.1f} 小时")
+                            print(f"   将重新生成所有产品数据")
+                            rollback_warning = True
+                    except:
+                        pass
     
     # 1. 读取现有文件（如果存在且未过期）
     if os.path.exists(cum_file) and not rollback_warning:
