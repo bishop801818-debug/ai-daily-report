@@ -192,7 +192,7 @@ function initRouter() {
 }
 
 function renderDashboard(buId) {
-    var data = BU_STRATEGY_DATA[buId] || BU_STRATEGY_DATA['czly'];
+    var data = BU_STRATEGY_DATA;
     window.currentData = data;
     selectedQuarterIdx = data.quarters.length - 1; // 默认最新季度
     var meta = {
@@ -428,7 +428,7 @@ function switchDim(dim) {
     currentDim = dim;
     document.querySelectorAll('.dim-chip').forEach(function(c){ c.classList.remove('active'); });
     document.querySelector('.dim-chip[data-dim="'+dim+'"]').classList.add('active');
-    var data = BU_STRATEGY_DATA['czly'];
+    var data = BU_STRATEGY_DATA;
     renderDetailTable(data, dim);
 }
 
