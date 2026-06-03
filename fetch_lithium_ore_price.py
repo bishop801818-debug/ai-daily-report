@@ -201,48 +201,69 @@ def fetch_lepidolite_data():
                     "update_time": date_text if date_text else now_str
                 })
     
-    # 如果表格没找到，回退到指数区（scroll-price-list）
+    # 如果表格没找到或没提取到锂云母数据，尝试从新闻/行情动态中提取
     if not data:
-        scroll_list = soup.find('ul', class_='scroll-price-list')
-        if scroll_list:
-            for li in scroll_list.find_all('li'):
-                strong = li.find('strong', class_='scroll-price-name')
-                if not strong:
-                    continue
-                name = strong.get_text(strip=True)
-                if '锂云母精矿' not in name:
-                    continue
-                
-                price_span = li.find('span', class_='today-price')
-                if not price_span:
-                    continue
-                price_str = price_span.get_text(strip=True).replace(',', '')
-                try:
-                    price_val = float(price_str)
-                except ValueError:
-                    continue
-                
-                trend_val = "0.00"
-                trend_em = li.find('em', class_='trend-value')
-                if trend_em:
-                    trend_text = trend_em.get_text(strip=True)
-                    trend_match = re.match(r'\(([+\-]?[\d.]+)\)', trend_text)
-                    if trend_match:
-                        trend_val = trend_match.group(1)
-                
-                data.append({
-                    "product_name": name,
-                    "price": price_val,
-                    "trend": f"({trend_val})",
-                    "unit": "元/吨度",
-                    "update_time": date_text if date_text else now_str
-                })
-                break
-    
+        news_data = []
+        # 找新闻列表项 li.item.item-article（Mysteel日报等）
+        for li in soup.select('li.item.item-article'):
+            text = li.get_text()
+            if '锂云母' not in text and '锂云母精矿' not in text:
+                continue
+            # 从文本中提取日期、品位、价格
+            # 格式: "6月1日锂云母品位2.0-2.5%报2570-2820元/吨度"
+            date_match = re.search(r'(\d{1,2})月(\d{1,2})[日号]', text)
+            if not date_match:
+                continue
+            month, day = int(date_match.group(1)), int(date_match.group(2))
+            # 推断年份（当前年份）
+            year = datetime.now().year
+            date_str = f"{year}-{month:02d}-{day:02d}"
+
+            # 提取品位和价格: "品位2.0-2.5%报2570-2820元/吨度"
+            # 只搜索"锂云母"之后的文本，避免匹配到锂辉石价格
+            lym_pos = text.find('锂云母')
+            if lym_pos < 0:
+                continue
+            price_match = re.search(
+                r'品位([\d.]+)[-~]([\d.]+)%报(\d+)[-~](\d+)元/吨度',
+                text[lym_pos:]
+            )
+            if not price_match:
+                continue
+            grade_low = price_match.group(1)
+            grade_high = price_match.group(2)
+            min_price = int(price_match.group(3))
+            max_price = int(price_match.group(4))
+            avg_price = round((min_price + max_price) / 2, 1)
+            grade = f"{grade_low}-{grade_high}%"
+
+            news_data.append({
+                "date_str": date_str,
+                "grade": grade,
+                "min_price": min_price,
+                "max_price": max_price,
+                "avg_price": avg_price,
+            })
+
+        if news_data:
+            # 用最新的一条（按日期排序）
+            news_data.sort(key=lambda x: x['date_str'], reverse=True)
+            latest = news_data[0]
+            data.append({
+                "product_name": f"锂云母精矿：{latest['grade']}：市场价格",
+                "grade": latest['grade'],
+                "origin": "",
+                "min_price": latest['min_price'],
+                "max_price": latest['max_price'],
+                "avg_price": latest['avg_price'],
+                "unit": "元/吨度",
+                "update_time": f"{latest['date_str']} 00:00"
+            })
+
     if not data:
         print("[WARN] 锂云母数据未提取到有效数据")
         return None
-    
+
     return {
         "commodity": "锂云母",
         "source": "Mysteel",

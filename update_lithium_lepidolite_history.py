@@ -168,6 +168,16 @@ def update_lepidolite_history(latest_data, history_path):
             min_price = normalize_price(record['min_price'])
             max_price = normalize_price(record['max_price'])
             avg_price = normalize_price(record['avg_price'])
+
+            # 如果单位是元/吨度，需要转换为元/吨（乘以品位百分比）
+            if record.get('unit') == '元/吨度':
+                grade_str = record.get('grade', '')
+                grade_match = re.search(r'([\d.]+)%', grade_str)
+                if grade_match:
+                    grade_pct = float(grade_match.group(1))
+                    min_price = round(min_price * grade_pct, 2)
+                    max_price = round(max_price * grade_pct, 2)
+                    avg_price = round(avg_price * grade_pct, 2)
             
             # 构建 grade 标识
             grade_label = f"锂云母精矿{grade}" if not grade.startswith('锂云母') else grade

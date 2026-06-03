@@ -1,26 +1,69 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-更新/生成 market_cumulative.json - 磷酸铁锂产业链2026年累计涨跌幅
-策略：读取现有文件，只更新能处理的产品，保留其他产品不变
-数据源：carbonate_spot_price_merged.json（电池级/工业级碳酸锂）、lc_futures_history.json（碳酸锂期货）
-计算方式：2026年第一期数据 → 最新期数据的涨跌幅
+生成/更新 market_cumulative.json - 磷酸铁锂产业链2026年累计涨跌幅
+策略：从各产品源数据文件重新生成所有8个产品的 price_series 和汇总字段
+防回滚：检查 meta.generated_at，如果过期则强制重新生成
 """
 
 import json, datetime, sys, os, math
 
+# 产品配置：源数据文件和读取方式
+# reader 函数从源数据中提取 [{date, price}] 列表
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+REPORTS_DIR = os.path.join(BASE_DIR, "reports")
+DATA_DIR = os.path.join(BASE_DIR, "data")
+
+PRODUCT_CONFIG = {
+    "碳酸锂期货": {
+        "source_file": os.path.join(REPORTS_DIR, "lc_futures_history.json"),
+        "unit": "元/吨",
+        "reader": lambda data: [{"date": d["date"], "price": d["close"]} for d in data.get("history", [])],
+    },
+    "电池级碳酸锂": {
+        "source_file": os.path.join(BASE_DIR, "carbonate_spot_price_merged.json"),
+        "unit": "元/吨",
+        "reader": lambda data: [{"date": d["date"], "price": d["price"]} for d in data.get("data", {}).get("battery_grade", [])],
+    },
+    "工业级碳酸锂": {
+        "source_file": os.path.join(BASE_DIR, "carbonate_spot_price_merged.json"),
+        "unit": "元/吨",
+        "reader": lambda data: [{"date": d["date"], "price": d["price"]} for d in data.get("data", {}).get("industrial_grade", [])],
+    },
+    "磷酸铁锂(动力型)": {
+        "source_file": os.path.join(REPORTS_DIR, "lfp_power_history.json"),
+        "unit": "元/吨",
+        "reader": lambda data: [{"date": e["date"], "price": e["close"]} for e in data.get("history", [])],
+    },
+    "磷酸铁锂(储能型)": {
+        "source_file": os.path.join(REPORTS_DIR, "lfp_storage_history.json"),
+        "unit": "元/吨",
+        "reader": lambda data: [{"date": e["date"], "price": e["close"]} for e in data.get("history", [])],
+    },
+    "磷酸铁": {
+        "source_file": os.path.join(REPORTS_DIR, "iron_phosphate_history.json"),
+        "unit": "元/吨",
+        "reader": lambda data: [{"date": e["date"], "price": e["close"]} for e in data.get("history", [])],
+    },
+    "锂辉石(5%)": {
+        "source_file": os.path.join(DATA_DIR, "lithium_ore_price_history.json"),
+        "unit": "美元/吨",
+        "reader": lambda data: [{"date": e["date"], "price": e["avg_price"]} for e in data.get("history", []) if str(e.get("grade", "")).startswith("5")],
+    },
+    "锂云母(2.0-2.5%)": {
+        "source_file": os.path.join(DATA_DIR, "lepidolite_price_history.json"),
+        "unit": "元/吨",
+        "reader": lambda data: [{"date": e["date"], "price": e["avg_price"]} for e in data.get("history", []) if "2.0-2.5%" in str(e.get("grade", "")) or "2.5%" in str(e.get("grade", ""))],
+    },
+}
 
 # 价格合理性验证规则（防止写入异常数据）
 PRICE_VALIDATION = {
-    "电池级碳酸锂": {"min": 80000, "max": 300000, "unit": "元/吨"},
-    "工业级碳酸锂": {"min": 70000, "max": 250000, "unit": "元/吨"},
-    "碳酸锂期货": {"min": 80000, "max": 300000, "unit": "元/吨"},
-    "磷酸铁锂动力型": {"min": 30000, "max": 150000, "unit": "元/吨"},
-    "磷酸铁锂储能型": {"min": 30000, "max": 150000, "unit": "元/吨"},
-    "磷酸铁": {"min": 8000, "max": 40000, "unit": "元/吨"},
-    "锂辉石": {"min": 300, "max": 3000, "unit": "元/吨度"},
-    "锂云母": {"min": 2000, "max": 20000, "unit": "元/吨"},
+    "碳酸锂": {"min": 80000, "max": 300000},
+    "磷酸铁锂": {"min": 30000, "max": 150000},
+    "磷酸铁": {"min": 8000, "max": 40000},
+    "锂辉石": {"min": 500, "max": 5000},
+    "锂云母": {"min": 2000, "max": 20000},
 }
 
 def validate_price(name, price):
@@ -28,9 +71,8 @@ def validate_price(name, price):
     for key, rule in PRICE_VALIDATION.items():
         if key in name:
             if price < rule["min"] or price > rule["max"]:
-                return False, f"价格 {price} 超出合理范围 [{rule['min']}, {rule['max']}] ({rule['unit']})"
+                return False, f"价格 {price} 超出合理范围 [{rule['min']}, {rule['max']}]"
             return True, "OK"
-    # 未找到匹配规则，不验证
     return True, "NO_RULE"
 
 def calculate_cumulative(price_series, year=2026):
@@ -44,7 +86,6 @@ def calculate_cumulative(price_series, year=2026):
     # 找到2026年的数据
     y2026_data = [x for x in price_series if x["date"].startswith(f"{year}-")]
     if not y2026_data:
-        print(f"[WARN] 未找到{year}年数据")
         return None
     
     # 按日期排序
@@ -76,42 +117,33 @@ def calculate_cumulative(price_series, year=2026):
         "price_series": y2026_data,  # 只保留2026年数据
     }
 
-def update_product(products, name_key, new_cum):
-    """更新products列表中匹配name_key的产品，返回是否成功"""
-    # 验证价格合理性
-    start_valid, start_msg = validate_price(name_key, new_cum['start_price'])
-    end_valid, end_msg = validate_price(name_key, new_cum['end_price'])
-    
-    if not start_valid:
-        print(f"  ❌ 拒绝更新 {name_key}：起始价格异常 - {start_msg}")
-        return False
-    if not end_valid:
-        print(f"  ❌ 拒绝更新 {name_key}：结束价格异常 - {end_msg}")
-        return False
-    
-    for p in products:
-        if name_key in p['name']:
-            # 更新所有字段
-            p['start_date'] = new_cum['start_date']
-            p['start_price'] = new_cum['start_price']
-            p['end_date'] = new_cum['end_date']
-            p['end_price'] = new_cum['end_price']
-            p['change'] = new_cum['change']
-            p['change_pct'] = new_cum['change_pct']
-            p['direction'] = new_cum['direction']
-            p['data_points'] = new_cum['data_points']
-            p['price_series'] = new_cum['price_series']
-            return True
-    return False
-
 def main():
     print("=" * 60)
-    print("更新 market_cumulative.json - 磷酸铁锂产业链2026年累计涨跌幅")
+    print("生成 market_cumulative.json - 磷酸铁锂产业链2026年累计涨跌幅")
     print("=" * 60)
     
-    # 1. 读取现有文件（如果存在）
-    cum_file = os.path.join(BASE_DIR, "reports", "market_cumulative.json")
+    cum_file = os.path.join(REPORTS_DIR, "market_cumulative.json")
+    
+    # 0. 防回滚检查：如果文件存在，检查 generated_at 是否过期
+    rollback_warning = False
     if os.path.exists(cum_file):
+        with open(cum_file, 'r', encoding='utf-8') as f:
+            old_data = json.load(f)
+        old_meta = old_data.get('meta', {})
+        old_generated_at = old_meta.get('generated_at', '')
+        if old_generated_at:
+            try:
+                old_time = datetime.datetime.fromisoformat(old_generated_at)
+                age_hours = (datetime.datetime.now() - old_time).total_seconds() / 3600
+                if age_hours > 48:  # 超过48小时，可能是回滚版本
+                    print(f"⚠️  警告：文件 generated_at={old_generated_at}，已过期 {age_hours:.1f} 小时")
+                    print(f"   这可能是回滚版本，将强制重新生成所有产品数据")
+                    rollback_warning = True
+            except:
+                pass
+    
+    # 1. 读取现有文件（如果存在且未过期）
+    if os.path.exists(cum_file) and not rollback_warning:
         with open(cum_file, 'r', encoding='utf-8') as f:
             cum_data = json.load(f)
         products = cum_data['products']
@@ -127,97 +159,101 @@ def main():
             },
             "products": products,
         }
-        print("现有文件不存在，将创建新文件")
+        print("将创建新文件（或强制重新生成）")
     
     updated_count = 0
+    error_count = 0
     
-    # 2. 更新碳酸锂期货（从 lc_futures_history.json）
-    print("\n[1/3] 处理碳酸锂期货...")
-    lc_file = os.path.join(BASE_DIR, "lc_futures_history.json")
-    if os.path.exists(lc_file):
-        with open(lc_file, 'r', encoding='utf-8') as f:
-            lc_data = json.load(f)
-        if 'data' in lc_data:
-            price_series = [{"date": d["date"], "price": d["close"]} for d in lc_data["data"]]
-            new_cum = calculate_cumulative(price_series, 2026)
-            if new_cum:
-                if update_product(products, "碳酸锂期货", new_cum):
-                    print(f"  ✅ 更新碳酸锂期货: {new_cum['start_date']} {new_cum['start_price']} → {new_cum['end_date']} {new_cum['end_price']} ({new_cum['change_pct']:+.2f}%)")
-                else:
-                    products.append({
-                        "name": "碳酸锂期货",
-                        "unit": "元/吨",
-                        **new_cum,
-                    })
-                    print(f"  ✅ 新增碳酸锂期货: {new_cum['start_date']} {new_cum['start_price']} → {new_cum['end_date']} {new_cum['end_price']} ({new_cum['change_pct']:+.2f}%)")
-                updated_count += 1
-            else:
-                print("  ⚠️ 碳酸锂期货计算失败")
+    # 2. 处理所有8个产品
+    for i, (name, config) in enumerate(PRODUCT_CONFIG.items(), 1):
+        print(f"\n[{i}/8] 处理 {name}...")
+        
+        source_file = config["source_file"]
+        if not os.path.exists(source_file):
+            print(f"  ⚠️  源文件不存在: {source_file}")
+            error_count += 1
+            continue
+        
+        try:
+            with open(source_file, 'r', encoding='utf-8') as f:
+                source_data = json.load(f)
+        except Exception as e:
+            print(f"  ❌ 读取源文件失败: {e}")
+            error_count += 1
+            continue
+        
+        # 读取价格序列
+        try:
+            price_series = config["reader"](source_data)
+        except Exception as e:
+            print(f"  ❌ 读取价格序列失败: {e}")
+            error_count += 1
+            continue
+        
+        if not price_series:
+            print(f"  ⚠️  价格序列为空")
+            error_count += 1
+            continue
+        
+        # 计算累计涨跌幅
+        new_cum = calculate_cumulative(price_series, 2026)
+        if not new_cum:
+            print(f"  ⚠️  计算失败（数据不足）")
+            error_count += 1
+            continue
+        
+        # 验证价格合理性
+        start_valid, start_msg = validate_price(name, new_cum['start_price'])
+        end_valid, end_msg = validate_price(name, new_cum['end_price'])
+        
+        if not start_valid:
+            print(f"  ❌ 拒绝更新 {name}：起始价格异常 - {start_msg}")
+            error_count += 1
+            continue
+        if not end_valid:
+            print(f"  ❌ 拒绝更新 {name}：结束价格异常 - {end_msg}")
+            error_count += 1
+            continue
+        
+        # 更新或新增产品
+        existing = next((p for p in products if p['name'] == name), None)
+        if existing:
+            # 更新所有字段
+            existing['start_date'] = new_cum['start_date']
+            existing['start_price'] = new_cum['start_price']
+            existing['end_date'] = new_cum['end_date']
+            existing['end_price'] = new_cum['end_price']
+            existing['change'] = new_cum['change']
+            existing['change_pct'] = new_cum['change_pct']
+            existing['direction'] = new_cum['direction']
+            existing['data_points'] = new_cum['data_points']
+            existing['price_series'] = new_cum['price_series']
+            existing['unit'] = config['unit']
+            print(f"  ✅ 更新: {new_cum['start_date']} {new_cum['start_price']} → {new_cum['end_date']} {new_cum['end_price']} ({new_cum['change_pct']:+.2f}%)")
         else:
-            print("  ⚠️ lc_futures_history.json 格式错误")
-    else:
-        print(f"  ⚠️ 未找到 {lc_file}")
+            # 新增
+            products.append({
+                "name": name,
+                "unit": config['unit'],
+                **new_cum,
+            })
+            print(f"  ✅ 新增: {new_cum['start_date']} {new_cum['start_price']} → {new_cum['end_date']} {new_cum['end_price']} ({new_cum['change_pct']:+.2f}%)")
+        
+        updated_count += 1
     
-    # 3. 更新电池级碳酸锂（从 carbonate_spot_price_merged.json）
-    print("\n[2/3] 处理电池级碳酸锂...")
-    spot_file = os.path.join(BASE_DIR, "carbonate_spot_price_merged.json")
-    if os.path.exists(spot_file):
-        with open(spot_file, 'r', encoding='utf-8') as f:
-            spot_data = json.load(f)
-        if 'data' in spot_data and 'battery_grade' in spot_data['data']:
-            battery_data = spot_data['data']['battery_grade']
-            price_series = [{"date": d["date"], "price": d["price"]} for d in battery_data]
-            new_cum = calculate_cumulative(price_series, 2026)
-            if new_cum:
-                if update_product(products, "电池级碳酸锂", new_cum):
-                    print(f"  ✅ 更新电池级碳酸锂: {new_cum['start_date']} {new_cum['start_price']} → {new_cum['end_date']} {new_cum['end_price']} ({new_cum['change_pct']:+.2f}%)")
-                else:
-                    products.append({
-                        "name": "电池级碳酸锂",
-                        "unit": "元/吨",
-                        **new_cum,
-                    })
-                    print(f"  ✅ 新增电池级碳酸锂: {new_cum['start_date']} {new_cum['start_price']} → {new_cum['end_date']} {new_cum['end_price']} ({new_cum['change_pct']:+.2f}%)")
-                updated_count += 1
-            else:
-                print("  ⚠️ 电池级碳酸锂计算失败")
-        else:
-            print("  ⚠️ carbonate_spot_price_merged.json 格式错误（无battery_grade）")
-    else:
-        print(f"  ⚠️ 未找到 {spot_file}")
+    # 清理：删除不在 PRODUCT_CONFIG 中的旧产品（如旧的"锂云母(1.8%)"）
+    valid_names = set(PRODUCT_CONFIG.keys())
+    old_products = [p for p in products if p['name'] not in valid_names]
+    if old_products:
+        print(f"\n🗑️  清理 {len(old_products)} 个旧产品: {[p['name'] for p in old_products]}")
+        products = [p for p in products if p['name'] in valid_names]
     
-    # 4. 更新工业级碳酸锂（从 carbonate_spot_price_merged.json）
-    print("\n[3/3] 处理工业级碳酸锂...")
-    if os.path.exists(spot_file):
-        # 重新读取（可能已经被修改）
-        with open(spot_file, 'r', encoding='utf-8') as f:
-            spot_data = json.load(f)
-        if 'data' in spot_data and 'industrial_grade' in spot_data['data']:
-            industrial_data = spot_data['data']['industrial_grade']
-            price_series = [{"date": d["date"], "price": d["price"]} for d in industrial_data]
-            new_cum = calculate_cumulative(price_series, 2026)
-            if new_cum:
-                if update_product(products, "工业级碳酸锂", new_cum):
-                    print(f"  ✅ 更新工业级碳酸锂: {new_cum['start_date']} {new_cum['start_price']} → {new_cum['end_date']} {new_cum['end_price']} ({new_cum['change_pct']:+.2f}%)")
-                else:
-                    products.append({
-                        "name": "工业级碳酸锂",
-                        "unit": "元/吨",
-                        **new_cum,
-                    })
-                    print(f"  ✅ 新增工业级碳酸锂: {new_cum['start_date']} {new_cum['start_price']} → {new_cum['end_date']} {new_cum['end_price']} ({new_cum['change_pct']:+.2f}%)")
-                updated_count += 1
-            else:
-                print("  ⚠️ 工业级碳酸锂计算失败")
-        else:
-            print("  ⚠️ carbonate_spot_price_merged.json 格式错误（无industrial_grade）")
-    
-    # 5. 更新元数据和保存
+    # 3. 更新元数据和保存
     now = datetime.datetime.now()
     cum_data['meta']['update_time'] = now.strftime("%Y-%m-%d %H:%M:%S")
-    cum_data['meta']['data_source'] = "carbonate_spot_price_merged.json / lc_futures_history.json"
-    cum_data['meta']['generated_at'] = now.isoformat()  # ISO时间戳，用于检测回滚
-    cum_data['meta']['generator_version'] = "20260602_v2"  # 脚本版本，升级时修改
+    cum_data['meta']['data_source'] = "各产品源数据文件"
+    cum_data['meta']['generated_at'] = now.isoformat()
+    cum_data['meta']['generator_version'] = "20260603_v4"
     cum_data['products'] = products
     
     # 写入文件
@@ -227,7 +263,7 @@ def main():
     
     print("\n" + "=" * 60)
     print(f"✅ 已更新 {cum_file}")
-    print(f"   共 {len(products)} 个产品，本次更新 {updated_count} 个")
+    print(f"   共 {len(products)} 个产品，本次更新 {updated_count} 个，错误 {error_count} 个")
     print(f"   更新时间: {cum_data['meta']['update_time']}")
     print("=" * 60)
 
