@@ -1,5 +1,5 @@
-const ELECTROLYTE_DATA = {
-  "update_time": "2026-06-01 16:45:30",
+const EMBEDDED_DATA = {
+  "update_time": "2026-06-04 11:59:01",
   "source": "电解液行业数据库 (1).xlsx",
   "tables": [
     {

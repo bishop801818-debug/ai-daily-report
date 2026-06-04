@@ -1,5 +1,5 @@
-const AUTOMOTIVE_DATA = {
-  "update_time": "2026-06-01 16:45:48",
+const EMBEDDED_DATA = {
+  "update_time": "2026-06-04 11:59:22",
   "source": "🚗全球汽车市场数据库.xlsx",
   "tables": [
     {
