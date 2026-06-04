@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="html-version" content="20260602_1330">
+<meta name="html-version" content="20260603_0920">
 <title>事业部历史存档</title>
 <script>
   // 每次修改此文件后，将 content 值改为今天日期（如 20260420）
@@ -292,6 +292,7 @@ const OLD_NEW_MAP = {
   'felt': ['fnlt', 'fent'],  // 法恩莱特: 6月 fnlt, 4月 fent
   'sdmd': ['sjmd'],           // 山东美多
   'dhx':  ['dkhx'],           // 迪克化学
+  'lhy':  ['lube'],           // 润滑油事业部: 6月 lube
 };
 
 /* ── 读取 URL 参数 ── */
@@ -441,19 +442,26 @@ async function checkDateForBU(date, buId) {
 
   try {
     const resp = await fetch(`reports/${date}.json?v=${HTML_VERSION}`);
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
     const data = await resp.json();
-    // 兼容键名：data.departments 或 data.report.departments
-    const deptsObj = data.departments || (data.report && data.report.departments) || {};
+    // 兼容键名：data.departments 或 data.report.departments 或 data（根级就是 departments）
+    const deptsObj = (data && data.departments) || (data && data.report && data.report.departments) || (data && data.name && data.sections ? data : {}) || {};
     // 尝试新ID（5月+数据）和旧ID（4月数据），支持多 fallback
     let realId = deptsObj[buId] ? buId : null;
     if (!realId && OLD_NEW_MAP[buId]) {
       const fallbacks = Array.isArray(OLD_NEW_MAP[buId]) ? OLD_NEW_MAP[buId] : [OLD_NEW_MAP[buId]];
       realId = fallbacks.find(fid => deptsObj[fid]) || null;
     }
+    // 如果 deptsObj 是空或没有该 BU，尝试把 data 当作 BU 数据本身
+    if (!realId && data && data.sections && Array.isArray(data.sections)) {
+      // data 本身就是某个 BU 的报告（旧格式）
+      realId = '_root';
+      deptsObj['_root'] = data;
+    }
     const dept = realId ? deptsObj[realId] : null;
     const hasSections = dept && dept.sections && (
       (Array.isArray(dept.sections) && dept.sections.some(sec => Array.isArray(sec.items) && sec.items.length > 0)) ||
-      Object.values(dept.sections).some(v => Array.isArray(v) && v.length > 0)
+      (typeof dept.sections === 'object' && !Array.isArray(dept.sections) && Object.values(dept.sections).some(v => Array.isArray(v) && v.length > 0))
     );
     const hasContent = dept && (
       (dept._raw_content && dept._raw_content.trim()) ||
@@ -462,12 +470,12 @@ async function checkDateForBU(date, buId) {
     );
     // 诊断日志
     const secsInfo = dept && dept.sections
-      ? Object.entries(dept.sections).map(([k,v]) => k + ':' + (Array.isArray(v) ? v.length : '?')).join(',')
+      ? (Array.isArray(dept.sections) ? dept.sections.map(s => s.dim || s.title || '?').join(',') : Object.keys(dept.sections).join(','))
       : 'NO_DEPTS';
     console.log(`[checkDateForBU] ${date} / ${buId}(real=${realId}) → empty=${!hasContent} sections=[${secsInfo}]`);
     return { date, day, month, empty: !hasContent, _rawDate: d };
   } catch(e) {
-    console.error(`[checkDateForBU] ${date} / ${buId} → ERROR: ${e.message}`);
+    console.error(`[checkDateForBU] ${date} / ${buId} → ERROR: ${e.message}`, e);
     return { date, day, month, empty: true, _rawDate: d };
   }
 }
@@ -654,12 +662,15 @@ function buildSectionsHTML(dept) {
         return parts.map(p => `<div class="report-item">${safe(p)}</div>`).join('\n');
       }
       return `<div class="report-item">${safe(item)}</div>`;
-    } else {
-      const title = item.title || item.标题 ? safe(item.title || item.标题) : '';
-      let rawContent = item.content || item.摘要 || item.正文 || '';
-      // 如果 content 已经是预构建的 HTML（以 < 开头），则不再转义
-      const contentIsHtml = typeof rawContent === 'string' && rawContent.trim().startsWith('<');
-      const content = contentIsHtml ? rawContent : safe(rawContent);
+      } else {
+        const title = item.title || item.标题 ? safe(item.title || item.标题) : '';
+        let rawContent = item.content || item.摘要 || item.正文 || '';
+        // 如果 content 含有 Markdown 表格（| 开头），用 renderContentBody 渲染
+        const hasMdTable = typeof rawContent === 'string' && /^\s*\|/.test(rawContent);
+        const contentHtml = hasMdTable ? renderContentBody(rawContent, safe) : (() => {
+          const contentIsHtml = typeof rawContent === 'string' && rawContent.trim().startsWith('<');
+          return contentIsHtml ? rawContent : safe(rawContent);
+        })();
       let itemSource = item.source || item.来源 || '';
       let itemDate = item.date || item.日期 || dept.window_end || '';
       if (!itemSource || !itemDate) {
@@ -673,12 +684,12 @@ function buildSectionsHTML(dept) {
       const source = itemSource ? `<span style="font-size:12px;color:#888;background:#f5f5f5;border-radius:3px;padding:1px 6px;margin-left:8px;vertical-align:middle">来源: ${safe(itemSource)}</span>` : '';
       const date = itemDate ? `<span style="font-size:12px;color:#888;background:#f0f0f0;border-radius:3px;padding:1px 6px;margin-left:4px;vertical-align:middle">${safe(itemDate)}</span>` : '';
       const meta = (source || date) ? `<div style="margin-top:6px;padding-top:6px;border-top:1px dashed #e0e0e0">${source}${date}</div>` : '';
-      if (title && content) {
-        return `<div class="report-item"><div class="report-item-title">${title}</div><div class="report-item-body">${content}</div>${meta}</div>`;
+      if (title && contentHtml) {
+        return `<div class="report-item"><div class="report-item-title">${title}</div><div class="report-item-body">${contentHtml}</div>${meta}</div>`;
       } else if (title) {
         return `<div class="report-item"><div class="report-item-title">${title}</div>${meta}</div>`;
-      } else if (content) {
-        return `<div class="report-item"><div class="report-item-body">${content}</div>${meta}</div>`;
+      } else if (contentHtml) {
+        return `<div class="report-item"><div class="report-item-body">${contentHtml}</div>${meta}</div>`;
       }
       return '';
     }
