@@ -402,9 +402,18 @@ def generate_insight_with_news(chart, metrics, report, division):
     if report and division:
         dept = report.get('departments', {}).get(division, {})
         if dept:
-            market = dept.get('sections', {}).get('market', {})
-            supply_signals = market.get('供给信号', [])
-            risk_signals = market.get('争议风险', [])
+            # 新格式：sections 是列表，每个元素有 dim 字段
+            sections = dept.get('sections', [])
+            if isinstance(sections, list):
+                market_section = next((s for s in sections if s.get('dim') == 'market'), None)
+                supply_signals = market_section.get('items', []) if market_section else []
+                risk_section = next((s for s in sections if s.get('dim') == 'policy'), None)
+                risk_signals = risk_section.get('items', []) if risk_section else []
+            else:
+                # 兼容旧格式：sections 是字典
+                market = sections.get('market', {}) if isinstance(sections, dict) else {}
+                supply_signals = market.get('供给信号', [])
+                risk_signals = market.get('争议风险', [])
 
             # 优先使用供给信号
             if supply_signals:
@@ -439,7 +448,12 @@ def generate_insight_with_news(chart, metrics, report, division):
     if len(full_text) < 50 and report and division:
         dept = report.get('departments', {}).get(division, {})
         if dept:
-            topnews = dept.get('sections', {}).get('topnews', [])
+            sections = dept.get('sections', [])
+            if isinstance(sections, list):
+                topnews_section = next((s for s in sections if s.get('dim') == 'topnews'), None)
+                topnews = topnews_section.get('items', []) if topnews_section else []
+            else:
+                topnews = sections.get('topnews', []) if isinstance(sections, dict) else []
             if topnews:
                 title = topnews[0].get('标题', '')
                 title = title.rstrip('。')
