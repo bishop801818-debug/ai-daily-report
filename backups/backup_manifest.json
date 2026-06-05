@@ -1,0 +1,31 @@
+{
+  "versions": [
+    {
+      "version": 6,
+      "timestamp": "20260601_231417",
+      "message": "2026-06-01 缓存修复v2：修复正则破坏引号+双反引号问题+index_v3还原干净版本",
+      "trigger": "index_v3.html",
+      "file_count": 36,
+      "total_size_mb": 59.0,
+      "dir": "v6_20260601_231417"
+    },
+    {
+      "version": 5,
+      "timestamp": "20260601_225321",
+      "message": "2026-06-01 缓存机制全面修复：服务器禁用Cache-Control+所有页面meta+window+fetch版本参数",
+      "trigger": "index_v3.html",
+      "file_count": 36,
+      "total_size_mb": 27.2,
+      "dir": "v5_20260601_225321"
+    },
+    {
+      "version": 4,
+      "timestamp": "20260601_185446",
+      "message": "2026-06-01 全量存档：战略洞察重构+事业部历史数据旧ID兼容修复",
+      "trigger": "index_v3.html",
+      "file_count": 36,
+      "total_size_mb": 27.2,
+      "dir": "v4_20260601_185446"
+    }
+  ]
+}

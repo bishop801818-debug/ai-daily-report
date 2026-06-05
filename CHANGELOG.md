@@ -4,11 +4,20 @@
 **变更内容**:
 - ✅ 导航栏：分析报告 → 行业分析，战略洞察 → 竞品比对
 - ✅ analysis_hub.html 电解液卡片添加报告链接 → felt_report_202604.html
+- ✅ 根目录大整理：300+ 文件归档至子目录，根目录保留87 个核心文件
+  - `_archive/debug/` 调试/诊断/修复脚本（180+ 个）
+  - `_archive/versions/` 历史版本HTML（40+ 个）
+  - `_archive/server/` 服务器文件
+  - `_archive/reports/` 过期PPTX
+  - `_archive/scripts/` 辅助脚本
+  - `data/` 大型数据JSON
+  - `_docs/` 中文旧文档
+  - 更新 .gitignore 适配新目录结构
 
-**技术文件**: index_v3.html, analysis_hub.html
+**技术文件**: index_v3.html, analysis_hub.html, .gitignore
 
 **迁移说明**:
-- 无破坏性变更，可直接使用
+- 无破坏性变更，所有文件已 Git 记录，可随时恢复
 
 ---
 
