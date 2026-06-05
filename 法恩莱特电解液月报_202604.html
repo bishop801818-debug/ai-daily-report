@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>法恩莱特电解液月报 · 2026年4月</title>
+<style>
+:root {
+  --primary: #c62828;
+  --primary-light: #e53935;
+  --primary-dark: #8e0000;
+  --text-color: #1a1a1a;
+  --text-secondary: #555;
+  --text-light: #888;
+  --border-color: #e0e0e0;
+  --bg-light: #f8f9fc;
+  --bg-white: #fff;
+  --green: #2e7d32;
+  --orange: #ef6c00;
+  --red: #c62828;
+  --blue-light: rgba(198,40,40,0.06);
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', 'Segoe UI', sans-serif; color: var(--text-color); background: var(--bg-light); line-height: 1.6; font-size: 14px; }
+a { color: inherit; text-decoration: none; }
+
+/* Top Bar */
+.topbar { position: sticky; top: 0; z-index: 100; background: linear-gradient(135deg, var(--primary-dark), var(--primary)); color: #fff; padding: 0 24px; height: 56px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
+.topbar-left { display: flex; align-items: center; gap: 8px; }
+.topbar-back-btn { background: rgba(255,255,255,0.15); color: #fff; border: 1px solid rgba(255,255,255,0.3); padding: 5px 14px; border-radius: 20px; font-size: 12px; cursor: pointer; transition: all 0.2s; }
+.topbar-back-btn:hover { background: rgba(255,255,255,0.25); }
+.topbar-center { font-size: 18px; font-weight: 700; letter-spacing: 1px; }
+.topbar-right { font-size: 12px; opacity: 0.85; }
+
+/* Page Layout */
+.page-wrapper { display: flex; max-width: 1200px; margin: 0 auto; padding: 24px 16px; gap: 20px; }
+
+/* Sidebar TOC */
+.toc-sidebar { flex: 0 0 200px; position: sticky; top: 80px; height: fit-content; background: #fff; border-radius: 12px; padding: 16px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+.toc-sidebar h3 { font-size: 13px; color: var(--primary); margin-bottom: 12px; padding-bottom: 8px; border-bottom: 2px solid var(--primary); font-weight: 700; }
+.toc-list { list-style: none; }
+.toc-list li { margin-bottom: 4px; }
+.toc-list a { display: block; padding: 6px 8px; border-radius: 6px; font-size: 12px; color: var(--text-secondary); transition: all 0.2s; }
+.toc-list a:hover { background: var(--blue-light); color: var(--primary); }
+.toc-list a.active { background: var(--blue-light); color: var(--primary); font-weight: 600; }
+.toc-part { font-weight: 700; color: var(--text-color); }
+.toc-sub { padding-left: 16px; font-size: 11px; }
+
+/* Main Content */
+.main-content { flex: 1; min-width: 0; }
+
+/* Report Header */
+.report-header { background: linear-gradient(135deg, var(--primary-dark), var(--primary)); color: #fff; border-radius: 16px; padding: 40px 32px 32px; margin-bottom: 20px; }
+.report-header .report-subtitle { font-size: 14px; opacity: 0.8; margin-bottom: 8px; }
+.report-header h1 { font-size: 28px; font-weight: 700; margin-bottom: 8px; }
+.report-header .report-meta { font-size: 13px; opacity: 0.75; display: flex; gap: 16px; flex-wrap: wrap; }
+.report-header .report-meta span { display: flex; align-items: center; gap: 4px; }
+
+/* KPI Cards */
+.kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
+.kpi-card { background: #fff; border-radius: 12px; padding: 16px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); border-top: 3px solid var(--primary); }
+.kpi-label { font-size: 12px; color: var(--text-light); margin-bottom: 6px; font-weight: 500; }
+.kpi-value { font-size: 22px; font-weight: 800; color: var(--primary); line-height: 1.2; }
+.kpi-change { font-size: 12px; margin-top: 4px; font-weight: 600; padding: 2px 8px; border-radius: 10px; display: inline-block; }
+.kpi-change.up { background: rgba(46,125,50,0.1); color: var(--green); }
+.kpi-change.down { background: rgba(198,40,40,0.1); color: var(--red); }
+.kpi-change.neutral { background: rgba(100,100,100,0.08); color: var(--text-light); }
+
+/* Sections */
+.part-section { background: #fff; border-radius: 12px; margin-bottom: 20px; padding: 24px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+.part-title { display: flex; align-items: center; gap: 10px; font-size: 18px; font-weight: 700; color: var(--primary); margin-bottom: 16px; padding-bottom: 10px; border-bottom: 2px solid var(--border-color); }
+.part-title .part-num { width: 32px; height: 32px; background: var(--primary); color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; flex-shrink: 0; }
+
+/* Insight Blocks */
+.insight-block { margin-bottom: 16px; line-height: 1.8; font-size: 14px; }
+.insight-block p { margin-bottom: 8px; text-align: justify; }
+.highlight { background: linear-gradient(transparent 60%, rgba(198,40,40,0.15) 60%); font-weight: 600; }
+
+/* Event Table */
+.event-table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 13px; }
+.event-table thead th { background: var(--bg-light); border-bottom: 2px solid var(--border-color); padding: 8px 12px; text-align: left; font-weight: 600; color: var(--text-secondary); }
+.event-table tbody td { padding: 10px 12px; border-bottom: 1px solid var(--border-color); vertical-align: top; }
+.event-table tbody tr:hover { background: var(--bg-light); }
+.event-table .priority-A { color: var(--red); font-weight: 700; }
+.event-table .priority-B { color: var(--orange); font-weight: 700; }
+.event-table .priority-C { color: var(--text-light); }
+
+/* Data Table */
+.data-table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 13px; }
+.data-table thead th { background: var(--bg-light); border-bottom: 2px solid var(--border-color); padding: 8px 12px; text-align: right; font-weight: 600; color: var(--text-secondary); }
+.data-table thead th:first-child { text-align: left; }
+.data-table tbody td { padding: 8px 12px; border-bottom: 1px solid var(--border-color); text-align: right; }
+.data-table tbody td:first-child { text-align: left; font-weight: 500; }
+.data-table tbody tr.row-highlight { background: var(--blue-light); }
+.data-table tbody tr.row-highlight td { color: var(--primary); font-weight: 600; }
+.data-table tbody tr:hover { background: var(--bg-light); }
+
+/* Chart Card */
+.chart-card { background: #fff; border-radius: 10px; padding: 20px; margin: 16px 0; box-shadow: 0 1px 4px rgba(0,0,0,0.05); }
+.chart-card h4 { font-size: 14px; color: var(--text-secondary); margin-bottom: 12px; font-weight: 600; }
+.chart-container { width: 100%; height: 280px; }
+
+/* Callout */
+.callout { border-radius: 8px; padding: 14px 16px; margin: 12px 0; font-size: 13px; }
+.callout-info { background: rgba(30,60,114,0.06); border-left: 4px solid var(--primary); }
+.callout-warn { background: rgba(239,108,0,0.08); border-left: 4px solid var(--orange); }
+.callout-danger { background: rgba(198,40,40,0.07); border-left: 4px solid var(--red); }
+.callout-success { background: rgba(46,125,50,0.08); border-left: 4px solid var(--green); }
+.callout-title { font-weight: 700; margin-bottom: 4px; }
+.callout p { color: var(--text-secondary); }
+
+/* Sub Title */
+.sub-title { font-size: 15px; font-weight: 700; color: var(--text-color); margin: 20px 0 10px; display: flex; align-items: center; gap: 8px; }
+.sub-title::before { content: ''; width: 4px; height: 16px; background: var(--primary); border-radius: 2px; }
+
+/* Data Source */
+.data-source { font-size: 11px; color: var(--text-light); margin-top: 16px; padding-top: 10px; border-top: 1px solid var(--border-color); }
+.data-source span { display: inline-flex; align-items: center; gap: 2px; margin-right: 12px; }
+
+/* Felt Card */
+.felt-card { background: linear-gradient(135deg, rgba(198,40,40,0.08), rgba(198,40,40,0.03)); border: 1px solid rgba(198,40,40,0.2); border-radius: 12px; padding: 16px 20px; margin: 16px 0; }
+.felt-card-title { font-size: 13px; font-weight: 700; color: var(--primary); margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+.felt-card-body { font-size: 13px; color: var(--text-secondary); line-height: 1.8; }
+.felt-card-body strong { color: var(--text-color); }
+
+/* Recommendation */
+.recommendation-card { border-radius: 10px; padding: 16px 20px; margin: 12px 0; border: 1px solid; }
+.rec-opportunity { background: rgba(46,125,50,0.07); border-color: rgba(46,125,50,0.3); }
+.rec-risk { background: rgba(198,40,40,0.07); border-color: rgba(198,40,40,0.3); }
+.rec-action { background: rgba(30,60,114,0.07); border-color: rgba(30,60,114,0.3); }
+.rec-title { font-size: 14px; font-weight: 700; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+.rec-opportunity .rec-title { color: var(--green); }
+.rec-risk .rec-title { color: var(--red); }
+.rec-action .rec-title { color: var(--primary); }
+.rec-item { font-size: 13px; color: var(--text-secondary); padding: 4px 0; display: flex; gap: 8px; }
+.rec-item::before { content: attr(data-num); font-weight: 700; color: var(--text-light); flex-shrink: 0; }
+
+/* Conclusion Banner */
+.conclusion-banner { background: linear-gradient(135deg, var(--primary-dark), var(--primary)); color: #fff; border-radius: 12px; padding: 24px; margin-bottom: 20px; }
+.conclusion-banner h3 { font-size: 16px; margin-bottom: 10px; opacity: 0.9; }
+.conclusion-banner p { font-size: 15px; line-height: 1.8; }
+
+/* Report Footer */
+.report-footer { text-align: center; color: var(--text-light); font-size: 12px; padding: 24px 0; margin-top: 20px; border-top: 1px solid var(--border-color); }
+
+/* Price Table */
+.price-table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 13px; }
+.price-table th { background: var(--bg-light); padding: 8px 12px; text-align: center; font-weight: 600; border: 1px solid var(--border-color); }
+.price-table td { padding: 8px 12px; text-align: center; border: 1px solid var(--border-color); }
+.price-table td:first-child { text-align: left; font-weight: 600; }
+.price-up { color: var(--red); font-weight: 700; }
+.price-down { color: var(--green); font-weight: 700; }
+
+/* Print */
+@media print { .topbar, .toc-sidebar { display: none; } .page-wrapper { padding: 0; } .main-content { max-width: 100%; } .part-section { break-inside: avoid; } }
+@media (max-width: 1100px) { .toc-sidebar { display: none; } .kpi-row { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 600px) { .kpi-row { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="topbar-left">
+    <a href="javascript:history.back()" class="topbar-back-btn">← 返回</a>
+  </div>
+  <div class="topbar-center">法恩莱特电解液月度分析报告</div>
+  <div class="topbar-right">2026年5月 · 每月16日发布</div>
+</div>
+
+<div class="page-wrapper">
+<!-- TOC SIDEBAR -->
+<aside class="toc-sidebar">
+  <h3>目 录</h3>
+  <ul class="toc-list">
+    <li><a href="#p1" class="toc-part">一、行业动态与热点</a></li>
+    <li><a href="#p2" class="toc-part">二、电解液市场分析</a></li>
+    <li><a href="#p3" class="toc-part">三、添加剂与溶剂价格</a></li>
+    <li><a href="#p4" class="toc-part">四、碳酸锂市场</a></li>
+    <li><a href="#p5" class="toc-part">五、六氟磷酸锂市场</a></li>
+    <li><a href="#p6" class="toc-part">六、总结与建议</a></li>
+  </ul>
+</aside>
+
+<!-- MAIN CONTENT -->
+<main class="main-content">
+
+<!-- REPORT HEADER -->
+<header class="report-header">
+  <div class="report-subtitle">法恩莱特事业部 · 电解液行业</div>
+  <h1>2026年4月 月度分析报告</h1>
+  <div class="report-meta">
+    <span>📅 数据月份：2026年4月</span>
+    <span>📊 报告日期：2026年5月16日</span>
+    <span>⚙️ 数据来源：电解液数据库 · 行业新闻 · 早报</span>
+  </div>
+</header>
+
+<!-- KPI ROW -->
+<div class="kpi-row">
+  <div class="kpi-card">
+    <div class="kpi-label">电解液行业4月产量</div>
+    <div class="kpi-value">24.9万吨</div>
+    <div class="kpi-change up">▲ +4.87% MoM</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-label">法恩莱特4月产量</div>
+    <div class="kpi-value">4,200吨</div>
+    <div class="kpi-change neutral">行业第12名</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-label">电解液出口（4月）</div>
+    <div class="kpi-value">2.85万吨</div>
+    <div class="kpi-change up">▲ +22% MoM</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-label">碳酸锂月均价</div>
+    <div class="kpi-value">16.27万/吨</div>
+    <div class="kpi-change up">▲ 触底反弹中</div>
+  </div>
+</div>
+
+<!-- ========== PART 1 ========== -->
+<section class="part-section" id="p1">
+  <div class="part-title"><span class="part-num">1</span>行业动态与市场热点</div>
+
+  <div class="insight-block">
+    <p><span class="highlight">4月电解液行业基本面平稳运行</span>，碳酸锂价格触底反弹（4月均价16.27万元/吨），六氟磷酸锂景气回升，六氟磷酸锂价格5月中旬大幅跳涨至13.0万元/吨（高端规格），行业成本端推动涨价预期强烈。</p>
+    <p>法恩莱特4月产量4,200吨排名第12，开工率14%处于低位爬坡期，年累17,800吨，年化产能约3万吨级。产能利用率偏低反映新进入者产能爬坡节奏尚待提速。</p>
+  </div>
+
+  <div class="sub-title">行业事件</div>
+
+  <table class="event-table">
+    <thead>
+      <tr>
+        <th style="width:50px">级别</th>
+        <th>事件摘要</th>
+        <th style="width:120px">来源/日期</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="priority-A">A</td>
+        <td><strong>碳酸锂4月均价16.27万元/吨</strong>，区间[15.0, 17.7]，触底反弹；新能源乘用车4月交强险口径零售量71万辆（+26%），储能需求持续放量，上游挺价信心增强。</td>
+        <td>行业数据库<br>2026-04</td>
+      </tr>
+      <tr>
+        <td class="priority-A">A</td>
+        <td><strong>六氟磷酸锂5月中旬跳涨</strong>：高端规格报价13.0万元/吨（4月均价仅7.82万元/吨），单月涨幅超66%；主因碳酸锂+氢氟酸成本推动，多氟多/天赐材料报价上调。</td>
+        <td>行业数据库<br>2026-05中</td>
+      </tr>
+      <tr>
+        <td class="priority-B">B</td>
+        <td><strong>电解液行业4月产量24.9万吨</strong>（MoM+4.87%），储能630并网节点抢装效应持续，储能电解液需求旺盛。</td>
+        <td>电解液数据库<br>2026-04</td>
+      </tr>
+      <tr>
+        <td class="priority-B">B</td>
+        <td><strong>天赐材料LiFSI产能扩张</strong>：4月公告投资建设年产10000吨LiFSI改扩建项目，现有年产能近5000吨，一体化布局深化。</td>
+        <td>华鑫证券<br>2026-05-14</td>
+      </tr>
+      <tr>
+        <td class="priority-B">B</td>
+        <td><strong>多氟多Q1净利润3.76亿元</strong>（同比+480%），六氟磷酸锂景气回升+电池业务产能放量驱动盈利大增。</td>
+        <td>九阳公社<br>2026-05-15</td>
+      </tr>
+      <tr>
+        <td class="priority-C">C</td>
+        <td><strong>DMC溶剂持续承压</strong>：4月均价2.44万元/吨，当前（5/21）跌至2.32万元/吨，2023年以来价格一路下行，压制电解液整体盈利改善空间。</td>
+        <td>中原证券<br>2026-05-14</td>
+      </tr>
+      <tr>
+        <td class="priority-C">C</td>
+        <td><strong>韩国氢氟酸进口激增</strong>：韩国Solbrain等企业自5月起大规模采购中国无水氢氟酸，价格较年初上涨40%，中国氟化工全球定价权提升。</td>
+        <td>腾讯网<br>2026-05-15</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="felt-card">
+    <div class="felt-card-title">🏷️ 法恩莱特定位</div>
+    <div class="felt-card-body">
+      4月产量<strong>4,200吨</strong>，行业TOP15排名第12；年累<strong>17,800吨</strong>（2026年1-4月），行业第12。
+      <br>开工率约14%（年化产能约3万吨），<strong>产能爬坡期特征明显</strong>。出货量处于行业腰部，开工率偏低，需重点关注：
+      <br>① 开工率提升节奏（能否在Q2-Q3显著突破）
+      <br>② 核心客户开拓进度（宁德时代/亿纬锂能/海辰储能等头部客户认证）
+      <br>③ 添加剂LiFSI产线布局（天赐材料/新宙邦均已启动10000吨改扩建项目）
+    </div>
+  </div>
+</section>
+
+<!-- ========== PART 2 ========== -->
+<section class="part-section" id="p2">
+  <div class="part-title"><span class="part-num">2</span>电解液市场月度分析</div>
+
+  <div class="sub-title">行业整体产量</div>
+  <div class="insight-block">
+    <p>2026年4月，电解液行业产量<span class="highlight">248,950吨</span>，环比3月（237,400吨）增长<strong>4.87%</strong>。增长驱动来自两方面：</p>
+    <p>① <strong>储能630并网抢装节点效应持续</strong>：2026Q1中国储能电池销量145.1GWh（同比+115.9%），储能电解液需求高增对冲动力电池短期放缓。</p>
+    <p>② <strong>头部企业产能持续爬坡</strong>：天赐材料/新宙邦等龙头企业出货量环比增长，带动行业整体产量提升。</p>
+  </div>
+
+  <div class="chart-card">
+    <h4>📊 电解液月度产量趋势（2025-01 ~ 2026-04）</h4>
+    <div id="chart-output-trend" class="chart-container"></div>
+    <div class="data-source">
+      <span>📈 数据来源：电解液数据库 Table[0]</span>
+      <span>📊 法恩莱特4月：4,200吨（#12）</span>
+    </div>
+  </div>
+
+  <div class="sub-title">TOP15企业排名（2026年4月）</div>
+  <table class="data-table" id="rank-table-p2">
+    <thead>
+      <tr><th>排名</th><th>企业</th><th>4月产量（吨）</th><th>备注</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>1</td><td>天赐材料</td><td>79,000</td><td>行业绝对龙头</td></tr>
+      <tr><td>2</td><td>新宙邦</td><td>38,000</td><td>出口强劲</td></tr>
+      <tr><td>3</td><td>江苏国泰</td><td>27,000</td><td>大客户绑定深</td></tr>
+      <tr><td>4</td><td>石大胜华</td><td>14,000</td><td>溶剂+6F一体化</td></tr>
+      <tr><td>5</td><td>昆仑亿纬</td><td>13,600</td><td></td></tr>
+      <tr><td>6</td><td>比亚迪</td><td>13,500</td><td>自供为主</td></tr>
+      <tr><td>7</td><td>法恩莱特</td><td>13,200</td><td>大客户绑定</td></tr>
+      <tr><td>8</td><td>珠海冠宇</td><td>11,200</td><td></td></tr>
+      <tr><td>9</td><td>赛纬电子</td><td>7,000</td><td></td></tr>
+      <tr><td>10</td><td>航盛锂能</td><td>6,200</td><td></td></tr>
+      <tr><td>11</td><td>亿恩科</td><td>6,000</td><td></td></tr>
+      <tr class="row-highlight"><td>12</td><td>法恩莱特</td><td>4,200</td><td>← 法恩莱特</td></tr>
+      <tr><td>13</td><td>延安必康</td><td>3,800</td><td></td></tr>
+      <tr><td>14</td><td>昆仑柯</td><td>3,000</td><td></td></tr>
+      <tr><td>15</td><td>航进科技</td><td>2,500</td><td></td></tr>
+    </tbody>
+  </table>
+
+  <div class="sub-title">出口分析</div>
+  <div class="insight-block">
+    <p>4月电解液出口量<span class="highlight">28,500吨</span>，环比3月（23,360吨）大幅增长<strong>+22.0%</strong>。出口大幅增长主因：</p>
+    <p>① 海外储能市场Q2备货需求旺盛（欧洲户储+美国大储项目加速）；② 中国电解液企业性价比优势持续，日韩电池厂对中国供应链依赖加深。</p>
+  </div>
+
+  <div class="callout callout-info">
+    <div class="callout-title">法恩莱特市场定位分析</div>
+    <p>法恩莱特4月产量4,200吨，行业排名第12（年累17,800吨，同为第12）。<strong>开工率约14%</strong>（年化产能3万吨级），处于产能爬坡初期。与天赐材料（79,000吨/月）相比，规模差距约19倍。</p>
+    <p>年累开工率19%，低于行业平均，反映新进入者在客户认证和产能爬坡上仍面临挑战。需重点关注：① 储能客户（海辰储能/昆宇能源）增量订单；② 动力电池头部客户认证进展。</p>
+  </div>
+</section>
+
+<!-- ========== PART 3 ========== -->
+<section class="part-section" id="p3">
+  <div class="part-title"><span class="part-num">3</span>添加剂与溶剂价格走势</div>
+
+  <div class="sub-title">添加剂价格（VC / FEC / PS）</div>
+  <div class="insight-block">
+    <p>4月添加剂均价整体<strong>高于5月底最新价格</strong>，反映4月处于涨价峰值后的小幅回落阶段。VC/FEC/PS三大添加剂受下游备货节奏影响，3-4月采购高峰推高4月均价。</p>
+  </div>
+
+  <table class="price-table">
+    <thead>
+      <tr><th>品名</th><th>4月均价（万元/吨）</th><th>最新价格（万元/吨）</th><th>最新日期</th><th>趋势</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>VC（碳酸亚乙烯酯）</td>
+        <td>2.62</td>
+        <td>2.50</td>
+        <td>5月21日</td>
+        <td class="price-down">↓ 小幅回落</td>
+      </tr>
+      <tr>
+        <td>FEC（氟代碳酸乙烯酯）</td>
+        <td>2.51</td>
+        <td>2.35</td>
+        <td>5月21日</td>
+        <td class="price-down">↓ 小幅回落</td>
+      </tr>
+      <tr>
+        <td>PS（丙烯基磺酸内酯）</td>
+        <td>2.84</td>
+        <td>2.70</td>
+        <td>5月21日</td>
+        <td class="price-down">↓ 小幅回落</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="chart-card">
+    <h4>📈 添加剂价格走势（近12个月）</h4>
+    <div id="chart-additive-price" class="chart-container"></div>
+    <div class="data-source"><span>📊 数据来源：电解液数据库 Table[4/5/6]</span></div>
+  </div>
+
+  <div class="sub-title">溶剂价格（EC / DMC / EMC）</div>
+  <div class="insight-block">
+    <p>DMC溶剂持续承压（4月均价2.44万/吨，5/21最新2.32万/吨），2023年以来价格一路下行，4月较年初跌幅约18%，是压制电解液整体盈利改善的核心因素之一。</p>
+    <p>EMC价格4月均价3.74万/吨，略高于最新3.60万/吨，小幅回落。EC触底回升至2.50万/吨，与4月均价2.44基本持平。</p>
+  </div>
+
+  <table class="price-table">
+    <thead>
+      <tr><th>品名</th><th>4月均价（万元/吨）</th><th>最新价格（万元/吨）</th><th>最新日期</th><th>趋势</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>EC（碳酸乙烯酯）</td>
+        <td>2.44</td>
+        <td>2.50</td>
+        <td>5月21日</td>
+        <td class="price-up">↑ 触底回升</td>
+      </tr>
+      <tr>
+        <td>DMC（碳酸二甲酯）</td>
+        <td>2.44</td>
+        <td>2.32</td>
+        <td>5月21日</td>
+        <td class="price-down">↓ 持续承压</td>
+      </tr>
+      <tr>
+        <td>EMC（碳酸甲乙酯）</td>
+        <td>3.74</td>
+        <td>3.60</td>
+        <td>5月21日</td>
+        <td class="price-down">↓ 小幅回落</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="callout callout-warn">
+    <div class="callout-title">法恩莱特溶剂成本预警</div>
+    <p>DMC溶剂持续承压，4月均价2.44万元/吨，当前2.32万元/吨。2023年以来DMC价格一路下行，2026年5月较4月初跌幅达18%。DMC占电解液成本约15%， DMC持续压价虽短期降低原料成本，但也反映溶剂端供给过剩格局，对电解液整体盈利改善空间形成压制。</p>
+  </div>
+
+  <div class="chart-card">
+    <h4>📈 溶剂价格走势（近12个月）</h4>
+    <div id="chart-solvent-price" class="chart-container"></div>
+    <div class="data-source"><span>📊 数据来源：电解液数据库 Table[7/8/9]</span></div>
+  </div>
+</section>
+
+<!-- ========== PART 4 ========== -->
+<section class="part-section" id="p4">
+  <div class="part-title"><span class="part-num">4</span>碳酸锂市场</div>
+
+  <div class="sub-title">4月价格走势</div>
+  <div class="insight-block">
+    <p>2026年4月，碳酸锂（电池级99.5%）均价<span class="highlight">16.27万元/吨</span>，月度区间[<strong>15.0, 17.7</strong>]万元/吨。4月内呈现明显反弹走势，从月初15万元/吨附近一路上行至月末16.9万元/吨，月内涨幅约12.7%。</p>
+    <p>截至5月27日，碳酸锂最新报价<strong>16.5万元/吨</strong>，延续4月反弹趋势。</p>
+  </div>
+
+  <div class="chart-card">
+    <h4>📈 碳酸锂日度价格走势（2025-01 ~ 2026-04）</h4>
+    <div id="chart-carbonate" class="chart-container"></div>
+    <div class="data-source"><span>📊 数据来源：碳酸锂数据库 Table[6]（电池级99.5%）</span></div>
+  </div>
+
+  <div class="sub-title">驱动因素分析</div>
+  <div class="insight-block">
+    <p>① <strong>上游挺价情绪增强</strong>：锂盐厂商Q1财报承压，4月主动推涨报价。</p>
+    <p>② <strong>储能需求放量传导</strong>：2026Q1储能电池销量145.1GWh（同比+116%），储能电池采购放量带动碳酸锂需求边际改善。</p>
+    <p>③ <strong>进口矿价支撑</strong>：澳大利亚锂辉石价格企稳，成本端对碳酸锂形成底部支撑。</p>
+  </div>
+
+  <div class="sub-title">成本传导分析</div>
+  <div class="callout callout-info">
+    <div class="callout-title">传导机制</div>
+    <p>碳酸锂每上涨<strong>1万元/吨</strong>，六氟磷酸锂成本上涨约<strong>3万元/吨</strong>，电解液成本上涨约<strong>3,000元/吨</strong>。</p>
+    <p>4月碳酸锂从15.0万元/吨涨至16.9万元/吨（+1.9万元/吨），理论推动电解液成本约<strong>+5,700元/吨</strong>，在电解液售价约2.8万/吨（磷酸铁锂规格）背景下，成本传导时滞叠加DMC溶剂压价，电解液企业4月盈利承压。</p>
+  </div>
+
+  <div class="felt-card">
+    <div class="felt-card-title">🏷️ 法恩莱特碳酸锂成本影响</div>
+    <div class="felt-card-body">
+      4月碳酸锂均价16.27万元/吨，较3月均价（估算约15.2万元/吨）上涨约1万元/吨，理论带动电解液成本+约3,000元/吨。
+      <br>当前碳酸锂价格仍处于相对低位（2022年峰值超50万元/吨），但较2023年低点（10万元/吨以下）已有显著抬升。
+      <br><strong>对法恩莱特的影响</strong>：碳酸锂价格反弹推升六氟磷酸锂成本，六氟磷酸锂5月中旬跳涨至13.0万元/吨（较4月均价7.82万元/吨涨幅超66%），若调价顺利传导，法恩莱特可顺势上调报价；若传导不畅，开工率偏低的新进入者将面临更大的成本压力。
+    </div>
+  </div>
+</section>
+
+<!-- ========== PART 5 ========== -->
+<section class="part-section" id="p5">
+  <div class="part-title"><span class="part-num">5</span>六氟磷酸锂市场</div>
+
+  <div class="sub-title">行业产量</div>
+  <div class="insight-block">
+    <p>2026年4月，六氟磷酸锂行业产量<span class="highlight">7,530吨</span>，环比3月（7,050吨）增长<strong>+6.81%</strong>，行业景气持续回升。六氟磷酸锂价格5月中旬大幅跳涨（高端规格13.0万元/吨，4月均价仅7.82万元/吨），显示景气周期已从产量端传导至价格端。</p>
+  </div>
+
+  <div class="chart-card">
+    <h4>📊 六氟磷酸锂月度产量（2025-01 ~ 2026-04）</h4>
+    <div id="chart-lifpf6-output" class="chart-container"></div>
+    <div class="data-source"><span>📊 数据来源：电解液数据库 Table[23]</span></div>
+  </div>
+
+  <div class="sub-title">价格走势（三大规格对比）</div>
+  <div class="insight-block">
+    <p>六氟磷酸锂5月中旬价格出现大幅跳涨，<strong>碳酸锂+氢氟酸成本推动</strong>是主因。值得关注的是：4月均价（7.82~9.39万元/吨）显著低于5月底最新报价（13.0~16.5万元/吨），说明本轮涨价集中在5月初中旬启动。</p>
+  </div>
+
+  <table class="price-table">
+    <thead>
+      <tr><th>规格</th><th>4月均价（万元/吨）</th><th>最新报价（万元/吨）</th><th>涨幅（vs 4月均）</th><th>备注</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>高端规格（电池级）</td>
+        <td>7.82</td>
+        <td>13.0</td>
+        <td class="price-up">▲ +66.2%</td>
+        <td>市场主流规格</td>
+      </tr>
+      <tr>
+        <td>超高端规格</td>
+        <td>9.39</td>
+        <td>16.5</td>
+        <td class="price-up">▲ +75.7%</td>
+        <td>高品质要求</td>
+      </tr>
+      <tr>
+        <td>工业级</td>
+        <td>4.66</td>
+        <td>5.4</td>
+        <td class="price-up">▲ +15.9%</td>
+        <td>基础用途</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="chart-card">
+    <h4>📈 六氟磷酸锂价格走势（2025-01 ~ 2026-05）</h4>
+    <div id="chart-lifpf6-price" class="chart-container"></div>
+    <div class="data-source"><span>📊 数据来源：电解液数据库 Table[25/26/27]</span></div>
+  </div>
+
+  <div class="sub-title">竞争格局</div>
+  <div class="insight-block">
+    <p>全球六氟磷酸锂出货量TOP10门槛升至5000吨（2025年），行业集中度持续提升。多氟多（现有产能6.5万吨/年）、天赐材料、延安必康等头部企业主导市场。</p>
+    <p>多氟多六氟磷酸锂产线直供台积电/三星/中芯国际等半导体巨头，氢氟酸产品涨价直接推升其六氟磷酸锂成本，5月报价上调也反映成本传导顺畅。</p>
+  </div>
+
+  <div class="felt-card">
+    <div class="felt-card-title">🏷️ 法恩莱特六氟磷酸锂采购影响</div>
+    <div class="felt-card-body">
+      六氟磷酸锂5月中旬高端规格报价<strong>13.0万元/吨</strong>，较4月均价7.82万元/吨涨幅超66%。
+      <br>六氟磷酸锂每涨1万元/吨，电解液成本约+3,000元/吨。本轮涨幅（+5.18万/吨）理论推动电解液成本+约<strong>1.55万元/吨</strong>。
+      <br><strong>对法恩莱特的影响</strong>：作为新进入者，法恩莱特六氟磷酸锂以长单采购为主，短期锁定价格可减缓涨价冲击；但随着5月市场报价大幅跳涨，长单价格也面临上调压力。需尽快与六氟磷酸锂供应商确认Q2-Q3采购价格。
+    </div>
+  </div>
+</section>
+
+<!-- ========== PART 6 ========== -->
+<section class="part-section" id="p6">
+  <div class="part-title"><span class="part-num">6</span>总结与建议</div>
+
+  <div class="conclusion-banner">
+    <h3>核心结论</h3>
+    <p>4月电解液行业整体平稳运行，产量24.9万吨（MoM+4.87%），储能630并网节点支撑需求。六氟磷酸锂景气回升+碳酸锂触底反弹为5月涨价奠定基础。5月中旬六氟磷酸锂价格大幅跳涨（高端规格+66%至13.0万元/吨），成本推动型涨价逻辑确认，法恩莱特处于产能爬坡期，开工率14%偏低，调价窗口与开工率提升是关键矛盾。</p>
+  </div>
+
+  <div class="sub-title">机会</div>
+  <div class="recommendation-card rec-opportunity">
+    <div class="rec-title">💹 机会</div>
+    <div class="rec-item" data-num="①">六氟磷酸锂涨价窗口确立，法恩莱特可顺势上调电解液报价（每万元/吨涨幅≈电解液成本+3,000元/吨），若成功传导可覆盖成本上行并改善毛利</div>
+    <div class="rec-item" data-num="②">储能630并网节点抢装持续，储能电解液订单有望环比增长，法恩莱特应重点跟进昆宇能源/海辰储能等储能客户增量订单</div>
+    <div class="rec-item" data-num="③">DMC溶剂持续承压（4月2.44万/吨，当前2.32万/吨），成本压力缓解，为电解液报价调整提供空间</div>
+    <div class="rec-item" data-num="④">碳酸锂触底反弹（16.27万/吨→当前16.5万/吨），原料端涨价预期强化，支撑电解液整体报价上调逻辑</div>
+  </div>
+
+  <div class="sub-title">风险</div>
+  <div class="recommendation-card rec-risk">
+    <div class="rec-title">⚠️ 风险</div>
+    <div class="rec-item" data-num="①">六氟磷酸锂5月涨幅过快（4月均价7.82→5月13.0万/吨，+66%），若下游电池厂拒绝调价，成本压力将由电解液企业自行消化，开工率偏低的法恩莱特承压最大</div>
+    <div class="rec-item" data-num="②">DMC溶剂持续承压压制整体盈利改善空间，2023年以来价格一路下行，溶剂端供给过剩格局短期难改</div>
+    <div class="rec-item" data-num="③">海外电池厂垂直整合加速（日韩电池企业自研电解液配方），法恩莱特核心客户存在技术替代风险</div>
+    <div class="rec-item" data-num="④">LiFSI添加比例提升趋势确立（天赐材料/新宙邦竞相扩产10000吨改扩建项目），法恩莱特LiFSI产线布局空白，高性能锂盐赛道面临掉队风险</div>
+  </div>
+
+  <div class="sub-title">行动建议</div>
+  <div class="recommendation-card rec-action">
+    <div class="rec-title">🎯 行动建议</div>
+    <div class="rec-item" data-num="①"><strong>本周内</strong>：与下游宁德时代、亿纬锂能、昆宇能源等核心客户沟通，确认电解液调价窗口及新价格执行时间节点；六氟磷酸锂涨价幅度需由下游接受才能有效传导</div>
+    <div class="rec-item" data-num="②"><strong>本周内</strong>：与六氟磷酸锂供应商（多氟多/天赐材料等）确认Q2-Q3采购价格，评估长单与现货比例，锁量锁价控制成本风险</div>
+    <div class="rec-item" data-num="③"><strong>本月内</strong>：对标天赐材料LiFSI 10000吨改扩建项目进度，评估法恩莱特LiFSI产线建设节奏与资金安排；LiFSI是高性能电解液核心添加剂，不可长期缺位</div>
+    <div class="rec-item" data-num="④"><strong>本月内</strong>：密切跟踪DMC/EMC/EC溶剂市场价格走势，提前锁定低价溶剂长单，降低原料成本波动风险</div>
+  </div>
+
+  <div class="felt-card">
+    <div class="felt-card-title">🏷️ 法恩莱特4月核心数据速览</div>
+    <div class="felt-card-body">
+      <table class="data-table" style="margin:0">
+        <tbody>
+          <tr><td style="text-align:left">4月产量</td><td style="text-align:right">4,200吨</td><td style="text-align:right">行业第12名</td></tr>
+          <tr><td style="text-align:left">年累产量</td><td style="text-align:right">17,800吨</td><td style="text-align:right">行业第12名</td></tr>
+          <tr><td style="text-align:left">开工率</td><td style="text-align:right">14%</td><td style="text-align:right">产能爬坡期</td></tr>
+          <tr><td style="text-align:left">碳酸锂4月均价</td><td style="text-align:right">16.27万元/吨</td><td style="text-align:right">触底反弹</td></tr>
+          <tr><td style="text-align:left">六氟磷酸锂4月均</td><td style="text-align:right">7.82万元/吨</td><td style="text-align:right">5月跳涨至13万</td></tr>
+          <tr><td style="text-align:left">DMC 4月均价</td><td style="text-align:right">2.44万元/吨</td><td style="text-align:right">持续承压</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="data-source">
+    <span>📊 数据来源：电解液数据库（electrolyte_embedded_data.js）</span>
+    <span>🧪 数据来源：碳酸锂数据库（carbonate_embedded_data.js）</span>
+    <span>📰 新闻来源：行业新闻中心（industry_news_embedded.html）</span>
+    <span>🦞 数据提取时间：2026-06-03</span>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="report-footer">
+  <p>法恩莱特电解液月度分析报告 · 2026年4月 · 每月16日发布</p>
+  <p>数据来源：电解液数据库 · 行业新闻 · 政策中心 · 早报系统 · 仅供参考</p>
+</footer>
+</main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+<script>
+(function() {
+  var C = {
+    primary: '#c62828',
+    secondary: '#b71c1c',
+    green: '#2e7d32',
+    orange: '#ef6c00',
+    red: '#c62828',
+    grey: '#95a5a6',
+    palette: ['#c62828','#b71c1c','#ef6c00','#2e7d32','#1565c0','#6a1b9a','#00838f','#f9a825']
+  };
+
+  function baseOption() { return { color: C.palette, tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } }, grid: { left: '3%', right: '4%', bottom: '3%', top: '8%', containLabel: true }, legend: { top: 0 } }; }
+
+  // Chart 1: 电解液月度产量趋势
+  var chart1 = echarts.init(document.getElementById('chart-output-trend'));
+  chart1.setOption(Object.assign({}, baseOption(), {
+    xAxis: { type: 'category', data: ['2025-01','02','03','04','05','06','07','08','09','10','11','12','2026-01','02','03','04'], axisLabel: { fontSize: 11 }, name: '月份', nameLocation: 'end', nameGap: -8 },
+    yAxis: [
+      { type: 'value', name: '产量（吨）', axisLabel: { fontSize: 11, formatter: function(v) { return (v/10000).toFixed(1)+'万'; } } },
+      { type: 'value', name: '开工率（%）', axisLabel: { fontSize: 11 } }
+    ],
+    series: [
+      { name: '行业产量', type: 'bar', data: [187000,192000,205000,198000,215000,220000,228000,235000,242000,238000,245000,248000,238000,245000,237400,248950], itemStyle: { color: C.primary, borderRadius: [3,3,0,0] } },
+      { name: '法恩莱特', type: 'line', yAxisIndex: 0, data: [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,4200], lineStyle: { color: C.orange }, itemStyle: { color: C.orange } }
+    ]
+  }));
+
+  // Chart 2: 添加剂价格
+  var chart2 = echarts.init(document.getElementById('chart-additive-price'));
+  chart2.setOption(Object.assign({}, baseOption(), {
+    xAxis: { type: 'category', data: ['2025-05','06','07','08','09','10','11','12','2026-01','02','03','04','05'], axisLabel: { fontSize: 11 } },
+    yAxis: { type: 'value', name: '万元/吨', axisLabel: { fontSize: 11 }, min: 1.5 },
+    series: [
+      { name: 'VC', type: 'line', data: [2.20,2.25,2.30,2.35,2.40,2.45,2.50,2.55,2.58,2.60,2.62,2.62,2.50], smooth: true },
+      { name: 'FEC', type: 'line', data: [2.10,2.15,2.18,2.20,2.25,2.30,2.38,2.45,2.48,2.50,2.52,2.51,2.35], smooth: true },
+      { name: 'PS', type: 'line', data: [2.30,2.35,2.40,2.48,2.55,2.60,2.70,2.78,2.82,2.84,2.85,2.84,2.70], smooth: true }
+    ]
+  }));
+
+  // Chart 3: 溶剂价格
+  var chart3 = echarts.init(document.getElementById('chart-solvent-price'));
+  chart3.setOption(Object.assign({}, baseOption(), {
+    xAxis: { type: 'category', data: ['2025-05','06','07','08','09','10','11','12','2026-01','02','03','04','05'], axisLabel: { fontSize: 11 } },
+    yAxis: { type: 'value', name: '万元/吨', axisLabel: { fontSize: 11 }, min: 1.5 },
+    series: [
+      { name: 'EC', type: 'line', data: [2.10,2.15,2.12,2.08,2.05,2.10,2.20,2.30,2.38,2.42,2.44,2.44,2.50], smooth: true },
+      { name: 'DMC', type: 'line', data: [3.20,3.10,2.95,2.80,2.65,2.55,2.50,2.48,2.45,2.44,2.44,2.44,2.32], smooth: true },
+      { name: 'EMC', type: 'line', data: [4.10,4.05,3.95,3.85,3.80,3.75,3.74,3.75,3.74,3.74,3.74,3.74,3.60], smooth: true }
+    ]
+  }));
+
+  // Chart 4: 碳酸锂价格
+  var chart4 = echarts.init(document.getElementById('chart-carbonate'));
+  chart4.setOption(Object.assign({}, baseOption(), {
+    xAxis: { type: 'category', data: ['2025-01','03','05','07','09','11','2026-01','02','03','04'], axisLabel: { fontSize: 11 } },
+    yAxis: { type: 'value', name: '万元/吨', axisLabel: { fontSize: 11 }, min: 10 },
+    series: [
+      { name: '碳酸锂月均价', type: 'line', data: [10.2,9.8,11.5,14.2,15.8,17.2,16.8,16.5,15.8,16.27], smooth: true, areaStyle: { color: { type: 'linear', x: 0, y: 0, x2: 0, y2: 1, colorStops: [{ offset: 0, color: 'rgba(198,40,40,0.2)' }, { offset: 1, color: 'rgba(198,40,40,0.02)' }] } } },
+      { name: '4月区间', type: 'line', markLine: { data: [{ name: '4月均价16.27', yAxis: 16.27, lineStyle: { color: '#c62828', type: 'dashed' }, label: { formatter: '16.27', fontSize: 11 } }] }, silent: true }
+    ]
+  }));
+
+  // Chart 5: 六氟磷酸锂产量
+  var chart5 = echarts.init(document.getElementById('chart-lifpf6-output'));
+  chart5.setOption(Object.assign({}, baseOption(), {
+    xAxis: { type: 'category', data: ['2025-01','02','03','04','05','06','07','08','09','10','11','12','2026-01','02','03','04'], axisLabel: { fontSize: 11 } },
+    yAxis: { type: 'value', name: '产量（吨）', axisLabel: { fontSize: 11 } },
+    series: [{ name: 'LiPF6产量', type: 'bar', data: [5200,5400,5800,5600,6100,6300,6600,6800,7000,6950,7100,7300,6900,6950,7050,7530], itemStyle: { color: C.primary, borderRadius: [3,3,0,0] } }]
+  }));
+
+  // Chart 6: 六氟磷酸锂价格
+  var chart6 = echarts.init(document.getElementById('chart-lifpf6-price'));
+  chart6.setOption(Object.assign({}, baseOption(), {
+    xAxis: { type: 'category', data: ['2025-05','06','07','08','09','10','11','12','2026-01','02','03','04','05'], axisLabel: { fontSize: 11 } },
+    yAxis: { type: 'value', name: '万元/吨', axisLabel: { fontSize: 11 }, min: 4 },
+    series: [
+      { name: '高端均价', type: 'line', data: [7.2,7.5,7.8,7.9,8.1,8.0,7.9,7.85,7.82,7.82,7.82,7.82,13.0], smooth: true, lineStyle: { color: C.primary, width: 2 }, areaStyle: { color: { type: 'linear', x: 0, y: 0, x2: 0, y2: 1, colorStops: [{ offset: 0, color: 'rgba(198,40,40,0.2)' }, { offset: 1, color: 'rgba(198,40,40,0.02)' }] } } },
+      { name: '超高端均价', type: 'line', data: [8.5,8.8,9.0,9.1,9.2,9.1,9.2,9.3,9.38,9.39,9.39,9.39,16.5], smooth: true },
+      { name: '工业级均价', type: 'line', data: [4.2,4.3,4.4,4.5,4.55,4.5,4.6,4.6,4.65,4.66,4.66,4.66,5.4], smooth: true }
+    ]
+  }));
+
+  // Resize
+  window.addEventListener('resize', function() {
+    chart1.resize(); chart2.resize(); chart3.resize();
+    chart4.resize(); chart5.resize(); chart6.resize();
+  });
+})();
+</script>
+</body>
+</html>

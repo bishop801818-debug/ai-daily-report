@@ -8,7 +8,7 @@
     <meta http-equiv="Expires" content="0">
     <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
     <script>
-      window.HTML_VERSION = '20260605_1830'; // 简单版本号，用于fetch缓存刷新
+      window.HTML_VERSION = '20260604_1004'; // 简单版本号，用于fetch缓存刷新
 
       /* ---------- 彻底防止图表旧内容闪屏（bfcache + 渲染残留）----------
        * 问题：浏览器前进后退缓存(bfcache)会保存完整页面状态，
@@ -4094,41 +4094,6 @@ window.__EMBEDDED__ = {"date":"2026-06-04","generated_at":"","window_start":"","
         .hexa-action-sec { background: rgba(30,60,114,0.04); border-color: rgba(30,60,114,0.1); color: var(--panel-muted); }
         .hexa-action-sec:hover { background: rgba(30,60,114,0.08); color: var(--panel-text); }
 
-        /* ── KPI目标vs达成对比表 ── */
-        .kpi-compare {
-            padding: 16px 24px;
-            border-top: 1px solid var(--panel-border);
-        }
-        .kpi-compare-title {
-            font-size: 13px; font-weight: 700; color: #1e3c72; margin-bottom: 12px;
-        }
-        .kpi-compare-table {
-            width: 100%; border-collapse: collapse; font-size: 12px;
-        }
-        .kpi-compare-table th {
-            background: #f4f6fa; padding: 7px 10px; text-align: center; font-weight: 600; color: #555;
-            border-bottom: 2px solid #e0e0e0; font-size: 11px;
-        }
-        .kpi-compare-table td {
-            padding: 7px 10px; text-align: center; border-bottom: 1px solid #f0f0f0;
-        }
-        .kpi-compare-table .kpi-name { text-align: left; font-weight: 600; color: #1a1a2e; }
-        .kpi-compare-table .kpi-actual { font-weight: 700; }
-        .kpi-compare-table .kpi-over { color: #27ae60; }
-        .kpi-compare-table .kpi-under { color: #e74c3c; }
-        .kpi-compare-badge {
-            display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 700;
-        }
-        .kpi-compare-badge.exceed { background: #e8f5e9; color: #2e7d32; }
-        .kpi-compare-badge.meet { background: #e3f2fd; color: #1565c0; }
-        .kpi-compare-badge.miss { background: #fbe9e7; color: #c62828; }
-        .kpi-compare-sub { padding: 8px 0 0 0; border-top: 1px dashed rgba(0,0,0,0.08); margin-top: 10px; }
-        .kpi-compare-sub .kpi-compare-title { font-size: 11px; margin-bottom: 6px; color: #555; }
-        .kpi-compare-sub .kpi-compare-table { font-size: 10px; }
-        .kpi-compare-sub .kpi-compare-table th { padding: 4px 5px; font-size: 9px; background: #f8f9fb; }
-        .kpi-compare-sub .kpi-compare-table td { padding: 4px 5px; }
-        .kpi-compare-sub .kpi-compare-badge { font-size: 9px; padding: 1px 6px; }
-
         /* ── 今日关注 ── */
         .hexa-brief {
             padding: 16px 24px;
@@ -5978,16 +5943,16 @@ window.addEventListener('DOMContentLoaded', function() {
                 <span>市场行情</span>
                 <span class="nav-arrow">▼</span>
                 <div class="dropdown-menu">
-                    <div class="dropdown-item" onclick="event.stopPropagation(); switchCategory('lithium'); scrollToMarket();">
+                    <div class="dropdown-item" style="cursor:default;">
                         <span class="nav-icon">🔋</span>
                         <span>锂条线</span>
                     </div>
-                    <div class="dropdown-item" onclick="event.stopPropagation(); switchCategory('energy'); scrollToMarket();">
+                    <div class="dropdown-item" style="cursor:default;">
                         <span class="nav-icon">⚡</span>
-                        <span>有色线</span>
+                        <span>能源线</span>
                     </div>
                     <div class="dropdown-divider"></div>
-                    <div class="dropdown-item" onclick="event.stopPropagation(); switchCategory('chemical'); scrollToMarket();">
+                    <div class="dropdown-item" style="cursor:default;">
                         <span class="nav-icon">🧪</span>
                         <span>化学品线</span>
                     </div>
@@ -6226,7 +6191,7 @@ window.addEventListener('DOMContentLoaded', function() {
 </div>
 
 
-        <div class="market-dashboard" id="market-section">
+        <div class="market-dashboard">
             <div class="section-title" style="margin-top: 30px; margin-bottom: 20px; text-align: center;">📊 市场行情监控</div>
             <div class="dashboard-layout">
                 <nav class="dashboard-nav">
@@ -9598,12 +9563,6 @@ function updatePageData(chainConfig, marketData) {
             }
 
             console.log('[showProductChart] ✅ 已移动卡片到展开区域, svgId=', targetSvgId);
-
-            // 滚动到展开区域，让图表完整可见
-            setTimeout(() => {
-                area.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }, 800);
-            
         }
 
         /**
@@ -10549,41 +10508,6 @@ const BU_LOGOS = {
         .hexa-action-pri:hover { background: rgba(30,60,114,0.14); }
         .hexa-action-sec { background: rgba(30,60,114,0.04); border-color: rgba(30,60,114,0.1); color: var(--panel-muted); }
         .hexa-action-sec:hover { background: rgba(30,60,114,0.08); color: var(--panel-text); }
-
-        /* ── KPI目标vs达成对比表 ── */
-        .kpi-compare {
-            padding: 16px 24px;
-            border-top: 1px solid var(--panel-border);
-        }
-        .kpi-compare-title {
-            font-size: 13px; font-weight: 700; color: #1e3c72; margin-bottom: 12px;
-        }
-        .kpi-compare-table {
-            width: 100%; border-collapse: collapse; font-size: 12px;
-        }
-        .kpi-compare-table th {
-            background: #f4f6fa; padding: 7px 10px; text-align: center; font-weight: 600; color: #555;
-            border-bottom: 2px solid #e0e0e0; font-size: 11px;
-        }
-        .kpi-compare-table td {
-            padding: 7px 10px; text-align: center; border-bottom: 1px solid #f0f0f0;
-        }
-        .kpi-compare-table .kpi-name { text-align: left; font-weight: 600; color: #1a1a2e; }
-        .kpi-compare-table .kpi-actual { font-weight: 700; }
-        .kpi-compare-table .kpi-over { color: #27ae60; }
-        .kpi-compare-table .kpi-under { color: #e74c3c; }
-        .kpi-compare-badge {
-            display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 700;
-        }
-        .kpi-compare-badge.exceed { background: #e8f5e9; color: #2e7d32; }
-        .kpi-compare-badge.meet { background: #e3f2fd; color: #1565c0; }
-        .kpi-compare-badge.miss { background: #fbe9e7; color: #c62828; }
-        .kpi-compare-sub { padding: 8px 0 0 0; border-top: 1px dashed rgba(0,0,0,0.08); margin-top: 10px; }
-        .kpi-compare-sub .kpi-compare-title { font-size: 11px; margin-bottom: 6px; color: #555; }
-        .kpi-compare-sub .kpi-compare-table { font-size: 10px; }
-        .kpi-compare-sub .kpi-compare-table th { padding: 4px 5px; font-size: 9px; background: #f8f9fb; }
-        .kpi-compare-sub .kpi-compare-table td { padding: 4px 5px; }
-        .kpi-compare-sub .kpi-compare-badge { font-size: 9px; padding: 1px 6px; }
 
         /* ── 今日关注 ── */
         .hexa-brief {
@@ -13318,19 +13242,10 @@ const BU_LOGOS = {
                     changeEl.className = 'chart-latest-change ' + (pct >= 0 ? 'up' : 'down');
                 }
                 if (loading) loading.style.display = 'none';
-                // 尝试渲染，带重试机制
-                var tries = 0;
-                function tryRenderI() {
-                    var rect = svg.getBoundingClientRect();
-                    var w = rect.width;
-                    if (w > 10 && _iChartData && _iChartData.history && _iChartData.history.length > 0) {
-                        renderIChart();
-                    } else if (tries < 15) {
-                        tries++;
-                        setTimeout(tryRenderI, 150);
-                    }
+                var rect = svg.getBoundingClientRect();
+                if (rect.width > 0) {
+                    renderIChart();
                 }
-                requestAnimationFrame(tryRenderI);
             } catch (e) {
                 console.warn('[I Chart] load failed:', e);
                 if (loading) loading.style.display = 'none';
@@ -13385,19 +13300,10 @@ const BU_LOGOS = {
                     changeEl.className = 'chart-latest-change ' + (pct >= 0 ? 'up' : 'down');
                 }
                 if (loading) loading.style.display = 'none';
-                // 尝试渲染，带重试机制
-                var tries = 0;
-                function tryRenderEG() {
-                    var rect = svg.getBoundingClientRect();
-                    var w = rect.width;
-                    if (w > 10 && _egChartData && _egChartData.history && _egChartData.history.length > 0) {
-                        renderEGChart();
-                    } else if (tries < 15) {
-                        tries++;
-                        setTimeout(tryRenderEG, 150);
-                    }
+                var rect = svg.getBoundingClientRect();
+                if (rect.width > 0) {
+                    renderEGChart();
                 }
-                requestAnimationFrame(tryRenderEG);
             } catch (e) {
                 console.warn('[EG Chart] load failed:', e);
                 if (loading) loading.style.display = 'none';
@@ -13653,103 +13559,20 @@ const DIMS = [
 
 const BUS_DATA = {
     czly:{ name:'常州锂源', logo:'', tag:'新能源材料', accent:'#00d4ff',
-        dims:{d1:80,d2:80,d3:80,d4:80,d5:80,d6:80},
-        kpis:{d1:[8,8,8,8],d2:[8,8,8,8],d3:[8,8,8,8],d4:[8,8,8,8],d5:[8,8,8,8],d6:[8,8,8,8]}},
+        dims:{d1:72,d2:68,d3:78,d4:80,d5:70,d6:68},
+        kpis:{d1:[7,7,7,7],d2:[7,7,6,7],d3:[8,8,8,7],d4:[8,8,8,8],d5:[7,7,7,8],d6:[7,6,7,7]}},
     lpsd:{ name:'龙蟠时代', logo:'', tag:'电芯智造', accent:'#4caf50',
-        dims:{d1:80,d2:80,d3:80,d4:80,d5:80,d6:80},
-        kpis:{d1:[8,8,8,8],d2:[8,8,8,8],d3:[8,8,8,8],d4:[8,8,8,8],d5:[8,8,8,8],d6:[8,8,8,8]}},
+        dims:{d1:65,d2:58,d3:68,d4:75,d5:72,d6:62},
+        kpis:{d1:[6,7,6,6],d2:[6,5,5,6],d3:[7,7,7,7],d4:[8,7,7,8],d5:[7,7,8,7],d6:[6,6,6,6]}},
     sjld:{ name:'三金锂电', logo:'', tag:'三元前驱体', accent:'#ff9800',
-        dims:{d1:80,d2:80,d3:80,d4:80,d5:80,d6:80},
-        kpis:{d1:[8,8,8,8],d2:[8,8,8,8],d3:[8,8,8,8],d4:[8,8,8,8],d5:[8,8,8,8],d6:[8,8,8,8]}},
+        dims:{d1:68,d2:62,d3:72,d4:78,d5:68,d6:62},
+        kpis:{d1:[7,6,7,7],d2:[6,6,6,6],d3:[7,7,7,7],d4:[8,8,8,7],d5:[7,7,7,6],d6:[6,6,6,6]}},
     fnlt:{ name:'法恩莱特', logo:'', tag:'电解液', accent:'#9c27b0',
-        dims:{d1:80,d2:80,d3:80,d4:80,d5:80,d6:80},
-        kpis:{d1:[8,8,8,8],d2:[8,8,8,8],d3:[8,8,8,8],d4:[8,8,8,8],d5:[8,8,8,8],d6:[8,8,8,8]}},
+        dims:{d1:70,d2:65,d3:72,d4:82,d5:70,d6:65},
+        kpis:{d1:[7,7,7,7],d2:[7,6,6,7],d3:[7,7,7,7],d4:[8,8,9,8],d5:[7,7,7,7],d6:[7,6,7,6]}},
     sdmd:{ name:'山东美多', logo:'', tag:'回收再利用', accent:'#e91e63',
-        // SDMD 2026年5月真实数据：对比表原始数据驱动自动计算
-        // dims由 calcKPIsFromComparison() + calcDimsFromKPIs() 自动算出
-        // 计算结果: D1=100,D2=91,D3=88,D4=81,D5=88,D6=87
-        dims:{d1:100,d2:91,d3:88,d4:81,d5:88,d6:87},
-        kpis:{
-            // D1: 7项KPI综合达成率=100%, 收入达成率=118%→10分, 合格率100%→10分, 回款达成率=127%→10分
-            d1:[10.0,10.0,10.0,10.0],
-            // D2: 碳酸锂432t/420t→10分, 修复LFP308t/360t→8.6分, 磷铁液1155/1500→7.7分, 元明粉1580/1500→10分
-            d2:[10.0, 8.6, 7.7,10.0],
-            // D3: 投料2075.5/2170→8.4分, 产出400/420→9.5分, 磷铁液1100/1550→7.1分, 加工成本1.96/1.60→10分
-            d3:[ 8.4, 9.5, 7.1,10.0],
-            // D4: 在研课题8/11→7.3分, MCU项目5/7→7.1分, MCU降本(剔除), 技改12/9→10分
-            d4:[ 7.3, 7.1, 8.0,10.0],
-            // D5: 隐患整改率98.3/90.83→10分, 安全教育2009/703→10分, 隐患2816/2387→10分, 应急演练1/2→5分
-            d5:[10.0,10.0,10.0, 5.0],
-            // D6: AI立项(定性)8.5分, 企业荣誉(定性)8.5分, IATF减少46→35→7.6分, 5S覆盖率100→10分
-            d6:[ 8.5, 8.5, 7.6,10.0]
-        },
-        // 追加：5月预算 vs 挑战目标 vs 实际达成对照表（用于弹窗扩展展示）
-        _kpiComparison: {
-            title: '5月核心KPI达标率（预算 → 挑战目标 → 实际）',
-            period: '2026年5月',
-            items: [
-                { name:'收入(万元)',    budget:3778,  target:7382,  actual:8721,  unit:'万元' },
-                { name:'毛利(万元)',    budget:321,   target:865,   actual:813,   unit:'万元' },
-                { name:'扣非净利润(万元)', budget:132, target:518,   actual:480,   unit:'万元' },
-                { name:'经营净利润(万元)', budget:148, target:540,   actual:505,   unit:'万元' },
-                { name:'回款(万元)',    budget:4269,  target:8342,  actual:10630, unit:'万元' },
-                { name:'加工成本(万/t)', budget:1.85, target:1.60,  actual:1.96,  unit:'万/t' },
-                { name:'产品一次合格率',  budget:100,  target:100,   actual:100,   unit:'%' }
-            ]
-        },
-        // 各维度子表：展开对应维度后显示
-        _dimComparison_d2: {
-            title: '5月产品销量达成（预算 → 目标 → 实际）',
-            items: [
-                { name:'碳酸锂销量(吨)', budget:400,  target:420,  actual:432,  unit:'吨' },
-                { name:'修复LFP交付(吨)', budget:300,  target:360,  actual:308,  unit:'吨' },
-                { name:'磷铁液交付(m³)',  budget:1000, target:1500, actual:1155, unit:'m³' },
-                { name:'元明粉销售(吨)',  budget:1400, target:1500, actual:1580, unit:'吨' },
-            ]
-        },
-        _dimComparison_d3: {
-            title: '5月生产效率达成（预算 → 目标 → 实际）',
-            items: [
-                { name:'碳酸锂投料(吨)', budget:2100, target:2170, actual:2075.5, unit:'吨' },
-                { name:'碳酸锂产出(吨)', budget:330,  target:420,  actual:400,    unit:'吨' },
-                { name:'磷铁液产出(m³)', budget:1500, target:1550, actual:1100,   unit:'m³' },
-                { name:'加工成本(万/t)', budget:1.85, target:1.60, actual:1.96,   unit:'万/t' },
-            ]
-        },
-        _dimComparison_d4: {
-            title: '技术创新力 4月→5月环比',
-            format: 'mom',
-            items: [
-                // 数据来源：计划PDF 2.6节(4月研发11项/MCU 7项降本18.31万/技改9项) + 总结PDF 2.6/2.7节(5月研发8项/MCU 5项降本5.31万/技改12项)
-                { name:'在研课题(个)',   prev:11,    curr:8,     unit:'个' },
-                { name:'MCU项目(项)',    prev:7,     curr:5,     unit:'项' },
-                { name:'MCU降本(万元)',  prev:18.31, curr:5.31,  unit:'万元' },
-                { name:'技改项目(项)',   prev:9,     curr:12,    unit:'项' },
-            ]
-        },
-        _dimComparison_d5: {
-            title: '安全环保 4月→5月环比',
-            format: 'mom',
-            items: [
-                // 数据来源：计划PDF 2.8节(4月隐患2387项/整改率90.83%/教育703人次14场/演练2场) + 总结PDF 2.8节(5月隐患2816项/整改率98.3%/教育2009人次23场/演练1场)
-                { name:'隐患整改率(%)',  prev:90.83, curr:98.3,  unit:'%' },
-                { name:'安全教育(人次)', prev:703,   curr:2009,  unit:'人次' },
-                { name:'排查隐患(项)',   prev:2387,  curr:2816,  unit:'项' },
-                { name:'应急演练(场)',   prev:2,     curr:1,     unit:'场' },
-            ]
-        },
-        _dimComparison_d6: {
-            title: '组织活力 4月→5月环比',
-            format: 'mom',
-            items: [
-                // 数据来源：计划PDF 4.7节(AI赋能计划/创新改善)+总结PDF 2.9节(16个AI立项/2项荣誉)+计划PDF 2.2节(46项审核问题)+总结PDF 2.2节(35项/IATF审核)
-                { name:'AI项目立项(个)',   prev:0,     curr:16,    unit:'个' },
-                { name:'获得企业荣誉(项)', prev:0,     curr:2,     unit:'项' },
-                { name:'IATF审核问题(项)', prev:46,    curr:35,    unit:'项' },
-                { name:'5S覆盖率(%)',     prev:100,   curr:100,   unit:'%' },
-            ]
-        }
-    },
+        dims:{d1:75,d2:65,d3:70,d4:72,d5:72,d6:68},
+        kpis:{d1:[8,7,8,7],d2:[7,6,6,7],d3:[7,7,7,7],d4:[7,7,7,8],d5:[7,8,7,7],d6:[7,7,7,7]}},
     lube: { name:'润滑油', logo:'', tag:'润滑防护', accent:'#78909c',
         dims:{d1:78,d2:82,d3:80,d4:65,d5:85,d6:75},
         kpis:{d1:[8,8,8,7],d2:[8,8,8,8],d3:[8,8,8,8],d4:[7,6,7,6],d5:[9,8,8,9],d6:[8,7,7,8]}},
@@ -13765,8 +13588,8 @@ const BUS_DATA = {
 };
 
 function calcTotal(buId) {
-    const scores = calcScores(buId);
-    return DIMS.reduce((s, d) => s + scores.dims[d.id] * d.weight, 0);
+    const bd = BUS_DATA[buId];
+    return DIMS.reduce((s, d) => s + bd.dims[d.id] * d.weight, 0);
 }
 function getGrade(score) {
     if (score >= 90) return {label:'S+卓越', color:'#1a7a6e', bg:'rgba(26,122,110,0.15)'};
@@ -13779,144 +13602,6 @@ function calcRank(buId) {
     const totals = Object.keys(BUS_DATA).map(id => ({id, score: calcTotal(id)}));
     totals.sort((a, b) => b.score - a.score);
     return totals.findIndex(b => b.id === buId) + 1;
-}
-
-// ═══════════════════════════════════════════════════
-// 六维评分自动计算（基于原始数据，非硬编码）
-// ═══════════════════════════════════════════════════
-
-// 单个指标的达成率计算
-function calcKPIAchv(item, isCost, format) {
-    if (format === 'mom') {
-        // 环比格式：上月实际=隐含目标，增长率越高越好
-        if (!item.prev || item.prev <= 0) return item.curr > 0 ? 1.0 : 0.5;
-        return Math.min(1.2, item.curr / item.prev); // 封顶120%
-    } else {
-        // 有目标格式
-        if (isCost) {
-            if (!item.actual || item.actual <= 0) return 0;
-            return Math.min(1.2, item.target / item.actual); // 成本类：越低越好
-        } else {
-            if (!item.target || item.target <= 0) return 0;
-            return Math.min(1.2, item.actual / item.target); // 收益类：越高越好
-        }
-    }
-}
-
-// 达成率 → 0-10分，精确到1位小数
-function achvToScore(achv) {
-    return Math.round(Math.min(10, achv * 10) * 10) / 10;
-}
-
-// 从对比表数据计算各维度 kpis（0-10分 × 4项）
-function calcKPIsFromComparison(buId) {
-    const bd = BUS_DATA[buId];
-    const kpis = {};
-
-    // D1：战略执行力（7项核心KPI → 4个子KPI映射）
-    if (bd._kpiComparison && bd._kpiComparison.items) {
-        const items = bd._kpiComparison.items;
-        // 7项综合达成率（7项平均，成本类逆向）
-        const avgAchv = items.reduce((s, it) => {
-            const isCost = it.name.includes('成本');
-            return s + calcKPIAchv(it, isCost, 'target');
-        }, 0) / items.length;
-        // 收入达成率（战略协同度参考）
-        const revItem = items.find(i => i.name.includes('收入'));
-        const revAchv = revItem ? calcKPIAchv(revItem, false, 'target') : 1.0;
-        // 回款达成率（资源配置参考）
-        const remItem = items.find(i => i.name.includes('回款'));
-        const remAchv = remItem ? calcKPIAchv(remItem, false, 'target') : 1.0;
-        // 合格率达成率（里程碑参考）：100%合格=基准分1.0，不额外奖励
-        const qualItem = items.find(i => i.name.includes('合格'));
-        const qualAchv = qualItem ? Math.min(calcKPIAchv(qualItem, false, 'target'), 1.0) : 1.0;
-
-        kpis.d1 = [
-            achvToScore(avgAchv),   // KPI目标达成率：7项综合
-            achvToScore(revAchv),  // 战略协同度：收入达成率
-            achvToScore(qualAchv),  // 项目里程碑完成率：合格率达成率
-            achvToScore(remAchv)   // 资源配置效率：回款达成率
-        ];
-    } else {
-        kpis.d1 = [8, 8, 8, 8]; // 无数据时默认8分
-    }
-
-    // D2-D3：_dimComparison_d{2-3}，有 target 格式
-    [2, 3].forEach(dim => {
-        const dc = bd['_dimComparison_d' + dim];
-        if (dc && dc.items) {
-            kpis['d' + dim] = dc.items.map((it, idx) => {
-                const isCost = it.name.includes('成本');
-                let s = achvToScore(calcKPIAchv(it, isCost, 'target'));
-                // D3：投料达成率单独压缩，避免dims偏高（投料量易超目标）
-                if (dim === 3 && idx === 0) s = achvToScore(s * 0.88);
-                return s;
-            });
-        } else {
-            kpis['d' + dim] = [8, 8, 8, 8];
-        }
-    });
-
-    // D4-D6：_dimComparison_d{4-6}，MoM格式
-    [4, 5, 6].forEach(dim => {
-        const dc = bd['_dimComparison_d' + dim];
-        if (dc && dc.items) {
-            kpis['d' + dim] = dc.items.map(it => {
-                const isCost = it.name.includes('成本');
-                // D4：MCU降本额特殊——5月因项目数减少导致绝对金额下降，不代表做得差，剔除
-                if (dim === 4 && it.name.includes('MCU降本')) return null;
-                // D6：prev=0 的"从无到有"指标（AI立项/企业荣誉），定性评分
-                if (dim === 6 && it.prev === 0) return 8.0;
-                // D6：IATF审核问题——越少越好（逆向处理）
-                if (dim === 6 && it.name.includes('IATF')) {
-                    if (it.prev > 0 && it.curr > 0) {
-                        return achvToScore(Math.min(1.2, it.prev / it.curr));
-                    }
-                    return 8.0;
-                }
-                return achvToScore(calcKPIAchv(it, isCost, 'mom'));
-            });
-        } else {
-            kpis['d' + dim] = [8, 8, 8, 8];
-        }
-    });
-
-    return kpis;
-}
-
-// 从 kpis 数组计算各维度 dims 综合分（0-100）
-function calcDimsFromKPIs(kpis) {
-    const dims = {};
-    DIMS.forEach(d => {
-        const arr = kpis[d.id];
-        if (arr && arr.length > 0) {
-            // 过滤null（D4的MCU降本被剔除），只对有效项求平均
-            const valid = arr.filter(v => v !== null && v !== undefined);
-            if (valid.length === 0) {
-                dims[d.id] = 80;
-            } else {
-                const avg = valid.reduce((s, v) => s + v, 0) / valid.length;
-                dims[d.id] = Math.round(avg * 10); // kpis均值×10，转换为0-100分，取整
-            }
-        } else {
-            dims[d.id] = 80; // 默认
-        }
-    });
-    return dims;
-}
-
-// 完整的动态评分计算（供渲染使用）
-function calcScores(buId) {
-    const bd = BUS_DATA[buId];
-    if (!bd) return null;
-    // 有对比表数据则自动计算，否则用硬编码兜底
-    if (bd._kpiComparison || bd._dimComparison_d2) {
-        const kpis = calcKPIsFromComparison(buId);
-        const dims = calcDimsFromKPIs(kpis);
-        return { dims, kpis };
-    } else {
-        return { dims: bd.dims, kpis: bd.kpis };
-    }
 }
 
 // ═══════════════════════════════════════════════════
@@ -14087,108 +13772,6 @@ async function getLatestReportForBU(buId) {
     return window.__EMBEDDED__?.report?.departments?.[buId] || null;
 }
 
-function buildKPIComparison(buId) {
-    const bd = BUS_DATA[buId];
-    if (!bd._kpiComparison) return '';
-    const kc = bd._kpiComparison;
-    let rows = '';
-    kc.items.forEach(item => {
-        let badge = '';
-        const isCost = item.name.includes('成本');
-        const pctToTarget = item.target ? (item.actual / item.target * 100).toFixed(0) : 0;
-        // 成本类指标：越低越好，≤target为超额
-        const isExceed = isCost ? (item.actual <= item.target) : (item.actual >= item.target);
-        const isOverBudget = isCost ? (item.actual <= item.budget) : (item.actual >= item.budget);
-        if (isExceed) {
-            badge = '<span class="kpi-compare-badge exceed">超额</span>';
-        } else if (isOverBudget) {
-            badge = '<span class="kpi-compare-badge meet">达标</span>';
-        } else {
-            badge = '<span class="kpi-compare-badge miss">未达</span>';
-        }
-        const pctClass = isCost
-            ? (isExceed ? 'kpi-over' : (isOverBudget ? '' : 'kpi-under'))
-            : (isExceed ? 'kpi-over' : (isOverBudget ? '' : 'kpi-under'));
-        rows += `<tr>
-            <td class="kpi-name">${item.name}</td>
-            <td>${item.budget.toLocaleString()}</td>
-            <td>${item.target.toLocaleString()}</td>
-            <td class="kpi-actual ${pctClass}">${item.actual.toLocaleString()}</td>
-            <td>${badge}</td>
-        </tr>`;
-    });
-    return `<div class="kpi-compare">
-        <div class="kpi-compare-title">${kc.title}</div>
-        <table class="kpi-compare-table">
-            <thead><tr>
-                <th>指标</th><th>预算值</th><th>挑战目标</th><th>实际达成</th><th>状态</th>
-            </tr></thead>
-            <tbody>${rows}</tbody>
-        </table>
-    </div>`;
-}
-
-// 维度专属迷你对比表渲染（用于dim-kpi内嵌）
-// 支持两种格式：默认 budget/target/actual，format:'mom' 为 prev/curr/环比
-function buildDimTableHTML(dc) {
-    if (!dc || !dc.items) return '';
-    const isMoM = dc.format === 'mom';
-    let rows = '';
-    dc.items.forEach(item => {
-        if (isMoM) {
-            // 4月→5月环比格式
-            const diff = item.curr - item.prev;
-            const isPct = item.name.includes('%') || item.name.includes('率');
-            const diffStr = isPct
-                ? (diff >= 0 ? '+' : '') + diff.toFixed(2) + 'pp'
-                : (diff >= 0 ? '+' : '') + diff.toLocaleString();
-            const trendClass = diff > 0 ? 'kpi-over' : (diff < 0 ? 'kpi-under' : '');
-            const trendArrow = diff > 0 ? '↑' : (diff < 0 ? '↓' : '→');
-            const trendColor = diff > 0 ? '#27ae60' : (diff < 0 ? '#e74c3c' : '#888');
-            rows += `<tr>
-                <td class="kpi-name">${item.name}</td>
-                <td>${item.prev.toLocaleString()}</td>
-                <td>${item.curr.toLocaleString()}</td>
-                <td class="kpi-actual ${trendClass}">${diffStr}</td>
-                <td><span style="color:${trendColor};font-weight:700;font-size:13px">${trendArrow}</span></td>
-            </tr>`;
-        } else {
-            // 预算→目标→实际格式（原有逻辑）
-            let badge = '';
-            const isCost = item.name.includes('成本');
-            const isExceed = isCost ? (item.actual <= item.target) : (item.actual >= item.target);
-            const isOverBudget = isCost ? (item.actual <= item.budget) : (item.actual >= item.budget);
-            if (isExceed) {
-                badge = '<span class="kpi-compare-badge exceed">超额</span>';
-            } else if (isOverBudget) {
-                badge = '<span class="kpi-compare-badge meet">达标</span>';
-            } else {
-                badge = '<span class="kpi-compare-badge miss">未达</span>';
-            }
-            const pctClass = isCost
-                ? (isExceed ? 'kpi-over' : (isOverBudget ? '' : 'kpi-under'))
-                : (isExceed ? 'kpi-over' : (isOverBudget ? '' : 'kpi-under'));
-            rows += `<tr>
-                <td class="kpi-name">${item.name}</td>
-                <td>${item.budget.toLocaleString()}</td>
-                <td>${item.target.toLocaleString()}</td>
-                <td class="kpi-actual ${pctClass}">${item.actual.toLocaleString()}</td>
-                <td>${badge}</td>
-            </tr>`;
-        }
-    });
-    const header = isMoM
-        ? '<tr><th>指标</th><th>4月</th><th>5月</th><th>环比变化</th><th>趋势</th></tr>'
-        : '<tr><th>指标</th><th>预算</th><th>目标</th><th>实际</th><th>状态</th></tr>';
-    return `<div class="kpi-compare">
-        <div class="kpi-compare-title">${dc.title}</div>
-        <table class="kpi-compare-table">
-            <thead>${header}</thead>
-            <tbody>${rows}</tbody>
-        </table>
-    </div>`;
-}
-
 async function openPanel(buId) {
     const bd = BUS_DATA[buId];
     const logoEl = document.getElementById('drawerLogoImg');
@@ -14222,12 +13805,6 @@ async function openPanel(buId) {
             </div>
             <div class="hexa-dims-col" id="dimsCol"></div>
         </div>
-    <div id="kpiComparisonWrap" style="display:none">${buildKPIComparison(buId)}</div>
-    <div id="dimComparisonWrap_d2" style="display:none">${buildDimTableHTML(bd['_dimComparison_d2'])}</div>
-    <div id="dimComparisonWrap_d3" style="display:none">${buildDimTableHTML(bd['_dimComparison_d3'])}</div>
-    <div id="dimComparisonWrap_d4" style="display:none">${buildDimTableHTML(bd['_dimComparison_d4'])}</div>
-    <div id="dimComparisonWrap_d5" style="display:none">${buildDimTableHTML(bd['_dimComparison_d5'])}</div>
-    <div id="dimComparisonWrap_d6" style="display:none">${buildDimTableHTML(bd['_dimComparison_d6'])}</div>
     ${buildBriefSection(buId, reportData)}
     ${buildTipsSection(buId, reportData)}
     <div class="hexa-actions">
@@ -14345,10 +13922,9 @@ function buildTipsSection(buId, reportData) {
 
 function buildRadar(buId) {
     const bd = BUS_DATA[buId];
-    const scores = calcScores(buId);
     const cx = 80, cy = 80, r = 62, n = 6, step = (2*Math.PI)/n;
     const dimNames = DIMS.map(d => d.name);
-    const dimVals  = DIMS.map(d => scores.dims[d.id]);
+    const dimVals  = DIMS.map(d => bd.dims[d.id]);
     function pt(i, v) {
         const a = i * step - Math.PI/2;
         return [cx + r*(v/100)*Math.cos(a), cy + r*(v/100)*Math.sin(a)];
@@ -14407,13 +13983,12 @@ function buildRadar(buId) {
 
 function renderDims(buId) {
     const bd = BUS_DATA[buId];
-    const scores = calcScores(buId);
     const container = document.getElementById('dimsCol');
     container.innerHTML = DIMS.map(d => {
-        const val = scores.dims[d.id];
+        const val = bd.dims[d.id];
         const weighted = (val * d.weight).toFixed(1);
         const kpiList = d.kpis.map((kpi, ki) => {
-            const kpiVal = Math.min(10, scores.kpis[d.id][ki] || 5);
+            const kpiVal = Math.min(10, bd.kpis[d.id][ki] || 5);
             const kpiPct = (kpiVal/10*100).toFixed(0);
             const kpiScore = kpiVal.toFixed(1);
             return `<div class="hexa-kpi-item">
@@ -14438,18 +14013,7 @@ function renderDims(buId) {
     }).join('');
 }
 function toggleDim(buId, dimId) {
-    var dimRow = document.getElementById('dimrow-'+dimId);
-    var wasOpen = dimRow.classList.contains('open');
-    // 关闭所有其他维度（dim-row + 对比表wrap）
-    document.querySelectorAll('[id^="dimrow-"]').forEach(function(r) { r.classList.remove('open'); });
-    document.querySelectorAll('[id^="dimComparisonWrap_"], #kpiComparisonWrap').forEach(function(w) { w.style.display = 'none'; });
-    // 如果之前未打开，则打开当前维度
-    if (!wasOpen) {
-        dimRow.classList.add('open');
-        var wrapId = dimId === 'd1' ? 'kpiComparisonWrap' : 'dimComparisonWrap_' + dimId;
-        var wrap = document.getElementById(wrapId);
-        if (wrap) { wrap.style.display = ''; }
-    }
+    document.getElementById('dimrow-'+dimId).classList.toggle('open');
 }
 function escapeHtml(s) {
     if (!s) return '';
@@ -14552,16 +14116,6 @@ function switchCategory(category) {
     setTimeout(function() {
         window.dispatchEvent(new Event('resize'));
     }, 300);
-
-    // 滚动到行情区域
-    scrollToMarket();
-}
-
-function scrollToMarket() {
-    var el = document.getElementById('market-section');
-    if (el) {
-        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
 }
 </script>
 <!-- ===== 3D AI 龙蟠悬浮按钮 ===== -->
@@ -15279,24 +14833,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
         
-        function getFallbackImageUrl(query) {
-            // Lorem Picsum 备用图：无需 API Key，根据 query 生成固定图片（seed 保证同 query 同图）
-            var seed = encodeURIComponent(query || 'news');
-            return 'https://picsum.photos/seed/' + seed + '/800/400';
-        }
-
-        function generateSvgPlaceholder(title) {
-            // SVG 本地占位符：中国网络环境下 Lorem Picsum 也失败时的最终 fallback
-            var colors = ['#1a3a5c', '#2d5a27', '#5c1a1a', '#1a1a5c', '#5c4a1a', '#3a1a5c'];
-            var hash = 0;
-            var str = title || 'news';
-            for (var i = 0; i < str.length; i++) { hash = ((hash << 5) - hash) + str.charCodeAt(i); hash = hash & hash; }
-            var color = colors[Math.abs(hash) % colors.length];
-            var shortTitle = (title || '资讯').substring(0, 20);
-            var svg = '<svg xmlns="http://www.w3.org/2000/svg" width="800" height="400" viewBox="0 0 800 400"><rect fill="' + color + '" width="800" height="400"/><text x="400" y="200" font-family="Microsoft YaHei,Arial" font-size="28" fill="rgba(255,255,255,0.8)" text-anchor="middle">' + shortTitle.replace(/&/g,'&amp;').replace(/</g,'&lt;') + '</text></svg>';
-            return 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svg)));
-        }
-
         async function fetchUnsplashImage(query, excludeUrls) {
             // excludeUrls: 已使用的图片URL列表，避免重复
             excludeUrls = excludeUrls || [];
@@ -15314,101 +14850,72 @@ document.addEventListener('DOMContentLoaded', function() {
                 localStorage.setItem('unsplash_request_count', '0');
                 localStorage.setItem('unsplash_last_reset', now.toString());
             } else if (requestCount >= UNSPLASH_RATE_LIMIT) {
-                console.warn('[Unsplash] API达到速率限制，切换Lorem Picsum备用图');
-                return getFallbackImageUrl(query);
+                console.warn('[Unsplash] API达到速率限制');
+                return null;
             }
             try {
-                // 优化：增加per_page到20，随机页面范围扩大到15页，增加多样性
-                const randomSeed = Math.floor(Math.random() * 1000);
-                const randomPage = randomSeed % 15 + 1;  // 扩大随机页面范围1-15
-                const url = 'https://api.unsplash.com/search/photos?query=' + encodeURIComponent(query) + '&client_id=' + UNSPLASH_ACCESS_KEY + '&per_page=20&orientation=landscape&order_by=popularity&page=' + randomPage;
+                const url = 'https://api.unsplash.com/search/photos?query=' + encodeURIComponent(query) + '&client_id=' + UNSPLASH_ACCESS_KEY + '&per_page=5&orientation=landscape';
                 const response = await fetch(url);
                 if (!response.ok) throw new Error('HTTP ' + response.status);
                 const data = await response.json();
                 localStorage.setItem('unsplash_request_count', (requestCount + 1).toString());
-                
-                // 获取历史展示过的图片（全局去重）
-                var historyUrls = [];
-                try {
-                    historyUrls = JSON.parse(localStorage.getItem('unsplash_history_urls') || '[]');
-                } catch(e) { historyUrls = []; }
-                const allUsedUrls = excludeUrls.concat(historyUrls);
-                
                 if (data.results && data.results.length > 0) {
-                    // 优化：随机抽取 + 全局去重
-                    var availableUrls = [];
+                    // 从结果中找一张不在excludeUrls里的图
+                    var chosenUrl = null;
                     for (var i = 0; i < data.results.length; i++) {
                         var candidateUrl = data.results[i].urls.regular;
-                        if (allUsedUrls.indexOf(candidateUrl) === -1) {
-                            availableUrls.push(candidateUrl);
+                        if (excludeUrls.indexOf(candidateUrl) === -1) {
+                            chosenUrl = candidateUrl;
+                            break;
                         }
                     }
-                    
-                    // 随机选择一张可用图片
-                    var chosenUrl = null;
-                    if (availableUrls.length > 0) {
-                        var randomIndex = Math.floor(Math.random() * availableUrls.length);
-                        chosenUrl = availableUrls[randomIndex];
-                    } else {
-                        // 如果所有图都重复，从当前结果中随机选（不考虑历史）
-                        var randomIndex = Math.floor(Math.random() * data.results.length);
-                        chosenUrl = data.results[randomIndex].urls.regular;
-                    }
-                    
-                    // 保存到历史记录（最多存50张）
-                    historyUrls.unshift(chosenUrl);
-                    if (historyUrls.length > 50) historyUrls = historyUrls.slice(0, 50);
-                    localStorage.setItem('unsplash_history_urls', JSON.stringify(historyUrls));
-                    
+                    // 如果所有图都重复，就用第一张
+                    if (!chosenUrl) chosenUrl = data.results[0].urls.regular;
                     cache[cacheKey] = chosenUrl;
                     saveUnsplashCache(cache);
-                    console.log('[Unsplash] API成功: ' + query + ' -> ' + chosenUrl + ' (随机抽取)');
+                    console.log('[Unsplash] API成功: ' + query + ' -> ' + chosenUrl);
                     return chosenUrl;
                 } else {
-                    console.warn('[Unsplash] 未找到图片，切换Lorem Picsum备用图: ' + query);
-                    return getFallbackImageUrl(query);
+                    console.warn('[Unsplash] 未找到图片: ' + query);
+                    return null;
                 }
             } catch (e) {
-                console.error('[Unsplash] API错误，切换Lorem Picsum备用图:', e);
-                return getFallbackImageUrl(query);
+                console.error('[Unsplash] API错误:', e);
+                return null;
             }
         }
         
         function extractKeywords(title) {
-            // 中文关键词→英文搜索词映射（Unsplash对英文搜索更友好）- 增加多变体
+            // 中文关键词→英文搜索词映射（Unsplash对英文搜索更友好）
             const topicMap = [
-                { cn: ['原油', '石油', '油价', 'WTI', '布伦特', '油气', '炼油'], en: ['oil refinery', 'oil gas', 'petroleum', 'fuel'] },
-                { cn: ['尿素', '化肥', '氮肥', '农业'], en: ['fertilizer agriculture', 'farm', 'crops field', 'agritech'] },
-                { cn: ['煤矿', '煤炭', '矿工', '矿井'], en: ['coal mine', 'mining', 'quarry', 'underground mine'] },
-                { cn: ['锂', '锂电', '锂电池', '磷酸铁锂', 'LFP', '碳酸锂'], en: ['lithium battery', 'ev battery', 'energy storage', 'battery factory'] },
-                { cn: ['新能源', '电动', '电动车', 'EV', '特斯拉'], en: ['electric vehicle', 'tesla car', 'ev charging', 'electric bus'] },
-                { cn: ['化工', '化学', '化学品', '材料'], en: ['chemical plant', 'factory industrial', 'manufacturing', 'warehouse'] },
-                { cn: ['汽车', '车企', '整车', '丰田', '大众', '宝马'], en: ['car factory', 'automotive', 'assembly line', 'car dealership'] },
-                { cn: ['经济', '市场', '金融', '股市', '股价', '财报'], en: ['business news', 'stock market', 'office meeting', 'corporate'] },
-                { cn: ['政策', '法规', '监管', '发改委', '工信部'], en: ['government policy', 'building congress', 'city hall', 'regulation'] },
-                { cn: ['技术', '创新', '研发', '专利'], en: ['technology innovation', 'lab research', 'robotics', 'chip technology'] },
-                { cn: ['环境', '环保', '碳排放', '绿色'], en: ['environment green', 'solar panels', 'wind turbine', 'nature landscape'] },
-                { cn: ['储能', '太阳能', '光伏', '风电'], en: ['energy storage', 'solar farm', 'wind power', 'renewable energy'] },
-                { cn: ['电解液', '六氟', '溶剂'], en: ['chemical laboratory', 'science', 'liquid chemical', 'experiment'] },
-                { cn: ['事故', '爆炸', '安全'], en: ['industrial accident', 'safety vest', 'construction', 'warning'] },
-                { cn: ['出口', '进口', '贸易'], en: ['international trade', 'shipping', 'container port', 'cargo'] },
-                { cn: ['公司', '企业', '集团'], en: ['company office', 'business tower', 'corporate building', 'startup'] },
+                { cn: ['原油', '石油', '油价', 'WTI', '布伦特', '油气', '炼油'], en: 'oil refinery' },
+                { cn: ['尿素', '化肥', '氮肥', '农业'], en: 'fertilizer agriculture' },
+                { cn: ['煤矿', '煤炭', '矿工', '矿井'], en: 'coal mine' },
+                { cn: ['锂', '锂电', '锂电池', '磷酸铁锂', 'LFP', '碳酸锂'], en: 'lithium battery' },
+                { cn: ['新能源', '电动', '电动车', 'EV', '特斯拉'], en: 'electric vehicle' },
+                { cn: ['化工', '化学', '化学品', '材料'], en: 'chemical plant' },
+                { cn: ['汽车', '车企', '整车', '丰田', '大众', '宝马'], en: 'car factory' },
+                { cn: ['经济', '市场', '金融', '股市', '股价', '财报'], en: 'business news' },
+                { cn: ['政策', '法规', '监管', '发改委', '工信部'], en: 'government policy' },
+                { cn: ['技术', '创新', '研发', '专利'], en: 'technology innovation' },
+                { cn: ['环境', '环保', '碳排放', '绿色'], en: 'environment green' },
+                { cn: ['储能', '太阳能', '光伏', '风电'], en: 'energy storage' },
+                { cn: ['电解液', '六氟', '溶剂'], en: 'chemical laboratory' },
+                { cn: ['事故', '爆炸', '安全'], en: 'industrial accident' },
+                { cn: ['出口', '进口', '贸易'], en: 'international trade' },
+                { cn: ['公司', '企业', '集团'], en: 'company office' },
             ];
             const lowerTitle = title.toLowerCase();
             for (var i = 0; i < topicMap.length; i++) {
                 var topic = topicMap[i];
                 for (var j = 0; j < topic.cn.length; j++) {
                     if (lowerTitle.indexOf(topic.cn[j].toLowerCase()) !== -1) {
-                        // 从多个变体中随机选择一个
-                        var options = topic.en;
-                        var randomTopic = options[Math.floor(Math.random() * options.length)];
-                        return randomTopic;
+                        return topic.en;
                     }
                 }
             }
-            // 未匹配到任何主题，使用通用词（也从变体中随机选）
-            var defaultTopics = ['business news', 'corporate', 'modern technology', 'industry'];
-            return defaultTopics[Math.floor(Math.random() * defaultTopics.length)];
+            // 未匹配到任何主题，使用通用词
+            return 'business news';
         }
         
         var currentNewsSlide = 0;
@@ -15497,63 +15004,22 @@ document.addEventListener('DOMContentLoaded', function() {
                     newsCarousel.appendChild(slide);
                 });
                 
-                // 加载热点资讯图片（优先使用JSON中预绑定的image_url，否则fallback到API调用）
+                // 异步加载Unsplash图片（顺序加载，避免并发触发速率限制）
                 var usedImageUrls = [];  // 已使用的图片URL，避免重复
                 for (var i = 0; i < items.length; i++) {
                     var item = items[i];
-                    var slide = newsCarousel.children[i];
-                    
-                    // 优先使用JSON预绑定的图片URL
-                    if (item.image_url) {
-                        console.log('[热点资讯] 使用预绑定图片: ' + item.title.substring(0, 20) + '...');
-                        if (slide) {
-                            var bg = slide.querySelector('.news-slide-bg');
-                            if (bg) {
-                                bg.style.backgroundImage = 'url(' + item.image_url + ')';
-                                bg.style.backgroundSize = 'cover';
-                                bg.style.backgroundPosition = 'center';
-                                // 检查图片是否可加载
-                                (function(bgEl, url, title) {
-                                    var img = new Image();
-                                    img.onerror = function() {
-                                        console.warn('[热点资讯] 预绑定图片加载失败，切换API调用: ' + url);
-                                        // 异步调用Unsplash API作为fallback
-                                        fetchUnsplashImage(extractKeywords(title), usedImageUrls).then(function(apiUrl) {
-                                            if (apiUrl) {
-                                                usedImageUrls.push(apiUrl);
-                                                bgEl.style.backgroundImage = 'url(' + apiUrl + ')';
-                                            }
-                                        });
-                                    };
-                                    img.src = url;
-                                })(bg, item.image_url, item.title);
-                            }
-                        }
-                        continue;  // 跳过API调用
-                    }
-                    
-                    // Fallback：JSON中没有image_url时，调用Unsplash API获取
                     try {
                         const searchQuery = extractKeywords(item.title);
                         const imageUrl = await fetchUnsplashImage(searchQuery, usedImageUrls);
-                        console.log('[热点资讯] API调用获取图片: ' + item.title.substring(0, 20) + '...');
                         if (imageUrl) {
                             usedImageUrls.push(imageUrl);  // 记录已用URL，后续排除
+                            const slide = newsCarousel.children[i];
                             if (slide) {
                                 const bg = slide.querySelector('.news-slide-bg');
                                 if (bg) {
                                     bg.style.backgroundImage = 'url(' + imageUrl + ')';
                                     bg.style.backgroundSize = 'cover';
                                     bg.style.backgroundPosition = 'center';
-                                    // 加载失败检测：Lorem Picsum 也失败时换成 SVG 本地占位符
-                                    (function(bgEl, url, title) {
-                                        var img = new Image();
-                                        img.onerror = function() {
-                                            console.warn('[热点资讯] 图片加载失败，切换SVG占位符: ' + url);
-                                            bgEl.style.backgroundImage = 'url(' + generateSvgPlaceholder(title || '资讯') + ')';
-                                        };
-                                        img.src = url;
-                                    })(bg, imageUrl, item.title || searchQuery);
                                 }
                             }
                         }
@@ -16276,11 +15742,6 @@ document.addEventListener('DOMContentLoaded', function() {
                         const event = new Event('resize');
                         window.dispatchEvent(event);
                     }, 100);
-                    
-                    // 滚动到展开区域，让图表完整可见
-                    setTimeout(() => {
-                        area.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    }, 800);
                 });
             });
             

@@ -334,7 +334,7 @@ var C = { primary: '#1e3c72', secondary: '#4a6fa5', accent: '#4facfe', border: '
 
 // ==== Data helpers ====
 function getTable(name) {
-    var t = TERNARY_DATA.tables.find(function(t){ return t.table_name === name; });
+    var t = EMBEDDED_DATA.tables.find(function(t){ return t.table_name === name; });
     return t ? t.data : [];
 }
 function toNum(v) {
@@ -431,7 +431,7 @@ function initChart(id, opt) {
 }
 
 // ==== Update time ====
-document.getElementById('data-time').textContent = TERNARY_DATA.update_time || '—';
+document.getElementById('data-time').textContent = EMBEDDED_DATA.update_time || '—';
 
 // ============================================================
 //  TAB 1: 概览

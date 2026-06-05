@@ -382,6 +382,62 @@ def generate_db(db_config):
         print(f'[ERROR] {name}: JS write failed - {e}')
         return False
 
+def post_generate_validation():
+    """生成后一致性检查：防止 JS 变量名与 HTML 引用不匹配"""
+    import re, os
+    project = os.path.dirname(os.path.abspath(__file__))
+    errors = []
+    ok_count = 0
+
+    # 1. 数据库看板 *_embedded_data.js 必须导出 EMBEDDED_DATA
+    #    （跳过 policy_center 等非图表数据文件）
+    DB_CHART_BASES = {'automotive', 'carbonate', 'electrolyte', 'lfp',
+                      'lib_battery', 'recycling', 'ternary'}
+    for fname in os.listdir(project):
+        base = fname.replace('_embedded_data.js', '')
+        if fname.endswith('_embedded_data.js') and base in DB_CHART_BASES:
+            fpath = os.path.join(project, fname)
+            try:
+                with open(fpath, 'r', encoding='utf-8') as f:
+                    first_line = f.readline()
+                m = re.match(r'^\s*const\s+(\w+)\s*=', first_line)
+                var = m.group(1) if m else '?'
+                if var != 'EMBEDDED_DATA':
+                    errors.append(f'  [FAIL] {fname}: exports "{var}" but must be "EMBEDDED_DATA"')
+                else:
+                    ok_count += 1
+            except Exception as e:
+                errors.append(f'  [FAIL] {fname}: read error - {e}')
+
+    # 2. 所有 *_charts.html 必须引用 EMBEDDED_DATA（不能有旧变量名）
+    OLD_VARS = {'ELECTROLYTE_DATA', 'TERNARY_DATA', 'AUTOMOTIVE_DATA',
+                'LIB_BATTERY_DATA', 'RECYCLING_DATA', 'CARBONATE_DATA', 'LFP_DATA'}
+    for fname in os.listdir(project):
+        if fname.endswith('_charts.html'):
+            fpath = os.path.join(project, fname)
+            try:
+                with open(fpath, 'r', encoding='utf-8') as f:
+                    content = f.read()
+                for ov in OLD_VARS:
+                    if re.search(r'\b' + ov + r'\b', content):
+                        errors.append(f'  [FAIL] {fname}: uses old var "{ov}" instead of "EMBEDDED_DATA"')
+            except Exception as e:
+                errors.append(f'  [FAIL] {fname}: read error - {e}')
+
+    print()
+    print('=' * 60)
+    print('  变量名一致性检查')
+    print('=' * 60)
+    if errors:
+        print('FAIL - 发现以下问题:')
+        for e in errors:
+            print(e)
+        return False
+    else:
+        print(f'PASS - {ok_count} 个数据文件全部正确 (exports EMBEDDED_DATA)')
+        return True
+
+
 if __name__ == '__main__':
     print('=' * 60)
     print('Generate all DB embedded JS files')
@@ -398,3 +454,10 @@ if __name__ == '__main__':
     print('=' * 60)
     print(f'Done: {success_count}/{len(DB_CONFIGS)} DB generated')
     print('=' * 60)
+
+    # 强制一致性检查：失败则退出非0
+    if not post_generate_validation():
+        print()
+        print('[ERROR] 数据一致性检查失败！请修复后再重新生成。')
+        import sys
+        sys.exit(1)

@@ -74,7 +74,10 @@ for sheet_name in xl.sheet_names:
         print(f'✗ {sheet_name}: 错误 - {e}')
 
 # 生成JS文件
-js_content = f'''const ELECTROLYTE_DATA = {{
+# ⚠️ 统一变量名：所有 *_embedded_data.js 必须导出 EMBEDDED_DATA
+# ⚠️ 不要使用 ELECTROLYTE_DATA / TERNARY_DATA 等旧名称
+JS_VAR = 'EMBEDDED_DATA'
+js_content = f'''const {JS_VAR} = {{
     "update_time": "{update_time}",
     "source": "电解液行业数据库.xlsx",
     "tables": {json.dumps(tables, ensure_ascii=False, indent=4)}
