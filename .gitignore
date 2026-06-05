@@ -67,8 +67,13 @@ reports/*.json
 embedded/*.json
 
 # ------------------------------------------
-# 7. 历史存档子目录（已整理，按需跟踪）
+# 7. 历史存档子目录（按需跟踪）
+#    _archive/ 下直接文件可提交，子目录分类忽略
 # ------------------------------------------
+# 先放开 _archive/ 本身及其根目录所有文件
+!_archive/
+!_archive/*
+# 再把各子目录重新忽略
 _archive/debug/
 _archive/versions/
 _archive/reports/
