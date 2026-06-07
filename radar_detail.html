@@ -153,8 +153,218 @@
             margin-bottom: 16px;
             padding-bottom: 10px;
             border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
         }
         .chart-wrap { height: 360px; }
+
+        /* ── 增强雷达图 ── */
+        .radar-section { padding: 20px 24px 16px; }
+
+        .radar-controls {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        /* 模式切换按钮 */
+        .radar-mode-btns { display: flex; gap: 6px; }
+        .radar-mode-btn {
+            padding: 5px 14px;
+            border: 1.5px solid #e0e0e0;
+            background: white;
+            border-radius: 20px;
+            font-size: 12px;
+            color: #888;
+            cursor: pointer;
+            font-family: inherit;
+            transition: all 0.2s;
+        }
+        .radar-mode-btn:hover { border-color: #d35400; color: #d35400; }
+        .radar-mode-btn.active {
+            background: #d35400;
+            border-color: #d35400;
+            color: white;
+            font-weight: bold;
+        }
+
+        /* 时间轴播放 */
+        .timeline-player {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex: 1;
+            max-width: 400px;
+        }
+        .play-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: 2px solid #d35400;
+            background: white;
+            color: #d35400;
+            font-size: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+        .play-btn:hover, .play-btn.playing {
+            background: #d35400;
+            color: white;
+        }
+        .play-btn.playing { animation: pulse-glow 1.5s ease-in-out infinite; }
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(211,84,0,0.3); }
+            50% { box-shadow: 0 0 0 8px rgba(211,84,0,0); }
+        }
+
+        .timeline-track {
+            flex: 1;
+            height: 4px;
+            background: #eee;
+            border-radius: 2px;
+            position: relative;
+            cursor: pointer;
+        }
+        .timeline-progress {
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            background: linear-gradient(90deg, #d35400, #e67e22);
+            border-radius: 2px;
+            transition: width 0.3s ease;
+        }
+        .timeline-dot {
+            position: absolute;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: white;
+            border: 2px solid #d35400;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .timeline-dot:hover, .timeline-dot.active {
+            background: #d35400;
+            transform: translate(-50%, -50%) scale(1.3);
+        }
+        .timeline-dot.active { background: #d35400; }
+
+        .timeline-label {
+            font-size: 12px;
+            color: #d35400;
+            font-weight: bold;
+            min-width: 80px;
+            text-align: right;
+        }
+
+        /* 雷达图画布容器 */
+        .radar-chart-container {
+            position: relative;
+            height: 400px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .radar-wrap { height: 400px; width: 100%; position: relative; z-index: 2; }
+
+        /* 背景装饰六边形 */
+        .radar-deco-hex {
+            position: absolute;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 1;
+        }
+        .hex-1 {
+            width: 380px; height: 380px;
+            background: radial-gradient(circle, rgba(211,84,0,0.04) 0%, transparent 70%);
+            border: 1px dashed rgba(211,84,0,0.15);
+        }
+        .hex-2 {
+            width: 300px; height: 300px;
+            background: radial-gradient(circle, rgba(211,84,0,0.06) 0%, transparent 70%);
+            border: 1px dashed rgba(211,84,0,0.1);
+        }
+        .hex-3 {
+            width: 220px; height: 220px;
+            background: radial-gradient(circle, rgba(211,84,0,0.08) 0%, transparent 70%);
+            border: 1px dashed rgba(211,84,0,0.08);
+        }
+
+        /* 维度标签行 */
+        .dim-tags-row {
+            display: flex;
+            gap: 8px;
+            margin-top: 16px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .dim-tag {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            background: #f8f9fc;
+            border: 1.5px solid #e0e0e0;
+            font-size: 12px;
+            color: #555;
+            transition: all 0.2s;
+            cursor: default;
+        }
+        .dim-tag:hover {
+            border-color: #d35400;
+            background: #fff3e0;
+            transform: translateY(-2px);
+            box-shadow: 0 3px 8px rgba(211,84,0,0.15);
+        }
+        .dim-tag .dim-icon { font-size: 14px; }
+        .dim-tag .dim-label { font-weight: 500; }
+        .dim-tag .dim-val {
+            font-weight: bold;
+            color: #d35400;
+            font-size: 14px;
+            min-width: 24px;
+            text-align: right;
+        }
+
+        /* 对比图例 */
+        .compare-legend {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            margin-top: 12px;
+            flex-wrap: wrap;
+        }
+        .compare-legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            color: #555;
+        }
+        .compare-legend-item .legend-line {
+            width: 20px;
+            height: 3px;
+            border-radius: 2px;
+        }
+        .compare-legend-item .legend-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
 
         /* KPI表格 */
         .data-table {
@@ -331,18 +541,48 @@
 
     <!-- Tab: 雷达图 -->
     <div id="tab-radar" class="tab-content active">
-        <div class="chart-section">
-            <div class="chart-title">六维能力雷达图</div>
-            <div class="chart-wrap" id="radarChart"></div>
-            <div class="dim-explain">
-                <strong>指标维度：</strong>
-                D1 核心考核指标（收入/毛利/净利/回款/成本/合格率）/
-                D2 经营效益（销量达成）/
-                D3 运营效率（投料/产出/成本）/
-                D4 技术创新力（课题/MCU/技改）/
-                D5 风险合规（隐患/安全/应急）/
-                D6 组织活力（AI/荣誉/审核/5S）
+        <div class="chart-section radar-section">
+            <!-- 雷达图控制栏 -->
+            <div class="radar-controls">
+                <div class="chart-title" style="margin-bottom:0;border:none;padding-bottom:0;">
+                    六维能力雷达图
+                    <div class="radar-mode-btns">
+                        <button class="radar-mode-btn active" id="mode-single" onclick="setRadarMode('single')">单对象模式</button>
+                        <button class="radar-mode-btn" id="mode-compare" onclick="setRadarMode('compare')">多对象对比</button>
+                    </div>
+                </div>
+                <!-- 时间轴播放控制 -->
+                <div class="timeline-player" id="timelinePlayer">
+                    <button class="play-btn" id="playBtn" onclick="togglePlay()">
+                        <span id="playIcon">▶</span>
+                    </button>
+                    <div class="timeline-track" id="timelineTrack"></div>
+                    <span class="timeline-label" id="timelineLabel">2026年05月</span>
+                </div>
             </div>
+
+            <!-- 雷达图主区域（带装饰背景） -->
+            <div class="radar-chart-container">
+                <!-- 背景装饰六边形 -->
+                <div class="radar-deco-hex hex-1"></div>
+                <div class="radar-deco-hex hex-2"></div>
+                <div class="radar-deco-hex hex-3"></div>
+                <!-- 主雷达图画布 -->
+                <div class="chart-wrap radar-wrap" id="radarChart"></div>
+            </div>
+
+            <!-- 维度标签说明 -->
+            <div class="dim-tags-row">
+                <div class="dim-tag" data-d="d1"><span class="dim-icon">🎯</span><span class="dim-label">D1核心考核</span><span class="dim-val" id="dv-d1">--</span></div>
+                <div class="dim-tag" data-d="d2"><span class="dim-icon">📊</span><span class="dim-label">D2经营效益</span><span class="dim-val" id="dv-d2">--</span></div>
+                <div class="dim-tag" data-d="d3"><span class="dim-icon">⚙️</span><span class="dim-label">D3运营效率</span><span class="dim-val" id="dv-d3">--</span></div>
+                <div class="dim-tag" data-d="d4"><span class="dim-icon">🔬</span><span class="dim-label">D4技术创新</span><span class="dim-val" id="dv-d4">--</span></div>
+                <div class="dim-tag" data-d="d5"><span class="dim-icon">🛡️</span><span class="dim-label">D5风险合规</span><span class="dim-val" id="dv-d5">--</span></div>
+                <div class="dim-tag" data-d="d6"><span class="dim-icon">🏢</span><span class="dim-label">D6组织活力</span><span class="dim-val" id="dv-d6">--</span></div>
+            </div>
+
+            <!-- 对比图例（多对象模式时显示） -->
+            <div class="compare-legend" id="compareLegend" style="display:none;"></div>
         </div>
     </div>
 
@@ -683,6 +923,7 @@ function renderMonthSwitcher() {
             currentMonth = m;
             document.querySelectorAll('.month-btn').forEach(function(b) { b.classList.remove('active'); });
             btn.classList.add('active');
+            updateTimelineProgress();
             renderAll();
         };
         el.appendChild(btn);
@@ -713,46 +954,366 @@ function renderScoreOverview() {
     });
 }
 
-// 渲染雷达图
+// ─────────────────────────────────────────────
+// 增强雷达图渲染
+// ─────────────────────────────────────────────
+var radarChart = null;
+var radarMode = 'single';   // 'single' | 'compare'
+var isPlaying = false;
+var playTimer = null;
+var playIndex = 0;
+var playHistory = null;
+
+// 初始化时间轴
+function initTimeline() {
+    var track = document.getElementById('timelineTrack');
+    if (!track) return;
+    track.innerHTML = '';
+
+    var months = MONTHS; // ['2026-03','2026-04','2026-05']
+    var count = months.length;
+    var pct = 100 / (count - 1);
+
+    months.forEach(function(m, i) {
+        var pos = i * pct;
+        var label = m.replace('-', '年') + '月';
+        var isActive = m === currentMonth;
+        track.innerHTML +=
+            '<div class="timeline-dot' + (isActive ? ' active' : '') + '" ' +
+            'style="left:' + pos + '%" ' +
+            'data-idx="' + i + '" ' +
+            'title="' + label + '" ' +
+            'onclick="seekTimeline(' + i + ')"></div>';
+    });
+
+    updateTimelineProgress();
+}
+
+function updateTimelineProgress() {
+    var track = document.getElementById('timelineTrack');
+    var label = document.getElementById('timelineLabel');
+    if (!track) return;
+
+    var months = MONTHS;
+    var count = months.length;
+    var pct = 100 / (count - 1);
+    var idx = months.indexOf(currentMonth);
+    if (idx < 0) idx = count - 1;
+
+    // 更新 progress bar
+    var progress = track.querySelector('.timeline-progress');
+    if (!progress) {
+        progress = document.createElement('div');
+        progress.className = 'timeline-progress';
+        track.insertBefore(progress, track.firstChild);
+    }
+    progress.style.width = (idx * pct) + '%';
+
+    // 更新 dots
+    track.querySelectorAll('.timeline-dot').forEach(function(dot, i) {
+        dot.classList.toggle('active', i === idx);
+    });
+
+    // 更新 label
+    if (label) {
+        var text = months[idx].replace('-', '年') + '月';
+        if (RADAR_HISTORY_SDMD[months[idx]] && RADAR_HISTORY_SDMD[months[idx]]._isCurrent) {
+            text += ' ★';
+        }
+        label.textContent = text;
+    }
+}
+
+function seekTimeline(idx) {
+    var months = MONTHS;
+    if (idx < 0 || idx >= months.length) return;
+    currentMonth = months[idx];
+    document.querySelectorAll('.month-btn').forEach(function(b, i) {
+        b.classList.toggle('active', i === idx);
+    });
+    updateTimelineProgress();
+    renderAll();
+}
+
+function togglePlay() {
+    var btn = document.getElementById('playBtn');
+    var icon = document.getElementById('playIcon');
+    if (!btn) return;
+
+    if (isPlaying) {
+        clearInterval(playTimer);
+        isPlaying = false;
+        btn.classList.remove('playing');
+        icon.textContent = '▶';
+    } else {
+        isPlaying = true;
+        btn.classList.add('playing');
+        icon.textContent ='⏸';
+        playHistory = Object.keys(RADAR_HISTORY_SDMD);
+        playIndex = playHistory.indexOf(currentMonth);
+        if (playIndex < 0) playIndex = 0;
+
+        playTimer = setInterval(function() {
+            playIndex = (playIndex + 1) % playHistory.length;
+            currentMonth = playHistory[playIndex];
+            updateTimelineProgress();
+            renderAll();
+        }, 1800);
+    }
+}
+
+function renderCompareLegend() {
+    var el = document.getElementById('compareLegend');
+    if (!el) return;
+    var allMonths = Object.keys(RADAR_HISTORY_SDMD);
+    var COMP_COLORS = [
+        { main: '#d35400', light: 'rgba(211,84,0,0.15)', label: '3月' },
+        { main: '#e67e22', light: 'rgba(230,126,34,0.15)', label: '4月' },
+        { main: '#f39c12', light: 'rgba(243,156,18,0.1)', label: '5月' },
+    ];
+    el.innerHTML = '';
+    allMonths.forEach(function(m, mi) {
+        var c = COMP_COLORS[mi % COMP_COLORS.length];
+        var isLast = mi === allMonths.length - 1;
+        el.innerHTML +=
+            '<div class="compare-legend-item">' +
+            '<div class="legend-line" style="background:' + c.main + ';opacity:' + (isLast ? 1 : 0.6) + '"></div>' +
+            '<div class="legend-dot" style="background:' + c.main + '"></div>' +
+            '<span>' + c.label + '</span>' +
+            '</div>';
+    });
+    // 基准线
+    el.innerHTML +=
+        '<div class="compare-legend-item" style="opacity:0.5">' +
+        '<div class="legend-line" style="background:#999;border-style:dotted;height:1px;width:20px"></div>' +
+        '<span>基准线(80分)</span>' +
+        '</div>';
+}
+
+function setRadarMode(mode) {
+    radarMode = mode;
+    document.getElementById('mode-single').classList.toggle('active', mode === 'single');
+    document.getElementById('mode-compare').classList.toggle('active', mode === 'compare');
+    document.getElementById('compareLegend').style.display = mode === 'compare' ? 'flex' : 'none';
+    if (mode === 'compare') renderCompareLegend();
+    renderRadar();
+}
+
 function renderRadar() {
     var data = getMonthData(currentMonth);
     if (!data) return;
     var dom = document.getElementById('radarChart');
     if (!dom) return;
-    var chart = echarts.init(dom);
+
+    if (radarChart) { radarChart.dispose(); }
+    radarChart = echarts.init(dom);
+    radarChart.clear();
+
     var dims = data.dims;
     var vals = [dims.d1, dims.d2, dims.d3, dims.d4, dims.d5, dims.d6];
     var dimNames = ['D1核心考核指标', 'D2经营效益', 'D3运营效率', 'D4技术创新力', 'D5风险合规', 'D6组织活力'];
-    var colors = DIMS_DEF.map(function(d) { return d.color; });
+
+    // 更新维度标签值
+    ['d1','d2','d3','d4','d5','d6'].forEach(function(d, i) {
+        var el = document.getElementById('dv-' + d);
+        if (el) el.textContent = dims[d] || '--';
+    });
+
+    // 构建 series
+    var seriesData = [];
+
+    if (radarMode === 'single') {
+        // 单对象：主色渐变雷达
+        seriesData.push({
+            value: vals,
+            name: '山东美多',
+            lineStyle: {
+                color: {
+                    type: 'linear',
+                    x: 0, y: 0, x2: 1, y2: 1,
+                    colorStops: [
+                        { offset: 0, color: '#e67e22' },
+                        { offset: 1, color: '#d35400' }
+                    ]
+                },
+                width: 3,
+                type: 'solid',
+            },
+            itemStyle: {
+                color: '#d35400',
+                shadowBlur: 16,
+                shadowColor: 'rgba(211,84,0,0.5)',
+            },
+            areaStyle: {
+                color: {
+                    type: 'radial',
+                    x:0.5, y: 0.5, r: 0.5,
+                    colorStops: [
+                        { offset: 0, color: 'rgba(211,84,0,0.35)' },
+                        { offset: 1, color: 'rgba(211,84,0,0.08)' }
+                    ]
+                }
+            },
+            label: {
+                show: true,
+                formatter: '{c}',
+                fontSize: 15,
+                fontWeight: 'bold',
+                color: '#d35400',
+                position: 'outside',
+            },
+            symbol: 'circle',
+            symbolSize: 8,
+        });
+    } else {
+        // 多对象对比：3个月数据叠加
+        var COMP_COLORS = [
+            { main: '#d35400', light: 'rgba(211,84,0,0.15)', label: '山东美多' },
+            { main: '#e67e22', light: 'rgba(230,126,34,0.15)', label: '行业均值' },
+            { main: '#f39c12', light: 'rgba(243,156,18,0.1)', label: '标杆值' },
+        ];
+        var allMonths = Object.keys(RADAR_HISTORY_SDMD);
+        allMonths.forEach(function(m, mi) {
+            var mData = RADAR_HISTORY_SDMD[m];
+            if (!mData) return;
+            var mDims = mData.dims;
+            var mVals = ['d1','d2','d3','d4','d5','d6'].map(function(d) { return mDims[d] || 0; });
+            var c = COMP_COLORS[mi % COMP_COLORS.length];
+            seriesData.push({
+                value: mVals,
+                name: m.replace('-', '年') + '月',
+                lineStyle: { color: c.main, width: mi === allMonths.length - 1 ? 3 : 1.5, type: mi === allMonths.length - 1 ? 'solid' : 'dashed' },
+                itemStyle: { color: c.main, shadowBlur: mi === allMonths.length - 1 ? 12 : 0, shadowColor: c.main + '66' },
+                areaStyle: mi === allMonths.length - 1 ? { color: c.light } : null,
+                label: mi === allMonths.length - 1 ? { show: true, formatter: '{c}', fontSize: 12, color: c.main, fontWeight: 'bold' } : { show: false },
+                symbol: 'circle',
+                symbolSize: mi === allMonths.length - 1 ? 7 : 4,
+            });
+        });
+
+        // 行业参考线（80分基准）
+        seriesData.push({
+            value: [80, 80, 80, 80, 80, 80],
+            name: '基准线',
+            lineStyle: { color: 'rgba(100,100,100,0.3)', width: 1, type: 'dotted' },
+            itemStyle: { opacity: 0 },
+            areaStyle: null,
+            symbol: 'none',
+            silent: true,
+        });
+    }
 
     var option = {
-        tooltip: { trigger: 'item', confine: true },
+        backgroundColor: 'transparent',
+        animation: true,
+        animationDuration: 1200,
+        animationEasing: 'cubicOut',
+        tooltip: {
+            trigger: 'item',
+            confine: true,
+            backgroundColor: 'rgba(255,255,255,0.97)',
+            borderColor: '#d35400',
+            borderWidth: 1.5,
+            borderRadius: 10,
+            padding: [10, 14],
+            textStyle: { color: '#333', fontSize: 13 },
+            formatter: function(params) {
+                if (params.seriesName === '基准线') return '';
+                var idx = params.dimensionIndex;
+                return '<b style="color:#d35400;font-size:14px">' + params.seriesName + '</b><br/>' +
+                    '<span style="color:#888">' + dimNames[idx] + ':</span> ' +
+                    '<b style="color:#d35400;font-size:16px">' + params.value + '</b><span style="color:#888"> / 100</span>';
+            }
+        },
         legend: { show: false },
         radar: {
             indicator: dimNames.map(function(n, i) {
-                return { name: n, max: 100, axisName: { color: colors[i], fontSize: 12, fontWeight: 'bold' } };
+                return {
+                    name: n,
+                    max: 100,
+                    axisName: {
+                        color: '#d35400',
+                        fontSize: 14,
+                        fontWeight: 'bold',
+                    }
+                };
             }),
-            radius: '65%',
+            radius: '68%',
             splitNumber: 4,
-            splitLine: { lineStyle: { color: '#e8ecf0' } },
-            splitArea: { areaStyle: { color: ['#fff', '#fafafa'] } },
-            axisLine: { lineStyle: { color: '#ddd' } },
+            // 同色系渐变网格线（从内到外颜色变浅）
+            splitLine: {
+                show: true,
+                lineStyle: {
+                    width: 1,
+                    color: {
+                        type: 'linear',
+                        x: 0, y: 0, x2: 0, y2: 1,
+                        colorStops: [
+                            { offset: 0, color: 'rgba(211,84,0,0.35)' },
+                            { offset: 0.5, color: 'rgba(211,84,0,0.15)' },
+                            { offset: 1, color: 'rgba(211,84,0,0.05)' }
+                        ]
+                    },
+                    type: 'solid'
+                }
+            },
+            splitArea: {
+                show: true,
+                areaStyle: {
+                    color: [
+                        'rgba(211,84,0,0.03)',
+                        'rgba(211,84,0,0.06)',
+                        'rgba(211,84,0,0.09)',
+                        'rgba(211,84,0,0.12)'
+                    ]
+                }
+            },
+            axisLine: {
+                show: true,
+                lineStyle: {
+                    color: 'rgba(211,84,0,0.4)',
+                    width: 1.5,
+                }
+            },
+            shape: 'polygon',
         },
         series: [{
             type: 'radar',
-            data: [{
-                value: vals,
-                name: '山东美多',
-                lineStyle: { color: '#d35400', width: 2.5 },
-                itemStyle: { color: '#d35400' },
-                areaStyle: { color: '#d35400', opacity: 0.18 },
-                label: { show: true, formatter: '{c}', fontSize: 12, color: '#d35400', fontWeight: 'bold' },
-            }],
+            emphasis: {
+                lineStyle: { width: 4 },
+                areaStyle: { opacity: 0.4 },
+            },
+            data: seriesData,
         }],
     };
-    chart.setOption(option);
-    window.addEventListener('resize', function() { chart.resize(); });
+
+    radarChart.setOption(option);
+
+    // 注册 hover 高亮脉冲效果
+    radarChart.on('mouseover', function(params) {
+        if (params.seriesName === '基准线') return;
+        radarChart.dispatchAction({
+            type: 'highlight',
+            seriesIndex: 0,
+        });
+    });
+
+    radarChart.on('mouseout', function() {
+        radarChart.dispatchAction({
+            type: 'downplay',
+            seriesIndex: 0,
+        });
+    });
+
+    window.addEventListener('resize', function() {
+        if (radarChart) radarChart.resize();
+    });
 }
+
+// 全局 resize
+window.addEventListener('resize', function() {
+    if (radarChart) radarChart.resize();
+});
 
 // 渲染KPI表格
 function renderKPITable() {
@@ -875,6 +1436,7 @@ function switchTab(btn, tabId) {
 // 初始化
 (function init() {
     renderMonthSwitcher();
+    initTimeline();
     renderAll();
 })();
 </script>
