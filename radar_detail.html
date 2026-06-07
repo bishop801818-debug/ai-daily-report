@@ -9,13 +9,13 @@
         body { font-family: "Microsoft YaHei", "PingFang SC", sans-serif; background: #f0f2f5; min-height: 100vh; }
 
         .page-header {
-            background: linear-gradient(135deg, #d35400 0%, #e67e22 100%);
+            background: linear-gradient(135deg, #1a4c8f 0%, #3A6A9E 60%, #5a9fd4 100%);
             color: white;
             padding: 20px 40px;
             position: sticky;
             top: 0;
             z-index: 100;
-            box-shadow: 0 2px 12px rgba(211,84,0,0.3);
+            box-shadow: 0 4px 20px rgba(26,76,143,0.35);
         }
         .page-header .back-btn {
             display: inline-flex;
@@ -50,41 +50,71 @@
 
         /* 综合评分概览 */
         .score-overview {
-            display: flex;
+            display: grid;
+            grid-template-columns: 180px 1fr;
             gap: 16px;
-            margin-bottom: 24px;
+            margin-bottom: 20px;
         }
         .score-main {
             flex: 0 0 160px;
             background: white;
             border-radius: 16px;
-            padding: 24px 16px;
+            padding: 28px 20px;
             text-align: center;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-            border-top: 4px solid #d35400;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+            border-left: 8px solid #3A6A9E;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
         }
-        .big-score { font-size: 56px; font-weight: bold; color: #d35400; line-height: 1; }
-        .score-label { font-size: 13px; color: #888; margin-top: 6px; }
+        .big-score {
+            font-size: 36px;
+            font-weight: 900;
+            color: #3A6A9E;
+            line-height: 1;
+            letter-spacing: -1px;
+        }
+        .big-score .score-unit { font-size: 16px; font-weight: 400; color: #64748B; margin-left: 2px; }
+        .score-label { font-size: 13px; color: #64748B; margin-top: 8px; letter-spacing: 1px; }
         .score-sub { font-size: 11px; color: #aaa; margin-top: 4px; }
+
+        /* 分隔线 */
+        .score-divider {
+            height: 1px;
+            background: #e8eef4;
+            margin: 12px 0;
+            grid-column: 1 / -1;
+        }
 
         .score-dims {
             flex: 1;
             background: white;
             border-radius: 16px;
-            padding: 16px 20px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-            display: flex;
-            gap: 8px;
+            padding: 20px 24px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(2, 1fr);
+            gap: 10px;
         }
         .dim-item {
-            flex: 1;
             text-align: center;
-            padding: 10px 4px;
+            padding: 10px 8px;
             border-radius: 8px;
-            background: #f8f9fc;
+            background: #f4f7fb;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1.5px solid transparent;
         }
-        .dim-item .dim-name { font-size: 11px; color: #888; margin-bottom: 4px; }
-        .dim-item .dim-score { font-size: 22px; font-weight: bold; color: #d35400; }
+        .dim-item:hover {
+            background: #eef4fc;
+            border-color: #3A6A9E;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(58,106,158,0.15);
+        }
+        .dim-item .dim-name { font-size: 11px; color: #64748B; margin-bottom: 6px; font-weight: 400; }
+        .dim-item .dim-score { font-size: 22px; font-weight: 800; color: #3A6A9E; }
         .dim-item .dim-max { font-size: 10px; color: #aaa; }
 
         /* 月份切换 */
@@ -104,10 +134,10 @@
             font-family: inherit;
             transition: all 0.2s;
         }
-        .month-btn:hover { border-color: #d35400; color: #d35400; }
+        .month-btn:hover { border-color: #3A6A9E; color: #3A6A9E; }
         .month-btn.active {
-            border-color: #d35400;
-            background: #d35400;
+            border-color: #3A6A9E;
+            background: #3A6A9E;
             color: white;
             font-weight: bold;
         }
@@ -117,23 +147,26 @@
             display: flex;
             gap: 8px;
             margin-bottom: 20px;
-            border-bottom: 2px solid #eee;
-            padding-bottom: 0;
+            background: white;
+            border-radius: 16px;
+            padding: 6px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.07);
         }
         .tab-btn {
+            flex: 1;
             padding: 10px 20px;
             border: none;
             background: none;
             font-size: 14px;
-            color: #888;
+            color: #64748B;
             cursor: pointer;
-            border-bottom: 2px solid transparent;
-            margin-bottom: -2px;
+            border-radius: 10px;
             transition: all 0.2s;
             font-family: inherit;
+            font-weight: 500;
         }
-        .tab-btn:hover { color: #d35400; }
-        .tab-btn.active { color: #d35400; border-bottom-color: #d35400; font-weight: bold; }
+        .tab-btn:hover { color: #3A6A9E; background: #f4f7fb; }
+        .tab-btn.active { color: white; background: #3A6A9E; font-weight: bold; }
 
         .tab-content { display: none; }
         .tab-content.active { display: block; }
@@ -143,21 +176,36 @@
             background: white;
             border-radius: 16px;
             padding: 24px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-            margin-bottom: 24px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+            margin-bottom: 20px;
+            border-left: 8px solid #3A6A9E;
+            transition: box-shadow 0.2s, transform 0.2s;
+        }
+        .chart-section:hover {
+            box-shadow: 0 6px 24px rgba(58,106,158,0.14);
+            transform: translateY(-1px);
         }
         .chart-title {
             font-size: 15px;
             font-weight: bold;
-            color: #d35400;
+            color: #1a2a3a;
             margin-bottom: 16px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid #f0f0f0;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #f4f7fb;
             display: flex;
             align-items: center;
             justify-content: space-between;
             flex-wrap: wrap;
             gap: 10px;
+        }
+        .chart-title::before {
+            content: '';
+            display: inline-block;
+            width: 4px;
+            height: 18px;
+            background: #3A6A9E;
+            border-radius: 2px;
+            margin-right: 8px;
         }
         .chart-wrap { height: 360px; }
 
@@ -176,22 +224,24 @@
         /* 模式切换按钮 */
         .radar-mode-btns { display: flex; gap: 6px; }
         .radar-mode-btn {
-            padding: 5px 14px;
-            border: 1.5px solid #e0e0e0;
+            padding: 6px 16px;
+            border: 2px solid #e0e0e0;
             background: white;
             border-radius: 20px;
             font-size: 12px;
-            color: #888;
+            color: #64748B;
             cursor: pointer;
             font-family: inherit;
             transition: all 0.2s;
+            font-weight: 500;
         }
-        .radar-mode-btn:hover { border-color: #d35400; color: #d35400; }
+        .radar-mode-btn:hover { border-color: #3A6A9E; color: #3A6A9E; background: #f4f7fb; }
         .radar-mode-btn.active {
-            background: #d35400;
-            border-color: #d35400;
+            background: #3A6A9E;
+            border-color: #3A6A9E;
             color: white;
             font-weight: bold;
+            box-shadow: 0 2px 10px rgba(58,106,158,0.3);
         }
 
         /* 时间轴播放 */
@@ -203,12 +253,12 @@
             max-width: 400px;
         }
         .play-btn {
-            width: 32px;
-            height: 32px;
+            width: 34px;
+            height: 34px;
             border-radius: 50%;
-            border: 2px solid #d35400;
+            border: 2px solid #3A6A9E;
             background: white;
-            color: #d35400;
+            color: #3A6A9E;
             font-size: 12px;
             cursor: pointer;
             display: flex;
@@ -218,20 +268,20 @@
             flex-shrink: 0;
         }
         .play-btn:hover, .play-btn.playing {
-            background: #d35400;
+            background: #3A6A9E;
             color: white;
         }
         .play-btn.playing { animation: pulse-glow 1.5s ease-in-out infinite; }
         @keyframes pulse-glow {
-            0%, 100% { box-shadow: 0 0 0 0 rgba(211,84,0,0.3); }
-            50% { box-shadow: 0 0 0 8px rgba(211,84,0,0); }
+            0%, 100% { box-shadow: 0 0 0 0 rgba(58,106,158,0.3); }
+            50% { box-shadow: 0 0 0 8px rgba(58,106,158,0); }
         }
 
         .timeline-track {
             flex: 1;
-            height: 4px;
-            background: #eee;
-            border-radius: 2px;
+            height: 5px;
+            background: #e8eef4;
+            border-radius: 3px;
             position: relative;
             cursor: pointer;
         }
@@ -240,31 +290,30 @@
             left: 0;
             top: 0;
             height: 100%;
-            background: linear-gradient(90deg, #d35400, #e67e22);
-            border-radius: 2px;
+            background: linear-gradient(90deg, #1a4c8f, #3A6A9E, #5a9fd4);
+            border-radius: 3px;
             transition: width 0.3s ease;
         }
         .timeline-dot {
             position: absolute;
             top: 50%;
             transform: translate(-50%, -50%);
-            width: 12px;
-            height: 12px;
+            width: 14px;
+            height: 14px;
             border-radius: 50%;
             background: white;
-            border: 2px solid #d35400;
+            border: 2.5px solid #3A6A9E;
             cursor: pointer;
             transition: all 0.2s;
         }
         .timeline-dot:hover, .timeline-dot.active {
-            background: #d35400;
-            transform: translate(-50%, -50%) scale(1.3);
+            background: #3A6A9E;
+            transform: translate(-50%, -50%) scale(1.4);
         }
-        .timeline-dot.active { background: #d35400; }
 
         .timeline-label {
             font-size: 12px;
-            color: #d35400;
+            color: #3A6A9E;
             font-weight: bold;
             min-width: 80px;
             text-align: right;
@@ -273,14 +322,14 @@
         /* 雷达图画布容器 */
         .radar-chart-container {
             position: relative;
-            height: 400px;
+            height: 420px;
             display: flex;
             align-items: center;
             justify-content: center;
         }
-        .radar-wrap { height: 400px; width: 100%; position: relative; z-index: 2; }
+        .radar-wrap { height: 420px; width: 100%; position: relative; z-index: 2; }
 
-        /* 背景装饰六边形 */
+        /* 背景装饰同心圆 */
         .radar-deco-hex {
             position: absolute;
             border-radius: 50%;
@@ -288,57 +337,66 @@
             z-index: 1;
         }
         .hex-1 {
-            width: 380px; height: 380px;
-            background: radial-gradient(circle, rgba(211,84,0,0.04) 0%, transparent 70%);
-            border: 1px dashed rgba(211,84,0,0.15);
+            width: 400px; height: 400px;
+            background: radial-gradient(circle, rgba(58,106,158,0.03) 0%, transparent 70%);
+            border: 1.5px dashed rgba(58,106,158,0.12);
         }
         .hex-2 {
-            width: 300px; height: 300px;
-            background: radial-gradient(circle, rgba(211,84,0,0.06) 0%, transparent 70%);
-            border: 1px dashed rgba(211,84,0,0.1);
+            width: 310px; height: 310px;
+            background: radial-gradient(circle, rgba(58,106,158,0.05) 0%, transparent 70%);
+            border: 1px dashed rgba(58,106,158,0.08);
         }
         .hex-3 {
             width: 220px; height: 220px;
-            background: radial-gradient(circle, rgba(211,84,0,0.08) 0%, transparent 70%);
-            border: 1px dashed rgba(211,84,0,0.08);
+            background: radial-gradient(circle, rgba(58,106,158,0.07) 0%, transparent 70%);
+            border: 1px dashed rgba(58,106,158,0.06);
         }
 
-        /* 维度标签行 */
+        /* 维度标签行（3列网格 + 交互联动）*/
         .dim-tags-row {
-            display: flex;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
             gap: 8px;
-            margin-top: 16px;
-            flex-wrap: wrap;
-            justify-content: center;
+            margin-top: 14px;
         }
         .dim-tag {
             display: flex;
             align-items: center;
+            justify-content: center;
             gap: 6px;
-            padding: 6px 12px;
-            border-radius: 20px;
-            background: #f8f9fc;
-            border: 1.5px solid #e0e0e0;
+            padding: 8px 12px;
+            border-radius: 8px;
+            background: #f4f7fb;
+            border: 1.5px solid transparent;
             font-size: 12px;
-            color: #555;
-            transition: all 0.2s;
-            cursor: default;
+            color: #64748B;
+            transition: all 0.25s;
+            cursor: pointer;
+            font-weight: 500;
         }
         .dim-tag:hover {
-            border-color: #d35400;
-            background: #fff3e0;
+            border-color: #3A6A9E;
+            background: #eef4fc;
             transform: translateY(-2px);
-            box-shadow: 0 3px 8px rgba(211,84,0,0.15);
+            box-shadow: 0 4px 12px rgba(58,106,158,0.15);
         }
-        .dim-tag .dim-icon { font-size: 14px; }
+        .dim-tag.active {
+            background: #3A6A9E;
+            color: white;
+            border-color: #3A6A9E;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 14px rgba(58,106,158,0.3);
+        }
+        .dim-tag .dim-icon { font-size: 15px; }
         .dim-tag .dim-label { font-weight: 500; }
         .dim-tag .dim-val {
-            font-weight: bold;
-            color: #d35400;
-            font-size: 14px;
+            font-weight: 800;
+            color: #3A6A9E;
+            font-size: 15px;
             min-width: 24px;
             text-align: right;
         }
+        .dim-tag.active .dim-val { color: white; }
 
         /* 对比图例 */
         .compare-legend {
@@ -373,25 +431,25 @@
             font-size: 13px;
         }
         .data-table th {
-            background: #f8f9fc;
-            padding: 10px 12px;
+            background: #f4f7fb;
+            padding: 10px 14px;
             text-align: center;
             font-weight: bold;
-            color: #555;
-            border-bottom: 2px solid #e0e0e0;
+            color: #64748B;
+            border-bottom: 2px solid #d8e4f0;
             font-size: 12px;
         }
         .data-table th:first-child { text-align: left; }
         .data-table td {
-            padding: 9px 12px;
+            padding: 10px 14px;
             text-align: center;
-            border-bottom: 1px solid #f0f0f0;
-            color: #333;
+            border-bottom: 1px solid #e8eef4;
+            color: #1a2a3a;
         }
         .data-table td:first-child { text-align: left; font-weight: 500; }
-        .data-table tr:hover td { background: #fffbf5; }
-        .data-table tr.highlight td { background: #fff8f0; font-weight: 600; }
-        .val-actual { color: #1a6b9e; font-weight: bold; }
+        .data-table tr:hover td { background: #f4f7fb; }
+        .data-table tr.highlight td { background: #eef4fc; font-weight: 600; }
+        .val-actual { color: #3A6A9E; font-weight: 800; }
         .val-good { color: #27ae60; }
         .val-bad { color: #e74c3c; }
         .val-neutral { color: #888; }
@@ -418,25 +476,31 @@
             border-radius: 12px;
             padding: 14px;
             box-shadow: 0 1px 4px rgba(0,0,0,0.06);
-            border-left: 3px solid #d35400;
+            border-left: 3px solid #3A6A9E;
             text-align: center;
+            transition: all 0.2s;
+            cursor: default;
         }
-        .kpi-card .kpi-name { font-size: 11px; color: #888; margin-bottom: 6px; }
-        .kpi-card .kpi-val { font-size: 20px; font-weight: bold; color: #d35400; }
+        .kpi-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(58,106,158,0.15);
+        }
+        .kpi-card .kpi-name { font-size: 11px; color: #64748B; margin-bottom: 6px; }
+        .kpi-card .kpi-val { font-size: 20px; font-weight: 800; color: #3A6A9E; }
         .kpi-card .kpi-unit { font-size: 11px; color: #aaa; margin-left: 2px; }
         .kpi-card .kpi-sub { font-size: 11px; color: #aaa; margin-top: 3px; }
 
         /* 维度说明 */
         .dim-explain {
-            background: #f8f9fc;
+            background: #f4f7fb;
             border-radius: 8px;
             padding: 12px 16px;
             margin-top: 12px;
             font-size: 12px;
-            color: #666;
+            color: #64748B;
             line-height: 1.8;
         }
-        .dim-explain strong { color: #d35400; }
+        .dim-explain strong { color: #3A6A9E; }
 
         /* KPI达成率条 */
         .achv-bar-wrap {
@@ -463,7 +527,7 @@
         .dim-items-table .section-subtitle {
             font-size: 13px;
             font-weight: bold;
-            color: #d35400;
+            color: #3A6A9E;
             margin: 16px 0 10px;
         }
 
@@ -479,22 +543,22 @@
             border-radius: 12px;
             padding: 14px 16px;
             box-shadow: 0 1px 4px rgba(0,0,0,0.06);
-            border-left: 3px solid #d35400;
+            border-left: 3px solid #3A6A9E;
         }
-        .trend-card .trend-label { font-size: 12px; color: #888; margin-bottom: 6px; }
-        .trend-card .trend-val { font-size: 22px; font-weight: bold; color: #d35400; }
+        .trend-card .trend-label { font-size: 12px; color: #64748B; margin-bottom: 6px; }
+        .trend-card .trend-val { font-size: 22px; font-weight: 800; color: #3A6A9E; }
         .trend-card .trend-delta { font-size: 12px; margin-top: 2px; }
         .trend-card .trend-delta.up { color: #e74c3c; }
         .trend-card .trend-delta.down { color: #27ae60; }
 
         .footer-note {
             text-align: center;
-            color: #bbb;
+            color: #9ab0cc;
             font-size: 12px;
             padding: 24px;
-            border-top: 1px solid #eee;
+            border-top: 1px solid #e8eef4;
         }
-        .footer-note a { color: #d35400; text-decoration: none; }
+        .footer-note a { color: #3A6A9E; text-decoration: none; font-weight: 600; }
         .footer-note a:hover { text-decoration: underline; }
 
         @media (max-width: 768px) {
@@ -650,18 +714,18 @@
 const BU_META_SDMD = {
     name: '山东美多',
     subtitle: '动力电池回收 · 梯次利用 · 再生利用',
-    color: '#d35400',
-    accent: '#d35400',
+    color: '#3A6A9E',
+    accent: '#3A6A9E',
 };
 
 // 维度定义
 const DIMS_DEF = [
-    { id: 'd1', name: '核心考核指标', color: '#1a6b9e' },
-    { id: 'd2', name: '经营效益',     color: '#2e7d5a' },
-    { id: 'd3', name: '运营效率',     color: '#7b4fa8' },
-    { id: 'd4', name: '技术创新力',  color: '#c0572a' },
-    { id: 'd5', name: '风险合规',     color: '#b5862a' },
-    { id: 'd6', name: '组织活力',     color: '#2a6b7c' },
+    { id: 'd1', name: '核心考核指标', color: '#3A6A9E' },
+    { id: 'd2', name: '经营效益',     color: '#3A6A9E' },
+    { id: 'd3', name: '运营效率',     color: '#3A6A9E' },
+    { id: 'd4', name: '技术创新力',  color: '#3A6A9E' },
+    { id: 'd5', name: '风险合规',     color: '#3A6A9E' },
+    { id: 'd6', name: '组织活力',     color: '#3A6A9E' },
 ];
 
 // RADAR_HISTORY - 三个月完整数据
@@ -1067,9 +1131,9 @@ function renderCompareLegend() {
     if (!el) return;
     var allMonths = Object.keys(RADAR_HISTORY_SDMD);
     var COMP_COLORS = [
-        { main: '#d35400', light: 'rgba(211,84,0,0.15)', label: '3月' },
-        { main: '#e67e22', light: 'rgba(230,126,34,0.15)', label: '4月' },
-        { main: '#f39c12', light: 'rgba(243,156,18,0.1)', label: '5月' },
+        { main: '#3A6A9E', label: '3月' },
+        { main: '#5a9fd4', label: '4月' },
+        { main: '#9ab0cc', label: '5月' },
     ];
     el.innerHTML = '';
     allMonths.forEach(function(m, mi) {
@@ -1085,7 +1149,7 @@ function renderCompareLegend() {
     // 基准线
     el.innerHTML +=
         '<div class="compare-legend-item" style="opacity:0.5">' +
-        '<div class="legend-line" style="background:#999;border-style:dotted;height:1px;width:20px"></div>' +
+        '<div class="legend-line" style="background:#ccc;border-style:dotted;height:1px;width:20px"></div>' +
         '<span>基准线(80分)</span>' +
         '</div>';
 }
@@ -1121,56 +1185,62 @@ function renderRadar() {
 
     // 构建 series
     var seriesData = [];
+    var BRAND = '#3A6A9E';
+    var BRAND_DARK = '#1a4c8f';
+    var BRAND_LIGHT = '#5a9fd4';
 
     if (radarMode === 'single') {
-        // 单对象：主色渐变雷达
+        // 单对象：品牌蓝渐变雷达，2.5px线条 + 径向填充 + 发光数据点
         seriesData.push({
             value: vals,
             name: '山东美多',
             lineStyle: {
                 color: {
                     type: 'linear',
-                    x: 0, y: 0, x2: 1, y2: 1,
+                    x: 0, y: 0, x2: 0, y2: 1,  //从上到下渐变
                     colorStops: [
-                        { offset: 0, color: '#e67e22' },
-                        { offset: 1, color: '#d35400' }
+                        { offset: 0, color: BRAND },
+                        { offset: 1, color: BRAND_DARK }
                     ]
                 },
-                width: 3,
+                width: 2.5,  //加粗
                 type: 'solid',
             },
             itemStyle: {
-                color: '#d35400',
+                color: BRAND,
                 shadowBlur: 16,
-                shadowColor: 'rgba(211,84,0,0.5)',
+                shadowColor: 'rgba(58,106,158,0.6)',
+                borderWidth: 2,
+                borderColor: 'white',  //白色描边
             },
             areaStyle: {
                 color: {
                     type: 'radial',
-                    x:0.5, y: 0.5, r: 0.5,
+                    x: 0.5, y: 0.5, r: 0.5,
                     colorStops: [
-                        { offset: 0, color: 'rgba(211,84,0,0.35)' },
-                        { offset: 1, color: 'rgba(211,84,0,0.08)' }
+                        { offset: 0, color: 'rgba(58,106,158,0.30)' },  //中心30%
+                        { offset: 1, color: 'rgba(58,106,158,0.10)' } //边缘10%
                     ]
                 }
             },
             label: {
                 show: true,
                 formatter: '{c}',
-                fontSize: 12,
+                fontSize: 13,
                 fontWeight: 'bold',
-                color: '#d35400',
+                color: BRAND,
                 position: 'outside',
+                distance: 14,
             },
             symbol: 'circle',
-            symbolSize: 8,
+            symbolSize: 8,  //8px数据点
         });
     } else {
-        // 多对象对比：3个月数据叠加
+        // 多对象对比：3个月数据叠加（品牌蓝系）
         var COMP_COLORS = [
-            { main: '#d35400', light: 'rgba(211,84,0,0.15)', label: '山东美多' },
-            { main: '#e67e22', light: 'rgba(230,126,34,0.15)', label: '行业均值' },
-            { main: '#f39c12', light: 'rgba(243,156,18,0.1)', label: '标杆值' },
+            { main: '#3A6A9E', light: 'rgba(58,106,158,0.15)', label: '山东美多' },
+            { main: '#5a9fd4', light: 'rgba(90,159,212,0.15)', label: '行业均值' },
+            { main: '#9ab0cc', light: 'rgba(154,176,204,0.1)', label: '标杆值' },
         ];
         var allMonths = Object.keys(RADAR_HISTORY_SDMD);
         allMonths.forEach(function(m, mi) {
@@ -1182,20 +1252,20 @@ function renderRadar() {
             seriesData.push({
                 value: mVals,
                 name: m.replace('-', '年') + '月',
-                lineStyle: { color: c.main, width: mi === allMonths.length - 1 ? 3 : 1.5, type: mi === allMonths.length - 1 ? 'solid' : 'dashed' },
-                itemStyle: { color: c.main, shadowBlur: mi === allMonths.length - 1 ? 12 : 0, shadowColor: c.main + '66' },
+                lineStyle: { color: c.main, width: mi === allMonths.length - 1 ? 2.5 : 1.5, type: mi === allMonths.length - 1 ? 'solid' : 'dashed' },
+                itemStyle: { color: c.main, shadowBlur: mi === allMonths.length - 1 ? 12 : 0, shadowColor: c.main + '66', borderWidth: 2, borderColor: 'white' },
                 areaStyle: mi === allMonths.length - 1 ? { color: c.light } : null,
                 label: mi === allMonths.length - 1 ? { show: true, formatter: '{c}', fontSize: 12, color: c.main, fontWeight: 'bold' } : { show: false },
                 symbol: 'circle',
-                symbolSize: mi === allMonths.length - 1 ? 7 : 4,
+                symbolSize: mi === allMonths.length - 1 ? 8 : 4,
             });
         });
 
-        // 行业参考线（80分基准）
+        // 80分基准线（浅灰虚线）
         seriesData.push({
             value: [80, 80, 80, 80, 80, 80],
             name: '基准线',
-            lineStyle: { color: 'rgba(100,100,100,0.3)', width: 1, type: 'dotted' },
+            lineStyle: { color: 'rgba(100,120,140,0.3)', width: 1, type: 'dotted' },
             itemStyle: { opacity: 0 },
             areaStyle: null,
             symbol: 'none',
@@ -1206,24 +1276,25 @@ function renderRadar() {
     var option = {
         backgroundColor: 'transparent',
         animation: true,
-        animationDuration: 1200,
+        animationDuration: 1500,  //1.5秒入场动画
         animationEasing: 'cubicOut',
         tooltip: {
             trigger: 'item',
             confine: true,
             backgroundColor: 'rgba(255,255,255,0.97)',
-            borderColor: '#d35400',
-            borderWidth: 1.5,
-            borderRadius: 10,
-            padding: [10, 14],
+            borderColor: BRAND,
+            borderWidth: 2,
+            borderRadius: 12,
+            padding: [12, 16],
             textStyle: { color: '#333', fontSize: 13 },
             formatter: function(params) {
                 if (params.seriesName === '基准线') return '';
                 var idx = params.dimensionIndex;
                 var dn = (idx != null && idx >= 0) ? (dimNames[idx] || ('维度' + (idx + 1))) : '综合评分';
-                return '<b style="color:#d35400;font-size:14px">' + params.seriesName + '</b><br/>' +
-                    '<span style="color:#888">' + dn + ':</span> ' +
-                    '<b style="color:#d35400;font-size:16px">' + params.value + '</b><span style="color:#888"> / 100</span>';
+                return '<b style="color:' + BRAND + ';font-size:14px">' + params.seriesName + '</b><br/>' +
+                    '<span style="color:#64748B">' + dn + ':</span> ' +
+                    '<b style="color:' + BRAND + ';font-size:16px">' + params.value + '</b>' +
+                    '<span style="color:#9ab0cc;font-size:12px"> / 100</span>';
             }
         },
         legend: { show: false },
@@ -1233,15 +1304,16 @@ function renderRadar() {
                     name: n,
                     max: 100,
                     axisName: {
-                        color: '#d35400',
-                        fontSize: 12,
-                        fontWeight: 'bold',
+                        color: '#64748B',  //灰色维度标签
+                        fontSize: 13,
+                        fontWeight: 'normal',
                     }
                 };
             }),
-            radius: '68%',
-            splitNumber: 4,
-            // 同色系渐变网格线（从内到外颜色变浅）
+            radius: '65%',
+            center: ['50%', '50%'],
+            splitNumber: 4,  //4层浅灰网格
+            // 4层浅灰网格线（从内到外逐渐加深）
             splitLine: {
                 show: true,
                 lineStyle: {
@@ -1250,29 +1322,31 @@ function renderRadar() {
                         type: 'linear',
                         x: 0, y: 0, x2: 0, y2: 1,
                         colorStops: [
-                            { offset: 0, color: 'rgba(211,84,0,0.35)' },
-                            { offset: 0.5, color: 'rgba(211,84,0,0.15)' },
-                            { offset: 1, color: 'rgba(211,84,0,0.05)' }
+                            { offset: 0, color: 'rgba(100,120,140,0.25)' },
+                            { offset: 0.33, color: 'rgba(100,120,140,0.15)' },
+                            { offset: 0.66, color: 'rgba(100,120,140,0.08)' },
+                            { offset: 1, color: 'rgba(100,120,140,0.04)' }
                         ]
                     },
                     type: 'solid'
                 }
             },
+            // 4层渐变区域填充（极淡蓝灰）
             splitArea: {
                 show: true,
                 areaStyle: {
                     color: [
-                        'rgba(211,84,0,0.03)',
-                        'rgba(211,84,0,0.06)',
-                        'rgba(211,84,0,0.09)',
-                        'rgba(211,84,0,0.12)'
+                        'rgba(58,106,158,0.02)',
+                        'rgba(58,106,158,0.04)',
+                        'rgba(58,106,158,0.07)',
+                        'rgba(58,106,158,0.10)'
                     ]
                 }
             },
             axisLine: {
                 show: true,
                 lineStyle: {
-                    color: 'rgba(211,84,0,0.4)',
+                    color: 'rgba(100,120,140,0.4)',
                     width: 1.5,
                 }
             },
@@ -1280,9 +1354,11 @@ function renderRadar() {
         },
         series: [{
             type: 'radar',
+            animationDuration: 1500,
+            animationEasing: 'cubicOut',
             emphasis: {
                 lineStyle: { width: 4 },
-                areaStyle: { opacity: 0.4 },
+                areaStyle: { opacity: 0.4 }
             },
             data: seriesData,
         }],
@@ -1290,19 +1366,30 @@ function renderRadar() {
 
     radarChart.setOption(option);
 
-    // 注册 hover 高亮脉冲效果
+    // ──双向联动：雷达图悬停 ↔ 得分标签 ──
     radarChart.on('mouseover', function(params) {
         if (params.seriesName === '基准线') return;
-        radarChart.dispatchAction({
-            type: 'highlight',
-            seriesIndex: 0,
-        });
+        var idx = params.dimensionIndex;
+        if (idx == null || idx < 0) return;
+        radarChart.dispatchAction({ type: 'highlight', seriesIndex: 0 });
+        var tags = document.querySelectorAll('.dim-tag');
+        if (tags[idx]) {
+            tags[idx].classList.add('active');
+        }
+    });
+    radarChart.on('mouseout', function() {
+        radarChart.dispatchAction({ type: 'downplay', seriesIndex: 0 });
+        document.querySelectorAll('.dim-tag').forEach(function(t) { t.classList.remove('active'); });
     });
 
-    radarChart.on('mouseout', function() {
-        radarChart.dispatchAction({
-            type: 'downplay',
-            seriesIndex: 0,
+    // ── 得分标签悬停 → 高亮雷达图维度 ──
+    var dimTagEls = document.querySelectorAll('.dim-tag');
+    dimTagEls.forEach(function(tag, idx) {
+        tag.addEventListener('mouseenter', function() {
+            radarChart.dispatchAction({ type: 'highlight', seriesIndex: 0, dataIndex: idx });
+        });
+        tag.addEventListener('mouseleave', function() {
+            radarChart.dispatchAction({ type: 'downplay', seriesIndex: 0 });
         });
     });
 
