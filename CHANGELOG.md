@@ -8,8 +8,18 @@
   - 功能：单对象/多对象对比模式切换（叠加3个月雷达图+80分基准线）
   - 图例：对比模式动态渲染3个月+基准线图例
   - 背景：三层同心圆装饰（同色系虚线边框）
+- ✅ 运维框架升级v4.0：新增"第十章 雷达看板模块运维规范"
+  - 数据结构（RADAR_HISTORY/RADAR_HISTORY_SDMD）
+  - BU元数据定义（BU_META/BU_DIMS）
+  - 评分标准（永久不变）
+  - 每月数据更新流程
+  - 快速检查清单 + 常见问题排查
+- ✅ 雷达历史功能文档更新（_docs/radar-history-feature.md v26增强版）
+- ✅ .gitignore：_docs/目录纳入版本控制（!_docs/!_docs/*）
 
-**技术文件**: radar_detail.html
+**技术文件**: radar_detail.html, 运维框架.md, _docs/radar-history-feature.md, .gitignore
+
+**存档**: _archive/radar_detail_v26_20260607_enhanced_radar.html
 
 **迁移说明**:
 - 无破坏性变更
