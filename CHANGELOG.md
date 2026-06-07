@@ -8,6 +8,10 @@
   - 维度详情Tab（D2销量/D3生产/D4技术/D5安全/D6组织 MoM环比）
   - 月份切换器（支持3月/4月/5月切换）
 - ✅ radar_hub.html 山东美多评分更新为真实值（90分）
+- ✅ radar_hub.html 卡片雷达图升级为真实 ECharts 六维雷达图
+  - 9个BU全部使用 ECharts 渲染（替代 SVG 模拟图）
+  - 各维度分数 chip标签 + ★当月标记
+  - 窗口 resize 自适应重绘
 
 **技术文件**: radar_detail.html, radar_hub.html
 

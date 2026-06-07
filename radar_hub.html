@@ -85,20 +85,18 @@
         .dept-name { font-size: 16px; font-weight: bold; color: #1e3c72; margin-bottom: 2px; }
         .dept-subtitle { font-size: 12px; color: #888; }
 
+        /* ECharts 雷达图容器 */
         .dept-radar-preview {
-            height: 80px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 8px 0;
+            height: 120px;
+            margin: 8px 0 4px;
         }
-        .dept-radar-preview svg { width: 80px; height: 80px; }
+        .dept-radar-preview canvas { border-radius: 8px; }
 
         .dept-score {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-top: 10px;
+            margin-top: 8px;
             padding-top: 10px;
             border-top: 1px solid #f0f0f0;
         }
@@ -106,14 +104,31 @@
         .dept-score-val { font-size: 20px; font-weight: bold; color: #1e3c72; }
         .dept-score-dims { font-size: 11px; color: #aaa; margin-left: 6px; }
 
-        .dept-meta {
+        .dept-dims-row {
             display: flex;
-            justify-content: flex-end;
-            margin-top: 8px;
-            font-size: 12px;
-            color: #aaa;
+            gap: 4px;
+            margin-top: 6px;
+            flex-wrap: wrap;
         }
-        .dept-meta span { margin-left: 10px; }
+        .dim-chip {
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            background: #f0f0f0;
+            color: #666;
+        }
+        .dim-chip .chip-val { font-weight: bold; margin-right: 2px; }
+
+        .dept-current-badge {
+            display: inline-block;
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            background: #fff3e0;
+            color: #e67e22;
+            font-weight: bold;
+            margin-left: 6px;
+        }
 
         .footer-note {
             text-align: center;
@@ -135,7 +150,7 @@
 <div class="page-header">
     <a class="back-btn" href="index_v3.html">← 返回首页</a>
     <h1>🕸️ 雷达看板</h1>
-    <div class="subtitle">九大事业部六维雷达图分析</div>
+    <div class="subtitle">九大事业部六维雷达图分析 · 点击查看详情</div>
 </div>
 
 <div class="container">
@@ -147,11 +162,14 @@
 </div>
 
 <div class="footer-note">
-    数据仅供参考 ·<a href="index_v3.html">返回首页</a>
+    数据仅供参考 · <a href="index_v3.html">返回首页</a>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
 <script>
+// ─────────────────────────────────────────────
+// BU 元数据
+// ─────────────────────────────────────────────
 var BU_META = {
     czly: { name: '常州锂源', subtitle: '磷酸铁锂正极材料', category: 'lithium', color: '#1e3c72' },
     lpsd: { name: '龙蟠时代', subtitle: '碳酸锂', category: 'lithium', color: '#2e75b6' },
@@ -164,12 +182,12 @@ var BU_META = {
     dhx:  { name: '迪克化学', subtitle: '汽车化学品', category: 'other', color: '#16a085' },
 };
 
-// 雷达图分数数据（来自 BUS_DATA 的 dims）
+// 六维 dims 数据（与 radar_detail.html 一致）
 var BU_DIMS = {
     czly: { d1: 87, d2: 90, d3: 82, d4: 80, d5: 90, d6: 78 },
     lpsd: { d1: 75, d2: 72, d3: 88, d4: 65, d5: 70, d6: 82 },
     felt: { d1: 82, d2: 88, d3: 85, d4: 78, d5: 85, d6: 80 },
-    sdmd: { d1: 90, d2: 90, d3: 82, d4: 80, d5: 90, d6: 78 },
+    sdmd: { d1: 90, d2: 90, d3: 82, d4: 80, d5: 90, d6: 78 }, // 真实数据
     sjld: { d1: 78, d2: 80, d3: 72, d4: 75, d5: 78, d6: 70 },
     kls:  { d1: 85, d2: 88, d3: 90, d4: 85, d5: 82, d6: 88 },
     lhy:  { d1: 80, d2: 82, d3: 78, d4: 80, d5: 75, d6: 78 },
@@ -177,9 +195,18 @@ var BU_DIMS = {
     dhx:  { d1: 75, d2: 78, d3: 72, d4: 70, d5: 72, d6: 75 },
 };
 
-var BU_LOGOS = {};
+// 标记当前月份BU（★）
+var BU_IS_CURRENT = { sdmd: true }; // 山东美多有真实当前数据
 
+var BU_LOGOS = {};
+var buChartInstances = {}; // 缓存每个BU的 ECharts 实例
+
+var DIM_NAMES = ['D1核心', 'D2经营', 'D3运营', 'D4技术', 'D5风险', 'D6组织'];
+var DIM_IDS = ['d1', 'd2', 'd3', 'd4', 'd5', 'd6'];
+
+// ─────────────────────────────────────────────
 // 加载 logo
+// ─────────────────────────────────────────────
 (function loadLogos() {
     fetch('bu_logos.json')
         .then(function(r) { return r.json(); })
@@ -192,43 +219,17 @@ var BU_LOGOS = {};
         });
 })();
 
+// ─────────────────────────────────────────────
+// 工具函数
+// ─────────────────────────────────────────────
 function getScore(dims) {
-    var vals = [dims.d1, dims.d2, dims.d3, dims.d4, dims.d5, dims.d6];
-    var sum = vals.reduce(function(a, b) { return a + b; }, 0);
-    return Math.round(sum / vals.length);
+    var vals = DIM_IDS.map(function(d) { return dims[d] || 0; });
+    return Math.round(vals.reduce(function(a, b) { return a + b; }, 0) / vals.length);
 }
 
-function makeRadarSVG(dims, color) {
-    var vals = [dims.d1, dims.d2, dims.d3, dims.d4, dims.d5, dims.d6];
-    var cx = 40, cy = 40, r = 32;
-    var points = vals.map(function(v, i) {
-        var angle = (i * 60 - 90) * Math.PI / 180;
-        var dist = (v / 100) * r;
-        return [cx + dist * Math.cos(angle), cy + dist * Math.sin(angle)];
-    });
-    var polyPoints = points.map(function(p) { return p.join(','); }).join(' ');
-    var axisLines = vals.map(function(v, i) {
-        var angle = (i * 60 - 90) * Math.PI / 180;
-        return [cx, cy, cx + r * Math.cos(angle), cy + r * Math.sin(angle)].join(',');
-    }).join(' ');
-
-    // 外边框六边形
-    var hexPoints = vals.map(function(v, i) {
-        var angle = (i * 60 - 90) * Math.PI / 180;
-        return [cx + r * Math.cos(angle), cy + r * Math.sin(angle)].join(',');
-    }).join(' ');
-
-    return '<svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">' +
-        '<polygon points="' + hexPoints + '" fill="none" stroke="#e0e0e0" stroke-width="0.5"/>' +
-        '<polygon points="' + hexPoints + '" fill="none" stroke="#e0e0e0" stroke-width="0.5" transform="scale(0.67) translate(' + (cx * 0.33) + ',' + (cy * 0.33) + ')"/>' +
-        '<polygon points="' + hexPoints + '" fill="none" stroke="#e0e0e0" stroke-width="0.5" transform="scale(0.33) translate(' + (cx * 0.67) + ',' + (cy * 0.67) + ')"/>' +
-        '<line x1="' + cx + '" y1="' + (cy - r) + '" x2="' + cx + '" y2="' + (cy + r) + '" stroke="#e0e0e0" stroke-width="0.5"/>' +
-        '<line x1="' + (cx - r * 0.866) + '" y1="' + (cy - r * 0.5) + '" x2="' + (cx + r * 0.866) + '" y2="' + (cy + r * 0.5) + '" stroke="#e0e0e0" stroke-width="0.5"/>' +
-        '<line x1="' + (cx - r * 0.866) + '" y1="' + (cy + r * 0.5) + '" x2="' + (cx + r * 0.866) + '" y2="' + (cy - r * 0.5) + '" stroke="#e0e0e0" stroke-width="0.5"/>' +
-        '<polygon points="' + polyPoints + '" fill="' + color + '" fill-opacity="0.25" stroke="' + color + '" stroke-width="1.5"/>' +
-        '</svg>';
-}
-
+// ─────────────────────────────────────────────
+// 渲染卡片 HTML（雷达图容器使用真实 ECharts div）
+// ─────────────────────────────────────────────
 function buildCard(buId, meta) {
     var dims = BU_DIMS[buId] || { d1: 0, d2: 0, d3: 0, d4: 0, d5: 0, d6: 0 };
     var score = getScore(dims);
@@ -237,17 +238,27 @@ function buildCard(buId, meta) {
         ? '<img class="dept-logo" src="' + logo + '" alt="' + meta.name + '" onerror="this.style.display=\'none\'">'
         : '<div class="dept-logo" style="background:#f0f0f0;display:flex;align-items:center;justify-content:center;font-size:20px;">📊</div>';
 
-    return '<a class="dept-card ' + meta.category + '" href="radar_detail.html?id=' + buId + '">' +
+    var currentBadge = BU_IS_CURRENT[buId]
+        ? '<span class="dept-current-badge">★当月</span>'
+        : '';
+
+    var dimChips = DIM_IDS.map(function(d, i) {
+        var v = dims[d] || 0;
+        return '<span class="dim-chip"><span class="chip-val" style="color:' + meta.color + '">' + v + '</span>' + DIM_NAMES[i] + '</span>';
+    }).join('');
+
+    return '<a class="dept-card ' + meta.category + '" href="radar_detail.html?id=' + buId + '" style="border-left-color:' + meta.color + '">' +
         '<div class="dept-card-header">' +
         logoHTML +
         '<div class="dept-info">' +
-        '<div class="dept-name">' + meta.name + '</div>' +
+        '<div class="dept-name" style="color:' + meta.color + '">' + meta.name + currentBadge + '</div>' +
         '<div class="dept-subtitle">' + meta.subtitle + '</div>' +
         '</div></div>' +
-        '<div class="dept-radar-preview">' + makeRadarSVG(dims, meta.color) + '</div>' +
+        '<div class="dept-radar-preview" id="radar-' + buId + '"></div>' +
+        '<div class="dept-dims-row">' + dimChips + '</div>' +
         '<div class="dept-score">' +
         '<span class="dept-score-label">综合评分</span>' +
-        '<span><span class="dept-score-val">' + score + '</span><span class="dept-score-dims">/100</span></span>' +
+        '<span><span class="dept-score-val" style="color:' + meta.color + '">' + score + '</span><span class="dept-score-dims">/100</span></span>' +
         '</div></a>';
 }
 
@@ -264,7 +275,91 @@ function renderCards() {
             gridOther.innerHTML += card;
         }
     });
+
+    // 渲染完卡片后，初始化所有 ECharts 雷达图
+    initAllRadars();
 }
+
+// ─────────────────────────────────────────────
+// ECharts 迷你雷达图初始化（IntersectionObserver 懒加载）
+// ─────────────────────────────────────────────
+function initAllRadars() {
+    Object.keys(BU_META).forEach(function(buId) {
+        renderMiniRadar(buId);
+    });
+}
+
+function renderMiniRadar(buId) {
+    var dom = document.getElementById('radar-' + buId);
+    if (!dom) return;
+
+    var meta = BU_META[buId];
+    var dims = BU_DIMS[buId] || { d1: 0, d2: 0, d3: 0, d4: 0, d5: 0, d6: 0 };
+    var vals = DIM_IDS.map(function(d) { return dims[d] || 0; });
+
+    var chart = echarts.init(dom, null, { renderer: 'canvas', width: dom.clientWidth || 280, height: 120 });
+    buChartInstances[buId] = chart;
+
+    var option = {
+        animation: true,
+        animationDuration: 800,
+        animationEasing: 'cubicOut',
+        tooltip: {
+            trigger: 'item',
+            confine: true,
+            backgroundColor: 'rgba(255,255,255,0.95)',
+            borderColor: meta.color,
+            borderWidth: 1,
+            textStyle: { color: '#333', fontSize: 12 },
+            formatter: function(params) {
+                var idx = DIM_IDS.indexOf(params.dimensionIndex);
+                return '<b>' + meta.name + '</b><br/>' +
+                    DIM_NAMES[idx] + ':<b style="color:' + meta.color + '">' + params.value + '</b> / 100';
+            }
+        },
+        radar: {
+            indicator: DIM_NAMES.map(function(n) { return { name: n, max: 100 }; }),
+            radius: '60%',
+            center: ['50%', '50%'],
+            splitNumber: 3,
+            axisName: {
+                color: '#888',
+                fontSize: 10,
+                fontWeight: 'normal',
+            },
+            splitLine: { show: false },
+            splitArea: { show: false },
+            axisLine: { show: false },
+            shape: 'polygon',
+        },
+        series: [{
+            type: 'radar',
+            data: [{
+                value: vals,
+                name: meta.name,
+                lineStyle: { color: meta.color, width: 2 },
+                itemStyle: { color: meta.color },
+                areaStyle: { color: meta.color, opacity: 0.2 },
+                label: { show: false },
+                symbol: 'circle',
+                symbolSize: 4,
+            }],
+        }],
+    };
+
+    chart.setOption(option);
+}
+
+//窗口 resize 时重绘所有图表
+window.addEventListener('resize', function() {
+    Object.keys(buChartInstances).forEach(function(buId) {
+        var chart = buChartInstances[buId];
+        var dom = document.getElementById('radar-' + buId);
+        if (chart && dom) {
+            chart.resize({ width: dom.clientWidth, height: 120 });
+        }
+    });
+});
 </script>
 </body>
 </html>
