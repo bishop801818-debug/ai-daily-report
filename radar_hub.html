@@ -87,7 +87,7 @@
 
         /* ECharts 雷达图容器 */
         .dept-radar-preview {
-            height: 120px;
+            height: 145px;
             margin: 8px 0 4px;
         }
         .dept-radar-preview canvas { border-radius: 8px; }
@@ -297,7 +297,7 @@ function renderMiniRadar(buId) {
     var dims = BU_DIMS[buId] || { d1: 0, d2: 0, d3: 0, d4: 0, d5: 0, d6: 0 };
     var vals = DIM_IDS.map(function(d) { return dims[d] || 0; });
 
-    var chart = echarts.init(dom, null, { renderer: 'canvas', width: dom.clientWidth || 280, height: 120 });
+    var chart = echarts.init(dom, null, { renderer: 'canvas', width: dom.clientWidth || 280, height: 145 });
     buChartInstances[buId] = chart;
 
     // 颜色辅助：亮色版本（用于渐变）
@@ -334,7 +334,7 @@ function renderMiniRadar(buId) {
             splitNumber: 3,
             axisName: {
                 color: '#aaa',
-                fontSize: 9,
+                fontSize: 8,
                 fontWeight: 'normal',
             },
             //渐变网格线（从内到外颜色变浅）
@@ -426,7 +426,7 @@ window.addEventListener('resize', function() {
         var chart = buChartInstances[buId];
         var dom = document.getElementById('radar-' + buId);
         if (chart && dom) {
-            chart.resize({ width: dom.clientWidth, height: 120 });
+            chart.resize({ width: dom.clientWidth, height: 145 });
         }
     });
 });
