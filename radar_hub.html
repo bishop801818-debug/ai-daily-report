@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>雷达看板 - 龙蟠科技</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: "Microsoft YaHei", "PingFang SC", sans-serif; background: #f0f2f5; min-height: 100vh; }
+
+        .page-header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 24px 40px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 12px rgba(30,60,114,0.3);
+        }
+        .page-header .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: rgba(255,255,255,0.85);
+            text-decoration: none;
+            font-size: 14px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        .page-header .back-btn:hover { color: white; }
+        .page-header h1 { font-size: 22px; font-weight: bold; margin-bottom: 4px; }
+        .page-header .subtitle { font-size: 13px; opacity: 0.85; }
+
+        .container { max-width: 1100px; margin: 30px auto; padding: 0 20px; }
+
+        .section-label {
+            font-size: 13px;
+            color: #888;
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .section-label::after { content: ""; flex: 1; height: 1px; background: #ddd; }
+
+        .dept-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 36px; }
+
+        .dept-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            border-left: 4px solid #1e3c72;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+        .dept-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(30,60,114,0.15);
+        }
+        .dept-card.lithium { border-left-color: #1e3c72; }
+        .dept-card.longpan { border-left-color: #2e75b6; }
+        .dept-card.other { border-left-color: #7030a0; }
+
+        .dept-card-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+        .dept-logo {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            object-fit: contain;
+            background: #fff;
+            border: 2px solid rgba(0,0,0,0.08);
+            flex-shrink: 0;
+        }
+        .dept-info { flex: 1; min-width: 0; }
+        .dept-name { font-size: 16px; font-weight: bold; color: #1e3c72; margin-bottom: 2px; }
+        .dept-subtitle { font-size: 12px; color: #888; }
+
+        .dept-radar-preview {
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 8px 0;
+        }
+        .dept-radar-preview svg { width: 80px; height: 80px; }
+
+        .dept-score {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #f0f0f0;
+        }
+        .dept-score-label { font-size: 12px; color: #888; }
+        .dept-score-val { font-size: 20px; font-weight: bold; color: #1e3c72; }
+        .dept-score-dims { font-size: 11px; color: #aaa; margin-left: 6px; }
+
+        .dept-meta {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 8px;
+            font-size: 12px;
+            color: #aaa;
+        }
+        .dept-meta span { margin-left: 10px; }
+
+        .footer-note {
+            text-align: center;
+            color: #bbb;
+            font-size: 12px;
+            padding: 24px;
+            border-top: 1px solid #eee;
+            margin-top: 20px;
+        }
+        .footer-note a { color: #1e3c72; text-decoration: none; font-weight: 600; }
+        .footer-note a:hover { text-decoration: underline; }
+
+        @media (max-width: 768px) {
+            .dept-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+<div class="page-header">
+    <a class="back-btn" href="index_v3.html">← 返回首页</a>
+    <h1>🕸️ 雷达看板</h1>
+    <div class="subtitle">九大事业部六维雷达图分析</div>
+</div>
+
+<div class="container">
+    <div class="section-label">锂电系事业部</div>
+    <div class="dept-grid" id="grid-lithium"></div>
+
+    <div class="section-label">非锂电事业部</div>
+    <div class="dept-grid" id="grid-other"></div>
+</div>
+
+<div class="footer-note">
+    数据仅供参考 ·<a href="index_v3.html">返回首页</a>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+<script>
+var BU_META = {
+    czly: { name: '常州锂源', subtitle: '磷酸铁锂正极材料', category: 'lithium', color: '#1e3c72' },
+    lpsd: { name: '龙蟠时代', subtitle: '碳酸锂', category: 'lithium', color: '#2e75b6' },
+    felt: { name: '法恩莱特', subtitle: '电解液', category: 'lithium', color: '#7b2d8b' },
+    sdmd: { name: '山东美多', subtitle: '动力电池回收', category: 'lithium', color: '#215732' },
+    sjld: { name: '三金锂电', subtitle: '三元前驱体', category: 'lithium', color: '#34495e' },
+    kls:  { name: '可兰素', subtitle: '车用尿素', category: 'other', color: '#d35400' },
+    lhy:  { name: '润滑油事业部', subtitle: '润滑油', category: 'other', color: '#c0392b' },
+    bych: { name: '铂源催化', subtitle: '氢能/催化', category: 'other', color: '#8e44ad' },
+    dhx:  { name: '迪克化学', subtitle: '汽车化学品', category: 'other', color: '#16a085' },
+};
+
+// 雷达图分数数据（来自 BUS_DATA 的 dims）
+var BU_DIMS = {
+    czly: { d1: 87, d2: 90, d3: 82, d4: 80, d5: 90, d6: 78 },
+    lpsd: { d1: 75, d2: 72, d3: 88, d4: 65, d5: 70, d6: 82 },
+    felt: { d1: 82, d2: 88, d3: 85, d4: 78, d5: 85, d6: 80 },
+    sdmd: { d1: 70, d2: 65, d3: 75, d4: 60, d5: 68, d6: 72 },
+    sjld: { d1: 78, d2: 80, d3: 72, d4: 75, d5: 78, d6: 70 },
+    kls:  { d1: 85, d2: 88, d3: 90, d4: 85, d5: 82, d6: 88 },
+    lhy:  { d1: 80, d2: 82, d3: 78, d4: 80, d5: 75, d6: 78 },
+    bych: { d1: 68, d2: 65, d3: 70, d4: 62, d5: 60, d6: 65 },
+    dhx:  { d1: 75, d2: 78, d3: 72, d4: 70, d5: 72, d6: 75 },
+};
+
+var BU_LOGOS = {};
+
+// 加载 logo
+(function loadLogos() {
+    fetch('bu_logos.json')
+        .then(function(r) { return r.json(); })
+        .then(function(logos) {
+            BU_LOGOS = logos;
+            renderCards();
+        })
+        .catch(function() {
+            renderCards();
+        });
+})();
+
+function getScore(dims) {
+    var vals = [dims.d1, dims.d2, dims.d3, dims.d4, dims.d5, dims.d6];
+    var sum = vals.reduce(function(a, b) { return a + b; }, 0);
+    return Math.round(sum / vals.length);
+}
+
+function makeRadarSVG(dims, color) {
+    var vals = [dims.d1, dims.d2, dims.d3, dims.d4, dims.d5, dims.d6];
+    var cx = 40, cy = 40, r = 32;
+    var points = vals.map(function(v, i) {
+        var angle = (i * 60 - 90) * Math.PI / 180;
+        var dist = (v / 100) * r;
+        return [cx + dist * Math.cos(angle), cy + dist * Math.sin(angle)];
+    });
+    var polyPoints = points.map(function(p) { return p.join(','); }).join(' ');
+    var axisLines = vals.map(function(v, i) {
+        var angle = (i * 60 - 90) * Math.PI / 180;
+        return [cx, cy, cx + r * Math.cos(angle), cy + r * Math.sin(angle)].join(',');
+    }).join(' ');
+
+    // 外边框六边形
+    var hexPoints = vals.map(function(v, i) {
+        var angle = (i * 60 - 90) * Math.PI / 180;
+        return [cx + r * Math.cos(angle), cy + r * Math.sin(angle)].join(',');
+    }).join(' ');
+
+    return '<svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">' +
+        '<polygon points="' + hexPoints + '" fill="none" stroke="#e0e0e0" stroke-width="0.5"/>' +
+        '<polygon points="' + hexPoints + '" fill="none" stroke="#e0e0e0" stroke-width="0.5" transform="scale(0.67) translate(' + (cx * 0.33) + ',' + (cy * 0.33) + ')"/>' +
+        '<polygon points="' + hexPoints + '" fill="none" stroke="#e0e0e0" stroke-width="0.5" transform="scale(0.33) translate(' + (cx * 0.67) + ',' + (cy * 0.67) + ')"/>' +
+        '<line x1="' + cx + '" y1="' + (cy - r) + '" x2="' + cx + '" y2="' + (cy + r) + '" stroke="#e0e0e0" stroke-width="0.5"/>' +
+        '<line x1="' + (cx - r * 0.866) + '" y1="' + (cy - r * 0.5) + '" x2="' + (cx + r * 0.866) + '" y2="' + (cy + r * 0.5) + '" stroke="#e0e0e0" stroke-width="0.5"/>' +
+        '<line x1="' + (cx - r * 0.866) + '" y1="' + (cy + r * 0.5) + '" x2="' + (cx + r * 0.866) + '" y2="' + (cy - r * 0.5) + '" stroke="#e0e0e0" stroke-width="0.5"/>' +
+        '<polygon points="' + polyPoints + '" fill="' + color + '" fill-opacity="0.25" stroke="' + color + '" stroke-width="1.5"/>' +
+        '</svg>';
+}
+
+function buildCard(buId, meta) {
+    var dims = BU_DIMS[buId] || { d1: 0, d2: 0, d3: 0, d4: 0, d5: 0, d6: 0 };
+    var score = getScore(dims);
+    var logo = BU_LOGOS[buId] || '';
+    var logoHTML = logo
+        ? '<img class="dept-logo" src="' + logo + '" alt="' + meta.name + '" onerror="this.style.display=\'none\'">'
+        : '<div class="dept-logo" style="background:#f0f0f0;display:flex;align-items:center;justify-content:center;font-size:20px;">📊</div>';
+
+    return '<a class="dept-card ' + meta.category + '" href="radar_detail.html?id=' + buId + '">' +
+        '<div class="dept-card-header">' +
+        logoHTML +
+        '<div class="dept-info">' +
+        '<div class="dept-name">' + meta.name + '</div>' +
+        '<div class="dept-subtitle">' + meta.subtitle + '</div>' +
+        '</div></div>' +
+        '<div class="dept-radar-preview">' + makeRadarSVG(dims, meta.color) + '</div>' +
+        '<div class="dept-score">' +
+        '<span class="dept-score-label">综合评分</span>' +
+        '<span><span class="dept-score-val">' + score + '</span><span class="dept-score-dims">/100</span></span>' +
+        '</div></a>';
+}
+
+function renderCards() {
+    var gridLithium = document.getElementById('grid-lithium');
+    var gridOther = document.getElementById('grid-other');
+
+    Object.keys(BU_META).forEach(function(buId) {
+        var meta = BU_META[buId];
+        var card = buildCard(buId, meta);
+        if (meta.category === 'lithium') {
+            gridLithium.innerHTML += card;
+        } else {
+            gridOther.innerHTML += card;
+        }
+    });
+}
+</script>
+</body>
+</html>
