@@ -573,12 +573,12 @@
 
             <!-- 维度标签说明 -->
             <div class="dim-tags-row">
-                <div class="dim-tag" data-d="d1"><span class="dim-icon">🎯</span><span class="dim-label">D1核心考核</span><span class="dim-val" id="dv-d1">--</span></div>
-                <div class="dim-tag" data-d="d2"><span class="dim-icon">📊</span><span class="dim-label">D2经营效益</span><span class="dim-val" id="dv-d2">--</span></div>
-                <div class="dim-tag" data-d="d3"><span class="dim-icon">⚙️</span><span class="dim-label">D3运营效率</span><span class="dim-val" id="dv-d3">--</span></div>
-                <div class="dim-tag" data-d="d4"><span class="dim-icon">🔬</span><span class="dim-label">D4技术创新</span><span class="dim-val" id="dv-d4">--</span></div>
-                <div class="dim-tag" data-d="d5"><span class="dim-icon">🛡️</span><span class="dim-label">D5风险合规</span><span class="dim-val" id="dv-d5">--</span></div>
-                <div class="dim-tag" data-d="d6"><span class="dim-icon">🏢</span><span class="dim-label">D6组织活力</span><span class="dim-val" id="dv-d6">--</span></div>
+                <div class="dim-tag" data-d="d1"><span class="dim-icon">🎯</span><span class="dim-label">核心考核</span><span class="dim-val" id="dv-d1">--</span></div>
+                <div class="dim-tag" data-d="d2"><span class="dim-icon">📊</span><span class="dim-label">经营效益</span><span class="dim-val" id="dv-d2">--</span></div>
+                <div class="dim-tag" data-d="d3"><span class="dim-icon">⚙️</span><span class="dim-label">运营效率</span><span class="dim-val" id="dv-d3">--</span></div>
+                <div class="dim-tag" data-d="d4"><span class="dim-icon">🔬</span><span class="dim-label">技术创新</span><span class="dim-val" id="dv-d4">--</span></div>
+                <div class="dim-tag" data-d="d5"><span class="dim-icon">🛡️</span><span class="dim-label">风险合规</span><span class="dim-val" id="dv-d5">--</span></div>
+                <div class="dim-tag" data-d="d6"><span class="dim-icon">🏢</span><span class="dim-label">组织活力</span><span class="dim-val" id="dv-d6">--</span></div>
             </div>
 
             <!-- 对比图例（多对象模式时显示） -->
@@ -940,7 +940,7 @@ function renderScoreOverview() {
 
     document.getElementById('bigScore').textContent = score;
 
-    var dimNames = ['D1核心考核', 'D2经营效益', 'D3运营效率', 'D4技术创新', 'D5风险合规', 'D6组织活力'];
+    var dimNames = ['核心考核', '经营效益', '运营效率', '技术创新', '风险合规', '组织活力'];
     var scoreDimsEl = document.getElementById('scoreDims');
     scoreDimsEl.innerHTML = '';
     ['d1','d2','d3','d4','d5','d6'].forEach(function(d, i) {
@@ -1111,7 +1111,7 @@ function renderRadar() {
 
     var dims = data.dims;
     var vals = [dims.d1, dims.d2, dims.d3, dims.d4, dims.d5, dims.d6];
-    var dimNames = ['D1核心考核指标', 'D2经营效益', 'D3运营效率', 'D4技术创新力', 'D5风险合规', 'D6组织活力'];
+    var dimNames = ['核心考核指标', '经营效益', '运营效率', '技术创新力', '风险合规', '组织活力'];
 
     // 更新维度标签值
     ['d1','d2','d3','d4','d5','d6'].forEach(function(d, i) {
@@ -1220,8 +1220,9 @@ function renderRadar() {
             formatter: function(params) {
                 if (params.seriesName === '基准线') return '';
                 var idx = params.dimensionIndex;
+                var dn = (idx != null && idx >= 0) ? (dimNames[idx] || ('维度' + (idx + 1))) : '综合评分';
                 return '<b style="color:#d35400;font-size:14px">' + params.seriesName + '</b><br/>' +
-                    '<span style="color:#888">' + dimNames[idx] + ':</span> ' +
+                    '<span style="color:#888">' + dn + ':</span> ' +
                     '<b style="color:#d35400;font-size:16px">' + params.value + '</b><span style="color:#888"> / 100</span>';
             }
         },
