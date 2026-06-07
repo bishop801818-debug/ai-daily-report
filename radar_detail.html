@@ -3,38 +3,38 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>雷达看板 - 龙蟠科技</title>
+    <title>山东美多 - 雷达看板</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: "Microsoft YaHei", "PingFang SC", sans-serif; background: #f0f2f5; min-height: 100vh; }
 
         .page-header {
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            background: linear-gradient(135deg, #d35400 0%, #e67e22 100%);
             color: white;
             padding: 20px 40px;
             position: sticky;
             top: 0;
             z-index: 100;
-            box-shadow: 0 2px 12px rgba(30,60,114,0.3);
+            box-shadow: 0 2px 12px rgba(211,84,0,0.3);
         }
         .page-header .back-btn {
             display: inline-flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
             color: rgba(255,255,255,0.85);
             text-decoration: none;
             font-size: 14px;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
             cursor: pointer;
             transition: color 0.2s;
         }
         .page-header .back-btn:hover { color: white; }
-        .page-header .header-row {
+        .header-row {
             display: flex;
             align-items: center;
             gap: 16px;
         }
-        .page-header .bu-logo {
+        .bu-logo {
             width: 48px;
             height: 48px;
             border-radius: 50%;
@@ -43,29 +43,29 @@
             border: 2px solid rgba(255,255,255,0.4);
             flex-shrink: 0;
         }
-        .page-header .bu-name { font-size: 22px; font-weight: bold; }
-        .page-header .bu-subtitle { font-size: 13px; opacity: 0.8; }
+        .bu-name { font-size: 22px; font-weight: bold; }
+        .bu-subtitle { font-size: 13px; opacity: 0.8; }
 
         .container { max-width: 1100px; margin: 24px auto; padding: 0 20px; }
 
-        /* 综合评分卡 */
+        /* 综合评分概览 */
         .score-overview {
             display: flex;
             gap: 16px;
             margin-bottom: 24px;
         }
         .score-main {
-            flex: 00 160px;
+            flex: 0 0 160px;
             background: white;
             border-radius: 16px;
-            padding: 24px;
+            padding: 24px 16px;
             text-align: center;
             box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-            border-top: 4px solid #1e3c72;
+            border-top: 4px solid #d35400;
         }
-        .score-main .big-score { font-size: 56px; font-weight: bold; color: #1e3c72; line-height: 1; }
-        .score-main .score-label { font-size: 13px; color: #888; margin-top: 6px; }
-        .score-main .score-sub { font-size: 11px; color: #aaa; margin-top: 4px; }
+        .big-score { font-size: 56px; font-weight: bold; color: #d35400; line-height: 1; }
+        .score-label { font-size: 13px; color: #888; margin-top: 6px; }
+        .score-sub { font-size: 11px; color: #aaa; margin-top: 4px; }
 
         .score-dims {
             flex: 1;
@@ -75,18 +75,42 @@
             box-shadow: 0 2px 8px rgba(0,0,0,0.06);
             display: flex;
             gap: 8px;
-            align-items: center;
         }
         .dim-item {
             flex: 1;
             text-align: center;
-            padding: 8px 4px;
+            padding: 10px 4px;
             border-radius: 8px;
             background: #f8f9fc;
         }
         .dim-item .dim-name { font-size: 11px; color: #888; margin-bottom: 4px; }
-        .dim-item .dim-score { font-size: 20px; font-weight: bold; color: #1e3c72; }
+        .dim-item .dim-score { font-size: 22px; font-weight: bold; color: #d35400; }
         .dim-item .dim-max { font-size: 10px; color: #aaa; }
+
+        /* 月份切换 */
+        .month-switcher {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+        .month-btn {
+            padding: 8px 16px;
+            border: 2px solid #ddd;
+            background: white;
+            border-radius: 8px;
+            font-size: 13px;
+            cursor: pointer;
+            color: #888;
+            font-family: inherit;
+            transition: all 0.2s;
+        }
+        .month-btn:hover { border-color: #d35400; color: #d35400; }
+        .month-btn.active {
+            border-color: #d35400;
+            background: #d35400;
+            color: white;
+            font-weight: bold;
+        }
 
         /* Tab 导航 */
         .tab-nav {
@@ -108,8 +132,8 @@
             transition: all 0.2s;
             font-family: inherit;
         }
-        .tab-btn:hover { color: #1e3c72; }
-        .tab-btn.active { color: #1e3c72; border-bottom-color: #1e3c72; font-weight: bold; }
+        .tab-btn:hover { color: #d35400; }
+        .tab-btn.active { color: #d35400; border-bottom-color: #d35400; font-weight: bold; }
 
         .tab-content { display: none; }
         .tab-content.active { display: block; }
@@ -119,41 +143,80 @@
             background: white;
             border-radius: 16px;
             padding: 24px;
-            box-shadow: 02px 8px rgba(0,0,0,0.06);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
             margin-bottom: 24px;
         }
         .chart-title {
             font-size: 15px;
             font-weight: bold;
-            color: #1e3c72;
+            color: #d35400;
             margin-bottom: 16px;
             padding-bottom: 10px;
             border-bottom: 1px solid #f0f0f0;
         }
-        .chart-wrap { height: 380px; }
+        .chart-wrap { height: 360px; }
 
-        /* KPI 详情卡片 */
+        /* KPI表格 */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+        .data-table th {
+            background: #f8f9fc;
+            padding: 10px 12px;
+            text-align: center;
+            font-weight: bold;
+            color: #555;
+            border-bottom: 2px solid #e0e0e0;
+            font-size: 12px;
+        }
+        .data-table th:first-child { text-align: left; }
+        .data-table td {
+            padding: 9px 12px;
+            text-align: center;
+            border-bottom: 1px solid #f0f0f0;
+            color: #333;
+        }
+        .data-table td:first-child { text-align: left; font-weight: 500; }
+        .data-table tr:hover td { background: #fffbf5; }
+        .data-table tr.highlight td { background: #fff8f0; font-weight: 600; }
+        .val-actual { color: #1a6b9e; font-weight: bold; }
+        .val-good { color: #27ae60; }
+        .val-bad { color: #e74c3c; }
+        .val-neutral { color: #888; }
+        .rate-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+        .rate-good { background: #eafaf1; color: #27ae60; }
+        .rate-ok { background: #fef9e7; color: #d4a017; }
+        .rate-bad { background: #fdeaea; color: #e74c3c; }
+
+        /* KPI卡片 */
         .kpi-grid {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 16px;
-            margin-bottom: 24px;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
         }
         .kpi-card {
             background: white;
             border-radius: 12px;
-            padding: 16px;
+            padding: 14px;
             box-shadow: 0 1px 4px rgba(0,0,0,0.06);
-            border-left: 3px solid #1e3c72;
+            border-left: 3px solid #d35400;
+            text-align: center;
         }
-        .kpi-card .kpi-name { font-size: 12px; color: #888; margin-bottom: 6px; }
-        .kpi-card .kpi-val { font-size: 22px; font-weight: bold; color: #1e3c72; }
-        .kpi-card .kpi-unit { font-size: 12px; color: #aaa; margin-left: 4px; }
-        .kpi-card .kpi-delta { font-size: 12px; margin-top: 4px; }
-        .kpi-card .kpi-delta.up { color: #e74c3c; }
-        .kpi-card .kpi-delta.down { color: #27ae60; }
+        .kpi-card .kpi-name { font-size: 11px; color: #888; margin-bottom: 6px; }
+        .kpi-card .kpi-val { font-size: 20px; font-weight: bold; color: #d35400; }
+        .kpi-card .kpi-unit { font-size: 11px; color: #aaa; margin-left: 2px; }
+        .kpi-card .kpi-sub { font-size: 11px; color: #aaa; margin-top: 3px; }
 
-        /* 雷达图指标说明 */
+        /* 维度说明 */
         .dim-explain {
             background: #f8f9fc;
             border-radius: 8px;
@@ -163,7 +226,56 @@
             color: #666;
             line-height: 1.8;
         }
-        .dim-explain strong { color: #1e3c72; }
+        .dim-explain strong { color: #d35400; }
+
+        /* KPI达成率条 */
+        .achv-bar-wrap {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .achv-bar-bg {
+            flex: 1;
+            height: 6px;
+            background: #eee;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        .achv-bar {
+            height: 100%;
+            border-radius: 3px;
+            transition: width 0.5s ease;
+        }
+        .achv-val { font-size: 11px; min-width: 36px; text-align: right; }
+
+        /* 维度子项行 */
+        .dim-items-table { margin-top: 12px; }
+        .dim-items-table .section-subtitle {
+            font-size: 13px;
+            font-weight: bold;
+            color: #d35400;
+            margin: 16px 0 10px;
+        }
+
+        /* 趋势摘要 */
+        .trend-summary {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+        .trend-card {
+            flex: 1;
+            background: white;
+            border-radius: 12px;
+            padding: 14px 16px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+            border-left: 3px solid #d35400;
+        }
+        .trend-card .trend-label { font-size: 12px; color: #888; margin-bottom: 6px; }
+        .trend-card .trend-val { font-size: 22px; font-weight: bold; color: #d35400; }
+        .trend-card .trend-delta { font-size: 12px; margin-top: 2px; }
+        .trend-card .trend-delta.up { color: #e74c3c; }
+        .trend-card .trend-delta.down { color: #27ae60; }
 
         .footer-note {
             text-align: center;
@@ -172,31 +284,35 @@
             padding: 24px;
             border-top: 1px solid #eee;
         }
-        .footer-note a { color: #1e3c72; text-decoration: none; }
+        .footer-note a { color: #d35400; text-decoration: none; }
         .footer-note a:hover { text-decoration: underline; }
 
         @media (max-width: 768px) {
             .score-overview { flex-direction: column; }
             .score-dims { flex-wrap: wrap; }
-            .kpi-grid { grid-template-columns: 1fr; }
+            .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+            .trend-summary { flex-direction: column; }
         }
     </style>
 </head>
 <body>
-<div class="page-header" id="pageHeader">
+<div class="page-header">
     <a class="back-btn" href="radar_hub.html">← 雷达看板</a>
-    <a class="back-btn" href="index_v3.html" style="margin-left:12px">← 返回首页</a>
+    <a class="back-btn" href="index_v3.html" style="margin-left:8px">← 返回首页</a>
     <div class="header-row">
-        <img class="bu-logo" id="buLogo" src="" alt="logo" onerror="this.style.display='none'">
+        <div style="width:48px;height:48px;border-radius:50%;background:rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;">🔋</div>
         <div>
-            <div class="bu-name" id="buName">--</div>
-            <div class="bu-subtitle" id="buSubtitle">--</div>
+            <div class="bu-name">山东美多</div>
+            <div class="bu-subtitle">动力电池回收 · 梯次利用 · 再生利用</div>
         </div>
     </div>
 </div>
 
 <div class="container">
-    <!-- 综合评分 -->
+    <!-- 月份切换 -->
+    <div class="month-switcher" id="monthSwitcher"></div>
+
+    <!-- 综合评分概览 -->
     <div class="score-overview">
         <div class="score-main">
             <div class="big-score" id="bigScore">--</div>
@@ -209,8 +325,8 @@
     <!-- Tab 导航 -->
     <div class="tab-nav">
         <button class="tab-btn active" onclick="switchTab(this, 'radar')">六维雷达图</button>
-        <button class="tab-btn" onclick="switchTab(this, 'kpi')">KPI详情</button>
-        <button class="tab-btn" onclick="switchTab(this, 'history')">历史趋势</button>
+        <button class="tab-btn" onclick="switchTab(this, 'kpi')">核心KPI</button>
+        <button class="tab-btn" onclick="switchTab(this, 'dims')">维度详情</button>
     </div>
 
     <!-- Tab: 雷达图 -->
@@ -219,183 +335,405 @@
             <div class="chart-title">六维能力雷达图</div>
             <div class="chart-wrap" id="radarChart"></div>
             <div class="dim-explain">
-                <strong>指标说明：</strong>
-                D1 战略达成 / D2 经营效益 / D3客户认可 / D4 组织效能 / D5 创新研发 / D6 风险管控
+                <strong>指标维度：</strong>
+                D1 核心考核指标（收入/毛利/净利/回款/成本/合格率）/
+                D2 经营效益（销量达成）/
+                D3 运营效率（投料/产出/成本）/
+                D4 技术创新力（课题/MCU/技改）/
+                D5 风险合规（隐患/安全/应急）/
+                D6 组织活力（AI/荣誉/审核/5S）
             </div>
         </div>
     </div>
 
-    <!-- Tab: KPI详情 -->
+    <!-- Tab: 核心KPI -->
     <div id="tab-kpi" class="tab-content">
         <div class="kpi-grid" id="kpiGrid"></div>
+        <div class="chart-section">
+            <div class="chart-title">5月核心KPI达标率（预算 → 挑战目标 → 实际）</div>
+            <div style="overflow-x:auto;">
+                <table class="data-table" id="kpiTable">
+                    <thead><tr>
+                        <th>指标名称</th><th>预算</th><th>挑战目标</th><th>实际达成</th><th>达成率</th><th>vs预算</th><th>vs目标</th>
+                    </tr></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
     </div>
 
-    <!-- Tab: 历史趋势 -->
-    <div id="tab-history" class="tab-content">
+    <!-- Tab: 维度详情 -->
+    <div id="tab-dims" class="tab-content">
         <div class="chart-section">
-            <div class="chart-title">综合评分历史趋势</div>
-            <div class="chart-wrap" id="historyChart"></div>
+            <div class="chart-title">D2 经营效益 - 产品销量达成</div>
+            <div style="overflow-x:auto;">
+                <table class="data-table" id="dim2Table"><thead><tr><th>指标</th><th>预算</th><th>目标</th><th>实际</th><th>达成率</th><th>状态</th></tr></thead><tbody></tbody></table>
+            </div>
+        </div>
+        <div class="chart-section">
+            <div class="chart-title">D3 运营效率 - 生产效率达成</div>
+            <div style="overflow-x:auto;">
+                <table class="data-table" id="dim3Table"><thead><tr><th>指标</th><th>预算</th><th>目标</th><th>实际</th><th>达成率</th><th>状态</th></tr></thead><tbody></tbody></table>
+            </div>
+        </div>
+        <div class="chart-section">
+            <div class="chart-title">D4 技术创新力 - MoM环比</div>
+            <div style="overflow-x:auto;">
+                <table class="data-table" id="dim4Table"><thead><tr><th>指标</th><th>上月</th><th>本月</th><th>环比</th><th>状态</th></tr></thead><tbody></tbody></table>
+            </div>
+        </div>
+        <div class="chart-section">
+            <div class="chart-title">D5 风险合规 - MoM环比</div>
+            <div style="overflow-x:auto;">
+                <table class="data-table" id="dim5Table"><thead><tr><th>指标</th><th>上月</th><th>本月</th><th>环比</th><th>状态</th></tr></thead><tbody></tbody></table>
+            </div>
+        </div>
+        <div class="chart-section">
+            <div class="chart-title">D6 组织活力 - MoM环比</div>
+            <div style="overflow-x:auto;">
+                <table class="data-table" id="dim6Table"><thead><tr><th>指标</th><th>上月</th><th>本月</th><th>环比</th><th>状态</th></tr></thead><tbody></tbody></table>
+            </div>
         </div>
     </div>
 </div>
 
 <div class="footer-note">
-    数据仅供参考 · <a href="radar_hub.html">返回雷达看板</a>
+    数据来源：山东美多2026年5月经营分析报告 · <a href="radar_hub.html">返回雷达看板</a>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
 <script>
-var BU_META = {
-    czly: { name: '常州锂源', subtitle: '磷酸铁锂正极材料', category: 'lithium', color: '#1e3c72' },
-    lpsd: { name: '龙蟠时代', subtitle: '碳酸锂', category: 'lithium', color: '#2e75b6' },
-    felt: { name: '法恩莱特', subtitle: '电解液', category: 'lithium', color: '#7b2d8b' },
-    sdmd: { name: '山东美多', subtitle: '动力电池回收', category: 'lithium', color: '#215732' },
-    sjld: { name: '三金锂电', subtitle: '三元前驱体', category: 'lithium', color: '#34495e' },
-    kls:  { name: '可兰素', subtitle: '车用尿素', category: 'other', color: '#d35400' },
-    lhy:  { name: '润滑油事业部', subtitle: '润滑油', category: 'other', color: '#c0392b' },
-    bych: { name: '铂源催化', subtitle: '氢能/催化', category: 'other', color: '#8e44ad' },
-    dhx:  { name: '迪克化学', subtitle: '汽车化学品', category: 'other', color: '#16a085' },
+//══════════════════════════════════════════════════════
+// SDMD 真实数据（从 index_v3.html RADAR_HISTORY 迁移）
+// ══════════════════════════════════════════════════════
+
+const BU_META_SDMD = {
+    name: '山东美多',
+    subtitle: '动力电池回收 · 梯次利用 · 再生利用',
+    color: '#d35400',
+    accent: '#d35400',
 };
 
-var BU_DIMS = {
-    czly: { d1: 87, d2: 90, d3: 82, d4: 80, d5: 90, d6: 78 },
-    lpsd: { d1: 75, d2: 72, d3: 88, d4: 65, d5: 70, d6: 82 },
-    felt: { d1: 82, d2: 88, d3: 85, d4: 78, d5: 85, d6: 80 },
-    sdmd: { d1: 70, d2: 65, d3: 75, d4: 60, d5: 68, d6: 72 },
-    sjld: { d1: 78, d2: 80, d3: 72, d4: 75, d5: 78, d6: 70 },
-    kls:  { d1: 85, d2: 88, d3: 90, d4: 85, d5: 82, d6: 88 },
-    lhy:  { d1: 80, d2: 82, d3: 78, d4: 80, d5: 75, d6: 78 },
-    bych: { d1: 68, d2: 65, d3: 70, d4: 62, d5: 60, d6: 65 },
-    dhx:  { d1: 75, d2: 78, d3: 72, d4: 70, d5: 72, d6: 75 },
+// 维度定义
+const DIMS_DEF = [
+    { id: 'd1', name: '核心考核指标', color: '#1a6b9e' },
+    { id: 'd2', name: '经营效益',     color: '#2e7d5a' },
+    { id: 'd3', name: '运营效率',     color: '#7b4fa8' },
+    { id: 'd4', name: '技术创新力',  color: '#c0572a' },
+    { id: 'd5', name: '风险合规',     color: '#b5862a' },
+    { id: 'd6', name: '组织活力',     color: '#2a6b7c' },
+];
+
+// RADAR_HISTORY - 三个月完整数据
+const RADAR_HISTORY_SDMD = {
+    '2026-03': {
+        dims: { d1: 100, d2: 100, d3: 92, d4: 87, d5: 85, d6: 78 },
+        kpis: {
+            d1: [100.0, 100.0, 100.0, 100.0],
+            d2: [100.0, 100.0, 100.0, 100.0],
+            d3: [95.2, 107.5, 57.4, 107.2],
+            d4: [100.0, 80.0, 80.0, null],
+            d5: [82.3, 108.0, 100.0, 50.0],
+            d6: [60.0, 60.0, 90.0, 100.0],
+        },
+    },
+    '2026-04': {
+        dims: { d1: 100, d2: 88, d3: 90, d4: 100, d5: 78, d6: 75 },
+        kpis: {
+            d1: [99.9, 100.0, 99.0, 100.0],
+            d2: [100.0, 75.0, 77.1, 101.4],
+            d3: [98.4, 100.0, 74.6, 86.9],
+            d4: [120.0, 120.0, 100.0, null],
+            d5: [110.4, 120.0, 78.9, 100.0],
+            d6: [70.0, 60.0, 90.0, 90.0],
+        },
+    },
+    '2026-05': {
+        dims: { d1: 90, d2: 90, d3: 82, d4: 80, d5: 90, d6: 78 },
+        kpis: {
+            d1: [94.9, 93.5, 81.6, 100.0],
+            d2: [102.9, 85.6, 77.0, 105.3],
+            d3: [84.1, 95.2, 71.0, 81.6],
+            d4: [72.7, 71.4, 100.0, null],
+            d5: [108.2, 120.0, 118.0, 50.0],
+            d6: [80.0, 80.0, 120.0, 100.0],
+        },
+        _isCurrent: true,
+        _kpiComparison: {
+            title: '5月核心KPI达标率（预算 → 挑战目标 → 实际）',
+            period: '2026年5月',
+            items: [
+                { name: '收入(万元)',         budget: 3778,  target: 7382,  actual: 8721,  unit: '万元' },
+                { name: '毛利(万元)',         budget: 321,   target: 865,   actual: 813,   unit: '万元' },
+                { name: '扣非净利润(万元)',   budget: 132,   target: 518,   actual: 480,   unit: '万元' },
+                { name: '经营净利润(万元)',   budget: 148,   target: 540,   actual: 505,   unit: '万元' },
+                { name: '回款(万元)',         budget: 4269,  target: 8342,  actual: 10630, unit: '万元' },
+                { name: '加工成本(万/t)', budget: 1.85,  target: 1.60,  actual: 1.96,  unit: '万/t' },
+                { name: '产品一次合格率',     budget: 100,   target: 100,   actual: 100,   unit: '%' },
+            ],
+        },
+        _dimComparison_d2: {
+            title: '5月产品销量达成（预算 → 目标 → 实际）',
+            items: [
+                { name: '碳酸锂销量(吨)', budget: 400,   target: 420,   actual: 432,   unit: '吨' },
+                { name: '修复LFP交付(吨)',  budget: 300,   target: 360,   actual: 308,   unit: '吨' },
+                { name: '磷铁液交付(m³)', budget: 1000,  target: 1500,  actual: 1155,  unit: 'm³' },
+                { name: '元明粉销售(吨)',   budget: 1400,  target: 1500,  actual: 1580,  unit: '吨' },
+            ],
+        },
+        _dimComparison_d3: {
+            title: '5月生产效率达成（预算 → 目标 → 实际）',
+            items: [
+                { name: '碳酸锂投料(吨)', budget: 2100,  target: 2170,  actual: 2075.5, unit: '吨' },
+                { name: '碳酸锂产出(吨)', budget: 330,   target: 420,   actual: 400,    unit: '吨' },
+                { name: '磷铁液产出(m³)', budget: 1500,  target: 1550,  actual: 1100,   unit: 'm³' },
+                { name: '加工成本(万/t)', budget: 1.85,  target: 1.60,  actual: 1.96,   unit: '万/t' },
+            ],
+        },
+        _dimComparison_d4: {
+            title: '技术创新力 4月→5月环比',
+            format: 'mom',
+            items: [
+                { name: '在研课题(个)',   prev: 11,    curr: 8,     unit: '个' },
+                { name: 'MCU项目(项)',    prev: 7,     curr: 5,     unit: '项' },
+                { name: 'MCU降本(万元)',  prev: 18.31, curr: 5.31,  unit: '万元' },
+                { name: '技改项目(项)',   prev: 9,     curr: 12,    unit: '项' },
+            ],
+        },
+        _dimComparison_d5: {
+            title: '安全环保 4月→5月环比',
+            format: 'mom',
+            items: [
+                { name: '隐患整改率(%)',  prev: 90.83, curr: 98.3,  unit: '%' },
+                { name: '安全教育(人次)', prev: 703,   curr: 2009,  unit: '人次' },
+                { name: '排查隐患(项)',   prev: 2387,  curr: 2816,  unit: '项' },
+                { name: '应急演练(场)',   prev: 2,     curr: 1,     unit: '场' },
+            ],
+        },
+        _dimComparison_d6: {
+            title: '组织活力 4月→5月环比',
+            format: 'mom',
+            items: [
+                { name: 'AI项目立项(个)',    prev: 0,     curr: 16,    unit: '个' },
+                { name: '获得企业荣誉(项)',  prev: 0,     curr: 2,     unit: '项' },
+                { name: 'IATF审核问题(项)', prev: 46,    curr: 35,    unit: '项' },
+                { name: '5S覆盖率(%)',      prev: 100,   curr: 100,   unit: '%' },
+            ],
+        },
+    },
 };
 
-var BU_HISTORY = {
-    czly: { months: ['2025-10','2025-11','2025-12','2026-01','2026-02','2026-03','2026-04','2026-05'], scores: [82, 83, 85, 80, 78, 84, 86, 84] },
-    lpsd: { months: ['2025-10','2025-11','2025-12','2026-01','2026-02','2026-03','2026-04','2026-05'], scores: [70, 72, 74, 71, 73, 75, 74, 76] },
-    felt: { months: ['2025-10','2025-11','2025-12','2026-01','2026-02','2026-03','2026-04','2026-05'], scores: [78, 80, 82, 79, 81, 83, 84, 84] },
-    sdmd: { months: ['2025-10','2025-11','2025-12','2026-01','2026-02','2026-03','2026-04','2026-05'], scores: [65, 66, 68, 67, 69, 70, 71, 71] },
-    sjld: { months: ['2025-10','2025-11','2025-12','2026-01','2026-02','2026-03','2026-04','2026-05'], scores: [74, 75, 76, 75, 77, 78, 78, 78] },
-    kls:  { months: ['2025-10','2025-11','2025-12','2026-01','2026-02','2026-03','2026-04','2026-05'], scores: [82, 83, 84, 83, 85, 86, 87, 87] },
-    lhy:  { months: ['2025-10','2025-11','2025-12','2026-01','2026-02','2026-03','2026-04','2026-05'], scores: [76, 77, 78, 77, 79, 80, 80, 80] },
-    bych: { months: ['2025-10','2025-11','2025-12','2026-01','2026-02','2026-03','2026-04','2026-05'], scores: [62, 63, 64, 63, 65, 66, 67, 67] },
-    dhx:  { months: ['2025-10','2025-11','2025-12','2026-01','2026-02','2026-03','2026-04','2026-05'], scores: [72, 73, 74, 73, 74, 75, 75, 75] },
+// 3月/4月对比表数据（从 RADAR_HISTORY）
+const RADAR_HISTORY_SDMD_EXTRA = {
+    '2026-03': {
+        _dimComparison_d2: {
+            items: [
+                { name: '碳酸锂销量(吨)',   budget: 400, target: 400, actual: 400, unit: '吨' },
+                { name: '修复LFP交付(吨)', budget: 400, target: 400, actual: 400, unit: '吨' },
+                { name: '磷铁液交付(m³)',  budget: 3100, target: 2000, actual: 1297, unit: 'm³' },
+                { name: '元明粉销售(吨)',  budget: 1700, target: 1400, actual: 1380, unit: '吨' },
+            ],
+        },
+        _dimComparison_d3: {
+            items: [
+                { name: '碳酸锂投料(吨)', budget: 2121, target: 2121, actual: 2019.5, unit: '吨' },
+                { name: '碳酸锂产出(吨)', budget: 372,  target: 372,  actual: 400,   unit: '吨' },
+                { name: '磷铁液产出(m³)', budget: 3100, target: 3100, actual: 1777.75, unit: 'm³' },
+                { name: '加工成本(万/t)', budget: 1.78, target: 1.78, actual: 1.66,  unit: '万/t' },
+            ],
+        },
+        _dimComparison_d4: {
+            format: 'mom', items: [
+                { name: '在研课题(个)', prev: 8, curr: 8, unit: '个' },
+                { name: 'MCU项目(项)', prev: 4, curr: 4, unit: '项' },
+                { name: 'MCU降本(万元)', prev: 43.9, curr: 43.9, unit: '万元' },
+                { name: '技改项目(项)', prev: 4, curr: 4, unit: '项' },
+            ],
+        },
+        _dimComparison_d5: {
+            format: 'mom', items: [
+                { name: '隐患整改率(%)', prev: 82.3, curr: 82.3, unit: '%' },
+                { name: '安全教育(人次)', prev: 600, curr: 600, unit: '人次' },
+                { name: '排查隐患(项)', prev: 3024, curr: 3024, unit: '项' },
+                { name: '应急演练(场)', prev: 2, curr: 2, unit: '场' },
+            ],
+        },
+        _dimComparison_d6: {
+            format: 'mom', items: [
+                { name: 'AI项目立项(个)', prev: 0, curr: 0, unit: '个' },
+                { name: '获得企业荣誉(项)', prev: 0, curr: 0, unit: '项' },
+                { name: 'IATF审核问题(项)', prev: 0, curr: 0, unit: '项' },
+                { name: '5S覆盖率(%)', prev: 100, curr: 100, unit: '%' },
+            ],
+        },
+    },
+    '2026-04': {
+        _dimComparison_d2: {
+            items: [
+                { name: '碳酸锂销量(吨)',   budget: 400, target: 400, actual: 400, unit: '吨' },
+                { name: '修复LFP交付(吨)',  budget: 400, target: 400, actual: 300, unit: '吨' },
+                { name: '磷铁液交付(m³)',  budget: 3100, target: 1500, actual: 1000, unit: 'm³' },
+                { name: '元明粉销售(吨)',  budget: 1700, target: 1400, actual: 1400, unit: '吨' },
+            ],
+        },
+        _dimComparison_d3: {
+            items: [
+                { name: '碳酸锂投料(吨)', budget: 2100, target: 2100, actual: 1988,  unit: '吨' },
+                { name: '碳酸锂产出(吨)', budget: 400,  target: 400,  actual: 400,   unit: '吨' },
+                { name: '磷铁液产出(m³)', budget: 3100, target: 2000, actual: 1325.86, unit: 'm³' },
+                { name: '加工成本(万/t)', budget: 1.78, target: 1.66, actual: 1.91,  unit: '万/t' },
+            ],
+        },
+        _dimComparison_d4: {
+            format: 'mom', items: [
+                { name: '在研课题(个)', prev: 8,  curr: 11, unit: '个' },
+                { name: 'MCU项目(项)', prev: 4,  curr: 7,  unit: '项' },
+                { name: 'MCU降本(万元)', prev: 43.9, curr: 18.31, unit: '万元' },
+                { name: '技改项目(项)', prev: 4, curr: 9, unit: '项' },
+            ],
+        },
+        _dimComparison_d5: {
+            format: 'mom', items: [
+                { name: '隐患整改率(%)', prev: 82.3, curr: 90.83, unit: '%' },
+                { name: '安全教育(人次)', prev: 600, curr: 703, unit: '人次' },
+                { name: '排查隐患(项)', prev: 3024, curr: 2387, unit: '项' },
+                { name: '应急演练(场)', prev: 2, curr: 2, unit: '场' },
+            ],
+        },
+        _dimComparison_d6: {
+            format: 'mom', items: [
+                { name: 'AI项目立项(个)', prev: 0, curr: 0, unit: '个' },
+                { name: '获得企业荣誉(项)', prev: 0, curr: 0, unit: '项' },
+                { name: 'IATF审核问题(项)', prev: 0, curr: 46, unit: '项' },
+                { name: '5S覆盖率(%)', prev: 100, curr: 100, unit: '%' },
+            ],
+        },
+    },
 };
 
-var BU_LOGOS = {};
+// 当前选中月份
+var currentMonth = '2026-05';
 
-// 加载 logo
-(function loadLogos() {
-    fetch('bu_logos.json')
-        .then(function(r) { return r.json(); })
-        .then(function(logos) {
-            BU_LOGOS = logos;
-            init();
-        })
-        .catch(function() {
-            init();
-        });
-})();
+// 月份列表
+var MONTHS = ['2026-03', '2026-04', '2026-05'];
 
-function init() {
-    var params = new URLSearchParams(location.search);
-    var buId = params.get('id') || 'czly';
-
-    if (!BU_META[buId]) {
-        buId = 'czly';
+function getMonthData(month) {
+    var hist = RADAR_HISTORY_SDMD[month];
+    if (!hist) return null;
+    // 补充对比表数据
+    if (RADAR_HISTORY_SDMD_EXTRA[month]) {
+        hist._dimComparison_d2 = hist._dimComparison_d2 || RADAR_HISTORY_SDMD_EXTRA[month]._dimComparison_d2;
+        hist._dimComparison_d3 = hist._dimComparison_d3 || RADAR_HISTORY_SDMD_EXTRA[month]._dimComparison_d3;
+        hist._dimComparison_d4 = hist._dimComparison_d4 || RADAR_HISTORY_SDMD_EXTRA[month]._dimComparison_d4;
+        hist._dimComparison_d5 = hist._dimComparison_d5 || RADAR_HISTORY_SDMD_EXTRA[month]._dimComparison_d5;
+        hist._dimComparison_d6 = hist._dimComparison_d6 || RADAR_HISTORY_SDMD_EXTRA[month]._dimComparison_d6;
     }
+    return hist;
+}
 
-    var meta = BU_META[buId];
-    var dims = BU_DIMS[buId] || { d1: 0, d2: 0, d3: 0, d4: 0, d5: 0, d6: 0 };
-    var history = BU_HISTORY[buId] || { months: [], scores: [] };
+// 工具函数
+function calcAchv(actual, target, isCost) {
+    if (!actual || actual <= 0) return 0;
+    if (!target || target <= 0) return 0;
+    var rate = isCost ? target / actual : actual / target;
+    return Math.min(120, rate * 100);
+}
 
-    // 设置页面标题和header
-    document.title = meta.name + ' - 雷达看板';
-    document.getElementById('buName').textContent = meta.name;
-    document.getElementById('buSubtitle').textContent = meta.subtitle;
-    document.getElementById('pageHeader').style.borderTopColor = meta.color;
-    document.getElementById('pageHeader').style.background = 'linear-gradient(135deg, ' + meta.color + ' 0%, ' + adjustColor(meta.color, 20) + ' 100%)';
+function fmtNum(v, decimals) {
+    if (v === null || v === undefined) return '--';
+    return Number(v).toFixed(decimals !== undefined ? decimals : 1);
+}
 
-    // Logo
-    var logo = BU_LOGOS[buId];
-    if (logo) {
-        document.getElementById('buLogo').src = logo;
-    } else {
-        document.getElementById('buLogo').style.display = 'none';
-    }
+function fmtRate(v) {
+    if (v === null || v === undefined) return '--';
+    return (v >= 100 ? '+' : '') + (v >= 0 ? '' : '') + v.toFixed(1) + '%';
+}
 
-    // 综合评分
+function rateClass(v) {
+    if (v === null || v === undefined) return 'rate-ok';
+    if (v >= 100) return 'rate-good';
+    if (v >= 85) return 'rate-ok';
+    return 'rate-bad';
+}
+
+function rateColor(v) {
+    if (v === null || v === undefined) return '#d4a017';
+    if (v >= 100) return '#27ae60';
+    if (v >= 85) return '#d4a017';
+    return '#e74c3c';
+}
+
+function calcMom(actual, prev) {
+    if (!prev || prev <= 0) return actual > 0 ? 100 : 0;
+    return Math.min(120, (actual / prev) * 100);
+}
+
+// 渲染月份切换器
+function renderMonthSwitcher() {
+    var el = document.getElementById('monthSwitcher');
+    el.innerHTML = '';
+    MONTHS.forEach(function(m) {
+        var label = m.replace('-', '年') + '月';
+        var isCurrent = RADAR_HISTORY_SDMD[m] && RADAR_HISTORY_SDMD[m]._isCurrent;
+        if (isCurrent) label += ' ★';
+        var btn = document.createElement('button');
+        btn.className = 'month-btn' + (m === currentMonth ? ' active' : '');
+        btn.textContent = label;
+        btn.onclick = function() {
+            currentMonth = m;
+            document.querySelectorAll('.month-btn').forEach(function(b) { b.classList.remove('active'); });
+            btn.classList.add('active');
+            renderAll();
+        };
+        el.appendChild(btn);
+    });
+}
+
+// 渲染综合评分
+function renderScoreOverview() {
+    var data = getMonthData(currentMonth);
+    if (!data) return;
+    var dims = data.dims;
     var vals = [dims.d1, dims.d2, dims.d3, dims.d4, dims.d5, dims.d6];
     var score = Math.round(vals.reduce(function(a, b) { return a + b; }, 0) / vals.length);
-    document.getElementById('bigScore').textContent = score;
-    document.getElementById('bigScore').style.color = meta.color;
 
-    // 六维小卡
-    var dimNames = ['D1战略达成', 'D2经营效益', 'D3客户认可', 'D4组织效能', 'D5创新研发', 'D6风险管控'];
-    var dimDoms = ['d1', 'd2', 'd3', 'd4', 'd5', 'd6'];
+    document.getElementById('bigScore').textContent = score;
+
+    var dimNames = ['D1核心考核', 'D2经营效益', 'D3运营效率', 'D4技术创新', 'D5风险合规', 'D6组织活力'];
     var scoreDimsEl = document.getElementById('scoreDims');
-    dimDoms.forEach(function(d, i) {
+    scoreDimsEl.innerHTML = '';
+    ['d1','d2','d3','d4','d5','d6'].forEach(function(d, i) {
         var v = dims[d] || 0;
         scoreDimsEl.innerHTML +=
             '<div class="dim-item">' +
             '<div class="dim-name">' + dimNames[i] + '</div>' +
-            '<div class="dim-score" style="color:' + meta.color + '">' + v + '</div>' +
+            '<div class="dim-score" style="color:' + DIMS_DEF[i].color + '">' + v + '</div>' +
             '<div class="dim-max">/100</div>' +
             '</div>';
     });
-
-    // KPI 卡片
-    var kpiData = [
-        { name: '营收达成率', val: '95%', delta: '+5%', up: true },
-        { name: '净利润率', val: '8.2%', delta: '+1.2%', up: true },
-        { name: '客户满意度', val: '88分', delta: '+3分', up: true },
-        { name: '产能利用率', val: '82%', delta: '-3%', up: false },
-        { name: '新品上市数', val: '3个', delta: '+1个', up: true },
-        { name: '风险事件数', val: '0起', delta: '持平', up: null },
-    ];
-    var kpiGrid = document.getElementById('kpiGrid');
-    kpiData.forEach(function(k) {
-        var deltaClass = k.up === true ? 'up' : (k.up === false ? 'down' : '');
-        var deltaSign = k.up === true ? '▲ ' : (k.up === false ? '▼ ' : '');
-        kpiGrid.innerHTML +=
-            '<div class="kpi-card" style="border-left-color:' + meta.color + '">' +
-            '<div class="kpi-name">' + k.name + '</div>' +
-            '<div><span class="kpi-val" style="color:' + meta.color + '">' + k.val + '</span></div>' +
-            '<div class="kpi-delta ' + deltaClass + '">' + (k.up !== null ? deltaSign : '') + k.delta + '</div>' +
-            '</div>';
-    });
-
-    // 渲染雷达图
-    renderRadar(buId, meta, dims);
-
-    // 渲染历史趋势
-    renderHistory(buId, meta, history);
 }
 
-function adjustColor(hex, amount) {
-    // 简单颜色变亮
-    var num = parseInt(hex.replace('#', ''), 16);
-    var r = Math.min(255, (num >> 16) + amount);
-    var g = Math.min(255, ((num >> 8) & 0x00FF) + amount);
-    var b = Math.min(255, (num & 0x0000FF) + amount);
-    return '#' + (0x1000000 + (r << 16) + (g << 8) + b).toString(16).slice(1);
-}
-
-function renderRadar(buId, meta, dims) {
+// 渲染雷达图
+function renderRadar() {
+    var data = getMonthData(currentMonth);
+    if (!data) return;
     var dom = document.getElementById('radarChart');
     if (!dom) return;
     var chart = echarts.init(dom);
-
-    var dimNames = ['D1战略达成', 'D2经营效益', 'D3客户认可', 'D4组织效能', 'D5创新研发', 'D6风险管控'];
+    var dims = data.dims;
     var vals = [dims.d1, dims.d2, dims.d3, dims.d4, dims.d5, dims.d6];
+    var dimNames = ['D1核心考核指标', 'D2经营效益', 'D3运营效率', 'D4技术创新力', 'D5风险合规', 'D6组织活力'];
+    var colors = DIMS_DEF.map(function(d) { return d.color; });
 
     var option = {
         tooltip: { trigger: 'item', confine: true },
         legend: { show: false },
         radar: {
-            indicator: dimNames.map(function(n) { return { name: n, max: 100 }; }),
-            radius: '62%',
+            indicator: dimNames.map(function(n, i) {
+                return { name: n, max: 100, axisName: { color: colors[i], fontSize: 12, fontWeight: 'bold' } };
+            }),
+            radius: '65%',
             splitNumber: 4,
-            axisName: { color: '#444', fontSize: 13, fontWeight: 'bold' },
             splitLine: { lineStyle: { color: '#e8ecf0' } },
             splitArea: { areaStyle: { color: ['#fff', '#fafafa'] } },
             axisLine: { lineStyle: { color: '#ddd' } },
@@ -404,58 +742,121 @@ function renderRadar(buId, meta, dims) {
             type: 'radar',
             data: [{
                 value: vals,
-                name: meta.name,
-                lineStyle: { color: meta.color, width: 2 },
-                itemStyle: { color: meta.color },
-                areaStyle: { color: meta.color, opacity: 0.15 },
-                label: { show: true, formatter: '{c}', fontSize: 12, color: meta.color },
-            }]
-        }]
+                name: '山东美多',
+                lineStyle: { color: '#d35400', width: 2.5 },
+                itemStyle: { color: '#d35400' },
+                areaStyle: { color: '#d35400', opacity: 0.18 },
+                label: { show: true, formatter: '{c}', fontSize: 12, color: '#d35400', fontWeight: 'bold' },
+            }],
+        }],
     };
-
     chart.setOption(option);
     window.addEventListener('resize', function() { chart.resize(); });
 }
 
-function renderHistory(buId, meta, history) {
-    var dom = document.getElementById('historyChart');
-    if (!dom) return;
-    var chart = echarts.init(dom);
+// 渲染KPI表格
+function renderKPITable() {
+    var data = getMonthData(currentMonth);
+    if (!data || !data._kpiComparison) return;
+    var tbody = document.querySelector('#kpiTable tbody');
+    tbody.innerHTML = '';
 
-    var option = {
-        tooltip: { trigger: 'axis', confine: true },
-        grid: { left: 48, right: 20, top: 20, bottom: 40 },
-        xAxis: {
-            type: 'category',
-            data: history.months.map(function(m) { return m.replace('-', '年') + '月'; }),
-            axisLabel: { fontSize: 11, color: '#888' },
-            axisLine: { lineStyle: { color: '#ddd' } },
-        },
-        yAxis: {
-            type: 'value',
-            min: 50,
-            max: 100,
-            axisLabel: { fontSize: 11, color: '#888' },
-            splitLine: { lineStyle: { color: '#f0f0f0' } },
-        },
-        series: [{
-            type: 'line',
-            data: history.scores,
-            smooth: true,
-            lineStyle: { color: meta.color, width: 2 },
-            itemStyle: { color: meta.color, borderWidth: 2 },
-            areaStyle: { color: meta.color, opacity: 0.1 },
-            label: { show: true, fontSize: 11, color: meta.color, position: 'top' },
-            markLine: {
-                silent: true,
-                lineStyle: { color: '#aaa', type: 'dashed' },
-                data: [{ yAxis: 80, name: '基准线' }]
-            }
-        }]
-    };
+    data._kpiComparison.items.forEach(function(item) {
+        var isCost = item.name.indexOf('成本') >= 0;
+        var achvBudget = calcAchv(item.actual, item.budget, isCost);
+        var achvTarget = calcAchv(item.actual, item.target, isCost);
 
-    chart.setOption(option);
-    window.addEventListener('resize', function() { chart.resize(); });
+        var tr = document.createElement('tr');
+        tr.innerHTML =
+            '<td>' + item.name + '</td>' +
+            '<td>' + fmtNum(item.budget) + (item.unit ? ' <span style="color:#aaa;font-size:11px">' + item.unit + '</span>' : '') + '</td>' +
+            '<td>' + fmtNum(item.target) + '</td>' +
+            '<td class="val-actual">' + fmtNum(item.actual) + '</td>' +
+            '<td><span class="rate-badge ' + rateClass(achvTarget) + '">' + fmtRate(achvTarget) + '</span></td>' +
+            '<td style="color:' + rateColor(achvBudget) + '">' + fmtRate(achvBudget) + '</td>' +
+            '<td style="color:' + rateColor(achvTarget) + '">' + fmtRate(achvTarget) + '</td>';
+        tbody.appendChild(tr);
+    });
+}
+
+// 渲染KPI概览卡片
+function renderKPIGrid() {
+    var data = getMonthData(currentMonth);
+    if (!data || !data._kpiComparison) return;
+    var items = data._kpiComparison.items;
+    var grid = document.getElementById('kpiGrid');
+    grid.innerHTML = '';
+
+    // 选取关键7项
+    items.forEach(function(item) {
+        var isCost = item.name.indexOf('成本') >= 0;
+        var achv = calcAchv(item.actual, item.target, isCost);
+        var vsBudget = calcAchv(item.actual, item.budget, isCost);
+        grid.innerHTML +=
+            '<div class="kpi-card">' +
+            '<div class="kpi-name">' + item.name + '</div>' +
+            '<div><span class="kpi-val">' + fmtNum(item.actual) + '</span><span class="kpi-unit">' + item.unit + '</span></div>' +
+            '<div class="kpi-sub">目标:' + fmtNum(item.target) + ' · 达成<span style="color:' + rateColor(achv) + ';font-weight:bold">' + fmtRate(achv) + '</span></div>' +
+            '</div>';
+    });
+}
+
+// 渲染维度对比表
+function renderDimTable(dimId, data, tableId) {
+    var el = document.getElementById(tableId);
+    if (!el) return;
+    var tbody = el.querySelector('tbody') || el;
+    tbody.innerHTML = '';
+
+    var key = '_dimComparison_' + dimId;
+    var dimData = data[key];
+    if (!dimData || !dimData.items) return;
+
+    dimData.items.forEach(function(item) {
+        var isCost = item.name.indexOf('成本') >= 0;
+        var isMom = dimData.format === 'mom';
+
+        if (isMom) {
+            var mom = calcMom(item.curr, item.prev);
+            var status = mom >= 100 ? '↑达标' : '↓ 待改进';
+            tbody.innerHTML +=
+                '<tr>' +
+                '<td>' + item.name + '</td>' +
+                '<td>' + fmtNum(item.prev) + '</td>' +
+                '<td class="val-actual">' + fmtNum(item.curr) + '</td>' +
+                '<td style="color:' + rateColor(mom) + ';font-weight:bold">' + fmtRate(mom) + '</td>' +
+                '<td><span class="rate-badge ' + rateClass(mom) + '">' + status + '</span></td>' +
+                '</tr>';
+        } else {
+            var achv = calcAchv(item.actual, item.target, isCost);
+            var achvBudget = calcAchv(item.actual, item.budget, isCost);
+            tbody.innerHTML +=
+                '<tr>' +
+                '<td>' + item.name + '</td>' +
+                '<td>' + fmtNum(item.budget) + '</td>' +
+                '<td>' + fmtNum(item.target) + '</td>' +
+                '<td class="val-actual">' + fmtNum(item.actual) + '</td>' +
+                '<td style="color:' + rateColor(achv) + ';font-weight:bold">' + fmtRate(achv) + '</td>' +
+                '<td><span class="rate-badge ' + rateClass(achv) + '">' + (achv >= 100 ? '达标' : achv >= 85 ? '接近' : '待改进') + '</span></td>' +
+                '</tr>';
+        }
+    });
+}
+
+// 渲染所有
+function renderAll() {
+    var data = getMonthData(currentMonth);
+    if (!data) return;
+
+    renderScoreOverview();
+    renderRadar();
+    renderKPIGrid();
+    renderKPITable();
+    renderDimTable('d2', data, 'dim2Table');
+    renderDimTable('d3', data, 'dim3Table');
+    renderDimTable('d4', data, 'dim4Table');
+    renderDimTable('d5', data, 'dim5Table');
+    renderDimTable('d6', data, 'dim6Table');
 }
 
 function switchTab(btn, tabId) {
@@ -464,12 +865,18 @@ function switchTab(btn, tabId) {
     btn.classList.add('active');
     document.getElementById('tab-' + tabId).classList.add('active');
     setTimeout(function() {
-        document.querySelectorAll('.chart-container, .chart-wrap').forEach(function(c) {
+        document.querySelectorAll('.chart-wrap').forEach(function(c) {
             var chart = echarts.getInstanceByDom(c);
             if (chart) chart.resize();
         });
     }, 50);
 }
+
+// 初始化
+(function init() {
+    renderMonthSwitcher();
+    renderAll();
+})();
 </script>
 </body>
 </html>
