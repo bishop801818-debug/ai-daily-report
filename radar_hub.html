@@ -300,49 +300,120 @@ function renderMiniRadar(buId) {
     var chart = echarts.init(dom, null, { renderer: 'canvas', width: dom.clientWidth || 280, height: 120 });
     buChartInstances[buId] = chart;
 
+    // 颜色辅助：亮色版本（用于渐变）
+    var lightColor = meta.color + '99'; // 透明度60%
+    var darkColor = meta.color;
+
     var option = {
+        backgroundColor: 'transparent',
         animation: true,
         animationDuration: 800,
         animationEasing: 'cubicOut',
         tooltip: {
             trigger: 'item',
             confine: true,
-            backgroundColor: 'rgba(255,255,255,0.95)',
+            backgroundColor: 'rgba(255,255,255,0.97)',
             borderColor: meta.color,
-            borderWidth: 1,
+            borderWidth: 1.5,
+            borderRadius: 8,
+            padding: [8, 12],
             textStyle: { color: '#333', fontSize: 12 },
             formatter: function(params) {
-                var idx = DIM_IDS.indexOf(params.dimensionIndex);
-                return '<b>' + meta.name + '</b><br/>' +
-                    DIM_NAMES[idx] + ':<b style="color:' + meta.color + '">' + params.value + '</b> / 100';
+                var idx = params.dimensionIndex;
+                if (idx == null || idx < 0) return '';
+                var dimName = DIM_NAMES[idx] || ('D' + (idx + 1));
+                return '<b style="color:' + meta.color + ';font-size:13px">' + meta.name + '</b><br/>' +
+                    '<span style="color:#888;font-size:11px">' + dimName + ':</span> ' +
+                    '<b style="color:' + meta.color + ';font-size:14px">' + params.value + '</b>' +
+                    '<span style="color:#888;font-size:11px"> / 100</span>';
             }
         },
         radar: {
             indicator: DIM_NAMES.map(function(n) { return { name: n, max: 100 }; }),
-            radius: '60%',
+            radius: '62%',
             center: ['50%', '50%'],
             splitNumber: 3,
             axisName: {
-                color: '#888',
-                fontSize: 10,
+                color: '#aaa',
+                fontSize: 9,
                 fontWeight: 'normal',
             },
-            splitLine: { show: false },
-            splitArea: { show: false },
-            axisLine: { show: false },
+            //渐变网格线（从内到外颜色变浅）
+            splitLine: {
+                show: true,
+                lineStyle: {
+                    width: 1,
+                    color: {
+                        type: 'linear',
+                        x: 0, y: 0, x2: 0, y2: 1,
+                        colorStops: [
+                            { offset: 0, color: meta.color + '55' },
+                            { offset: 0.5, color: meta.color + '22' },
+                            { offset: 1, color: meta.color + '0a' }
+                        ]
+                    },
+                    type: 'solid'
+                }
+            },
+            // 渐变填充区域
+            splitArea: {
+                show: true,
+                areaStyle: {
+                    color: [
+                        meta.color + '06',
+                        meta.color + '0c',
+                        meta.color + '14'
+                    ]
+                }
+            },
+            axisLine: {
+                show: true,
+                lineStyle: { color: meta.color + '66', width: 1 }
+            },
             shape: 'polygon',
         },
         series: [{
             type: 'radar',
+            emphasis: {
+                lineStyle: { width: 3 },
+                areaStyle: { opacity: 0.35 }
+            },
             data: [{
                 value: vals,
                 name: meta.name,
-                lineStyle: { color: meta.color, width: 2 },
-                itemStyle: { color: meta.color },
-                areaStyle: { color: meta.color, opacity: 0.2 },
+                // 渐变线条
+                lineStyle: {
+                    color: {
+                        type: 'linear',
+                        x: 0, y: 0, x2: 1, y2: 1,
+                        colorStops: [
+                            { offset: 0, color: lightColor },
+                            { offset: 1, color: darkColor }
+                        ]
+                    },
+                    width: 2,
+                    type: 'solid'
+                },
+                // 发光数据点
+                itemStyle: {
+                    color: meta.color,
+                    shadowBlur: 10,
+                    shadowColor: meta.color + '88'
+                },
+                // 径向渐变填充
+                areaStyle: {
+                    color: {
+                        type: 'radial',
+                        x: 0.5, y: 0.5, r: 0.5,
+                        colorStops: [
+                            { offset: 0, color: meta.color + '40' },
+                            { offset: 1, color: meta.color + '0a' }
+                        ]
+                    }
+                },
                 label: { show: false },
                 symbol: 'circle',
-                symbolSize: 4,
+                symbolSize: 5,
             }],
         }],
     };
