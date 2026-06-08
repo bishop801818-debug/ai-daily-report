@@ -10,7 +10,8 @@
 - 如果是今天，则生成新数据
 
 URL搜索逻辑：
-- 对每条新闻，用DuckDuckGo搜索相关链接
+- 对每条新闻，用Tavily API搜索相关链接（优先）
+- 如果Tavily不可用，回退到Bing搜索
 - 过滤付费墙网站，取第一个有效链接
 - 写入 url 和 url_source 字段
 """
@@ -23,6 +24,15 @@ import urllib.request
 import urllib.parse
 from datetime import datetime, date, timedelta
 from html import unescape
+
+# 加载 .env 文件中的环境变量（如果存在）
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+    print("[信息] 已加载 .env 文件")
+except ImportError:
+    print("[警告] python-dotenv 未安装，将无法从 .env 文件读取环境变量")
+    print("[提示] 可运行: pip install python-dotenv")
 
 # 配置
 REPORTS_DIR = "D:/trae/AI Daily report/reports"
