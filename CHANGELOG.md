@@ -1,4 +1,26 @@
 
+## v30 (2026-06-08)
+
+**变更内容**:
+- ✅ 电解液月报 Part 6：法恩莱特事业部诊断板块上线
+  - 新增 Tab7「法恩莱特诊断」（电解液报告专用，lfp报告自动隐藏）
+  - 4 KPI 卡片：销量达成43%/毛利率-2.7%/净利润-540万/经营现金流14万
+  - 三基地横向对比表（法恩/湖南/安徽/广西）：销量/均价/毛利/边际利润/净利润/四费率
+  - 客户贡献柱状图（销量+毛利双轴）：多氟多/吉曜/宁德/海辰/鹏辉
+  - 六维综合诊断雷达图：销量达成/价格控制/毛利水平/费用控制/现金流/回款率
+  - 问题诊断与积极因素双栏总结
+  - 数据来源：`D:\buddy\skills\lithium-analysis-report\felt_diagnostic_data.json`（5月PDF提取）
+- ✅ `generate_report.py` 新增 `compute_felt_diagnostic()` 函数（支持任意月份自动读取）
+- ✅ `report_template_v2.html` 新增 Tab7 HTML/CSS/JS
+
+**技术文件**: `electrolyte_report_2026_05.html`, `lfp_report_2026_05.html`, `D:\buddy\skills\...`
+
+**迁移说明**:
+- lfp报告不受影响（Tab7 根据 `{{FELT_KPI}}` 非空判断自动显示/隐藏）
+- 法恩莱特数据每月更新：`felt_diagnostic_data.json` 中追加 `months["YYYY-MM"]` 即可
+
+---
+
 ## v29 (2026-06-08)
 
 **变更内容**:
