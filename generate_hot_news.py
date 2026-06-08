@@ -28,6 +28,10 @@ from html import unescape
 REPORTS_DIR = "D:/trae/AI Daily report/reports"
 OUTPUT_FILE = "D:/trae/AI Daily report/hot_news_data.json"
 
+# Unsplash API配置（用于预绑定图片）
+UNSPLASH_ACCESS_KEY = os.environ.get('UNSPLASH_ACCESS_KEY', '')
+UNSPLASH_API_URL = "https://api.unsplash.com/search/photos"
+
 # 事业部简称到文件名前缀的映射（用于动态查找文件）
 # 格式：事业部简称 -> 文件名前缀
 BU_PREFIX_MAP = {
@@ -226,13 +230,85 @@ def is_paywall_url(url):
 
 def search_news_url(title, max_results=5):
     """
-    用Bing搜索新闻URL（DuckDuckGo不稳定，改用Bing）
+    用多种方法搜索新闻URL
+    优先使用Tavily API（如果配置了TAVILY_API_KEY）
+    备用：使用Bing搜索
     返回：(url, source_name) 或 (None, None)
     """
+    # 方法1：尝试Tavily API（如果配置了）
+    tavily_key = os.environ.get('TAVILY_API_KEY', '')
+    if tavily_key:
+        result = search_with_tavily(title, tavily_key)
+        if result and result[0]:
+            return result
+
+    # 方法2：Bing搜索（备用）
+    return search_with_bing(title, max_results)
+
+def search_with_tavily(title, api_key):
+    """使用Tavily API搜索"""
+    try:
+        import urllib.request
+        import json
+
+        # Tavily Search API endpoint
+        url = "https://api.tavily.com/search"
+
+        # 构建请求数据
+        data = {
+            "api_key": api_key,
+            "query": title,
+            "max_results": 5,
+            "search_depth": "basic",
+            "include_answer": False,
+            "include_raw_content": False
+        }
+
+        req = urllib.request.Request(
+            url,
+            data=json.dumps(data).encode('utf-8'),
+            headers={
+                'Content-Type': 'application/json'
+            }
+        )
+
+        with urllib.request.urlopen(req, timeout=10) as resp:
+            result = json.loads(resp.read().decode('utf-8'))
+
+        # 提取第一个结果的URL
+        results = result.get('results', [])
+        if results:
+            first_result = results[0]
+            url = first_result.get('url', '')
+            source = first_result.get('source', first_result.get('title', '未知来源'))
+
+            # 检查是否是付费墙
+            if is_paywall_url(url):
+                print(f"    [Tavily] 跳过付费墙: {url[:60]}...")
+                # 尝试第二个结果
+                if len(results) > 1:
+                    url2 = results[1].get('url', '')
+                    source2 = results[1].get('source', results[1].get('title', '未知来源'))
+                    if not is_paywall_url(url2):
+                        print(f"    [Tavily] 找到链接: {source2} - {url2[:60]}...")
+                        return url2, source2
+            else:
+                print(f"    [Tavily] 找到链接: {source} - {url[:60]}...")
+                return url, source
+
+        print(f"    [Tavily] 未找到有效结果: {title[:30]}...")
+        return None, None
+
+    except Exception as e:
+        print(f"    [Tavily] API调用失败: {e}")
+        return None, None
+
+def search_with_bing(title, max_results=5):
+    """使用Bing搜索（备用方法）"""
     try:
         query = urllib.parse.quote_plus(title)
         search_url = f"https://www.bing.com/search?q={query}&setlang=zh-CN"
-        
+
         req = urllib.request.Request(
             search_url,
             headers={
@@ -241,29 +317,37 @@ def search_news_url(title, max_results=5):
                 'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8',
             }
         )
-        
+
         with urllib.request.urlopen(req, timeout=10) as resp:
             html = resp.read().decode('utf-8', errors='ignore')
-        
-        # 从Bing HTML中提取结果链接
-        # Bing结果格式: <li class="b_algo"><h2><a href="https://...">标题</a></h2></li>
-        # 或者: <h2><a href="https://...">...</a></h2>
-        pattern = r'<h2><a[^>]+href="(https?://[^"]+)"'
-        matches = re.findall(pattern, html)
-        
-        if not matches:
-            # 尝试另一种格式
-            pattern2 = r'<a href="(https?://[^"]+)"[^>]*class="[^"]*tilk[^"]*"'
-            matches = re.findall(pattern2, html)
-        
-        if not matches:
-            print(f"    [搜索] 未找到结果: {title[:30]}...")
+
+        # 从Bing HTML中提取结果链接（改进的正则）
+        # 尝试多种格式
+        patterns = [
+            r'<li class="b_algo"><h2><a[^>]+href="(https?://[^"]+)"',  # 标准格式
+            r'<h2><a href="(https?://[^"]+)"',  # 简化格式
+            r'<a href="(https?://[^"]+)"[^>]*class="[^"]*tilk[^"]*"',  # 另一个格式
+            r'<cite[^>]*>(https?://[^<]+)</cite>',  # cite标签
+        ]
+
+        all_matches = []
+        for pattern in patterns:
+            matches = re.findall(pattern, html)
+            if matches:
+                all_matches.extend(matches)
+
+        if not all_matches:
+            # 调试：保存HTML到文件
+            debug_file = f"D:/trae/AI Daily report/debug_bing_{title[:20].replace(' ', '_')}.html"
+            with open(debug_file, 'w', encoding='utf-8') as f:
+                f.write(html)
+            print(f"    [Bing] 未找到结果，HTML已保存到: {debug_file}")
             return None, None
-        
+
         # 过滤付费墙，取第一个有效链接
-        for i, url in enumerate(matches[:max_results]):
+        for i, url in enumerate(all_matches[:max_results]):
             if is_paywall_url(url):
-                print(f"    [搜索] 跳过付费墙: {url[:60]}...")
+                print(f"    [Bing] 跳过付费墙: {url[:60]}...")
                 continue
             # 取来源网站名
             try:
@@ -271,30 +355,167 @@ def search_news_url(title, max_results=5):
                 domain = urlparse(url).netloc.replace('www.', '')
             except:
                 domain = '未知来源'
-            print(f"    [搜索] 找到链接: {domain} - {url[:60]}...")
+            print(f"    [Bing] 找到链接: {domain} - {url[:60]}...")
             return url, domain
-        
-        print(f"    [搜索] 所有结果均为付费墙，未找到有效链接: {title[:30]}...")
-        return None, None
-        
-    except Exception as e:
-        print(f"    [搜索] 搜索失败: {e}")
+
+        print(f"    [Bing] 所有结果均为付费墙，未找到有效链接: {title[:30]}...")
         return None, None
 
-def enrich_news_with_urls(selected_items):
-    """为每条新闻搜索URL，返回带url字段的新列表"""
+    except Exception as e:
+        print(f"    [Bing] 搜索失败: {e}")
+        return None, None
+
+def load_existing_news_for_url_inheritance():
+    """
+    加载旧的hot_news_data.json，返回一个字典：title -> {url, url_source}
+    用于在URL搜索失败时继承旧的URL
+    优先读取当前文件，如果无URL记录则尝试从git历史加载
+    """
+    inheritance_map = {}
+    
+    def parse_and_build_map(json_str_or_data):
+        """解析JSON并构建inheritance_map，返回记录数"""
+        nonlocal inheritance_map
+        inheritance_map = {}  # 重置
+        try:
+            if isinstance(json_str_or_data, str):
+                old_data = json.loads(json_str_or_data)
+            else:
+                old_data = json_str_or_data
+            old_news = old_data.get('news', [])
+            for old_item in old_news:
+                title = old_item.get('title', '')
+                url = old_item.get('url')
+                url_source = old_item.get('url_source')
+                if title and url:  # 只继承有URL的旧数据
+                    inheritance_map[title] = {
+                        'url': url,
+                        'url_source': url_source
+                    }
+            return len(inheritance_map)
+        except Exception as e:
+            print(f"  [继承] 解析JSON失败: {e}")
+            return 0
+    
+    # 方法1：读取当前文件
+    try:
+        if os.path.exists(OUTPUT_FILE):
+            with open(OUTPUT_FILE, 'r', encoding='utf-8') as f:
+                content = f.read()
+            count = parse_and_build_map(content)
+            if count > 0:
+                print(f"  [继承] 从当前文件加载URL映射（{count}条有URL的记录）")
+                return inheritance_map
+            else:
+                print(f"  [继承] 当前文件无URL记录（{count}条），尝试git历史...")
+    except Exception as e:
+        print(f"  [继承] 读取当前文件失败: {e}")
+    
+    # 方法2：从git历史加载（找到最近一个有URL记录的版本）
+    try:
+        import subprocess
+        # 找到最近修改hot_news_data.json的commit（最多查10个）
+        result = subprocess.run(
+            ['git', 'log', '--oneline', '-10', '--', 'hot_news_data.json'],
+            capture_output=True, text=True, cwd=os.path.dirname(OUTPUT_FILE)
+        )
+        if result.returncode == 0 and result.stdout.strip():
+            commits = result.stdout.strip().split('\n')
+            for commit_line in commits:
+                commit_hash = commit_line.split()[0]
+                # 读取该commit的hot_news_data.json
+                show_result = subprocess.run(
+                    ['git', 'show', f'{commit_hash}:hot_news_data.json'],
+                    capture_output=True, text=True, cwd=os.path.dirname(OUTPUT_FILE)
+                )
+                if show_result.returncode == 0:
+                    count = parse_and_build_map(show_result.stdout)
+                    if count > 0:
+                        print(f"  [继承] 从git历史 {commit_hash} 加载URL映射（{count}条有URL的记录）")
+                        return inheritance_map
+            print(f"  [继承] git历史中未找到有URL记录的版本")
+    except Exception as e:
+        print(f"  [继承] 读取git历史失败: {e}")
+    
+    return inheritance_map
+
+def fuzzy_match_title(new_title, inheritance_map, min_prefix=15):
+    """
+    模糊匹配标题：如果新标题的前min_prefix个字符与旧标题的前min_prefix个字符相同，
+    则认为匹配（返回旧标题的url信息）
+    """
+    if not new_title or not inheritance_map:
+        return None
+    
+    new_prefix = new_title[:min_prefix]
+    
+    # 方法1：前缀匹配（最快）
+    for old_title, old_data in inheritance_map.items():
+        if old_title.startswith(new_prefix) or new_title.startswith(old_title[:min_prefix]):
+            return old_data
+    
+    # 方法2：包含相同关键词（备用）
+    # 提取关键词（简单方法：按空格/标点分割，取长度>3的词）
+    import re
+    new_keywords = set(re.findall(r'[\w\u4e00-\u9fff]{3,}', new_title))
+    for old_title, old_data in inheritance_map.items():
+        old_keywords = set(re.findall(r'[\w\u4e00-\u9fff]{3,}', old_title))
+        # 如果有2个以上共同关键词，认为相关
+        if len(new_keywords & old_keywords) >= 2:
+            return old_data
+    
+    return None
+
+def enrich_news_with_urls(selected_items, inheritance_map=None):
+    """
+    为每条新闻搜索URL，返回带url字段的新列表
+    如果搜索失败，尝试从继承映射（inheritance_map）中继承相似标题的URL
+    inheritance_map: dict, key=旧标题, value={url, url_source}
+    """
+    
     enriched = []
     for item in selected_items:
         print(f"  [搜索URL] {item['title'][:40]}...")
         url, source = search_news_url(item['title'])
+        
+        # 如果搜索失败，尝试继承旧URL（模糊匹配）
+        if not url:
+            title = item.get('title', '')
+            matched = fuzzy_match_title(title, inheritance_map)
+            if matched:
+                url = matched['url']
+                source = matched['url_source']
+                print(f"    [继承] 模糊匹配，使用旧数据的URL: {source} - {url[:60]}...")
+        
         new_item = dict(item)  # 复制原item
         new_item['url'] = url
         new_item['url_source'] = source
         enriched.append(new_item)
     return enriched
 
+def enrich_news_with_images(selected_items):
+    """
+    为每条新闻绑定image_url（预绑定图片）
+    当前实现：设置image_url为null，前端会自动调用Unsplash API
+    如果需要预绑定，需要设置UNSPLASH_ACCESS_KEY环境变量并实现API调用
+    """
+    enriched = []
+    for item in selected_items:
+        new_item = dict(item)
+        # TODO: 如果需要预绑定图片，取消下面的注释并实现Unsplash API调用
+        # image_url = fetch_unsplash_image(item['title'])
+        # new_item['image_url'] = image_url
+        new_item['image_url'] = None  # 暂时设为None，前端会fallback到API
+        enriched.append(new_item)
+    return enriched
+
 def main():
     print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] 开始生成热点新闻数据...")
+    
+    # 【关键】立即保存旧数据的URL映射（防止后续被覆盖）
+    # 必须在脚本刚开始运行时就保存，不能等到enrich_news_with_urls内部再读文件
+    inheritance_map = load_existing_news_for_url_inheritance()
+    print(f"[信息] 已保存旧数据URL映射（{len(inheritance_map)}条），防止后续被覆盖")
     
     # 动态获取所有事业部列表
     bu_list = list(BU_PREFIX_MAP.keys())
@@ -375,8 +596,36 @@ def main():
     else:
         print(f"[警告] 过滤后没有剩余新闻（过滤掉 {old_count} 条），将使用未过滤数据")
     
-    # 均匀抽取5条
-    selected_items = select_news_evenly(all_items, target_count=5)
+    # 均匀抽取5条（重试机制：优先选能继承URL的新闻）
+    selected_items = []
+    max_retries = 3
+    for attempt in range(max_retries):
+        selected_items = select_news_evenly(all_items, target_count=5)
+        
+        # 检查选中的新闻是否能继承URL（模糊匹配）
+        import re
+        inherit_count = 0
+        for item in selected_items:
+            title = item['title']
+            can_inherit = False
+            for old_title in inheritance_map:
+                # 前缀匹配
+                if title.startswith(old_title[:15]) or old_title.startswith(title[:15]):
+                    can_inherit = True
+                    break
+                # 关键词匹配
+                new_kw = set(re.findall(r'[\w\u4e00-\u9fff]{3,}', title))
+                old_kw = set(re.findall(r'[\w\u4e00-\u9fff]{3,}', old_title))
+                if len(new_kw & old_kw) >= 2:
+                    can_inherit = True
+                    break
+            if can_inherit:
+                inherit_count += 1
+        
+        if inherit_count > 0 or attempt == max_retries - 1:
+            # 能继承URL，或已达到最大重试次数
+            break
+        print(f"  [重试] 第{attempt+1}次选择，{inherit_count}条能继承URL，重新选择...")
     
     if not selected_items:
         print("[错误] 没有找到任何今日关注新闻，使用默认数据")
@@ -385,14 +634,22 @@ def main():
             "title": "暂无今日关注数据，请先生成早报"
         }]
     
-    print(f"随机抽取到 {len(selected_items)} 条新闻：")
+    print(f"随机抽取到 {len(selected_items)} 条新闻（{inherit_count}条能继承URL）：")
     for i, item in enumerate(selected_items, 1):
         print(f"  {i}. [{item['bu']}] {item['title']}")
-    
-    # 生成输出数据（URL字段由AI自动化任务后续补充，此处不包含URL）
+
+    # 为每条新闻搜索URL
+    print(f"\n开始为新闻搜索URL...")
+    enriched_items = enrich_news_with_urls(selected_items, inheritance_map)
+
+    # 为每条新闻绑定image_url（预绑定图片，避免前端每次加载都调用API）
+    print(f"\n开始为新闻绑定图片URL...")
+    enriched_items = enrich_news_with_images(enriched_items)
+
+    # 生成输出数据
     output_data = {
         "generated_at": datetime.now().isoformat(),
-        "news": selected_items
+        "news": enriched_items
     }
     
     # 写入文件
