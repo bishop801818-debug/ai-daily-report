@@ -12165,7 +12165,7 @@ window.addEventListener('DOMContentLoaded', function() {
                     fetch('reports/iron_phosphate_history.json?t=' + timestamp),
                     fetch('reports/market_cumulative_metals.json?t=' + timestamp),
                     fetch('reports/market_cumulative.json?t=' + timestamp),
-                    fetch('lfp_all_data.json?t=' + timestamp)
+                    fetch('reports/lfp_all_data.json?t=' + timestamp)
                 ]);
 
                 let marketData = {};
@@ -12326,7 +12326,7 @@ window.addEventListener('DOMContentLoaded', function() {
                 if (lfpAllResp.status === 'fulfilled' && lfpAllResp.value.ok) {
                     try {
                         const lfpAllData = await lfpAllResp.value.json();
-                        const phosphateTable = (lfpAllData.tables || []).find(t => t.table_name === '磷酸盐价格');
+                        const phosphateTable = (lfpAllData.tables || []).find(t => t.table_name === '磷酸盐价格数据');
                         if (phosphateTable && phosphateTable.data && phosphateTable.data.length > 0) {
                             // 筛选磷矿石30%品位数据
                             const oreData = phosphateTable.data.filter(r => r['规格'] === '磷矿石30%品位');
@@ -12767,6 +12767,8 @@ function updatePageData(chainConfig, marketData) {
                 { keyword: '锂云母', svgId: 'lepidoliteChart' },
                 { keyword: 'WTI原油', svgId: 'wtiFuturesChart' },
                 { keyword: '尿素期货', svgId: 'urFuturesChart' },
+                { keyword: '铁矿石', svgId: 'iFuturesChart' },
+                { keyword: '磷矿石', svgId: 'phosphateChart' },
             ];
 
             // 根据产品名匹配SVG ID
@@ -12866,6 +12868,34 @@ function updatePageData(chainConfig, marketData) {
             }
 
             console.log('[showProductChart] ✅ 已移动卡片到展开区域, svgId=', targetSvgId);
+
+            // 触发图表重新渲染（卡片已移到可见区域，SVG应有宽度）
+            const renderMap = {
+                'iFuturesChart': 'renderIChart',
+                'phosphateChart': 'renderPhosphateChart',
+                'lcFuturesChart': 'renderLcFuturesChart',
+                'batteryChart': 'renderBatteryChart',
+                'industrialChart': 'renderIndustrialChart',
+                'lfpDualChart': 'renderLfpDualChart',
+                'fpChart': 'renderFpChart',
+                'lithiumOreChart': 'renderLithiumOreChart',
+                'lepidoliteChart': 'renderLepidoliteChart',
+                'wtiFuturesChart': 'renderWtiFuturesChart',
+                'urFuturesChart': 'renderUrFuturesChart',
+            };
+            const renderFnName = renderMap[targetSvgId];
+            if (renderFnName && typeof window[renderFnName] === 'function') {
+                setTimeout(() => {
+                    try {
+                        window[renderFnName]();
+                        console.log('[showProductChart] ✅ 已触发重新渲染:', renderFnName);
+                    } catch(e) {
+                        console.warn('[showProductChart] ⚠️ 重新渲染失败:', renderFnName, e);
+                    }
+                }, 250);
+            } else {
+                console.log('[showProductChart] ℹ️ 未找到渲染函数 for svgId=', targetSvgId, ', renderFnName=', renderFnName);
+            }
 
             // 滚动到展开区域，让图表完整可见
             setTimeout(() => {
@@ -16694,7 +16724,7 @@ const BU_LOGOS = {
             var svg = document.getElementById('phosphateChart');
             if (!svg) return;
             try {
-                var resp = await fetch(`phosphate_rock_price.json?t=${Date.now()}`);
+                var resp = await fetch(`data/phosphate_rock_price.json?t=${Date.now()}`);
                 if (!resp.ok) throw new Error('HTTP ' + resp.status);
                 var data = await resp.json();
                 if (!data.data || data.data.length === 0) {
@@ -19917,6 +19947,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         { keyword: '尿素期货', svgId: 'urFuturesChart' },
                         { keyword: 'WTI原油', svgId: 'wtiFuturesChart' },
                         { keyword: '乙二醇', svgId: 'egFuturesChart' },
+                        { keyword: '磷矿石', svgId: 'phosphateChart' },
                     ];
                     
                     let targetSvgId = null;
@@ -19969,6 +20000,28 @@ document.addEventListener('DOMContentLoaded', function() {
                         const event = new Event('resize');
                         window.dispatchEvent(event);
                     }, 100);
+                    
+                    // 触发图表重新渲染
+                    const renderMap = {
+                        'iFuturesChart': 'renderIChart',
+                        'phosphateChart': 'renderPhosphateChart',
+                        'ptFuturesChart': 'renderPTChart',
+                        'pdFuturesChart': 'renderPDChart',
+                        'urFuturesChart': 'renderUrFuturesChart',
+                        'wtiFuturesChart': 'renderWtiFuturesChart',
+                        'egFuturesChart': 'renderEgFuturesChart',
+                    };
+                    const renderFnName = renderMap[targetSvgId];
+                    if (renderFnName && typeof window[renderFnName] === 'function') {
+                        setTimeout(() => {
+                            try {
+                                window[renderFnName]();
+                                console.log('[renderSectorGantt] ✅ 已触发重新渲染:', renderFnName);
+                            } catch(e) {
+                                console.warn('[renderSectorGantt] ⚠️ 重新渲染失败:', renderFnName, e);
+                            }
+                        }, 500);
+                    }
                     
                     // 滚动到展开区域，让图表完整可见
                     setTimeout(() => {
