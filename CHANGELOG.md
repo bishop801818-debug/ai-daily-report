@@ -1,4 +1,24 @@
 
+## v27 (2026-06-08)
+
+**变更内容**:
+- ✅ policy_center_v4.html政策中心数据加载修复
+  - 根本原因：6月2日重构后改为fetch动态加载，fetch失败时返回空数组导致页面无数据
+  - 修复方案：将policies_source/policies_clean.json的67条政策内嵌为EMBEDDED_POLICIES
+  - loadPoliciesJson优先使用内嵌数据，fetch作为备用（消除网络依赖）
+  - 同步更新embedded/policy_center_v4.html的loadPoliciesJson函数
+- ✅ 行业新闻导航修复（5处industry_news_embedded.html→industry_news.html）
+- ✅ loadReportJSON增强：今日报告缓存标记/index.json fallback/占位报告防白屏
+
+**技术文件**: policy_center_v4.html, embedded/policy_center_v4.html, index_v3.html
+
+**存档**: _archive/policy_center_v4_20260608_before_embedded_fix.html
+
+**迁移说明**:
+- 无破坏性变更，数据源不变（仍是policies_source/policies_clean.json）
+
+---
+
 ## v26 (2026-06-07)
 
 **变更内容**:
