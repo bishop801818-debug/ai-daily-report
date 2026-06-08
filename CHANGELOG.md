@@ -19,7 +19,7 @@
 
 **技术文件**: radar_detail.html, 运维框架.md, _docs/radar-history-feature.md, .gitignore
 
-**存档**: _archive/radar_detail_v26_20260607_enhanced_radar.html
+**存档**: _archive/radar_detail_v26_20260607_enhanced_radar.html →覆盖为v27品牌蓝完整版
 
 **迁移说明**:
 - 无破坏性变更

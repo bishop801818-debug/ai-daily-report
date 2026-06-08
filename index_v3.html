@@ -5958,24 +5958,24 @@ window.addEventListener('DOMContentLoaded', function() {
                     </div>
                 </div>
             </div>
-            <div class="main-nav-item" onclick="window.location.href='industry_news_embedded.html'">
+            <div class="main-nav-item" onclick="window.location.href='industry_news.html'">
                 <span class="nav-icon">📰</span>
                 <span>行业新闻</span>
                 <span class="nav-arrow">▼</span>
                 <div class="dropdown-menu">
-                    <div class="dropdown-item" onclick="event.stopPropagation(); window.location.href='industry_news_embedded.html?filter=macro'">
+                    <div class="dropdown-item" onclick="event.stopPropagation(); window.location.href='industry_news.html?filter=macro'">
                         <span class="nav-icon">🌐</span>
                         <span>宏观新闻</span>
                     </div>
-                    <div class="dropdown-item" onclick="event.stopPropagation(); window.location.href='industry_news_embedded.html?filter=industry'">
+                    <div class="dropdown-item" onclick="event.stopPropagation(); window.location.href='industry_news.html?filter=industry'">
                         <span class="nav-icon">📰</span>
                         <span>行业新闻</span>
                     </div>
-                    <div class="dropdown-item" onclick="event.stopPropagation(); window.location.href='industry_news_embedded.html?filter=company'">
+                    <div class="dropdown-item" onclick="event.stopPropagation(); window.location.href='industry_news.html?filter=company'">
                         <span class="nav-icon">🏢</span>
                         <span>企业动态</span>
                     </div>
-                    <div class="dropdown-item" onclick="event.stopPropagation(); window.location.href='industry_news_embedded.html?filter=tech'">
+                    <div class="dropdown-item" onclick="event.stopPropagation(); window.location.href='industry_news.html?filter=tech'">
                         <span class="nav-icon">🔬</span>
                         <span>技术产品</span>
                     </div>
@@ -8078,6 +8078,7 @@ window.addEventListener('DOMContentLoaded', function() {
          * @returns {Promise<object>} 报告数据对象
          */
         async function loadReportJSON(date) {
+            const TODAY = new Date().toISOString().slice(0, 10);
             console.log(`[loadReport] 开始加载 ${date}.json...`);
             try {
                 const resp = await fetch(`reports/${date}.json?v=${HTML_VERSION}&_cb=${Date.now()}`);
@@ -8085,11 +8086,47 @@ window.addEventListener('DOMContentLoaded', function() {
                 if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
                 const data = await resp.json();
                 console.log(`[loadReport] 成功加载 ${date}，${Object.keys(data.departments || {}).length} 个事业部`);
+                // 如果加载的是今天的报告且成功，标记缓存
+                if (date === TODAY) {
+                    try { localStorage.setItem('cached_report_date', TODAY); } catch(e) {}
+                }
                 return data;
             } catch (e) {
                 console.error(`[loadReport] 加载 ${date} 失败:`, e.message);
-                return null;
+                // 加载失败时，立即尝试从 index.json 获取最新日期
+                console.log('[loadReport] 尝试从 index.json 获取最新日期...');
+                try {
+                    const idxResp = await fetch('reports/index.json?v=' + HTML_VERSION);
+                    if (idxResp.ok) {
+                        const idxData = await idxResp.json();
+                        const latestDate = idxData.latest_date;
+                        if (latestDate && latestDate !== date) {
+                            console.log('[loadReport] 立即切换到最新日期: ' + latestDate);
+                            return loadReportJSON(latestDate);
+                        }
+                    }
+                } catch(e2) {
+                    console.warn('[loadReport] index.json 也失败:', e2);
+                }
+                // 所有方式都失败，生成今日占位报告（防止白屏）
+                console.log('[loadReport] 生成今日占位报告...');
+                return generatePlaceholderReport(TODAY);
             }
+        }
+
+        // 生成占位报告（���所有方式都失败时使用）
+        function generatePlaceholderReport(date) {
+            const dayNames = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
+            const d = new Date(date);
+            const dayName = dayNames[d.getDay()];
+            return {
+                date: date,
+                day: dayName,
+                departments: {},
+                generated_at: new Date().toISOString(),
+                is_placeholder: true,
+                message: '今日报告尚未生成，请运行自动化任务生成报告'
+            };
         }
 
         /**
