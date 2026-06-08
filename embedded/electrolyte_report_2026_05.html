@@ -64,6 +64,8 @@
         .main-content { padding: 24px 30px; }
         .tab-content { display: none; }
         .tab-content.active { display: block; }
+        .felt-tab-btn { display: none; }
+        .felt-tab-btn.visible { display: inline-block; }
 
         /* 摘要英雄区 */
         .summary-hero {
@@ -203,7 +205,7 @@
     <!-- 顶部导航 -->
     <div class="topbar">
         <div class="topbar-left">
-            <div class="topbar-logo">磷酸铁锂深度分析报告</div>
+            <div class="topbar-logo">电解液深度分析报告</div>
         </div>
         <div class="topbar-links">
             <a href="index_v3.html">🏠 首页</a>
@@ -215,9 +217,9 @@
 
     <!-- 报告头部 -->
     <div class="report-header">
-        <div class="report-meta">📅 数据库月度数据截止：2026-04 &nbsp;·&nbsp; 报告生成：2026-06-08 11:31:37</div>
-        <div class="report-title">中国磷酸铁锂市场 2026年4月月分析报告</div>
-        <div class="report-subtitle">磷酸铁锂正极材料供需格局、竞争格局、价格体系、出口贸易及战略展望</div>
+        <div class="report-meta">📅 数据库月度数据截止：2026-05 &nbsp;·&nbsp; 报告生成：2026-06-08 11:55:34</div>
+        <div class="report-title">中国电解液市场 2026年5月月分析报告</div>
+        <div class="report-subtitle">电解液供需格局、竞争格局、价格体系、添加剂市场及战略展望</div>
         <div class="report-tags"><span class="report-tag">铁锂行业</span> <span class="report-tag">月度报告</span> <span class="report-tag">战略洞察</span></div>
     </div>
 
@@ -228,6 +230,8 @@
         <button class="tab-btn" onclick="switchTab('compete', event)">⚔️ 竞争格局</button>
         <button class="tab-btn" onclick="switchTab('price', event)">💰 价格体系</button>
         <button class="tab-btn" onclick="switchTab('export', event)">🚢 出口贸易</button>
+        <button class="tab-btn felt-tab-btn" onclick="switchTab('diagnostic', event)">🏭 法恩莱特诊断</button>
+
         <button class="tab-btn" onclick="switchTab('outlook', event)">🧭 战略展望</button>
     </div>
 
@@ -239,21 +243,21 @@
             <!-- 摘要英雄区 -->
             <div class="summary-hero">
                 <div>
-                    <div class="summary-hero-title">2026-04月磷酸铁锂行业概览</div>
+                    <div class="summary-hero-title">2026-05月电解液行业概览</div>
                     <div class="summary-hero-text"><!-- AI_NARRATIVE: hero_summary --></div>
                 </div>
                 <div class="summary-kpi-row">
                     <div class="summary-kpi">
-                        <div class="summary-kpi-val">80%</div>
-                        <div class="summary-kpi-lbl">产能利用率（2026-04）</div>
+                        <div class="summary-kpi-val">0%</div>
+                        <div class="summary-kpi-lbl">产能利用率（2026-05）</div>
                     </div>
                     <div class="summary-kpi">
-                        <div class="summary-kpi-val">6.33</div>
-                        <div class="summary-kpi-lbl">LFP现货均价（万元/吨，2026-04）</div>
+                        <div class="summary-kpi-val">0.00</div>
+                        <div class="summary-kpi-lbl">LFP现货均价（万元/吨，2026-05）</div>
                     </div>
                     <div class="summary-kpi">
-                        <div class="summary-kpi-val">47.0<span style="font-size:12px">万吨</span></div>
-                        <div class="summary-kpi-lbl">4月产量（2026-04）</div>
+                        <div class="summary-kpi-val">0.0<span style="font-size:12px">万吨</span></div>
+                        <div class="summary-kpi-lbl">5月产量（2026-05）</div>
                     </div>
                 </div>
             </div>
@@ -263,41 +267,41 @@
                 <div class="kpi-card blue">
                     <div class="kpi-icon blue">🏭</div>
                     <div class="kpi-info">
-                        <div class="kpi-label">LFP月产量<span style="font-size:10px;color:#aaa;margin-left:6px;">📡 数据库2026-04</span></div>
-                        <div class="kpi-value">46.98<span class="kpi-unit">万吨</span><span class="kpi-change up">↑4.1%</span></div>
-                        <div class="kpi-sub">2026-04月，环比2026年3月</div>
+                        <div class="kpi-label">LFP月产量<span style="font-size:10px;color:#aaa;margin-left:6px;">📡 数据库2026-05</span></div>
+                        <div class="kpi-value">0.00<span class="kpi-unit">万吨</span><span class="kpi-change neutral">—</span></div>
+                        <div class="kpi-sub">2026-05月，环比上月</div>
                     </div>
                 </div>
                 <div class="kpi-card green">
                     <div class="kpi-icon green">⚡</div>
                     <div class="kpi-info">
-                        <div class="kpi-label">产能利用率<span style="font-size:10px;color:#aaa;margin-left:6px;">📡 数据库2026-04</span></div>
-                        <div class="kpi-value">80<span class="kpi-unit">%</span><span class="kpi-change up">↑2.0pct</span></div>
-                        <div class="kpi-sub">2026-04月，峰值曾达90%（2025-11）</div>
+                        <div class="kpi-label">产能利用率<span style="font-size:10px;color:#aaa;margin-left:6px;">📡 数据库2026-05</span></div>
+                        <div class="kpi-value">0<span class="kpi-unit">%</span><span class="kpi-change neutral">—</span></div>
+                        <div class="kpi-sub">2026-05月，峰值曾达0%（2026-05）</div>
                     </div>
                 </div>
                 <div class="kpi-card orange">
                     <div class="kpi-icon orange">💎</div>
                     <div class="kpi-info">
-                        <div class="kpi-label">碳酸锂价格<span style="font-size:10px;color:#aaa;margin-left:6px;">📡 SMM 2026-04</span></div>
+                        <div class="kpi-label">碳酸锂价格<span style="font-size:10px;color:#aaa;margin-left:6px;">📡 SMM 2026-05</span></div>
                         <div class="kpi-value">17.57<span class="kpi-unit">万元/吨</span><span class="kpi-change up">↑14.2%</span></div>
-                        <div class="kpi-sub">电池级碳酸锂月均价（2026-04）</div>
+                        <div class="kpi-sub">电池级碳酸锂月均价（2026-05）</div>
                     </div>
                 </div>
                 <div class="kpi-card red">
                     <div class="kpi-icon red">🔋</div>
                     <div class="kpi-info">
-                        <div class="kpi-label">LFP现货价（高端）<span style="font-size:10px;color:#aaa;margin-left:6px;">📡 SMM 2026-04</span></div>
-                        <div class="kpi-value">6.33<span class="kpi-unit">万元/吨</span></div>
-                        <div class="kpi-sub">动力型（压实≥2.60g/cm³），2026-04</div>
+                        <div class="kpi-label">LFP现货价（高端）<span style="font-size:10px;color:#aaa;margin-left:6px;">📡 SMM 2026-05</span></div>
+                        <div class="kpi-value">0.00<span class="kpi-unit">万元/吨</span></div>
+                        <div class="kpi-sub">动力型（压实≥2.60g/cm³），2026-05</div>
                     </div>
                 </div>
                 <div class="kpi-card purple">
                     <div class="kpi-icon purple">🚢</div>
                     <div class="kpi-info">
-                        <div class="kpi-label">月出口量<span style="font-size:10px;color:#aaa;margin-left:6px;">📡 海关2026-04</span></div>
-                        <div class="kpi-value">0.00<span class="kpi-unit">万吨</span><span class="kpi-change down">↓100.0%</span></div>
-                        <div class="kpi-sub">2026-04月，出口均价0.0万元/吨</div>
+                        <div class="kpi-label">月出口量<span style="font-size:10px;color:#aaa;margin-left:6px;">📡 海关2026-05</span></div>
+                        <div class="kpi-value">0.00<span class="kpi-unit">万吨</span><span class="kpi-change neutral">—</span></div>
+                        <div class="kpi-sub">2026-05月，出口均价0.0万元/吨</div>
                     </div>
                 </div>
             </div>
@@ -353,7 +357,7 @@
                     <div class="chart-header">
                         <div>
                             <div class="chart-title">产能利用率周期图谱（2024-01 → 2026-02）</div>
-                            <div class="chart-sub">三阶段：去产能（29%）→ 紧平衡（90%）→ 再平衡（80%）</div>
+                            <div class="chart-sub">三阶段：去产能（0%）→ 紧平衡（0%）→ 再平衡（0%）</div>
                         </div>
                         <div class="chart-meta">单位：%</div>
                     </div>
@@ -370,19 +374,19 @@
                 <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;">
                     <div style="background:#f8f9fc;border-radius:10px;padding:16px;text-align:center;">
                         <div style="font-size:12px;color:#1e3c72;font-weight:600;margin-bottom:8px;">阶段一：去产能期</div>
-                        <div style="font-size:22px;font-weight:700;color:#1e3c72;margin-bottom:6px;">29%</div>
+                        <div style="font-size:22px;font-weight:700;color:#1e3c72;margin-bottom:6px;">0%</div>
                         <div style="font-size:12px;color:#888;">产能利用率谷底</div>
                         <div style="font-size:11px;color:#bbb;margin-top:6px;">2024年Q1-Q2</div>
                     </div>
                     <div style="background:#f8f9fc;border-radius:10px;padding:16px;text-align:center;">
                         <div style="font-size:12px;color:#1e3c72;font-weight:600;margin-bottom:8px;">阶段二：紧平衡期</div>
-                        <div style="font-size:22px;font-weight:700;color:#1e3c72;margin-bottom:6px;">90%</div>
+                        <div style="font-size:22px;font-weight:700;color:#1e3c72;margin-bottom:6px;">0%</div>
                         <div style="font-size:12px;color:#888;">产能利用率峰值</div>
                         <div style="font-size:11px;color:#bbb;margin-top:6px;">2025年Q3-Q4</div>
                     </div>
                     <div style="background:#f8f9fc;border-radius:10px;padding:16px;text-align:center;">
                         <div style="font-size:12px;color:#1e3c72;font-weight:600;margin-bottom:8px;">阶段三：再平衡期</div>
-                        <div style="font-size:22px;font-weight:700;color:#1e3c72;margin-bottom:6px;">80%</div>
+                        <div style="font-size:22px;font-weight:700;color:#1e3c72;margin-bottom:6px;">0%</div>
                         <div style="font-size:12px;color:#888;">当前（2026年2月）</div>
                         <div style="font-size:11px;color:#bbb;margin-top:6px;">供过于求苗头显现</div>
                     </div>
@@ -455,16 +459,7 @@
                             <th>利用水平</th>
                         </tr>
                     </thead>
-                    <tbody><tr><td>1</td><td>湖南裕能</td><td class="num">12.00</td><td class="num">112750</td><td class="num util-high">106%</td><td><span style="background:rgba(39,174,96,0.1);color:#1e3c72;padding:2px 6px;border-radius:4px;font-size:11px;">头部饱满</span></td></tr>
-<tr><td>2</td><td>万润新能</td><td class="num">4.00</td><td class="num">39000</td><td class="num util-high">103%</td><td><span style="background:rgba(39,174,96,0.1);color:#1e3c72;padding:2px 6px;border-radius:4px;font-size:11px;">头部饱满</span></td></tr>
-<tr><td>3</td><td>德方纳米</td><td class="num">3.30</td><td class="num">37917</td><td class="num util-high">87%</td><td><span style="background:rgba(39,174,96,0.1);color:#1e3c72;padding:2px 6px;border-radius:4px;font-size:11px;">中高负荷</span></td></tr>
-<tr><td>4</td><td>江西升华</td><td class="num">3.00</td><td class="num">54167</td><td class="num util-low">55%</td><td><span style="background:rgba(192,57,43,0.1);color:#1e3c72;padding:2px 6px;border-radius:4px;font-size:11px;">偏低负荷</span></td></tr>
-<tr class="row-highlight"><td>5</td><td>常州锂源</td><td class="num">2.55</td><td class="num">33042</td><td class="num util-mid">77%</td><td><span style="background:rgba(230,126,34,0.1);color:#1e3c72;padding:2px 6px;border-radius:4px;font-size:11px;">中度负荷</span></td></tr>
-<tr><td>6</td><td>友山科技</td><td class="num">2.50</td><td class="num">33333</td><td class="num util-mid">75%</td><td><span style="background:rgba(230,126,34,0.1);color:#1e3c72;padding:2px 6px;border-radius:4px;font-size:11px;">中度负荷</span></td></tr>
-<tr><td>7</td><td>邦普循环</td><td class="num">2.00</td><td class="num">31000</td><td class="num util-mid">65%</td><td><span style="background:rgba(230,126,34,0.1);color:#1e3c72;padding:2px 6px;border-radius:4px;font-size:11px;">中度负荷</span></td></tr>
-<tr><td>8</td><td>国轩高科</td><td class="num">1.80</td><td class="num">20000</td><td class="num util-high">90%</td><td><span style="background:rgba(39,174,96,0.1);color:#1e3c72;padding:2px 6px;border-radius:4px;font-size:11px;">头部饱满</span></td></tr>
-<tr><td>9</td><td>万华化学</td><td class="num">1.40</td><td class="num">29167</td><td class="num util-low">48%</td><td><span style="background:rgba(192,57,43,0.1);color:#1e3c72;padding:2px 6px;border-radius:4px;font-size:11px;">偏低负荷</span></td></tr>
-<tr><td>10</td><td>融通高科</td><td class="num">1.20</td><td class="num">25417</td><td class="num util-low">47%</td><td><span style="background:rgba(192,57,43,0.1);color:#1e3c72;padding:2px 6px;border-radius:4px;font-size:11px;">偏低负荷</span></td></tr></tbody>
+                    <tbody><tr><td colspan="6">暂无数据</td></tr></tbody>
                 </table>
             </div>
 
@@ -511,31 +506,31 @@
                 <div class="price-tier">
                     <div class="price-tier-card best">
                         <div class="price-tier-label">顶级动力型</div>
-                        <div class="price-tier-value">6.33</div>
+                        <div class="price-tier-value">5.81</div>
                         <div class="price-tier-unit">万元/吨</div>
                         <div class="price-tier-name">压实≥2.60g/cm³ · Gen4</div>
                     </div>
                     <div class="price-tier-card mid">
                         <div class="price-tier-label">中端动力型</div>
-                        <div class="price-tier-value">5.82</div>
+                        <div class="price-tier-value">5.36</div>
                         <div class="price-tier-unit">万元/吨</div>
                         <div class="price-tier-name">压实2.50-2.60g/cm³ · Gen3</div>
                     </div>
                     <div class="price-tier-card mid">
                         <div class="price-tier-label">储能型</div>
-                        <div class="price-tier-value">5.63</div>
+                        <div class="price-tier-value">5.18</div>
                         <div class="price-tier-unit">万元/吨</div>
                         <div class="price-tier-name">压实2.55-2.60g/cm³ · Gen3.5</div>
                     </div>
                     <div class="price-tier-card low">
                         <div class="price-tier-label">回收修复型</div>
-                        <div class="price-tier-value">4.94</div>
+                        <div class="price-tier-value">4.50</div>
                         <div class="price-tier-unit">万元/吨</div>
                         <div class="price-tier-name">梯次利用 · 再生级</div>
                     </div>
                     <div class="price-tier-card low">
                         <div class="price-tier-label">低端入门型</div>
-                        <div class="price-tier-value">4.30</div>
+                        <div class="price-tier-value">3.92</div>
                         <div class="price-tier-unit">万元/吨</div>
                         <div class="price-tier-name">压实&lt;2.40g/cm³ · Gen2</div>
                     </div>
@@ -625,7 +620,7 @@
                     <div style="font-size:24px;color:#ccc;display:flex;align-items:center;justify-content:center;">→</div>
                     <div style="background:#f8f9fc;border-radius:10px;padding:14px;">
                         <div style="font-size:11px;color:#999;margin-bottom:6px;">LFP正极材料</div>
-                        <div style="font-size:18px;font-weight:700;color:#1e3c72;">6.33</div>
+                        <div style="font-size:18px;font-weight:700;color:#1e3c72;">0.00</div>
                         <div style="font-size:11px;color:#bbb;margin-top:4px;">万元/吨（高端动力型）</div>
                     </div>
                 </div>
@@ -696,7 +691,58 @@
         </div>
 
         <!-- ==================== Tab6: 战略展望 ==================== -->
+        
+
+        <div class="tab-content" id="tab-diagnostic">
+
+            <div class="insight-block">
+                <div class="section-title">🏭 法恩莱特事业部经营诊断报告</div>
+                <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;">
+                    <div id="felt-kpi-sales" style="background:#fff;border-radius:10px;padding:16px;border-top:3px solid #c62828;"></div>
+                    <div id="felt-kpi-gpm" style="background:#fff;border-radius:10px;padding:16px;border-top:3px solid #c62828;"></div>
+                    <div id="felt-kpi-np" style="background:#fff;border-radius:10px;padding:16px;border-top:3px solid #c62828;"></div>
+                    <div id="felt-kpi-cf" style="background:#fff;border-radius:10px;padding:16px;border-top:3px solid #c62828;"></div>
+                </div>
+            </div>
+
+            <div class="insight-block">
+                <div class="section-title">📊 三基地横向对比诊断</div>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>基地</th>
+                            <th>销量(吨)</th>
+                            <th>均价(元/吨)</th>
+                            <th>毛利率</th>
+                            <th>边际利润(万元)</th>
+                            <th>净利润(万元)</th>
+                            <th>四费率</th>
+                            <th>综合状态</th>
+                        </tr>
+                    </thead>
+                    <tbody id="felt-bases-tbody"></tbody>
+                </table>
+            </div>
+
+            <div class="insight-block">
+                <div class="section-title">📋 客户贡献明细</div>
+                <div id="felt-customer-chart" style="height:280px;"></div>
+            </div>
+
+            <div class="insight-block">
+                <div class="section-title">🎯 综合诊断雷达图</div>
+                <div id="felt-radar-chart" style="height:320px;"></div>
+            </div>
+
+            <div class="insight-block">
+                <div class="section-title">⚠️ 问题诊断与改善方向</div>
+                <div id="felt-diagnosis-summary" style="display:grid;grid-template-columns:1fr 1fr;gap:16px;"></div>
+            </div>
+
+        </div>
+
         <div class="tab-content" id="tab-outlook">
+<div class="tab-content" id="tab-outlook">
 
             <div class="insight-block">
                 <div class="section-title">🧭 战略窗口判断</div>
@@ -756,10 +802,10 @@
                             <th>置信度</th>
                         </tr>
                     </thead>
-                    <tbody><tr><td>LFP年度产量</td><td>507万吨</td><td class="num" style="font-weight:600;color:#1e3c72;">564万吨</td><td class="num" style="color:#27ae60;">+11%</td><td><span style="background:rgba(30,60,114,0.08);color:#1e3c72;padding:2px 8px;border-radius:4px;font-size:11px;">高</span></td></tr>
-<tr><td>行业平均产能利用率</td><td>55%</td><td class="num" style="font-weight:600;color:#1e3c72;">80%</td><td class="num" style="color:#27ae60;">25pct↑</td><td><span style="background:rgba(30,60,114,0.08);color:#1e3c72;padding:2px 8px;border-radius:4px;font-size:11px;">中</span></td></tr>
+                    <tbody><tr><td>LFP年度产量</td><td>—</td><td class="num" style="font-weight:600;color:#1e3c72;">—</td><td class="num" style="color:#27ae60;">—</td><td><span style="background:rgba(30,60,114,0.08);color:#1e3c72;padding:2px 8px;border-radius:4px;font-size:11px;">高</span></td></tr>
+<tr><td>行业平均产能利用率</td><td>55%</td><td class="num" style="font-weight:600;color:#1e3c72;">—</td><td class="num" style="color:#27ae60;">—</td><td><span style="background:rgba(30,60,114,0.08);color:#1e3c72;padding:2px 8px;border-radius:4px;font-size:11px;">中</span></td></tr>
 <tr><td>碳酸锂均价</td><td>14.9万元/吨</td><td class="num" style="font-weight:600;color:#1e3c72;">17.6万元/吨</td><td class="num" style="color:#27ae60;">↑18%</td><td><span style="background:rgba(30,60,114,0.08);color:#1e3c72;padding:2px 8px;border-radius:4px;font-size:11px;">中</span></td></tr>
-<tr><td>LFP现货均价（高端）</td><td>5.7万元/吨</td><td class="num" style="font-weight:600;color:#1e3c72;">6.3万元/吨</td><td class="num" style="color:#27ae60;">↑11%</td><td><span style="background:rgba(30,60,114,0.08);color:#1e3c72;padding:2px 8px;border-radius:4px;font-size:11px;">中</span></td></tr>
+<tr><td>LFP现货均价（高端）</td><td>—</td><td class="num" style="font-weight:600;color:#1e3c72;">—</td><td class="num" style="color:#27ae60;">—</td><td><span style="background:rgba(30,60,114,0.08);color:#1e3c72;padding:2px 8px;border-radius:4px;font-size:11px;">中</span></td></tr>
 <tr><td>LFP出口量</td><td>—</td><td class="num" style="font-weight:600;color:#1e3c72;">—</td><td class="num" style="color:#27ae60;">—</td><td><span style="background:rgba(30,60,114,0.08);color:#1e3c72;padding:2px 8px;border-radius:4px;font-size:11px;">低</span></td></tr>
 <tr><td>储能装机规模</td><td>120GWh</td><td class="num" style="font-weight:600;color:#1e3c72;">180GWh</td><td class="num" style="color:#27ae60;">+50%</td><td><span style="background:rgba(30,60,114,0.08);color:#1e3c72;padding:2px 8px;border-radius:4px;font-size:11px;">高</span></td></tr>
 <tr><td>动力电池装机</td><td>450GWh</td><td class="num" style="font-weight:600;color:#1e3c72;">520GWh</td><td class="num" style="color:#27ae60;">+16%</td><td><span style="background:rgba(30,60,114,0.08);color:#1e3c72;padding:2px 8px;border-radius:4px;font-size:11px;">高</span></td></tr></tbody>
@@ -781,30 +827,30 @@
     // ========== 数据 ==========
 
     // LFP月度产量（26个月）
-    var LFP_MONTHS_26 = ["24-01", "24-02", "24-03", "24-04", "24-05", "24-06", "24-07", "24-08", "24-09", "24-10", "24-11", "24-12", "25-01", "25-02", "25-03", "25-04", "25-05", "25-06", "25-07", "25-08", "25-09", "25-10", "25-11", "25-12", "26-01", "26-02", "26-03", "26-04"];
-    var LFP_OUTPUT_26 = [11.71, 10.1, 17.48, 19.8, 20.46, 18.43, 19.24, 21.17, 23.69, 25.65, 27.29, 27.41, 24.98, 22.64, 27.24, 28.67, 30.2, 30.98, 31.45, 35.44, 36.69, 40.09, 42.39, 41.59, 41.23, 38.02, 45.12, 46.98];
-    var LFP_UTIL_26   = [34.0, 29.0, 48.0, 53.0, 53.0, 47.0, 48.0, 52.0, 59.0, 59.0, 60.0, 59.0, 60.0, 56.0, 69.0, 72.0, 74.0, 74.0, 74.0, 82.0, 85.0, 87.0, 90.0, 85.0, 68.0, 63.0, 78.0, 80.0];
-    var LFP_CAP_26    = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0];
+    var LFP_MONTHS_26 = [];
+    var LFP_OUTPUT_26 = [];
+    var LFP_UTIL_26   = [];
+    var LFP_CAP_26    = [];
 
     // TOP10企业
-    var TOP10_NAMES  = ["融通高科", "万华化学", "国轩高科", "邦普循环", "友山科技", "常州锂源", "江西升华", "德方纳米", "万润新能", "湖南裕能"];
-    var TOP10_OUTPUT = [1.2, 1.4, 1.8, 2.0, 2.5, 2.55, 3.0, 3.3, 4.0, 12.0];
-    var TOP10_UTIL   = [47.0, 48.0, 90.0, 65.0, 75.0, 77.0, 55.0, 87.0, 103.0, 106.0];
+    var TOP10_NAMES  = [];
+    var TOP10_OUTPUT = [];
+    var TOP10_UTIL   = [];
 
     // 碳酸锂价格
     var LICD_MONTHS = ["24-01", "24-02", "24-03", "24-04", "24-05", "24-06", "24-07", "24-08", "24-09", "24-10", "24-11", "24-12", "25-01", "25-02", "25-03", "25-04", "25-05", "25-06", "25-07", "25-08", "25-09", "25-10", "25-11", "25-12", "26-01", "26-02", "26-03", "26-04", "26-05"];
     var LICD_PRICE   = [8.73, 8.7, 9.78, 10.13, 10.2, 9.34, 8.46, 7.36, 7.17, 7.12, 7.37, 7.31, 7.33, 7.28, 7.21, 6.98, 6.3, 5.83, 6.4, 7.5, 7.18, 7.35, 8.36, 9.82, 14.1, 13.4, 14.69, 15.38, 17.57];
 
     // LFP现货价格
-    var LFP_PRICE_MONTHS = ["24-01", "24-02", "24-03", "24-04", "24-05", "24-06", "24-07", "24-08", "24-09", "24-10", "24-11", "24-12", "25-01", "25-02", "25-03", "25-04", "25-05", "25-06", "25-07", "25-08", "25-09", "25-10", "25-11", "25-12", "26-01", "26-02", "26-03", "26-04", "26-05"];
-    var LFP_PRICE_VALS   = [4.17, 4.15, 4.2, 4.19, 3.8, 3.67, 3.66, 3.38, 3.2, 3.22, 3.27, 3.26, 3.25, 3.25, 3.25, 3.19, 3.17, 3.06, 3.14, 3.37, 3.42, 3.39, 3.61, 3.94, 5.22, 5.26, 5.37, 5.64, 6.33];
+    var LFP_PRICE_MONTHS = [];
+    var LFP_PRICE_VALS   = [];
 
     // 出口数据（近12个月）
-    var EXP_MONTHS  = ["25-05", "25-06", "25-07", "25-08", "25-09", "25-10", "25-11", "25-12", "26-01", "26-02", "26-03", "26-04"];
-    var EXP_VOL     = [0.09, 0.2, 0.27, 0.2, 0.31, 0.55, 0.77, 0.4, 0.57, 0.65, 0.75, 0.59];
-    var EXP_PRICE    = [3.9, 3.9, 3.8, 3.8, 3.7, 3.7, 3.6, 3.5, 4.3, 5.0, 5.7, 5.3];
-    var EXP_PARTNERS = ["", "", "", "", "", "", "", "", "", ""];
-    var EXP_PARTNER_VOL = [32.06, 72.503, 225.601, 226.04, 256.005, 324.021, 768.0, 1152.09, 1360.0, 1476.315];
+    var EXP_MONTHS  = [];
+    var EXP_VOL     = [];
+    var EXP_PRICE    = [];
+    var EXP_PARTNERS = [];
+    var EXP_PARTNER_VOL = [];
 
     // 客户采购量
     var CLIENT_NAMES = ["宁德时代", "比亚迪", "中航锂电", "亿纬锂能", "国轩高科", "欣旺达"];
@@ -815,6 +861,20 @@
     var MARKET_SHARES = [73, 22, 2.5, 1, 1.5];
 
     // ========== 图表初始化工具 ==========
+
+    // ========== 法恩莱特诊断数据 ==========
+    var FELT_KPI = {"sales_budget": 8115, "sales_target": 4500, "sales_actual": 3500, "sales_mom": -30.3, "revenue_budget": 17796, "revenue_actual": 7758, "gross_margin_budget": 4.8, "gross_margin_actual": -2.7, "period_expense_budget": 375, "period_expense_actual": 343, "net_profit_budget": 471, "net_profit_actual": -540, "cash_flow_budget": 640, "cash_flow_actual": 14, "receivable_rate_budget": 90, "receivable_rate_actual": 66};
+    var FELT_BASES = {"法恩": {"sales": 3500, "revenue": 7758, "avg_price": 22154, "gross_margin_pct": -2.74, "marginal_profit": 256, "marginal_margin_pct": 3.31, "four_expenses": 343, "net_profit": -540, "net_margin_pct": -7.0, "four_expense_ratio_pct": 4.4}, "湖南": {"sales": 499, "revenue": 1566, "avg_price": 31448, "gross_margin_pct": -8.6, "marginal_profit": 67, "marginal_margin_pct": 4.3, "four_expenses": 220, "net_profit": -360, "net_margin_pct": -23.0, "four_expense_ratio_pct": 14.1}, "安徽": {"sales": 1701, "revenue": 3653, "avg_price": 21495, "gross_margin_pct": -1.46, "marginal_profit": 94, "marginal_margin_pct": 2.56, "four_expenses": 72, "net_profit": -111, "net_margin_pct": -3.0, "four_expense_ratio_pct": 2.0}, "广西": {"sales": 1300, "revenue": 2539, "avg_price": 19546, "gross_margin_pct": -0.28, "marginal_profit": 96, "marginal_margin_pct": 3.76, "four_expenses": 51, "net_profit": -69, "net_margin_pct": -2.7, "four_expense_ratio_pct": 2.0}};
+    var FELT_CUSTOMERS = [{"name": "多氟多", "sales": 1041, "revenue": 2177, "gross_profit": -47}, {"name": "吉曜通行", "sales": 1001, "revenue": 2232, "gross_profit": -57}, {"name": "宁德时代", "sales": 380, "revenue": 1318, "gross_profit": -92}, {"name": "厦门海辰", "sales": 391, "revenue": 807, "gross_profit": -16}, {"name": "柳州鹏辉", "sales": 348, "revenue": 528, "gross_profit": -18}];
+    var FELT_RADAR = {"dimensions": [{"name": "销量达成", "score": 43}, {"name": "价格控制", "score": 35}, {"name": "毛利水平", "score": 0}, {"name": "费用控制", "score": 91}, {"name": "现金流", "score": 2}, {"name": "回款率", "score": 73}], "scores": [43, 35, 0, 91, 2, 73]};
+
+
+    // Show/hide felt diagnostic tab based on data
+    if (FELT_KPI && Object.keys(FELT_KPI).length > 0) {
+        var feltBtn = document.querySelector('.felt-tab-btn');
+        if (feltBtn) feltBtn.style.display = 'inline-block';
+    }
+    var FELT_DIAGNOSIS = {"key_issues": ["销量仅完成预算43%，主要客户鹏辉/赣锋/宁德/瑞浦大幅下滑", "毛利率-2.7%（预算4.8%），VC采购价136元/kg超预算97元/kg", "净利润-540万，经营现金流仅14万（预算640万）", "到期回款率66%，多氟多/宁福回款率仅36%"], "positive_factors": ["多氟多超预算117%完成，吉曜通行超预算78%", "5月采购降本678万（降幅9.22%），溶剂价格持续下行", "边际利润率3.31%，核心业务仍具边际贡献"], "overall_status": "red"};
     function initChart(id, opt) { echarts.init(document.getElementById(id)).setOption(opt); }
     function baseGrid() { return { left: '3%', right: '4%', bottom: '3%', containLabel: true }; }
 
@@ -1044,8 +1104,140 @@
         }]
     });
 
+    // ========== Tab7: 法恩莱特诊断 ==========
+    function initFeltDiagnostic() {
+        if (!FELT_KPI || Object.keys(FELT_KPI).length === 0) return;
+
+        // KPI Cards
+        function feltCard(id, label, val, unit, change, changeType, status, sub) {
+            var el = document.getElementById(id);
+            if (!el) return;
+            var cls = changeType === 'up' ? 'up' : changeType === 'down' ? 'down' : 'neutral';
+            var statusColor = status === 'red' ? '#c62828' : status === 'green' ? '#27ae60' : '#1e3c72';
+            el.innerHTML = '<div style="font-size:11px;color:#888;margin-bottom:6px;">' + label + '</div>' +
+                '<div style="font-size:24px;font-weight:800;color:' + statusColor + ';">' + val +
+                '<span style="font-size:12px;font-weight:400;color:#666;">' + unit + '</span></div>' +
+                (change ? '<div style="font-size:11px;margin-top:4px;color:' + (cls === 'up' ? '#27ae60' : cls === 'down' ? '#c62828' : '#888') + ';">' + change + '</div>' : '') +
+                (sub ? '<div style="font-size:10px;color:#aaa;margin-top:4px;">' + sub + '</div>' : '');
+        }
+        var k = FELT_KPI;
+        feltCard('felt-kpi-sales', '销量(吨)', k.sales_actual, '吨',
+            k.sales_budget ? Math.round(k.sales_actual / k.sales_budget * 100) + '%预算' : '',
+            k.sales_actual < k.sales_budget ? 'down' : 'up', 'red',
+            '预算' + k.sales_budget + '吨 | 目标' + k.sales_target + '吨');
+        feltCard('felt-kpi-gpm', '毛利率', k.gross_margin_actual + '%', '',
+            '预算' + k.gross_margin_budget + '%', k.gross_margin_actual < k.gross_margin_budget ? 'down' : 'up', 'red',
+            '主因：VC采购价超预算、产量不足摊薄固定费');
+        feltCard('felt-kpi-np', '净利润(万元)', k.net_profit_actual + '万', '',
+            '预算' + k.net_profit_budget + '万', k.net_profit_actual < k.net_profit_budget ? 'down' : 'up', 'red',
+            '毛利亏损-213万+四费343万');
+        feltCard('felt-kpi-cf', '经营现金流', k.cash_flow_actual + '万', '',
+            '预算' + k.cash_flow_budget + '万', k.cash_flow_actual < k.cash_flow_budget ? 'down' : 'up', 'red',
+            '到期回款率' + k.receivable_rate_actual + '%（预算90%）');
+
+        // Bases table
+        var bt = document.getElementById('felt-bases-tbody');
+        if (bt && FELT_BASES) {
+            var baseNames = ['法恩', '湖南', '安徽', '广西'];
+            var rows = [];
+            baseNames.forEach(function(base) {
+                var b = FELT_BASES[base];
+                if (!b) return;
+                var statusColor = b.net_margin_pct < 0 ? '#c62828' : b.net_margin_pct > 2 ? '#27ae60' : '#f39c12';
+                var labelText = b.net_margin_pct < -5 ? '亏损严重' : b.net_margin_pct < 0 ? '亏损' : '盈利';
+                rows.push('<tr><td style="font-weight:700;color:#c62828;">' + base + '</td>' +
+                    '<td class="num">' + b.sales.toLocaleString() + '</td>' +
+                    '<td class="num">' + b.avg_price.toLocaleString() + '</td>' +
+                    '<td class="num" style="color:' + (b.gross_margin_pct < 0 ? '#c62828' : '#27ae60') + ';">' + b.gross_margin_pct + '%</td>' +
+                    '<td class="num">' + b.marginal_profit + '</td>' +
+                    '<td class="num" style="color:' + statusColor + ';">' + b.net_profit + '</td>' +
+                    '<td class="num">' + b.four_expense_ratio_pct + '%</td>' +
+                    '<td><span style="background:rgba(198,40,40,0.1);color:#c62828;padding:2px 8px;border-radius:4px;font-size:11px;">' + labelText + '</span></td></tr>');
+            });
+            bt.innerHTML = rows.join('');
+        }
+
+        // Customer bar chart
+        if (FELT_CUSTOMERS && FELT_CUSTOMERS.length > 0) {
+            var custChart = echarts.init(document.getElementById('felt-customer-chart'));
+            custChart.setOption({
+                tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
+                legend: { data: ['销量(吨)', '毛利(万元)'], top: 10 },
+                grid: { left: '3%', right: '4%', bottom: '3%', top: 40, containLabel: true },
+                xAxis: { type: 'category', data: FELT_CUSTOMERS.map(function(c) { return c.name; }),
+                    axisLabel: { color: '#333', fontSize: 11, rotate: 15 } },
+                yAxis: [
+                    { type: 'value', name: '吨', axisLabel: { color: '#666' } },
+                    { type: 'value', name: '万元', axisLabel: { color: '#666' } }
+                ],
+                series: [
+                    { name: '销量(吨)', type: 'bar', data: FELT_CUSTOMERS.map(function(c) { return c.sales; }),
+                      itemStyle: { color: '#c62828' }, barMaxWidth: 40 },
+                    { name: '毛利(万元)', type: 'bar', yAxisIndex: 1,
+                      data: FELT_CUSTOMERS.map(function(c) { return c.gross_profit; }),
+                      itemStyle: { color: function(p) { return p.data >= 0 ? '#27ae60' : '#c62828'; } }, barMaxWidth: 40 }
+                ]
+            });
+        }
+
+        // Radar chart
+        if (FELT_RADAR && FELT_RADAR.dimensions) {
+            var radarChart = echarts.init(document.getElementById('felt-radar-chart'));
+            radarChart.setOption({
+                tooltip: { trigger: 'item' },
+                radar: {
+                    indicator: FELT_RADAR.dimensions.map(function(d) { return { name: d.name, max: 100 }; }),
+                    radius: '65%', splitNumber: 4,
+                    axisName: { color: '#1e3c72', fontSize: 12 },
+                    splitLine: { lineStyle: { color: '#1e3c72', width: 1, type: 'dashed' } },
+                    splitArea: { show: true, areaStyle: { color: ['#fff', '#f8f9fc'] } },
+                    axisLine: { lineStyle: { color: '#1e3c72' } }
+                },
+                series: [{
+                    type: 'radar',
+                    data: [{
+                        value: FELT_RADAR.scores,
+                        name: '法恩莱特综合评分',
+                        areaStyle: { color: 'rgba(198,40,40,0.2)' },
+                        lineStyle: { color: '#c62828', width: 2 },
+                        itemStyle: { color: '#c62828' },
+                        symbol: 'circle', symbolSize: 6
+                    }]
+                }]
+            });
+        }
+
+        // Diagnosis summary
+        var ds = document.getElementById('felt-diagnosis-summary');
+        if (ds && FELT_DIAGNOSIS) {
+            var issues = FELT_DIAGNOSIS.key_issues || [];
+            var positives = FELT_DIAGNOSIS.positive_factors || [];
+            var issueItems = issues.map(function(i) {
+                return '<li style="margin-bottom:8px;font-size:13px;line-height:1.7;color:#c62828;">⚠️ ' + i + '</li>';
+            }).join('');
+            var posItems = positives.map(function(p) {
+                return '<li style="margin-bottom:8px;font-size:13px;line-height:1.7;color:#27ae60;">✅ ' + p + '</li>';
+            }).join('');
+            ds.innerHTML = '<div style="background:#fff;border-radius:10px;padding:20px;border:1px solid rgba(198,40,40,0.2);">' +
+                '<div style="font-size:14px;font-weight:700;color:#c62828;margin-bottom:12px;">⚠️ 关键问题</div>' +
+                '<ul style="padding-left:20px;">' + issueItems + '</ul></div>' +
+                '<div style="background:#fff;border-radius:10px;padding:20px;border:1px solid rgba(39,174,96,0.2);">' +
+                '<div style="font-size:14px;font-weight:700;color:#27ae60;margin-bottom:12px;">✅ 积极因素</div>' +
+                '<ul style="padding-left:20px;">' + posItems + '</ul></div>';
+        }
+    }
+
+    var feltDiagnosticInited = false;
+    function showFeltDiagnostic() {
+        if (!feltDiagnosticInited) {
+            initFeltDiagnostic();
+            feltDiagnosticInited = true;
+        }
+    }
+
     // ========== Tab切换 ==========
     function switchTab(tab, evt) {
+        if (tab === 'diagnostic') showFeltDiagnostic();
         document.querySelectorAll('.tab-btn').forEach(function(b){ b.classList.remove('active'); });
         document.querySelectorAll('.tab-content').forEach(function(t){ t.classList.remove('active'); });
         var btn = evt ? evt.target : document.querySelector('.tab-btn[onclick*="' + tab + '"]');
