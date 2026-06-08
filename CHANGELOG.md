@@ -1,4 +1,19 @@
 
+## v29 (2026-06-08)
+
+**变更内容**:
+- ✅ 根因定位：6月8日 ef3fd30 commit 错误将 `industry_news_embedded.html` 改为 `industry_news.html`，实际 embedded才是用户正确版本
+- ✅ 删除废弃文件：根目录 `industry_news.html` + `embedded/industry_news.html`（git rm）
+- ✅ 修复 `embedded/index_v3.html` 导航链接为 `industry_news_embedded.html`
+- ✅ `embedded/index_v3.html` `window.__EMBEDDED__` 版本号更新至 `20260608_001`
+
+**技术文件**: industry_news.html, embedded/industry_news.html, embedded/index_v3.html
+
+**迁移说明**:
+- 行业新闻正确URL: `industry_news_embedded.html`，`industry_news.html` 已不存在
+
+---
+
 ## v28 (2026-06-08)
 
 **变更内容**:
