@@ -1,4 +1,19 @@
 
+## v28 (2026-06-08)
+
+**变更内容**:
+- ✅ industry_news_embedded.html 顶栏改为纯黑色(#111111)，替代原蓝渐变
+- ✅ EMBEDDED_NEWS更新至6月5日数据：1525条（market+topnews），含333条6月数据
+- ✅ embedded/industry_news_embedded.html 顶栏同步改为纯黑色
+- ✅ index_v3.html 导航链接改为 industry_news_embedded.html（原industry_news.html）
+
+**技术文件**: industry_news_embedded.html, embedded/industry_news_embedded.html, index_v3.html, industry_news_source/industry_news_clean.json
+
+**迁移说明**:
+- 无破坏性变更，数据源不变
+
+---
+
 ## v27 (2026-06-08)
 
 **变更内容**:
