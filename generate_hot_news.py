@@ -27,7 +27,23 @@ from html import unescape
 # 配置
 REPORTS_DIR = "D:/trae/AI Daily report/reports"
 OUTPUT_FILE = "D:/trae/AI Daily report/hot_news_data.json"
-BU_FILES = [
+
+# 事业部简称到文件名前缀的映射（用于动态查找文件）
+# 格式：事业部简称 -> 文件名前缀
+BU_PREFIX_MAP = {
+    "润滑油事业部": "lube",
+    "可兰素事业部": "kls",
+    "常州锂源事业部": "czly",
+    "龙蟠时代事业部": "lpsd",
+    "山东美多事业部": "sdmd",
+    "三金锂电事业部": "sjld",
+    "铂源催化事业部": "bych",
+    "法恩莱特事业部": "fnlt",
+    "迪克化学事业部": "dkhx"
+}
+
+# 兼容旧格式文件名（备用）
+BU_FILES_LEGACY = [
     "01-润滑油事业部.json",
     "02-可兰素事业部.json",
     "03-常州锂源事业部.json",
@@ -38,6 +54,38 @@ BU_FILES = [
     "08-法恩莱特事业部.json",
     "09-迪克化学事业部.json"
 ]
+
+def find_bu_file(bu_name):
+    """
+    动态查找事业部文件
+    优先查找新格式（2026-06-08-XXX.json），找不到则查找旧格式
+    """
+    today_str = date.today().strftime("%Y-%m-%d")
+    
+    # 尝试新格式：2026-06-08-XXX.json
+    prefix = BU_PREFIX_MAP.get(bu_name)
+    if prefix:
+        new_format_path = os.path.join(REPORTS_DIR, f"{today_str}-{prefix}.json")
+        if os.path.exists(new_format_path):
+            return new_format_path
+    
+    # 尝试旧格式：01-润滑油事业部.json
+    legacy_names = {
+        "润滑油事业部": "01-润滑油事业部.json",
+        "可兰素事业部": "02-可兰素事业部.json",
+        "常州锂源事业部": "03-常州锂源事业部.json",
+        "龙蟠时代事业部": "04-龙蟠时代事业部.json",
+        "山东美多事业部": "05-山东美多事业部.json",
+        "三金锂电事业部": "06-三金锂电事业部.json",
+        "铂源催化事业部": "07-铂源催化事业部.json",
+        "法恩莱特事业部": "08-法恩莱特事业部.json",
+        "迪克化学事业部": "09-迪克化学事业部.json"
+    }
+    legacy_path = os.path.join(REPORTS_DIR, legacy_names.get(bu_name, ""))
+    if os.path.exists(legacy_path):
+        return legacy_path
+    
+    return None
 
 def load_bu_data(file_path):
     """加载事业部JSON文件"""
@@ -248,27 +296,39 @@ def enrich_news_with_urls(selected_items):
 def main():
     print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] 开始生成热点新闻数据...")
     
+    # 动态获取所有事业部列表
+    bu_list = list(BU_PREFIX_MAP.keys())
+    
     # 检查事业部数据是否已更新
     all_updated = True
     updated_count = 0
-    for bu_file in BU_FILES:
-        file_path = os.path.join(REPORTS_DIR, bu_file)
-        bu_data = load_bu_data(file_path)
-        if bu_data:
-            is_updated, report_time = check_bu_updated(bu_data)
-            if is_updated:
-                updated_count += 1
-                print(f"  [{bu_file}] 已更新 (报告时间: {report_time})")
+    found_count = 0
+    
+    for bu_name in bu_list:
+        file_path = find_bu_file(bu_name)
+        if file_path:
+            found_count += 1
+            bu_data = load_bu_data(file_path)
+            if bu_data:
+                is_updated, report_time = check_bu_updated(bu_data)
+                if is_updated:
+                    updated_count += 1
+                    print(f"  [{bu_name}] 已更新 (报告时间: {report_time})")
+                else:
+                    all_updated = False
+                    print(f"  [{bu_name}] 未更新 (报告时间: {report_time})")
             else:
                 all_updated = False
-                print(f"  [{bu_file}] 未更新 (报告时间: {report_time})")
+                print(f"  [{bu_name}] 无法加载")
         else:
             all_updated = False
-            print(f"  [{bu_file}] 无法加载")
+            print(f"  [{bu_name}] 文件不存在")
+    
+    print(f"[信息] 找到 {found_count}/{len(bu_list)} 个事业部文件")
     
     # 容错逻辑：如果不是所有事业部都更新了，沿用昨天的数据
     if not all_updated:
-        print(f"[信息] 部分事业部未更新（{updated_count}/{len(BU_FILES)}），沿用昨天的热点新闻数据")
+        print(f"[信息] 部分事业部未更新（{updated_count}/{len(bu_list)}），沿用昨天的热点新闻数据")
         existing_data = load_existing_data()
         if existing_data:
             print(f"[信息] 已加载昨天的数据 (生成时间: {existing_data.get('generated_at', '未知')})")
@@ -279,13 +339,14 @@ def main():
     
     # 读取所有事业部数据
     all_items = []
-    for bu_file in BU_FILES:
-        file_path = os.path.join(REPORTS_DIR, bu_file)
-        bu_data = load_bu_data(file_path)
-        if bu_data:
-            items = extract_news_items(bu_data)
-            print(f"  [{bu_file}] 提取到 {len(items)} 条今日关注新闻")
-            all_items.extend(items)
+    for bu_name in bu_list:
+        file_path = find_bu_file(bu_name)
+        if file_path:
+            bu_data = load_bu_data(file_path)
+            if bu_data:
+                items = extract_news_items(bu_data)
+                print(f"  [{bu_name}] 提取到 {len(items)} 条今日关注新闻")
+                all_items.extend(items)
     
     print(f"总计提取到 {len(all_items)} 条今日关注新闻")
     
