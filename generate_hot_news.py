@@ -275,7 +275,7 @@ def search_news_url(title, max_results=5):
     用多种方法搜索新闻URL
     优先使用Tavily API（如果配置了TAVILY_API_KEY）
     备用：使用Bing搜索
-    返回：(url, source_name) 或 (None, None)
+    返回：(url, source_name, image_url) 或 (None, None, None)
     """
     # 方法1：尝试Tavily API（如果配置了）
     tavily_key = os.environ.get('TAVILY_API_KEY', '')
@@ -283,12 +283,12 @@ def search_news_url(title, max_results=5):
         result = search_with_tavily(title, tavily_key)
         if result and result[0]:
             return result
-
+    
     # 方法2：Bing搜索（备用）
     return search_with_bing(title, max_results)
 
 def search_with_tavily(title, api_key):
-    """使用Tavily API搜索"""
+    """使用Tavily API搜索，同时获取图片URL"""
     try:
         import urllib.request
         import json
@@ -303,7 +303,8 @@ def search_with_tavily(title, api_key):
             "max_results": 5,
             "search_depth": "basic",
             "include_answer": False,
-            "include_raw_content": False
+            "include_raw_content": False,
+            "include_images": True  # 添加此参数以获取图片URL
         }
 
         req = urllib.request.Request(
@@ -316,14 +317,21 @@ def search_with_tavily(title, api_key):
 
         with urllib.request.urlopen(req, timeout=10) as resp:
             result = json.loads(resp.read().decode('utf-8'))
-
-        # 提取第一个结果的URL
+        
+        # 提取第一个结果的URL和图片URL
         results = result.get('results', [])
+        images = result.get('images', [])  # Tavily返回的图片URL列表
+        
         if results:
             first_result = results[0]
             url = first_result.get('url', '')
             source = first_result.get('source', first_result.get('title', '未知来源'))
-
+            
+            # 提取图片URL（优先使用results中的图片，如果没有则使用images列表中的第一张）
+            image_url = first_result.get('image_url', '')
+            if not image_url and images:
+                image_url = images[0] if isinstance(images, list) else ''
+            
             # 检查是否是付费墙
             if is_paywall_url(url):
                 print(f"    [Tavily] 跳过付费墙: {url[:60]}...")
@@ -331,15 +339,18 @@ def search_with_tavily(title, api_key):
                 if len(results) > 1:
                     url2 = results[1].get('url', '')
                     source2 = results[1].get('source', results[1].get('title', '未知来源'))
+                    image_url2 = results[1].get('image_url', '')
+                    if not image_url2 and images:
+                        image_url2 = images[0] if isinstance(images, list) else ''
                     if not is_paywall_url(url2):
                         print(f"    [Tavily] 找到链接: {source2} - {url2[:60]}...")
-                        return url2, source2
+                        return url2, source2, image_url2
             else:
-                print(f"    [Tavily] 找到链接: {source} - {url[:60]}...")
-                return url, source
-
+                print(f"    [Tavily] 找到链接: {source} - {url[:60]}... [图片: {image_url[:50] if image_url else '无'}]")
+                return url, source, image_url
+        
         print(f"    [Tavily] 未找到有效结果: {title[:30]}...")
-        return None, None
+        return None, None, None
 
     except Exception as e:
         print(f"    [Tavily] API调用失败: {e}")
@@ -384,8 +395,8 @@ def search_with_bing(title, max_results=5):
             with open(debug_file, 'w', encoding='utf-8') as f:
                 f.write(html)
             print(f"    [Bing] 未找到结果，HTML已保存到: {debug_file}")
-            return None, None
-
+            return None, None, None
+            
         # 过滤付费墙，取第一个有效链接
         for i, url in enumerate(all_matches[:max_results]):
             if is_paywall_url(url):
@@ -398,10 +409,10 @@ def search_with_bing(title, max_results=5):
             except:
                 domain = '未知来源'
             print(f"    [Bing] 找到链接: {domain} - {url[:60]}...")
-            return url, domain
-
+            return url, domain, None  # Bing搜索不返回图片URL
+        
         print(f"    [Bing] 所有结果均为付费墙，未找到有效链接: {title[:30]}...")
-        return None, None
+        return None, None, None
 
     except Exception as e:
         print(f"    [Bing] 搜索失败: {e}")
@@ -429,10 +440,12 @@ def load_existing_news_for_url_inheritance():
                 title = old_item.get('title', '')
                 url = old_item.get('url')
                 url_source = old_item.get('url_source')
+                image_url = old_item.get('image_url')  # 也继承image_url
                 if title and url:  # 只继承有URL的旧数据
                     inheritance_map[title] = {
                         'url': url,
-                        'url_source': url_source
+                        'url_source': url_source,
+                        'image_url': image_url
                     }
             return len(inheritance_map)
         except Exception as e:
@@ -510,15 +523,15 @@ def fuzzy_match_title(new_title, inheritance_map, min_prefix=15):
 
 def enrich_news_with_urls(selected_items, inheritance_map=None):
     """
-    为每条新闻搜索URL，返回带url字段的新列表
+    为每条新闻搜索URL，返回带url、url_source、image_url字段的新列表
     如果搜索失败，尝试从继承映射（inheritance_map）中继承相似标题的URL
-    inheritance_map: dict, key=旧标题, value={url, url_source}
+    inheritance_map: dict, key=旧标题, value={url, url_source, image_url}
     """
     
     enriched = []
     for item in selected_items:
         print(f"  [搜索URL] {item['title'][:40]}...")
-        url, source = search_news_url(item['title'])
+        url, source, image_url = search_news_url(item['title'])
         
         # 如果搜索失败，尝试继承旧URL（模糊匹配）
         if not url:
@@ -527,27 +540,38 @@ def enrich_news_with_urls(selected_items, inheritance_map=None):
             if matched:
                 url = matched['url']
                 source = matched['url_source']
+                image_url = matched.get('image_url')  # 继承时也继承image_url
                 print(f"    [继承] 模糊匹配，使用旧数据的URL: {source} - {url[:60]}...")
         
         new_item = dict(item)  # 复制原item
         new_item['url'] = url
         new_item['url_source'] = source
+        new_item['image_url'] = image_url  # 添加image_url字段
         enriched.append(new_item)
     return enriched
 
 def enrich_news_with_images(selected_items):
     """
     为每条新闻绑定image_url（预绑定图片）
-    当前实现：设置image_url为null，前端会自动调用Unsplash API
-    如果需要预绑定，需要设置UNSPLASH_ACCESS_KEY环境变量并实现API调用
+    如果image_url已由enrich_news_with_urls设置（来自Tavily API或继承），则保留
+    否则，尝试从Unsplash API获取图片URL
+    如果仍失败，设置为None（前端会fallback到API）
     """
     enriched = []
     for item in selected_items:
         new_item = dict(item)
-        # TODO: 如果需要预绑定图片，取消下面的注释并实现Unsplash API调用
-        # image_url = fetch_unsplash_image(item['title'])
-        # new_item['image_url'] = image_url
-        new_item['image_url'] = None  # 暂时设为None，前端会fallback到API
+        
+        # 如果image_url already set (by Tavily or inheritance), keep it
+        if new_item.get('image_url'):
+            print(f"    [图片] 保留已有图片URL: {new_item['image_url'][:50]}...")
+        else:
+            # TODO: 如果需要预绑定图片，取消下面的注释并实现Unsplash API调用
+            # image_url = fetch_unsplash_image(item['title'])
+            # new_item['image_url'] = image_url
+            new_item['image_url'] = None  # 暂时设为None，前端会fallback到API
+            if new_item['image_url'] is None:
+                print(f"    [图片] 未找到图片URL: {item['title'][:30]}...")
+        
         enriched.append(new_item)
     return enriched
 
