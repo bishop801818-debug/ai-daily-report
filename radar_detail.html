@@ -567,6 +567,123 @@
             .kpi-grid { grid-template-columns: repeat(2, 1fr); }
             .trend-summary { flex-direction: column; }
         }
+        /* AI 洞察卡片 */
+        .ai-insights-container {
+            background: white;
+            border-radius: 16px;
+            padding: 20px 24px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+            border-left: 8px solid #3A6A9E;
+        }
+        .ai-insights-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #e8eef4;
+        }
+        .ai-insights-icon { font-size: 20px; }
+        .ai-insights-title { font-size: 16px; font-weight: 600; color: #1e293b; flex: 1; }
+        .ai-insights-refresh {
+            padding: 6px 12px;
+            background: #3A6A9E;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        .ai-insights-refresh:hover { background: #2d5480; }
+        .ai-insights-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 16px;
+        }
+        .ai-insight-card {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 16px;
+            transition: all 0.2s;
+        }
+        .ai-insight-card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+        .ai-insight-card-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .ai-insight-card-icon { font-size: 18px; }
+        .ai-insight-card-title { font-size: 14px; font-weight: 600; color: #1e293b; }
+        .ai-insight-card-body {
+            font-size: 13px;
+            line-height: 1.6;
+            color: #475569;
+        }
+        .ai-insight-card-body ul {
+            margin: 8px 0;
+            padding-left: 20px;
+        }
+        .ai-insight-card-body li {
+            margin-bottom: 4px;
+        }
+        .ai-insights-loading {
+            text-align: center;
+            padding: 40px;
+            color: #64748b;
+            font-size: 14px;
+        }
+
+        /* TAB3 维度详情 - 左侧导航布局 */
+        .dims-layout {
+            display: flex;
+            gap: 0;
+            min-height: 500px;
+        }
+        .dims-left-nav {
+            width: 200px;
+            background: #f8fafc;
+            border-right: 1px solid #e2e8f0;
+            padding: 16px 0;
+            flex-shrink: 0;
+        }
+        .dims-nav-item {
+            padding: 12px 20px;
+            cursor: pointer;
+            font-size: 14px;
+            color: #475569;
+            border-left: 3px solid transparent;
+            transition: all 0.2s;
+        }
+        .dims-nav-item:hover {
+            background: #e2e8f0;
+            color: #1e293b;
+        }
+        .dims-nav-item.active {
+            background: #dbeafe;
+            color: #3A6A9E;
+            border-left-color: #3A6A9E;
+            font-weight: 600;
+        }
+        .dims-right-content {
+            flex: 1;
+            padding: 20px;
+            overflow-x: auto;
+        }
+        .dims-content-panel {
+            display: none;
+        }
+        .dims-content-panel.active {
+            display: block;
+        }
+
     </style>
 </head>
 <body>
@@ -594,6 +711,18 @@
             <div class="score-sub">六维加权平均</div>
         </div>
         <div class="score-dims" id="scoreDims"></div>
+    </div>
+
+    <!-- AI 洞察 -->
+    <div class="ai-insights-container" id="aiInsightsContainer">
+        <div class="ai-insights-header">
+            <span class="ai-insights-icon">🤖</span>
+            <span class="ai-insights-title">AI 经营洞察</span>
+            <button class="ai-insights-refresh" onclick="refreshInsights()">🔄 重新分析</button>
+        </div>
+        <div class="ai-insights-cards" id="aiInsightsCards">
+            <div class="ai-insights-loading">🤖 AI正在分析数据...</div>
+        </div>
     </div>
 
     <!-- Tab 导航 -->
@@ -668,34 +797,64 @@
 
     <!-- Tab: 维度详情 -->
     <div id="tab-dims" class="tab-content">
-        <div class="chart-section">
-            <div class="chart-title">D2 经营效益 - 产品销量达成</div>
-            <div style="overflow-x:auto;">
-                <table class="data-table" id="dim2Table"><thead><tr><th>指标</th><th>预算</th><th>目标</th><th>实际</th><th>达成率</th><th>状态</th></tr></thead><tbody></tbody></table>
+        <div class="dims-layout">
+            <div class="dims-left-nav" id="dimsLeftNav">
+                <div class="dims-nav-item active" data-dim="d1" onclick="switchDimPanel('d1')">D1 核心考核指标</div>
+                <div class="dims-nav-item" data-dim="d2" onclick="switchDimPanel('d2')">D2 经营效益</div>
+                <div class="dims-nav-item" data-dim="d3" onclick="switchDimPanel('d3')">D3 运营效率</div>
+                <div class="dims-nav-item" data-dim="d4" onclick="switchDimPanel('d4')">D4 技术创新力</div>
+                <div class="dims-nav-item" data-dim="d5" onclick="switchDimPanel('d5')">D5 风险合规</div>
+                <div class="dims-nav-item" data-dim="d6" onclick="switchDimPanel('d6')">D6 组织活力</div>
             </div>
-        </div>
-        <div class="chart-section">
-            <div class="chart-title">D3 运营效率 - 生产效率达成</div>
-            <div style="overflow-x:auto;">
-                <table class="data-table" id="dim3Table"><thead><tr><th>指标</th><th>预算</th><th>目标</th><th>实际</th><th>达成率</th><th>状态</th></tr></thead><tbody></tbody></table>
-            </div>
-        </div>
-        <div class="chart-section">
-            <div class="chart-title">D4 技术创新力 - MoM环比</div>
-            <div style="overflow-x:auto;">
-                <table class="data-table" id="dim4Table"><thead><tr><th>指标</th><th>上月</th><th>本月</th><th>环比</th><th>状态</th></tr></thead><tbody></tbody></table>
-            </div>
-        </div>
-        <div class="chart-section">
-            <div class="chart-title">D5 风险合规 - MoM环比</div>
-            <div style="overflow-x:auto;">
-                <table class="data-table" id="dim5Table"><thead><tr><th>指标</th><th>上月</th><th>本月</th><th>环比</th><th>状态</th></tr></thead><tbody></tbody></table>
-            </div>
-        </div>
-        <div class="chart-section">
-            <div class="chart-title">D6 组织活力 - MoM环比</div>
-            <div style="overflow-x:auto;">
-                <table class="data-table" id="dim6Table"><thead><tr><th>指标</th><th>上月</th><th>本月</th><th>环比</th><th>状态</th></tr></thead><tbody></tbody></table>
+            <div class="dims-right-content">
+                <div class="dims-content-panel active" id="dims-panel-d1">
+                    <div class="chart-section">
+                        <div class="chart-title">D1 核心考核指标</div>
+                        <div style="overflow-x:auto;">
+                            <table class="data-table" id="dim1Table"><thead><tr><th>指标</th><th>预算</th><th>目标</th><th>实际</th><th>达成率</th><th>状态</th></tr></thead><tbody></tbody></table>
+                        </div>
+                    </div>
+                </div>
+                <div class="dims-content-panel" id="dims-panel-d2">
+                    <div class="chart-section">
+                        <div class="chart-title">D2 经营效益 - 产品销量达成</div>
+                        <div style="overflow-x:auto;">
+                            <table class="data-table" id="dim2Table"><thead><tr><th>指标</th><th>预算</th><th>目标</th><th>实际</th><th>达成率</th><th>状态</th></tr></thead><tbody></tbody></table>
+                        </div>
+                    </div>
+                </div>
+                <div class="dims-content-panel" id="dims-panel-d3">
+                    <div class="chart-section">
+                        <div class="chart-title">D3 运营效率 - 生产效率达成</div>
+                        <div style="overflow-x:auto;">
+                            <table class="data-table" id="dim3Table"><thead><tr><th>指标</th><th>预算</th><th>目标</th><th>实际</th><th>达成率</th><th>状态</th></tr></thead><tbody></tbody></table>
+                        </div>
+                    </div>
+                </div>
+                <div class="dims-content-panel" id="dims-panel-d4">
+                    <div class="chart-section">
+                        <div class="chart-title">D4 技术创新力 - MoM环比</div>
+                        <div style="overflow-x:auto;">
+                            <table class="data-table" id="dim4Table"><thead><tr><th>指标</th><th>上月</th><th>本月</th><th>环比</th><th>状态</th></tr></thead><tbody></tbody></table>
+                        </div>
+                    </div>
+                </div>
+                <div class="dims-content-panel" id="dims-panel-d5">
+                    <div class="chart-section">
+                        <div class="chart-title">D5 风险合规 - MoM环比</div>
+                        <div style="overflow-x:auto;">
+                            <table class="data-table" id="dim5Table"><thead><tr><th>指标</th><th>上月</th><th>本月</th><th>环比</th><th>状态</th></tr></thead><tbody></tbody></table>
+                        </div>
+                    </div>
+                </div>
+                <div class="dims-content-panel" id="dims-panel-d6">
+                    <div class="chart-section">
+                        <div class="chart-title">D6 组织活力 - MoM环比</div>
+                        <div style="overflow-x:auto;">
+                            <table class="data-table" id="dim6Table"><thead><tr><th>指标</th><th>上月</th><th>本月</th><th>环比</th><th>状态</th></tr></thead><tbody></tbody></table>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -931,6 +1090,10 @@ function getMonthData(month) {
         hist._dimComparison_d4 = hist._dimComparison_d4 || RADAR_HISTORY_SDMD_EXTRA[month]._dimComparison_d4;
         hist._dimComparison_d5 = hist._dimComparison_d5 || RADAR_HISTORY_SDMD_EXTRA[month]._dimComparison_d5;
         hist._dimComparison_d6 = hist._dimComparison_d6 || RADAR_HISTORY_SDMD_EXTRA[month]._dimComparison_d6;
+    }
+    // D1核心考核指标使用KPI数据
+    if (hist._kpiComparison && !hist._dimComparison_d1) {
+        hist._dimComparison_d1 = hist._kpiComparison;
     }
     return hist;
 }
@@ -1501,11 +1664,13 @@ function renderAll() {
     renderRadar();
     renderKPIGrid();
     renderKPITable();
+    renderDimTable('d1', data, 'dim1Table');
     renderDimTable('d2', data, 'dim2Table');
     renderDimTable('d3', data, 'dim3Table');
     renderDimTable('d4', data, 'dim4Table');
     renderDimTable('d5', data, 'dim5Table');
     renderDimTable('d6', data, 'dim6Table');
+    renderInsights();
 }
 
 function switchTab(btn, tabId) {
@@ -1519,6 +1684,133 @@ function switchTab(btn, tabId) {
             if (chart) chart.resize();
         });
     }, 50);
+}
+
+// TAB3 维度详情 - 左侧导航功能
+function switchDimPanel(dimId) {
+    // 更新左侧导航状态
+    document.querySelectorAll('.dims-nav-item').forEach(function(item) {
+        item.classList.remove('active');
+    });
+    document.querySelector('.dims-nav-item[data-dim="' + dimId + '"]').classList.add('active');
+    
+    // 更新右侧内容显示
+    document.querySelectorAll('.dims-content-panel').forEach(function(panel) {
+        panel.classList.remove('active');
+    });
+    document.getElementById('dims-panel-' + dimId).classList.add('active');
+}
+
+// AI 洞察功能
+// 辅助函数
+function getPreviousMonth(month) {
+    var parts = month.split('-');
+    var year = parseInt(parts[0]);
+    var mon = parseInt(parts[1]);
+    mon = mon - 1;
+    if (mon < 1) {
+        mon = 12;
+        year = year - 1;
+    }
+    return year + '-' + (mon < 10 ? '0' + mon : '' + mon);
+}
+
+function getRadarDataForInsights() {
+    var month = currentMonth;
+    var data = RADAR_HISTORY_SDMD[month];
+    if (!data) return null;
+    
+    var prevMonth = getPreviousMonth(month);
+    var prevData = prevMonth ? RADAR_HISTORY_SDMD[prevMonth] : null;
+    
+    return {
+        current: data,
+        previous: prevData,
+        month: month,
+        prevMonth: prevMonth
+    };
+}
+
+function generateLocalInsights(data) {
+    if (!data || !data.current) return [];
+    
+    var insights = [];
+    var current = data.current;
+    var previous = data.previous;
+    
+    var avgScore = 0;
+    var dimKeys = ['d1', 'd2', 'd3', 'd4', 'd5', 'd6'];
+    dimKeys.forEach(function(k) { avgScore += current.dims[k]; });
+    avgScore = Math.round(avgScore / 6);
+    
+    var trendText = '';
+    if (previous) {
+        var prevAvg = 0;
+        dimKeys.forEach(function(k) { prevAvg += previous.dims[k]; });
+        prevAvg = Math.round(prevAvg / 6);
+        var diff = avgScore - prevAvg;
+        trendText = diff > 0 ? '较上月上升' + diff + '分' : (diff < 0 ? '较上月下降' + Math.abs(diff) + '分' : '与上月持平');
+    }
+    
+    insights.push({
+        icon: '📊',
+        title: '综合表现',
+        content: '<p>本月六维综合评分<strong>' + avgScore + '分</strong>，' + trendText + '。</p>'
+    });
+    
+    dimKeys.forEach(function(dimKey) {
+        var dimDef = DIMS_DEF.find(function(d) { return d.id === dimKey; });
+        var score = current.dims[dimKey];
+        var status = score >= 90 ? '优秀' : (score >= 75 ? '良好' : (score >= 60 ? '及格' : '待改进'));
+        
+        insights.push({
+            icon: '📈',
+            title: dimDef.name,
+            content: '<p>得分<strong>' + score + '分</strong>，评级：' + status + '。</p>'
+        });
+    });
+    
+    insights.push({
+        icon: '💡',
+        title: '改进建议',
+        content: '<p>建议重点关注得分较低的维度，制定针对性改进措施。</p>'
+    });
+    
+    return insights;
+}
+
+function renderInsights() {
+    var container = document.getElementById('aiInsightsCards');
+    if (!container) return;
+    
+    var data = getRadarDataForInsights();
+    if (!data) {
+        container.innerHTML = '<div class="ai-insights-loading">暂无数据</div>';
+        return;
+    }
+    
+    var insights = generateLocalInsights(data);
+    
+    var html = '';
+    insights.forEach(function(insight) {
+        html += '<div class="ai-insight-card">' +
+                 '<div class="ai-insight-card-header">' +
+                 '<span class="ai-insight-card-icon">' + insight.icon + '</span>' +
+                 '<span class="ai-insight-card-title">' + insight.title + '</span>' +
+                 '</div>' +
+                 '<div class="ai-insight-card-body">' + insight.content + '</div>' +
+                 '</div>';
+    });
+    
+    container.innerHTML = html;
+}
+
+function refreshInsights() {
+    var container = document.getElementById('aiInsightsCards');
+    if (container) {
+        container.innerHTML = '<div class="ai-insights-loading">🤖 AI正在重新分析数据...</div>';
+    }
+    setTimeout(renderInsights, 500);
 }
 
 // 初始化
