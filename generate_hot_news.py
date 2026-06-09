@@ -113,40 +113,72 @@ def load_bu_data(file_path):
 def check_bu_updated(bu_data):
     """
     检查事业部数据是否已更新（报告时间是否是今天）
+    支持两种格式：
+      - 旧格式：header.报告时间 = "2026-06-09"
+      - 新格式（2026-06-09起）：顶层name + sections为list，无header.报告时间
+        新格式的文件日期已由find_bu_file()的文件名校验保证
     返回：(is_updated, report_date_str)
     """
     if not bu_data or not isinstance(bu_data, dict):
         return False, None
     
+    # 旧格式：header.报告时间
     report_time = bu_data.get("header", {}).get("报告时间", "")
-    if not report_time:
-        return False, None
+    if report_time:
+        try:
+            report_date = datetime.strptime(report_time, "%Y-%m-%d").date()
+            today = date.today()
+            return report_date == today, report_time
+        except:
+            return False, report_time
     
-    # report_time格式： "2026-05-28"
-    try:
-        report_date = datetime.strptime(report_time, "%Y-%m-%d").date()
-        today = date.today()
-        return report_date == today, report_time
-    except:
-        return False, report_time
+    # 新格式：无header.报告时间，但有name和sections(list) → 认为已更新
+    if "name" in bu_data and isinstance(bu_data.get("sections"), list):
+        # 文件名已由find_bu_file()校验日期，此处返回True
+        return True, date.today().strftime("%Y-%m-%d")
+    
+    return False, None
 
 def extract_news_items(bu_data):
-    """从事业部数据中提取今日关注新闻"""
+    """从事业部数据中提取今日关注新闻（兼容新旧两种JSON格式）"""
     if not bu_data or not isinstance(bu_data, dict):
         return []
     
-    bu_name = bu_data.get("header", {}).get("事业部", "未知BU")
+    # 尝试旧格式：header.事业部、sections["今日关注"]
+    bu_name = bu_data.get("header", {}).get("事业部", "")
     report_time = bu_data.get("header", {}).get("报告时间", "")
-    today_focus = bu_data.get("sections", {}).get("今日关注", [])
+    
+    # 如果旧格式没找到事业部名，尝试新格式：顶层 name
+    if not bu_name:
+        bu_name = bu_data.get("name", "未知BU")
+    
+    # 如果旧格式没找到报告时间，默认为今天
+    if not report_time:
+        report_time = date.today().strftime("%Y-%m-%d")
+    
+    # 尝试旧格式：sections["今日关注"]（dict形式）
+    sections = bu_data.get("sections", {})
+    if isinstance(sections, dict):
+        today_focus = sections.get("今日关注", [])
+    elif isinstance(sections, list):
+        # 新格式：sections是list，找 dim="topnews" 的section
+        today_focus = []
+        for section in sections:
+            if section.get("dim") == "topnews":
+                today_focus = section.get("items", [])
+                break
+    else:
+        today_focus = []
     
     items = []
-    for item in today_focus:
-        title = item.get("标题", item.get("内容", ""))
+    for idx, item in enumerate(today_focus):
+        # 旧格式：标题/内容；新格式：title
+        title = item.get("标题", item.get("title", item.get("内容", "")))
         if title:
             items.append({
                 "bu": bu_name,
                 "title": title,
-                "date": report_time   # 添加报告日期字段
+                "date": report_time
             })
     
     return items
