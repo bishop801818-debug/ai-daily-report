@@ -722,8 +722,21 @@
             <span class="ai-insights-title">AI 经营洞察</span>
             <button class="ai-insights-refresh" onclick="refreshInsights()">🔄 重新分析</button>
         </div>
-        <div class="ai-insights-cards" id="aiInsightsCards">
-            <div class="ai-insights-loading">🤖 AI正在分析数据...</div>
+        <div class="ai-insights-layout">
+            <div class="ai-insights-left-nav">
+                <div class="ai-insights-nav-item active" data-panel="summary" onclick="switchInsightPanel('summary')">综合表现</div>
+                <div class="ai-insights-nav-item" data-panel="dims" onclick="switchInsightPanel('dims')">维度分析</div>
+                <div class="ai-insights-nav-item" data-panel="issues" onclick="switchInsightPanel('issues')">问题预警</div>
+                <div class="ai-insights-nav-item" data-panel="progress" onclick="switchInsightPanel('progress')">积极进展</div>
+                <div class="ai-insights-nav-item" data-panel="suggestions" onclick="switchInsightPanel('suggestions')">改进建议</div>
+            </div>
+            <div class="ai-insights-right-content">
+                <div class="ai-insights-panel active" id="ai-panel-summary"></div>
+                <div class="ai-insights-panel" id="ai-panel-dims"></div>
+                <div class="ai-insights-panel" id="ai-panel-issues"></div>
+                <div class="ai-insights-panel" id="ai-panel-progress"></div>
+                <div class="ai-insights-panel" id="ai-panel-suggestions"></div>
+            </div>
         </div>
     </div>
 
@@ -1748,13 +1761,12 @@ function getRadarDataForInsights() {
 }
 
 function generateLocalInsights(data) {
-    if (!data || !data.current) return [];
+    if (!data || !data.current) return { summary: [], dims: [], issues: [], progress: [], suggestions: [] };
     
-    var insights = [];
+    var result = { summary: [], dims: [], issues: [], progress: [], suggestions: [] };
     var current = data.current;
     var previous = data.previous;
     var month = data.month;
-    var prevMonth = data.prevMonth;
     var dimKeys = ['d1', 'd2', 'd3', 'd4', 'd5', 'd6'];
     
     // 计算综合评分
@@ -1762,7 +1774,7 @@ function generateLocalInsights(data) {
     dimKeys.forEach(function(k) { avgScore += current.dims[k]; });
     avgScore = Math.round(avgScore / 6);
     
-    // === 1. 综合表现 ===
+    // === 类别1: 综合表现 ===
     var trendText = '';
     var trendDetail = '';
     if (previous) {
@@ -1773,7 +1785,6 @@ function generateLocalInsights(data) {
         var trendDir = diff > 0 ? '📈' : (diff < 0 ? '📉' : '➡️');
         trendText = trendDir + ' <strong>' + avgScore + '分</strong>，' + (diff > 0 ? '较上月上升' + diff + '分' : (diff < 0 ? '较上月下降' + Math.abs(diff) + '分' : '与上月持平'));
         
-        // 分析各维度变化
         var upDims = [], downDims = [];
         dimKeys.forEach(function(k) {
             var d = current.dims[k] - previous.dims[k];
@@ -1785,7 +1796,6 @@ function generateLocalInsights(data) {
                      '<br/><span style="color:red">↓ 下降：</span>' + (downDims.length > 0 ? downDims.join('、') : '无');
     }
     
-    // 检查KPI达成情况
     var kpiInfo = '';
     if (current._kpiComparison && current._kpiComparison.items) {
         var kpiItems = current._kpiComparison.items;
@@ -1796,68 +1806,6 @@ function generateLocalInsights(data) {
         kpiInfo = '<br/>核心KPI：' + kpiAchieved + '/' + kpiItems.length + '项达标(' + Math.round(kpiAchieved/kpiItems.length*100) + '%)';
     }
     
-    insights.push({
-        icon: '📊',
-        title: '综合表现',
-        content: '<p>' + trendText + '。</p>' +
-                 (trendDetail ? '<p style="font-size:12px">' + trendDetail + '</p>' : '') +
-                 (kpiInfo ? '<p style="font-size:12px">' + kpiInfo + '</p>' : '')
-    });
-    
-    // === 2-7. 六维分析 ===
-    dimKeys.forEach(function(dimKey) {
-        var dimDef = DIMS_DEF.find(function(d) { return d.id === dimKey; });
-        var score = current.dims[dimKey];
-        var status = score >= 90 ? '🏆优秀' : (score >= 75 ? '✅良好' : (score >= 60 ? '⚠️及格' : '❌待改进'));
-        
-        // 环比分析
-        var momText = '';
-        if (previous) {
-            var momDiff = score - previous.dims[dimKey];
-            momText = ' 环比' + (momDiff > 0 ? '<span style="color:green">↑+' + momDiff + '</span>' : (momDiff < 0 ? '<span style="color:red">↓' + momDiff + '</span>' : '➡️持平'));
-        }
-        
-        // 详细指标分析
-        var detailText = '';
-        var dimCompKey = '_dimComparison_' + dimKey;
-        if (current[dimCompKey] && current[dimCompKey].items) {
-            var items = current[dimCompKey].items;
-            var goodItems = [], badItems = [], midItems = [];
-            
-            items.forEach(function(item) {
-                var isCost = item.name.indexOf('成本') >= 0;
-                var isMom = current[dimCompKey].format === 'mom';
-                var rate = isMom ? calcMom(item.curr, item.prev) : calcAchv(item.actual, item.target, isCost);
-                
-                if (rate >= 100) {
-                    goodItems.push(item.name);
-                } else if (rate < 85) {
-                    badItems.push(item.name + fmtRate(rate));
-                } else {
-                    midItems.push(item.name + fmtRate(rate));
-                }
-            });
-            
-            if (goodItems.length > 0) {
-                detailText += '<br/><span style="color:green">✅ 达标(' + goodItems.length + ')：</span>' + goodItems.slice(0, 2).join('、');
-                if (goodItems.length > 2) detailText += '等';
-            }
-            if (badItems.length > 0) {
-                detailText += '<br/><span style="color:red">⚠️ 预警(' + badItems.length + ')：</span>' + badItems.slice(0, 2).join('、');
-                if (badItems.length > 2) detailText += '等';
-            }
-        }
-        
-        insights.push({
-            icon: '📈',
-            title: dimDef.name + ' (' + score + '分)',
-            content: '<p>评级：<strong>' + status + '</strong>' + momText + '</p>' +
-                     (detailText ? '<p style="font-size:12px">' + detailText + '</p>' : '')
-        });
-    });
-    
-    // === 8. 计划完成度 ===
-    var planInfo = '';
     var budgetAchieved = 0, budgetTotal = 0;
     if (current._kpiComparison && current._kpiComparison.items) {
         current._kpiComparison.items.forEach(function(item) {
@@ -1868,24 +1816,73 @@ function generateLocalInsights(data) {
                 if (achv >= 100) budgetAchieved++;
             }
         });
-        if (budgetTotal > 0) {
-            var budgetRate = Math.round(budgetAchieved/budgetTotal*100);
-            planInfo = '预算完成：' + budgetAchieved + '/' + budgetTotal + '项达标(' + budgetRate + '%)';
-        }
     }
+    var budgetInfo = budgetTotal > 0 ? '<br/>预算完成：' + budgetAchieved + '/' + budgetTotal + '项达标(' + Math.round(budgetAchieved/budgetTotal*100) + '%)' : '';
     
-    insights.push({
+    result.summary.push({
+        icon: '📊',
+        title: '综合评分',
+        content: '<p>' + trendText + '。</p>' + (trendDetail ? '<p style="font-size:12px">' + trendDetail + '</p>' : '') + (kpiInfo ? '<p style="font-size:12px">' + kpiInfo + '</p>' : '')
+    });
+    result.summary.push({
         icon: '📋',
         title: '计划完成度',
-        content: planInfo ? '<p>' + planInfo + '</p><p style="font-size:12px;color:#666">*预算达成率反映与年初预算的对比</p>' : '<p>暂无预算数据</p>'
+        content: budgetInfo ? '<p>' + budgetInfo + '</p><p style="font-size:12px;color:#666">*预算达成率反映与年初预算的对比</p>' : '<p>暂无预算数据</p>'
     });
     
-    // === 9. 问题预警 ===
+    // === 类别2: 维度分析 ===
+    dimKeys.forEach(function(dimKey) {
+        var dimDef = DIMS_DEF.find(function(d) { return d.id === dimKey; });
+        var score = current.dims[dimKey];
+        var status = score >= 90 ? '🏆优秀' : (score >= 75 ? '✅良好' : (score >= 60 ? '⚠️及格' : '❌待改进'));
+        
+        var momText = '';
+        if (previous) {
+            var momDiff = score - previous.dims[dimKey];
+            momText = ' 环比' + (momDiff > 0 ? '<span style="color:green">↑+' + momDiff + '</span>' : (momDiff < 0 ? '<span style="color:red">↓' + momDiff + '</span>' : '➡️持平'));
+        }
+        
+        var detailText = '';
+        var dimCompKey = '_dimComparison_' + dimKey;
+        if (current[dimCompKey] && current[dimCompKey].items) {
+            var items = current[dimCompKey].items;
+            var goodItems = [], badItems = [];
+            
+            items.forEach(function(item) {
+                var isCost = item.name.indexOf('成本') >= 0;
+                var isMom = current[dimCompKey].format === 'mom';
+                var rate = isMom ? calcMom(item.curr, item.prev) : calcAchv(item.actual, item.target, isCost);
+                
+                if (rate >= 100) {
+                    goodItems.push(item.name);
+                } else if (rate < 85) {
+                    badItems.push(item.name + ' ' + fmtRate(rate));
+                }
+            });
+            
+            if (goodItems.length > 0) {
+                detailText += '<br/><span style="color:green">✅ 达标(' + goodItems.length + ')：</span>' + goodItems.slice(0, 3).join('、');
+                if (goodItems.length > 3) detailText += '等';
+            }
+            if (badItems.length > 0) {
+                detailText += '<br/><span style="color:red">⚠️ 预警(' + badItems.length + ')：</span>' + badItems.slice(0, 3).join('、');
+                if (badItems.length > 3) detailText += '等';
+            }
+        }
+        
+        result.dims.push({
+            icon: '📈',
+            title: dimDef.name + ' (' + score + '分)',
+            content: '<p>评级：<strong>' + status + '</strong>' + momText + '</p>' + (detailText ? '<p style="font-size:12px">' + detailText + '</p>' : '')
+        });
+    });
+    
+    // === 类别3: 问题预警 ===
     var problems = [];
     dimKeys.forEach(function(k) {
         if (current.dims[k] < 60) {
             var dimName = DIMS_DEF.find(function(d){return d.id===k;}).name;
-            problems.push('<strong>' + dimName + '</strong>得分仅' + current.dims[k] + '分');
+            problems.push('<strong>' + dimName + '</strong>得分仅' + current.dims[k] + '分，需立即改进');
         }
     });
     if (current._kpiComparison && current._kpiComparison.items) {
@@ -1893,17 +1890,22 @@ function generateLocalInsights(data) {
             var isCost = item.name.indexOf('成本') >= 0;
             var achv = calcAchv(item.actual, item.target, isCost);
             if (achv < 85) {
-                problems.push(item.name + '<strong>' + fmtRate(achv) + '</strong>');
+                problems.push(item.name + ' <strong>' + fmtRate(achv) + '</strong>，需重点关注');
             }
         });
     }
-    insights.push({
+    if (current._issues && current._issues.length > 0) {
+        current._issues.forEach(function(issue) {
+            problems.push('<strong>' + issue.title + '</strong>：' + issue.desc + ' 👤' + issue.owner);
+        });
+    }
+    result.issues.push({
         icon: '🚨',
         title: '问题预警 (' + problems.length + '项)',
-        content: problems.length > 0 ? '<ul style="font-size:12px">' + problems.map(function(p){return '<li>' + p + '</li>';}).join('') + '</ul>' : '<p>✅ 暂无重大问题</p>'
+        content: problems.length > 0 ? '<ul style="font-size:12px">' + problems.map(function(p){return '<li style="margin-bottom:8px">' + p + '</li>';}).join('') + '</ul>' : '<p>✅ 暂无重大问题</p>'
     });
     
-    // === 10. 积极进展 ===
+    // === 类别4: 积极进展 ===
     var positives = [];
     dimKeys.forEach(function(k) {
         if (previous && current.dims[k] > previous.dims[k] && current.dims[k] >= 75) {
@@ -1917,24 +1919,29 @@ function generateLocalInsights(data) {
             var isCost = item.name.indexOf('成本') >= 0;
             var achv = calcAchv(item.actual, item.target, isCost);
             if (achv >= 110) {
-                positives.push(item.name + '<strong>超预期' + fmtRate(achv) + '</strong>');
+                positives.push(item.name + ' <strong>超预期' + fmtRate(achv) + '</strong>');
             }
         });
     }
-    insights.push({
+    if (current._positives && current._positives.length > 0) {
+        current._positives.forEach(function(pos) {
+            positives.push('<strong>' + pos.title + '</strong>：' + pos.desc + ' 👤' + pos.owner);
+        });
+    }
+    result.progress.push({
         icon: '🎉',
         title: '积极进展 (' + positives.length + '项)',
-        content: positives.length > 0 ? '<ul style="font-size:12px">' + positives.map(function(p){return '<li>' + p + '</li>';}).join('') + '</ul>' : '<p>暂无显著进展</p>'
+        content: positives.length > 0 ? '<ul style="font-size:12px">' + positives.map(function(p){return '<li style="margin-bottom:8px">' + p + '</li>';}).join('') + '</ul>' : '<p>暂无显著进展</p>'
     });
     
-    // === 11. 改进建议 ===
+    // === 类别5: 改进建议 ===
     var suggestions = [];
     dimKeys.forEach(function(k) {
         if (current.dims[k] < 75) {
             var dimName = DIMS_DEF.find(function(d){return d.id===k;}).name;
             var score = current.dims[k];
             if (score < 60) {
-                suggestions.push('<strong>' + dimName + '</strong>：严重下滑，需立即制定改进计划');
+                suggestions.push('<strong>' + dimName + '</strong>：严重下滑(仅' + score + '分)，需立即制定改进计划');
             } else {
                 suggestions.push('<strong>' + dimName + '</strong>：得分' + score + '分，需关注提升');
             }
@@ -1947,92 +1954,96 @@ function generateLocalInsights(data) {
             return achv < 100;
         });
         if (badKpis.length > 0) {
-            suggestions.push('核心KPI：<strong>' + badKpis.length + '项</strong>未达标，需重点攻关');
+            suggestions.push('核心KPI：<strong>' + badKpis.length + '项</strong>未达标，需重点攻关：' + badKpis.map(function(i){return i.name;}).join('、'));
         }
     }
-    
-    // === 9. 计划完成度 ===
-    var planInfo = current._summary || '暂无计划完成度数据';
-    insights.push({
-        icon: '📋',
-        title: '计划完成度',
-        content: '<p style="font-size:13px;line-height:1.6">' + planInfo + '</p>'
-    });
-    
-    // === 10. 问题预警 ===
-    var issuesText = '';
-    if (current._issues && current._issues.length > 0) {
-        issuesText = '<ul style="font-size:12px;margin:8px 0;padding-left:18px">';
-        current._issues.forEach(function(issue) {
-            issuesText += '<li style="margin-bottom:6px"><strong>' + issue.title + '</strong>：' + issue.desc + '<br/><span style="color:#666">👤负责：' + issue.owner + '</span></li>';
-        });
-        issuesText += '</ul>';
-    } else {
-        issuesText = '<p>✅ 本月暂无突出问题</p>';
-    }
-    insights.push({
-        icon: '⚠️',
-        title: '问题预警 (' + (current._issues ? current._issues.length : 0) + '项)',
-        content: issuesText
-    });
-    
-    // === 11. 积极进展 ===
-    var positivesText = '';
-    if (current._positives && current._positives.length > 0) {
-        positivesText = '<ul style="font-size:12px;margin:8px 0;padding-left:18px">';
-        current._positives.forEach(function(pos) {
-            positivesText += '<li style="margin-bottom:6px"><strong>' + pos.title + '</strong>：' + pos.desc + '<br/><span style="color:#666">👤负责：' + pos.owner + '</span></li>';
-        });
-        positivesText += '</ul>';
-    } else {
-        positivesText = '<p>✅ 本月暂无积极进展</p>';
-    }
-    insights.push({
-        icon: '🎉',
-        title: '积极进展 (' + (current._positives ? current._positives.length : 0) + '项)',
-        content: positivesText
-    });
-    
-    insights.push({
+    result.suggestions.push({
         icon: '💡',
         title: '改进建议 (' + suggestions.length + '项)',
-        content: suggestions.length > 0 ? '<ul style="font-size:12px">' + suggestions.map(function(s){return '<li>' + s + '</li>';}).join('') + '</ul>' : '<p>✅ 各项指标表现良好，建议继续保持</p>'
+        content: suggestions.length > 0 ? '<ul style="font-size:12px">' + suggestions.map(function(s){return '<li style="margin-bottom:8px">' + s + '</li>';}).join('') + '</ul>' : '<p>✅ 各项指标表现良好，建议继续保持</p>'
     });
     
-    return insights;
+    return result;
 }
 
 function renderInsights() {
-    var container = document.getElementById('aiInsightsCards');
-    if (!container) return;
-    
     var data = getRadarDataForInsights();
     if (!data) {
-        container.innerHTML = '<div class="ai-insights-loading">暂无数据</div>';
+        document.getElementById('ai-panel-summary').innerHTML = '<div class="ai-insights-loading">暂无数据</div>';
         return;
     }
     
     var insights = generateLocalInsights(data);
     
-    var html = '';
-    insights.forEach(function(insight) {
-        html += '<div class="ai-insight-card">' +
-                 '<div class="ai-insight-card-header">' +
-                 '<span class="ai-insight-card-icon">' + insight.icon + '</span>' +
-                 '<span class="ai-insight-card-title">' + insight.title + '</span>' +
-                 '</div>' +
-                 '<div class="ai-insight-card-body">' + insight.content + '</div>' +
-                 '</div>';
+    // 渲染综合表现面板
+    var summaryHtml = '';
+    insights.summary.forEach(function(insight) {
+        summaryHtml += '<div class="ai-insight-card"><div class="ai-insight-card-header">' +
+                     '<span class="ai-insight-card-icon">' + insight.icon + '</span>' +
+                     '<span class="ai-insight-card-title">' + insight.title + '</span></div>' +
+                     '<div class="ai-insight-card-body">' + insight.content + '</div></div>';
     });
+    document.getElementById('ai-panel-summary').innerHTML = summaryHtml;
     
-    container.innerHTML = html;
+    // 渲染维度分析面板
+    var dimsHtml = '';
+    insights.dims.forEach(function(insight) {
+        dimsHtml += '<div class="ai-insight-card"><div class="ai-insight-card-header">' +
+                   '<span class="ai-insight-card-icon">' + insight.icon + '</span>' +
+                   '<span class="ai-insight-card-title">' + insight.title + '</span></div>' +
+                   '<div class="ai-insight-card-body">' + insight.content + '</div></div>';
+    });
+    document.getElementById('ai-panel-dims').innerHTML = dimsHtml;
+    
+    // 渲染问题预警面板
+    var issuesHtml = '';
+    insights.issues.forEach(function(insight) {
+        issuesHtml += '<div class="ai-insight-card"><div class="ai-insight-card-header">' +
+                     '<span class="ai-insight-card-icon">' + insight.icon + '</span>' +
+                     '<span class="ai-insight-card-title">' + insight.title + '</span></div>' +
+                     '<div class="ai-insight-card-body">' + insight.content + '</div></div>';
+    });
+    document.getElementById('ai-panel-issues').innerHTML = issuesHtml;
+    
+    // 渲染积极进展面板
+    var progressHtml = '';
+    insights.progress.forEach(function(insight) {
+        progressHtml += '<div class="ai-insight-card"><div class="ai-insight-card-header">' +
+                      '<span class="ai-insight-card-icon">' + insight.icon + '</span>' +
+                      '<span class="ai-insight-card-title">' + insight.title + '</span></div>' +
+                      '<div class="ai-insight-card-body">' + insight.content + '</div></div>';
+    });
+    document.getElementById('ai-panel-progress').innerHTML = progressHtml;
+    
+    // 渲染改进建议面板
+    var suggestionsHtml = '';
+    insights.suggestions.forEach(function(insight) {
+        suggestionsHtml += '<div class="ai-insight-card"><div class="ai-insight-card-header">' +
+                       '<span class="ai-insight-card-icon">' + insight.icon + '</span>' +
+                       '<span class="ai-insight-card-title">' + insight.title + '</span></div>' +
+                       '<div class="ai-insight-card-body">' + insight.content + '</div></div>';
+    });
+    document.getElementById('ai-panel-suggestions').innerHTML = suggestionsHtml;
+}
+
+function switchInsightPanel(panelId) {
+    // 更新左侧导航状态
+    document.querySelectorAll('.ai-insights-nav-item').forEach(function(item) {
+        item.classList.remove('active');
+    });
+    document.querySelector('.ai-insights-nav-item[data-panel="' + panelId + '"]').classList.add('active');
+    
+    // 更新右侧内容显示
+    document.querySelectorAll('.ai-insights-panel').forEach(function(panel) {
+        panel.classList.remove('active');
+    });
+    document.getElementById('ai-panel-' + panelId).classList.add('active');
 }
 
 function refreshInsights() {
-    var container = document.getElementById('aiInsightsCards');
-    if (container) {
-        container.innerHTML = '<div class="ai-insights-loading">🤖 AI正在重新分析数据...</div>';
-    }
+    document.querySelectorAll('.ai-insights-panel').forEach(function(panel) {
+        panel.innerHTML = '<div class="ai-insights-loading">🤖 AI正在重新分析数据...</div>';
+    });
     setTimeout(renderInsights, 500);
 }
 
