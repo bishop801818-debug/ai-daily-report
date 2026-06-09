@@ -596,6 +596,50 @@
             font-size: 12px;
         }
         .ai-insights-refresh:hover { background: #2d5480; }
+        
+        /* AI洞察 - 左侧导航布局 */
+        .ai-insights-layout {
+            display: flex;
+            gap: 0;
+            min-height: 400px;
+        }
+        .ai-insights-left-nav {
+            width: 160px;
+            background: #f8fafc;
+            border-right: 1px solid #e2e8f0;
+            padding: 12px 0;
+            flex-shrink: 0;
+        }
+        .ai-insights-nav-item {
+            padding: 12px 16px;
+            cursor: pointer;
+            font-size: 14px;
+            color: #475569;
+            border-left: 3px solid transparent;
+            transition: all 0.2s;
+        }
+        .ai-insights-nav-item:hover {
+            background: #e2e8f0;
+            color: #1e293b;
+        }
+        .ai-insights-nav-item.active {
+            background: #dbeafe;
+            color: #3A6A9E;
+            border-left-color: #3A6A9E;
+            font-weight: 600;
+        }
+        .ai-insights-right-content {
+            flex: 1;
+            padding: 16px;
+            overflow-x: auto;
+        }
+        .ai-insights-panel {
+            display: none;
+        }
+        .ai-insights-panel.active {
+            display: block;
+        }
+        
         .ai-insights-cards {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
