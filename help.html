@@ -257,21 +257,47 @@
 </head>
 <body>
 
-    <!-- 顶部导航 -->
-    <div class="header">
-        <div class="header-left">
-            <div class="logo" onclick="location.href='index_v3.html'">
-                <span>⚡</span>
-                <span>战略中心信息中台</span>
+<!--统一导航栏（shared_nav.css）-->
+<link rel="stylesheet" href="shared_nav.css">
+<div class="sub-topbar">
+    <a class="sub-topbar-home" href="index_v3.html">← 返回首页</a>
+    <div class="sub-topbar-title">帮助中心</div>
+    <div class="sub-topbar-nav">
+        <div class="sub-nav-item" onclick="window.location.href='policy_center_v4.html'">
+           <span>政策中心</span><span class="sub-arrow">▼</span>
+            <div class="sub-dropdown">
+                <div class="sub-dropdown-item" onclick="event.stopPropagation(); window.location.href='policy_center_v4.html?filter=central'"><span class="nav-icon"></span>国家政策</div>
+                <div class="sub-dropdown-item" onclick="event.stopPropagation(); window.location.href='policy_center_v4.html?filter=local'"><span class="nav-icon"></span>地方政策</div>
+                <div class="sub-dropdown-item" onclick="event.stopPropagation(); window.location.href='policy_center_v4.html?filter=overseas'"><span class="nav-icon"></span>国际政策</div>
             </div>
         </div>
-        <div class="nav-links">
-            <a href="index_logo_v2.html">🏠 首页</a>
-            <a href="policy_center_v4.html">📜 政策中心</a>
-            <a href="toolbox.html">🛠️ 工具箱</a>
-            <a href="toolbox.html">❓ 帮助</a>
+        <div class="sub-nav-item" onclick="window.location.href='industry_news_embedded.html'">
+          <span>行业新闻</span><span class="sub-arrow">▼</span>
+            <div class="sub-dropdown">
+                <div class="sub-dropdown-item" onclick="event.stopPropagation(); window.location.href='industry_news_embedded.html?filter=macro'"><span class="nav-icon"></span>宏观新闻</div>
+                <div class="sub-dropdown-item" onclick="event.stopPropagation(); window.location.href='industry_news_embedded.html?filter=industry'"><span class="nav-icon"></span>行业新闻</div>
+                <div class="sub-dropdown-item" onclick="event.stopPropagation(); window.location.href='industry_news_embedded.html?filter=company'"><span class="nav-icon"></span>企业动态</div>
+                <div class="sub-dropdown-item" onclick="event.stopPropagation(); window.location.href='industry_news_embedded.html?filter=tech'"><span class="nav-icon"></span>技术产品</div>
+            </div>
         </div>
+        <div class="sub-nav-item" onclick="window.location.href='archive_v3.html'"><span>历史数据</span></div>
+        <div class="sub-nav-item" onclick="window.location.href='database_hub.html'">
+            <span>数据库</span><span class="sub-arrow">▼</span>
+            <div class="sub-dropdown">
+                <div class="sub-dropdown-item" onclick="event.stopPropagation(); window.location.href='lfp_data_v2.html'"><span class="nav-icon"></span>磷酸铁锂数据库</div>
+                <div class="sub-dropdown-item" onclick="event.stopPropagation(); window.location.href='ternary_data_v2.html'"><span class="nav-icon"></span>三元材料数据库</div>
+                <div class="sub-dropdown-item" onclick="event.stopPropagation(); window.location.href='electrolyte_data_v2.html'"><span class="nav-icon"></span>电解液数据库</div>
+                <div class="sub-dropdown-item" onclick="event.stopPropagation(); window.location.href='carbonate_data_v2.html'"><span class="nav-icon"></span>碳酸锂及原料数据库</div>
+                <div class="sub-dropdown-item" onclick="event.stopPropagation(); window.location.href='recycling_data_v2.html'"><span class="nav-icon"></span>锂电池回收数据库</div>
+                <div class="sub-dropdown-item" onclick="event.stopPropagation(); window.location.href='lib_battery_data_v2.html'"><span class="nav-icon"></span>锂电池行业数据库</div>
+                <div class="sub-dropdown-item" onclick="event.stopPropagation(); window.location.href='automotive_data_v2.html'"><span class="nav-icon"></span>汽车行业数据库</div>
+            </div>
+        </div>
+        <div class="sub-nav-item" onclick="window.location.href='analysis_hub.html'"><span>行业分析</span></div>
+        <div class="sub-nav-item" onclick="window.location.href='strategy_hub.html'"><span>竞品比对</span></div>
+        <div class="sub-nav-item" onclick="window.location.href='radar_hub.html'"><span>雷达看板</span></div>
     </div>
+</div>
 
     <div class="help-layout">
         <!-- 左侧目录 -->
@@ -449,6 +475,180 @@
             <!-- 版本日志 -->
             <div class="content-section" id="sec-changelog">
                 <h2>📋 版本日志</h2>
+
+                
+                <div class="changelog-item">
+                    <div class="changelog-date">2026-06-10</div>
+                    <div class="changelog-title">v6.2 — 甘特图按钮组 & AI对话优化</div>
+                    <div class="changelog-body">
+                        甘特图交互升级 + AI悬停按钮API迁移。
+                        <ul>
+                            <li>甘特图按钮组：品种名称按钮，单行展示，hover高亮，点击联动折线图</li>
+                            <li>删除产业链位置标签（上游/当前/下游）和数据时效标签</li>
+                            <li>删除图表PPT滑入动画，保留折线绘制动画</li>
+                            <li>AI悬停按钮：从Coze API迁移到通义千问API</li>
+                            <li>创建开机自启动脚本，确保代理常驻</li>
+                            <li>左侧导航栏图标位置优化</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="changelog-item">
+                    <div class="changelog-date">2026-06-09</div>
+                    <div class="changelog-title">v6.1 — 雷达看板详情页增强</div>
+                    <div class="changelog-body">
+                        <ul>
+                            <li>问题预警模块：增加根因分析、业务影响、历史趋势</li>
+                            <li>改进建议模块：具体举措、KPI达标路径、资源需求</li>
+                            <li>新增3月、4月历史数据（常州锂源、山东美多、法恩莱特等）</li>
+                            <li>雷达Hub页面：增加BU切换下拉菜单</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="changelog-item">
+                    <div class="changelog-date">2026-06-05 ~ 2026-06-08</div>
+                    <div class="changelog-title">v6.0 — 多BU雷达看板</div>
+                    <div class="changelog-body">
+                        5大事业部（锂电系）雷达评分系统上线。
+                        <ul>
+                            <li>雷达Hub：5BU一键切换（常州锂源、山东美多、三金锂电、龙蟠时代、法恩莱特）</li>
+                            <li>雷达详情页：六维雷达图（d1-d6）+ AI洞察</li>
+                            <li>AI洞察：问题预警 + 改进建议（Coze API）</li>
+                            <li>月度数据切换（1-12月）</li>
+                            <li>行业新闻自动抽取（按BU关键词）</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="changelog-item">
+                    <div class="changelog-date">2026-06-01 ~ 2026-06-04</div>
+                    <div class="changelog-title">v5.4 — 行业新闻增强</div>
+                    <div class="changelog-body">
+                        <ul>
+                            <li>新闻抽取算法优化：去重 + 按时序排列</li>
+                            <li>按事业部分类展示（锂电/化工/能源）</li>
+                            <li>新闻卡片增加来源标签（财联社/证券时报等）</li>
+                            <li>支持点击跳转原始页面</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="changelog-item">
+                    <div class="changelog-date">2026-05-25 ~ 2026-05-31</div>
+                    <div class="changelog-title">v5.3 — 首页数据看板优化</div>
+                    <div class="changelog-body">
+                        <ul>
+                            <li>市场行情监控：3张累积涨跌幅甘特图</li>
+                            <li>碳酸锂/磷酸铁锂/电解液价格走势折线图</li>
+                            <li>各BU今日要闻轮播（自动抽取）</li>
+                            <li>卡片点击展开详情（手风琴交互）</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="changelog-item">
+                    <div class="changelog-date">2026-05-20 ~ 2026-05-24</div>
+                    <div class="changelog-title">v5.2 — 政策中心完善</div>
+                    <div class="changelog-body">
+                        <ul>
+                            <li>政策筛选功能：中央/地方/国际</li>
+                            <li>月份分组快速跳转</li>
+                            <li>政策卡片优化：增加发布时间、来源</li>
+                            <li>全文检索功能</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="changelog-item">
+                    <div class="changelog-date">2026-05-15 ~ 2026-05-19</div>
+                    <div class="changelog-title">v5.1 — 归档页面增强</div>
+                    <div class="changelog-body">
+                        <ul>
+                            <li>归档页面：按月份查看历史早报</li>
+                            <li>新增归档卡片：包含发布时间、摘要</li>
+                            <li>支持筛选BU（全部/单一BU）</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="changelog-item">
+                    <div class="changelog-date">2026-05-10 ~ 2026-05-14</div>
+                    <div class="changelog-title">v5.0 — 早报归档系统</div>
+                    <div class="changelog-body">
+                        <ul>
+                            <li>archive.html：历史早报归档页面</li>
+                            <li>自动存储当天早报内容到localStorage</li>
+                            <li>支持按月份/日期查看历史</li>
+                            <li>一键复制当日要点</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="changelog-item">
+                    <div class="changelog-date">2026-05-05 ~ 2026-05-09</div>
+                    <div class="changelog-title">v4.5 — 锂电板块数据增强</div>
+                    <div class="changelog-body">
+                        <ul>
+                            <li>锂电板块数据源整合（碳酸锂/磷酸铁锂/电解液）</li>
+                            <li>价格数据自动更新（模拟）</li>
+                            <li>数据时效性标签（最新/较新/过期）</li>
+                            <li>产业位置标签（上游/当前/下游）</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="changelog-item">
+                    <div class="changelog-date">2026-04-28 ~ 2026-05-04</div>
+                    <div class="changelog-title">v4.4 — 首页UI优化</div>
+                    <div class="changelog-body">
+                        <ul>
+                            <li>首页卡片布局��化（3列网格）</li>
+                            <li>数据来源标注增强</li>
+                            <li>加载状态优化（骨架屏）</li>
+                            <li>移动端适配</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="changelog-item">
+                    <div class="changelog-date">2026-04-22 ~ 2026-04-27</div>
+                    <div class="changelog-title">v4.3 — 策略中心上线</div>
+                    <div class="changelog-body">
+                        <ul>
+                            <li>strategy_hub.html：策略中心入口</li>
+                            <li>strategy_dashboard.html：策略看板</li>
+                            <li>行业趋势分析图表</li>
+                            <li>竞品动态追踪</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="changelog-item">
+                    <div class="changelog-date">2026-04-18 ~ 2026-04-21</div>
+                    <div class="changelog-title">v4.2 — 数据库中心上线</div>
+                    <div class="changelog-body">
+                        <ul>
+                            <li>database_hub.html：数据库中心</li>
+                            <li>数据查询功能（模拟）</li>
+                            <li>数据导出（CSV格式）</li>
+                            <li>图表可视化（ECharts）</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="changelog-item">
+                    <div class="changelog-date">2026-04-14 ~ 2026-04-17</div>
+                    <div class="changelog-title">v4.15 — 分析中心 & 行业洞察</div>
+                    <div class="changelog-body">
+                        <ul>
+                            <li>analysis_hub.html：分析中心入口</li>
+                            <li>行业分析报告（锂电/化工/能源）</li>
+                            <li>数据可视化图表</li>
+                            <li>报告导出功能</li>
+                        </ul>
+                    </div>
+                </div>
 
                 <div class="changelog-item">
                     <div class="changelog-date">2026-04-13</div>
