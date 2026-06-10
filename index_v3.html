@@ -3966,6 +3966,11 @@ window.__EMBEDDED__ = {
             line-height: 1;
             letter-spacing: 4px;
         }
+        .dashboard-nav:hover .mk-nav-icon-wrap,
+        .dashboard-nav.pinned .mk-nav-icon-wrap {
+            top: auto;
+            bottom: 20px;
+        }
         .dashboard-nav:hover .mk-nav-expand-icon,
         .dashboard-nav.pinned .mk-nav-expand-icon {
             transform: rotate(180deg);
@@ -3981,6 +3986,34 @@ window.__EMBEDDED__ = {
             display: flex; align-items: center; justify-content: space-between;
             margin-bottom: 20px; padding-bottom: 15px;
             border-bottom: 2px solid rgba(30,60,114,0.08);
+        }
+        .category-tab-group {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+            padding: 8px 12px;
+            background: rgba(30,60,114,0.03);
+            border-radius: 8px;
+        }
+        .category-tab {
+            padding: 8px 16px;
+            border: 1.5px solid rgba(30,60,114,0.2);
+            border-radius: 6px;
+            background: white;
+            color: #555;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .category-tab:hover {
+            border-color: #1e3c72;
+            color: #1e3c72;
+        }
+        .category-tab.active {
+            background: #1e3c72;
+            color: white;
+            border-color: #1e3c72;
         }
         .mk-category-title {
             font-size: 20px; font-weight: bold; color: #1e3c72;
@@ -7606,22 +7639,57 @@ window.__EMBEDDED__ = {
         .gantt-value { flex: 0 0 180px; font-size: 11px; color: var(--panel-muted); text-align: right; position: relative; z-index: 1; }
         .gantt-arrow { font-size: 14px; margin-right: 2px; display: inline-block; animation: gantt-arrow-pulse 2s ease-in-out infinite; }
         @keyframes gantt-arrow-pulse { 0%, 100% { transform: scale(1); opacity: 0.8; } 50% { transform: scale(1.2); opacity: 1; } }
-        /* 图表卡片进入动画 */
-        @keyframes chartCardEnter {
-            0% { opacity: 0; transform: translateY(20px); }
-            100% { opacity: 1; transform: translateY(0); }
-        }
+        /* 图表卡片进入动画已移除（保留折线绘制动画） */
         .chart-card-entering {
-            animation: chartCardEnter 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+            /* animation removed: chartCardEnter */
         }
         
-        /* 图表从左到右揭幕动画 */
-        @keyframes revealChart {
-            from { clip-path: inset(0 100% 0 0); }
-            to { clip-path: inset(0 0 0 0); }
+        
+        /* 甘特图按钮组样式 */
+        .gantt-btn-group {
+            display: flex;
+            flex-nowrap: nowrap;
+            gap: 8px;
+            margin-bottom: 12px;
+            padding: 8px 12px;
+            background: rgba(30,60,114,0.03);
+            border-radius: 6px;
+            overflow-x: auto;
         }
-        .chart-reveal-anim {
-            animation: revealChart 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+        
+        .gantt-btn {
+            display: inline-flex;
+            align-items: center;
+            padding: 6px 12px;
+            border: 1.5px solid #ddd;
+            border-radius: 6px;
+            background: white;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            user-select: none;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+        
+        .gantt-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        
+        .gantt-btn.active {
+            background: #1e3c72;
+            color: white;
+            border-color: #1e3c72;
+        }
+        
+        .gantt-btn.up {
+            border-color: #d32f2f;
+        }
+        
+        .gantt-btn.down {
+            border-color: #388e3c;
         }
         
         .cumulative-gantt::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, transparent, rgba(30,60,114,0.2), transparent); z-index: 0; }
@@ -8696,24 +8764,12 @@ window.__EMBEDDED__ = {
         .gantt-value { flex: 0 0 180px; font-size: 11px; color: var(--panel-muted); text-align: right; position: relative; z-index: 1; }
         .gantt-arrow { font-size: 14px; margin-right: 2px; display: inline-block; animation: gantt-arrow-pulse 2s ease-in-out infinite; }
         @keyframes gantt-arrow-pulse { 0%, 100% { transform: scale(1); opacity: 0.8; } 50% { transform: scale(1.2); opacity: 1; } }
-        /* 图表卡片进入动画 */
-        @keyframes chartCardEnter {
-            0% { opacity: 0; transform: translateY(20px); }
-            100% { opacity: 1; transform: translateY(0); }
-        }
+        /* 图表卡片进入动画已移除（保留折线绘制动画） */
         .chart-card-entering {
-            animation: chartCardEnter 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+            /* animation removed: chartCardEnter */
         }
         
         /* 图表从左到右揭幕动画 */
-        @keyframes revealChart {
-            from { clip-path: inset(0 100% 0 0); }
-            to { clip-path: inset(0 0 0 0); }
-        }
-        .chart-reveal-anim {
-            animation: revealChart 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
-        }
-
         /* 双层折线动画：深色从左向右绘制覆盖浅色底层 */
         @keyframes _drawLc1 {
             from { clip-path: inset(0 100% 0 0); }
@@ -8781,7 +8837,7 @@ window.__EMBEDDED__ = {
             from { stroke-dashoffset: var(--line-len, 10000); }
             to   { stroke-dashoffset: 0; }
         }
-        .chart-reveal-anim .deep-line-anim {
+        .deep-line-anim {
             stroke-dasharray: var(--line-len, 10000);
             animation: lineReveal 1.5s cubic-bezier(0.25,0.46,0.45,0.94) forwards;
             animation-delay: calc(var(--line-i, 0) * 0.1s);
@@ -8997,13 +9053,23 @@ window.addEventListener('DOMContentLoaded', function() {
             // Step 2: 轮询直到完成（最多30秒）
             var chatId = startData.data && startData.data.id;
             var convId = startData.data && startData.data.conversation_id;
+            var initialContent = startData.data && startData.data.content; // 通义千问代理可能直接返回content
             if (!chatId || startData.code !== 0) {
                 removeTyping();
                 addMsg('bot', '[错误] 发起对话失败：' + (startData.msg || 'code ' + startData.code), botAvatar);
                 sendBtn.disabled = false;
                 return;
             }
-
+            
+            // 如果代理直接返回了content（通义千问模式），直接使用
+            if (initialContent) {
+                removeTyping();
+                addMsg('bot', initialContent, botAvatar);
+                __ai_conv_id__ = convId;
+                sendBtn.disabled = false;
+                return;
+            }
+            
             var pollCount = 0;
             var chatData = null;
             while (pollCount < 30) {
@@ -9012,7 +9078,17 @@ window.addEventListener('DOMContentLoaded', function() {
                     __ai_api_base__ + '/chat/retrieve?chat_id=' + chatId + '&conversation_id=' + convId
                 );
                 chatData = await pollResp.json();
-                if (chatData.data && chatData.data.status === 'completed') break;
+                if (chatData.data && chatData.data.status === 'completed') {
+                    // 检查是否有content（通义千问代理模式）
+                    if (chatData.data.content) {
+                        removeTyping();
+                        addMsg('bot', chatData.data.content, botAvatar);
+                        __ai_conv_id__ = convId;
+                        sendBtn.disabled = false;
+                        return;
+                    }
+                    break;
+                }
                 if (chatData.data && chatData.data.status === 'failed') break;
                 pollCount++;
             }
@@ -9476,6 +9552,11 @@ window.addEventListener('DOMContentLoaded', function() {
                                 最后更新: <span id="lithium-update-time">--</span>
                                 <span class="refresh-btn" onclick="refreshMarketData()" title="刷新数据" style="margin-left:10px;cursor:pointer;">🔄</span>
                             </div>
+                        </div>
+                        <!-- Tab切换按钮组 -->
+                        <div class="category-tab-group" id="lithiumCategoryTabs">
+                            <button class="category-tab active" data-subcategory="lfp" onclick="switchLithiumSubCategory('lfp')">磷酸铁锂产业</button>
+                            <button class="category-tab" data-subcategory="electrolyte" onclick="switchLithiumSubCategory('electrolyte')">电解液</button>
                         </div>
                         <div id="gantt-chart-container"></div>
                         <div class="mk-chart-grid">
@@ -12651,8 +12732,12 @@ window.addEventListener('DOMContentLoaded', function() {
                 // 4. 添加产业链位置标签
                 addChainPositionTags(lithiumChain, marketData);
                 
-                // 5. 添加累积涨跌幅甘特图
+                // 5. 添加累积涨跌幅甘特图（默认显示磷酸铁锂产业）
                 addCumulativeBarsGantt(lithiumChain, marketData, cumulativeData);
+                
+                // 设置默认Tab为磷酸铁锂产业
+                var lfpTab = document.querySelector('.category-tab[data-subcategory="lfp"]');
+                if (lfpTab) lfpTab.classList.add('active');
                 
                 // 6. 添加产业链全景图
                 addChainFlowDiagram(lithiumChain, marketData, chainHistoryData);
@@ -12773,34 +12858,9 @@ function updatePageData(chainConfig, marketData) {
                 const upstreamNodes = edges.filter(e => e.to === currentNode.id).map(e => nodes.find(n => n.id === e.from)).filter(Boolean);
                 const downstreamNodes = edges.filter(e => e.from === currentNode.id).map(e => nodes.find(n => n.id === e.to)).filter(Boolean);
 
-                // 添加产业链位置标签
-                let chainPositionHTML = '<div class="chain-position">';
-                if (upstreamNodes.length > 0) {
-                    chainPositionHTML += '<span class="chain-tag upstream">上游：' + upstreamNodes.map(n => n.name).join('、') + '</span>';
-                    chainPositionHTML += '<span class="chain-arrow">→</span>';
-                }
-                chainPositionHTML += '<span class="chain-tag current">当前：' + currentNode.name + '</span>';
-                if (downstreamNodes.length > 0) {
-                    chainPositionHTML += '<span class="chain-arrow">→</span>';
-                    chainPositionHTML += '<span class="chain-tag downstream">下游：' + downstreamNodes.map(n => n.name).join('、') + '</span>';
-                }
-                chainPositionHTML += '</div>';
+                // 不添加产业链位置标签（已按需求删除）
                 
-                // 插入到图表标题下方
-                titleEl.insertAdjacentHTML('afterend', chainPositionHTML);
-                
-                // 添加数据时效性标签
-                const nodeData = marketData[nodeName] || marketData[cardTitle];
-                if (nodeData && nodeData.update_time) {
-                    const freshness = getDataFreshness(nodeData.update_time);
-                    const labels = {
-                        'fresh': '最新 (1小时内)',
-                        'warning': '较新 (今天)',
-                        'stale': '过期 (7天前)'
-                    };
-                    const freshnessHTML = '<span class="data-freshness ' + freshness + '"><span class="freshness-dot ' + freshness + '"></span>' + labels[freshness] + '</span>';
-                    titleEl.insertAdjacentHTML('beforeend', freshnessHTML);
-                }
+                // 不添加数据时效性标签（已按需求删除）
                 
                 console.log('[位置标签] ✅ 已添加标签到卡片: ' + cardTitle);
             });
@@ -12914,6 +12974,8 @@ function updatePageData(chainConfig, marketData) {
             // 生成甘特图HTML
             let ganttHTML = '<div class="cumulative-gantt">';
             ganttHTML += '<div class="gantt-title">磷酸铁锂产业2026年累计涨跌幅 <span style="font-size:12px;color:#999;font-weight:normal;">(' + (cumulativeData.meta.description || '2026年至今') + ')</span></div>';
+            // 添加按钮组容器
+            ganttHTML += '<div class="gantt-btn-group" id="ganttBtnGroup"></div>';
             
             // 找出最大涨跌幅（用于计算条形图宽度）
             let maxChangePct = 0;
@@ -12971,7 +13033,10 @@ function updatePageData(chainConfig, marketData) {
 
             
             console.log('[甘特图] ✅ 已添加累积涨跌幅甘特图');
-
+            
+            // 生成按钮组
+            generateGanttButtons(cumulativeData);
+            
             // 绑定甘特图行点击事件（手风琴：同一时间只展开一个，支持再次点击收起）
             ganttContainer.querySelectorAll('.gantt-row').forEach(row => {
                 row.style.cursor = 'pointer';
@@ -13033,6 +13098,96 @@ function updatePageData(chainConfig, marketData) {
                     showProductChart(productName);
                 });
             });
+        }
+        
+
+        /**
+         * 生成甘特图按钮组
+         * 按钮设计：品种名称 + 涨跌幅标签，按涨跌幅降序排列
+         */
+        function generateGanttButtons(cumulativeData) {
+            console.log('[generateGanttButtons] 开始生成按钮组...');
+            const btnGroup = document.getElementById('ganttBtnGroup');
+            if (!btnGroup) {
+                console.error('[generateGanttButtons] 未找到 ganttBtnGroup');
+                return;
+            }
+            btnGroup.innerHTML = '';
+            
+            // 按涨跌幅降序排列
+            const sortedProducts = [...cumulativeData.products].sort((a, b) => b.change_pct - a.change_pct);
+            
+            sortedProducts.forEach(product => {
+                const btn = document.createElement('button');
+                btn.className = `gantt-btn ${product.change_pct >= 0 ? 'up' : 'down'}`;
+                btn.setAttribute('data-product', product.name);
+                
+                // 只保留品种名称，不显示涨跌幅和箭头
+                btn.innerHTML = `<span class="product-name">${product.name}</span>`;
+                
+                // Hover事件：高亮甘特图对应行
+                btn.addEventListener('mouseenter', function() {
+                    highlightGanttRow(product.name);
+                });
+                
+                btn.addEventListener('mouseleave', function() {
+                    unhighlightGanttRow(product.name);
+                });
+                
+                // 点击事件：选中并联动
+                btn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    selectGanttProduct(product.name);
+                });
+                
+                btnGroup.appendChild(btn);
+            });
+            
+            console.log('[generateGanttButtons] ✅ 按钮组已生成，共', sortedProducts.length, '个按钮');
+        }
+        
+        /**
+         * 高亮甘特图行（Hover按钮时）
+         */
+        function highlightGanttRow(productName) {
+            const row = document.querySelector(`.gantt-row[data-product-name="${productName}"]`);
+            if (row && !row.classList.contains('active')) {
+                row.classList.add('hover');
+            }
+        }
+        
+        /**
+         * 取消高亮甘特图行
+         */
+        function unhighlightGanttRow(productName) {
+            const row = document.querySelector(`.gantt-row[data-product-name="${productName}"]`);
+            if (row && !row.classList.contains('active')) {
+                row.classList.remove('hover');
+            }
+        }
+        
+        /**
+         * 选中甘特图品种（点击按钮或行时）
+         */
+        function selectGanttProduct(productName) {
+            console.log('[selectGanttProduct] 选中品种：', productName);
+            
+            // 移除所有选中态
+            document.querySelectorAll('.gantt-btn.active').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.gantt-row.active').forEach(r => {
+                r.classList.remove('active');
+                r.classList.remove('hover');
+            });
+            
+            // 添加新选中态
+            const btn = document.querySelector(`.gantt-btn[data-product="${productName}"]`);
+            const row = document.querySelector(`.gantt-row[data-product-name="${productName}"]`);
+            
+            if (btn) btn.classList.add('active');
+            if (row) row.classList.add('active');
+            
+            // 联动：展开图表区域
+            showProductChart(productName);
         }
         
         /**
@@ -13107,20 +13262,6 @@ function updatePageData(chainConfig, marketData) {
             area.appendChild(card);
             card.style.display = 'block';
             
-            // 触发卡片进入动画
-            card.classList.remove('chart-card-entering');
-            void card.offsetWidth; // 触发重排
-            card.classList.add('chart-card-entering');
-            
-            // 触发图表揭幕动画（clip-path从左到右揭开）
-            console.log('[图表动画] 开始设置clip-path揭幕动画');
-            card.classList.remove('chart-reveal-anim');
-            void card.offsetWidth;
-            setTimeout(() => {
-                card.classList.add('chart-reveal-anim');
-                console.log('[图表动画] 已添加chart-reveal-anim类');
-            }, 100);
-
             // 触发折线绘制动画（CSS动画接管，这里只设置--line-len和--line-i变量）
             setTimeout(() => {
                 const svgEl = card.querySelector('svg');
@@ -15871,7 +16012,7 @@ const BU_LOGOS = {
         /**
          * 触发折线绘制动画（双线揭幕效果）：
          * 1. 设置 CSS 变量 --line-len（线长）和 --line-i（动画延迟）
-         * 2. 给父卡片加上 chart-reveal-anim，触发 CSS animation
+         * 2. 设置 CSS 变量触发折线绘制动画
          */
         function triggerLineRevealAnimation(svg) {
             // 图表已渲染完成，显示SVG（防止旧内容闪屏）
@@ -15888,9 +16029,7 @@ const BU_LOGOS = {
                 lineEl.setAttribute('stroke-dasharray', len);
                 lineEl.setAttribute('stroke-dashoffset', len);
             });
-            card.classList.remove('chart-reveal-anim');
-            void card.offsetWidth;
-            setTimeout(function() { card.classList.add('chart-reveal-anim'); }, 100);
+
         }
 
         function drawLCChartV2(svg, data, formatYTick, prefix, custW, custH, custPAD, custGradId, forceRed) {
@@ -17505,8 +17644,17 @@ const BUS_DATA = {
         dims:{d1:80,d2:80,d3:80,d4:80,d5:80,d6:80},
         kpis:{d1:[80,80,80,80],d2:[80,80,80,80],d3:[80,80,80,80],d4:[80,80,80,80],d5:[80,80,80,80],d6:[80,80,80,80]}},
     fnlt:{ name:'法恩莱特', logo:'', tag:'电解液', accent:'#9c27b0',
-        dims:{d1:80,d2:80,d3:80,d4:80,d5:80,d6:80},
-        kpis:{d1:[80,80,80,80],d2:[80,80,80,80],d3:[80,80,80,80],d4:[80,80,80,80],d5:[80,80,80,80],d6:[80,80,80,80]}},
+        // 法恩莱特评分标准（方案B：总分=√D1 + avg(D2..D6)/2，D1=avg(D2..D6)）
+        // D1=avg(D2..D6)：当核心经营差时，所有维度联动被拉低
+        dims:{d1:20,d2:15,d3:47,d4:100,d5:71,d6:50},
+        kpis:{
+            d1:[53,58,-52,0],
+            d2:[53,58,-52,0],
+            d3:[62,31],
+            d4:[100,100],
+            d5:[92,50],
+            d6:[50,50]
+        }},
     sdmd:{ name:'山东美多', logo:'', tag:'回收再利用', accent:'#e91e63',
         // SDMD 2026年5月真实数据：对比表原始数据驱动自动计算
         // dims由 calcKPIsFromComparison() + calcDimsFromKPIs() 自动算出（百分制）
@@ -18573,6 +18721,57 @@ function scrollToMarket() {
     var el = document.getElementById('market-section');
     if (el) {
         el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+}
+
+// ============================================================
+// 锂电板块子分类切换：磷酸铁锂产业 / 电解液
+
+var _currentLithiumSubCategory = 'lfp';
+
+function switchLithiumSubCategory(subCategory) {
+    _currentLithiumSubCategory = subCategory;
+    
+    // 更新Tab按钮状态
+    var tabGroup = document.getElementById('lithiumCategoryTabs');
+    if (tabGroup) {
+        tabGroup.querySelectorAll('.category-tab').forEach(function(tab) {
+            tab.classList.remove('active');
+        });
+        var activeTab = tabGroup.querySelector('.category-tab[data-subcategory="' + subCategory + '"]');
+        if (activeTab) activeTab.classList.add('active');
+    }
+    
+    // 重新渲染甘特图
+    renderLithiumGantt(subCategory);
+    
+    console.log('[锂电子分类] 已切换到: ' + subCategory);
+}
+
+function renderLithiumGantt(subCategory) {
+    // 获取gantt容器
+    var container = document.getElementById('gantt-chart-container');
+    if (!container) return;
+    
+    // 清空容器
+    container.innerHTML = '';
+    
+    // 根据子分类获取不同的甘特图数据
+    if (subCategory === 'lfp') {
+        // 磷酸铁锂产业链甘特图（现有逻辑）
+        if (typeof cumulativeData !== 'undefined' && cumulativeData) {
+            addCumulativeBarsGantt(chainConfig, marketData, cumulativeData);
+        } else {
+            console.warn('[甘特图] cumulativeData未定义');
+        }
+    } else if (subCategory === 'electrolyte') {
+        // 电解液甘特图（暂时显示提示信息，后续接入真实数据）
+        container.innerHTML = '<div class="electrolyte-gantt-placeholder" style="padding:40px;text-align:center;color:#888;">' +
+            '<div style="font-size:16px;font-weight:500;margin-bottom:10px;">📊 电解液产业链数据</div>' +
+            '<div style="font-size:13px;">电解液及六氟磷酸锂价格数据接入中...</div>' +
+            '<div style="font-size:12px;color:#aaa;margin-top:20px;">数据来源: Mysteel我的钢铁网</div>' +
+            '</div>';
+        console.log('[甘特图] 电解液数据加载中...');
     }
 }
 
