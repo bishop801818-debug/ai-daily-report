@@ -550,27 +550,127 @@ def enrich_news_with_urls(selected_items, inheritance_map=None):
         enriched.append(new_item)
     return enriched
 
+def is_low_quality_image(url):
+    """
+    检测图片URL是否是低质量的截图/图表
+    返回True表示是低质量图片，应该被过滤
+    """
+    if not url:
+        return True
+    
+    url_lower = url.lower()
+    
+    # 1. 已知的截图/图表域名
+    screenshot_domains = [
+        'cv.ce.cn',           # 中国经济网汽车频道，经常返回数据图表
+        'img.ce.cn',          # 中国经济网图片
+    ]
+    for domain in screenshot_domains:
+        if domain in url_lower:
+            return True
+    
+    # 2. URL路径包含截图特征命名（如 W020260610532405801766.png）
+    # 这种命名通常是网页截图或数据图表
+    if re.search(r'W\d{12,}\.(png|jpg|jpeg)', url, re.IGNORECASE):
+        return True
+    
+    # 3. URL包含明显的图表/数据关键词
+    chart_keywords = ['chart', 'graph', 'data', 'table', '统计', '图表', '数据']
+    for kw in chart_keywords:
+        if kw in url_lower:
+            return True
+    
+    # 4. 路径包含 news/2026/ 且是png，可能是新闻截图
+    if '/news/2026' in url_lower and url_lower.endswith('.png'):
+        return True
+    
+    # 5. 上传图片的时间戳命名（如 1780909599170804.jpg）
+    if re.search(r'/\d{14,}\.(jpg|jpeg|png)', url, re.IGNORECASE):
+        return True
+    
+    return False
+
+def fetch_unsplash_image(title):
+    """
+    使用Unsplash API搜索与标题相关的图片
+    返回图片URL，如果失败返回None
+    """
+    if not UNSPLASH_ACCESS_KEY:
+        return None
+    
+    try:
+        # 提取关键词（去掉数字、百分比等）
+        keywords = re.sub(r'\d+[\.\d]*[%]?', '', title)
+        keywords = re.sub(r'[^\u4e00-\u9fa5a-zA-Z\s]', ' ', keywords)
+        keywords = keywords.strip()
+        
+        if not keywords:
+            keywords = title[:20]
+        
+        # 调用Unsplash API
+        query = urllib.parse.quote_plus(keywords)
+        api_url = f"{UNSPLASH_API_URL}?query={query}&per_page=5&client_id={UNSPLASH_ACCESS_KEY}"
+        
+        req = urllib.request.Request(
+            api_url,
+            headers={
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+            }
+        )
+        
+        with urllib.request.urlopen(req, timeout=10) as resp:
+            data = json.loads(resp.read().decode('utf-8'))
+        
+        results = data.get('results', [])
+        if results:
+            # 返回第一张图片的regular尺寸URL
+            image_url = results[0].get('urls', {}).get('regular', '')
+            if image_url:
+                print(f"    [Unsplash] 找到图片: {image_url[:60]}...")
+                return image_url
+        
+        print(f"    [Unsplash] 未找到图片: {title[:30]}...")
+        return None
+        
+    except Exception as e:
+        print(f"    [Unsplash] API调用失败: {e}")
+        return None
+
 def enrich_news_with_images(selected_items):
     """
     为每条新闻绑定image_url（预绑定图片）
-    如果image_url已由enrich_news_with_urls设置（来自Tavily API或继承），则保留
-    否则，尝试从Unsplash API获取图片URL
+    如果image_url已由enrich_news_with_urls设置（来自Tavily API或继承），则检查质量
+    如果是低质量截图/图表，尝试从Unsplash API获取替代图片
     如果仍失败，设置为None（前端会fallback到API）
     """
     enriched = []
     for item in selected_items:
         new_item = dict(item)
+        image_url = new_item.get('image_url', '')
         
-        # 如果image_url already set (by Tavily or inheritance), keep it
-        if new_item.get('image_url'):
-            print(f"    [图片] 保留已有图片URL: {new_item['image_url'][:50]}...")
+        if image_url:
+            # 检查图片质量：如果是截图/图表，尝试替换
+            if is_low_quality_image(image_url):
+                print(f"    [图片] 检测到截图/图表，尝试替换: {image_url[:50]}...")
+                unsplash_url = fetch_unsplash_image(new_item['title'])
+                if unsplash_url:
+                    new_item['image_url'] = unsplash_url
+                    print(f"    [图片] 已替换为Unsplash图片: {unsplash_url[:50]}...")
+                else:
+                    # Unsplash也失败了，清空image_url让前端fallback
+                    new_item['image_url'] = None
+                    print(f"    [图片] 未找到替代图片，清空让前端fallback")
+            else:
+                print(f"    [图片] 保留高质量图片: {image_url[:50]}...")
         else:
-            # TODO: 如果需要预绑定图片，取消下面的注释并实现Unsplash API调用
-            # image_url = fetch_unsplash_image(item['title'])
-            # new_item['image_url'] = image_url
-            new_item['image_url'] = None  # 暂时设为None，前端会fallback到API
-            if new_item['image_url'] is None:
-                print(f"    [图片] 未找到图片URL: {item['title'][:30]}...")
+            # 没有图片URL，尝试从Unsplash获取
+            unsplash_url = fetch_unsplash_image(new_item['title'])
+            if unsplash_url:
+                new_item['image_url'] = unsplash_url
+                print(f"    [图片] 从Unsplash获取: {unsplash_url[:50]}...")
+            else:
+                new_item['image_url'] = None
+                print(f"    [图片] 未找到图片URL: {new_item['title'][:30]}...")
         
         enriched.append(new_item)
     return enriched
