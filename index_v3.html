@@ -19041,6 +19041,19 @@ function showElectrolyteProductChart(productName) {
     title.textContent = productName + '价格走势';
     card.appendChild(title);
     
+    // 创建信息行（图例 + 最新价/涨跌幅）
+    const infoRow = document.createElement('div');
+    infoRow.className = 'chart-info-row';
+    infoRow.style.padding = '4px 12px';
+    infoRow.innerHTML = '<div class="chart-legend-left">' +
+        '<span class="chart-legend-item"><span class="chart-legend-dot" style="background:#d32f2f;"></span>均价（元/吨）</span>' +
+        '</div>' +
+        '<div class="chart-price-right">' +
+        '<span class="price-label">最新价：</span><span class="chart-latest-price" id="eleLatestPrice_' + matchedVariety.svgId + '">--</span>' +
+        '<span class="change-label">涨跌幅：</span><span class="chart-latest-change" id="eleLatestChange_' + matchedVariety.svgId + '"></span>' +
+        '</div>';
+    card.appendChild(infoRow);
+    
     const container = document.createElement('div');
     container.className = 'chart-container';
     container.style.position = 'relative';
@@ -19065,6 +19078,21 @@ function showElectrolyteProductChart(productName) {
     area.innerHTML = '';
     area.appendChild(card);
     
+    // 计算最新价和涨跌幅
+    const prices = data.map(d => parseFloat(d.均价));
+    const latestPrice = prices[prices.length - 1];
+    const prevPrice = prices.length >= 2 ? prices[prices.length - 2] : latestPrice;
+    const pct = prevPrice > 0 ? ((latestPrice - prevPrice) / prevPrice * 100) : 0;
+    
+    // 更新最新价和涨跌幅显示
+    const priceEl = document.getElementById('eleLatestPrice_' + matchedVariety.svgId);
+    const changeEl = document.getElementById('eleLatestChange_' + matchedVariety.svgId);
+    if (priceEl) priceEl.textContent = latestPrice.toLocaleString() + ' 元/吨';
+    if (changeEl) {
+        changeEl.textContent = (pct >= 0 ? '+' : '') + pct.toFixed(2) + '%';
+        changeEl.className = 'chart-latest-change ' + (pct >= 0 ? 'up' : 'down');
+    }
+    
     // 绘制折线图
     drawElectrolyteCanvasLineChart(canvas, tooltip, data, productName);
 }
@@ -19083,7 +19111,7 @@ function drawElectrolyteCanvasLineChart(canvas, tooltip, data, productName) {
     
     const W = rect.width;
     const H = rect.height;
-    const PAD = { top: 40, right: 60, bottom: 40, left: 60 };
+    const PAD = { top: 15, right: 60, bottom: 40, left: 60 };
     const chartW = W - PAD.left - PAD.right;
     const chartH = H - PAD.top - PAD.bottom;
     
@@ -19108,13 +19136,6 @@ function drawElectrolyteCanvasLineChart(canvas, tooltip, data, productName) {
     // 绘制静态元素（网格、坐标轴、标题、填充区域）
     function drawStatic() {
         ctx.clearRect(0, 0, W, H);
-        
-        // 绘制标题
-        ctx.fillStyle = '#333';
-        ctx.font = 'bold 14px Microsoft YaHei';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'top';
-        ctx.fillText(productName + '价格走势', W / 2, 12);
         
         // 绘制背景网格线（水平）
         ctx.strokeStyle = '#f0f0f0';
@@ -19210,13 +19231,7 @@ function drawElectrolyteCanvasLineChart(canvas, tooltip, data, productName) {
         ctx.arc(lastPoint.x, lastPoint.y, 3, 0, Math.PI * 2);
         ctx.fill();
         
-        // 最新价格标签
-        const lastPrice = prices[prices.length - 1];
-        ctx.fillStyle = '#d32f2f';
-        ctx.font = 'bold 12px Microsoft YaHei';
-        ctx.textAlign = 'left';
-        ctx.textBaseline = 'middle';
-        ctx.fillText(lastPrice.toLocaleString() + ' 元/吨', lastPoint.x + 10, lastPoint.y);
+        // 最新价格标签（已移至HTML中显示，此处不再绘制）
     }
     
     // 动画
