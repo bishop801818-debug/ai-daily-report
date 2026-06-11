@@ -19381,26 +19381,31 @@ function drawElectrolyteCanvasLineChart(canvas, tooltip, data, productName) {
         ctx.arc(lastPoint.x, lastPoint.y, 3, 0, Math.PI * 2);
         ctx.fill();
         
-        // 最新日期标签（显示在最后一个点的右侧）
-        const dateText = lastPoint.date;
+        // 最新日期标签（自适应位置：点在左侧则放右侧，点在右侧则放左侧）
+        const dateText = lastPoint.date.slice(5); // 格式：MM-DD，如 06-10
         ctx.font = 'bold 11px Microsoft YaHei';
         ctx.textAlign = 'left';
         ctx.textBaseline = 'middle';
         
-        // 背景框
-        const textWidth = ctx.measureText(dateText).width + 8;
-        const bgX = lastPoint.x + 12;
+        // 计算文本宽度
+        const textWidth = ctx.measureText(dateText).width + 10;
+        const labelWidth = textWidth + 8;
+        
+        // 自适应位置：如果点太靠右（距离右边小于标签宽度+20px），放在左侧；否则放右侧
+        const maxX = PAD.left + chartW;
+        const isTooRight = (lastPoint.x + 20 + labelWidth) > maxX;
+        const bgX = isTooRight ? lastPoint.x - 12 - labelWidth : lastPoint.x + 12;
         const bgY = lastPoint.y - 10;
         
         // 半透明背景
         ctx.fillStyle = 'rgba(211, 47, 47, 0.9)';
         ctx.beginPath();
-        ctx.roundRect(bgX, bgY - 8, textWidth, 16, 3);
+        ctx.roundRect(bgX, bgY - 8, labelWidth, 16, 3);
         ctx.fill();
         
         // 日期文字
         ctx.fillStyle = '#fff';
-        ctx.fillText(dateText, bgX + 4, bgY);
+        ctx.fillText(dateText, bgX + 5, bgY);
     }
     
     // 动画
