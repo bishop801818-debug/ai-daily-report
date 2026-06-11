@@ -19367,7 +19367,7 @@ function drawElectrolyteCanvasLineChart(canvas, tooltip, data, productName) {
         ctx.stroke();
     }
     
-    // 绘制最后一个点的标记
+    // 绘制最后一个点的标记和日期标签
     function drawLastPoint() {
         const lastPoint = points[points.length - 1];
         // 外圈红色
@@ -19381,7 +19381,26 @@ function drawElectrolyteCanvasLineChart(canvas, tooltip, data, productName) {
         ctx.arc(lastPoint.x, lastPoint.y, 3, 0, Math.PI * 2);
         ctx.fill();
         
-        // 最新价格标签（已移至HTML中显示，此处不再绘制）
+        // 最新日期标签（显示在最后一个点的右侧）
+        const dateText = lastPoint.date;
+        ctx.font = 'bold 11px Microsoft YaHei';
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'middle';
+        
+        // 背景框
+        const textWidth = ctx.measureText(dateText).width + 8;
+        const bgX = lastPoint.x + 12;
+        const bgY = lastPoint.y - 10;
+        
+        // 半透明背景
+        ctx.fillStyle = 'rgba(211, 47, 47, 0.9)';
+        ctx.beginPath();
+        ctx.roundRect(bgX, bgY - 8, textWidth, 16, 3);
+        ctx.fill();
+        
+        // 日期文字
+        ctx.fillStyle = '#fff';
+        ctx.fillText(dateText, bgX + 4, bgY);
     }
     
     // 动画
