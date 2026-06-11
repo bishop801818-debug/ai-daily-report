@@ -6,6 +6,7 @@
     <title>锂电池行业深度分析报告 - 龙蟠行业数据库</title>
     <meta name="html-version" content="20260509c">
     <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <script src="lib_battery_embedded_data.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Microsoft YaHei', 'PingFang SC', Arial, sans-serif; background: #f0f2f5; min-height: 100vh; }
@@ -738,20 +739,11 @@
 
 <script>
 /* =====================================================
-   数据（动态加载 lib_battery_all_data.json）
+   数据（来自 lib_battery_embedded_data.js）
    ===================================================== */
-(async function() {
-    // 动态加载数据
-    let resp;
-    try {
-        resp = await fetch('lib_battery_all_data.json');
-    } catch(e) {
-        document.body.innerHTML = '<div style="padding:40px;text-align:center;color:#666;">数据加载失败，请检查 lib_battery_all_data.json 是否存在</div>';
-        return;
-    }
-    if (!resp.ok) { console.warn('Failed to load data'); return; }
-    var raw = await resp.json();
-    if (!raw) { console.warn('Data is empty'); return; }
+(function() {
+    var raw = typeof EMBEDDED_DATA !== 'undefined' ? EMBEDDED_DATA : null;
+    if (!raw) { console.warn('EMBEDDED_DATA not found'); return; }
 
     // ── 表1: 分规格产量 ──
     var tbl1 = raw.tables[0];

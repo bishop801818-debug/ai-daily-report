@@ -658,22 +658,53 @@
 
 <!-- 页面内容 -->
 <div class="page-content">
-    <div class="top-bar">
-        <span class="top-bar-title">晨会指挥中心</span>
-        <nav class="top-bar-nav">
-            <a href="index_v3.html">首页</a>
-            <a href="dept-archive.html">事业部存档</a>
-            <a href="industry_news_embedded.html">行业新闻</a>
-            <a href="policy_center_v4.html">政策中心</a>
-            <a href="bu_hub.html" class="active">事业部中心</a>
-        </nav>
+    <!--统一导航栏（shared_nav.css）-->
+<link rel="stylesheet" href="shared_nav.css">
+<div class="sub-topbar">
+    <a class="sub-topbar-home" href="index_v3.html">← 返回首页</a>
+    <div class="sub-topbar-title"> 事业部矩阵</div>
+    <div class="sub-topbar-nav">
+        <div class="sub-nav-item" onclick="window.location.href='policy_center_v4.html'">
+           <span> 政策中心</span><span class="sub-arrow">▼</span>
+            <div class="sub-dropdown">
+                <div class="sub-dropdown-item" onclick="event.stopPropagation(); window.location.href='policy_center_v4.html?filter=central'"><span class="nav-icon"></span>国家政策</div>
+                <div class="sub-dropdown-item" onclick="event.stopPropagation(); window.location.href='policy_center_v4.html?filter=local'"><span class="nav-icon"></span>地方政策</div>
+                <div class="sub-dropdown-item" onclick="event.stopPropagation(); window.location.href='policy_center_v4.html?filter=overseas'"><span class="nav-icon"></span>国际政策</div>
+            </div>
+        </div>
+        <div class="sub-nav-item" onclick="window.location.href='industry_news_embedded.html'">
+          <span> 行业新闻</span><span class="sub-arrow">▼</span>
+            <div class="sub-dropdown">
+                <div class="sub-dropdown-item" onclick="event.stopPropagation(); window.location.href='industry_news_embedded.html?filter=macro'"><span class="nav-icon"></span>宏观新闻</div>
+                <div class="sub-dropdown-item" onclick="event.stopPropagation(); window.location.href='industry_news_embedded.html?filter=industry'"><span class="nav-icon"></span>行业新闻</div>
+                <div class="sub-dropdown-item" onclick="event.stopPropagation(); window.location.href='industry_news_embedded.html?filter=company'"><span class="nav-icon"></span>企业动态</div>
+                <div class="sub-dropdown-item" onclick="event.stopPropagation(); window.location.href='industry_news_embedded.html?filter=tech'"><span class="nav-icon"></span>技术产品</div>
+            </div>
+        </div>
+        <div class="sub-nav-item" onclick="window.location.href='archive_v3.html'"><span> 历史数据</span></div>
+        <div class="sub-nav-item" onclick="window.location.href='database_hub.html'">
+            <span> 数据库</span><span class="sub-arrow">▼</span>
+            <div class="sub-dropdown">
+                <div class="sub-dropdown-item" onclick="event.stopPropagation(); window.location.href='lfp_data_v2.html'"><span class="nav-icon"></span>磷酸铁锂数据库</div>
+                <div class="sub-dropdown-item" onclick="event.stopPropagation(); window.location.href='ternary_data_v2.html'"><span class="nav-icon"></span>三元材料数据库</div>
+                <div class="sub-dropdown-item" onclick="event.stopPropagation(); window.location.href='electrolyte_data_v2.html'"><span class="nav-icon"></span>电解液数据库</div>
+                <div class="sub-dropdown-item" onclick="event.stopPropagation(); window.location.href='carbonate_data_v2.html'"><span class="nav-icon"></span>碳酸锂及原料数据库</div>
+                <div class="sub-dropdown-item" onclick="event.stopPropagation(); window.location.href='recycling_data_v2.html'"><span class="nav-icon"></span>锂电池回收数据库</div>
+                <div class="sub-dropdown-item" onclick="event.stopPropagation(); window.location.href='lib_battery_data_v2.html'"><span class="nav-icon"></span>锂电池行业数据库</div>
+                <div class="sub-dropdown-item" onclick="event.stopPropagation(); window.location.href='automotive_data_v2.html'"><span class="nav-icon"></span>汽车行业数据库</div>
+            </div>
+        </div>
+        <div class="sub-nav-item" onclick="window.location.href='analysis_hub.html'"><span> 行业分析</span></div>
+        <div class="sub-nav-item" onclick="window.location.href='strategy_hub.html'"><span> 竞品比对</span></div>
+        <div class="sub-nav-item" onclick="window.location.href='radar_hub.html'"><span> 雷达看板</span></div>
     </div>
+</div>
 
     <div class="bu-hub-body">
         <!-- 锂电矩阵：五边形星座 -->
         <div class="li-matrix-wrap">
             <div class="matrix-label">
-                <span class="matrix-pill matrix-pill-li">⚡ 锂电矩阵</span>
+                <span class="matrix-pill matrix-pill-li"> 锂电矩阵</span>
                 <span class="matrix-tagline">5家事业部</span>
             </div>
             <div class="pentagon-wrap">
@@ -699,7 +730,7 @@
         <!-- 化学品矩阵：菱形 -->
         <div class="chem-matrix-wrap">
             <div class="matrix-label">
-                <span class="matrix-pill matrix-pill-chem">🧪 化学品矩阵</span>
+                <span class="matrix-pill matrix-pill-chem"> 化学品矩阵</span>
                 <span class="matrix-tagline">4家事业部</span>
             </div>
             <div class="diamond-wrap">

@@ -10,12 +10,15 @@
 
 ```
 _docs/
-├── OVERVIEW.md          ← 平台整体架构/文件结构/BU对照表
-├── WORKFLOW.md          ← 日常更新流程/操作命令
-├── TECH_SPEC.md         ← 关键技术方案（fetch override/嵌入版/日历修复）
-├── RULES.md             ← 黄金法则/禁忌/版本号规范
-├── MAP.md               ← 页面导航/跳转关系/访问地址
-└── MD_SPEC.md           ← MD文件规范/JSON输出格式/BU_MAP
+├── OVERVIEW.md                  ← 平台整体架构/文件结构/BU对照表
+├── WORKFLOW.md                  ← 日常更新流程/操作命令
+├── TECH_SPEC.md                 ← 关键技术方案（fetch override/嵌入版/日历修复）
+├── RULES.md                     ← 黄金法则/禁忌/版本号规范
+├── MAP.md                       ← 页面导航/跳转关系/访问地址
+├── MD_SPEC.md                   ← MD文件规范/JSON输出格式/BU_MAP
+├── radar-history-feature.md      ← 雷达图历史功能运维规范
+├── six-dim-scoring-standard.md  ← 六维评分标准（永久不变）
+└── felt-report-operations.md    ← 法恩莱特专属报告运维手册
 ```
 
 ---

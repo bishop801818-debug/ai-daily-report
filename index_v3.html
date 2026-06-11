@@ -17479,6 +17479,77 @@ const RADAR_HISTORY = {
         },
     },
     lube:{
+        '2026-03':{
+            dims:{d1:100,d2:100,d3:31,d4:100,d5:95,d6:100},
+            kpis:{
+                d1:[100,124,100,87],
+                d2:[40,120,120,120],
+                d3:[20,1,5,98],
+                d4:[100,100,100,100],
+                d5:[100,100,95,80],
+                d6:[100,100,100,100]
+            },
+            _kpiComparison:{
+                title:'3月核心KPI达成率', period:'2026年3月',
+                items:[
+                    {name:'销售收入(万)', budget:14769, target:14758, actual:14758, unit:'万'},
+                    {name:'净利润(万)', budget:1618,  target:1300,  actual:1618,  unit:'万'},
+                    {name:'毛利率(%)',      budget:24.3,  target:24.3,  actual:24.3,  unit:'%'},
+                    {name:'期间费用率(%)',  budget:8.5,   target:9.79,  actual:9.79,  unit:'%'},
+                    {name:'应收账款天数',   budget:51,    target:52,    actual:51,    unit:'天'},
+                ]
+            },
+            _dimComparison_d2:{
+                title:'3月产品销售达成', items:[
+                    {name:'冷却液销售(万)',   budget:50000, target:50000, actual:19845, unit:'万'},
+                    {name:'汽机油销售(万)',    budget:4000,  target:4000,  actual:10410, unit:'万'},
+                    {name:'柴机油销售(万)',    budget:15000, target:15000, actual:4272,  unit:'万'},
+                    {name:'变速箱油销售(万)',  budget:6000,  target:6000,  actual:1080,  unit:'万'},
+                ]
+            },
+            _dimComparison_d3:{
+                title:'3月运营效率', items:[
+                    {name:'海外市场销售(万)', budget:10000, target:10000, actual:2045,  unit:'万'},
+                    {name:'工业油销售(万)',   budget:5000,  target:5000,  actual:67,    unit:'万'},
+                    {name:'玻璃水销售(万)',   budget:7000,  target:7000,  actual:380,   unit:'万'},
+                    {name:'应收账款周转(天)', budget:52,   target:52, actual:51,   unit:'天'},
+                ]
+            },
+            _dimComparison_d4:{
+                title:'3月技术创新力', format:'mom', items:[
+                    {name:'新产品配方(项)', prev:0, curr:5, unit:'项'},
+                    {name:'OEM认证(项)',     prev:0, curr:3, unit:'项'},
+                    {name:'技术降本(万)',    prev:0, curr:95, unit:'万'},
+                    {name:'技术服务(项)',    prev:0, curr:5, unit:'项'},
+                ]
+            },
+            _dimComparison_d5:{
+                title:'3月风险合规', format:'mom', items:[
+                    {name:'质量审核(次)',    prev:0, curr:1,  unit:'次'},
+                    {name:'环安合规(次)',     prev:0, curr:1,  unit:'次'},
+                    {name:'客户投诉率(%)',   prev:0.9, curr:0.8, unit:'%'},
+                    {name:'供应商审核(家)',  prev:0, curr:3,  unit:'家'},
+                ]
+            },
+            _dimComparison_d6:{
+                title:'3月组织活力', format:'mom', items:[
+                    {name:'AI项目立项(项)',  prev:0, curr:1,  unit:'项'},
+                    {name:'新客户开发(家)',  prev:0, curr:8,  unit:'家'},
+                    {name:'人才引进(人)',    prev:0, curr:3,  unit:'人'},
+                    {name:'数字化项目(项)', prev:0, curr:2,  unit:'项'},
+                ]
+            },
+            _summary:'3月销售收入14,758万（达成率100%），净利润1,618万（超额124%），毛利率24.3%。冷却液销售19,845万低于目标50,000万，但汽机油10,410万大幅超预期。整体开局良好，新产品研发和客户开发同步推进。',
+            _issues:[
+                {title:'冷却液销售缺口大',desc:'冷却液3月实际19,845万 vs 目标50,000万，仅达成40%。主要因KA客户订单延迟、新客户尚未形成规模。',owner:'销售部'},
+                {title:'工业油/玻璃水远低于目标',desc:'工业油仅67万（目标5,000万），玻璃水380万（目标7,000万），品类拓展力度不足。',owner:'销售部'},
+            ],
+            _positives:[
+                {title:'净利润超额完成',desc:'实际1,618万 vs 目标1,300万，达成率124%，成本管控表现优异。',owner:'财务部'},
+                {title:'汽机油超预期',desc:'汽机油实际10,410万 vs 目标4,000万（260%），KA渠道贡献显著。',owner:'销售部'},
+                {title:'新产品研发启动',desc:'3月启动LP48配方研发，5个新产品配方推进中，OEM认证3项。',owner:'研发部'},
+            ]
+        },
         '2026-04':{
             dims:{d1:96,d2:88,d3:66,d4:75,d5:82,d6:72},
             kpis:{

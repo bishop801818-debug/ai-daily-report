@@ -169,7 +169,7 @@
     // 更新统计卡片
     function updateStats() {
         // 最新月度产量
-        const industryTotal = allData['锂电池行业产量产能（不分规格）'] || [];
+        const industryTotal = allData['锂电池行业产量产能'] || [];
         if (industryTotal.length > 0) {
             const sorted = [...industryTotal].sort((a, b) => String(b['日期']||'').localeCompare(a['日期']||''));
             const latest = sorted[0];
@@ -178,7 +178,7 @@
         }
 
         // TOP1企业产量
-        const companyTotal = allData['锂电池分企业产量产能（不分规格）'] || [];
+        const companyTotal = allData['锂电池分企业产量产能'] || [];
         if (companyTotal.length > 0) {
             const sorted = [...companyTotal].sort((a, b) => String(b['日期']||'').localeCompare(a['日期']||''));
             const latestDate = formatDate(sorted[0]['日期']);
@@ -213,7 +213,7 @@
 
     // 处理行业产量数据（分规格）
     function processIndustrySpecData() {
-        const data = allData['锂电池行业产量（分规格）'] || [];
+        const data = allData['锂电池行业产量-分规格'] || [];
         const dateMap = {};
         data.forEach(d => {
             const ym = getYearMonth(d['日期']);
@@ -234,7 +234,7 @@
 
     // 处理行业产量产能数据
     function processIndustryTotalData() {
-        const data = allData['锂电池行业产量产能（不分规格）'] || [];
+        const data = allData['锂电池行业产量产能'] || [];
         const sorted = [...data].sort((a, b) => String(a['日期']||'').localeCompare(b['日期']||''));
         const months = sorted.map(d => getYearMonth(d['日期']));
         const output = sorted.map(d => parseFloat(d['产量（GWh）']) || 0);
@@ -245,7 +245,7 @@
 
     // 处理企业产量数据
     function processCompanyData() {
-        const data = allData['锂电池分企业产量产能（不分规格）'] || [];
+        const data = allData['锂电池分企业产量产能'] || [];
         const sorted = [...data].sort((a, b) => String(b['日期']||'').localeCompare(a['日期']||''));
         if (sorted.length === 0) return { names: [], values: [] };
         const latestDate = formatDate(sorted[0]['日期']);
