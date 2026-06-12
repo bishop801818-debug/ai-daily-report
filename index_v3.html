@@ -8,6 +8,8 @@
     <meta http-equiv="Expires" content="0">
     <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
     <script src="electrolyte_data.js?v=20260610"></script>
+    <script src="recycling_data.js?v=20260612"></script>
+    <script src="recycling_gantt.js?v=20260612"></script>
     <script>
       window.HTML_VERSION = '20260611_001'; // 简单版本号，用于fetch缓存刷新
 
@@ -9333,6 +9335,7 @@ window.addEventListener('DOMContentLoaded', function() {
                         <div class="category-tab-group" id="lithiumCategoryTabs">
                             <button class="category-tab active" data-subcategory="lfp" onclick="switchLithiumSubCategory('lfp')">磷酸铁锂产业</button>
                             <button class="category-tab" data-subcategory="electrolyte" onclick="switchLithiumSubCategory('electrolyte')">电解液</button>
+                            <button class="category-tab" data-subcategory="recycling" onclick="switchLithiumSubCategory('recycling')">锂电池回收</button>
                         </div>
                         <div id="gantt-chart-container"></div>
                         <div class="mk-chart-grid">
@@ -18946,6 +18949,9 @@ function renderLithiumGantt(subCategory) {
     } else if (subCategory === 'electrolyte') {
         // 电解液甘特图
         renderElectrolyteGantt(container);
+    } else if (subCategory === 'recycling') {
+        // 锂电池回收甘特图
+        renderRecyclingGantt(container);
     }
 }
 

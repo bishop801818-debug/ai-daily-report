@@ -7,6 +7,9 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <script src="electrolyte_data.js?v=20260610"></script>
+    <script src="recycling_data.js?v=20260612"></script>
+    <script src="recycling_gantt.js?v=20260612"></script>
     <script>
       window.HTML_VERSION = '20260611_001'; // 简单版本号，用于fetch缓存刷新
 
@@ -5343,7 +5346,7 @@ window.__EMBEDDED__ = {
         .allbu-card:hover::after {
             opacity: 1;
         }
-        .allbu-card.lube  { border-left-color: #215732; }
+        .allbu-card.lube  { border-left-color: #c0392b; }
         .allbu-card.kls  { border-left-color: #2e75b6; }
         .allbu-card.czly { border-left-color: #1e3c72; }
         .allbu-card.lpsd { border-left-color: #215732; }
@@ -9332,6 +9335,7 @@ window.addEventListener('DOMContentLoaded', function() {
                         <div class="category-tab-group" id="lithiumCategoryTabs">
                             <button class="category-tab active" data-subcategory="lfp" onclick="switchLithiumSubCategory('lfp')">磷酸铁锂产业</button>
                             <button class="category-tab" data-subcategory="electrolyte" onclick="switchLithiumSubCategory('electrolyte')">电解液</button>
+                            <button class="category-tab" data-subcategory="recycling" onclick="switchLithiumSubCategory('recycling')">锂电池回收</button>
                         </div>
                         <div id="gantt-chart-container"></div>
                         <div class="mk-chart-grid">
@@ -12199,7 +12203,7 @@ window.addEventListener('DOMContentLoaded', function() {
 
                 let marketData = {};
                 let chainHistoryData = {};  // 图表历史数据：节点名→{price, change_pct, unit}
-                let cumulativeData = null;  // 添加：存储累积涨跌幅数据
+                let cumulativeData = null;  // 添加：存储累积涨跌幅数据（局部变量，函数结束时赋值给window.cumulativeData）
                 
                 // 处理我的钢铁网数据
                 if (lfpResp.status === 'fulfilled' && lfpResp.value.ok) {
@@ -12508,7 +12512,7 @@ window.addEventListener('DOMContentLoaded', function() {
                 addChainPositionTags(lithiumChain, marketData);
                 
                 // 5. 添加累积涨跌幅甘特图（默认显示磷酸铁锂产业）
-                addCumulativeBarsGantt(lithiumChain, marketData, cumulativeData);
+                addCumulativeBarsGantt(cumulativeData);
                 
                 // 设置默认Tab为磷酸铁锂产业
                 var lfpTab = document.querySelector('.category-tab[data-subcategory="lfp"]');
@@ -12526,6 +12530,9 @@ window.addEventListener('DOMContentLoaded', function() {
                 
                 // 渲染有色金属甘特图（数据已在上面计算完成）
                 renderSectorGantt('metals', 'gantt-chart-container-metals', cumulativeDataMetals);
+                
+                // 将局部累积涨跌幅数据赋值给全局变量，供 renderLithiumGantt 函数使用
+                window.cumulativeData = cumulativeData;
                 
             } catch (error) {
                 console.log('[初始化] ❌ 错误: ' + error.message);
@@ -12732,7 +12739,7 @@ function updatePageData(chainConfig, marketData) {
         /**
          * 添加累积涨跌幅甘特图（2026年至今）
          */
-        function addCumulativeBarsGantt(chainConfig, marketData, cumulativeData) {
+        function addCumulativeBarsGantt(cumulativeData) {
             console.log('[甘特图] 开始添加累积涨跌幅甘特图...');
             
             if (!cumulativeData || !cumulativeData.products || cumulativeData.products.length === 0) {
@@ -12875,7 +12882,9 @@ function updatePageData(chainConfig, marketData) {
             });
         }
         
-
+        // 将addCumulativeBarsGantt函数暴露到全局作用域，供renderLithiumGantt函数调用
+        window.addCumulativeBarsGantt = addCumulativeBarsGantt;
+        
         /**
          * 生成甘特图按钮组
          * 按钮设计：品种名称 + 涨跌幅标签，按涨跌幅降序排列
@@ -17371,6 +17380,326 @@ const RADAR_HISTORY = {
         '2026-05':{ dims:{d1:90,d2:90,d3:82,d4:80,d5:90,d6:78},
             kpis:{d1:[94.9,93.5,81.6,100.0], d2:[102.9,85.6,77.0,105.3], d3:[84.1,95.2,71.0,81.6], d4:[72.7,71.4,100.0,null], d5:[108.2,120.0,118.0,50.0], d6:[80.0,80.0,120.0,100.0]}, _isCurrent:true },
     },
+    fnlt:{
+        // ── 2026年4月 ──
+        '2026-04':{
+            dims:{d1:20,d2:15,d3:47,d4:100,d5:71,d6:50},
+            kpis:{d1:[53,58,-52,88,0,78,69],d2:[53,58,-52,0],d3:[62,31],d4:[100,100],d5:[92,50],d6:[50,50]},
+            _kpiComparison:{
+                title:'4月核心KPI达成率', period:'2026年4月',
+                items:[
+                    {name:'销量(吨)',        budget:7795,  target:4500,  actual:4155,  unit:'吨'},
+                    {name:'销售收入(万)',   budget:17053, target:10456, actual:9887,  unit:'万'},
+                    {name:'毛利率(%)',      budget:4.8,   target:0.4,   actual:-2.5,  unit:'%'},
+                    {name:'期间费用(万)',    budget:366,   target:322,   actual:322,   unit:'万'},
+                    {name:'净利润(万)',      budget:443,   target:-263,  actual:-558, unit:'万'},
+                    {name:'经营现金流(万)', budget:461,   target:303,   actual:362,   unit:'万'},
+                    {name:'到期回款率(%)',  budget:90,    target:90,    actual:69,    unit:'%'},
+                ]
+            },
+            _dimComparison_d2:{
+                title:'4月经营效益', items:[
+                    {name:'销量达成率(%)',   budget:7795, target:4500, actual:4155, unit:'%'},
+                    {name:'收入达成率(%)',    budget:17053, target:10456, actual:9887, unit:'%'},
+                    {name:'毛利率(%)',       budget:4.8,   target:0, actual:-2.5,  unit:'%'},
+                    {name:'净利率(%)',       budget:443,   target:0,    actual:-558, unit:'%'},
+                ]
+            },
+            _dimComparison_d3:{
+                title:'4月运营效率', items:[
+                    {name:'采购量达成率(%)', budget:6477, target:5438, actual:4007, unit:'%'},
+                    {name:'降本率(%)',       budget:0,    target:6,    actual:1.85, unit:'%'},
+                ]
+            },
+            _dimComparison_d4:{
+                title:'4月技术创新力', format:'mom', items:[
+                    {name:'新产品销量(吨)',   prev:0,  curr:580, unit:'吨'},
+                    {name:'采购降本(万)',     prev:0,  curr:168.91, unit:'万'},
+                ]
+            },
+            _dimComparison_d5:{
+                title:'4月风险合规', format:'mom', items:[
+                    {name:'采购及时到货率(%)', prev:0, curr:92, unit:'%'},
+                    {name:'客户审核通过(家)',  prev:0, curr:1,  unit:'家'},
+                ]
+            },
+            _dimComparison_d6:{
+                title:'4月组织活力', format:'mom', items:[
+                    {name:'战略协议签订(项)', prev:0, curr:0, unit:'项'},
+                    {name:'AI项目立项(项)',   prev:0, curr:0, unit:'项'},
+                ]
+            },
+        },
+        // ── 2026年5月（当月）──
+        '2026-05':{
+            dims:{d1:20,d2:19,d3:76,d4:100,d5:100,d6:65},
+            kpis:{d1:[20,20,20,20],d2:[19,19,19,19],d3:[76,76,80,80],d4:[100,100,80,80],d5:[100,100,80,80],d6:[65,65,80,80]},
+            _isCurrent:true,
+            _kpiComparison:{
+                title:'5月核心KPI达标率', period:'2026年5月',
+                items:[
+                    {name:'销量(吨)',        budget:8115,  target:4500,  actual:3500,  unit:'吨'},
+                    {name:'销售收入(万)',   budget:17796, target:10456, actual:7758,  unit:'万'},
+                    {name:'毛利率(%)',      budget:4.8,   target:0.4,   actual:-2.7,  unit:'%'},
+                    {name:'期间费用(万)',    budget:375,   target:322,   actual:343,   unit:'万'},
+                    {name:'净利润(万)',      budget:471,   target:-263,  actual:-540, unit:'万'},
+                    {name:'经营现金流(万)', budget:640,   target:303,   actual:14,    unit:'万'},
+                    {name:'到期回款率(%)',  budget:90,    target:90,    actual:66,    unit:'%'},
+                ]
+            },
+            _dimComparison_d2:{
+                title:'5月经营效益', items:[
+                    {name:'销量达成率(%)',   budget:8115, target:4500, actual:3500, unit:'%'},
+                    {name:'收入达成率(%)',    budget:17796, target:10456, actual:7758, unit:'%'},
+                    {name:'毛利率(%)',       budget:4.8,   target:0,    actual:-2.7, unit:'%'},
+                    {name:'净利率(%)',       budget:471,   target:0,    actual:-540, unit:'%'},
+                ]
+            },
+            _dimComparison_d3:{
+                title:'5月运营效率', items:[
+                    {name:'采购量达成率(%)', budget:5438, target:5438, actual:2798,  unit:'%'},
+                    {name:'降本率(%)',       budget:0,    target:6,    actual:9.22,  unit:'%'},
+                ]
+            },
+            _dimComparison_d4:{
+                title:'5月技术创新力 4月→5月环比', format:'mom', items:[
+                    {name:'新产品销量(吨)',  prev:580,  curr:615,    unit:'吨'},
+                    {name:'采购降本(万)',   prev:168.91, curr:678.23, unit:'万'},
+                ]
+            },
+            _dimComparison_d5:{
+                title:'5月风险合规 4月→5月环比', format:'mom', items:[
+                    {name:'采购及时到货率(%)', prev:92, curr:98, unit:'%'},
+                    {name:'客户审核通过(家)',  prev:1,  curr:3,  unit:'家'},
+                ]
+            },
+            _dimComparison_d6:{
+                title:'5月组织活力 4月→5月环比', format:'mom', items:[
+                    {name:'战略协议签订(项)', prev:0, curr:3, unit:'项'},
+                    {name:'AI项目立项(项)',   prev:0, curr:1, unit:'项'},
+                ]
+            },
+        },
+    },
+    lube:{
+        '2026-03':{
+            dims:{d1:100,d2:100,d3:31,d4:100,d5:95,d6:100},
+            kpis:{
+                d1:[100,124,100,87],
+                d2:[40,120,120,120],
+                d3:[20,1,5,98],
+                d4:[100,100,100,100],
+                d5:[100,100,95,80],
+                d6:[100,100,100,100]
+            },
+            _kpiComparison:{
+                title:'3月核心KPI达成率', period:'2026年3月',
+                items:[
+                    {name:'销售收入(万)', budget:14769, target:14758, actual:14758, unit:'万'},
+                    {name:'净利润(万)', budget:1618,  target:1300,  actual:1618,  unit:'万'},
+                    {name:'毛利率(%)',      budget:24.3,  target:24.3,  actual:24.3,  unit:'%'},
+                    {name:'期间费用率(%)',  budget:8.5,   target:9.79,  actual:9.79,  unit:'%'},
+                    {name:'应收账款天数',   budget:51,    target:52,    actual:51,    unit:'天'},
+                ]
+            },
+            _dimComparison_d2:{
+                title:'3月产品销售达成', items:[
+                    {name:'冷却液销售(万)',   budget:50000, target:50000, actual:19845, unit:'万'},
+                    {name:'汽机油销售(万)',    budget:4000,  target:4000,  actual:10410, unit:'万'},
+                    {name:'柴机油销售(万)',    budget:15000, target:15000, actual:4272,  unit:'万'},
+                    {name:'变速箱油销售(万)',  budget:6000,  target:6000,  actual:1080,  unit:'万'},
+                ]
+            },
+            _dimComparison_d3:{
+                title:'3月运营效率', items:[
+                    {name:'海外市场销售(万)', budget:10000, target:10000, actual:2045,  unit:'万'},
+                    {name:'工业油销售(万)',   budget:5000,  target:5000,  actual:67,    unit:'万'},
+                    {name:'玻璃水销售(万)',   budget:7000,  target:7000,  actual:380,   unit:'万'},
+                    {name:'应收账款周转(天)', budget:52,   target:52, actual:51,   unit:'天'},
+                ]
+            },
+            _dimComparison_d4:{
+                title:'3月技术创新力', format:'mom', items:[
+                    {name:'新产品配方(项)', prev:0, curr:5, unit:'项'},
+                    {name:'OEM认证(项)',     prev:0, curr:3, unit:'项'},
+                    {name:'技术降本(万)',    prev:0, curr:95, unit:'万'},
+                    {name:'技术服务(项)',    prev:0, curr:5, unit:'项'},
+                ]
+            },
+            _dimComparison_d5:{
+                title:'3月风险合规', format:'mom', items:[
+                    {name:'质量审核(次)',    prev:0, curr:1,  unit:'次'},
+                    {name:'环安合规(次)',     prev:0, curr:1,  unit:'次'},
+                    {name:'客户投诉率(%)',   prev:0.9, curr:0.8, unit:'%'},
+                    {name:'供应商审核(家)',  prev:0, curr:3,  unit:'家'},
+                ]
+            },
+            _dimComparison_d6:{
+                title:'3月组织活力', format:'mom', items:[
+                    {name:'AI项目立项(项)',  prev:0, curr:1,  unit:'项'},
+                    {name:'新客户开发(家)',  prev:0, curr:8,  unit:'家'},
+                    {name:'人才引进(人)',    prev:0, curr:3,  unit:'人'},
+                    {name:'数字化项目(项)', prev:0, curr:2,  unit:'项'},
+                ]
+            },
+            _summary:'3月销售收入14,758万（达成率100%），净利润1,618万（超额124%），毛利率24.3%。冷却液销售19,845万低于目标50,000万，但汽机油10,410万大幅超预期。整体开局良好，新产品研发和客户开发同步推进。',
+            _issues:[
+                {title:'冷却液销售缺口大',desc:'冷却液3月实际19,845万 vs 目标50,000万，仅达成40%。主要因KA客户订单延迟、新客户尚未形成规模。',owner:'销售部'},
+                {title:'工业油/玻璃水远低于目标',desc:'工业油仅67万（目标5,000万），玻璃水380万（目标7,000万），品类拓展力度不足。',owner:'销售部'},
+            ],
+            _positives:[
+                {title:'净利润超额完成',desc:'实际1,618万 vs 目标1,300万，达成率124%，成本管控表现优异。',owner:'财务部'},
+                {title:'汽机油超预期',desc:'汽机油实际10,410万 vs 目标4,000万（260%），KA渠道贡献显著。',owner:'销售部'},
+                {title:'新产品研发启动',desc:'3月启动LP48配方研发，5个新产品配方推进中，OEM认证3项。',owner:'研发部'},
+            ]
+        },
+        '2026-04':{
+            dims:{d1:96,d2:88,d3:66,d4:75,d5:82,d6:72},
+            kpis:{
+                d1:[100,90,94,100],
+                d2:[52,100,100,100],
+                d3:[75,56,32,100],
+                d4:[75,80,70,75],
+                d5:[85,80,80,80],
+                d6:[70,75,70,70]
+            },
+            _kpiComparison:{
+                title:'4月核心KPI达成率', period:'2026年4月',
+                items:[
+                    {name:'销售收入(万)',   budget:8530,  target:8530,  actual:11881, unit:'万'},
+                    {name:'净利润(万)',    budget:1125,  target:1125,  actual:1007,  unit:'万'},
+                    {name:'毛利率(%)',     budget:24.3,  target:24.3,  actual:22.8,  unit:'%'},
+                    {name:'期间费用率(%)', budget:13.67, target:13.67, actual:12.0,  unit:'%'},
+                    {name:'应收账款天数',   budget:52,    target:52,    actual:51,    unit:'天'},
+                ]
+            },
+            _dimComparison_d2:{
+                title:'4月产品销售达成', items:[
+                    {name:'冷却液销售(万)',    budget:27734, target:27734, actual:14431, unit:'万'},
+                    {name:'汽机油销售(万)',    budget:5899,  target:5899,  actual:14854, unit:'万'},
+                    {name:'柴机油销售(万)',    budget:3449,  target:3449,  actual:5902,  unit:'万'},
+                    {name:'变速箱油销售(万)',  budget:565,   target:565,   actual:1630,  unit:'万'},
+                ]
+            },
+            _dimComparison_d3:{
+                title:'4月运营效率', items:[
+                    {name:'海外市场销售(万)', budget:833,  target:833,  actual:2613, unit:'万'},
+                    {name:'工业油销售(万)',   budget:417,  target:417,  actual:67,   unit:'万'},
+                    {name:'玻璃水销售(万)',   budget:1840, target:1840, actual:585,  unit:'万'},
+                    {name:'应收账款周转(天)', budget:52,   target:52,   actual:51,   unit:'天'},
+                ]
+            },
+            _dimComparison_d4:{
+                title:'4月技术创新力', format:'mom', items:[
+                    {name:'新产品配方(项)', prev:3, curr:4, unit:'项'},
+                    {name:'OEM认证(项)',    prev:1, curr:2, unit:'项'},
+                    {name:'技术降本(万)',   prev:0, curr:0, unit:'万'},
+                    {name:'技术服务(项)',   prev:4, curr:5, unit:'项'},
+                ]
+            },
+            _dimComparison_d5:{
+                title:'4月风险合规', format:'mom', items:[
+                    {name:'质量体系审核(次)', prev:1, curr:1, unit:'次'},
+                    {name:'环境安全合规(%)',  prev:100, curr:100, unit:'%'},
+                    {name:'客户投诉率(%)',    prev:3, curr:2, unit:'%'},
+                    {name:'供应商审核(家)',   prev:2, curr:2, unit:'家'},
+                ]
+            },
+            _dimComparison_d6:{
+                title:'4月组织活力', format:'mom', items:[
+                    {name:'AI项目立项(项)', prev:0, curr:0, unit:'项'},
+                    {name:'新客户开发(家)',  prev:6, curr:8, unit:'家'},
+                    {name:'人才引进(人)',    prev:1, curr:2, unit:'人'},
+                    {name:'数字化项目(项)',  prev:1, curr:2, unit:'项'},
+                ]
+            },
+            _summary:'4月销售收入11,881万（达成率139%，约2000万订单备货下月），净利润1,007万（达成率90%），毛利率22.8%（低于24.3%目标）。汽机油和柴机油销售超预期，冷却液仅达成52%。',
+            _issues:[
+                {title:'毛利率未达目标', desc:'实际22.8%，低于24.3%目标。原料涨价+低毛利产品占比增加。', owner:'财务部'},
+                {title:'期间费用控制需加强', desc:'4月费用率13.67%目标，实际12.0%。费用控制已有改善但仍有空间。', owner:'财务部'},
+                {title:'冷却液销售缺口', desc:'4月实际14,431万，仅达月目标52%。部分订单延迟至5月交付。', owner:'销售部'},
+            ],
+            _positives:[
+                {title:'销售收入超预期', desc:'实际11,881万，大幅超过8,530万目标。汽机油和柴机油表现突出。', owner:'销售部'},
+                {title:'汽机油柴机油双超', desc:'汽机油达成率252%，柴机油达成率171%。市场开拓效果显著。', owner:'销售部'},
+                {title:'OEM认证推进', desc:'TCL、华为等OEM项目认证取得阶段性进展。', owner:'研发部'},
+            ],
+        },
+        '2026-05':{
+            dims:{d1:98,d2:88,d3:77,d4:78,d5:83,d6:75},
+            kpis:{
+                d1:[100,98,93,100],
+                d2:[52,100,100,100],
+                d3:[96,80,32,100],
+                d4:[80,85,75,80],
+                d5:[85,85,80,80],
+                d6:[70,80,75,75]
+            },
+            _isCurrent:true,
+            _kpiComparison:{
+                title:'5月核心KPI达成率', period:'2026年5月',
+                items:[
+                    {name:'销售收入(万)',   budget:10865, target:10865, actual:11123, unit:'万'},
+                    {name:'净利润(万)',    budget:1109,  target:1109,  actual:1086,  unit:'万'},
+                    {name:'毛利率(%)',     budget:24.3,  target:24.3,  actual:22.6,  unit:'%'},
+                    {name:'期间费用率(%)', budget:11.08, target:11.08, actual:9.8,   unit:'%'},
+                    {name:'应收账款天数',   budget:52,    target:52,    actual:50,    unit:'天'},
+                ]
+            },
+            _dimComparison_d2:{
+                title:'5月产品销售达成', items:[
+                    {name:'冷却液销售(万)',    budget:37558, target:37558, actual:19591, unit:'万'},
+                    {name:'汽机油销售(万)',    budget:6942,  target:6942,  actual:17816, unit:'万'},
+                    {name:'柴机油销售(万)',    budget:3833,  target:3833,  actual:6527,  unit:'万'},
+                    {name:'变速箱油销售(万)',  budget:695,   target:695,   actual:1994,  unit:'万'},
+                ]
+            },
+            _dimComparison_d3:{
+                title:'5月运营效率', items:[
+                    {name:'海外市场销售(万)', budget:833,  target:833,  actual:4015, unit:'万'},
+                    {name:'工业油销售(万)',   budget:417,  target:417,  actual:133,  unit:'万'},
+                    {name:'玻璃水销售(万)',   budget:2448, target:2448, actual:788,  unit:'万'},
+                    {name:'应收账款周转(天)', budget:52,   target:52,   actual:50,   unit:'天'},
+                ]
+            },
+            _dimComparison_d4:{
+                title:'5月技术创新力 4月→5月环比', format:'mom', items:[
+                    {name:'新产品配方(项)', prev:4, curr:5, unit:'项'},
+                    {name:'OEM认证(项)',    prev:2, curr:3, unit:'项'},
+                    {name:'技术降本(万)',   prev:0, curr:50, unit:'万'},
+                    {name:'技术服务(项)',   prev:5, curr:6, unit:'项'},
+                ]
+            },
+            _dimComparison_d5:{
+                title:'5月风险合规 4月→5月环比', format:'mom', items:[
+                    {name:'质量体系审核(次)', prev:1, curr:1, unit:'次'},
+                    {name:'环境安全合规(%)',  prev:100, curr:100, unit:'%'},
+                    {name:'客户投诉率(%)',    prev:2, curr:1, unit:'%'},
+                    {name:'供应商审核(家)',   prev:2, curr:3, unit:'家'},
+                ]
+            },
+            _dimComparison_d6:{
+                title:'5月组织活力 4月→5月环比', format:'mom', items:[
+                    {name:'AI项目立项(项)', prev:0, curr:1, unit:'项'},
+                    {name:'新客户开发(家)',  prev:8, curr:12, unit:'家'},
+                    {name:'人才引进(人)',    prev:2, curr:3, unit:'人'},
+                    {name:'数字化项目(项)',  prev:2, curr:2, unit:'项'},
+                ]
+            },
+            _summary:'5月销售收入11,123万（达成率102%），净利润1,086万（98%），毛利率22.6%（低于24.3%目标）。汽机油和柴机油销售远超目标，冷却液仅达成52%。6月目标收入12,452万。',
+            _issues:[
+                {title:'毛利率持续不达标', desc:'5月22.6%，低于24.3%目标。原料涨价+产品结构偏低价位。', owner:'财务部'},
+                {title:'冷却液销售承压', desc:'5月19,591万，仅达目标52%。竞争加剧，OEM订单延迟。', owner:'销售部'},
+                {title:'工业油和玻璃水薄弱', desc:'工业油133万仅达32%，玻璃水788万仅达32%。新品类市场开拓不及预期。', owner:'销售部'},
+            ],
+            _positives:[
+                {title:'收入连续两月超目标', desc:'5月11,123万（102%），4月11,881万（139%）。核心产品销售强劲。', owner:'销售部'},
+                {title:'汽机油柴机油持续高增长', desc:'汽机油达成率257%，柴机油170%。KA和新客户贡献显著。', owner:'销售部'},
+                {title:'海外市场突破', desc:'5月海外销售4,015万，远超833万月均目标。东南亚市场拓展顺利。', owner:'销售部'},
+                {title:'新客户开发超额', desc:'5月开发新客户12家，超过15家月度目标中的80%。', owner:'销售部'},
+            ],
+        },
+    },
 };
 
 // 月份列表生成：从 RADAR_HISTORY 推算
@@ -17419,17 +17748,83 @@ const BUS_DATA = {
         dims:{d1:80,d2:80,d3:80,d4:80,d5:80,d6:80},
         kpis:{d1:[80,80,80,80],d2:[80,80,80,80],d3:[80,80,80,80],d4:[80,80,80,80],d5:[80,80,80,80],d6:[80,80,80,80]}},
     fnlt:{ name:'法恩莱特', logo:'', tag:'电解液', accent:'#9c27b0',
-        // 法恩莱特评分标准（方案B：总分=√D1 + avg(D2..D6)/2，D1=avg(D2..D6)）
-        // D1=avg(D2..D6)：当核心经营差时，所有维度联动被拉低
-        dims:{d1:20,d2:15,d3:47,d4:100,d5:71,d6:50},
+        dims:{d1:20,d2:19,d3:76,d4:100,d5:100,d6:65},
         kpis:{
-            d1:[53,58,-52,0],
-            d2:[53,58,-52,0],
-            d3:[62,31],
-            d4:[100,100],
-            d5:[92,50],
-            d6:[50,50]
-        }},
+            d1:[20,20,20,20],
+            d2:[19,19,19,19],
+            d3:[76,76,80,80],
+            d4:[100,100,80,80],
+            d5:[100,100,80,80],
+            d6:[65,65,80,80]
+        },
+        _isCurrent: true,
+        _history: {
+            '2026-04': {
+                dims:{d1:20,d2:15,d3:47,d4:100,d5:71,d6:50},
+                kpis:{
+                    d1:[53,58,-52,88,0,78,69],
+                    d2:[53,58,-52,0],
+                    d3:[62,31],
+                    d4:[100,100],
+                    d5:[92,50],
+                    d6:[50,50]
+                },
+                _kpiComparison: {
+                    title: '4月核心KPI达成率',
+                    period: '2026年4月',
+                    items: [
+                        { name:'销量(吨)',        budget:7795,  target:4500,  actual:4155,  unit:'吨' },
+                        { name:'销售收入(万)',   budget:17053, target:10456, actual:9887,  unit:'万' },
+                        { name:'毛利率(%)',      budget:4.8,   target:0.4,   actual:-2.5,  unit:'%' },
+                        { name:'期间费用(万)',    budget:366,   target:322,   actual:322,   unit:'万' },
+                        { name:'净利润(万)',      budget:443,   target:-263,  actual:-558, unit:'万' },
+                        { name:'经营现金流(万)', budget:461,   target:303,   actual:362,   unit:'万' },
+                        { name:'到期回款率(%)',  budget:90,    target:90,    actual:69,    unit:'%' },
+                    ]
+                },
+                _dimComparison_d2: {
+                    title: '4月经营效益',
+                    items: [
+                        { name:'销量达成率(%)',   budget:7795, target:4500, actual:4155, unit:'%' },
+                        { name:'收入达成率(%)',    budget:17053, target:10456, actual:9887, unit:'%' },
+                        { name:'毛利率(%)',       budget:4.8,   target:0, actual:-2.5,  unit:'%' },
+                        { name:'净利率(%)',       budget:443,   target:0,    actual:-558, unit:'%' },
+                    ]
+                },
+                _dimComparison_d3: {
+                    title: '4月运营效率',
+                    items: [
+                        { name:'采购量达成率(%)', budget:6477, target:5438, actual:4007, unit:'%' },
+                        { name:'降本率(%)',       budget:0,    target:6,    actual:1.85, unit:'%' },
+                    ]
+                },
+                _dimComparison_d4: {
+                    title: '4月技术创新力',
+                    format: 'mom',
+                    items: [
+                        { name:'新产品销量(吨)',   prev:0,  curr:580, unit:'吨' },
+                        { name:'采购降本(万)',     prev:0,  curr:168.91, unit:'万' },
+                    ]
+                },
+                _dimComparison_d5: {
+                    title: '4月风险合规',
+                    format: 'mom',
+                    items: [
+                        { name:'采购及时到货率(%)', prev:0, curr:92, unit:'%' },
+                        { name:'客户审核通过(家)',  prev:0, curr:1,  unit:'家' },
+                    ]
+                },
+                _dimComparison_d6: {
+                    title: '4月组织活力',
+                    format: 'mom',
+                    items: [
+                        { name:'战略协议签订(项)', prev:0, curr:0, unit:'项' },
+                        { name:'AI项目立项(项)',   prev:0, curr:0, unit:'项' },
+                    ]
+                }
+            }
+        }
+    },
     sdmd:{ name:'山东美多', logo:'', tag:'回收再利用', accent:'#e91e63',
         // SDMD 2026年5月真实数据：对比表原始数据驱动自动计算
         // dims由 calcKPIsFromComparison() + calcDimsFromKPIs() 自动算出（百分制）
@@ -17515,9 +17910,9 @@ const BUS_DATA = {
             ]
         }
     },
-    lube: { name:'润滑油', logo:'', tag:'润滑防护', accent:'#78909c',
-        dims:{d1:78,d2:82,d3:80,d4:65,d5:85,d6:75},
-        kpis:{d1:[80,80,80,80],d2:[80,80,80,80],d3:[80,80,80,80],d4:[70,60,70,60],d5:[90,80,80,90],d6:[80,70,70,80]}},
+    lube: { name:'润滑油事业部', logo:'', tag:'车用润滑油', accent:'#c0392b',
+        dims:{d1:98,d2:88,d3:77,d4:78,d5:83,d6:75},
+        kpis:{d1:[100,98,93,100],d2:[52,100,100,100],d3:[96,80,32,100],d4:[80,85,75,80],d5:[85,85,80,80],d6:[70,80,75,75]}},
     kls: { name:'可兰素', logo:'', tag:'车用尿素', accent:'#a1887f',
         dims:{d1:80,d2:78,d3:82,d4:62,d5:82,d6:73},
         kpis:{d1:[80,80,80,80],d2:[80,78,80,80],d3:[80,80,80,80],d4:[60,60,60,70],d5:[80,80,80,80],d6:[70,70,70,80]}},
@@ -18534,20 +18929,780 @@ function renderLithiumGantt(subCategory) {
     // 根据子分类获取不同的甘特图数据
     if (subCategory === 'lfp') {
         // 磷酸铁锂产业链甘特图（现有逻辑）
-        if (typeof cumulativeData !== 'undefined' && cumulativeData) {
-            addCumulativeBarsGantt(chainConfig, marketData, cumulativeData);
-        } else {
-            console.warn('[甘特图] cumulativeData未定义');
+        try {
+            if (typeof window.cumulativeData !== 'undefined' && window.cumulativeData) {
+                // 调用全局的addCumulativeBarsGantt函数
+                if (typeof window.addCumulativeBarsGantt === 'function') {
+                    window.addCumulativeBarsGantt(window.cumulativeData);
+                } else {
+                    console.error('[甘特图] window.addCumulativeBarsGantt函数不存在！');
+                    container.innerHTML = '<div style="padding:40px;text-align:center;color:#e74c3c;">系统错误：addCumulativeBarsGantt函数未定义</div>';
+                }
+            } else {
+                console.warn('[甘特图] cumulativeData未定义');
+                container.innerHTML = '<div style="padding:40px;text-align:center;color:#999;">暂无数据（cumulativeData未定义）</div>';
+            }
+        } catch(e) {
+            console.error('[甘特图] LFP甘特图渲染失败:', e);
+            container.innerHTML = '<div style="padding:40px;text-align:center;color:#e74c3c;">渲染失败: ' + e.message + '</div>';
         }
     } else if (subCategory === 'electrolyte') {
-        // 电解液甘特图（暂时显示提示信息，后续接入真实数据）
-        container.innerHTML = '<div class="electrolyte-gantt-placeholder" style="padding:40px;text-align:center;color:#888;">' +
-            '<div style="font-size:16px;font-weight:500;margin-bottom:10px;">📊 电解液产业链数据</div>' +
-            '<div style="font-size:13px;">电解液及六氟磷酸锂价格数据接入中...</div>' +
-            '<div style="font-size:12px;color:#aaa;margin-top:20px;">数据来源: Mysteel我的钢铁网</div>' +
-            '</div>';
-        console.log('[甘特图] 电解液数据加载中...');
+        // 电解液甘特图
+        renderElectrolyteGantt(container);
+    } else if (subCategory === 'recycling') {
+        // 锂电池回收甘特图
+        renderRecyclingGantt(container);
     }
+}
+
+// 电解液品种定义（全局）
+const ELECTROLYTE_VARIETIES = [
+    { id: '电解液价格-磷酸铁锂动力型', name: '电解液-磷酸铁锂动力', unit: '元/吨', svgId: 'electrolyteLfpPowerChart' },
+    { id: '电解液价格-磷酸铁锂储能型', name: '电解液-磷酸铁锂储能', unit: '元/吨', svgId: 'electrolyteLfpStorageChart' },
+    { id: '电解液价格-三元动力型', name: '电解液-三元动力', unit: '元/吨', svgId: 'electrolyteTernaryPowerChart' },
+    { id: 'LiFSI价格-固态', name: 'LiFSI-固态', unit: '元/吨', svgId: 'electrolyteLifsiChart' },
+    { id: '添加剂VC-价格', name: '添加剂VC', unit: '元/吨', svgId: 'electrolyteVCChart' },
+    { id: '添加剂FEC-价格', name: '添加剂FEC', unit: '元/吨', svgId: 'electrolyteFECChart' },
+    { id: '溶剂EC-价格', name: '溶剂EC', unit: '元/吨', svgId: 'electrolyteECChart' },
+    { id: '溶剂DMC-价格', name: '溶剂DMC', unit: '元/吨', svgId: 'electrolyteDMCChart' },
+    { id: '溶剂EMC-价格', name: '溶剂EMC', unit: '元/吨', svgId: 'electrolyteEMCChart' }
+];
+
+// 电解液累积数据（全局）
+let electrolyteCumulativeData = null;
+
+// 计算电解液累积涨跌幅数据
+function computeElectrolyteProduct(history, name, unit) {
+    if (!Array.isArray(history) || history.length < 2) return null;
+    const d26 = history.filter(d => d.日期 >= '2026-01-01');
+    if (d26.length < 2) return null;
+    const sp = parseFloat(d26[0].均价);
+    const ep = parseFloat(d26[d26.length - 1].均价);
+    if (sp <= 0) return null;
+    const ch = ep - sp;
+    const pct = ch / sp * 100;
+    electrolyteCumulativeData.products.push({
+        name: name,
+        unit: unit,
+        start_date: d26[0].日期,
+        end_date: d26[d26.length - 1].日期,
+        start_price: sp,
+        end_price: ep,
+        change: ch,
+        change_pct: parseFloat(pct.toFixed(2)),
+        direction: pct > 0 ? 'up' : pct < 0 ? 'down' : 'stable',
+        data_points: d26.length
+    });
+    return true;
+}
+
+// 电解液甘特图渲染函数
+function renderElectrolyteGantt(container) {
+    console.log('[甘特图] 渲染电解液甘特图...');
+    console.log('[甘特图] ELECTROLYTE_DATA定义:', typeof ELECTROLYTE_DATA !== 'undefined');
+    console.log('[甘特图] ELECTROLYTE_VARIETIES定义:', typeof ELECTROLYTE_VARIETIES !== 'undefined');
+    
+    // 检查数据
+    if (typeof ELECTROLYTE_DATA === 'undefined') {
+        console.log('[甘特图] ⚠️ ELECTROLYTE_DATA未定义');
+        container.innerHTML = '<div style="padding:40px;text-align:center;color:#e74c3c;">⚠️ 电解液数据未加载（请检查electrolyte_data.js）</div>';
+        return;
+    }
+    
+    console.log('[甘特图] ELECTROLYTE_DATA keys:', Object.keys(ELECTROLYTE_DATA));
+    console.log('[甘特图] ELECTROLYTE_VARIETIES:', ELECTROLYTE_VARIETIES);
+    
+    // 计算累积涨跌幅数据
+    electrolyteCumulativeData = {
+        meta: { description: '2026年至今累计涨跌幅', data_source: 'electrolyte_data.js', update_time: '', year: 2026 },
+        products: []
+    };
+    
+    ELECTROLYTE_VARIETIES.forEach(variety => {
+        const data = ELECTROLYTE_DATA[variety.id];
+        if (data && data.length > 0) {
+            computeElectrolyteProduct(data, variety.name, variety.unit);
+        }
+    });
+    
+    // 生成甘特图HTML（与磷酸铁锂相同的结构）
+    addElectrolyteCumulativeBarsGantt(container);
+    
+    console.log('[甘特图] ✅ 电解液甘特图渲染完成');
+}
+
+// 添加电解液累积涨跌幅甘特图（HTML divs方式）
+function addElectrolyteCumulativeBarsGantt(container) {
+    console.log('[电解液甘特图] 开始添加累积涨跌幅甘特图...');
+    
+    if (!electrolyteCumulativeData || !electrolyteCumulativeData.products || electrolyteCumulativeData.products.length === 0) {
+        console.log('[电解液甘特图] ⚠️ 无累积数据');
+        return;
+    }
+    
+    // 生成甘特图HTML
+    let ganttHTML = '<div class="cumulative-gantt">';
+    ganttHTML += '<div class="gantt-title">电解液产业链2026年累计涨跌幅 <span style="font-size:12px;color:#999;font-weight:normal;">(2026年至今)</span></div>';
+    ganttHTML += '<div class="gantt-btn-group" id="electrolyteGanttBtnGroup"></div>';
+    
+    // 找出最大涨跌幅
+    let maxChangePct = 0;
+    electrolyteCumulativeData.products.forEach(p => {
+        if (Math.abs(p.change_pct) > maxChangePct) maxChangePct = Math.abs(p.change_pct);
+    });
+    
+    // 按涨跌幅降序排序
+    electrolyteCumulativeData.products.sort((a, b) => b.change_pct - a.change_pct);
+    
+    // 为每个产品生成一行
+    electrolyteCumulativeData.products.forEach(product => {
+        const pct = product.change_pct;
+        const absPct = Math.abs(pct);
+        const width = maxChangePct > 0 ? (absPct / maxChangePct) * 80 : 0;
+        const direction = pct > 0 ? 'up' : pct < 0 ? 'down' : 'stable';
+        const arrow = pct > 0 ? '↑' : pct < 0 ? '↓' : '→';
+        const color = pct > 0 ? '#d32f2f' : pct < 0 ? '#388e3c' : '#999';
+        
+        const dateRange = product.start_date + ' ~ ' + product.end_date;
+        
+        ganttHTML += '<div class="gantt-row" data-product-name="' + product.name + '">';
+        ganttHTML += '<span class="gantt-name">' + product.name + '</span>';
+        ganttHTML += '<div class="gantt-bar-track">';
+        ganttHTML += '<div class="gantt-bar ' + direction + '" data-target-width="' + width + '%" style="width: 0;">';
+        ganttHTML += '<span class="gantt-bar-label"><span class="gantt-arrow">' + arrow + '</span> ' + (pct > 0 ? '+' : '') + pct.toFixed(2) + '%</span>';
+        ganttHTML += '</div>';
+        ganttHTML += '</div>';
+        ganttHTML += '<span class="gantt-value" style="color:' + color + ';font-size:10px;">' + product.start_price.toLocaleString() + ' → ' + product.end_price.toLocaleString() + '<br><span style="color:#999;">(' + dateRange + ')</span></span>';
+        ganttHTML += '</div>';
+    });
+    
+    ganttHTML += '<div id="electrolyte-gantt-expand-area" style="display:none;margin-top:20px;"></div>';
+    ganttHTML += '</div>';
+    
+    container.innerHTML = ganttHTML;
+    
+    // 触发条形增长动画
+    requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+            container.querySelectorAll('.gantt-bar').forEach(bar => {
+                const targetWidth = bar.getAttribute('data-target-width');
+                if (targetWidth) {
+                    bar.style.width = targetWidth;
+                }
+            });
+        });
+    });
+    
+    console.log('[电解液甘特图] ✅ 已添加累积涨跌幅甘特图');
+    
+    // 生成按钮组
+    generateElectrolyteGanttButtons();
+    
+    // 绑定甘特图行点击事件
+    console.log('[电解液甘特图] 准备绑定点击事件，共', container.querySelectorAll('.gantt-row').length, '行');
+    container.querySelectorAll('.gantt-row').forEach(row => {
+        row.style.cursor = 'pointer';
+        row.addEventListener('click', function() {
+            const productName = this.getAttribute('data-product-name');
+            console.log('[电解液甘特图] 点击行 productName=', productName);
+            
+            // 检查当前行是否已展开
+            if (this.classList.contains('active')) {
+                this.classList.remove('active');
+                const area = document.getElementById('electrolyte-gantt-expand-area');
+                if (area) {
+                    const card = area.querySelector('.mk-chart-card');
+                    if (card) {
+                        card.style.opacity = '0';
+                        card.style.transform = 'translateY(20px)';
+                        card.style.transition = 'opacity 0.3s, transform 0.3s';
+                    }
+                    setTimeout(() => {
+                        area.style.display = 'none';
+                        if (card && card._origParent) {
+                            card._origParent.appendChild(card);
+                            card.style.display = '';
+                            card.style.opacity = '';
+                            card.style.transform = '';
+                            card.style.transition = '';
+                            card._origParent = null;
+                        }
+                        area.innerHTML = '';
+                    }, 300);
+                }
+                return;
+            }
+            
+            // 先关闭已展开的行
+            container.querySelectorAll('.gantt-row.active').forEach(r => {
+                r.classList.remove('active');
+                const area = document.getElementById('electrolyte-gantt-expand-area');
+                if (area) {
+                    area.style.display = 'none';
+                    const card = area.querySelector('.mk-chart-card');
+                    if (card && card._origParent) {
+                        card._origParent.appendChild(card);
+                        card.style.display = '';
+                        card._origParent = null;
+                    }
+                    area.innerHTML = '';
+                }
+            });
+            
+            this.classList.add('active');
+            showElectrolyteProductChart(productName);
+        });
+    });
+}
+
+// 生成电解液甘特图按钮组
+function generateElectrolyteGanttButtons() {
+    console.log('[generateElectrolyteGanttButtons] 开始生成按钮组...');
+    const btnGroup = document.getElementById('electrolyteGanttBtnGroup');
+    if (!btnGroup) {
+        console.error('[generateElectrolyteGanttButtons] 未找到 electrolyteGanttBtnGroup');
+        return;
+    }
+    btnGroup.innerHTML = '';
+    
+    const sortedProducts = [...electrolyteCumulativeData.products].sort((a, b) => b.change_pct - a.change_pct);
+    
+    sortedProducts.forEach(product => {
+        const btn = document.createElement('button');
+        btn.className = 'gantt-btn ' + (product.change_pct >= 0 ? 'up' : 'down');
+        btn.setAttribute('data-product', product.name);
+        btn.innerHTML = '<span class="product-name">' + product.name + '</span>';
+        
+        btn.addEventListener('mouseenter', function() {
+            highlightElectrolyteGanttRow(product.name);
+        });
+        
+        btn.addEventListener('mouseleave', function() {
+            unhighlightElectrolyteGanttRow(product.name);
+        });
+        
+        btn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            selectElectrolyteGanttProduct(product.name);
+        });
+        
+        btnGroup.appendChild(btn);
+    });
+    
+    console.log('[generateElectrolyteGanttButtons] ✅ 按钮组已生成，共', sortedProducts.length, '个按钮');
+}
+
+// 高亮甘特图行
+function highlightElectrolyteGanttRow(productName) {
+    const row = document.querySelector('.cumulative-gantt .gantt-row[data-product-name="' + productName + '"]');
+    if (row && !row.classList.contains('active')) {
+        row.classList.add('hover');
+    }
+}
+
+// 取消高亮甘特图行
+function unhighlightElectrolyteGanttRow(productName) {
+    const row = document.querySelector('.cumulative-gantt .gantt-row[data-product-name="' + productName + '"]');
+    if (row && !row.classList.contains('active')) {
+        row.classList.remove('hover');
+    }
+}
+
+// 选中甘特图品种
+function selectElectrolyteGanttProduct(productName) {
+    console.log('[selectElectrolyteGanttProduct] 选中品种：', productName);
+    
+    document.querySelectorAll('#electrolyteGanttBtnGroup .gantt-btn.active').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.cumulative-gantt .gantt-row.active').forEach(r => {
+        r.classList.remove('active');
+        r.classList.remove('hover');
+    });
+    
+    const btn = document.querySelector('#electrolyteGanttBtnGroup .gantt-btn[data-product="' + productName + '"]');
+    const row = document.querySelector('.cumulative-gantt .gantt-row[data-product-name="' + productName + '"]');
+    
+    if (btn) btn.classList.add('active');
+    if (row) row.classList.add('active');
+    
+    showElectrolyteProductChart(productName);
+}
+
+// 显示电解液品种图表
+function showElectrolyteProductChart(productName) {
+    console.log('[showElectrolyteProductChart] productName=', productName);
+    
+    const area = document.getElementById('electrolyte-gantt-expand-area');
+    if (!area) { console.error('[showElectrolyteProductChart] 未找到 electrolyte-gantt-expand-area'); return; }
+    area.style.display = 'block';
+    
+    // 查找对应的品种
+    let matchedVariety = null;
+    for (const v of ELECTROLYTE_VARIETIES) {
+        if (productName.includes(v.name)) {
+            matchedVariety = v;
+            break;
+        }
+    }
+    
+    if (!matchedVariety) {
+        area.innerHTML = '<div style="padding:40px;text-align:center;color:#999;">未找到 [' + productName + '] 对应的图表配置</div>';
+        return;
+    }
+    
+    // 检查数据是否存在
+    const data = ELECTROLYTE_DATA[matchedVariety.id];
+    if (!data || data.length === 0) {
+        area.innerHTML = '<div style="padding:40px;text-align:center;color:#999;">[' + productName + '] 无数据</div>';
+        return;
+    }
+    
+    // 创建卡片容器
+    const card = document.createElement('div');
+    card.className = 'mk-chart-card';
+    card.style.margin = '20px 0';
+    card.style.width = '100%';
+    
+    // 创建标题
+    const title = document.createElement('div');
+    title.className = 'chart-title-centered';
+    title.textContent = productName + '价格走势';
+    card.appendChild(title);
+    
+    // 创建信息行（图例 + 最新价/涨跌幅）
+    const infoRow = document.createElement('div');
+    infoRow.className = 'chart-info-row';
+    infoRow.style.padding = '4px 12px';
+    infoRow.innerHTML = '<div class="chart-legend-left">' +
+        '<span class="chart-legend-item"><span class="chart-legend-dot" style="background:#d32f2f;"></span>均价（元/吨）</span>' +
+        '</div>' +
+        '<div class="chart-price-right">' +
+        '<span class="price-label">最新价：</span><span class="chart-latest-price" id="eleLatestPrice_' + matchedVariety.svgId + '">--</span>' +
+        '<span class="change-label">涨跌幅：</span><span class="chart-latest-change" id="eleLatestChange_' + matchedVariety.svgId + '"></span>' +
+        '</div>';
+    card.appendChild(infoRow);
+    
+    const container = document.createElement('div');
+    container.className = 'chart-container';
+    container.style.position = 'relative';
+    
+    // 创建Canvas
+    const canvas = document.createElement('canvas');
+    canvas.id = matchedVariety.svgId + 'Canvas';
+    canvas.style.width = '100%';
+    canvas.style.height = '300px';
+    canvas.style.display = 'block';
+    container.appendChild(canvas);
+    
+    // 创建tooltip元素
+    const tooltip = document.createElement('div');
+    tooltip.id = matchedVariety.svgId + 'Tooltip';
+    tooltip.style.cssText = 'position:absolute;display:none;padding:8px 12px;background:rgba(0,0,0,0.8);color:#fff;border-radius:4px;font-size:12px;pointer-events:none;z-index:1000;white-space:nowrap;';
+    container.appendChild(tooltip);
+    
+    card.appendChild(container);
+    
+    // 清理并添加新卡片
+    area.innerHTML = '';
+    area.appendChild(card);
+    
+    // 计算最新价和涨跌幅
+    const prices = data.map(d => parseFloat(d.均价));
+    const latestPrice = prices[prices.length - 1];
+    const prevPrice = prices.length >= 2 ? prices[prices.length - 2] : latestPrice;
+    const pct = prevPrice > 0 ? ((latestPrice - prevPrice) / prevPrice * 100) : 0;
+    
+    // 更新最新价和涨跌幅显示
+    const priceEl = document.getElementById('eleLatestPrice_' + matchedVariety.svgId);
+    const changeEl = document.getElementById('eleLatestChange_' + matchedVariety.svgId);
+    if (priceEl) priceEl.textContent = latestPrice.toLocaleString() + ' 元/吨';
+    if (changeEl) {
+        changeEl.textContent = (pct >= 0 ? '+' : '') + pct.toFixed(2) + '%';
+        changeEl.className = 'chart-latest-change ' + (pct >= 0 ? 'up' : 'down');
+    }
+    
+    // 绘制折线图
+    drawElectrolyteCanvasLineChart(canvas, tooltip, data, productName);
+}
+
+// 使用Canvas绘制电解液折线图（仿电池级碳酸锂样式，带动画）
+function drawElectrolyteCanvasLineChart(canvas, tooltip, data, productName) {
+    if (!data || data.length === 0) return;
+    
+    const ctx = canvas.getContext('2d');
+    const dpr = window.devicePixelRatio || 1;
+    const rect = canvas.getBoundingClientRect();
+    
+    canvas.width = rect.width * dpr;
+    canvas.height = rect.height * dpr;
+    ctx.scale(dpr, dpr);
+    
+    const W = rect.width;
+    const H = rect.height;
+    const PAD = { top: 15, right: 60, bottom: 40, left: 60 };
+    const chartW = W - PAD.left - PAD.right;
+    const chartH = H - PAD.top - PAD.bottom;
+    
+    // 计算价格范围
+    const prices = data.map(d => parseFloat(d.均价));
+    const minPrice = Math.min(...prices);
+    const maxPrice = Math.max(...prices);
+    const priceRange = maxPrice - minPrice || 1;
+    const padding = priceRange * 0.08;
+    const yMin = minPrice - padding;
+    const yMax = maxPrice + padding;
+    
+    function xScale(i) { return PAD.left + (i / (data.length - 1)) * chartW; }
+    function yScale(p) { return PAD.top + (1 - (p - yMin) / (yMax - yMin)) * chartH; }
+    
+    // 预计算所有点的坐标
+    const points = [];
+    data.forEach((d, i) => {
+        points[i] = { x: xScale(i), y: yScale(parseFloat(d.均价)), price: parseFloat(d.均价), date: d.日期 };
+    });
+    
+    // 绘制静态元素（网格、坐标轴、标题、填充区域）
+    function drawStatic() {
+        ctx.clearRect(0, 0, W, H);
+        
+        // 绘制背景网格线（水平）
+        ctx.strokeStyle = '#f0f0f0';
+        ctx.lineWidth = 1;
+        for (let i = 0; i <= 5; i++) {
+            const y = PAD.top + (i / 5) * chartH;
+            ctx.beginPath();
+            ctx.moveTo(PAD.left, y);
+            ctx.lineTo(PAD.left + chartW, y);
+            ctx.stroke();
+            
+            // Y轴标签
+            const price = yMax - (i / 5) * (yMax - yMin);
+            ctx.fillStyle = '#999';
+            ctx.font = '11px Microsoft YaHei';
+            ctx.textAlign = 'right';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(price.toFixed(0), PAD.left - 8, y);
+        }
+        
+        // X轴标签（显示6个均匀分布的日期）
+        const xLabelCount = 6;
+        ctx.fillStyle = '#999';
+        ctx.font = '10px Microsoft YaHei';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'top';
+        for (let i = 0; i <= xLabelCount; i++) {
+            const x = PAD.left + (i / xLabelCount) * chartW;
+            const dataIdx = Math.round((i / xLabelCount) * (data.length - 1));
+            if (data[dataIdx] && data[dataIdx].日期) {
+                const dateStr = data[dataIdx].日期.substring(5);
+                ctx.fillText(dateStr, x, H - 35);
+            }
+        }
+        
+        // 绘制填充区域（渐变：红色到透明）
+        const gradient = ctx.createLinearGradient(0, PAD.top, 0, PAD.top + chartH);
+        gradient.addColorStop(0, 'rgba(211, 47, 47, 0.15)');
+        gradient.addColorStop(1, 'rgba(211, 47, 47, 0)');
+        ctx.fillStyle = gradient;
+        ctx.beginPath();
+        ctx.moveTo(points[0].x, points[0].y);
+        for (let i = 1; i < points.length; i++) {
+            ctx.lineTo(points[i].x, points[i].y);
+        }
+        ctx.lineTo(points[points.length - 1].x, PAD.top + chartH);
+        ctx.lineTo(points[0].x, PAD.top + chartH);
+        ctx.closePath();
+        ctx.fill();
+    }
+    
+    // 绘制折线（带动画进度）
+    function drawLine(progress) {
+        const endIndex = Math.min(Math.floor(progress * (data.length - 1)), data.length - 1);
+        if (endIndex < 0) return;
+        
+        // 绘制"浅色"线（背景）
+        ctx.strokeStyle = 'rgba(211, 47, 47, 0.2)';
+        ctx.lineWidth = 6;
+        ctx.lineJoin = 'round';
+        ctx.lineCap = 'round';
+        ctx.beginPath();
+        for (let i = 0; i <= endIndex; i++) {
+            if (i === 0) ctx.moveTo(points[i].x, points[i].y);
+            else ctx.lineTo(points[i].x, points[i].y);
+        }
+        ctx.stroke();
+        
+        // 绘制"深色"线（前景，带动画）
+        ctx.strokeStyle = '#d32f2f';
+        ctx.lineWidth = 2;
+        ctx.lineJoin = 'round';
+        ctx.lineCap = 'round';
+        ctx.beginPath();
+        for (let i = 0; i <= endIndex; i++) {
+            if (i === 0) ctx.moveTo(points[i].x, points[i].y);
+            else ctx.lineTo(points[i].x, points[i].y);
+        }
+        ctx.stroke();
+    }
+    
+    // 绘制最后一个点的标记和日期标签
+    function drawLastPoint() {
+        const lastPoint = points[points.length - 1];
+        // 外圈红色
+        ctx.fillStyle = '#d32f2f';
+        ctx.beginPath();
+        ctx.arc(lastPoint.x, lastPoint.y, 6, 0, Math.PI * 2);
+        ctx.fill();
+        // 内圈白色
+        ctx.fillStyle = '#fff';
+        ctx.beginPath();
+        ctx.arc(lastPoint.x, lastPoint.y, 3, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // 最新日期标签（自适应位置：点在左侧则放右侧，点在右侧则放左侧）
+        const dateText = lastPoint.date.slice(5); // 格式：MM-DD，如 06-10
+        ctx.font = 'bold 11px Microsoft YaHei';
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'middle';
+        
+        // 计算文本宽度
+        const textWidth = ctx.measureText(dateText).width + 10;
+        const labelWidth = textWidth + 8;
+        
+        // 自适应位置：如果点太靠右（距离右边小于标签宽度+20px），放在左侧；否则放右侧
+        const maxX = PAD.left + chartW;
+        const isTooRight = (lastPoint.x + 20 + labelWidth) > maxX;
+        const bgX = isTooRight ? lastPoint.x - 12 - labelWidth : lastPoint.x + 12;
+        const bgY = lastPoint.y - 10;
+        
+        // 半透明背景
+        ctx.fillStyle = 'rgba(211, 47, 47, 0.9)';
+        ctx.beginPath();
+        ctx.roundRect(bgX, bgY - 8, labelWidth, 16, 3);
+        ctx.fill();
+        
+        // 日期文字
+        ctx.fillStyle = '#fff';
+        ctx.fillText(dateText, bgX + 5, bgY);
+    }
+    
+    // 动画
+    let animStartTime = null;
+    const animDuration = 1200;
+    
+    function animate(timestamp) {
+        if (!animStartTime) animStartTime = timestamp;
+        const elapsed = timestamp - animStartTime;
+        const progress = Math.min(elapsed / animDuration, 1);
+        
+        drawStatic();
+        drawLine(progress);
+        
+        if (progress < 1) {
+            requestAnimationFrame(animate);
+        } else {
+            drawStatic();
+            drawLine(1);
+            drawLastPoint();
+            enableHover();
+        }
+    }
+    
+    // 启用悬停交互
+    function enableHover() {
+        let activeIndex = -1;
+        
+        canvas.addEventListener('mousemove', function(e) {
+            const rect = canvas.getBoundingClientRect();
+            const mouseX = e.clientX - rect.left;
+            const mouseY = e.clientY - rect.top;
+            
+            let minDist = Infinity;
+            let closestIdx = -1;
+            
+            points.forEach((p, i) => {
+                const dist = Math.abs(mouseX - p.x);
+                if (dist < minDist) {
+                    minDist = dist;
+                    closestIdx = i;
+                }
+            });
+            
+            if (minDist > chartW / data.length / 2 + 10) {
+                tooltip.style.display = 'none';
+                if (activeIndex !== -1) {
+                    activeIndex = -1;
+                    drawStatic();
+                    drawLine(1);
+                    drawLastPoint();
+                }
+                return;
+            }
+            
+            if (closestIdx !== activeIndex) {
+                activeIndex = closestIdx;
+                drawStatic();
+                drawLine(1);
+                drawLastPoint();
+                
+                // 高亮当前点
+                const p = points[closestIdx];
+                ctx.fillStyle = '#d32f2f';
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, 5, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.strokeStyle = '#fff';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+                
+                // 垂直参考线
+                ctx.strokeStyle = 'rgba(211, 47, 47, 0.3)';
+                ctx.lineWidth = 1;
+                ctx.setLineDash([4, 4]);
+                ctx.beginPath();
+                ctx.moveTo(p.x, PAD.top);
+                ctx.lineTo(p.x, PAD.top + chartH);
+                ctx.stroke();
+                ctx.setLineDash([]);
+            }
+            
+            // 显示tooltip
+            const p = points[closestIdx];
+            tooltip.style.display = 'block';
+            tooltip.innerHTML = '<strong>' + p.date + '</strong><br/>均价: ' + p.price.toLocaleString() + ' 元/吨';
+            
+            let tooltipX = p.x + 10;
+            let tooltipY = p.y - 10;
+            
+            if (tooltipX + tooltip.offsetWidth > W) {
+                tooltipX = p.x - tooltip.offsetWidth - 10;
+            }
+            if (tooltipY < 0) {
+                tooltipY = p.y + 20;
+            }
+            
+            tooltip.style.left = tooltipX + 'px';
+            tooltip.style.top = tooltipY + 'px';
+        });
+        
+        canvas.addEventListener('mouseleave', function() {
+            tooltip.style.display = 'none';
+            if (activeIndex !== -1) {
+                activeIndex = -1;
+                drawStatic();
+                drawLine(1);
+                drawLastPoint();
+            }
+        });
+    }
+    
+    // 开始动画
+    requestAnimationFrame(animate);
+}// 渲染电解液折线图
+function renderElectrolyteLineChart(svg, data, svgId) {
+    console.log('[renderElectrolyteLineChart] ===== START =====');
+    console.log('[renderElectrolyteLineChart] svgId=', svgId, 'data长度=', data ? data.length : 0);
+    console.log('[renderElectrolyteLineChart] svg=', !!svg, 'svg.id=', svg ? svg.id : 'N/A');
+    
+    if (!data || data.length === 0) {
+        console.error('[renderElectrolyteLineChart] 数据为空!');
+        return;
+    }
+    
+    // 打印第一条和最后一条数据
+    console.log('[renderElectrolyteLineChart] 第1条:', JSON.stringify(data[0]));
+    console.log('[renderElectrolyteLineChart] 最后1条:', JSON.stringify(data[data.length - 1]));
+    
+    const W = 800, H = 260;
+    const PAD = { top: 20, right: 20, bottom: 40, left: 60 };
+    const chartW = W - PAD.left - PAD.right;
+    const chartH = H - PAD.top - PAD.bottom;
+    
+    // 计算价格范围
+    const prices = data.map(d => parseFloat(d.均价));
+    const minPrice = Math.min(...prices);
+    const maxPrice = Math.max(...prices);
+    const priceRange = maxPrice - minPrice || 1;
+    const padding = priceRange * 0.1;
+    const yMin = minPrice - padding;
+    const yMax = maxPrice + padding;
+    
+    function xScale(i) { return PAD.left + (i / (data.length - 1)) * chartW; }
+    function yScale(p) { return PAD.top + (1 - (p - yMin) / (yMax - yMin)) * chartH; }
+    
+    const gridG = svg.querySelector('#' + svgId + 'Grid');
+    const areaG = svg.querySelector('#' + svgId + 'Area');
+    const lineG = svg.querySelector('#' + svgId + 'Line');
+    const axisXG = svg.querySelector('#' + svgId + 'AxisX');
+    const axisYG = svg.querySelector('#' + svgId + 'AxisY');
+    
+    console.log('[renderElectrolyteLineChart] gridG=', !!gridG, 'areaG=', !!areaG, 'lineG=', !!lineG, 'axisXG=', !!axisXG, 'axisYG=', !!axisYG);
+    
+    if (gridG) gridG.innerHTML = '';
+    if (areaG) areaG.innerHTML = '';
+    if (lineG) lineG.innerHTML = '';
+    if (axisXG) axisXG.innerHTML = '';
+    if (axisYG) axisYG.innerHTML = '';
+    
+    if (!lineG) {
+        console.error('[renderElectrolyteLineChart] lineG不存在，创建新的!');
+        lineG = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        lineG.setAttribute('id', svgId + 'Line');
+        lineG.setAttribute('class', 'deep-line-anim');
+        svg.appendChild(lineG);
+    }
+    
+    function mk(tag, attrs) {
+        const el = document.createElementNS('http://www.w3.org/2000/svg', tag);
+        for (const k in attrs) el.setAttribute(k, attrs[k]);
+        return el;
+    }
+    
+    // 网格线
+    for (let i = 0; i <= 5; i++) {
+        const y = PAD.top + (i / 5) * chartH;
+        gridG.appendChild(mk('line', { x1: PAD.left, y1: y, x2: PAD.left + chartW, y2: y, stroke: '#eee', 'stroke-width': 1 }));
+    }
+    
+    // Y轴标签
+    for (let i = 0; i <= 5; i++) {
+        const y = PAD.top + (i / 5) * chartH;
+        const val = yMax - (i / 5) * (yMax - yMin);
+        axisYG.appendChild(mk('text', { x: PAD.left - 8, y: y + 4, 'text-anchor': 'end', 'font-size': 11, fill: '#999' }));
+        axisYG.lastChild.textContent = val.toFixed(0);
+    }
+    
+    // X轴标签
+    const step = Math.max(1, Math.floor(data.length / 6));
+    for (let i = 0; i < data.length; i += step) {
+        const x = xScale(i);
+        let dateLabel = data[i].日期 || '';
+        if (dateLabel && dateLabel.length >= 10) dateLabel = dateLabel.substring(5, 10);
+        axisXG.appendChild(mk('text', { x: x, y: PAD.top + chartH + 20, 'text-anchor': 'middle', 'font-size': 10, fill: '#999' }));
+        axisXG.lastChild.textContent = dateLabel;
+        axisXG.appendChild(mk('line', { x1: x, y1: PAD.top + chartH, x2: x, y2: PAD.top + chartH + 5, stroke: '#ccc', 'stroke-width': 1 }));
+    }
+    
+    // ���积图
+    let areaPath = 'M ' + xScale(0) + ' ' + yScale(yMin);
+    for (let i = 0; i < data.length; i++) {
+        areaPath += ' L ' + xScale(i) + ' ' + yScale(parseFloat(data[i].均价));
+    }
+    areaPath += ' L ' + xScale(data.length - 1) + ' ' + yScale(yMin) + ' Z';
+    areaG.appendChild(mk('path', { d: areaPath, fill: 'url(#' + svgId + 'Grad)', stroke: 'none' }));
+    
+    // 折线图
+    let linePath = '';
+    for (let i = 0; i < data.length; i++) {
+        if (i === 0) linePath = 'M ' + xScale(i) + ' ' + yScale(parseFloat(data[i].均价));
+        else linePath += ' L ' + xScale(i) + ' ' + yScale(parseFloat(data[i].均价));
+    }
+    lineG.appendChild(mk('path', { d: linePath, fill: 'none', stroke: '#1e3c72', 'stroke-width': 2 }));
+    
+    // 最新点标记
+    const lastIdx = data.length - 1;
+    lineG.appendChild(mk('circle', { cx: xScale(lastIdx), cy: yScale(parseFloat(data[lastIdx].均价)), r: 4, fill: '#1e3c72', stroke: '#fff', 'stroke-width': 2 }));
+    
+    console.log('[renderElectrolyteLineChart] 渲染完成，lineG子元素数量:', lineG ? lineG.children.length : 0);
 }
 
 // ============================================================
@@ -19680,7 +20835,7 @@ document.addEventListener('DOMContentLoaded', function() {
             title: '碳酸锂现货价格走势',
             link: 'carbonate_charts.html',
             dataFile: 'carbonate_all_data.json',
-            tableName: '碳酸锂—价格',
+            tableName: '碳酸锂-价格',
             unit: '万元/吨',
             valueKey: '均价（万元/吨）',
             timeKey: '日期',
