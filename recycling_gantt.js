@@ -7,12 +7,11 @@ const RECYCLING_VARIETIES = [
     { id: '三元废料-三元铝壳523型', name: '三元废料-铝壳523', unit: '万元/吨', svgId: 'recyclingTernaryWasteChart' },
     { id: '磷酸铁锂废料-废旧磷酸铁锂铝壳电池', name: '磷酸铁锂废料-铝壳', unit: '万元/吨', svgId: 'recyclingLfpWasteChart' },
     { id: '正极片-废旧磷酸铁锂动力正极片', name: '正极片-动力', unit: '万元/吨', svgId: 'recyclingCathodePowerChart' },
-    { id: '正极片-废旧磷酸铁锂储能正极片', name: '正极片-储能', unit: '万元/吨', svgId: 'recyclingCathodeStorageChart' },
+    // 已删除：正极片-废旧磷酸铁锂储能正极片（无SMM数据）、铝箔-铝粉（无SMM数据）、铜箔-铜粉（无SMM数据）
     { id: '三元电池包-三元铝壳5系电池包', name: '三元电池包-铝壳5系', unit: '万元/吨', svgId: 'recyclingTernaryPackChart' },
     { id: '钴酸锂电池包-钴酸锂铝壳电池包', name: '钴酸锂电池包-铝壳', unit: '万元/吨', svgId: 'recyclingCobaltPackChart' },
     { id: '三元电池包-三元软包电池包', name: '三元电池包-软包', unit: '万元/吨', svgId: 'recyclingTernaryPouchChart' },
-    { id: '铝箔-铝粉', name: '铝箔-铝粉', unit: '万元/吨', svgId: 'recyclingAluminumFoilChart' },
-    { id: '铜箔-铜粉', name: '铜箔-铜粉', unit: '万元/吨', svgId: 'recyclingCopperPowderChart' }
+    // 已删除：铝箔-铝粉、铜箔-铜粉（无SMM数据）
 ];
 
 // 锂电池回收累积数据（全局）
