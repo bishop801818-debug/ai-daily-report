@@ -12,6 +12,10 @@ const RECYCLING_VARIETIES = [
     { id: '钴酸锂电池包-钴酸锂铝壳电池包', name: '钴酸锂电池包-铝壳', unit: '万元/吨', svgId: 'recyclingCobaltPackChart' },
     { id: '三元电池包-三元软包电池包', name: '三元电池包-软包', unit: '万元/吨', svgId: 'recyclingTernaryPouchChart' },
     // 已删除：铝箔-铝粉、铜箔-铜粉（无SMM数据）
+    
+    // 化工品（数据来源：chemical_data.js）
+    { id: '硫酸-98%浓硫酸', name: '硫酸-98%', unit: '元/吨', svgId: 'chemicalSulfuricChart', dataSource: 'chemical' },
+    { id: '双氧水-27.5%', name: '双氧水-27.5%', unit: '元/吨', svgId: 'chemicalH2o2Chart', dataSource: 'chemical' },
 ];
 
 // 锂电池回收累积数据（全局）
@@ -27,8 +31,8 @@ function computeRecyclingProduct(history, name, unit) {
         console.warn('[回收]', name, '2026年数据不足:', d26.length);
         return null;
     }
-    const sp = parseFloat(d26[0]['今日均价']);
-    const ep = parseFloat(d26[d26.length - 1]['今日均价']);
+    const sp = parseFloat(d26[0]['今日均价'] || d26[0]['均价']);
+    const ep = parseFloat(d26[d26.length - 1]['今日均价'] || d26[d26.length - 1]['均价']);
     if (isNaN(sp) || sp <= 0) {
         console.warn('[回收]', name, '起始价格无效:', sp);
         return null;
@@ -68,11 +72,20 @@ function renderRecyclingGantt(container) {
 
     // 遍历所有品种，计算累计涨跌幅
     RECYCLING_VARIETIES.forEach(variety => {
-        const data = RECYCLING_DATA[variety.id];
+        // 根据 dataSource 判断数据来源
+        let data = null;
+        if (variety.dataSource === 'chemical') {
+            // 化工品数据从 CHEMICAL_DATA 读取
+            data = typeof CHEMICAL_DATA !== 'undefined' ? CHEMICAL_DATA[variety.id] : null;
+        } else {
+            // 回收品数据从 RECYCLING_DATA 读取
+            data = typeof RECYCLING_DATA !== 'undefined' ? RECYCLING_DATA[variety.id] : null;
+        }
+        
         if (data && data.length > 0) {
             computeRecyclingProduct(data, variety.name, variety.unit);
         } else {
-            console.warn('[回收] 品种数据不存在或为空:', variety.id);
+            console.warn('[回收] 品种数据不存在或为空:', variety.id, 'dataSource:', variety.dataSource);
         }
     });
 
@@ -329,7 +342,16 @@ function showRecyclingProductChart(productName) {
         return;
     }
 
-    const data = RECYCLING_DATA[variety.id];
+    // 根据 dataSource 判断数据来源
+    let data = null;
+    if (variety.dataSource === 'chemical') {
+        // 化工品数据从 CHEMICAL_DATA 读取
+        data = typeof CHEMICAL_DATA !== 'undefined' ? CHEMICAL_DATA[variety.id] : null;
+    } else {
+        // 回收品数据从 RECYCLING_DATA 读取
+        data = typeof RECYCLING_DATA !== 'undefined' ? RECYCLING_DATA[variety.id] : null;
+    }
+    
     if (!data || data.length === 0) {
         area.innerHTML = '<div style="padding:20px;text-align:center;color:#999;">该品种无数据</div>';
         area.style.display = 'block';
@@ -402,7 +424,7 @@ function showRecyclingProductChart(productName) {
 
         const dates = d26.map(d => d['日期']); // 完整日期
         const datesShort = d26.map(d => d['日期'].substring(5)); // MM-DD
-        const prices = d26.map(d => parseFloat(d['今日均价'])); // 万元/吨
+        const prices = d26.map(d => parseFloat(d['今日均价'] || d['均价'])); // 兼容两种字段格式
 
         // 计算最新价和涨跌幅
         const latestPrice = prices[prices.length - 1];
