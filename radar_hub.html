@@ -281,26 +281,36 @@ var BU_META = {
     sdmd: { name: '山东美多', subtitle: '动力电池回收', category: 'lithium', color: '#215732' },
     sjld: { name: '三金锂电', subtitle: '三元前驱体', category: 'lithium', color: '#34495e' },
     kls:  { name: '可兰素', subtitle: '车用尿素', category: 'other', color: '#d35400' },
-    lhy:  { name: '润滑油事业部', subtitle: '车用润滑油 · 冷却液', category: 'other', color: '#c0392b' },
+    lhy:  { d1: 98, d2: 98, d3: 83, d4: 85, d5: 80, d6: 65 }, // 2026-05实际数据（润滑油5月.pdf）, // 2026-05实际数据（润滑油5月.pdf）,
     bych: { name: '铂源催化', subtitle: '氢能/催化', category: 'other', color: '#8e44ad' },
-    dhx:  { name: '迪克化学', subtitle: '汽车化学品', category: 'other', color: '#16a085' },
+    dhx:  { name: '迪克化学', subtitle: '汽车化学品 · 冷却液 · 制动液', category: 'other', color: '#7986cb' },
 };
 
-// 六维 dims 数据（与 radar_detail.html 一致）
+// 差异化权重配置（与 radar_detail 保持一致）
+var BU_WEIGHTS = {
+    sdmd: [18, 18, 20, 15, 18, 11],
+    felt: [15, 20, 22, 18, 15, 10],
+    lhy:  [18, 22, 15, 22, 15, 8],
+    sjld: [15, 18, 15, 17, 25, 10], // 基建期专属权重
+    dhx:  [20, 22, 18, 15, 15, 10], // 迪克化学权重（冷却液业务）
+};
+var DEFAULT_WEIGHTS = [20, 20, 18, 17, 13, 12]; // 其他BU的统一权重
+
+// 六维 dims 数据（与 radar_detail 一致）
 var BU_DIMS = {
     czly: { d1: 87, d2: 90, d3: 82, d4: 80, d5: 90, d6: 78 },
     lpsd: { d1: 75, d2: 72, d3: 88, d4: 65, d5: 70, d6: 82 },
-    felt: { d1: 20, d2: 15, d3: 47, d4: 100, d5: 71, d6: 50 }, // 真实数据（来源：index_v3.html RADAR_HISTORY fnlt）
-    sdmd: { d1: 90, d2: 90, d3: 82, d4: 80, d5: 90, d6: 78 }, // 真实数据
-    sjld: { d1: 78, d2: 80, d3: 72, d4: 75, d5: 78, d6: 70 },
+    felt: { d1: 20, d2: 15, d3: 47, d4: 100, d5: 71, d6: 50 }, // 2026-04实际数据（05月被SDMD污染，暂用04月真实数据）
+    sdmd: { d1: 90, d2: 90, d3: 82, d4: 80, d5: 90, d6: 78 }, // 已修正（2026-05实际数据）
+    sjld: { d1: 95, d2: 46, d3: 61, d4: 70, d5: 57, d6: 48 }, // 2026-05实际数据（基建期）
     kls:  { d1: 85, d2: 88, d3: 90, d4: 85, d5: 82, d6: 88 },
-    lhy:  { d1: 98, d2: 88, d3: 77, d4: 78, d5: 83, d6: 75 },
+    lhy:  { d1: 98, d2: 98, d3: 83, d4: 85, d5: 80, d6: 65 }, // 2026-05实际数据（润滑油5月.pdf）, // 2026-05实际数据（润滑油5月.pdf）, // 2026-05实际数据（润滑油5月.pdf）
     bych: { d1: 68, d2: 65, d3: 70, d4: 62, d5: 60, d6: 65 },
-    dhx:  { d1: 75, d2: 78, d3: 72, d4: 70, d5: 72, d6: 75 },
+    dhx:  { d1: 88, d2: 78, d3: 91, d4: 80, d5: 96, d6: 78 }, // 2026-05实际数据（PDF修正）
 };
 
 // 标记当前月份BU（★）
-var BU_IS_CURRENT = { sdmd: true, lhy: true }; // 山东美多+润滑油有真实当前数据
+var BU_IS_CURRENT = { sdmd: true, felt: true, lhy: true, sjld: true, dhx: true }; // 山东美多+法恩莱特+润滑油+三金锂电+迪克化学有真实当前数据
 
 var BU_LOGOS = {};
 var buChartInstances = {}; // 缓存每个BU的 ECharts 实例
@@ -317,12 +327,22 @@ var BU_HISTORY = {
     },
     felt: {
         '2026-04': { d1: 20, d2: 15, d3: 47, d4: 100, d5: 71, d6: 50 },
-        '2026-05': { d1: 12, d2: 8,  d3: 76, d4: 100, d5: 99, d6: 60 },
+        '2026-05': { d1: 12, d2: 8, d3: 76, d4: 100, d5: 99, d6: 60 }, // 2026-05实际数据（FELT）
     },
     lhy: {
-        '2026-03': { d1: 100, d2: 100, d3: 31, d4: 100, d5: 95, d6: 100 },
-        '2026-04': { d1: 96, d2: 88, d3: 66, d4: 75, d5: 82, d6: 72 },
-        '2026-05': { d1: 98, d2: 88, d3: 77, d4: 78, d5: 83, d6: 75 },
+        '2026-03': { d1: 100, d2: 100, d3: 100, d4: 100, d5: 100, d6: 100 }, // 2026-03实际数据（润滑油3月.pdf）
+        '2026-04': { d1: 96, d2: 100, d3: 100, d4: 94, d5: 75, d6: 100 }, // 2026-04实际数据（润滑油4月.pdf）
+        '2026-05': { d1: 98, d2: 98, d3: 83, d4: 85, d5: 80, d6: 65 }, // 2026-05实际数据（润滑油5月.pdf）
+    },
+    sjld: {
+        '2026-03': { d1: 85, d2: 1, d3: 15, d4: 56, d5: 1, d6: 32 }, // 2026-03实际数据（基建期）
+        '2026-04': { d1: 80, d2: 14, d3: 48, d4: 56, d5: 40, d6: 55 }, // 2026-04实际数据（基建期）
+        '2026-05': { d1: 95, d2: 46, d3: 61, d4: 70, d5: 57, d6: 48 }, // 2026-05实际数据（基建期）
+    },
+    dhx: {
+        '2026-03': { d1: 86, d2: 78, d3: 82, d4: 80, d5: 80, d6: 78 }, // 3月PDF数据（营收3211/3267(102%), 利润348(87%)）
+        '2026-04': { d1: 86, d2: 71, d3: 85, d4: 75, d5: 85, d6: 77 }, // 2026-04实际数据（4月PDF）
+        '2026-05': { d1: 88, d2: 78, d3: 91, d4: 80, d5: 96, d6: 78 }, // 2026-05实际数据（5月PDF修正）
     },
 };
 
@@ -347,9 +367,10 @@ var currentCardMonth = {};
 // ─────────────────────────────────────────────
 // 工具函数
 // ─────────────────────────────────────────────
-function getScore(dims) {
+function getScore(buId, dims) {
     var vals = DIM_IDS.map(function(d) { return dims[d] || 0; });
-    return Math.round(vals.reduce(function(a, b) { return a + b; }, 0) / vals.length);
+    var wts = BU_WEIGHTS[buId] || DEFAULT_WEIGHTS;
+    return Math.round(vals.reduce(function(a, b, i) { return a + b * wts[i] / 100; }, 0));
 }
 
 // ─────────────────────────────────────────────
@@ -364,7 +385,7 @@ function buildCard(buId, meta) {
     }
     var activeMonth = currentCardMonth[buId];
     var dims = activeMonth && history ? (history[activeMonth] || BU_DIMS[buId]) : (BU_DIMS[buId] || { d1: 0, d2: 0, d3: 0, d4: 0, d5: 0, d6: 0 });
-    var score = getScore(dims);
+    var score = getScore(buId, dims);
     var logo = BU_LOGOS[buId] || '';
     var logoHTML = logo
         ? '<img class="dept-logo" src="' + logo + '" alt="' + meta.name + '" onerror="this.style.display=\'none\'">'
@@ -394,7 +415,7 @@ function buildCard(buId, meta) {
         return '<span class="dim-chip"><span class="chip-val" style="color:' + meta.color + '">' + v + '</span>' + DIM_NAMES[i] + '</span>';
     }).join('');
 
-    var detailUrl = (buId === 'sdmd') ? 'radar_detail_sdmd.html' : ('radar_detail.html?id=' + buId);
+    var detailUrl = (buId === 'sdmd') ? 'radar_detail_sdmd.html' : (buId === 'dhx') ? 'radar_detail_dkhx.html' : ('radar_detail.html?id=' + buId);
     return '<a class="dept-card ' + meta.category + '" href="' + detailUrl + '" style="border-left-color:' + meta.color + '">' +
         '<div class="dept-card-header">' +
         logoHTML +
@@ -604,7 +625,7 @@ function switchCardMonth(buId, month) {
                 }
             });
             // 更新综合评分
-            var score = getScore(dims);
+            var score = getScore(buId, dims);
             var scoreEl = card2.closest('.dept-card').querySelector('.dept-score-val');
             if (scoreEl) scoreEl.textContent = score;
         }
