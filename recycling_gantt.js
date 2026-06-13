@@ -386,7 +386,7 @@ function showRecyclingProductChart(productName) {
     
     const legendLeft = document.createElement('div');
     legendLeft.className = 'chart-legend-left';
-    legendLeft.innerHTML = '<span class="chart-legend-item"><span class="chart-legend-dot" style="background:#e74c3c;"></span>均价（万元/吨）</span>';
+    legendLeft.innerHTML = '<span class="chart-legend-item"><span class="chart-legend-dot" style="background:#e74c3c;"></span>均价（' + product.unit + '）</span>';
     infoRow.appendChild(legendLeft);
     
     const priceRight = document.createElement('div');
@@ -435,7 +435,7 @@ function showRecyclingProductChart(productName) {
         // 更新标签栏显示
         const priceEl = document.getElementById('recyclingLatestPrice_' + productName.replace(/[^a-zA-Z0-9]/g, ''));
         const changeEl = document.getElementById('recyclingLatestChange_' + productName.replace(/[^a-zA-Z0-9]/g, ''));
-        if (priceEl) priceEl.textContent = latestPrice.toLocaleString() + ' ' + product.unit.replace('万元/吨', '万元/吨');
+        if (priceEl) priceEl.textContent = latestPrice.toLocaleString() + ' ' + product.unit;
         if (changeEl) {
             changeEl.textContent = (changePct >= 0 ? '+' : '') + changePct.toFixed(2) + '%';
             changeEl.style.color = changeColor;
@@ -455,7 +455,7 @@ function showRecyclingProductChart(productName) {
                     const date = params[0].axisValue;
                     let html = '<div style="font-weight:600;margin-bottom:4px;">' + date + '</div>';
                     params.forEach(p => {
-                        html += '<div>' + p.marker + ' ' + p.value.toLocaleString() + ' 万元/吨</div>';
+                        html += '<div>' + p.marker + ' ' + p.value.toLocaleString() + ' ' + product.unit + '</div>';
                     });
                     return html;
                 }
