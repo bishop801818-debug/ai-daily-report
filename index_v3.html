@@ -8,7 +8,7 @@
     <meta http-equiv="Expires" content="0">
     <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
     <script src="electrolyte_data.js?v=20260610"></script>
-    <script src="recycling_data.js?v=20260612"></script>
+    <script src="recycling_data_v2.js?v=20260612"></script>
     <script src="recycling_gantt.js?v=20260612"></script>
     <script>
       window.HTML_VERSION = '20260611_001'; // 简单版本号，用于fetch缓存刷新
@@ -20800,7 +20800,49 @@ document.addEventListener('DOMContentLoaded', function() {
         };
 
         // 所有可用的数据库看板配置（已根据实际数据文件校准）
-                var DASHBOARDS = [
+                        var DASHBOARDS = [
+        {
+            id: 'carbonate_prod',
+            tag: '碳酸锂·行业产量',
+            title: '碳酸锂行业总产量走势',
+            link: 'carbonate_charts.html',
+            dataFile: 'carbonate_all_data.json',
+            tableName: '碳酸锂-行业总产量',
+            unit: '吨',
+            valueKey: '产量（吨）',
+            timeKey: '月份',
+            isBar: true,
+            scale: 1,
+            insight: '最新值10.70万吨，环比上涨3.8%。同比增43.6%，近期走强。。关注：。'
+        },
+        {
+            id: 'lym_price',
+            tag: '锂云母·价格',
+            title: '锂云母价格走势',
+            link: 'carbonate_charts.html',
+            dataFile: 'carbonate_all_data.json',
+            tableName: '锂云母-价格',
+            unit: '万元/吨',
+            valueKey: '均价（万元/吨）',
+            timeKey: '日期',
+            isBar: false,
+            scale: 1,
+            insight: '最新值0.55万元/吨，环比下跌9.8%。同比减22.5%，近期走强。。关注：。'
+        },
+        {
+            id: 'ternary_prod',
+            tag: '三元正极·行业产量',
+            title: '三元正极材料产量走势',
+            link: 'ternary_charts.html',
+            dataFile: 'ternary_all_data.json',
+            tableName: '三元正极-行业产量规模',
+            unit: '吨',
+            valueKey: '产量（吨）',
+            timeKey: '月份',
+            isBar: true,
+            scale: 1,
+            insight: '数据不足，无法生成分析。'
+        },
         {
             id: 'electrolyte_price_lfp',
             tag: '电解液·LFP动力价格',
@@ -20814,50 +20856,9 @@ document.addEventListener('DOMContentLoaded', function() {
             isBar: false,
             scale: 1,
             insight: '最新值2.75万元/吨，环比上涨0.0%。同比减3.5%，近期走强。'
-        },
-        {
-            id: 'automotive_ev_sales',
-            tag: '汽车·新能源销量',
-            title: '新能源汽车销量走势',
-            link: 'automotive_charts.html',
-            dataFile: 'automotive_all_data.json',
-            tableName: '新能源汽车销量-中国市场',
-            unit: '万辆',
-            valueKey: '本期销量（万辆）',
-            timeKey: '月份',
-            isBar: true,
-            scale: 1,
-            insight: '最新值134.40万辆，环比上涨7.3%。同比增9.6%，近期承压。。关注：。'
-        },
-        {
-            id: 'carbonate_price',
-            tag: '碳酸锂·现货价格',
-            title: '碳酸锂现货价格走势',
-            link: 'carbonate_charts.html',
-            dataFile: 'carbonate_all_data.json',
-            tableName: '碳酸锂-价格',
-            unit: '万元/吨',
-            valueKey: '均价（万元/吨）',
-            timeKey: '日期',
-            isBar: false,
-            scale: 1,
-            insight: '数据不足，无法生成分析。'
-        },
-        {
-            id: 'recycling_blackmass',
-            tag: '回收·黑粉处理量',
-            title: '锂电池黑粉处理量走势',
-            link: 'recycling_charts.html',
-            dataFile: 'recycling_all_data.json',
-            tableName: '黑粉处理量-总计',
-            unit: '吨',
-            valueKey: '总计',
-            timeKey: '当前日期',
-            isBar: true,
-            scale: 1,
-            insight: '最新值2.59万吨，环比上涨5.7%。同比增26.9%，近期承压。。关注：。'
         }
         ];
+        
         
 
         var chartInstances = [null, null, null, null];
