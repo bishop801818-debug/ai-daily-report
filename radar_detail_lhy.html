@@ -915,31 +915,7 @@
 
     </style>
 
-<!-- BU 自检: LHY -->
-<script>
-//<![CDATA[
-document.addEventListener('DOMContentLoaded', function() {
-    var _errors = [];
-    try { eval('BU_WEIGHTS_LHY'); } catch(e) { _errors.push('BU_WEIGHTS_LHY 未定义 ← 模板复制不完整'); }
-    try { eval('RADAR_HISTORY_LHY'); } catch(e) { _errors.push('RADAR_HISTORY_LHY 未定义'); }
-    try { eval('DIMS_DEF_LHY'); } catch(e) { _errors.push('DIMS_DEF_LHY 未定义 ← 模板复制不完整'); }
-    if (_errors.length > 0) {
-        document.open();
-        document.write('<div style="padding:40px;font-family:Microsoft YaHei,sans-serif;background:#fee;border:3px solid #c00;border-radius:8px">'
- + '<h2 style="color:#c00">BU 数据校验失败</h2>'
-            + '<p>文件: <b>' + location.pathname + '</b></p>'
-            + '<p>预期BU: <b>lhy</b></p>'
-            + '<p>发现问题：</p><ul style="color:#c00">'
-            + _errors.map(function(e){ return '<li>' + e + '</li>'; }).join('')
-            + '</ul><p style="color:#888">请从 _archive/ 恢复原始版本</p></div>');
-        document.close();
-        console.error('[BU ASSERTION FAILED]', _errors.join('; '));
-        throw new Error('BU ASSERTION: ' + _errors.join('; '));
-    }
-    console.log('[BU OK] lhy assertion passed, data clean');
-});
-// ]]>
-</script></head>
+</head>
 <body>
 <div class="page-header">
     <a class="back-btn" href="radar_hub.html">← 雷达看板</a>
