@@ -1,6 +1,6 @@
 {
-  "version": "2026-06-13",
-  "description": "3个已验证BU当月dims白名单（SDMD/DKHX/SJLD），任何修改都会触发pre-commit hook阻断。更新白名单: python _docs/_rebuild_integrity_manifest.py --bu=<id>",
+  "version": "2026-06-14",
+  "description": "已验证BU当月dims白名单（SDMD/DKHX），任何修改都会触发pre-commit hook阻断。更新白名单: 编辑本文件",
   "bus": {
     "SDMD": {
       "file": "radar_detail_sdmd.html",
@@ -27,19 +27,6 @@
         "d6": 78
       },
       "sha256_prefix": "a7b1c3d4e9f2"
-    },
-    "SJLD": {
-      "file": "radar_detail_sjld.html",
-      "month": "2026-05",
-      "dims": {
-        "d1": 95,
-        "d2": 46,
-        "d3": 61,
-        "d4": 70,
-        "d5": 57,
-        "d6": 48
-      },
-      "sha256_prefix": "c3d4e5f6a7b8"
     }
   }
 }

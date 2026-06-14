@@ -86,7 +86,7 @@ BU_PROFILES = {
     },
     'sjld': {
         'code': 'SJLD',
-        'file': 'radar_detail_sjld.html',
+        'file': None,                           # 无独立页面，走radar_hub统一路由
         'description': '三金锂电（基建期）',
         # ⚠️ 注意：d3/d5下限已放宽到0，因03月是开工首月，数据可极低（d3=15,d5=1真实）
         'dim_ranges': {
@@ -460,7 +460,14 @@ def check_zero_placeholder(history_block, bu_id, verbose=False):
 
 def check_bu(bu_id, profile, strict=False, verbose=False):
     """对单个BU执行全部检查"""
-    fname = os.path.join(BASE, profile['file'])
+    fname = profile.get('file')
+    if not fname:
+        # 无独立页面（如SJLD），跳过文件级检查
+        all_issues = []
+        all_warnings = ['无独立detail页面，走radar_hub统一路由']
+        return 'OK', all_issues, all_warnings
+
+    fname = os.path.join(BASE, fname)
     if not os.path.exists(fname):
         return None, [f'[SKIP] 文件不存在: {fname}'], []
 
