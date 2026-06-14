@@ -44,19 +44,25 @@
         }
         .section-label::after { content: ""; flex: 1; height: 1px; background: #ddd; }
 
-        .dept-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 36px; }
+        .dept-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 16px;
+            margin-bottom: 36px;
+        }
 
         .dept-card {
             background: white;
             border-radius: 12px;
-            padding: 20px;
+            padding: 16px;
             cursor: pointer;
             transition: transform 0.2s, box-shadow 0.2s;
             border-left: 4px solid #1e3c72;
             box-shadow: 0 1px 4px rgba(0,0,0,0.06);
             text-decoration: none;
             color: inherit;
-            display: block;
+            display: flex;
+            flex-direction: column;
         }
         .dept-card:hover {
             transform: translateY(-3px);
@@ -69,12 +75,12 @@
         .dept-card-header {
             display: flex;
             align-items: center;
-            gap: 12px;
-            margin-bottom: 12px;
+            gap: 10px;
+            margin-bottom: 6px;
         }
         .dept-logo {
-            width: 42px;
-            height: 42px;
+            width: 36px;
+            height: 36px;
             border-radius: 50%;
             object-fit: contain;
             background: #fff;
@@ -82,13 +88,14 @@
             flex-shrink: 0;
         }
         .dept-info { flex: 1; min-width: 0; }
-        .dept-name { font-size: 16px; font-weight: bold; color: #1e3c72; margin-bottom: 2px; }
-        .dept-subtitle { font-size: 12px; color: #888; }
+        .dept-name { font-size: 14px; font-weight: bold; color: #1e3c72; margin-bottom: 2px; }
+        .dept-subtitle { font-size: 11px; color: #888; }
 
         /* ECharts 雷达图容器 */
         .dept-radar-preview {
-            height: 145px;
-            margin: 8px 0 4px;
+            height: 130px;
+            margin: 6px 0 4px;
+            flex-shrink: 0;
         }
         .dept-radar-preview canvas { border-radius: 8px; }
 
@@ -124,7 +131,7 @@
             border-top: 1px solid #f0f0f0;
         }
         .dept-score-label { font-size: 12px; color: #888; }
-        .dept-score-val { font-size: 20px; font-weight: bold; color: #1e3c72; }
+        .dept-score-val { font-size: 18px; font-weight: bold; color: #1e3c72; }
         .dept-score-dims { font-size: 11px; color: #aaa; margin-left: 6px; }
 
         .dept-dims-row {
