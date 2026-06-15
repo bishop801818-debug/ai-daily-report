@@ -1121,7 +1121,7 @@ const BU_META_FNLT = {
 
 
 
-const DIMS_DEF = [
+const DIMS_DEF_FNLT = [
     { id: 'd1', name: '核心KPI',      kpis: ['收入达成率','利润达成率','成本控制率','回款率'], color: '#9c27b0' },
     { id: 'd2', name: '经营效益',     kpis: ['碳酸锂销量','修复LFP交付','磷铁液交付','元明粉销售'], color: '#9c27b0' },
     { id: 'd3', name: '运营效率',     kpis: ['碳酸锂投料','碳酸锂产出','磷铁液产出','加工成本'], color: '#9c27b0' },
@@ -1261,7 +1261,7 @@ function renderScoreOverview() {
         scoreDimsEl.innerHTML +=
             '<div class="dim-item">' +
             '<div class="dim-name">' + dimNames[i] + '</div>' +
-            '<div class="dim-score" style="color:' + DIMS_DEF[i].color + '">' + v + '</div>' +
+            '<div class="dim-score" style="color:' + DIMS_DEF_FNLT[i].color + '">' + v + '</div>' +
             '<div class="dim-max">/100</div>' +
             '</div>';
     });
@@ -1868,7 +1868,7 @@ function generateLocalInsights(data) {
         var dimContributions = [];
         dimKeys.forEach(function(k) {
             var d = current.dims[k] - previous.dims[k];
-            var dimName = DIMS_DEF.find(function(def){return def.id===k;}).name;
+            var dimName = DIMS_DEF_FNLT.find(function(def){return def.id===k;}).name;
             dimContributions.push({ name: dimName, diff: d, absDiff: Math.abs(d) });
         });
         dimContributions.sort(function(a, b) { return b.absDiff - a.absDiff; });
@@ -2039,7 +2039,7 @@ function generateLocalInsights(data) {
     
     // === 维度分析：专业深度解读（增加对业务含义的解读）===
     dimKeys.forEach(function(dimKey) {
-        var dimDef = DIMS_DEF.find(function(d) { return d.id === dimKey; });
+        var dimDef = DIMS_DEF_FNLT.find(function(d) { return d.id === dimKey; });
         var score = current.dims[dimKey];
         var dimName = dimDef.name;
         
@@ -2246,7 +2246,7 @@ function generateLocalInsights(data) {
     // 维度风险
     dimKeys.forEach(function(k) {
         if (current.dims[k] < 60) {
-            var dimName = DIMS_DEF.find(function(d){return d.id===k;}).name;
+            var dimName = DIMS_DEF_FNLT.find(function(d){return d.id===k;}).name;
             var rootCause = analyzeDimRootCause(k, current);
             var historyTrend = analyzeHistoryTrend(k, 'dim');
             var businessImpact = '';
@@ -2278,7 +2278,7 @@ function generateLocalInsights(data) {
             });
             riskLevelCounts.high++;
         } else if (current.dims[k] < 75) {
-            var dimName = DIMS_DEF.find(function(d){return d.id===k;}).name;
+            var dimName = DIMS_DEF_FNLT.find(function(d){return d.id===k;}).name;
             var rootCause = analyzeDimRootCause(k, current);
             var historyTrend = analyzeHistoryTrend(k, 'dim');
             
@@ -2380,7 +2380,7 @@ function generateLocalInsights(data) {
     if (previous) {
         dimKeys.forEach(function(k) {
             if (current.dims[k] > previous.dims[k]) {
-                var dimName = DIMS_DEF.find(function(d){return d.id===k;}).name;
+                var dimName = DIMS_DEF_FNLT.find(function(d){return d.id===k;}).name;
                 var diff = current.dims[k] - previous.dims[k];
                 var type = diff >= 5 ? 'breakthrough' : 'momentum';
                 positives.push({
@@ -2453,7 +2453,7 @@ function generateLocalInsights(data) {
     // 辅助函数：生成维度改进建议
     function generateDimAction(dimKey, current, previous) {
         var score = current.dims[dimKey];
-        var dimName = DIMS_DEF.find(function(d){return d.id===dimKey;}).name;
+        var dimName = DIMS_DEF_FNLT.find(function(d){return d.id===dimKey;}).name;
         var priority = score < 60 ? 'urgent' : 'important';
         var timeline = score < 60 ? '本周内启动，30天内见效' : '本月内启动，60天内见效';
         
