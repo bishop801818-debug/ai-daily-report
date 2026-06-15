@@ -1198,6 +1198,75 @@ const DIMS_DEF_LPSD = [
 ];
 
 const RADAR_HISTORY_LPSD = {
+    // 4月数据来源: 龙蟠时代4月.pdf (第5页关键指标+第7页采购+第13页收率+第15页能耗)
+    '2026-04': {
+        // 4月核心经营指标:
+        //   营收: 33,353万 vs 预算34,771万 (96%)
+        //   净利润: 3,200万 vs 预算2,996万 (107%)
+        //   毛利率: 17.64% vs 预算12.61% (140%)
+        //   产量: 2,036T vs 预算3,482T (58%)
+        dims: { d1: 97, d2: 79, d3: 90, d4: 85, d5: 80, d6: 75 },
+        kpis: {
+            d1: [96, 107, 140, 100],
+            d2: [58, 64, 98, 99],
+            d3: [97, 69, 101, 72],
+            d4: [85, 85, 80, 90],
+            d5: [100, 85, 80, 85],
+            d6: [75, 80, 70, 75],
+        },
+        _kpiComparison: {
+            title: '4月核心KPI达成率',
+            period: '2026年4月',
+            items: [
+                { name: '营业收入(万)', budget: 34771, target: 34771, actual: 33353, unit: '万' },
+                { name: '净利润(万)', budget: 2996, target: 2996, actual: 3200, unit: '万' },
+                { name: '毛利率(%)', budget: 12.61, target: 12.61, actual: 17.64, unit: '%' },
+                { name: '产量(T)', budget: 3482, target: 3482, actual: 2036, unit: 'T' },
+            ],
+        },
+        _dimComparison_d2: {
+            title: '4月经营效益',
+            items: [
+                { name: '碳酸锂产量(T)', budget: 3482, target: 3482, actual: 2036, unit: 'T' },
+                { name: '云母采购量(T)', budget: 90000, target: 90000, actual: 58000, unit: 'T' },
+                { name: '云母收率(%)', budget: 80.34, target: 80.34, actual: 78.85, unit: '%' },
+                { name: '焙烧转化率(%)', budget: 89.0, target: 89.0, actual: 88.50, unit: '%' },
+            ],
+        },
+        _dimComparison_d3: {
+            title: '4月运营效率',
+            items: [
+                { name: '电单耗(kWh/T)', budget: 8200, target: 8200, actual: 8421, unit: 'kWh/T' },
+                { name: '水单耗(m³/T)', budget: 25, target: 25, actual: 36.1, unit: 'm³/T' },
+                { name: '天然气(m³/T)', budget: 2500, target: 2500, actual: 2466, unit: 'm³/T' },
+                { name: '存货周转率(次)', budget: 0, target: 6.0, actual: 5.0, unit: '次' },
+            ],
+        },
+        _dimComparison_d4: {
+            title: '4月技术创新力',
+            items: [
+                { name: '发明专利新增(件)', budget: 0, target: 3, actual: 4, unit: '件' },
+                { name: '实用新型专利(件)', budget: 0, target: 5, actual: 5, unit: '件' },
+                { name: '研发项目立项(项)', budget: 0, target: 2, actual: 2, unit: '项' },
+            ],
+        },
+        _dimComparison_d5: {
+            title: '4月风险合规',
+            items: [
+                { name: '安全事故(起)', budget: 0, target: 0, actual: 0, unit: '起' },
+                { name: '环保合规', budget: 1, target: 1, actual: 1, unit: '项' },
+                { name: '质量体系审核', budget: 1, target: 1, actual: 1, unit: '项' },
+            ],
+        },
+        _dimComparison_d6: {
+            title: '4月组织活力',
+            items: [
+                { name: '能源项目立项(项)', budget: 0, target: 1, actual: 1, unit: '项' },
+                { name: '新客户开发(家)', budget: 0, target: 3, actual: 2, unit: '家' },
+                { name: '人才引进(人)', budget: 0, target: 2, actual: 1, unit: '人' },
+            ],
+        },
+    },
     // 5月数据来源: 龙蟠时代5月.pdf (第3页关键指标+第4页经营数据+第12页收率+第15-17页能耗)
     '2026-05': {
         // 5月核心经营指标:
@@ -1284,7 +1353,7 @@ const RADAR_HISTORY_LPSD_EXTRA = {};
 var currentMonth = '2026-05';
 
 // 月份列表
-var MONTHS = ['2026-05'];
+var MONTHS = ['2026-04', '2026-05'];
 
 function getMonthData(month) {
     var hist = RADAR_HISTORY_LPSD[month];
