@@ -1198,35 +1198,41 @@ const DIMS_DEF_LPSD = [
 ];
 
 const RADAR_HISTORY_LPSD = {
-    // 占位数据（待填入龙蟠时代真实经营报告PDF数据）
-    // TODO: 提供龙蟠时代经营报告PDF后替换为真实数据
+    // 5月数据来源: 龙蟠时代5月.pdf (第3页关键指标+第4页经营数据+第12页收率+第15-17页能耗)
     '2026-05': {
-        dims: { d1: 75, d2: 72, d3: 88, d4: 65, d5: 70, d6: 82 },
+        // 5月核心经营指标:
+        //   营收: 22,885万 vs 预算45,101万 (51%)
+        //   净利润: 3,550万 vs 预算3,030万 (117%)
+        //   毛利率: 20.2% vs 预算13.1% (154%)
+        //   产量: 2,302T vs 预算2,164T (106%)
+        dims: { d1: 58, d2: 88, d3: 75, d4: 85, d5: 85, d6: 75 },
         kpis: {
-            d1: [80, 75, 70, 75],
-            d2: [72, 70, 75, 70],
-            d3: [85, 90, 88, 88],
-            d4: [65, 60, 70, 65],
-            d5: [70, 75, 65, 70],
-            d6: [80, 85, 82, 80],
+            d1: [51, 117, 154, 100],
+            d2: [106, 95, 99, 90],
+            d3: [82, 78, 88, 72],
+            d4: [85, 85, 80, 90],
+            d5: [100, 85, 80, 85],
+            d6: [75, 80, 70, 75],
         },
         _isCurrent: true,
         _kpiComparison: {
-            title: '5月核心KPI达成率（占位数据，待填入）',
+            title: '5月核心KPI达成率',
             period: '2026年5月',
             items: [
-                { name: '销售收入(万)', budget: 0, target: 0, actual: 0, unit: '万' },
-                { name: '净利润(万)', budget: 0, target: 0, actual: 0, unit: '万' },
-                { name: '毛利率(%)', budget: 0, target: 0, actual: 0, unit: '%' },
-                { name: '期间费用率(%)', budget: 0, target: 0, actual: 0, unit: '%' },
-                { name: '应收账款天数', budget: 0, target: 0, actual: 0, unit: '天' },
+                { name: '营业收入(万)', budget: 45101, target: 45101, actual: 22885, unit: '万' },
+                { name: '净利润(万)', budget: 3030, target: 3030, actual: 3550, unit: '万' },
+                { name: '毛利率(%)', budget: 13.1, target: 13.1, actual: 20.2, unit: '%' },
+                { name: '产量(T)', budget: 2164, target: 2164, actual: 2302, unit: 'T' },
+                { name: '云母收率(%)', budget: 80.34, target: 80.34, actual: 79.22, unit: '%' },
             ],
         },
         _dimComparison_d2: {
-            title: '5月经营效益（占位数据）',
+            title: '5月经营效益',
             items: [
-                { name: '碳酸锂销售(万)', budget: 0, target: 0, actual: 0, unit: '万' },
-                { name: '前驱体销售(万)', budget: 0, target: 0, actual: 0, unit: '万' },
+                { name: '碳酸锂产量(T)', budget: 2164, target: 2164, actual: 2302, unit: 'T' },
+                { name: '云母采购量(T)', budget: 50000, target: 50000, actual: 10000, unit: 'T' },
+                { name: '云母收率(%)', budget: 80.34, target: 80.34, actual: 79.22, unit: '%' },
+                { name: '焙烧转化率(%)', budget: 89.0, target: 89.0, actual: 88.26, unit: '%' },
             ],
         },
     },
