@@ -131,6 +131,22 @@ BU_PROFILES = {
         'template_contamination': [],
         'exclude_fingerprints': [],
     },
+    'lpsd': {
+        'code': 'LPSD',
+        'file': 'radar_detail_lpsd.html',
+        'hub_key': 'lpsd',
+        'description': '龙蟠时代（碳酸锂）',
+        'dim_ranges': {
+            'd1': (50, 100),   # 战略执行力：碳酸锂营收波动
+            'd2': (50, 100),   # 经营效益：锂盐价格敏感
+            'd3': (60, 100),   # 运营效率：产能利用率
+            'd4': (50, 100),   # 技术创新：新品研发
+            'd5': (60, 100),   # 风险合规：安环/质量
+            'd6': (50, 100),   # 组织活力：人才引进
+        },
+        'template_contamination': [],
+        'exclude_fingerprints': [],
+    },
 }
 
 # ─────────────────────────────────────────────

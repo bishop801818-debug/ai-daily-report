@@ -1,6 +1,6 @@
 {
-  "version": "2026-06-14",
-  "description": "已验证BU当月dims白名单（SDMD/DKHX），任何修改都会触发pre-commit hook阻断。更新白名单: 编辑本文件",
+  "version": "2026-06-15",
+  "description": "已验证BU当月dims白名单（SDMD/DKHX/LPSD），任何修改都会触发pre-commit hook阻断。更新白名单: 编辑本文件",
   "bus": {
     "SDMD": {
       "file": "radar_detail_sdmd.html",
@@ -27,6 +27,19 @@
         "d6": 78
       },
       "sha256_prefix": "a7b1c3d4e9f2"
+    },
+    "LPSD": {
+      "file": "radar_detail_lpsd.html",
+      "month": "2026-05",
+      "dims": {
+        "d1": 75,
+        "d2": 72,
+        "d3": 88,
+        "d4": 65,
+        "d5": 70,
+        "d6": 82
+      },
+      "sha256_prefix": "c8d2e3f4a1b5"
     }
   }
 }
