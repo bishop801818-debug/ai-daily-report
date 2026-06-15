@@ -183,6 +183,54 @@ def extract_news_items(bu_data):
     
     return items
 
+def is_market_price_news(title):
+    """
+    判断新闻是否是纯行情类新闻（价格波动、股价涨停等）
+    这类新闻不适合在首页热点新闻展示，应该过滤掉
+    
+    返回True表示是行情类新闻，应该过滤
+    返回False表示是有深度的行业新闻，应该保留
+    """
+    if not title:
+        return False
+    
+    title_lower = title.lower()
+    
+    # 1. 包含涨跌百分比（如"涨2.87%"、"跌4%"、"单日跌近3%"）
+    if re.search(r'[涨跌][\d.]+%|[单双]日[涨跌][\d.]+%', title):
+        return True
+    
+    # 2. 包含具体价格单位（这是行情数据的显著特征）
+    price_units = [
+        '美元/盎司', '美元/桶', '美元/吨',
+        '万元/吨', '万元/吨',
+        '元/吨', '元/克', '元/千克',
+        '元/桶',
+    ]
+    for unit in price_units:
+        if unit in title:
+            return True
+    
+    # 3. 包含"涨停"、"首板"、"跌停"（股价行情）
+    if '涨停' in title or '首板' in title or '跌停' in title:
+        return True
+    
+    # 4. 包含"涨跌"关键词
+    if '涨跌' in title:
+        return True
+    
+    # 5. 明显的行情描述词汇
+    market_keywords = ['重挫', '暴涨', '暴跌', '飙升', '跳水', '崩盘', '反弹']
+    for kw in market_keywords:
+        if kw in title:
+            # 但要排除一些可能是行业新闻的情况
+            # 如果只是价格数字+涨跌，没有其他实质内容，才是行情
+            if re.search(r'[涨跌][\d.]+%', title) or re.search(r'\d+[\d.]*%', title):
+                return True
+    
+    return False
+
+
 def select_news_evenly(all_items, target_count=5):
     """
     均匀抽取新闻，尽量避免从同一事业部抽取多条
@@ -191,6 +239,8 @@ def select_news_evenly(all_items, target_count=5):
     2. 每个事业部最多选1条（如果可能）
     3. 随机选择事业部，然后从该事业部随机选1条
     4. 如果选不出足够的条数，允许某些事业部选2条
+    
+    新增：过滤掉纯行情类新闻，只保留有深度的行业新闻
     """
     if not all_items:
         return []
@@ -203,22 +253,45 @@ def select_news_evenly(all_items, target_count=5):
             bu_groups[bu] = []
         bu_groups[bu].append(item)
     
+    # 【新增】过滤掉纯行情类新闻，只保留有深度的行业新闻
+    filtered_bu_groups = {}
+    market_filtered_count = 0
+    for bu, items in bu_groups.items():
+        filtered_items = []
+        for item in items:
+            title = item.get("title", "")
+            if is_market_price_news(title):
+                market_filtered_count += 1
+                print(f"  [过滤] 行情类新闻: [{bu}] {title[:40]}...")
+            else:
+                filtered_items.append(item)
+        if filtered_items:
+            filtered_bu_groups[bu] = filtered_items
+    
+    if market_filtered_count > 0:
+        print(f"[信息] 过滤掉 {market_filtered_count} 条行情类新闻，保留 {sum(len(v) for v in filtered_bu_groups.values())} 条行业新闻")
+    
+    # 如果过滤后没有足够的新闻，回退到使用未过滤的数据
+    if not filtered_bu_groups:
+        print(f"[警告] 过滤后没有剩余新闻，回退到未过滤数据")
+        filtered_bu_groups = bu_groups
+    
     selected = []
     used_bu_counts = {}  # 记录每个事业部已选的条数
     
-    # 第一轮：每个事业部最多选1条
-    available_bus = list(bu_groups.keys())
+    # 第一轮：每个事业部最多选1条（使用过滤后的filtered_bu_groups）
+    available_bus = list(filtered_bu_groups.keys())
     random.shuffle(available_bus)
     
     for bu in available_bus:
         if len(selected) >= target_count:
             break
-        if bu_groups[bu]:  # 该事业部有新闻
-            item = random.choice(bu_groups[bu])
+        if filtered_bu_groups[bu]:  # 该事业部有新闻
+            item = random.choice(filtered_bu_groups[bu])
             selected.append(item)
             used_bu_counts[bu] = 1
     
-    # 如果还不够，第二轮：允许某些事业部选2条
+    # 如果还不够，第二轮：允许某些事业部选2条（使用过滤后的filtered_bu_groups）
     if len(selected) < target_count:
         retry_count = 0
         while len(selected) < target_count and retry_count < 100:
@@ -228,10 +301,10 @@ def select_news_evenly(all_items, target_count=5):
                 if len(selected) >= target_count:
                     break
                 # 如果该事业部已选1条，且还有剩余新闻，可以选第2条
-                if used_bu_counts.get(bu, 0) < 2 and len(bu_groups[bu]) > used_bu_counts.get(bu, 0):
+                if used_bu_counts.get(bu, 0) < 2 and len(filtered_bu_groups[bu]) > used_bu_counts.get(bu, 0):
                     # 选一个未选过的
                     selected_titles = [s["title"] for s in selected if s["bu"] == bu]
-                    available_items = [i for i in bu_groups[bu] if i["title"] not in selected_titles]
+                    available_items = [i for i in filtered_bu_groups[bu] if i["title"] not in selected_titles]
                     if available_items:
                         item = random.choice(available_items)
                         selected.append(item)
