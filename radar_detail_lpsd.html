@@ -1481,7 +1481,7 @@ function renderMonthSwitcher() {
     var el = document.getElementById('monthSwitcher');
     el.innerHTML = '';
     MONTHS.forEach(function(m) {
-        var label = m.replace('-', '年') + '月';
+        var label = m === '2026-Q1' ? '2026年Q1' : m.replace('-', '年') + '月';
         var isCurrent = RADAR_HISTORY_LPSD[m] && RADAR_HISTORY_LPSD[m]._isCurrent;
         if (isCurrent) label += ' ★';
         var btn = document.createElement('button');
@@ -1545,7 +1545,7 @@ function initTimeline() {
 
     months.forEach(function(m, i) {
         var pos = i * pct;
-        var label = m.replace('-', '年') + '月';
+        var label = m === '2026-Q1' ? '2026年Q1' : m.replace('-', '年') + '月';
         var isActive = m === currentMonth;
         track.innerHTML +=
             '<div class="timeline-dot' + (isActive ? ' active' : '') + '" ' +
@@ -1585,7 +1585,7 @@ function updateTimelineProgress() {
 
     // 更新 label
     if (label) {
-        var text = months[idx].replace('-', '年') + '月';
+        var text = months[idx] === '2026-Q1' ? '2026年Q1' : months[idx].replace('-', '年') + '月';
         if (RADAR_HISTORY_LPSD[months[idx]] && RADAR_HISTORY_LPSD[months[idx]]._isCurrent) {
             text += ' ★';
         }
@@ -1756,7 +1756,7 @@ function renderRadar() {
             var c = COMP_COLORS[mi % COMP_COLORS.length];
             seriesData.push({
                 value: mVals,
-                name: m.replace('-', '年') + '月',
+                name: m === '2026-Q1' ? '2026年Q1' : m.replace('-', '年') + '月',
                 lineStyle: { color: c.main, width: mi === allMonths.length - 1 ? 2.5 : 1.5, type: mi === allMonths.length - 1 ? 'solid' : 'dashed' },
                 itemStyle: { color: c.main, shadowBlur: mi === allMonths.length - 1 ? 12 : 0, shadowColor: c.main + '66', borderWidth: 2, borderColor: 'white' },
                 areaStyle: mi === allMonths.length - 1 ? { color: c.light } : null,
