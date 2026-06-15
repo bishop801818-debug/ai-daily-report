@@ -1,5 +1,5 @@
 const EMBEDDED_DATA = {
-  "update_time": "2026-06-10 12:01:10",
+  "update_time": "2026-06-15 12:00:56",
   "source": "🚗全球汽车市场数据库.xlsx",
   "tables": [
     {

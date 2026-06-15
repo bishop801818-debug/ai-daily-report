@@ -1,5 +1,5 @@
 const EMBEDDED_DATA = {
-  "update_time": "2026-06-10 12:00:51",
+  "update_time": "2026-06-15 12:00:10",
   "source": "电解液行业数据库 (1).xlsx",
   "tables": [
     {
