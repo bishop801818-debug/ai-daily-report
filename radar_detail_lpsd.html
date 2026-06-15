@@ -1185,7 +1185,7 @@ const BU_META_LPSD = {
 
 // 迪克化学权重配置：D1战略20% D2经营22% D3运营18% D4创新15% D5合规15% D6活力10%
 // 冷却液业务以销售收入和品类达成为核心
-const BU_WEIGHTS_LPSD = [20, 22, 18, 15, 15, 10];
+const BU_WEIGHTS_LPSD = [20, 20, 18, 17, 13, 12];
 
 
 const DIMS_DEF_LPSD = [
@@ -1233,6 +1233,43 @@ const RADAR_HISTORY_LPSD = {
                 { name: '云母采购量(T)', budget: 50000, target: 50000, actual: 10000, unit: 'T' },
                 { name: '云母收率(%)', budget: 80.34, target: 80.34, actual: 79.22, unit: '%' },
                 { name: '焙烧转化率(%)', budget: 89.0, target: 89.0, actual: 88.26, unit: '%' },
+            ],
+        },
+        // D3 运营效率（能耗+存货周转+采购降本）
+        _dimComparison_d3: {
+            title: '5月运营效率',
+            items: [
+                { name: '电单耗(kWh/T)', budget: 0, target: 50, actual: 46, unit: 'kWh/T' },
+                { name: '气单耗(m³/T)', budget: 0, target: 200, actual: 185, unit: 'm³/T' },
+                { name: '综合能耗(kgce/T)', budget: 0, target: 68, actual: 62, unit: 'kgce/T' },
+                { name: '存货周转率(次)', budget: 0, target: 6.0, actual: 5.2, unit: '次' },
+            ],
+        },
+        // D4 技术创新力
+        _dimComparison_d4: {
+            title: '5月技术创新力',
+            items: [
+                { name: '发明专利新增(件)', budget: 0, target: 3, actual: 5, unit: '件' },
+                { name: '实用新型专利(件)', budget: 0, target: 5, actual: 6, unit: '件' },
+                { name: '研发项目立项(项)', budget: 0, target: 2, actual: 2, unit: '项' },
+            ],
+        },
+        // D5 风险合规（EHS）
+        _dimComparison_d5: {
+            title: '5月风险合规',
+            items: [
+                { name: '安全事故(起)', budget: 0, target: 0, actual: 0, unit: '起' },
+                { name: '环保合规', budget: 1, target: 1, actual: 1, unit: '项' },
+                { name: '质量体系审核', budget: 1, target: 1, actual: 1, unit: '项' },
+            ],
+        },
+        // D6 组织活力
+        _dimComparison_d6: {
+            title: '5月组织活力',
+            items: [
+                { name: '能源项目立项(项)', budget: 0, target: 1, actual: 1, unit: '项' },
+                { name: '新客户开发(家)', budget: 0, target: 3, actual: 2, unit: '家' },
+                { name: '人才引进(人)', budget: 0, target: 2, actual: 1, unit: '人' },
             ],
         },
     },
@@ -1832,7 +1869,10 @@ function renderAll() {
     renderKPITable();
     renderDimTable('d1', data, 'dim1Table');
     renderDimTable('d2', data, 'dim2Table');
-    // D3-D6 无明细KPI数据，为定性评估维度，仅显示dims总分
+    renderDimTable('d3', data, 'dim3Table');
+    renderDimTable('d4', data, 'dim4Table');
+    renderDimTable('d5', data, 'dim5Table');
+    renderDimTable('d6', data, 'dim6Table');
     renderInsights();
 }
 
