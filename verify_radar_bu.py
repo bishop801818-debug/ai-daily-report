@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-verify_radar_bu.py - 雷达看板BU数据一致性检查工具（v2 增强版）
+verify_radar_bu.py - 雷达看板BU数据一致性检查工具（v3）
 
 防护机制：
   1. 已知SDMD污染指纹检测（含LHY排除）
@@ -9,7 +9,8 @@ verify_radar_bu.py - 雷达看板BU数据一致性检查工具（v2 增强版）
   3. BU维度范围合理性校验（业务逻辑异常）
   4. RADAR_HISTORY数据来源标注检查（缺失=可疑）
   5. hub vs detail 跨文件一致性（当前月份dims对齐）
-  6. RADAR_HISTORY完整性检查（月份数量一致性）
+  6. 全零占位数据警告
+  7. 对比表KPI名称指纹检测 ← 新增（检测跨BU对比表污染，根因见commit aecd7bf）
 
 用法:
   python verify_radar_bu.py              # 仅检查
@@ -157,6 +158,91 @@ SDMD_FINGERPRINTS = {
     '2026-03': (100, 100, 92),
     '2026-04': (100, 88, 90),
     '2026-05': (90, 90, 82),
+}
+
+# ─────────────────────────────────────────────
+# BU 对比表 KPI 名称指纹库（检测跨BU对比表污染）
+#
+# 原理：各BU的对比表指标名高度唯一。
+# 若某文件的对比表中出现其他BU的标志性关键词，说明被污染。
+#
+# 原则：
+#   - 只选每个BU真正独有的指标名（不含通用财务术语如"毛利率"、"净利润"）
+#   - SDMD 独有：电解液/电池回收特征词
+#   - FNLT 独有：电解液制造特征词
+#   - LHY 独有：润滑油产品线特征词
+#   - SJLD 独有：基建期特征词
+#   - LPSD 独有：云母/锂盐加工特征词
+#   - DKHX 独有：冷却液/制动液产品线
+# ─────────────────────────────────────────────
+COMPARISON_KPI_FINGERPRINTS = {
+    'SDMD': {
+        # 电池回收/前驱体行业独有指标
+        'sdmd_only': [
+            '碳酸锂销量',
+            '修复LFP交付',
+            '磷铁液交付',
+            '元明粉销售',
+            '磷铁液产出',
+            '产品一次合格率',
+            '加工成本(万/t)',
+        ],
+    },
+    'FNLT': {
+        # 电解液制造行业独有指标（不含通用财务词）
+        'fnlt_only': [
+            '降本率(%)',
+            '降本率',
+            '采购到货率',
+            '采购及时到货率',
+            '战略协议签订',
+            'AI项目立项',
+            '客户审核通过',
+            '采购量达成率',
+            '新产品销量',
+        ],
+    },
+    'LHY': {
+        # 润滑油行业独有指标
+        'lhy_only': [
+            '冷却液(万)',
+            '汽机油(万)',
+            '柴机油(万)',
+            '变速箱油(万)',
+            '海外市场(万)',
+            '工业油销售',
+            '玻璃水销售',
+        ],
+    },
+    'SJLD': {
+        # 三金锂电基建期独有指标
+        'sjld_only': [
+            '竣工验收进度',
+            '机电板块进度',
+            '土建板块进度',
+            '正常化项目',
+            '元明粉出售',
+            '代工客户洽谈',
+        ],
+    },
+    'LPSD': {
+        # 龙蟠时代云母/锂盐加工独有指标
+        'lpsd_only': [
+            '碳酸锂产量',
+            '云母采购量',
+            '云母收率',
+            '电单耗',
+            '水单耗',
+        ],
+    },
+    'DKHX': {
+        # 迪克化学冷却液/制动液独有指标
+        'dkhx_only': [
+            '冷却液销售(万)',
+            '制动液销售(万)',
+            '防冻液销售(万)',
+        ],
+    },
 }
 
 # ─────────────────────────────────────────────
@@ -470,6 +556,54 @@ def check_zero_placeholder(history_block, bu_id, verbose=False):
     return warnings
 
 
+def check_comparison_kpi_fingerprint(history_block, bu_id, profile, verbose=False):
+    """检查7：对比表 KPI 名称指纹（跨BU污染检测）
+
+    每个BU的对比表指标名高度唯一。若某文件的对比表中出现其他BU的标志性关键词，
+    说明存档时把其他BU的数据写进来了（本次 FELT 被 SDMD 污染的根因）。
+    检测范围：_kpiComparison / _dimComparison_d2/d3 的 items 数组。
+    """
+    issues = []
+    warnings = []
+    code = profile['code']
+
+    if code not in COMPARISON_KPI_FINGERPRINTS:
+        return issues, warnings
+
+    for other_code, fp in COMPARISON_KPI_FINGERPRINTS.items():
+        if other_code == code:
+            continue
+
+        other_keywords = fp.get(other_code + '_only', [])
+
+        for kw in other_keywords:
+            search_pos = 0
+            while True:
+                idx = history_block.find(kw, search_pos)
+                if idx < 0:
+                    break
+
+                # 确认出现在对比表 items 数组内
+                prefix = history_block[max(0, idx - 300):idx]
+                section_match = re.search(r'_kpiComparison|_dimComparison_d[1-6]', prefix)
+                if section_match:
+                    item_region = history_block[section_match.start():idx + len(kw) + 600]
+                    if 'items:' in item_region[:600] and ']' in item_region:
+                        # 确认不在注释行里
+                        line_start = history_block.rfind('\n', 0, idx)
+                        line = history_block[max(0, line_start):idx].strip()
+                        if not line.startswith('//'):
+                            issues.append(
+                                f'发现{other_code}对比表污染：关键词"{kw}"出现在对比表items中，'
+                                f'说明存档时把{other_code}数据写入了{code}文件（需重建对比表）'
+                            )
+                            if verbose:
+                                print(f'    [对比表污染] {code}文件中出现{other_code}关键词: {kw}')
+                            break
+                search_pos = idx + 1
+    return issues, warnings
+
+
 # ─────────────────────────────────────────────
 # 主检查函数
 # ─────────────────────────────────────────────
@@ -519,6 +653,11 @@ def check_bu(bu_id, profile, strict=False, verbose=False):
         war = check_zero_placeholder(hist_block, bu_id, verbose)
         all_warnings.extend(war)
 
+        # 检查7: 对比表 KPI 名称指纹（跨BU污染检测）
+        iss, war = check_comparison_kpi_fingerprint(hist_block, bu_id, profile, verbose)
+        all_issues.extend(iss)
+        all_warnings.extend(war)
+
     # 检查5: 跨文件一致性（单独读取hub）
     iss, war = check_cross_file_consistency(bu_id, profile, verbose)
     all_issues.extend(iss)
@@ -541,7 +680,7 @@ def main():
     bu_ids = [target_bu] if target_bu else list(BU_PROFILES.keys())
 
     print('═' * 60)
-    print('  雷达看板 BU 数据一致性检查  v2（增强版）')
+    print('  雷达看板 BU 数据一致性检查  v3（对比表指纹检测）')
     print('═' * 60)
     if strict:
         print('  模式: 严格检查（来源标注缺失 → FAIL）')
