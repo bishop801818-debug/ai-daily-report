@@ -1,5 +1,5 @@
 const EMBEDDED_DATA = {
-  "update_time": "2026-06-15 12:00:39",
+  "update_time": "2026-06-16 12:04:03",
   "source": "🔋 【三金锂电】三元前驱体产业链数据库.xlsx",
   "tables": [
     {
