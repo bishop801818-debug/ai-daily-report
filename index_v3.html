@@ -18221,7 +18221,7 @@ async function init() {
     }
 
     bindEvents();
-    startCarousel();
+    // startCarousel() 已禁用 - 矩阵网格为静态展示，无需轮播
 }
 
 let openTimer = null;
@@ -18252,40 +18252,7 @@ function bindEvents() {
 // ═══════════════════════════════════════════════════
 // 轮播逻辑（每10秒切换）
 // ═══════════════════════════════════════════════════
-let isAnimating = false;
-function startCarousel() {
-    setInterval(rotatePanels, 10000);
-}
-function rotatePanels() {
-    if (isAnimating) return;
-    isAnimating = true;
 
-    const grid = document.getElementById('matrix-grid');
-    if (!grid) { console.warn('[rotatePanels] matrix-grid 不存在，跳过轮播'); isAnimating = false; return; }
-    const panels = Array.from(grid.children);
-
-    panels.forEach(panel => {
-        panel.classList.remove('position-left','position-center','position-right','sliding-out-left','sliding-out-right');
-    });
-
-    panels[0].classList.add('sliding-out-left');
-    panels[2].classList.add('sliding-out-right');
-
-    setTimeout(() => {
-        const lastPanel = panels.pop();
-        grid.prepend(lastPanel);
-
-        const newPanels = Array.from(grid.children);
-        newPanels.forEach(panel => {
-            panel.classList.remove('sliding-out-left','sliding-out-right');
-        });
-        newPanels[0].classList.add('position-left');
-        newPanels[1].classList.add('position-center');
-        newPanels[2].classList.add('position-right');
-
-        setTimeout(() => { isAnimating = false; }, 1000);
-    }, 500);
-}
 
 // ═══════════════════════════════════════════════════
 // 面板内容（全部保留原有功能）
