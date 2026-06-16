@@ -2,23 +2,23 @@
   "meta": {
     "description": "化工板块2026年累计涨跌幅",
     "data_source": "各产品源数据文件",
-    "update_time": "2026-06-12 12:05:54",
+    "update_time": "2026-06-16 12:20:27",
     "year": 2026,
-    "generated_at": "2026-06-12T12:05:54.584724",
-    "generator_version": "20260604_v1"
+    "generated_at": "2026-06-16T12:20:27.183174",
+    "generator_version": "20260616_v2"
   },
   "products": [
     {
       "name": "尿素期货",
       "unit": "元/吨",
       "start_date": "2026-01-05",
-      "end_date": "2026-06-05",
+      "end_date": "2026-06-15",
       "start_price": 1768.0,
-      "end_price": 1765.0,
-      "change": -3.0,
-      "change_pct": -0.17,
-      "direction": "down",
-      "data_points": 100,
+      "end_price": 1786.0,
+      "change": 18.0,
+      "change_pct": 1.02,
+      "direction": "up",
+      "data_points": 106,
       "price_series": [
         {
           "date": "2026-01-05",
@@ -419,6 +419,30 @@
         {
           "date": "2026-06-05",
           "price": 1765.0
+        },
+        {
+          "date": "2026-06-08",
+          "price": 1838.0
+        },
+        {
+          "date": "2026-06-09",
+          "price": 1809.0
+        },
+        {
+          "date": "2026-06-10",
+          "price": 1793.0
+        },
+        {
+          "date": "2026-06-11",
+          "price": 1801.0
+        },
+        {
+          "date": "2026-06-12",
+          "price": 1792.0
+        },
+        {
+          "date": "2026-06-15",
+          "price": 1786.0
         }
       ]
     },
@@ -426,13 +450,13 @@
       "name": "WTI原油",
       "unit": "美元/桶",
       "start_date": "2026-01-02",
-      "end_date": "2026-06-08",
+      "end_date": "2026-06-16",
       "start_price": 57.32,
-      "end_price": 93.53,
-      "change": 36.21,
-      "change_pct": 63.17,
+      "end_price": 79.42,
+      "change": 22.1,
+      "change_pct": 38.56,
       "direction": "up",
-      "data_points": 111,
+      "data_points": 117,
       "price_series": [
         {
           "date": "2026-01-02",
@@ -876,7 +900,31 @@
         },
         {
           "date": "2026-06-08",
-          "price": 93.53
+          "price": 91.26
+        },
+        {
+          "date": "2026-06-09",
+          "price": 88.68
+        },
+        {
+          "date": "2026-06-10",
+          "price": 91.85
+        },
+        {
+          "date": "2026-06-11",
+          "price": 86.42
+        },
+        {
+          "date": "2026-06-12",
+          "price": 84.26
+        },
+        {
+          "date": "2026-06-15",
+          "price": 81.15
+        },
+        {
+          "date": "2026-06-16",
+          "price": 79.42
         }
       ]
     },
@@ -884,13 +932,13 @@
       "name": "乙二醇",
       "unit": "元/吨",
       "start_date": "2026-01-05",
-      "end_date": "2026-06-05",
+      "end_date": "2026-06-15",
       "start_price": 3732.0,
-      "end_price": 4505.0,
-      "change": 773.0,
-      "change_pct": 20.71,
+      "end_price": 4427.0,
+      "change": 695.0,
+      "change_pct": 18.62,
       "direction": "up",
-      "data_points": 100,
+      "data_points": 106,
       "price_series": [
         {
           "date": "2026-01-05",
@@ -1291,6 +1339,30 @@
         {
           "date": "2026-06-05",
           "price": 4505.0
+        },
+        {
+          "date": "2026-06-08",
+          "price": 4648.0
+        },
+        {
+          "date": "2026-06-09",
+          "price": 4485.0
+        },
+        {
+          "date": "2026-06-10",
+          "price": 4544.0
+        },
+        {
+          "date": "2026-06-11",
+          "price": 4637.0
+        },
+        {
+          "date": "2026-06-12",
+          "price": 4679.0
+        },
+        {
+          "date": "2026-06-15",
+          "price": 4427.0
         }
       ]
     }
