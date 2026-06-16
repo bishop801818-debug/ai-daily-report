@@ -655,11 +655,15 @@ def is_low_quality_image(url):
     # 3. URL包含新闻子路径 + png格式（通常是新闻网页截图）
     # 但排除一些正常的图片CDN
     if '/news/' in url_lower and url_lower.endswith('.png'):
-        # 排除正常的图片CDN域名
-        safe_cdns = ['imgqn.smm.cn', 'mmbiz.qpic.cn', 'static.mianbaoban']
+        # 排除正常的图片CDN域名（仅保留真正的图床）
+        safe_cdns = ['imgqn.smm.cn', 'static.mianbaoban']
         is_safe = any(cdn in url_lower for cdn in safe_cdns)
         if not is_safe:
             return True
+    
+    # 3.1 腾讯民报公众号图片（mmbiz.qpic.cn）- 公众号文章截图，质量差
+    if 'mmbiz.qpic.cn' in url_lower:
+        return True
     
     # 4. 上传图片的时间戳命名（如 1780909599170804.jpg）
     if re.search(r'/\d{14,}\.(jpg|jpeg|png)', url, re.IGNORECASE):
