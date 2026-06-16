@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI悬停按钮存档 - 2026-06-16</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+    min-height:100vh;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    font-family: "Microsoft YaHei", "微软雅黑", 'PingFang SC', sans-serif;
+    display:flex; flex-direction:column;
+    align-items:center; justify-content:center;
+    gap:40px; padding:40px;
+}
+
+/* 按钮容器 */
+.ai-float-wrap {
+    position: fixed;
+    bottom: 36px;
+    right: 36px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    user-select: none;
+    cursor: grab;
+}
+
+/* 按钮主体：绿色圆形边框 */
+#aiSphere, .ai-sphere {
+    position: relative !important;
+    width: 80px !important;
+    height: 80px !important;
+    border-radius: 50% !important;
+    cursor: pointer !important;
+    overflow: visible !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    transform-style: flat !important;
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+/* 绿色圆形边框（伪元素实现） */
+#aiSphere::before, .ai-sphere::before {
+    content: '' !important;
+    position: absolute !important;
+    top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important;
+    border-radius: 50% !important;
+    padding: 3px !important;
+    background: linear-gradient(135deg, #2d9f6e, #4ecb8a) !important;
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0) !important;
+    -webkit-mask-composite: xor !important;
+    mask-composite: exclude !important;
+    pointer-events: none !important;
+    z-index: 1 !important;
+}
+
+/* 悬停时按钮放大 */
+#aiSphere:hover, .ai-sphere:hover {
+    transform: translateY(-4px) scale(1.05) !important;
+}
+
+/* 静态图片层（始终隐藏） */
+.ai-sphere-img, .static-img {
+    width: 74px !important;
+    height: 74px !important;
+    border-radius: 50% !important;
+    object-fit: cover !important;
+    display: block !important;
+    position: relative !important;
+    z-index: 0 !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
+/* GIF动画层（始终可见） */
+.media-layer {
+    position: absolute !important;
+    top: 3px !important; left: 3px !important;
+    width: 74px !important; height: 74px !important;
+    border-radius: 50% !important;
+    overflow: hidden !important;
+    opacity: 1 !important;
+    pointer-events: none !important;
+    z-index: 2 !important;
+}
+.media-layer img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    display: block !important;
+}
+
+/* 标签样式 */
+.ai-float-label {
+    font-family: "Microsoft YaHei", "微软雅黑", 'PingFang SC', sans-serif !important;
+    font-size: 12px !important;
+    font-weight: 600 !important;
+    color: #fff !important;
+    background: linear-gradient(135deg, #2d9f6e, #4ecb8a) !important;
+    padding: 3px 12px !important;
+    border-radius: 20px !important;
+    letter-spacing: 2px !important;
+    white-space: nowrap !important;
+    box-shadow: 0 3px 12px rgba(45,159,110,0.45) !important;
+    text-align: center !important;
+    cursor: pointer !important;
+    transition: background 0.25s, box-shadow 0.25s, transform 0.25s !important;
+}
+.ai-float-label:hover {
+    background: linear-gradient(135deg, #268a5c, #3db87a) !important;
+    box-shadow: 0 5px 18px rgba(45,159,110,0.65) !important;
+    transform: translateY(-2px) !important;
+}
+
+/* 预览说明面板 */
+.info-panel {
+    background: rgba(255,255,255,0.95);
+    border-radius: 14px;
+    padding: 28px 32px;
+    max-width: 640px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.1);
+    border: 1px solid rgba(255,255,255,0.2);
+}
+.info-panel h2 {
+    color: #2d9f6e;
+    font-size: 18px;
+    margin-bottom: 16px;
+    font-weight: 700;
+}
+.info-panel h3 {
+    color: #333;
+    font-size: 14px;
+    margin: 18px 0 8px 0;
+    font-weight: 600;
+}
+.info-panel ul {
+    list-style: none;
+    padding: 0;
+}
+.info-panel li {
+    padding: 6px 0;
+    font-size: 13px;
+    color: #555;
+    border-bottom: 1px solid #f0f0f0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.info-panel li:last-child {
+    border-bottom: none;
+}
+.tag {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    color: #fff;
+}
+code {
+    background: #f0f0f0;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 12px;
+    color: #c7254e;
+}
+</style>
+</head>
+<body>
+
+<h2 style="color:#fff;">🐉 AI龙小蟠 · 悬停按钮存档（2026-06-16）</h2>
+
+<!-- ===== AI悬停按钮 ===== -->
+<div class="ai-float-wrap" id="aiFloatWrap">
+    <div class="ai-sphere" id="aiSphere">
+        <img class="ai-sphere-img" id="aiSphereImg"
+             src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAW5BB0QAAAABJRU5ErkJggg=="
+             alt="AI助手"
+             style="border-radius:50%;pointer-events:none;">
+        <div class="media-layer" id="gifLayer">
+            <img id="gifImg" src="" alt="动画" style="width:100%;height:100%;object-fit:cover;display:block;">
+        </div>
+    </div>
+    <div class="ai-sphere-shadow"></div>
+    <span class="ai-float-label">AI龙小蟠</span>
+</div>
+
+<!-- ===== 说明面板 ===== -->
+<div class="info-panel">
+    <h2>📋 存档说明</h2>
+    <ul>
+        <li><span style="background:#27ae60;" class="tag">存档日期</span> 2026-06-16</li>
+        <li><span style="background:#3498db;" class="tag">版本</span> v2.0 GIF动画按钮</li>
+        <li><span style="background:#9b59b6;" class="tag">文件</span> index_v3.html（Git commit: 626fa44）</li>
+    </ul>
+
+    <h3>🎨 按钮特征</h3>
+    <ul>
+        <li>✅ 绿色渐变圆形边框（#2d9f6e → #4ecb8a）</li>
+        <li>✅ 龙小蟠GIF动画始终循环播放（眨眼→敲键盘→扶眼镜）</li>
+        <li>✅ 鼠标悬停时按钮放大+上浮效果</li>
+        <li>✅ 点击"AI龙小蟠"标签打开对话窗口</li>
+    </ul>
+
+    <h3>📁 相关文件</h3>
+    <ul>
+        <li><code>index_v3.html</code> - 首页（按钮CSS/HTML/JS所在）</li>
+        <li><code>assets/dragon_anim_optimized.gif</code> - GIF动画文件（5.4MB）</li>
+        <li><code>proxy_qwen.py</code> - AI对话代理服务器</li>
+        <li><code>_docs/运维框架.md</code> - 第11节：AI按钮运维规范</li>
+    </ul>
+
+    <h3>🔧 恢复方法</h3>
+    <ul>
+        <li>1. Git恢复：<code>git checkout 626fa44 -- index_v3.html</code></li>
+        <li>2. 手动修复：参考 <code>_docs/运维框架.md</code> 第11.5节</li>
+    </ul>
+
+    <h3>📝 变更记录</h3>
+    <ul>
+        <li><strong>2026-06-16</strong>：按钮升级为GIF动画（始终播放），替代原静态PNG图片</li>
+        <li><strong>2026-06-10</strong>：AI对话从Coze API迁移到通义千问API</li>
+        <li><strong>2026-06-08</strong>：初始版本，3D球体按钮</li>
+    </ul>
+</div>
+
+<script>
+// GIF动画：页面加载后立即播放
+(function(){
+    var gifImg = document.getElementById("gifImg");
+    if (!gifImg) return;
+    // 注意：存档页面中GIF路径可能需要调整
+    // 如果GIF不显示，请确认 assets/dragon_anim_optimized.gif 是否存在
+    gifImg.src = "assets/dragon_anim_optimized.gif";
+})();
+</script>
+
+</body>
+</html>
