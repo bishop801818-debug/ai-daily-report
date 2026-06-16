@@ -12,6 +12,8 @@ verify_radar_bu.py - 雷达看板BU数据一致性检查工具（v3）
   6. 全零占位数据警告
   7. 对比表KPI名称指纹检测 ← 新增（检测跨BU对比表污染，根因见commit aecd7bf）
 
+支持BU：SDMD/FNLT/LHY/SJLD/DKHX/LPSD/KLS
+
 用法:
   python verify_radar_bu.py              # 仅检查
   python verify_radar_bu.py --fix       # 检查并修复（仅修复fixable项）
@@ -148,6 +150,22 @@ BU_PROFILES = {
         'template_contamination': [],
         'exclude_fingerprints': [],
     },
+    'kls': {
+        'code': 'KLS',
+        'file': 'radar_detail_kls.html',
+        'hub_key': 'kls',
+        'description': '可兰素（车用尿素/AdBlue）',
+        'dim_ranges': {
+            'd1': (60, 100),   # 战略执行力：收入达成率
+            'd2': (60, 100),   # 经营效益：AdBlue/尿素溶液销售
+            'd3': (60, 100),   # 运营效率：产能利用率/一次合格率
+            'd4': (50, 100),   # 技术创新：配方/OEM认证
+            'd5': (60, 100),   # 风险合规：ISO/环保/安全
+            'd6': (50, 100),   # 组织活力：AI/数字化/市场开拓
+        },
+        'template_contamination': [],
+        'exclude_fingerprints': [],
+    },
 }
 
 # ─────────────────────────────────────────────
@@ -241,6 +259,19 @@ COMPARISON_KPI_FINGERPRINTS = {
             '冷却液销售(万)',
             '制动液销售(万)',
             '防冻液销售(万)',
+        ],
+    },
+    'KLS': {
+        # 可兰素车用尿素/AdBlue独有指标
+        'kls_only': [
+            'AdBlue销量',
+            '尿素溶液销售',
+            '渠道覆盖(加油站',
+            'OEM配套',
+            '一次合格率(%)',
+            '国六适配型号',
+            'ISO认证通过',
+            '配送时效',
         ],
     },
 }

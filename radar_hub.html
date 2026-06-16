@@ -311,14 +311,14 @@ var BU_DIMS = {
     felt: { d1: 12, d2: 8, d3: 76, d4: 100, d5: 99, d6: 60 }, // 2026-05实际数据（法恩莱特5月.pdf，已脱污染）
     sdmd: { d1: 90, d2: 90, d3: 82, d4: 80, d5: 90, d6: 78 }, // 已修正（2026-05实际数据）
     sjld: { d1: 95, d2: 46, d3: 61, d4: 70, d5: 57, d6: 48 }, // 2026-05实际数据（基建期）
-    kls:  { d1: 85, d2: 88, d3: 90, d4: 85, d5: 82, d6: 88 },
+    kls:  { d1: 82, d2: 80, d3: 75, d4: 76, d5: 80, d6: 72 },
     lhy:  { d1: 98, d2: 98, d3: 83, d4: 85, d5: 80, d6: 65 }, // 2026-05实际数据（润滑油5月.pdf）, // 2026-05实际数据（润滑油5月.pdf）, // 2026-05实际数据（润滑油5月.pdf）
     bych: { d1: 68, d2: 65, d3: 70, d4: 62, d5: 60, d6: 65 },
     dhx:  { d1: 88, d2: 78, d3: 91, d4: 80, d5: 96, d6: 78 }, // 2026-05实际数据（PDF修正）
 };
 
 // 标记当前月份BU（★）
-var BU_IS_CURRENT = { sdmd: true, felt: true, lhy: true, sjld: true, dhx: true, lpsd: true }; // 山东美多+法恩莱特+润滑油+三金锂电+迪克化学+龙蟠时代有真实当前数据
+var BU_IS_CURRENT = { sdmd: true, felt: true, lhy: true, sjld: true, dhx: true, lpsd: true, kls: true }; // 山东美多+法恩莱特+润滑油+三金锂电+迪克化学+龙蟠时代+可兰素有真实当前数据
 
 var BU_LOGOS = {};
 var buChartInstances = {}; // 缓存每个BU的 ECharts 实例
@@ -357,7 +357,16 @@ var BU_HISTORY = {
         '2026-04': { d1: 97, d2: 79, d3: 90, d4: 85, d5: 80, d6: 75 }, // 龙蟠时代4月.pdf真实数据
         '2026-05': { d1: 58, d2: 88, d3: 75, d4: 85, d5: 85, d6: 75 }, // 龙蟠时代5月.pdf真实数据
     },
+    kls: {
+        '2026-03': { d1: 84, d2: 72, d3: 68, d4: 70, d5: 76, d6: 70 },
+        '2026-04': { d1: 89, d2: 75, d3: 70, d4: 72, d5: 78, d6: 68 },
+        '2026-05': { d1: 82, d2: 80, d3: 75, d4: 76, d5: 80, d6: 72 },
+    },
 };
+
+// 从 URL 参数读取 ?id=sjld 或 ?id=dkhx，自动滚动并高亮对应卡片
+var urlParams = new URLSearchParams(window.location.search);
+var focusBuId = urlParams.get('id') || '';
 
 // 当前卡片选中的月份（默认最新月份）
 var currentCardMonth = {};
@@ -371,9 +380,23 @@ var currentCardMonth = {};
         .then(function(logos) {
             BU_LOGOS = logos;
             renderCards();
+            if (focusBuId) {
+                var card = document.getElementById('card-' + focusBuId);
+                if (card) {
+                    card.style.boxShadow = '0 0 0 3px ' + (BU_META[focusBuId] && BU_META[focusBuId].color || '#3A6A9E');
+                    card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }
         })
         .catch(function() {
             renderCards();
+            if (focusBuId) {
+                var card = document.getElementById('card-' + focusBuId);
+                if (card) {
+                    card.style.boxShadow = '0 0 0 3px ' + (BU_META[focusBuId] && BU_META[focusBuId].color || '#3A6A9E');
+                    card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }
         });
 })();
 
@@ -428,8 +451,8 @@ function buildCard(buId, meta) {
         return '<span class="dim-chip"><span class="chip-val" style="color:' + meta.color + '">' + v + '</span>' + DIM_NAMES[i] + '</span>';
     }).join('');
 
-    var detailUrl = (buId === 'sdmd') ? 'radar_detail_sdmd.html' : (buId === 'dhx') ? 'radar_detail_dkhx.html' : ('radar_detail.html?id=' + buId);
-    return '<a class="dept-card ' + meta.category + '" href="' + detailUrl + '" style="border-left-color:' + meta.color + '">' +
+    var detailUrl = (buId === 'sdmd') ? 'radar_detail_sdmd.html' : (buId === 'dhx') ? 'radar_detail_dkhx.html' : (buId === 'sjld') ? 'radar_detail_sjld.html' : ('radar_detail.html?id=' + buId);
+    return '<a id="card-' + buId + '" class="dept-card ' + meta.category + '" href="' + detailUrl + '" style="border-left-color:' + meta.color + '">' +
         '<div class="dept-card-header">' +
         logoHTML +
         '<div class="dept-info">' +
