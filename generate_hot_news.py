@@ -56,6 +56,20 @@ BU_PREFIX_MAP = {
     "迪克化学事业部": "dkhx"
 }
 
+# 事业部行业关键词映射（用于图片搜索优化）
+# 当标题过于复杂时，用行业关键词搜索更精准的图片
+BU_KEYWORDS = {
+    "润滑油事业部": "oil lubricant industrial",
+    "可兰素事业部": "urea fertilizer agriculture",
+    "常州锂源事业部": "lithium battery LFP",
+    "龙蟠时代事业部": "lithium carbonate battery",
+    "山东美多事业部": "battery recycling EV",
+    "三金锂电事业部": "lithium battery ternary",
+    "铂源催化事业部": "hydrogen electrolysis catalyst",
+    "法恩莱特事业部": "electrolyte battery lithium",
+    "迪克化学事业部": "coolant brake fluid"
+}
+
 # 兼容旧格式文件名（备用）
 BU_FILES_LEGACY = [
     "01-润滑油事业部.json",
@@ -634,18 +648,41 @@ def is_low_quality_image(url):
     url_lower = url.lower()
     
     # 1. 已知的截图/图表域名（扩展版）
+    # 注意：这些域名会被直接过滤，不检查safe_domains
     screenshot_domains = [
         'cv.ce.cn',           # 中国经济网汽车频道，经常返回数据图表
         'img.ce.cn',          # 中国经济网图片
         'eastmoney.com',      # 东方财富，财经门户截图
         'sina.com.cn',       # 新浪财经，截图为主
-        'smm.cn',           # 上海有色，商品图片
         'securities.eastmoney.com',  # 东方财富证券APP
         'mobappconfig.securities.eastmoney.com',  # 东方财富APP配置图
+        'sinakd',           # 新浪山东分站
+        'mmbiz.qpic.cn',     # 腾讯民报公众号
     ]
     for domain in screenshot_domains:
         if domain in url_lower:
             return True
+    
+    # 1.5 允许来自这些高质量图床/媒体网站的图片（不过滤）
+    safe_image_domains = [
+        'cctvpic.com',            # 央视图片
+        'chinadaily.com.cn',     # 中国日报
+        'people.com.cn',         # 人民网
+        'xinhua.net',            # 新华网
+        'img3.chinadaily.com.cn', # 中国日报图片
+        'imgqn.smm.cn',         # 上海有色
+        'static.mianbaoban',    # 面包板
+        'cankao.com',           # 参考消息
+        'ouralpha.app',         # 行业网站
+        'catl.com',           # 宁德时代
+        'in-en.com',          # 国际能源网
+        'sinolub.com',        # 中国润滑油网
+        'aliyuncs.com',      # 阿里云OSS
+        'faiusr.com',        # 懒人图客
+    ]
+    for domain in safe_image_domains:
+        if domain in url_lower:
+            return False  # 允许
     
     # 2. URL路径包含截图特征命名（如 W020260610532405801766.png）
     # 这种命名通常是网页截图或数据图表
@@ -653,11 +690,22 @@ def is_low_quality_image(url):
         return True
     
     # 3. URL包含新闻子路径 + png格式（通常是新闻网页截图）
-    # 但排除一些正常的图片CDN
+    # 但允许来自大型媒体网站的图片
     if '/news/' in url_lower and url_lower.endswith('.png'):
-        # 排除正常的图片CDN域名（仅保留真正的图床）
-        safe_cdns = ['imgqn.smm.cn', 'static.mianbaoban']
-        is_safe = any(cdn in url_lower for cdn in safe_cdns)
+        # 允许来自这些大型媒体网站的图片
+        safe_domains = [
+            'cctvpic.com',            # 央视
+            'chinadaily.com.cn',     # 中国日报
+            'people.com.cn',         # 人民网
+            'xinhua.net',            # 新华网
+            'img3.chinadaily.com.cn', # 中国日报图片
+            'imgqn.smm.cn',         # 上海有色
+            'static.mianbaoban',    # 面包板
+            'cankao.com',           # 参考消息
+            'news.cn',               # 新华网
+            'ouralpha.app',         # 行业网站
+        ]
+        is_safe = any(cdn in url_lower for cdn in safe_domains)
         if not is_safe:
             return True
     
@@ -673,24 +721,77 @@ def is_low_quality_image(url):
     if 'sinakd' in url_lower:
         return True
     
+    # 6. 剪贴板截图（clipboard-*）或本地clipboard-images目录的图片
+    if 'clipboard' in url_lower:
+        return True
+    
+    # 7. 包含日期时间戳格式的图片（如 2026-06-16T10-05）
+    if re.search(r'\d{4}-\d{2}-\d{2}T\d{2}-\d{2}', url, re.IGNORECASE):
+        return True
+    
     return False
 
-def fetch_unsplash_image(title):
+def extract_image_keywords(title, bu_name):
+    """
+    从新闻标题中提取用于图片搜索的核心关键词
+    
+    策略：
+    1. 去掉修饰词（上涨、下跌、暴跌、涨停等行情词）
+    2. 去掉具体数字、百分比
+    3. 保留公司名、产品名、行业词
+    4. 如果提取失败，回退到BU行业关键词
+    """
+    # 行情修饰词（需要移除）
+    market_words = [
+        r'\d+[\.\d]*%', r'涨\d+', r'跌\d+', r'重挫\d+', r'暴跌\d+', r'飙升\d+',
+        r'上涨\d+', r'下跌\d+', r'涨停', r'跌停', r'首板', r'腰斩',
+        r'\d+元/吨', r'\d+美元', r'\d+万元', r'\d+亿吨',
+        r'周涨', r'周跌', r'日涨', r'日跌', r'同比', r'环比',
+        r'创.*新高', r'创.*新低', r'突破', r'回落', r'反弹'
+    ]
+    
+    # 提取关键词（去掉数字、百分比、行情词）
+    keywords = title
+    for pattern in market_words:
+        keywords = re.sub(pattern, '', keywords)
+    
+    # 只保留中英文和空格
+    keywords = re.sub(r'[^\u4e00-\u9fa5a-zA-Z\s]', ' ', keywords)
+    keywords = re.sub(r'\s+', ' ', keywords).strip()
+    
+    # 如果提取的关键词太短（<3字符），或太复杂（>50字符），回退到BU关键词
+    if len(keywords) < 3 or len(keywords) > 50:
+        return BU_KEYWORDS.get(bu_name, "industry")
+    
+    # 尝试提取前两个有意义的词（通常是公司名+产品）
+    parts = keywords.split()
+    if len(parts) >= 2:
+        # 取前两个词
+        return ' '.join(parts[:2])
+    elif len(parts) == 1:
+        # 只有一个词，拼接BU关键词
+        bu_kw = BU_KEYWORDS.get(bu_name, "industry")
+        return f"{parts[0]} {bu_kw}"
+    else:
+        return BU_KEYWORDS.get(bu_name, "industry")
+
+
+def fetch_unsplash_image(title, bu_name=""):
     """
     使用Unsplash API搜索与标题相关的图片
-    返回图片URL，如果失败返回None
+    返回图片URL，如���失败返回None
+    
+    优化策略：
+    1. 从标题提取核心关键词（去掉行情词）
+    2. 如果提取失败，回退到BU行业关键词
+    3. 用更精准的关键词搜索图片
     """
     if not UNSPLASH_ACCESS_KEY:
         return None
     
     try:
-        # 提取关键词（去掉数字、百分比等）
-        keywords = re.sub(r'\d+[\.\d]*[%]?', '', title)
-        keywords = re.sub(r'[^\u4e00-\u9fa5a-zA-Z\s]', ' ', keywords)
-        keywords = keywords.strip()
-        
-        if not keywords:
-            keywords = title[:20]
+        # 提取关键词（使用优化后的函数）
+        keywords = extract_image_keywords(title, bu_name)
         
         # 调用Unsplash API
         query = urllib.parse.quote_plus(keywords)
@@ -713,6 +814,29 @@ def fetch_unsplash_image(title):
             if image_url:
                 print(f"    [Unsplash] 找到图片: {image_url[:60]}...")
                 return image_url
+        
+        # 如果第一轮没找到，尝试用BU关键词（兜底）
+        if bu_name and keywords != BU_KEYWORDS.get(bu_name, ""):
+            bu_kw = BU_KEYWORDS.get(bu_name, "industry")
+            query = urllib.parse.quote_plus(bu_kw)
+            api_url = f"{UNSPLASH_API_URL}?query={query}&per_page=5&client_id={UNSPLASH_ACCESS_KEY}"
+            
+            req = urllib.request.Request(
+                api_url,
+                headers={
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+                }
+            )
+            
+            with urllib.request.urlopen(req, timeout=10) as resp:
+                data = json.loads(resp.read().decode('utf-8'))
+            
+            results = data.get('results', [])
+            if results:
+                image_url = results[0].get('urls', {}).get('regular', '')
+                if image_url:
+                    print(f"    [Unsplash] 回退BU关键词找到图片: {image_url[:60]}...")
+                    return image_url
         
         print(f"    [Unsplash] 未找到图片: {title[:30]}...")
         return None
@@ -737,7 +861,7 @@ def enrich_news_with_images(selected_items):
             # 检查图片质量：如果是截图/图表，尝试替换
             if is_low_quality_image(image_url):
                 print(f"    [图片] 检测到截图/图表，尝试替换: {image_url[:50]}...")
-                unsplash_url = fetch_unsplash_image(new_item['title'])
+                unsplash_url = fetch_unsplash_image(new_item['title'], new_item.get('bu', ''))
                 if unsplash_url:
                     new_item['image_url'] = unsplash_url
                     print(f"    [图片] 已替换为Unsplash图片: {unsplash_url[:50]}...")
@@ -749,7 +873,7 @@ def enrich_news_with_images(selected_items):
                 print(f"    [图片] 保留高质量图片: {image_url[:50]}...")
         else:
             # 没有图片URL，尝试从Unsplash获取
-            unsplash_url = fetch_unsplash_image(new_item['title'])
+            unsplash_url = fetch_unsplash_image(new_item['title'], new_item.get('bu', ''))
             if unsplash_url:
                 new_item['image_url'] = unsplash_url
                 print(f"    [图片] 从Unsplash获取: {unsplash_url[:50]}...")
