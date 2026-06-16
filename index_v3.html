@@ -17803,6 +17803,7 @@ const BUS_DATA = {
         dims:{d1:86,d2:95,d3:88,d4:47,d5:95,d6:45},
         kpis:{d1:[86,111,80,97],d2:[100,90,100,95],d3:[103,100,95,120],d4:[50,60,17,100],d5:[99,100,100,100],d6:[50,60,60,50]}},
     lpsd:{ name:'龙蟠时代', logo:'', tag:'电芯智造', accent:'#4caf50', detailPage:'radar_detail_lpsd.html',
+        // kpis/dims为占位值（RADAR_HISTORY无对比表数据），calcScores已回退使用此处硬编码
         dims:{d1:80,d2:80,d3:80,d4:80,d5:80,d6:80},
         kpis:{d1:[80,80,80,80],d2:[80,80,80,80],d3:[80,80,80,80],d4:[80,80,80,80],d5:[80,80,80,80],d6:[80,80,80,80]}},
     sjld:{ name:'三金锂电', logo:'', tag:'三元前驱体', accent:'#ff9800', detailPage:'radar_detail_sjld.html',
@@ -17975,6 +17976,7 @@ const BUS_DATA = {
         dims:{d1:98,d2:88,d3:77,d4:78,d5:83,d6:75},
         kpis:{d1:[100,98,93,100],d2:[52,100,100,100],d3:[96,80,32,100],d4:[80,85,75,80],d5:[85,85,80,80],d6:[70,80,75,75]}},
     kls: { name:'可兰素', logo:'', tag:'车用尿素', accent:'#a1887f', detailPage:'radar_detail_kls.html',
+        // kpis/dims为占位值（无PDF数据），calcScores已回退使用此处硬编码
         dims:{d1:80,d2:78,d3:82,d4:62,d5:82,d6:73},
         kpis:{d1:[80,80,80,80],d2:[80,78,80,80],d3:[80,80,80,80],d4:[60,60,60,70],d5:[80,80,80,80],d6:[70,70,70,80]}},
     bych:{ name:'铂源催化', logo:'', tag:'催化材料', accent:'#00bcd4', detailPage:'radar_detail_bych.html',
@@ -18143,6 +18145,14 @@ function calcScores(buId, optMonth) {
     if (bd._kpiComparison || bd._dimComparison_d2) {
         const kpis = calcKPIsFromComparison(buId);
         const dims = calcDimsFromKPIs(kpis);
+        // 检测全零kpis（占位数据：所有对比项 actual=0）：回退到硬编码值
+        const allZero = DIMS.every(d => {
+            const arr = kpis[d.id];
+            return arr && arr.length > 0 && arr.every(v => v === 0);
+        });
+        if (allZero) {
+            return { dims: bd.dims, kpis: bd.kpis };
+        }
         return { dims, kpis };
     } else {
         return { dims: bd.dims, kpis: bd.kpis };

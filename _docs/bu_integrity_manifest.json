@@ -1,7 +1,19 @@
 {
-  "version": "2026-06-15",
-  "description": "已验证BU当月dims白名单（SDMD/DKHX/LPSD），任何修改都会触发pre-commit hook阻断。更新白名单: 编辑本文件",
+  "version": "2026-06-16",
+  "description": "已验证BU当月dims白名单（全部8个有独立detail页的BU）。任何修改都会触发pre-commit hook阻断。更新白名单: python _docs/_rebuild_integrity_manifest.py",
   "bus": {
+    "CZLY": {
+      "file": "radar_detail_czly.html",
+      "month": "2026-05",
+      "dims": {
+        "d1": 86,
+        "d2": 95,
+        "d3": 88,
+        "d4": 47,
+        "d5": 95,
+        "d6": 45
+      }
+    },
     "SDMD": {
       "file": "radar_detail_sdmd.html",
       "month": "2026-05",
@@ -12,21 +24,7 @@
         "d4": 80,
         "d5": 90,
         "d6": 78
-      },
-      "sha256_prefix": "b5c9e7f2d1a3"
-    },
-    "DKHX": {
-      "file": "radar_detail_dkhx.html",
-      "month": "2026-05",
-      "dims": {
-        "d1": 88,
-        "d2": 78,
-        "d3": 91,
-        "d4": 80,
-        "d5": 96,
-        "d6": 78
-      },
-      "sha256_prefix": "a7b1c3d4e9f2"
+      }
     },
     "LPSD": {
       "file": "radar_detail_lpsd.html",
@@ -38,8 +36,67 @@
         "d4": 85,
         "d5": 85,
         "d6": 75
-      },
-      "sha256_prefix": "c7e79fd782f8"
+      }
+    },
+    "DKHX": {
+      "file": "radar_detail_dkhx.html",
+      "month": "2026-05",
+      "dims": {
+        "d1": 88,
+        "d2": 78,
+        "d3": 91,
+        "d4": 80,
+        "d5": 96,
+        "d6": 78
+      }
+    },
+    "KLS": {
+      "file": "radar_detail_kls.html",
+      "month": "2026-05",
+      "dims": {
+        "d1": 82,
+        "d2": 80,
+        "d3": 75,
+        "d4": 76,
+        "d5": 80,
+        "d6": 72
+      }
+    },
+    "FNLT": {
+      "file": "radar_detail_felt.html",
+      "month": "2026-05",
+      "dims": {
+        "d1": 12,
+        "d2": 8,
+        "d3": 76,
+        "d4": 100,
+        "d5": 99,
+        "d6": 60
+      }
+    },
+    "LHY": {
+      "file": "radar_detail_lhy.html",
+      "month": "2026-05",
+      "dims": {
+        "d1": 98,
+        "d2": 98,
+        "d3": 83,
+        "d4": 85,
+        "d5": 80,
+        "d6": 65
+      }
+    },
+    "SJLD": {
+      "file": "radar_detail_sjld.html",
+      "month": "2026-05",
+      "dims": {
+        "d1": 95,
+        "d2": 46,
+        "d3": 61,
+        "d4": 70,
+        "d5": 57,
+        "d6": 48
+      }
     }
   }
 }

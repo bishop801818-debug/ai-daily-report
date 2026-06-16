@@ -1203,15 +1203,8 @@ const RADAR_HISTORY_KLS = {
         },
     },
     '2026-04': {
+        // 无PDF数据(占位全0) — kpis由calcKPIsFromComparison动态计算，此处不再存储
         dims: { d1: 89, d2: 75, d3: 70, d4: 72, d5: 78, d6: 68 },
-        kpis: {
-            d1: [89, 89, 89, 89],
-            d2: [75, 75, 75, 75],
-            d3: [70, 70, 70, 70],
-            d4: [72, 72, 72, 72],
-            d5: [78, 78, 78, 78],
-            d6: [68, 68, 68, 68],
-        },
         _kpiComparison: {
             title: '4月核心KPI达标率',
             period: '2026年4月',
@@ -1273,17 +1266,9 @@ const RADAR_HISTORY_KLS = {
             ],
         },
     },
-    // 5月: 无PDF数据(占位全0) — dims/kpis为预估，待实际数据填充后更新
+    // 5月: 无PDF数据(占位全0) — kpis由calcKPIsFromComparison动态计算，此处不再存储
     '2026-05': {
         dims: { d1: 82, d2: 80, d3: 75, d4: 76, d5: 80, d6: 72 },
-        kpis: {
-            d1: [82, 82, 82, 82],
-            d2: [80, 80, 80, 80],
-            d3: [75, 75, 75, 75],
-            d4: [76, 76, 76, 76],
-            d5: [80, 80, 80, 80],
-            d6: [72, 72, 72, 72],
-        },
         _isCurrent: true,
         _kpiComparison: {
             title: '5月核心KPI达标率',
