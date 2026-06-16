@@ -2,9 +2,9 @@
   "meta": {
     "description": "2026年至今累计涨跌幅",
     "data_source": "各产品源数据文件",
-    "update_time": "2026-06-16 12:23:47",
+    "update_time": "2026-06-16 15:03:54",
     "year": 2026,
-    "generated_at": "2026-06-16T12:23:47.337463",
+    "generated_at": "2026-06-16T15:03:54.368221",
     "generator_version": "20260612_v4"
   },
   "products": [
@@ -12,13 +12,13 @@
       "name": "碳酸锂期货",
       "unit": "元/吨",
       "start_date": "2026-01-05",
-      "end_date": "2026-06-12",
+      "end_date": "2026-06-15",
       "start_price": 129980.0,
-      "end_price": 172800.0,
-      "change": 42820.0,
-      "change_pct": 32.94,
+      "end_price": 169400.0,
+      "change": 39420.0,
+      "change_pct": 30.33,
       "direction": "up",
-      "data_points": 105,
+      "data_points": 106,
       "price_series": [
         {
           "date": "2026-01-05",
@@ -439,6 +439,10 @@
         {
           "date": "2026-06-12",
           "price": 172800.0
+        },
+        {
+          "date": "2026-06-15",
+          "price": 169400.0
         }
       ]
     },
@@ -446,13 +450,13 @@
       "name": "电池级碳酸锂",
       "unit": "元/吨",
       "start_date": "2026-01-04 00:00:00",
-      "end_date": "2026-06-12",
+      "end_date": "2026-06-15",
       "start_price": 120000.0,
       "end_price": 172000.0,
       "change": 52000.0,
       "change_pct": 43.33,
       "direction": "up",
-      "data_points": 86,
+      "data_points": 87,
       "price_series": [
         {
           "date": "2026-01-04 00:00:00",
@@ -797,6 +801,10 @@
         {
           "date": "2026-06-12",
           "price": 172000.0
+        },
+        {
+          "date": "2026-06-15",
+          "price": 172000.0
         }
       ]
     },
@@ -804,13 +812,13 @@
       "name": "工业级碳酸锂",
       "unit": "元/吨",
       "start_date": "2026-01-04 00:00:00",
-      "end_date": "2026-06-12",
+      "end_date": "2026-06-15",
       "start_price": 106500.0,
       "end_price": 169000.0,
       "change": 62500.0,
       "change_pct": 58.69,
       "direction": "up",
-      "data_points": 68,
+      "data_points": 69,
       "price_series": [
         {
           "date": "2026-01-04 00:00:00",
@@ -1082,6 +1090,10 @@
         },
         {
           "date": "2026-06-12",
+          "price": 169000.0
+        },
+        {
+          "date": "2026-06-15",
           "price": 169000.0
         }
       ]
