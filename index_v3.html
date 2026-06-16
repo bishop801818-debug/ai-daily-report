@@ -6978,6 +6978,15 @@ window.__EMBEDDED__ = {
             cursor: pointer; color: var(--panel-muted); font-size: 0.9rem; transition: all 0.2s;
         }
         .drawer-close:hover { background: rgba(30,60,114,0.12); color: var(--panel-text); border-color: rgba(30,60,114,0.25); }
+        .drawer-topbar-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+        .drawer-detail-btn {
+            background: #fff; border: 1px solid rgba(200,70,44,0.25);
+            border-radius: 8px; padding: 0 14px; height: 34px;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; color: #c8462c; font-size: 0.8rem; font-weight: 600;
+            transition: all 0.2s; white-space: nowrap; letter-spacing: 0.5px;
+        }
+        .drawer-detail-btn:hover { background: #c8462c; color: #fff; border-color: #c8462c; }
         .drawer-body {
             flex: 1; overflow-y: auto; overflow-x: hidden;
             scrollbar-width: thin; scrollbar-color: rgba(30,60,114,0.15) transparent;
@@ -9262,7 +9271,10 @@ window.addEventListener('DOMContentLoaded', function() {
                     <span class="drawer-tag" id="drawerTag"></span>
                 </div>
             </div>
-            <button type="button" class="drawer-close" onclick="closePanel()">✕</button>
+            <div class="drawer-topbar-actions">
+                <button type="button" class="drawer-detail-btn" id="drawerDetailBtn">查看详情</button>
+                <button type="button" class="drawer-close" onclick="closePanel()">✕</button>
+            </div>
         </div>
         <div class="drawer-body" id="drawerBody"></div>
     </div>
@@ -13987,6 +13999,15 @@ const BU_LOGOS = {
             cursor: pointer; color: var(--panel-muted); font-size: 0.9rem; transition: all 0.2s;
         }
         .drawer-close:hover { background: rgba(30,60,114,0.12); color: var(--panel-text); border-color: rgba(30,60,114,0.25); }
+        .drawer-topbar-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+        .drawer-detail-btn {
+            background: #fff; border: 1px solid rgba(200,70,44,0.25);
+            border-radius: 8px; padding: 0 14px; height: 34px;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; color: #c8462c; font-size: 0.8rem; font-weight: 600;
+            transition: all 0.2s; white-space: nowrap; letter-spacing: 0.5px;
+        }
+        .drawer-detail-btn:hover { background: #c8462c; color: #fff; border-color: #c8462c; }
         .drawer-body {
             flex: 1; overflow-y: auto; overflow-x: hidden;
             scrollbar-width: thin; scrollbar-color: rgba(30,60,114,0.15) transparent;
@@ -17739,16 +17760,16 @@ const DIMS = [
 ];
 
 const BUS_DATA = {
-    czly:{ name:'常州锂源', logo:'', tag:'新能源材料', accent:'#00d4ff',
+    czly:{ name:'常州锂源', logo:'', tag:'新能源材料', accent:'#00d4ff', detailPage:'radar_detail_czly.html',
         dims:{d1:80,d2:80,d3:80,d4:80,d5:80,d6:80},
         kpis:{d1:[80,80,80,80],d2:[80,80,80,80],d3:[80,80,80,80],d4:[80,80,80,80],d5:[80,80,80,80],d6:[80,80,80,80]}},
-    lpsd:{ name:'龙蟠时代', logo:'', tag:'电芯智造', accent:'#4caf50',
+    lpsd:{ name:'龙蟠时代', logo:'', tag:'电芯智造', accent:'#4caf50', detailPage:'radar_detail_lpsd.html',
         dims:{d1:80,d2:80,d3:80,d4:80,d5:80,d6:80},
         kpis:{d1:[80,80,80,80],d2:[80,80,80,80],d3:[80,80,80,80],d4:[80,80,80,80],d5:[80,80,80,80],d6:[80,80,80,80]}},
-    sjld:{ name:'三金锂电', logo:'', tag:'三元前驱体', accent:'#ff9800',
+    sjld:{ name:'三金锂电', logo:'', tag:'三元前驱体', accent:'#ff9800', detailPage:'radar_detail_sjld.html',
         dims:{d1:80,d2:80,d3:80,d4:80,d5:80,d6:80},
         kpis:{d1:[80,80,80,80],d2:[80,80,80,80],d3:[80,80,80,80],d4:[80,80,80,80],d5:[80,80,80,80],d6:[80,80,80,80]}},
-    fnlt:{ name:'法恩莱特', logo:'', tag:'电解液', accent:'#9c27b0',
+    fnlt:{ name:'法恩莱特', logo:'', tag:'电解液', accent:'#9c27b0', detailPage:'radar_detail_felt.html',
         dims:{d1:20,d2:19,d3:76,d4:100,d5:100,d6:65},
         kpis:{
             d1:[20,20,20,20],
@@ -17826,7 +17847,7 @@ const BUS_DATA = {
             }
         }
     },
-    sdmd:{ name:'山东美多', logo:'', tag:'回收再利用', accent:'#e91e63',
+    sdmd:{ name:'山东美多', logo:'', tag:'回收再利用', accent:'#e91e63', detailPage:'radar_detail_sdmd.html',
         // SDMD 2026年5月真实数据：对比表原始数据驱动自动计算
         // dims由 calcKPIsFromComparison() + calcDimsFromKPIs() 自动算出（百分制）
         dims:{d1:95,d2:91,d3:88,d4:81,d5:88,d6:87},
@@ -17911,16 +17932,16 @@ const BUS_DATA = {
             ]
         }
     },
-    lube: { name:'润滑油事业部', logo:'', tag:'车用润滑油', accent:'#c0392b',
+    lube: { name:'润滑油事业部', logo:'', tag:'车用润滑油', accent:'#c0392b', detailPage:'radar_detail_lhy.html',
         dims:{d1:98,d2:88,d3:77,d4:78,d5:83,d6:75},
         kpis:{d1:[100,98,93,100],d2:[52,100,100,100],d3:[96,80,32,100],d4:[80,85,75,80],d5:[85,85,80,80],d6:[70,80,75,75]}},
-    kls: { name:'可兰素', logo:'', tag:'车用尿素', accent:'#a1887f',
+    kls: { name:'可兰素', logo:'', tag:'车用尿素', accent:'#a1887f', detailPage:'radar_detail_kls.html',
         dims:{d1:80,d2:78,d3:82,d4:62,d5:82,d6:73},
         kpis:{d1:[80,80,80,80],d2:[80,78,80,80],d3:[80,80,80,80],d4:[60,60,60,70],d5:[80,80,80,80],d6:[70,70,70,80]}},
-    bych:{ name:'铂源催化', logo:'', tag:'催化材料', accent:'#00bcd4',
+    bych:{ name:'铂源催化', logo:'', tag:'催化材料', accent:'#00bcd4', detailPage:'radar_detail_bych.html',
         dims:{d1:72,d2:80,d3:78,d4:88,d5:75,d6:72},
         kpis:{d1:[72,72,72,72],d2:[80,80,80,80],d3:[80,80,80,80],d4:[88,88,88,80],d5:[80,70,70,80],d6:[70,70,70,70]}},
-    dkhx: { name:'迪克化学', logo:'', tag:'冷却液', accent:'#7986cb',
+    dkhx: { name:'迪克化学', logo:'', tag:'冷却液', accent:'#7986cb', detailPage:'radar_detail_dkhx.html',
         dims:{d1:72,d2:80,d3:78,d4:68,d5:78,d6:70},
         kpis:{d1:[72,72,72,72],d2:[80,80,80,80],d3:[80,80,80,78],d4:[70,70,70,60],d5:[80,80,70,80],d6:[70,70,70,70]}},
 };
@@ -18431,6 +18452,14 @@ async function openPanel(buId) {
         </div>
     `;
     renderDims(buId);
+
+    // 设置"查看详情"按钮跳转链接（跳转到对应雷达看板页）
+    const detailBtn = document.getElementById('drawerDetailBtn');
+    if (detailBtn) {
+        const bd = BUS_DATA[buId];
+        detailBtn.onclick = function() { window.location.href = (bd && bd.detailPage) || ('bu_hub.html?bu=' + buId); };
+    }
+
     document.getElementById('panelOverlay').classList.add('active');
     document.body.classList.add('panel-open');
 }
