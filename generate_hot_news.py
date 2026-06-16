@@ -633,10 +633,15 @@ def is_low_quality_image(url):
     
     url_lower = url.lower()
     
-    # 1. 已知的截图/图表域名
+    # 1. 已知的截图/图表域名（扩展版）
     screenshot_domains = [
         'cv.ce.cn',           # 中国经济网汽车频道，经常返回数据图表
         'img.ce.cn',          # 中国经济网图片
+        'eastmoney.com',      # 东方财富，财经门户截图
+        'sina.com.cn',       # 新浪财经，截图为主
+        'smm.cn',           # 上海有色，商品图片
+        'securities.eastmoney.com',  # 东方财富证券APP
+        'mobappconfig.securities.eastmoney.com',  # 东方财富APP配置图
     ]
     for domain in screenshot_domains:
         if domain in url_lower:
@@ -647,18 +652,21 @@ def is_low_quality_image(url):
     if re.search(r'W\d{12,}\.(png|jpg|jpeg)', url, re.IGNORECASE):
         return True
     
-    # 3. URL包含明显的图表/数据关键词
-    chart_keywords = ['chart', 'graph', 'data', 'table', '统计', '图表', '数据']
-    for kw in chart_keywords:
-        if kw in url_lower:
+    # 3. URL包含新闻子路径 + png格式（通常是新闻网页截图）
+    # 但排除一些正常的图片CDN
+    if '/news/' in url_lower and url_lower.endswith('.png'):
+        # 排除正常的图片CDN域名
+        safe_cdns = ['imgqn.smm.cn', 'mmbiz.qpic.cn', 'static.mianbaoban']
+        is_safe = any(cdn in url_lower for cdn in safe_cdns)
+        if not is_safe:
             return True
     
-    # 4. 路径包含 news/2026/ 且是png，可能是新闻截图
-    if '/news/2026' in url_lower and url_lower.endswith('.png'):
+    # 4. 上传图片的时间戳命名（如 1780909599170804.jpg）
+    if re.search(r'/\d{14,}\.(jpg|jpeg|png)', url, re.IGNORECASE):
         return True
     
-    # 5. 上传图片的时间戳命名（如 1780909599170804.jpg）
-    if re.search(r'/\d{14,}\.(jpg|jpeg|png)', url, re.IGNORECASE):
+    # 5. 路径包含 sinakd（新浪山东分站）- 通常是截图
+    if 'sinakd' in url_lower:
         return True
     
     return False
