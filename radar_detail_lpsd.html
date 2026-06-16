@@ -1441,15 +1441,31 @@ function getMonthData(month) {
 
 // 工具函数
 function calcAchv(actual, target, isCost) {
+    // 零值/无数据 → 0
     if (!actual || actual <= 0) return 0;
     if (!target || target <= 0) return 0;
-    var rate = isCost ? target / actual : actual / target;
+    // 成本指标：actual 越大越差，超支 → 0%
+    if (isCost) {
+        return actual > target ? 0 : Math.min(120, target / actual * 100);
+    }
+    // 收益指标：actual 越大越好，正常计算
+    return Math.min(120, actual / target * 100);
+}
     return Math.min(120, rate * 100);
 }
 
 function fmtNum(v, decimals) {
     if (v === null || v === undefined) return '--';
     return Number(v).toFixed(decimals !== undefined ? decimals : 1);
+}
+
+// 判断是否为"零事故/零投诉"类型指标（actual=0 & target=0 表示达标，而非落后）
+function isZeroGoodMetric(item) {
+    var name = item.name || '';
+    return (item.actual === 0 && item.target === 0 &&
+        (name.indexOf('事故') >= 0 || name.indexOf('投诉') >= 0 ||
+         name.indexOf('举报') >= 0 || name.indexOf('纠纷') >= 0 ||
+         name.indexOf('客诉') >= 0 || name.indexOf('安全事故') >= 0));
 }
 
 function fmtRate(v) {
@@ -2186,7 +2202,8 @@ function generateLocalInsights(data) {
         kpiItems.forEach(function(item) {
             var isCost = item.name.indexOf('成本') >= 0;
             var achv = calcAchv(item.actual, item.target, isCost);
-            var status = achv >= 100 ? 'good' : (achv >= 85 ? 'warn' : 'bad');
+            var zeroGood = isZeroGoodMetric(item);
+            var status = zeroGood ? 'good' : (achv >= 100 ? 'good' : (achv >= 85 ? 'warn' : 'bad'));
             var kpiDetail = {
                 name: item.name,
                 actual: item.actual,
@@ -2196,9 +2213,11 @@ function generateLocalInsights(data) {
                 status: status,
                 insight: ''
             };
-            
+
             // 生成业务洞察
-            if (achv >= 110) {
+            if (zeroGood) {
+                kpiDetail.insight = '零事故/零投诉，安全合规表现优秀，继续保持';
+            } else if (achv >= 110) {
                 kpiDetail.insight = '大幅超标，可能存在目标设定偏低或市场环境异常有利';
             } else if (achv >= 100) {
                 kpiDetail.insight = '精准达标，经营节奏控制良好';
@@ -2460,6 +2479,9 @@ function generateLocalInsights(data) {
         } else if (item.name.indexOf('成本') >= 0) {
             return '成本超标，可能原因：1）原材料价格上涨；2）生产效率低下；3）浪费严重；4）供应链成本上升';
         } else if (item.name.indexOf('利润') >= 0 || item.name.indexOf('毛利') >= 0) {
+            if (item.actual < 0) {
+                return '实际亏损' + fmtNum(Math.abs(item.actual)) + item.unit + '，需分析亏损根因（定价/成本/销量/产能利用率）';
+            }
             return '利润未达标，可能原因：1）营收未达标；2）成本超标；3）费用控制不力；4）产品结构不合理';
         } else if (item.name.indexOf('客户') >= 0) {
             return '客户指标未达标，可能原因：1）产品质量问题；2）服务不到位；3）客户流失；4）新客户获取不足';
@@ -2561,6 +2583,8 @@ function generateLocalInsights(data) {
         current._kpiComparison.items.forEach(function(item) {
             var isCost = item.name.indexOf('成本') >= 0;
             var achv = calcAchv(item.actual, item.target, isCost);
+            // 零事故/零投诉类指标：actual=0&target=0 表示达标，跳过风险告警
+            if (isZeroGoodMetric(item)) return;
             if (achv < 60) {
                 var rootCause = analyzeKpiRootCause(item);
                 problems.push({
@@ -2659,6 +2683,17 @@ function generateLocalInsights(data) {
         current._kpiComparison.items.forEach(function(item) {
             var isCost = item.name.indexOf('成本') >= 0;
             var achv = calcAchv(item.actual, item.target, isCost);
+            // 零事故/零投诉类指标作为亮点
+            if (isZeroGoodMetric(item)) {
+                positives.push({
+                    type: 'momentum',
+                    name: item.name,
+                    detail: '零事故，安全合规优秀',
+                    replicable: '继续保持，强化安全管理'
+                });
+                highlightCount.momentum++;
+                return;
+            }
             if (achv >= 110) {
                 positives.push({
                     type: 'breakthrough',
@@ -2869,6 +2904,8 @@ function generateLocalInsights(data) {
     // KPI改进建议
     if (current._kpiComparison && current._kpiComparison.items) {
         var badKpis = current._kpiComparison.items.filter(function(item) {
+            // 零事故/零投诉类指标：actual=0&target=0 表示达标，排除
+            if (isZeroGoodMetric(item)) return false;
             var isCost = item.name.indexOf('成本') >= 0;
             var achv = calcAchv(item.actual, item.target, isCost);
             return achv < 100;

@@ -121,7 +121,7 @@ BU_PROFILES = {
     'dkhx': {
         'code': 'DKHX',
         'file': 'radar_detail_dkhx.html',
-        'hub_key': 'dhx',           # hub中使用的key是dhx
+        'hub_key': 'dkhx',          # hub中使用的key已统一为dkhx
         'description': '迪克化学（冷却液/制动液）',
         'dim_ranges': {
             'd1': (60, 100),   # 财务达成能力
@@ -162,6 +162,22 @@ BU_PROFILES = {
             'd4': (50, 100),   # 技术创新：配方/OEM认证
             'd5': (60, 100),   # 风险合规：ISO/环保/安全
             'd6': (50, 100),   # 组织活力：AI/数字化/市场开拓
+        },
+        'template_contamination': [],
+        'exclude_fingerprints': [],
+    },
+    'czly': {
+        'code': 'CZLY',
+        'file': 'radar_detail_czly.html',
+        'hub_key': 'czly',
+        'description': '常州锂源（磷酸铁锂正极材料）',
+        'dim_ranges': {
+            'd1': (40, 100),   # 战略执行力：销量低/利润低时可达40+
+            'd2': (40, 100),   # 经营效益：市场受限/新建基地爬坡时可低于50
+            'd3': (50, 100),   # 运营效率：产能利用率/一次合格率
+            'd4': (40, 100),   # 技术创新：研发立项少时可达40+
+            'd5': (50, 100),   # 风险合规：质量体系/环保安全
+            'd6': (40, 100),   # 组织活力：AI/数字化刚起步时可低于50
         },
         'template_contamination': [],
         'exclude_fingerprints': [],
@@ -272,6 +288,18 @@ COMPARISON_KPI_FINGERPRINTS = {
             '国六适配型号',
             'ISO认证通过',
             '配送时效',
+        ],
+    },
+    'CZLY': {
+        # 常州锂源磷酸铁锂正极材料独有指标
+        'czly_only': [
+            '磷酸铁锂产量',
+            '磷酸铁锂销量',
+            '一次合格率',
+            '压实密度',
+            '快充型LFP',
+            '高密度LFP',
+            '正极材料收入',
         ],
     },
 }
@@ -491,7 +519,7 @@ def check_cross_file_consistency(bu_id, profile, verbose=False):
         hub = f.read()
 
     # 提取 hub BU_DIMS.{bu_id}
-    bu_key = profile.get('hub_key', bu_id)  # 优先用profile指定的hub_key（如dkhx→dhx）
+    bu_key = profile.get('hub_key', bu_id)  # 优先用profile指定的hub_key（已统一为dkhx）
     hub_dims = re.search(rf'\b{bu_key}:\s*\{{([^}}]+)\}}', hub)
     if not hub_dims:
         warnings.append(f'hub中未找到BU_DIMS.{bu_key}，跳过跨文件校验')
@@ -572,6 +600,110 @@ def check_cross_file_consistency(bu_id, profile, verbose=False):
         if verbose:
             print(f'    [不一致] hub: {hub_vals} | detail {current_month}: {detail_dims}')
     return issues, warnings
+
+
+# ─────────────────────────────────────────────
+# Fix 函数（hub vs detail dims 不一致时自动修复）
+# ─────────────────────────────────────────────
+
+def get_current_month_from_detail(detail_content, hist_block, months):
+    """从detail源码中提取当前月份"""
+    cm_match = re.search(r"currentMonth\s*=\s*['\"](2026-\d\d)['\"]", detail_content)
+    if cm_match:
+        return cm_match.group(1)
+    for mo in months:
+        month_key = "'" + mo + "':"
+        pos = hist_block.find(month_key)
+        if pos < 0:
+            continue
+        region = hist_block[pos:min(pos + 600, len(hist_block))]
+        if '_isCurrent' in region:
+            return mo
+    return months[-1] if months else None
+
+
+def fix_bu(bu_id, profile, verbose=False):
+    """修复BU：使 radar_hub.html 的 BU_DIMS 和 BU_HISTORY 与 detail 页面同步"""
+    from pathlib import Path
+
+    detail_file = Path(BASE) / profile['file']
+    if not detail_file.exists():
+        print(f'  ❌ {profile["file"]} 不存在，无法修复')
+        return False
+
+    with open(detail_file, 'r', encoding='utf-8') as f:
+        detail = f.read()
+
+    hist_block = extract_history_block(detail, profile['code'])
+    if not hist_block:
+        print(f'  ❌ {profile["file"]} 中未找到 RADAR_HISTORY_{profile["code"]}')
+        return False
+
+    months = extract_all_months(hist_block)
+    current_month = get_current_month_from_detail(detail, hist_block, months)
+    if not current_month:
+        print(f'  ❌ 无法确定当前月份')
+        return False
+
+    detail_dims = extract_month_dims(hist_block, current_month[-2:])
+    if not detail_dims:
+        print(f'  ❌ detail中{current_month}无dims数据')
+        return False
+
+    # ── 读取 hub ──
+    if not Path(HUB_FILE).exists():
+        print(f'  ❌ radar_hub.html 不存在')
+        return False
+
+    with open(HUB_FILE, 'r', encoding='utf-8') as f:
+        hub = f.read()
+
+    bu_key = profile.get('hub_key', bu_id)
+
+    # ── 1. 修复 BU_DIMS.{bu_key}（精确匹配 BU_DIMS 块内，防止误匹配 BU_META） ──
+    new_dims_str = (f'd1: {detail_dims["d1"]}, d2: {detail_dims["d2"]}, '
+                   f'd3: {detail_dims["d3"]}, d4: {detail_dims["d4"]}, '
+                   f'd5: {detail_dims["d5"]}, d6: {detail_dims["d6"]}')
+
+    # 精确匹配 BU_DIMS 块内的 BU 行（格式: `    czly: { d1: ... }`）
+    bu_dims_pattern = rf'((?:BU_DIMS\s*=\s*\{{)[\s\n]*\b{re.escape(bu_key)}:\s*\{{)[^}}]*(\}})'
+    bu_dims_match = re.search(bu_dims_pattern, hub)
+    if bu_dims_match:
+        hub = hub[:bu_dims_match.start()] + bu_dims_match.group(1) + new_dims_str + bu_dims_match.group(2) + hub[bu_dims_match.end():]
+        print(f'  ✅ 已更新 BU_DIMS.{bu_key} → {new_dims_str}')
+    else:
+        print(f'  ⚠️  radar_hub.html 中未找到 BU_DIMS.{bu_key}，跳过该修复')
+
+    # ── 2. 修复 BU_HISTORY.{bu_key}['{current_month}'] ──
+    # 找到月份 entry 行，直接替换整行 dims
+    hist_month_pattern = rf"('{re.escape(bu_key)}':\s*\{{)"
+    hist_bu_match = re.search(hist_month_pattern, hub)
+    if not hist_bu_match:
+        print(f'  ⚠️  radar_hub.html 中未找到 BU_HISTORY.{bu_key}，跳过')
+    else:
+        month_pos = hub.find(f"'{current_month}':", hist_bu_match.end())
+        if month_pos < 0:
+            print(f'  ⚠️  BU_HISTORY.{bu_key} 中无 {current_month} 月份，跳过')
+        else:
+            # 找月份 entry 的完整 dims 行（直到 }, 或下一个 '2026-）
+            rest = hub[month_pos:]
+            end_m = re.search(r"\},\s*\n", rest)
+            month_end = month_pos + (end_m.start() + 1 if end_m else 50)
+            old_entry = hub[month_pos:month_end].strip()
+            new_entry = (f"'{current_month}': {{ "
+                        f"d1: {detail_dims['d1']}, d2: {detail_dims['d2']}, "
+                        f"d3: {detail_dims['d3']}, d4: {detail_dims['d4']}, "
+                        f"d5: {detail_dims['d5']}, d6: {detail_dims['d6']} }},"
+                        )
+            hub = hub[:month_pos] + new_entry + hub[month_end:]
+            print(f'  ✅ 已更新 BU_HISTORY.{bu_key}["{current_month}"]')
+
+    # ── 写回 hub ──
+    with open(HUB_FILE, 'w', encoding='utf-8') as f:
+        f.write(hub)
+
+    print(f'  ✅ radar_hub.html 已更新')
+    return True
 
 
 def check_zero_placeholder(history_block, bu_id, verbose=False):
@@ -701,6 +833,7 @@ def main():
     args = sys.argv[1:]
     strict = '--strict' in args
     verbose = '--verbose' in args
+    do_fix = '--fix' in args
     target_bu = None
     for i, a in enumerate(args):
         if a.startswith('--bu='):
@@ -709,6 +842,23 @@ def main():
             target_bu = args[i + 1]
 
     bu_ids = [target_bu] if target_bu else list(BU_PROFILES.keys())
+
+    # --fix 模式：直接修复指定BU的hub数据
+    if do_fix:
+        print('═' * 60)
+        print('  雷达看板 BU 数据修复工具')
+        print('═' * 60)
+        if not target_bu:
+            print('  ❌ --fix 需配合 --bu=<id> 指定要修复的BU')
+            print('  用法: python verify_radar_bu.py --fix --bu=czly')
+            return
+        if target_bu not in BU_PROFILES:
+            print(f'  ❌ 未知BU: {target_bu}')
+            return
+        profile = BU_PROFILES[target_bu]
+        print(f'  正在修复 [{target_bu.upper()}] ...')
+        fix_bu(target_bu, profile, verbose)
+        return
 
     print('═' * 60)
     print('  雷达看板 BU 数据一致性检查  v3（对比表指纹检测）')
