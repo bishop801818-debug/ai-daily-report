@@ -3212,7 +3212,6 @@ window.__EMBEDDED__ = {
         }
         
         .start-all-btn:hover {
-            transform: translateY(-2px);
             box-shadow: 0 4px 15px rgba(30, 60, 114, 0.3);
         }
         
@@ -3293,7 +3292,6 @@ window.__EMBEDDED__ = {
         }
         
         .business-card:hover {
-            transform: translateY(-5px) scale(1.01);
             box-shadow: 0 8px 25px rgba(7, 83, 54, 0.12);
             border-color: rgba(30, 60, 114, 0.2);
         }
@@ -3613,13 +3611,13 @@ window.__EMBEDDED__ = {
         .mk-chart-grid.spot-pair-layout { grid-template-columns: 1fr 1fr; }
         #batteryChart, #industrialChart { display: block; width: 100%; }
         .mk-chart-card {
-            background: var(--card-bg); border-radius: 12px; padding: 20px;
+            background: var(--card-bg); border-radius: 12px; padding: 24px;
             box-shadow: 0 2px 12px rgba(7,83,54,0.05);
             border: 1px solid rgba(7,83,54,0.05);
             transition: all 0.3s ease;
         }
         .mk-chart-card:hover {
-            box-shadow: 0 4px 20px var(--line-green); transform: translateY(-2px);
+            box-shadow: 0 4px 20px var(--line-green);
         }
         .mk-chart-card-title {
             font-size: 16px; font-weight: 600; color: var(--text-main);
@@ -3821,7 +3819,6 @@ window.__EMBEDDED__ = {
        }
        
        .chain-node:hover {
-           transform: translateY(-2px);
            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
        }
        
@@ -3989,7 +3986,6 @@ window.__EMBEDDED__ = {
        }
 
        .chain-node:hover {
-           transform: translateY(-2px);
            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
        }
 
@@ -4056,7 +4052,7 @@ window.__EMBEDDED__ = {
             color: var(--text-main);
             margin-bottom: 20px;
             padding-bottom: 10px;
-            border-bottom: 2px solid var(--line-green);
+            font-weight: 600;
             position: relative;
             z-index: 1;
             text-align: center;
@@ -4089,7 +4085,7 @@ window.__EMBEDDED__ = {
         .monitor-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
+            gap: 20px;
             position: relative;
             z-index: 1;
         }
@@ -4124,7 +4120,7 @@ window.__EMBEDDED__ = {
         }
         
         .monitor-card:hover {
-            transform: translateY(-8px) scale(1.03);
+            transform: scale(1.03);
             box-shadow: 0 12px 35px rgba(30, 60, 114, 0.2);
             border-color: rgba(30, 60, 114, 0.3);
         }
@@ -4400,7 +4396,6 @@ window.__EMBEDDED__ = {
         .toolbar-btn:hover {
             background: var(--text-main);
             color: white;
-            transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(30, 60, 114, 0.2);
         }
         
@@ -4461,7 +4456,6 @@ window.__EMBEDDED__ = {
             background: var(--text-main);
             color: white;
             border-color: var(--text-main);
-            transform: translateY(-2px);
         }
         
         .toc-item.active {
@@ -4518,13 +4512,13 @@ window.__EMBEDDED__ = {
             color: var(--text-main);
             margin-bottom: 14px;
             padding: 6px 12px;
-            background: linear-gradient(90deg, #f0f4ff 0%, transparent 100%);
-            border-left: 4px solid var(--text-main);
+            background: linear-gradient(90deg, rgba(248,255,251,0.6) 0%, transparent 100%);
+            border-left: 2px solid rgba(7,83,54,0.2);
             border-radius: 0 6px 6px 0;
             display: flex;
             align-items: center;
             gap: 8px;
-            font-weight: bold;
+            font-weight: 600;
         }
 
         .report-summary {
@@ -5111,7 +5105,7 @@ window.__EMBEDDED__ = {
         .allbu-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 6px;
+            gap: 12px;
             align-items: stretch;
         }
 
@@ -5131,7 +5125,6 @@ window.__EMBEDDED__ = {
             height: 100%;
         }
         .allbu-card:hover {
-            transform: translateY(-4px);
             box-shadow: 0 10px 30px rgba(7,83,54,0.15);
             border-left-color: var(--brand-tech);
         }
@@ -5425,7 +5418,6 @@ window.__EMBEDDED__ = {
         
         .recent-day-card:hover {
             border-color: var(--text-main);
-            transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
         
@@ -5784,7 +5776,6 @@ window.__EMBEDDED__ = {
         }
         
         .start-compare-btn:hover {
-            transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(255, 255, 255, 0.3);
         }
         
@@ -6018,7 +6009,7 @@ window.__EMBEDDED__ = {
         }
         .chart-title {
             font-size: 20px;
-            font-weight: bold;
+            font-weight: 600;
             color: var(--text-main);
         }
         .chart-contract {
@@ -6033,13 +6024,13 @@ window.__EMBEDDED__ = {
             gap: 12px;
         }
         .chart-latest-price {
-            font-size: 28px;
-            font-weight: bold;
+            font-size: 30px;
+            font-weight: 700;
             color: var(--text-main);
         }
         .chart-latest-change {
-            font-size: 16px;
-            font-weight: bold;
+            font-size: 18px;
+            font-weight: 700;
         }
         .chart-latest-change.up { color: #d32f2f; }
         .chart-latest-change.down { color: #388e3c; }
@@ -6123,7 +6114,6 @@ window.__EMBEDDED__ = {
             font-family: inherit;
         }
         .bu-compact-btn:hover {
-            transform: translateY(-3px);
             box-shadow: 0 6px 18px rgba(30, 60, 114, 0.18);
             border-color: var(--text-main);
             background: linear-gradient(135deg, #f0f4ff 0%, #e8eeff 100%);
@@ -6245,7 +6235,7 @@ window.__EMBEDDED__ = {
 }
 /* 悬停：3D 倾斜上浮 */
 .ai-sphere:hover {
-    transform: translateY(-8px) rotateY(-10deg) rotateX(7deg) scale(1.10);
+    transform: rotateY(-10deg) rotateX(7deg) scale(1.10);
     box-shadow:
         inset 0 -7px 14px rgba(0,0,0,0.30),
         inset 0  7px 14px rgba(255,255,255,0.38),
@@ -6254,7 +6244,7 @@ window.__EMBEDDED__ = {
         0  0  60px 22px rgba(0,125,78,0.40),
         0 24px 60px rgba(0,0,0,0.65);
 }
-.ai-sphere:active { transform: translateY(-3px) rotateY(-5deg) scale(1.05); }
+.ai-sphere:active { transform: rotateY(-5deg) scale(1.05); }
 .ai-sphere-shadow {
     width: 64px;
     height: 11px;
@@ -6284,7 +6274,6 @@ window.__EMBEDDED__ = {
 .ai-float-label:hover {
     background: linear-gradient(135deg, rgba(0,125,78,0.98), rgba(0,125,78,0.88));
     box-shadow: 0 5px 18px rgba(0,125,78,0.65);
-    transform: translateY(-2px);
 }
 
 /* ===== 悬停GIF动画按钮样式（覆盖原.ai-sphere） ===== */
@@ -6336,7 +6325,7 @@ window.__EMBEDDED__ = {
 
 /* 悬停时按钮放大 */
 #aiSphere:hover, .ai-sphere:hover {
-    transform: translateY(-4px) scale(1.05) !important;
+    transform: scale(1.05) !important;
     box-shadow: none !important;
 }
 
@@ -6373,7 +6362,7 @@ window.__EMBEDDED__ = {
 
 /* 悬停时按钮放大（GIF始终播放，无需切换） */
 #aiSphere:hover, .ai-sphere:hover {
-    transform: translateY(-4px) scale(1.05) !important;
+    transform: scale(1.05) !important;
 }
 
 /* 取消原有的球体阴影和高光 */
@@ -6404,7 +6393,6 @@ window.__EMBEDDED__ = {
 .ai-float-label:hover {
     background: linear-gradient(135deg, #268a5c, #3db87a) !important;
     box-shadow: 0 5px 18px rgba(45,159,110,0.65) !important;
-    transform: translateY(-2px) !important;
 }
 
 /* 响应式：小屏幕缩小按钮 */
@@ -6756,10 +6744,9 @@ window.__EMBEDDED__ = {
         /* ── 面板内部卡片容器 ── */
         .panel-inner { position: relative; z-index: 2; }
         .panel-section-title {
-            font-size: 0.65rem; font-weight: 700; color: rgba(7,63,49,0.5);
-            letter-spacing: 2px; text-transform: uppercase; margin-bottom: 14px;
-            padding-bottom: 8px;
-            border-bottom: 1px solid var(--line-green);
+            font-size: 0.65rem; font-weight: 600; color: rgba(7,63,49,0.45);
+            letter-spacing: 1px; margin-bottom: 14px;
+            padding-bottom: 6px;
         }
 
         /* ── BU 卡片（保留原有logo+名称样式）── */
@@ -6781,7 +6768,6 @@ window.__EMBEDDED__ = {
             opacity: 0; transition: opacity 0.3s;
         }
         .bu-card:hover {
-            transform: translateY(-3px);
             border-color: rgba(10,166,106,0.28);
             box-shadow: 0 8px 28px rgba(10,166,106,0.12), 0 0 0 1px rgba(10,166,106,0.08);
             background: rgba(255,255,255,0.98);
@@ -6989,7 +6975,7 @@ window.__EMBEDDED__ = {
         .hexa-historical-check input[type="checkbox"] { width: 10px; height: 10px; cursor: pointer; accent-color: var(--panel-accent,var(--text-main)); }
         .hexa-historical-cards { width: 100%; display: flex; gap: 6px; overflow-x: auto; padding: 4px 0 2px; scrollbar-width: thin; }
         .hexa-historical-card { flex-shrink: 0; width: 60px; cursor: pointer; border: 1px solid rgba(7,83,54,0.1); border-radius: 8px; padding: 5px 3px; text-align: center; background: rgba(240,245,255,0.5); transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s; }
-        .hexa-historical-card:hover { border-color: rgba(10,166,106,0.35); box-shadow: 0 2px 8px var(--line-green); transform: translateY(-1px); }
+        .hexa-historical-card:hover { border-color: rgba(10,166,106,0.35); box-shadow: 0 2px 8px var(--line-green); }
         .hexa-historical-card.active-card { border-color: rgba(10,166,106,0.5); background: rgba(230,242,255,0.9); box-shadow: 0 2px 10px rgba(10,166,106,0.12); }
         .hexa-hist-card-month { font-size: 0.55rem; color: var(--panel-muted); }
         .hexa-hist-card-dims { font-size: 0.5rem; line-height: 1.4; color: rgba(7,83,54,0.5); margin-top: 2px; }
@@ -7319,15 +7305,15 @@ window.__EMBEDDED__ = {
 
         /* 价格数值 */
         .chart-latest-price {
-            font-size: 13px;
-            font-weight: 600;
+            font-size: 28px;
+            font-weight: 700;
             color: #333;
         }
 
         /* 涨跌幅数值 */
         .chart-latest-change {
-            font-size: 13px;
-            font-weight: 600;
+            font-size: 16px;
+            font-weight: 700;
         }
 
         /* 价格段文字 */
@@ -7400,7 +7386,6 @@ window.__EMBEDDED__ = {
         }
         
         .gantt-btn:hover {
-            transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(0,0,0,0.15);
         }
         
@@ -8233,7 +8218,6 @@ window.__EMBEDDED__ = {
 
         .matrix-card:hover {
             border-color: #000000;
-            transform: translateY(-2px);
             box-shadow: 0 2px 8px rgba(0,0,0,0.06);
         }
 
@@ -8445,15 +8429,15 @@ window.__EMBEDDED__ = {
 
         /* 价格数值 */
         .chart-latest-price {
-            font-size: 13px;
-            font-weight: 600;
+            font-size: 28px;
+            font-weight: 700;
             color: #333;
         }
 
         /* 涨跌幅数值 */
         .chart-latest-change {
-            font-size: 13px;
-            font-weight: 600;
+            font-size: 16px;
+            font-weight: 700;
         }
 
         /* 价格段文字 */
@@ -13787,10 +13771,9 @@ const BU_LOGOS = {
         /* ── 面板内部卡片容器 ── */
         .panel-inner { position: relative; z-index: 2; }
         .panel-section-title {
-            font-size: 0.65rem; font-weight: 700; color: rgba(7,63,49,0.5);
-            letter-spacing: 2px; text-transform: uppercase; margin-bottom: 14px;
-            padding-bottom: 8px;
-            border-bottom: 1px solid var(--line-green);
+            font-size: 0.65rem; font-weight: 600; color: rgba(7,63,49,0.45);
+            letter-spacing: 1px; margin-bottom: 14px;
+            padding-bottom: 6px;
         }
 
         /* ── BU 卡片（保留原有logo+名称样式）── */
@@ -13812,7 +13795,6 @@ const BU_LOGOS = {
             opacity: 0; transition: opacity 0.3s;
         }
         .bu-card:hover {
-            transform: translateY(-3px);
             border-color: rgba(10,166,106,0.28);
             box-shadow: 0 8px 28px rgba(10,166,106,0.12), 0 0 0 1px rgba(10,166,106,0.08);
             background: rgba(255,255,255,0.98);
@@ -14020,7 +14002,7 @@ const BU_LOGOS = {
         .hexa-historical-check input[type="checkbox"] { width: 10px; height: 10px; cursor: pointer; accent-color: var(--panel-accent,var(--text-main)); }
         .hexa-historical-cards { width: 100%; display: flex; gap: 6px; overflow-x: auto; padding: 4px 0 2px; scrollbar-width: thin; }
         .hexa-historical-card { flex-shrink: 0; width: 60px; cursor: pointer; border: 1px solid rgba(7,83,54,0.1); border-radius: 8px; padding: 5px 3px; text-align: center; background: rgba(240,245,255,0.5); transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s; }
-        .hexa-historical-card:hover { border-color: rgba(10,166,106,0.35); box-shadow: 0 2px 8px var(--line-green); transform: translateY(-1px); }
+        .hexa-historical-card:hover { border-color: rgba(10,166,106,0.35); box-shadow: 0 2px 8px var(--line-green); }
         .hexa-historical-card.active-card { border-color: rgba(10,166,106,0.5); background: rgba(230,242,255,0.9); box-shadow: 0 2px 10px rgba(10,166,106,0.12); }
         .hexa-hist-card-month { font-size: 0.55rem; color: var(--panel-muted); }
         .hexa-hist-card-dims { font-size: 0.5rem; line-height: 1.4; color: rgba(7,83,54,0.5); margin-top: 2px; }
