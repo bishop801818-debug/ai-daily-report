@@ -986,8 +986,14 @@
             const headers = Object.keys(data[0]);
             const thead = headers.map(h => `<th>${h}</th>`).join('');
             document.querySelector('#table-' + idx + ' thead tr').innerHTML = thead;
+            // 按"当前日期"倒序排列（最近日期在上）
+            const dateKey = headers.includes('当前日期') ? '当前日期' : (headers[0] || '');
+            const sorted = [...data].sort((a, b) => {
+                const da = a[dateKey] || '', db = b[dateKey] || '';
+                return da < db ? 1 : da > db ? -1 : 0;
+            });
             let rows = '';
-            const showRows = data.slice(0, 200);
+            const showRows = sorted.slice(0, 200);
             showRows.forEach(d => {
                 rows += '<tr>' + headers.map(h => `<td>${pct(d[h])}</td>`).join('') + '</tr>';
             });
@@ -1035,8 +1041,13 @@
             const t = EMBEDDED_DATA ? EMBEDDED_DATA.tables[idx] : null;
             if (!t || !t.data.length) return;
             const headers = Object.keys(t.data[0]);
+            const dateKey = headers.includes('当前日期') ? '当前日期' : (headers[0] || '');
+            const sorted = [...t.data].sort((a, b) => {
+                const da = a[dateKey] || '', db = b[dateKey] || '';
+                return da < db ? 1 : da > db ? -1 : 0;
+            });
             let csv = headers.join(',') + '\n';
-            t.data.forEach(row => {
+            sorted.forEach(row => {
                 csv += headers.map(h => '"' + String(row[h]||'').replace(/"/g,'""') + '"').join(',') + '\n';
             });
             const blob = new Blob(['\ufeff' + csv], {type:'text/csv;charset=utf-8'});
