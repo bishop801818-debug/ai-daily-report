@@ -257,6 +257,19 @@ def to_utf8(v):
         return v.encode('latin1').decode('utf-8', errors='replace')
     return str(v)
 
+def sort_tables(tables):
+    """按'当前日期'倒序排列所有表格数据（最近日期在前），保证展示顺序一致性"""
+    DATE_KEYS = ('当前日期', '日期', 'date', 'update_date')
+    for table in tables:
+        rows = table.get('data', [])
+        if not rows:
+            continue
+        date_key = next((k for k in DATE_KEYS if k in rows[0]), None)
+        if not date_key:
+            continue
+        table['data'] = sorted(rows, key=lambda r: str(r.get(date_key) or ''), reverse=True)
+
+
 def excel_to_records(df):
     """Convert DataFrame to records list, handle NaN."""
     records = []
@@ -292,7 +305,8 @@ def generate_db(db_config):
         print(f'[WARN] {name}: Excel file not found, glob={excel_glob}')
         return False
 
-    excel_file = files[0]
+    # Pick the newest file (not first alphabetical), to avoid picking stale "(1)" copies
+    excel_file = max(files, key=os.path.getmtime)
     print('[INFO] ' + name + ': reading ' + ''.join([c if ord(c) < 128 or c in ' ()-.' else '_' for c in os.path.basename(excel_file)]))
 
     # Fix: openpyxl mis-decodes some sheet names as GBK (locale default) when the XML
@@ -363,6 +377,9 @@ def generate_db(db_config):
             print(f'  [OK] {fixed_name} -> {table_name}: {len(records)} rows')
         except Exception as e:
             print(f'  [FAIL] {sheet_name}: error - {e}')
+
+    # 全局排序：按'当前日期'倒序，保证展示时最近日期在上
+    sort_tables(tables)
 
     # Generate JS file
     js_content = f'''const {js_var} = {json.dumps({
