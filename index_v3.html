@@ -2798,7 +2798,7 @@ window.__EMBEDDED__ = {
       // 前端通过 http://localhost:5000/api/... 调用
     </script>
     <title>晨会指挥中心 - 每日早报</title>
-    
+    <style>
         /* 防止图表旧内容闪屏：SVG默认隐藏，JS渲染完成后由JS设为visible */
         /* 使用 !important 防止被 inline style 覆盖 */
         svg[id*="Chart"], svg[id*="chart"] {
@@ -4810,7 +4810,7 @@ window.__EMBEDDED__ = {
             color: #999;
             margin-top: 6px;
             padding-top: 6px;
-            border-top: 1px dashed #e0e0e0;
+            border-top: 1px dashed var(--line-green);
         }
         .report-item-meta::before {
             content: '📎 ';
@@ -7089,7 +7089,7 @@ window.__EMBEDDED__ = {
             border-bottom: 2px solid var(--line-green); font-size: 11px;
         }
         .kpi-compare-table td {
-            padding: 7px 10px; text-align: center; border-bottom: 1px solid #f0f0f0;
+            padding: 7px 10px; text-align: center; border-bottom: 1px solid var(--line-green);
         }
         .kpi-compare-table .kpi-name { text-align: left; font-weight: 600; color: #1a1a2e; }
         .kpi-compare-table .kpi-actual { font-weight: 700; }
@@ -7212,8 +7212,8 @@ window.__EMBEDDED__ = {
         .report-modal-body.font-extra-large { font-size:19px; line-height:1.85; }
         .report-modal-body .report-no-data { text-align:center; padding:60px; color:#888; }
         .sec-card { margin-bottom:12px; border-radius:8px; overflow:hidden; border:1px solid var(--line-green); background:#fff; }
-        .sec-card-hd { display:flex; align-items:center; justify-content:space-between; padding:9px 16px; cursor:pointer; font-size:14px; font-weight:600; color:var(--text-main); background:#e4ecf7; user-select:none; transition:background 0.2s; }
-        .sec-card-hd:hover { background:#d5e0ee; }
+        .sec-card-hd { display:flex; align-items:center; justify-content:space-between; padding:9px 16px; cursor:pointer; font-size:14px; font-weight:600; color:var(--text-main); background:var(--bg-mint); user-select:none; transition:background 0.2s; }
+        .sec-card-hd:hover { background:var(--bg-mint); }
         .sec-card-hd .sec-title { flex:1; }
         .sec-card-hd .sec-toggle { font-size:16px; font-weight:400; margin-left:8px; color:rgba(7,83,54,0.45); transition:transform 0.25s; }
         .sec-card.open .sec-card-hd .sec-toggle { transform:rotate(180deg); }
@@ -8576,7 +8576,7 @@ window.__EMBEDDED__ = {
             animation: lineReveal 1.5s cubic-bezier(0.25,0.46,0.45,0.94) forwards;
             animation-delay: calc(var(--line-i, 0) * 0.1s);
         }
-    
+    </style>
 <script>
 /* ===== AI 对话框 / 拖拽 JS ===== */
 window.addEventListener('DOMContentLoaded', function() {
@@ -13660,7 +13660,7 @@ const BU_LOGOS = {
                 <html>
                 <head>
                     <title>${modalTitle} - ${modalDate}</title>
-                    
+                    <style>
                         body { font-family: 'Microsoft YaHei', sans-serif; padding: 40px; }
                         h1 { color: var(--text-main); border-bottom: 2px solid var(--text-main); padding-bottom: 10px; }
                         .date { color: #666; margin-bottom: 20px; }
@@ -14120,7 +14120,7 @@ const BU_LOGOS = {
             border-bottom: 2px solid var(--line-green); font-size: 11px;
         }
         .kpi-compare-table td {
-            padding: 7px 10px; text-align: center; border-bottom: 1px solid #f0f0f0;
+            padding: 7px 10px; text-align: center; border-bottom: 1px solid var(--line-green);
         }
         .kpi-compare-table .kpi-name { text-align: left; font-weight: 600; color: #1a1a2e; }
         .kpi-compare-table .kpi-actual { font-weight: 700; }
@@ -14243,8 +14243,8 @@ const BU_LOGOS = {
         .report-modal-body.font-extra-large { font-size:19px; line-height:1.85; }
         .report-modal-body .report-no-data { text-align:center; padding:60px; color:#888; }
         .sec-card { margin-bottom:12px; border-radius:8px; overflow:hidden; border:1px solid var(--line-green); background:#fff; }
-        .sec-card-hd { display:flex; align-items:center; justify-content:space-between; padding:9px 16px; cursor:pointer; font-size:14px; font-weight:600; color:var(--text-main); background:#e4ecf7; user-select:none; transition:background 0.2s; }
-        .sec-card-hd:hover { background:#d5e0ee; }
+        .sec-card-hd { display:flex; align-items:center; justify-content:space-between; padding:9px 16px; cursor:pointer; font-size:14px; font-weight:600; color:var(--text-main); background:var(--bg-mint); user-select:none; transition:background 0.2s; }
+        .sec-card-hd:hover { background:var(--bg-mint); }
         .sec-card-hd .sec-title { flex:1; }
         .sec-card-hd .sec-toggle { font-size:16px; font-weight:400; margin-left:8px; color:rgba(7,83,54,0.45); transition:transform 0.25s; }
         .sec-card.open .sec-card-hd .sec-toggle { transform:rotate(180deg); }
@@ -14265,7 +14265,7 @@ const BU_LOGOS = {
         .topnews-brief-item { padding:3px 0; border-bottom:1px solid rgba(7,83,54,0.04); }
         .topnews-brief-item:last-child { border-bottom:none; }
     
-
+</style>
                 </head>
                 <body>
                     <h1>${modalTitle}</h1>
