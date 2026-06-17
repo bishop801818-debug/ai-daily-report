@@ -60,10 +60,39 @@ data/*.json
 data/*.csv
 !data/README.md
 
+# ========== GitHub Pages 同步白名单 ==========
+# 关键数据文件必须同步到 GitHub，否则页面无法加载
+!data/industry_chain.json
+!data/carbonate_spot_price_merged.json
+!data/lithium_ore_price_history.json
+!data/lepidolite_price_history.json
+!data/phosphate_rock_price.json
+!data/phosphate_rock_price_jin10.json
+!data/carbonate_spot_price_jin10.json
+
 # ------------------------------------------
 # 5.早报历史存档（按日期自动生成）
 # ------------------------------------------
 reports/*.json
+# ========== GitHub Pages 同步白名单 ==========
+# 关键数据文件必须同步到 GitHub，否则图表无法加载
+!reports/index.json
+!reports/market_lc.json
+!reports/market_lfp.json
+!reports/lfp_power_history.json
+!reports/lfp_storage_history.json
+!reports/lc_futures_history.json
+!reports/iron_phosphate_history.json
+!reports/lfp_all_data.json
+!reports/pt_futures_history.json
+!reports/pd_futures_history.json
+!reports/i_futures_history.json
+!reports/eg_futures_history.json
+!reports/market_cumulative.json
+!reports/market_cumulative_metals.json
+!reports/market_cumulative_chemical.json
+!reports/ur_history.json
+!reports/wti_history.json
 
 # ------------------------------------------
 # 6. 嵌入版每日快照
