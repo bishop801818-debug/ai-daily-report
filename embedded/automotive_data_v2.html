@@ -551,8 +551,8 @@
 
 (function() {
     var updateTime = document.getElementById('updateTime');
-    if (updateTime && window.EMBEDDED_DATA) {
-        updateTime.textContent = window.EMBEDDED_DATA.update_time || '未知';
+    if (updateTime && window.AUTOMOTIVE_DATA) {
+        updateTime.textContent = window.AUTOMOTIVE_DATA.update_time || '未知';
     }
 
     var navItems = document.querySelectorAll('.nav-item');

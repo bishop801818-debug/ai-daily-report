@@ -815,10 +815,10 @@
         // 更新徽章
         function updateBadge(tableName, count) {
             const badgeMap = {
-                '锂电池行业产量（分规格）': 'badge-lib-industry-spec',
-                '锂电池行业产量产能（不分规格）': 'badge-lib-industry-total',
-                '锂电池分企业产量（分规格）': 'badge-lib-company-spec',
-                '锂电池分企业产量产能（不分规格）': 'badge-lib-company-total',
+                '锂电池行业产量-分规格': 'badge-lib-industry-spec',
+                '锂电池行业产量产能': 'badge-lib-industry-total',
+                '锂电池分企业产量-分规格': 'badge-lib-company-spec',
+                '锂电池分企业产量产能': 'badge-lib-company-total',
                 '电池排产预测': 'badge-lib-forecast'
             };
             const badgeId = badgeMap[tableName];
@@ -839,7 +839,7 @@
 
         // 行业产量（分规格）
         function renderIndustrySpec() {
-            const data = allData['锂电池行业产量（分规格）'] || [];
+            const data = allData['锂电池行业产量-分规格'] || [];
             tableData['lib-industry-spec'] = data;
             const sorted = [...data].sort((a, b) => String(b['日期']||'').localeCompare(a['日期']||''));
             const latest = sorted[0] || {};
@@ -866,7 +866,7 @@
 
         // 行业产量产能（不分规格）
         function renderIndustryTotal() {
-            const data = allData['锂电池行业产量产能（不分规格）'] || [];
+            const data = allData['锂电池行业产量产能'] || [];
             tableData['lib-industry-total'] = data;
             const sorted = [...data].sort((a, b) => String(b['日期']||'').localeCompare(a['日期']||''));
             const latest = sorted[0] || {};
@@ -897,7 +897,7 @@
 
         // 分企业产量（分规格）
         function renderCompanySpec() {
-            const data = allData['锂电池分企业产量（分规格）'] || [];
+            const data = allData['锂电池分企业产量-分规格'] || [];
             tableData['lib-company-spec'] = data;
             const sorted = [...data].sort((a, b) => String(b['日期']||'').localeCompare(a['日期']||''));
             let html = sorted.slice(0, 50).map(d => `
@@ -915,7 +915,7 @@
 
         // 分企业产量产能（不分规格）
         function renderCompanyTotal() {
-            const data = allData['锂电池分企业产量产能（不分规格）'] || [];
+            const data = allData['锂电池分企业产量产能'] || [];
             tableData['lib-company-total'] = data;
             const sorted = [...data].sort((a, b) => String(b['日期']||'').localeCompare(a['日期']||''));
             const latestDate = sorted[0] ? sorted[0]['日期'] : '';

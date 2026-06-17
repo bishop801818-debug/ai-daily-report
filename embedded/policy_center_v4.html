@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="html-version" content="20260529_1100">
+    <meta name="html-version" content="20260616_001">
     <title>政策中心 · 锂电池产业链信息中台</title>
     <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Noto+Sans+SC:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
     <style>
@@ -325,7 +325,7 @@
         <!-- ====== Sidebar ====== -->
         <nav class="sidebar" id="sidebar">
             <div class="sidebar-header">
-                <div class="sidebar-logo">📋 政策中心</div>
+                <div class="sidebar-logo"> 政策中心</div>
                 <div class="sidebar-sub">龙蟠科技 · 锂电池产业链</div>
             </div>
 
@@ -352,16 +352,48 @@
 
         <!-- ====== Main ====== -->
         <div class="main-area">
-            <div class="topbar">
-                <button class="mobile-toggle" id="mobile-toggle" onclick="document.getElementById('sidebar').classList.toggle('open')">
-                    ☰ 导航
-                </button>
-                <a href="index_v3.html" class="back-btn">← 返回主页</a>
-                <span class="topbar-title">📋 政策中心 · 2026年政策时间轴</span>
-                <div class="topbar-right">
-                    <span class="total-badge" id="topbar-count">12 条政策</span>
-                </div>
+            <!--统一导航栏（shared_nav.css）-->
+<link rel="stylesheet" href="shared_nav.css">
+<div class="sub-topbar">
+    <a class="sub-topbar-home" href="index_v3.html">← 返回首页</a>
+    <div class="sub-topbar-title"> 政策中心</div>
+    <div class="sub-topbar-nav">
+        <div class="sub-nav-item" onclick="window.location.href='policy_center_v4.html'">
+           <span> 政策中心</span><span class="sub-arrow">▼</span>
+            <div class="sub-dropdown">
+                <div class="sub-dropdown-item" onclick="event.stopPropagation(); window.location.href='policy_center_v4.html?filter=central'"><span class="nav-icon"></span>国家政策</div>
+                <div class="sub-dropdown-item" onclick="event.stopPropagation(); window.location.href='policy_center_v4.html?filter=local'"><span class="nav-icon"></span>地方政策</div>
+                <div class="sub-dropdown-item" onclick="event.stopPropagation(); window.location.href='policy_center_v4.html?filter=overseas'"><span class="nav-icon"></span>国际政策</div>
             </div>
+        </div>
+        <div class="sub-nav-item" onclick="window.location.href='industry_news_embedded.html'">
+          <span> 行业新闻</span><span class="sub-arrow">▼</span>
+            <div class="sub-dropdown">
+                <div class="sub-dropdown-item" onclick="event.stopPropagation(); window.location.href='industry_news_embedded.html?filter=macro'"><span class="nav-icon"></span>宏观新闻</div>
+                <div class="sub-dropdown-item" onclick="event.stopPropagation(); window.location.href='industry_news_embedded.html?filter=industry'"><span class="nav-icon"></span>行业新闻</div>
+                <div class="sub-dropdown-item" onclick="event.stopPropagation(); window.location.href='industry_news_embedded.html?filter=company'"><span class="nav-icon"></span>企业动态</div>
+                <div class="sub-dropdown-item" onclick="event.stopPropagation(); window.location.href='industry_news_embedded.html?filter=tech'"><span class="nav-icon"></span>技术产品</div>
+            </div>
+        </div>
+        <div class="sub-nav-item" onclick="window.location.href='archive_v3.html'"><span> 历史数据</span></div>
+        <div class="sub-nav-item" onclick="window.location.href='database_hub.html'">
+            <span> 数据库</span><span class="sub-arrow">▼</span>
+            <div class="sub-dropdown">
+                <div class="sub-dropdown-item" onclick="event.stopPropagation(); window.location.href='lfp_data_v2.html'"><span class="nav-icon"></span>磷酸铁锂数据库</div>
+                <div class="sub-dropdown-item" onclick="event.stopPropagation(); window.location.href='ternary_data_v2.html'"><span class="nav-icon"></span>三元材料数据库</div>
+                <div class="sub-dropdown-item" onclick="event.stopPropagation(); window.location.href='electrolyte_data_v2.html'"><span class="nav-icon"></span>电解液数据库</div>
+                <div class="sub-dropdown-item" onclick="event.stopPropagation(); window.location.href='carbonate_data_v2.html'"><span class="nav-icon"></span>碳酸锂及原料数据库</div>
+                <div class="sub-dropdown-item" onclick="event.stopPropagation(); window.location.href='recycling_data_v2.html'"><span class="nav-icon"></span>锂电池回收数据库</div>
+                <div class="sub-dropdown-item" onclick="event.stopPropagation(); window.location.href='lib_battery_data_v2.html'"><span class="nav-icon"></span>锂电池行业数据库</div>
+                <div class="sub-dropdown-item" onclick="event.stopPropagation(); window.location.href='automotive_data_v2.html'"><span class="nav-icon"></span>汽车行业数据库</div>
+            </div>
+        </div>
+        <div class="sub-nav-item" onclick="window.location.href='analysis_hub.html'"><span> 行业分析</span></div>
+        <div class="sub-nav-item" onclick="window.location.href='strategy_hub.html'"><span> 竞品比对</span></div>
+        <div class="sub-nav-item" onclick="window.location.href='radar_hub.html'"><span> 雷达看板</span></div>
+    </div>
+    <span id="topbar-count" class="total-badge" style="flex-shrink:0;margin-left:12px;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);color:rgba(255,255,255,0.9);padding:4px 14px;border-radius:20px;font-size:13px;font-weight:600;">-- 条政策</span>
+</div>
 
             <div class="container">
                 <div class="filter-bar">
@@ -2110,7 +2142,7 @@
           : '';
 
         const srcBadge = policy._isDaily
-          ? '<span style="background:#e0f2fe;color:#0277bd;padding:3px 9px;border-radius:6px;font-size:12px;font-weight:600;margin-left:8px;">📰 早报补充</span>'
+          ? '<span style="background:#e0f2fe;color:#0277bd;padding:3px 9px;border-radius:6px;font-size:12px;font-weight:600;margin-left:8px;"> 早报补充</span>'
           : '';
 
         // 适用主体
@@ -2136,18 +2168,18 @@
                     <p><strong style="color:var(--text-mid)">涉及BU：</strong>${(policy.bu || []).join('、')}</p>
                 </div>
                 <div class="info-card">
-                    <div class="info-card-header"><span class="info-card-icon">📋</span><span class="info-card-title">政策摘要</span></div>
+                    <div class="info-card-header"><span class="info-card-icon"></span><span class="info-card-title">政策摘要</span></div>
                     <p style="font-size:14px;color:var(--text-mid);line-height:1.8">${policy.summary || policy.content || ''}</p>
                 </div>
             </div>
             ${applicableEntities !== '<span style="color:var(--text-dim);font-size:13px">（未识别）</span>' ? `
             <div class="info-card" style="margin-bottom:16px;background:linear-gradient(135deg,#fffbeb,#fefce8);border:1px solid #fde68a">
-                <div class="info-card-header" style="border-bottom-color:#fde68a"><span class="info-card-icon">🏢</span><span class="info-card-title orange">适用主体</span></div>
+                <div class="info-card-header" style="border-bottom-color:#fde68a"><span class="info-card-icon"></span><span class="info-card-title orange">适用主体</span></div>
                 <div style="display:flex;flex-wrap:wrap;gap:6px;padding-top:4px">${applicableEntities}</div>
             </div>` : ''}
             <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap">
                 ${policy.url && policy.url !== '#' ? `<a href="${policy.url}" target="_blank" class="original-link">📄 查看原文</a>` : ''}
-                <a href="#" class="media-link" onclick="event.preventDefault();">📰 媒体报道</a>
+                <a href="#" class="media-link" onclick="event.preventDefault();"> 媒体报道</a>
             </div>
             <div class="info-card" style="margin-bottom:16px">
                 <div class="info-card-header"><span class="info-card-icon">📌</span><span class="info-card-title green">核心要点</span></div>
@@ -2162,7 +2194,7 @@
                 ${impactRows}
             </div>` : ''}
             ${riskHtml ? `<div class="info-card">
-                <div class="info-card-header"><span class="info-card-icon">⚡</span><span class="info-card-title red">风险控制</span></div>
+                <div class="info-card-header"><span class="info-card-icon"></span><span class="info-card-title red">风险控制</span></div>
                 ${riskHtml}
             </div>` : ''}`;
 
