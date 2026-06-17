@@ -2,9 +2,9 @@
   "meta": {
     "description": "2026年至今累计涨跌幅",
     "data_source": "各产品源数据文件",
-    "update_time": "2026-06-16 15:03:54",
+    "update_time": "2026-06-17 12:12:28",
     "year": 2026,
-    "generated_at": "2026-06-16T15:03:54.368221",
+    "generated_at": "2026-06-17T12:12:28.665422",
     "generator_version": "20260612_v4"
   },
   "products": [
@@ -12,13 +12,13 @@
       "name": "碳酸锂期货",
       "unit": "元/吨",
       "start_date": "2026-01-05",
-      "end_date": "2026-06-15",
+      "end_date": "2026-06-16",
       "start_price": 129980.0,
-      "end_price": 169400.0,
-      "change": 39420.0,
-      "change_pct": 30.33,
+      "end_price": 165220.0,
+      "change": 35240.0,
+      "change_pct": 27.11,
       "direction": "up",
-      "data_points": 106,
+      "data_points": 107,
       "price_series": [
         {
           "date": "2026-01-05",
@@ -443,6 +443,10 @@
         {
           "date": "2026-06-15",
           "price": 169400.0
+        },
+        {
+          "date": "2026-06-16",
+          "price": 165220.0
         }
       ]
     },
@@ -1102,13 +1106,13 @@
       "name": "磷酸铁锂(动力型)",
       "unit": "元/吨",
       "start_date": "2026-01-06",
-      "end_date": "2026-06-15",
+      "end_date": "2026-06-16",
       "start_price": 44950,
       "end_price": 62950,
       "change": 18000,
       "change_pct": 40.04,
       "direction": "up",
-      "data_points": 99,
+      "data_points": 100,
       "price_series": [
         {
           "date": "2026-01-06",
@@ -1505,6 +1509,10 @@
         {
           "date": "2026-06-15",
           "price": 62950
+        },
+        {
+          "date": "2026-06-16",
+          "price": 62950
         }
       ]
     },
@@ -1512,13 +1520,13 @@
       "name": "磷酸铁锂(储能型)",
       "unit": "元/吨",
       "start_date": "2026-01-06",
-      "end_date": "2026-06-15",
+      "end_date": "2026-06-16",
       "start_price": 41950,
       "end_price": 61250,
       "change": 19300,
       "change_pct": 46.01,
       "direction": "up",
-      "data_points": 92,
+      "data_points": 93,
       "price_series": [
         {
           "date": "2026-01-06",
@@ -1887,6 +1895,10 @@
         {
           "date": "2026-06-15",
           "price": 61250
+        },
+        {
+          "date": "2026-06-16",
+          "price": 61250
         }
       ]
     },
@@ -1894,13 +1906,13 @@
       "name": "磷酸铁",
       "unit": "元/吨",
       "start_date": "2026-01-04",
-      "end_date": "2026-06-15",
+      "end_date": "2026-06-16",
       "start_price": 11600,
       "end_price": 14600,
       "change": 3000,
       "change_pct": 25.86,
       "direction": "up",
-      "data_points": 103,
+      "data_points": 104,
       "price_series": [
         {
           "date": "2026-01-04",
@@ -2312,6 +2324,10 @@
         },
         {
           "date": "2026-06-15",
+          "price": 14600
+        },
+        {
+          "date": "2026-06-16",
           "price": 14600
         }
       ]
@@ -2752,7 +2768,7 @@
       "change": 2462.5,
       "change_pct": 60.06,
       "direction": "up",
-      "data_points": 70,
+      "data_points": 71,
       "price_series": [
         {
           "date": "2026-01-04",
@@ -3029,6 +3045,10 @@
         {
           "date": "2026-06-11",
           "price": 6412.5
+        },
+        {
+          "date": "2026-06-12",
+          "price": 6612.5
         },
         {
           "date": "2026-06-15",

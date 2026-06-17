@@ -2,9 +2,9 @@
   "meta": {
     "description": "化工板块2026年累计涨跌幅",
     "data_source": "各产品源数据文件",
-    "update_time": "2026-06-16 16:57:10",
+    "update_time": "2026-06-17 12:11:24",
     "year": 2026,
-    "generated_at": "2026-06-16T16:57:10.159050",
+    "generated_at": "2026-06-17T12:11:24.852137",
     "generator_version": "20260616_v2"
   },
   "products": [
@@ -454,13 +454,13 @@
       "name": "WTI原油",
       "unit": "美元/桶",
       "start_date": "2026-01-02",
-      "end_date": "2026-06-16",
+      "end_date": "2026-06-17",
       "start_price": 57.32,
-      "end_price": 77.36,
-      "change": 20.04,
-      "change_pct": 34.96,
+      "end_price": 74.99,
+      "change": 17.67,
+      "change_pct": 30.83,
       "direction": "up",
-      "data_points": 117,
+      "data_points": 118,
       "price_series": [
         {
           "date": "2026-01-02",
@@ -928,7 +928,11 @@
         },
         {
           "date": "2026-06-16",
-          "price": 77.36
+          "price": 75.83
+        },
+        {
+          "date": "2026-06-17",
+          "price": 74.99
         }
       ]
     },
