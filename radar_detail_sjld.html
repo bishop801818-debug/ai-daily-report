@@ -1456,16 +1456,9 @@ function getMonthData(month) {
 
 // 工具函数
 function calcAchv(actual, target, isCost) {
-    // 零值/无数据 → 0
     if (!actual || actual <= 0) return 0;
     if (!target || target <= 0) return 0;
-    // 成本指标：actual 越大越差，超支 → 0%
-    if (isCost) {
-        return actual > target ? 0 : Math.min(120, target / actual * 100);
-    }
-    // 收益指标：actual 越大越好，正常计算
-    return Math.min(120, actual / target * 100);
-}
+    var rate = isCost ? target / actual : actual / target;
     return Math.min(120, rate * 100);
 }
 

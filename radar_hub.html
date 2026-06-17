@@ -301,6 +301,7 @@ var BU_WEIGHTS = {
     sjld: [15, 18, 15, 17, 25, 10], // 基建期专属权重
     dhx:  [20, 22, 18, 15, 15, 10], // 迪克化学权重（冷却液业务）
     lpsd: [20, 20, 18, 17, 13, 12], // 龙蟠时代权重（统一默认权重）
+    kls:  [18, 22, 15, 22, 15, 8],  // 可兰素权重（与润滑油同款，销售驱动型）
 };
 var DEFAULT_WEIGHTS = [20, 20, 18, 17, 13, 12]; // 其他BU的统一权重
 
@@ -318,7 +319,7 @@ var BU_DIMS = {
 };
 
 // 标记当前月份BU（★）
-var BU_IS_CURRENT = { sdmd: true, felt: true, lhy: true, sjld: true, dhx: true, lpsd: true, kls: true }; // 山东美多+法恩莱特+润滑油+三金锂电+迪克化学+龙蟠时代+可兰素有真实当前数据
+var BU_IS_CURRENT = { sdmd: true, felt: true, lhy: true, sjld: true, dhx: true, lpsd: true, kls: true, czly: true }; // 山东美多+法恩莱特+润滑油+三金锂电+迪克化学+龙蟠时代+可兰素+常州锂源有真实当前数据
 
 var BU_LOGOS = {};
 var buChartInstances = {}; // 缓存每个BU的 ECharts 实例
@@ -361,6 +362,11 @@ var BU_HISTORY = {
         '2026-03': { d1: 84, d2: 72, d3: 68, d4: 70, d5: 76, d6: 70 },
         '2026-04': { d1: 89, d2: 75, d3: 70, d4: 72, d5: 78, d6: 68 },
         '2026-05': { d1: 82, d2: 80, d3: 75, d4: 76, d5: 80, d6: 72 },
+    },
+    czly: {
+        '2026-03': { d1: 62, d2: 44, d3: 75, d4: 55, d5: 98, d6: 50 }, // 锂源3月.pdf
+        '2026-04': { d1: 73, d2: 44, d3: 75, d4: 55, d5: 99, d6: 56 }, // 锂源4月.pdf
+        '2026-05': { d1: 86, d2: 95, d3: 88, d4: 47, d5: 95, d6: 45 }, // 锂源5月.pdf
     },
 };
 

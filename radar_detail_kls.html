@@ -1119,6 +1119,10 @@ const BU_META_KLS = {
     accent: '#d35400',
 }
 
+// 润滑油事业部同款权重（KLS与LHY同属销售驱动型）
+// D1战略18% D2经营22% D3运营15% D4创新22% D5合规15% D6活力8%
+const BU_WEIGHTS_KLS = [18, 22, 15, 22, 15, 8];
+
 
 
 const DIMS_DEF_KLS = [
@@ -1424,18 +1428,19 @@ function renderScoreOverview() {
     if (!data) return;
     var dims = data.dims;
     var vals = [dims.d1, dims.d2, dims.d3, dims.d4, dims.d5, dims.d6];
-    var score = Math.round(vals.reduce(function(a, b) { return a + b; }, 0) / vals.length);
+    var wts = BU_WEIGHTS_KLS;
+    var score = Math.round(vals.reduce(function(a, b, i) { return a + b * wts[i] / 100; }, 0));
 
     document.getElementById('bigScore').textContent = score;
 
-    var dimNames = ['核心考核', '经营效益', '运营效率', '技术创新', '风险合规', '组织活力'];
+    var dimNames = ['战略执行力', '经营效益', '运营效率', '技术创新力', '风险合规', '组织活力'];
     var scoreDimsEl = document.getElementById('scoreDims');
     scoreDimsEl.innerHTML = '';
     ['d1','d2','d3','d4','d5','d6'].forEach(function(d, i) {
         var v = dims[d] || 0;
         scoreDimsEl.innerHTML +=
             '<div class="dim-item">' +
-            '<div class="dim-name">' + dimNames[i] + '</div>' +
+            '<div class="dim-name">' + dimNames[i] + '<span style="font-size:10px;color:#94a3b8"> · ' + wts[i] + '%</span></div>' +
             '<div class="dim-score" style="color:' + DIMS_DEF_KLS[i].color + '">' + v + '</div>' +
             '<div class="dim-max">/100</div>' +
             '</div>';
