@@ -2798,7 +2798,7 @@ window.__EMBEDDED__ = {
       // 前端通过 http://localhost:5000/api/... 调用
     </script>
     <title>晨会指挥中心 - 每日早报</title>
-    <style>
+    
         /* 防止图表旧内容闪屏：SVG默认隐藏，JS渲染完成后由JS设为visible */
         /* 使用 !important 防止被 inline style 覆盖 */
         svg[id*="Chart"], svg[id*="chart"] {
@@ -3096,7 +3096,7 @@ window.__EMBEDDED__ = {
         
         .dropdown-divider {
             height: 1px;
-            background: #e0e0e0;
+            background: var(--line-green);
             margin: 6px 0;
         }
         
@@ -3163,13 +3163,13 @@ window.__EMBEDDED__ = {
             padding: 15px;
             border-radius: 10px;
             margin: 15px 0;
-            border: 1px solid #e0e0e0;
+            border: 1px solid var(--line-green);
         }
         
         .progress-bar-container {
             width: 100%;
             height: 12px;
-            background: #e0e0e0;
+            background: var(--line-green);
             border-radius: 10px;
             overflow: hidden;
             margin-bottom: 10px;
@@ -3270,7 +3270,7 @@ window.__EMBEDDED__ = {
         }
         
         .business-card {
-            background: linear-gradient(135deg, #ffffff 0%, #f8f9ff 100%);
+            background: linear-gradient(135deg, var(--card-bg) 0%, var(--card-bg) 100%);
             border-radius: 16px;
             padding: 20px;
             display: flex;
@@ -3360,7 +3360,7 @@ window.__EMBEDDED__ = {
             position: relative;
             overflow: hidden;
             background: #EFF8F2;
-            border: 2px solid #e0e0e0;
+            border: 2px solid var(--line-green);
             transition: all 0.4s;
             box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
@@ -3566,7 +3566,7 @@ window.__EMBEDDED__ = {
             color: #555;
         }
         .dashboard-content {
-            flex: 1; padding: 25px; background: #f8faff; overflow-y: auto;
+            flex: 1; padding: 25px; background: var(--card-bg); overflow-y: auto;
         }
         .mk-category-panel { display: none; }
         .mk-category-panel.active { display: block; animation: slideInRightPanel 0.5s ease-out both; }
@@ -3804,7 +3804,7 @@ window.__EMBEDDED__ = {
        .industry-chain-panel {
            margin-top: 30px;
            padding: 20px;
-           background: #f8f9ff;
+           background: var(--card-bg);
            border-radius: 12px;
            border: 1px solid var(--line-green);
        }
@@ -3822,7 +3822,7 @@ window.__EMBEDDED__ = {
            padding: 12px 16px;
            border-radius: 8px;
            background: white;
-           border: 2px solid #e0e0e0;
+           border: 2px solid var(--line-green);
            text-align: center;
            min-width: 120px;
            transition: all 0.3s;
@@ -3838,7 +3838,7 @@ window.__EMBEDDED__ = {
        }
        
        .chain-node.no-data {
-           border-color: #e0e0e0;
+           border-color: var(--line-green);
            opacity: 0.6;
        }
        
@@ -3990,7 +3990,7 @@ window.__EMBEDDED__ = {
            padding: 8px 12px;
            border-radius: 8px;
            background: white;
-           border: 2px solid #e0e0e0;
+           border: 2px solid var(--line-green);
            text-align: center;
            min-width: 100px;
            transition: all 0.3s;
@@ -4007,7 +4007,7 @@ window.__EMBEDDED__ = {
        }
 
        .chain-node.no-data {
-           border-color: #e0e0e0;
+           border-color: var(--line-green);
            opacity: 0.55;
        }
 
@@ -4033,7 +4033,7 @@ window.__EMBEDDED__ = {
        .chain-node-change.down { color: #388e3c; }
 
         .market-monitor {
-            background: linear-gradient(135deg, #ffffff 0%, #f8f9ff 100%);
+            background: linear-gradient(135deg, var(--card-bg) 0%, var(--card-bg) 100%);
             border-radius: 16px;
             padding: 25px 30px;
             box-shadow: 0 4px 20px var(--line-green);
@@ -4064,7 +4064,7 @@ window.__EMBEDDED__ = {
             color: var(--text-main);
             margin-bottom: 20px;
             padding-bottom: 10px;
-            border-bottom: 2px solid #e9ecef;
+            border-bottom: 2px solid var(--line-green);
             position: relative;
             z-index: 1;
             text-align: center;
@@ -4270,7 +4270,7 @@ window.__EMBEDDED__ = {
             justify-content: space-between;
             padding: 4px 0;
             font-size: 11px;
-            border-bottom: 1px solid #f0f0f0;
+            border-bottom: 1px solid var(--line-green);
         }
         
         .detail-item:last-child {
@@ -4371,7 +4371,7 @@ window.__EMBEDDED__ = {
         .report-toolbar {
             background: #EFF8F2;
             padding: 15px 30px;
-            border-bottom: 2px solid #e0e0e0;
+            border-bottom: 2px solid var(--line-green);
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -4437,7 +4437,7 @@ window.__EMBEDDED__ = {
         .report-toc {
             background: #EFF8F2;
             padding: 15px 20px;
-            border-bottom: 1px solid #e0e0e0;
+            border-bottom: 1px solid var(--line-green);
             display: none;
         }
         
@@ -4462,7 +4462,7 @@ window.__EMBEDDED__ = {
             transition: all 0.3s;
             font-size: 13px;
             color: #666;
-            border: 1px solid #e0e0e0;
+            border: 1px solid var(--line-green);
         }
         
         .toc-item:hover {
@@ -4757,7 +4757,7 @@ window.__EMBEDDED__ = {
             color: #2c3e50;
             margin-bottom: 6px;
             padding-bottom: 4px;
-            border-bottom: 1px solid #e9ecef;
+            border-bottom: 1px solid var(--line-green);
         }
         
         .company-item {
@@ -4799,7 +4799,7 @@ window.__EMBEDDED__ = {
         .source {
             display: inline-block;
             padding: 2px 8px;
-            background: #f0f0f0;
+            background: var(--card-bg);
             color: #666;
             border-radius: 3px;
             font-size: 12px;
@@ -4913,7 +4913,7 @@ window.__EMBEDDED__ = {
         }
         
         .market-card {
-            background: #f8f9ff;
+            background: var(--card-bg);
             padding: 12px;
             border-radius: 8px;
             border-left: 3px solid #667eea;
@@ -4982,7 +4982,7 @@ window.__EMBEDDED__ = {
         
         /* 今日主线 */
         .lead-judgment {
-            background: #f8f9ff;
+            background: var(--card-bg);
             border-left: 4px solid #667eea;
             padding: 15px;
             border-radius: 8px;
@@ -5044,7 +5044,7 @@ window.__EMBEDDED__ = {
             width: 12px;
             height: 12px;
             border-radius: 50%;
-            background: #e0e0e0;
+            background: var(--line-green);
             cursor: pointer;
             transition: all 0.3s;
         }
@@ -5077,7 +5077,7 @@ window.__EMBEDDED__ = {
         .allbu-modal.active { display: flex; }
 
         .allbu-modal-content {
-            background: #f0f2f5;
+            background: var(--card-bg);
             width: 98vw;
             height: 95vh;
             border-radius: 12px;
@@ -5245,7 +5245,7 @@ window.__EMBEDDED__ = {
         }
         .allbu-card-footer { padding: 6px 14px 10px; text-align: right; }
         .allbu-card-detail-btn {
-            font-size: 12px; color: var(--text-main); background: #f0f5ff;
+            font-size: 12px; color: var(--text-main); background: var(--bg-mint);
             border: 1px solid #d0e0ff; border-radius: 6px;
             padding: 4px 12px; cursor: pointer; transition: all 0.2s;
         }
@@ -5389,7 +5389,7 @@ window.__EMBEDDED__ = {
         }
         
         .calendar-day:hover {
-            background: #e9ecef;
+            background: var(--bg-mint);
         }
         
         .calendar-day.has-report {
@@ -5424,7 +5424,7 @@ window.__EMBEDDED__ = {
             min-width: 120px;
             padding: 15px;
             background: white;
-            border: 2px solid #e0e0e0;
+            border: 2px solid var(--line-green);
             border-radius: 8px;
             cursor: pointer;
             transition: all 0.3s;
@@ -5548,7 +5548,7 @@ window.__EMBEDDED__ = {
         
         .category-card {
             background: white;
-            border: 2px solid #e0e0e0;
+            border: 2px solid var(--line-green);
             border-radius: 12px;
             padding: 20px;
             transition: all 0.3s;
@@ -5568,7 +5568,7 @@ window.__EMBEDDED__ = {
             align-items: center;
             gap: 8px;
             padding-bottom: 10px;
-            border-bottom: 2px solid #e0e0e0;
+            border-bottom: 2px solid var(--line-green);
         }
         
         .category-item {
@@ -5630,7 +5630,7 @@ window.__EMBEDDED__ = {
         .history-toolbar {
             background: #EFF8F2;
             padding: 15px 20px;
-            border-bottom: 2px solid #e0e0e0;
+            border-bottom: 2px solid var(--line-green);
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -5654,7 +5654,7 @@ window.__EMBEDDED__ = {
         
         .date-input {
             padding: 6px 10px;
-            border: 2px solid #e0e0e0;
+            border: 2px solid var(--line-green);
             border-radius: 6px;
             font-size: 13px;
             cursor: pointer;
@@ -5669,7 +5669,7 @@ window.__EMBEDDED__ = {
         
         .search-input {
             padding: 6px 12px;
-            border: 2px solid #e0e0e0;
+            border: 2px solid var(--line-green);
             border-radius: 6px;
             font-size: 13px;
             width: 200px;
@@ -5807,7 +5807,7 @@ window.__EMBEDDED__ = {
             align-items: center;
             margin-bottom: 20px;
             padding-bottom: 15px;
-            border-bottom: 2px solid #e0e0e0;
+            border-bottom: 2px solid var(--line-green);
         }
         
         .compare-view-header h2 {
@@ -5934,7 +5934,7 @@ window.__EMBEDDED__ = {
         .spinner {
             width: 60px;
             height: 60px;
-            border: 4px solid #e0e0e0;
+            border: 4px solid var(--line-green);
             border-top-color: var(--text-main);
             border-radius: 50%;
             animation: spin 1s linear infinite;
@@ -5959,7 +5959,7 @@ window.__EMBEDDED__ = {
         
         /* 骨架屏 */
         .skeleton {
-            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background: linear-gradient(90deg, var(--card-bg) 25%, var(--line-green) 50%, var(--card-bg) 75%);
             background-size: 200% 100%;
             animation: shimmer 1.5s infinite;
             border-radius: 4px;
@@ -6032,7 +6032,7 @@ window.__EMBEDDED__ = {
         .chart-contract {
             font-size: 12px;
             color: #999;
-            background: #f0f0f0;
+            background: var(--card-bg);
             padding: 2px 8px;
             border-radius: 10px;
         }.chart-meta {
@@ -6059,7 +6059,7 @@ window.__EMBEDDED__ = {
             position: relative;
             background: var(--card-bg);
             border-radius: 8px;
-            border: 1px solid #e8e8e8;
+            border: 1px solid var(--line-green);
             overflow: hidden;
         }
         .chart-loading, .chart-no-data {
@@ -6085,7 +6085,7 @@ window.__EMBEDDED__ = {
         .chart-area  { opacity: 0.15; }
         .chart-dot   { r: 3; }
         .chart-dot.latest { r: 5; stroke-width: 2; }
-        .chart-axis-line { stroke: #e0e0e0; stroke-width: 1; }
+        .chart-axis-line { stroke: var(--line-green); stroke-width: 1; }
         .chart-axis-text { font-size: 10px; fill: #999; font-family: monospace; }
         .chart-tooltip {
             position: absolute;
@@ -6772,7 +6772,7 @@ window.__EMBEDDED__ = {
 
         /* ── BU 卡片（保留原有logo+名称样式）── */
         .bu-card {
-            background: linear-gradient(135deg, #ffffff, #fafcff);
+            background: linear-gradient(135deg, var(--card-bg), var(--card-bg));
             border: 1px solid rgba(10,166,106,0.12);
             border-radius: 14px;
             padding: 16px 14px 12px;
@@ -7085,11 +7085,11 @@ window.__EMBEDDED__ = {
             width: 100%; border-collapse: collapse; font-size: 12px;
         }
         .kpi-compare-table th {
-            background: #f4f6fa; padding: 7px 10px; text-align: center; font-weight: 600; color: #555;
-            border-bottom: 2px solid #e0e0e0; font-size: 11px;
+            background: var(--bg-mint); padding: 7px 10px; text-align: center; font-weight: 600; color: #555;
+            border-bottom: 2px solid var(--line-green); font-size: 11px;
         }
         .kpi-compare-table td {
-            padding: 7px 10px; text-align: center; border-bottom: 1px solid #f0f0f0;
+            padding: 7px 10px; text-align: center; border-bottom: 1px solid var(--line-green);
         }
         .kpi-compare-table .kpi-name { text-align: left; font-weight: 600; color: #1a1a2e; }
         .kpi-compare-table .kpi-actual { font-weight: 700; }
@@ -7263,7 +7263,7 @@ window.__EMBEDDED__ = {
         /* 图表头部整体样式 */
         .chart-header {
             padding: 12px 15px 8px 15px;
-            border-bottom: 1px solid #f0f0f0;
+            border-bottom: 1px solid var(--line-green);
         }
 
         /* 第一行：居中标题 */
@@ -7364,7 +7364,7 @@ window.__EMBEDDED__ = {
         .gantt-row:hover { background: rgba(7,83,54,0.04); border-radius: 4px; }
         .gantt-row.active { background: var(--line-green); border-radius: 4px; }
         .gantt-name { flex: 0 0 120px; font-size: 12px; color: var(--panel-text); text-align: right; }
-        .gantt-bar-track { flex: 1; height: 20px; background: #f0f0f0; border-radius: 6px; overflow: hidden; position: relative; }
+        .gantt-bar-track { flex: 1; height: 20px; background: var(--card-bg); border-radius: 6px; overflow: hidden; position: relative; }
         .gantt-bar { height: 100%; border-radius: 6px; display: flex; align-items: center; justify-content: flex-end; padding-right: 6px; min-width: 40px; transition: width 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94), box-shadow 0.3s; box-shadow: 0 4px 12px rgba(0,0,0,0.15), inset 0 2px 4px rgba(255,255,255,0.2); width: 0; }
         .gantt-bar-label { font-size: 11px; color: white; font-weight: 600; text-shadow: 0 0 8px rgba(255,255,255,0.8), 0 0 16px rgba(255,255,255,0.4); display: flex; align-items: center; gap: 2px; }
         .gantt-bar.up { background: linear-gradient(90deg, #ff6b6b, #d32f2f); }
@@ -8389,7 +8389,7 @@ window.__EMBEDDED__ = {
         /* 图表头部整体样式 */
         .chart-header {
             padding: 12px 15px 8px 15px;
-            border-bottom: 1px solid #f0f0f0;
+            border-bottom: 1px solid var(--line-green);
         }
 
         /* 第一行：居中标题 */
@@ -8489,7 +8489,7 @@ window.__EMBEDDED__ = {
         .gantt-row:hover { background: rgba(7,83,54,0.04); border-radius: 4px; }
         .gantt-row.active { background: var(--line-green); border-radius: 4px; }
         .gantt-name { flex: 0 0 120px; font-size: 12px; color: var(--panel-text); text-align: right; }
-        .gantt-bar-track { flex: 1; height: 20px; background: #f0f0f0; border-radius: 6px; overflow: hidden; position: relative; }
+        .gantt-bar-track { flex: 1; height: 20px; background: var(--card-bg); border-radius: 6px; overflow: hidden; position: relative; }
         .gantt-bar { height: 100%; border-radius: 6px; display: flex; align-items: center; justify-content: flex-end; padding-right: 6px; min-width: 40px; transition: width 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94), box-shadow 0.3s; box-shadow: 0 4px 12px rgba(0,0,0,0.15), inset 0 2px 4px rgba(255,255,255,0.2); width: 0; }
         .gantt-bar-label { font-size: 11px; color: white; font-weight: 600; text-shadow: 0 0 8px rgba(255,255,255,0.8), 0 0 16px rgba(255,255,255,0.4); display: flex; align-items: center; gap: 2px; }
         .gantt-bar.up { background: linear-gradient(90deg, #ff6b6b, #d32f2f); }
@@ -8576,7 +8576,7 @@ window.__EMBEDDED__ = {
             animation: lineReveal 1.5s cubic-bezier(0.25,0.46,0.45,0.94) forwards;
             animation-delay: calc(var(--line-i, 0) * 0.1s);
         }
-    </style>
+    
 <script>
 /* ===== AI 对话框 / 拖拽 JS ===== */
 window.addEventListener('DOMContentLoaded', function() {
@@ -13660,7 +13660,7 @@ const BU_LOGOS = {
                 <html>
                 <head>
                     <title>${modalTitle} - ${modalDate}</title>
-                    <style>
+                    
                         body { font-family: 'Microsoft YaHei', sans-serif; padding: 40px; }
                         h1 { color: var(--text-main); border-bottom: 2px solid var(--text-main); padding-bottom: 10px; }
                         .date { color: #666; margin-bottom: 20px; }
@@ -13803,7 +13803,7 @@ const BU_LOGOS = {
 
         /* ── BU 卡片（保留原有logo+名称样式）── */
         .bu-card {
-            background: linear-gradient(135deg, #ffffff, #fafcff);
+            background: linear-gradient(135deg, var(--card-bg), var(--card-bg));
             border: 1px solid rgba(10,166,106,0.12);
             border-radius: 14px;
             padding: 16px 14px 12px;
@@ -14116,11 +14116,11 @@ const BU_LOGOS = {
             width: 100%; border-collapse: collapse; font-size: 12px;
         }
         .kpi-compare-table th {
-            background: #f4f6fa; padding: 7px 10px; text-align: center; font-weight: 600; color: #555;
-            border-bottom: 2px solid #e0e0e0; font-size: 11px;
+            background: var(--bg-mint); padding: 7px 10px; text-align: center; font-weight: 600; color: #555;
+            border-bottom: 2px solid var(--line-green); font-size: 11px;
         }
         .kpi-compare-table td {
-            padding: 7px 10px; text-align: center; border-bottom: 1px solid #f0f0f0;
+            padding: 7px 10px; text-align: center; border-bottom: 1px solid var(--line-green);
         }
         .kpi-compare-table .kpi-name { text-align: left; font-weight: 600; color: #1a1a2e; }
         .kpi-compare-table .kpi-actual { font-weight: 700; }
@@ -14265,7 +14265,7 @@ const BU_LOGOS = {
         .topnews-brief-item { padding:3px 0; border-bottom:1px solid rgba(7,83,54,0.04); }
         .topnews-brief-item:last-child { border-bottom:none; }
     
-</style>
+
                 </head>
                 <body>
                     <h1>${modalTitle}</h1>
