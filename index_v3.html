@@ -6929,7 +6929,7 @@ window.__EMBEDDED__ = {
             background: #fff; border: 1px solid rgba(10,166,106,0.25);
             border-radius: 8px; padding: 0 14px; height: 34px;
             display: flex; align-items: center; justify-content: center;
-            cursor: pointer; color: var(--risk-main); font-size: 0.8rem; font-weight: 600;
+            cursor: pointer; color: #c8462c; font-size: 0.8rem; font-weight: 600;
             transition: all 0.2s; white-space: nowrap; letter-spacing: 0.5px;
         }
         .drawer-detail-btn:hover { background: #c8462c; color: var(--text-main); border-color: #c8462c; }
@@ -6998,7 +6998,7 @@ window.__EMBEDDED__ = {
         .hexa-historical-cards { width: 100%; display: flex; gap: 6px; overflow-x: auto; padding: 4px 0 2px; scrollbar-width: thin; }
         .hexa-historical-card { flex-shrink: 0; width: 60px; cursor: pointer; border: 1px solid rgba(7,83,54,0.1); border-radius: 8px; padding: 5px 3px; text-align: center; background: rgba(240,245,255,0.5); transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s; }
         .hexa-historical-card:hover { border-color: rgba(10,166,106,0.35); box-shadow: 0 2px 8px var(--line-green); transform: translateY(-1px); }
-        .hexa-historical-card.active-card { border-color: rgba(10,166,106,0.5); background: var(--bg-mint); box-shadow: 0 2px 10px rgba(10,166,106,0.12); }
+        .hexa-historical-card.active-card { border-color: rgba(10,166,106,0.5); background: rgba(230,242,255,0.9); box-shadow: 0 2px 10px rgba(10,166,106,0.12); }
         .hexa-hist-card-month { font-size: 0.55rem; color: var(--panel-muted); }
         .hexa-hist-card-dims { font-size: 0.5rem; line-height: 1.4; color: rgba(7,83,54,0.5); margin-top: 2px; }
         .hexa-hist-card-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-bottom: 2px; }
@@ -7018,7 +7018,7 @@ window.__EMBEDDED__ = {
             transition: border-color 0.2s, box-shadow 0.2s;
         }
         .hexa-dim-row:hover { border-color: rgba(10,166,106,0.25); box-shadow: 0 2px 8px rgba(7,83,54,0.05); }
-        .hexa-dim-row.open { border-color: rgba(10,166,106,0.35); background: var(--bg-mint); box-shadow: 0 2px 12px var(--line-green); }
+        .hexa-dim-row.open { border-color: rgba(10,166,106,0.35); background: rgba(230,242,255,0.8); box-shadow: 0 2px 12px var(--line-green); }
         .hexa-dim-header {
             display: flex; align-items: center; gap: 10px;
             padding: 10px 14px; cursor: pointer;
@@ -7191,7 +7191,7 @@ window.__EMBEDDED__ = {
         body.report-modal-open .top-nav-bar,
         body.report-modal-open .header { filter:blur(4px) brightness(0.7); pointer-events:none; transition:filter 0.3s; }
         body.panel-open .main-nav-menu { filter:blur(4px) brightness(0.7); pointer-events:none; transition:filter 0.3s; }
-        .report-modal-content { background:#EFF8F2; border-radius:14px; border:1px solid rgba(7,83,54,0.12); width:960px; max-width:97vw; max-height:92vh; display:flex; flex-direction:column; box-shadow:0 24px 80px rgba(15,30,60,0.3); overflow:hidden; }
+        .report-modal-content { background:var(--bg-mint); border-radius:14px; border:1px solid rgba(7,83,54,0.12); width:960px; max-width:97vw; max-height:92vh; display:flex; flex-direction:column; box-shadow:0 24px 80px rgba(15,30,60,0.3); overflow:hidden; }
         .report-modal-header { display:flex; align-items:center; justify-content:space-between; padding:14px 20px; background:var(--text-main); color:#fff; flex-shrink:0; position:relative; z-index:10; }
         .report-modal-header-left { display:flex; align-items:baseline; gap:16px; }
         .report-modal-title { font-size:18px; font-weight:600; color:#fff; }
@@ -9586,8 +9586,8 @@ window.addEventListener('DOMContentLoaded', function() {
                         </div>
 
                     <!-- 产业链全景图 -->
-                    <div class="industry-chain-panel" id="chain-panel" style="margin-top: 30px; padding: 20px; background: var(--card-bg); border-radius: 12px; border: 1px solid var(--line-green);">
-                        <div class="comparison-title" style="font-size: 16px; font-weight: 600; color: var(--text-main); margin-bottom: 15px;">磷酸铁锂产业链全景图</div>
+                    <div class="industry-chain-panel" id="chain-panel" style="margin-top: 30px; padding: 20px; background: #f8f9ff; border-radius: 12px; border: 1px solid #e8ecf0;">
+                        <div class="comparison-title" style="font-size: 16px; font-weight: 600; color: #1e3c72; margin-bottom: 15px;">磷酸铁锂产业链全景图</div>
                         <div class="chain-flow" id="chain-flow" style="display: flex; align-items: center; justify-content: center; gap: 15px; margin: 20px 0; flex-wrap: wrap;">
                             <div style="color:#999;">加载中...</div>
                         </div>
@@ -10330,8 +10330,8 @@ window.addEventListener('DOMContentLoaded', function() {
                         </div>
                     </div>
 
-                    <div class="report-section" style="border: 2px solid var(--line-green); border-radius: 12px; padding: 16px; background: linear-gradient(135deg, rgba(30,60,114,0.03) 0%, rgba(42,82,152,0.06) 100%);">
-                        <div class="report-section-title" style="color: var(--text-main); font-size: 15px;">📋 月度深度分析报告</div>
+                    <div class="report-section" style="border: 2px solid #1e3c72; border-radius: 12px; padding: 16px; background: linear-gradient(135deg, rgba(30,60,114,0.03) 0%, rgba(42,82,152,0.06) 100%);">
+                        <div class="report-section-title" style="color: #1e3c72; font-size: 15px;">📋 月度深度分析报告</div>
                         <div class="report-item-content" style="margin-top: 8px;">
                             <p style="margin-bottom: 10px; line-height: 1.8; color: #333;">
                                 <strong>《中国磷酸铁锂市场 2026年4月分析报告》</strong>已更新 —
@@ -10340,7 +10340,7 @@ window.addEventListener('DOMContentLoaded', function() {
                                 及4条具体战略建议。全文约3万字，8张数据图表。
                             </p>
                             <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                                <a href="lfp_report.html" target="_blank" style="display: inline-block; padding: 8px 20px; background:var(--card-bg); border: 1px solid var(--brand-main); border-radius: 6px; color: var(--text-main); text-decoration: none; font-weight: 600; font-size: 13px;">📖 打开完整报告</a>
+                                <a href="lfp_report.html" target="_blank" style="display: inline-block; padding: 8px 20px; background: #1e3c72; color: #fff; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 13px;">📖 打开完整报告</a>
                             </div>
                         </div>
                     </div>
@@ -13349,23 +13349,23 @@ function updatePageData(chainConfig, marketData) {
             // 只覆盖字体、颜色、间距等非 display 属性，不碰 display（由 CSS .expanded 控制展开）
             setTimeout(() => {
                 document.querySelectorAll('#modalBody .hy-item').forEach(el => {
-                    el.style.cssText = 'background:#EFF8F2;border-radius:10px;padding:14px 18px;margin-bottom:10px;border:1px solid var(--line-green);border-left:4px solid var(--brand-main);cursor:pointer;';
+                    el.style.cssText = 'background:#f8f9fa;border-radius:10px;padding:14px 18px;margin-bottom:10px;border:1px solid #e8ecf0;border-left:4px solid #1e3c72;cursor:pointer;';
                 });
                 document.querySelectorAll('#modalBody .hy-item-title').forEach(el => {
                     el.style.cssText = 'font-size:15px;font-weight:bold;color:#1a2a3a;line-height:1.4;display:flex;align-items:flex-start;gap:8px;';
                 });
                 document.querySelectorAll('#modalBody .hy-item-body').forEach(el => {
                     // 注意：不设置 display，CSS .hy-item-body{display:none} + .expanded{display:block} 控制展开
-                    el.style.cssText = 'font-size:14px;color:var(--text-muted);line-height:1.85;margin-top:10px;padding-top:10px;border-top:1px solid var(--line-green);';
+                    el.style.cssText = 'font-size:14px;color:#555;line-height:1.85;margin-top:10px;padding-top:10px;border-top:1px solid #e8ecf0;';
                 });
                 document.querySelectorAll('#modalBody .item-num').forEach(el => {
-                    el.style.cssText = 'display:inline-flex;align-items:center;justify-content:center;min-width:22px;height:22px;background:var(--brand-main);color:#fff;border-radius:50%;font-size:11px;font-weight:bold;flex-shrink:0;';
+                    el.style.cssText = 'display:inline-flex;align-items:center;justify-content:center;min-width:22px;height:22px;background:#1e3c72;color:#fff;border-radius:50%;font-size:11px;font-weight:bold;flex-shrink:0;';
                 });
                 document.querySelectorAll('#modalBody .hy-item-expand-icon').forEach(el => {
-                    el.style.cssText = 'margin-left:auto;font-size:12px;color:var(--text-muted);';
+                    el.style.cssText = 'margin-left:auto;font-size:12px;color:#999;';
                 });
                 document.querySelectorAll('#modalBody .report-section-title').forEach(el => {
-                    el.style.cssText = 'font-size:16px;font-weight:bold;color:var(--text-main);padding:12px 0 8px 0;border-bottom:2px solid var(--brand-main);margin-bottom:12px;';
+                    el.style.cssText = 'font-size:16px;font-weight:bold;color:#1e3c72;padding:12px 0 8px 0;border-bottom:2px solid #1e3c72;margin-bottom:12px;';
                 });
             }, 50);
 
@@ -13960,7 +13960,7 @@ const BU_LOGOS = {
             background: var(--card-bg); border: 1px solid rgba(10,166,106,0.25);
             border-radius: 8px; padding: 0 14px; height: 34px;
             display: flex; align-items: center; justify-content: center;
-            cursor: pointer; color: var(--risk-main); font-size: 0.8rem; font-weight: 600;
+            cursor: pointer; color: #c8462c; font-size: 0.8rem; font-weight: 600;
             transition: all 0.2s; white-space: nowrap; letter-spacing: 0.5px;
         }
         .drawer-detail-btn:hover { background: #c8462c; color: var(--text-main); border-color: #c8462c; }
@@ -14029,7 +14029,7 @@ const BU_LOGOS = {
         .hexa-historical-cards { width: 100%; display: flex; gap: 6px; overflow-x: auto; padding: 4px 0 2px; scrollbar-width: thin; }
         .hexa-historical-card { flex-shrink: 0; width: 60px; cursor: pointer; border: 1px solid rgba(7,83,54,0.1); border-radius: 8px; padding: 5px 3px; text-align: center; background: rgba(240,245,255,0.5); transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s; }
         .hexa-historical-card:hover { border-color: rgba(10,166,106,0.35); box-shadow: 0 2px 8px var(--line-green); transform: translateY(-1px); }
-        .hexa-historical-card.active-card { border-color: rgba(10,166,106,0.5); background: var(--bg-mint); box-shadow: 0 2px 10px rgba(10,166,106,0.12); }
+        .hexa-historical-card.active-card { border-color: rgba(10,166,106,0.5); background: rgba(230,242,255,0.9); box-shadow: 0 2px 10px rgba(10,166,106,0.12); }
         .hexa-hist-card-month { font-size: 0.55rem; color: var(--panel-muted); }
         .hexa-hist-card-dims { font-size: 0.5rem; line-height: 1.4; color: rgba(7,83,54,0.5); margin-top: 2px; }
         .hexa-hist-card-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-bottom: 2px; }
@@ -14049,7 +14049,7 @@ const BU_LOGOS = {
             transition: border-color 0.2s, box-shadow 0.2s;
         }
         .hexa-dim-row:hover { border-color: rgba(10,166,106,0.25); box-shadow: 0 2px 8px rgba(7,83,54,0.05); }
-        .hexa-dim-row.open { border-color: rgba(10,166,106,0.35); background: var(--bg-mint); box-shadow: 0 2px 12px var(--line-green); }
+        .hexa-dim-row.open { border-color: rgba(10,166,106,0.35); background: rgba(230,242,255,0.8); box-shadow: 0 2px 12px var(--line-green); }
         .hexa-dim-header {
             display: flex; align-items: center; gap: 10px;
             padding: 10px 14px; cursor: pointer;
@@ -14222,7 +14222,7 @@ const BU_LOGOS = {
         body.report-modal-open .top-nav-bar,
         body.report-modal-open .header { filter:blur(4px) brightness(0.7); pointer-events:none; transition:filter 0.3s; }
         body.panel-open .main-nav-menu { filter:blur(4px) brightness(0.7); pointer-events:none; transition:filter 0.3s; }
-        .report-modal-content { background:#EFF8F2; border-radius:14px; border:1px solid rgba(7,83,54,0.12); width:960px; max-width:97vw; max-height:92vh; display:flex; flex-direction:column; box-shadow:0 24px 80px rgba(7,83,54,0.2); overflow:hidden; }
+        .report-modal-content { background:var(--bg-mint); border-radius:14px; border:1px solid rgba(7,83,54,0.12); width:960px; max-width:97vw; max-height:92vh; display:flex; flex-direction:column; box-shadow:0 24px 80px rgba(15,30,60,0.3); overflow:hidden; }
         .report-modal-header { display:flex; align-items:center; justify-content:space-between; padding:14px 20px; background:var(--text-main); color:#fff; flex-shrink:0; position:relative; z-index:10; }
         .report-modal-header-left { display:flex; align-items:baseline; gap:16px; }
         .report-modal-title { font-size:18px; font-weight:600; color:#fff; }
@@ -14266,8 +14266,6 @@ const BU_LOGOS = {
         .topnews-brief-item:last-child { border-bottom:none; }
     
 </style>
-    <!-- 错误监控（后台静默运行） -->
-    <script src="error-monitor.js"></script>
                 </head>
                 <body>
                     <h1>${modalTitle}</h1>
@@ -15986,12 +15984,12 @@ const BU_LOGOS = {
                 var x1 = xScale(s), x2 = xScale(e2);
                 var selRect = mk('rect', {
                     x: x1, y: PAD.top, width: x2 - x1, height: chartH,
-                    fill: 'rgba(7,83,54,0.1)', stroke: 'var(--brand-main)', 'stroke-width': 1, 'stroke-dasharray': '4,2'
+                    fill: 'rgba(30,60,114,0.12)', stroke: '#1e3c72', 'stroke-width': 1, 'stroke-dasharray': '4,2'
                 });
                 selG.appendChild(selRect);
                 // Left/right handles
                 [x1, x2].forEach(function(x) {
-                    var vln = mk('line', { x1: x, y1: PAD.top, x2: x, y2: PAD.top + chartH, stroke: 'var(--brand-main)', 'stroke-width': 1 });
+                    var vln = mk('line', { x1: x, y1: PAD.top, x2: x, y2: PAD.top + chartH, stroke: '#1e3c72', 'stroke-width': 1 });
                     selG.appendChild(vln);
                 });
             }
@@ -17785,7 +17783,7 @@ const DIMS = [
 ];
 
 const BUS_DATA = {
-    czly:{ name:'常州锂源', logo:'', tag:'新能源材料', accent:'var(--brand-tech)', detailPage:'radar_detail_czly.html',
+    czly:{ name:'常州锂源', logo:'', tag:'新能源材料', accent:'#00d4ff', detailPage:'radar_detail_czly.html',
         dims:{d1:86,d2:95,d3:88,d4:47,d5:95,d6:45},
         kpis:{d1:[86,111,80,97],d2:[100,90,100,95],d3:[103,100,95,120],d4:[50,60,17,100],d5:[99,100,100,100],d6:[50,60,60,50]}},
     lpsd:{ name:'龙蟠时代', logo:'', tag:'电芯智造', accent:'#4caf50', detailPage:'radar_detail_lpsd.html',
@@ -18433,7 +18431,7 @@ async function openPanel(buId) {
                 ${buildRadar(buId, [])}
                 <div class="hexa-legend" id="hexaLegend">
                     <div class="hexa-leg-item"><div class="hexa-leg-dot" style="background:${bd.accent}"></div>${bd.name}</div>
-                    <div class="hexa-leg-item"><div class="hexa-leg-dot" style="background:var(--brand-main);opacity:0.6"></div>集团基准线</div>
+                    <div class="hexa-leg-item"><div class="hexa-leg-dot" style="background:#1e3c72;opacity:0.6"></div>集团基准线</div>
                 </div>
                 ${histBarHtml}
                 <div class="hexa-rank-note">权重：D1-20% D2-20% D3-18% D4-17% D5-13% D6-12%</div>
@@ -18575,7 +18573,7 @@ function updateRadarLegend(buId) {
     const focusMonth = window._histFocusMonth;
     const mainDot = focusMonth ? `<div class="hexa-leg-item"><div class="hexa-leg-dot" style="background:${overlayColors[0]}"></div>${bd.name} ${focusMonth.slice(5)}月</div>` : `<div class="hexa-leg-item"><div class="hexa-leg-dot" style="background:${bd.accent}"></div>${bd.name}</div>`;
     const baseLegend = `${mainDot}
-        <div class="hexa-leg-item"><div class="hexa-leg-dot" style="background:var(--brand-main);opacity:0.6"></div>集团基准线</div>`;
+        <div class="hexa-leg-item"><div class="hexa-leg-dot" style="background:#1e3c72;opacity:0.6"></div>集团基准线</div>`;
     legend.innerHTML = histLegItems + baseLegend;
 }
 
@@ -18759,7 +18757,7 @@ function buildRadar(buId, overlayMonths) {
             <polygon class="radar-fill" points="${dp}" fill="url(#${gid})" stroke="${mainAccent}" stroke-width="1.5" stroke-opacity="0.5" filter="url(#${gid}dp)"/>
             ${dots}
             <text class="radar-center-val" x="${cx}" y="${cy-4}" text-anchor="middle" dominant-baseline="middle"
-                fill="var(--text-main)" font-size="1.1rem" font-weight="900" font-family="'Playfair Display',serif"
+                fill="#1e3c72" font-size="1.1rem" font-weight="900" font-family="'Playfair Display',serif"
                 filter="url(#${gid}f)">${avgVal}</text>
             <text x="${cx}" y="${cy+12}" text-anchor="middle" fill="rgba(30,60,114,0.4)" font-size="5.5" font-family="'Noto Sans SC',sans-serif">综合评分</text>
             ${focusLabel}
@@ -19728,11 +19726,11 @@ function renderElectrolyteLineChart(svg, data, svgId) {
         if (i === 0) linePath = 'M ' + xScale(i) + ' ' + yScale(parseFloat(data[i].均价));
         else linePath += ' L ' + xScale(i) + ' ' + yScale(parseFloat(data[i].均价));
     }
-    lineG.appendChild(mk('path', { d: linePath, fill: 'none', stroke: 'var(--brand-main)', 'stroke-width': 2 }));
+    lineG.appendChild(mk('path', { d: linePath, fill: 'none', stroke: '#1e3c72', 'stroke-width': 2 }));
     
     // 最新点标记
     const lastIdx = data.length - 1;
-    lineG.appendChild(mk('circle', { cx: xScale(lastIdx), cy: yScale(parseFloat(data[lastIdx].均价)), r: 4, fill: 'var(--brand-main)', stroke: '#fff', 'stroke-width': 2 }));
+    lineG.appendChild(mk('circle', { cx: xScale(lastIdx), cy: yScale(parseFloat(data[lastIdx].均价)), r: 4, fill: '#1e3c72', stroke: '#fff', 'stroke-width': 2 }));
     
     console.log('[renderElectrolyteLineChart] 渲染完成，lineG子元素数量:', lineG ? lineG.children.length : 0);
 }
