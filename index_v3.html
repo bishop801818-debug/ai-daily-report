@@ -2857,9 +2857,9 @@ window.__EMBEDDED__ = {
         
         /* 顶部导航栏 */
         .header {
-            background: rgba(255,255,255,0.92);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
+            background: rgba(248,255,251,0.82);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
             border-radius: 12px;
             padding: 20px 30px;
             margin-bottom: 15px;
@@ -2868,7 +2868,7 @@ window.__EMBEDDED__ = {
             justify-content: center;
             align-items: center;
             position: relative;
-            border: 1px solid rgba(220,238,230,0.5);
+            border: 1px solid rgba(220,238,230,0.6);
             transition: box-shadow 0.3s;
             overflow: hidden;
         }
@@ -3261,19 +3261,20 @@ window.__EMBEDDED__ = {
         }
         
         .business-card {
-            background: linear-gradient(135deg, var(--card-bg) 0%, var(--card-bg) 100%);
-            border-radius: 16px;
+            background: rgba(248,255,251,0.88);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: 12px;
             padding: 20px;
             display: flex;
             align-items: center;
             gap: 15px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 2px 12px rgba(7,82,54,0.05);
+            transition: box-shadow 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             cursor: pointer;
             position: relative;
             overflow: hidden;
-            border: 2px solid transparent;
-            border-left: 4px solid var(--text-main);
+            border-left: 3px solid rgba(21,51,41,0.15);
         }
         
         .business-card::before {
