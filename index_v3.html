@@ -2196,19 +2196,16 @@ window.__EMBEDDED__ = {
             pointer-events: none;
         }
 
-        /* 导航菜单浮于图上顶部（天空蓝通透底，融入蓝天） */
+        /* 导航菜单浮于图上顶部（完全透明，融入蓝天） */
         .hero-banner > .main-nav-menu {
             position: absolute;
             top: 0; left: 0; right: 0;
             z-index: 10;
-            background: rgba(148,201,233,0.10);
-            backdrop-filter: blur(14px);
-            -webkit-backdrop-filter: blur(14px);
+            background: transparent;
             border-radius: 12px 12px 0 0;
             padding: 10px 24px;
             margin-bottom: 0;
             border: none;
-            border-bottom: 1px solid rgba(148,201,233,0.10);
             box-shadow: none;
         }
 
@@ -2220,7 +2217,7 @@ window.__EMBEDDED__ = {
         }
 
         .hero-banner > .main-nav-menu .main-nav-item:hover {
-            background: rgba(148,201,233,0.18);
+            background: rgba(255,255,255,0.20);
             color: rgb(7,82,54);
         }
 
@@ -2233,13 +2230,13 @@ window.__EMBEDDED__ = {
             color: rgba(7,82,54,0.50);
         }
 
-        /* 下拉菜单在图上时使用天蓝协调半透明背景 */
+        /* 下拉菜单在图上时使用干净白底保证可读性 */
         .hero-banner > .main-nav-menu .dropdown-menu {
-            background: rgba(148,201,233,0.92);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255,255,255,0.35);
-            box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(200,220,235,0.5);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.12);
             top: 100%;
         }
 
@@ -2248,7 +2245,7 @@ window.__EMBEDDED__ = {
         }
 
         .hero-banner > .main-nav-menu .dropdown-item:hover {
-            background: rgba(255,255,255,0.35);
+            background: rgba(10,166,106,0.08);
             color: rgb(7,82,54);
         }
 
