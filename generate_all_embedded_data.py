@@ -478,3 +478,10 @@ if __name__ == '__main__':
         print('[ERROR] 数据一致性检查失败！请修复后再重新生成。')
         import sys
         sys.exit(1)
+
+    # ── B方案：自动同步 JS → JSON（看板数据）────────────────────────────
+    print()
+    print('[INFO] 开始同步看板 JSON 文件...')
+    from _sync_embed_to_json import sync_all, print_report
+    results = sync_all()
+    print_report(results)
