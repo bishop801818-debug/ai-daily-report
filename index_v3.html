@@ -4054,6 +4054,7 @@ window.__EMBEDDED__ = {
         .section-title {
             font-size: 20px;
             color: var(--text-main);
+            margin-top: 36px;
             margin-bottom: 20px;
             padding-bottom: 10px;
             font-weight: 600;
@@ -4296,16 +4297,19 @@ window.__EMBEDDED__ = {
         }
         
         .modal-content {
-            background: white;
+            background: rgba(248,255,251,0.95);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
             border-radius: 12px;
             width: 90%;
             max-width: 1200px;
             max-height: 90vh;
             overflow-y: auto;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
             animation: modalSlideIn 0.3s ease-out;
             z-index: 1001;
             position: relative;
+            border: 1px solid rgba(220,238,230,0.6);
         }
         
         @keyframes modalSlideIn {
@@ -5118,7 +5122,7 @@ window.__EMBEDDED__ = {
         .allbu-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 12px;
+            gap: 16px;
             align-items: stretch;
         }
 
@@ -5273,14 +5277,17 @@ window.__EMBEDDED__ = {
         }
         
         .history-modal-content {
-            background: white;
+            background: rgba(248,255,251,0.95);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
             border-radius: 12px;
             width: 90%;
             max-width: 1000px;
             max-height: 90vh;
             overflow-y: auto;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
             animation: modalSlideIn 0.3s ease-out;
+            border: 1px solid rgba(220,238,230,0.6);
         }
         
         .history-modal-header {
@@ -7184,7 +7191,7 @@ window.__EMBEDDED__ = {
         body.report-modal-open .top-nav-bar,
         body.report-modal-open .header { filter:blur(4px) brightness(0.7); pointer-events:none; transition:filter 0.3s; }
         body.panel-open .main-nav-menu { filter:blur(4px) brightness(0.7); pointer-events:none; transition:filter 0.3s; }
-        .report-modal-content { background:var(--bg-mint); border-radius:14px; border:1px solid rgba(7,83,54,0.12); width:960px; max-width:97vw; max-height:92vh; display:flex; flex-direction:column; box-shadow:0 24px 80px rgba(15,30,60,0.3); overflow:hidden; }
+        .report-modal-content { background:var(--bg-mint); border-radius:14px; border:1px solid rgba(7,83,54,0.12); width:960px; max-width:97vw; max-height:92vh; display:flex; flex-direction:column; box-shadow:0 12px 40px rgba(15,30,60,0.15); overflow:hidden; }
         .report-modal-header { display:flex; align-items:center; justify-content:space-between; padding:14px 20px; background:var(--text-main); color:#fff; flex-shrink:0; position:relative; z-index:10; }
         .report-modal-header-left { display:flex; align-items:baseline; gap:16px; }
         .report-modal-title { font-size:18px; font-weight:600; color:#fff; }
@@ -14213,7 +14220,7 @@ const BU_LOGOS = {
         body.report-modal-open .top-nav-bar,
         body.report-modal-open .header { filter:blur(4px) brightness(0.7); pointer-events:none; transition:filter 0.3s; }
         body.panel-open .main-nav-menu { filter:blur(4px) brightness(0.7); pointer-events:none; transition:filter 0.3s; }
-        .report-modal-content { background:var(--bg-mint); border-radius:14px; border:1px solid rgba(7,83,54,0.12); width:960px; max-width:97vw; max-height:92vh; display:flex; flex-direction:column; box-shadow:0 24px 80px rgba(15,30,60,0.3); overflow:hidden; }
+        .report-modal-content { background:var(--bg-mint); border-radius:14px; border:1px solid rgba(7,83,54,0.12); width:960px; max-width:97vw; max-height:92vh; display:flex; flex-direction:column; box-shadow:0 12px 40px rgba(15,30,60,0.15); overflow:hidden; }
         .report-modal-header { display:flex; align-items:center; justify-content:space-between; padding:14px 20px; background:var(--text-main); color:#fff; flex-shrink:0; position:relative; z-index:10; }
         .report-modal-header-left { display:flex; align-items:baseline; gap:16px; }
         .report-modal-title { font-size:18px; font-weight:600; color:#fff; }
