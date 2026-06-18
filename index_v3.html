@@ -2288,77 +2288,41 @@ window.__EMBEDDED__ = {
             max-width: 520px;
         }
         .hero-brand-line {
-            display: flex; align-items: center; gap: 8px;
-            font-size: 14px; font-weight: 600;
+            display: flex; align-items: center; gap: 10px;
+            font-size: 15px; font-weight: 600;
             color: rgb(7,82,54);
             margin-bottom: 6px;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.3px;
         }
-        .hero-logo-icon {
+        .hero-logo-img {
+            width: 34px; height: 34px;
+            border-radius: 50%;
+            object-fit: contain;
+            flex-shrink: 0;
+        }
+        .hero-logo-icon-fallback {
             display: inline-flex; align-items: center; justify-content: center;
-            width: 24px; height: 24px; border-radius: 50%;
+            width: 34px; height: 34px; border-radius: 50%;
             background: var(--brand-main, #0AA66A);
-            color: #fff; font-size: 12px;
-            box-shadow: 0 2px 8px rgba(10,166,106,0.35);
+            color: #fff; font-size: 17px; font-weight: 800;
+            flex-shrink: 0;
         }
         .hero-title {
-            font-size: 34px; font-weight: 800;
-            color: #fff;
-            text-shadow: 0 2px 8px rgba(0,0,0,0.35);
-            margin: 0 0 4px 0;
-            line-height: 1.2;
-            letter-spacing: 2px;
+            font-size: 42px; font-weight: 800;
+            color: rgb(7,82,54);
+            margin: 0 0 2px 0;
+            line-height: 1.15;
+            letter-spacing: 3px;
         }
         .hero-subtitle {
-            font-size: 22px; font-weight: 400;
-            color: rgba(255,255,255,0.92);
-            text-shadow: 0 2px 6px rgba(0,0,0,0.30);
-            margin: 0 0 10px 0;
-            line-height: 1.3;
+            font-size: 26px; font-weight: 500;
+            color: rgb(7,82,54);
+            margin: 0;
+            line-height: 1.25;
+            letter-spacing: 1px;
         }
         .hero-subtitle strong {
-            color: var(--brand-main, #0AA66A);
             font-weight: 700;
-        }
-        .hero-tagline {
-            display: inline-block;
-            background: linear-gradient(135deg, rgba(212,168,88,0.90), rgba(240,208,128,0.95));
-            color: #3d2e00; font-size: 13px; font-weight: 700;
-            padding: 5px 16px; border-radius: 6px;
-            letter-spacing: 1px;
-            box-shadow: 0 2px 8px rgba(212,168,88,0.25);
-            margin-bottom: 12px;
-        }
-        .hero-desc {
-            font-size: 13.5px; line-height: 1.65;
-            color: rgba(255,255,255,0.85);
-            text-shadow: 0 1px 4px rgba(0,0,0,0.25);
-            margin: 0 0 14px 0;
-            max-width: 480px;
-        }
-        .hero-actions { display: flex; gap: 12px; flex-wrap: wrap; }
-        .hero-btn {
-            display: inline-flex; align-items: center; justify-content: center;
-            padding: 9px 22px; border-radius: 8px;
-            font-size: 13.5px; font-weight: 600;
-            text-decoration: none; transition: all 0.25s ease;
-            cursor: pointer; letter-spacing: 0.5px;
-        }
-        .hero-btn-primary {
-            background: var(--brand-main, #0AA66A); color: #fff;
-            box-shadow: 0 3px 12px rgba(10,166,106,0.40);
-        }
-        .hero-btn-primary:hover {
-            background: #098e5c; transform: translateY(-1px);
-            box-shadow: 0 5px 18px rgba(10,166,106,0.50);
-        }
-        .hero-btn-outline {
-            background: rgba(255,255,255,0.92); color: rgb(7,82,54);
-            border: 1.5px solid rgba(220,238,230,0.6);
-        }
-        .hero-btn-outline:hover {
-            background: #fff; transform: translateY(-1px);
-            box-shadow: 0 4px 14px rgba(0,0,0,0.12);
         }
 
         /* 主导航菜单（非hero模式下备用，hero模式下被 .hero-banner > .main-nav-menu 覆盖） */
@@ -8450,17 +8414,12 @@ window.addEventListener('DOMContentLoaded', function() {
             <!-- Hero 文字内容（浮于图左下） -->
             <div class="hero-content">
                 <div class="hero-brand-line">
-                    <span class="hero-logo-icon">🌿</span>
+                    <img class="hero-logo-img" src="assets/lopal-logo.png" alt="Lopal" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-flex';">
+                    <span class="hero-logo-icon-fallback" style="display:none;">L</span>
                     <span>Lopal 龙蟠科技</span>
                 </div>
                 <h1 class="hero-title">龙蟠科技</h1>
                 <h2 class="hero-subtitle">AI <strong>战略信息</strong>中台</h2>
-                <div class="hero-tagline"><span>AI 驱动增长 · 智领未来</span></div>
-                <p class="hero-desc">构建企业级 AI 战略管理体系，聚合战略情报、数据预警、会议纪要、资料知识库与跨部门协同。</p>
-                <div class="hero-actions">
-                    <a href="#" class="hero-btn hero-btn-primary">上作品资料料</a>
-                    <a href="#" class="hero-btn hero-btn-outline" onclick="document.getElementById('aiDialogOverlay').classList.add('active'); return false;">欣起 AI 助手</a>
-                </div>
             </div>
 
             <!-- 日期时间（浮于图右上） -->
