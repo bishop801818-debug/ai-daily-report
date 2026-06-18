@@ -3,19 +3,19 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="html-version" content="2026061701">
+<meta name="html-version" content="20260618_001">
 <title>行业新闻 - 晨会指挥中心</title>
 <style>
   :root {
-    --primary: #1e3c72;
-    --accent: #f39c12;
+    --primary: #064e3b;
+    --accent: #0AA66A;
     --bg: #f0f2f8;
     --card-bg: #ffffff;
     --text: #2c3e50;
     --text-dim: #7f8c8d;
     --border: #e0e6ef;
-    --shadow: 0 2px 12px rgba(30,60,114,0.08);
-    --shadow-hover: 0 6px 24px rgba(30,60,114,0.16);
+    --shadow: 0 2px 12px rgba(7,82,54,0.08);
+    --shadow-hover: 0 6px 24px rgba(7,82,54,0.16);
   }
   * { margin:0; padding:0; box-sizing:border-box; }
   body { font-family:'Microsoft YaHei','PingFang SC',Arial,sans-serif;
@@ -23,7 +23,7 @@
 
   /* ── 顶部导航 ── */
   .topbar {
-    background: linear-gradient(135deg,#1e3c72 0%,#2a5298 100%);
+    background: linear-gradient(135deg,#064e3b 0%,#0d7a4a 100%);
     padding:14px 30px; display:flex; align-items:center;
     justify-content:space-between; box-shadow:0 2px 12px rgba(0,0,0,0.15);
     position:sticky; top:0; z-index:100;
@@ -248,7 +248,7 @@ async function loadCleanNews() {
     const items = typeof EMBEDDED_NEWS !== 'undefined' ? EMBEDDED_NEWS : [];
     const mergedDepts = {};
     const CLEAN_DEPT_LIST = [
-      { id:'czly', name:'常州锂源',  color:'#1e3c72' },
+      { id:'czly', name:'常州锂源',  color:'#064e3b' },
       { id:'sdmd', name:'山东美多',  color:'#d35400' },
       { id:'sjld', name:'三金锂电',  color:'#34495e' },
       { id:'lpsd', name:'龙蟠时代',  color:'#215732' },
@@ -296,7 +296,7 @@ async function loadCleanNews() {
 const REPORT_BASE = 'reports/';
 
 const DEPT_LIST = [
-  { id:'czly', name:'常州锂源',  color:'#1e3c72' },
+  { id:'czly', name:'常州锂源',  color:'#064e3b' },
   { id:'sdmd', name:'山东美多',  color:'#d35400' },
   { id:'sjld', name:'三金锂电',  color:'#34495e' },
   { id:'lpsd', name:'龙蟠时代',  color:'#215732' },
@@ -344,7 +344,7 @@ function normalizeDim(rawDim) {
 // 维度Tab定义（4个标签）
 const DIM_TABS = [
   { key:'policy',     label:'宏观新闻', icon:'📜', color:'#1abc9c', desc:'政策发布、补贴条例、进出口法规等宏观动态' },
-  { key:'market',     label:'行业新闻', icon:'📊', color:'#f39c12', desc:'市场价格、供需库存、行情动态' },
+  { key:'market',     label:'行业新闻', icon:'📊', color:'#0AA66A', desc:'市场价格、供需库存、行情动态' },
   { key:'competitor', label:'企业动态', icon:'🏢', color:'#3498db', desc:'企业动态、竞品情报、项目招标、客户需求' },
   { key:'frontier',   label:'技术产品', icon:'💻', color:'#9b59b6', desc:'技术进展、产品研发、创新动态' },
 ];
@@ -523,7 +523,7 @@ function refreshTabUI() {
 let data_global = null;
 
 const BU_COLOR_MAP = {
-  czly: '#1e3c72', sdmd: '#d35400', sjld: '#34495e',
+  czly: '#064e3b', sdmd: '#d35400', sjld: '#34495e',
   lpsd: '#215732', felt: '#7b2d8b', kls:  '#8e44ad',
   lhy:  '#c0392b', dhx:  '#2c3e50', bych: '#27ae60',
 };

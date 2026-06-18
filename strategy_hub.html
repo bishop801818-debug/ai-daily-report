@@ -9,13 +9,13 @@
         body { font-family: "Microsoft YaHei", "PingFang SC", sans-serif; background: #f0f2f5; min-height: 100vh; }
 
         .page-header {
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            background: linear-gradient(135deg, #064e3b 0%, #0d7a4a 100%);
             color: white;
             padding: 24px 40px;
             position: sticky;
             top: 0;
             z-index: 100;
-            box-shadow: 0 2px 12px rgba(30,60,114,0.3);
+            box-shadow: 0 2px 12px rgba(7,82,54,0.3);
         }
         .page-header .back-btn {
             display: inline-flex;
@@ -62,7 +62,7 @@
             padding: 20px;
             cursor: pointer;
             transition: transform 0.2s, box-shadow 0.2s;
-            border-left: 4px solid #1e3c72;
+            border-left: 4px solid #064e3b;
             box-shadow: 0 1px 4px rgba(0,0,0,0.06);
             text-decoration: none;
             color: inherit;
@@ -70,15 +70,15 @@
         }
         .dept-card:hover {
             transform: translateY(-3px);
-            box-shadow: 0 6px 20px rgba(30,60,114,0.15);
+            box-shadow: 0 6px 20px rgba(7,82,54,0.15);
         }
-        .dept-card.lithium { border-left-color: #1e3c72; }
+        .dept-card.lithium { border-left-color: #064e3b; }
         .dept-card.longpan { border-left-color: #2e75b6; }
         .dept-card.other { border-left-color: #7030a0; }
 
         .dept-icon { width: 36px; height: 36px; margin-bottom: 10px; }
         .dept-icon img { width: 36px; height: 36px; border-radius: 50%; object-fit: contain; background: #fff; border: 2px solid rgba(0,0,0,0.08); }
-        .dept-name { font-size: 16px; font-weight: bold; color: #1e3c72; margin-bottom: 4px; }
+        .dept-name { font-size: 16px; font-weight: bold; color: #064e3b; margin-bottom: 4px; }
         .dept-tag { font-size: 11px; color: #888; margin-bottom: 14px; }
 
         .dept-summary {
@@ -109,9 +109,9 @@
             font-size: 12px;
             color: #aaa;
         }
-        .dept-meta .count { color: #1e3c72; font-weight: bold; }
+        .dept-meta .count { color: #064e3b; font-weight: bold; }
 
-        .footer-note a { color: #1e3c72; text-decoration: none; font-weight: 600; }
+        .footer-note a { color: #064e3b; text-decoration: none; font-weight: 600; }
         .footer-note a:hover { text-decoration: underline; }
         .footer-note {
             text-align: center;
@@ -126,7 +126,7 @@
             .dept-grid, .dept-grid-3 { grid-template-columns: 1fr; }
         }
 const BU_META = {
-    czly: { name: '常州锂源', subtitle: '磷酸铁锂正极材料', color: '#1e3c72' },
+    czly: { name: '常州锂源', subtitle: '磷酸铁锂正极材料', color: '#064e3b' },
     lpsd: { name: '龙蟠时代', subtitle: '碳酸锂', color: '#2e75b6' },
     felt: { name: '法恩莱特', subtitle: '电解液', color: '#7b2d8b' },
     sdmd: { name: '山东美多', subtitle: '动力电池回收', color: '#215732' },
@@ -349,8 +349,8 @@ function renderRadar(data) {
             name: '常州锈源',
             data: [{ value: selfScores, name: '常州锈源',
                 areaStyle: { opacity: 0.25 },
-                lineStyle: { color: '#1e3c72', width: 2 },
-                itemStyle: { color: '#1e3c72' }
+                lineStyle: { color: '#064e3b', width: 2 },
+                itemStyle: { color: '#064e3b' }
             }].concat(compSeries)
         }]
     };
@@ -367,7 +367,7 @@ function renderBar(data) {
     var selfIdx = top10.findIndex(function(r) { return r.n === '常州锈源'; });
 
     var colors = outputs.map(function(_, i) {
-        return i === selfIdx ? '#1e3c72' : '#b0c4de';
+        return i === selfIdx ? '#064e3b' : '#b0c4de';
     });
 
     var option = {
@@ -406,12 +406,12 @@ function renderTrend(data) {
         series: [
             {
                 name: '产量(吨)', type: 'line', smooth: true,
-                data: outputs, itemStyle: { color: '#1e3c72' },
+                data: outputs, itemStyle: { color: '#064e3b' },
                 areaStyle: { opacity: 0.1 }
             },
             {
                 name: '产能利用率(%)', type: 'line', smooth: true, yAxisIndex: 1,
-                data: utils, itemStyle: { color: '#f39c12' }
+                data: utils, itemStyle: { color: '#0AA66A' }
             }
         ]
     };
@@ -448,14 +448,14 @@ function applyBUTheme(meta) {
 .bu-strategy-page.active { display: block; }
 .tab-nav { display: flex; gap: 8px; margin: 20px 0 16px; border-bottom: 2px solid #e8ecf0; padding-bottom: 0; }
 .tab-btn { padding: 8px 20px; border: none; background: none; cursor: pointer; font-size: 14px; font-weight: 600; color: #666; border-bottom: 3px solid transparent; margin-bottom: -2px; transition: all 0.2s; font-family: inherit; }
-.tab-btn:hover { color: #1e3c72; }
-.tab-btn.active { color: #1e3c72; border-bottom-color: #1e3c72; }
+.tab-btn:hover { color: #064e3b; }
+.tab-btn.active { color: #064e3b; border-bottom-color: #064e3b; }
 .tab-content { display: none; }
 .tab-content.active { display: block; }
 .chart-wrap { height: 380px; background: #fff; border-radius: 12px; padding: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); margin-bottom: 16px; }
 .stat-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin: 20px 0; }
 .stat-card { background: #fff; border-radius: 12px; padding: 16px; text-align: center; box-shadow: 0 1px 4px rgba(0,0,0,0.05); }
-.stat-val { font-size: 22px; font-weight: 700; color: #1e3c72; }
+.stat-val { font-size: 22px; font-weight: 700; color: #064e3b; }
 .stat-label { font-size: 12px; color: #999; margin-top: 4px; }
 .stat-delta { font-size: 12px; margin-top: 4px; }
 .stat-delta.up { color: #27ae60; }
@@ -464,10 +464,10 @@ function applyBUTheme(meta) {
 .rank-table th { background: #f5f7fa; padding: 10px 14px; text-align: left; font-size: 12px; color: #888; font-weight: 600; border-bottom: 2px solid #e8ecf0; }
 .rank-table td { padding: 10px 14px; font-size: 13px; border-bottom: 1px solid #f0f0f0; }
 .rank-table tr:last-child td { border-bottom: none; }
-.rank-table tr.self-row td { background: rgba(30,60,114,0.05); font-weight: 600; color: #1e3c72; }
+.rank-table tr.self-row td { background: rgba(7,82,54,0.05); font-weight: 600; color: #064e3b; }
 .rank-num { font-weight: 700; color: #888; font-size: 14px; min-width: 28px; }
-.rank-num.top3 { color: #1e3c72; font-size: 16px; }
-.output-val { font-weight: 700; color: #1e3c72; }
+.rank-num.top3 { color: #064e3b; font-size: 16px; }
+.output-val { font-weight: 700; color: #064e3b; }
 .delta.up { color: #27ae60; }
 .delta.down { color: #e74c3c; }
 .section-title { font-size: 15px; font-weight: 700; color: #1a1a2e; margin: 20px 0 12px; }

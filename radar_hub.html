@@ -9,13 +9,13 @@
         body { font-family: "Microsoft YaHei", "PingFang SC", sans-serif; background: #f0f2f5; min-height: 100vh; }
 
         .page-header {
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            background: linear-gradient(135deg, #064e3b 0%, #0d7a4a 100%);
             color: white;
             padding: 24px 40px;
             position: sticky;
             top: 0;
             z-index: 100;
-            box-shadow: 0 2px 12px rgba(30,60,114,0.3);
+            box-shadow: 0 2px 12px rgba(7,82,54,0.3);
         }
         .page-header .back-btn {
             display: inline-flex;
@@ -57,7 +57,7 @@
             padding: 16px;
             cursor: pointer;
             transition: transform 0.2s, box-shadow 0.2s;
-            border-left: 4px solid #1e3c72;
+            border-left: 4px solid #064e3b;
             box-shadow: 0 1px 4px rgba(0,0,0,0.06);
             text-decoration: none;
             color: inherit;
@@ -66,9 +66,9 @@
         }
         .dept-card:hover {
             transform: translateY(-3px);
-            box-shadow: 0 6px 20px rgba(30,60,114,0.15);
+            box-shadow: 0 6px 20px rgba(7,82,54,0.15);
         }
-        .dept-card.lithium { border-left-color: #1e3c72; }
+        .dept-card.lithium { border-left-color: #064e3b; }
         .dept-card.longpan { border-left-color: #2e75b6; }
         .dept-card.other { border-left-color: #7030a0; }
 
@@ -88,7 +88,7 @@
             flex-shrink: 0;
         }
         .dept-info { flex: 1; min-width: 0; }
-        .dept-name { font-size: 14px; font-weight: bold; color: #1e3c72; margin-bottom: 2px; }
+        .dept-name { font-size: 14px; font-weight: bold; color: #064e3b; margin-bottom: 2px; }
         .dept-subtitle { font-size: 11px; color: #888; }
 
         /* ECharts 雷达图容器 */
@@ -131,7 +131,7 @@
             border-top: 1px solid #f0f0f0;
         }
         .dept-score-label { font-size: 12px; color: #888; }
-        .dept-score-val { font-size: 18px; font-weight: bold; color: #1e3c72; }
+        .dept-score-val { font-size: 18px; font-weight: bold; color: #064e3b; }
         .dept-score-dims { font-size: 11px; color: #aaa; margin-left: 6px; }
 
         .dept-dims-row {
@@ -168,7 +168,7 @@
             border-top: 1px solid #eee;
             margin-top: 20px;
         }
-        .footer-note a { color: #1e3c72; text-decoration: none; font-weight: 600; }
+        .footer-note a { color: #064e3b; text-decoration: none; font-weight: 600; }
         .footer-note a:hover { text-decoration: underline; }
 
         @media (max-width: 768px) {
@@ -282,7 +282,7 @@
 // BU 元数据
 // ─────────────────────────────────────────────
 var BU_META = {
-    czly: { name: '常州锂源', subtitle: '磷酸铁锂正极材料', category: 'lithium', color: '#1e3c72' },
+    czly: { name: '常州锂源', subtitle: '磷酸铁锂正极材料', category: 'lithium', color: '#064e3b' },
     lpsd: { name: '龙蟠时代', subtitle: '碳酸锂', category: 'lithium', color: '#2e75b6' },
     felt: { name: '法恩莱特', subtitle: '电解液', category: 'lithium', color: '#7b2d8b' },
     sdmd: { name: '山东美多', subtitle: '动力电池回收', category: 'lithium', color: '#215732' },
