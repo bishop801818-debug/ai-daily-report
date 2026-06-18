@@ -12110,7 +12110,7 @@ function updatePageData(chainConfig, marketData) {
             ganttHTML += '</div>';
             
             // 添加数据来源标签
-            ganttHTML += '<div style="margin-top:10px;padding:8px;background:#f5f5f5;border-radius:4px;font-size:11px;color:#666;text-align:center;">📊 数据来源: ' + (cumulativeData.meta.data_source || '未知') + ' | 更新时间: ' + (cumulativeData.meta.update_time || '未知') + '</div>';
+            ganttHTML += '<div style="margin-top:10px;padding:8px;background:rgba(248,255,251,0.7);backdrop-filter:blur(8px);border:1px solid rgba(220,238,230,0.4);border-radius:4px;font-size:11px;color:#666;text-align:center;">📊 数据来源: ' + (cumulativeData.meta.data_source || '未知') + ' | 更新时间: ' + (cumulativeData.meta.update_time || '未知') + '</div>';
             
             ganttContainer.innerHTML = ganttHTML;
             
@@ -20713,7 +20713,7 @@ document.addEventListener('DOMContentLoaded', function() {
             html += '</div>';
             
             // 数据来源
-            html += `<div style="margin-top:10px;padding:8px;background:#f5f5f5;border-radius:4px;font-size:11px;color:#666;text-align:center;">📊 数据来源: ${data.meta.data_source || '未知'} | 更新时间: ${data.meta.update_time || '未知'}</div>`;
+            html += `<div style="margin-top:10px;padding:8px;background:rgba(248,255,251,0.7);backdrop-filter:blur(8px);border:1px solid rgba(220,238,230,0.4);border-radius:4px;font-size:11px;color:#666;text-align:center;">📊 数据来源: ${data.meta.data_source || '未知'} | 更新时间: ${data.meta.update_time || '未知'}</div>`;
             
             container.innerHTML = html;
             
