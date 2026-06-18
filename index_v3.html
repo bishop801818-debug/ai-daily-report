@@ -8102,6 +8102,41 @@ window.addEventListener('DOMContentLoaded', function() {
         var gifImg = document.getElementById("gifImg");
         if (!gifImg) return;
         gifImg.src = "assets/dragon_anim_optimized.gif";
+
+        /* ── 悬停时GIF暂停（切换为静态抬头表情）── */
+        var GIF_SRC = "assets/dragon_anim_optimized.gif";
+        var STATIC_SRC = "assets/dragon_hover_static.png";
+        var wrap = document.getElementById("aiFloatWrap");
+        if (!wrap) return;
+
+        var isHovering = false;
+
+        wrap.addEventListener('mouseenter', function() {
+            if (isHovering) return;
+            isHovering = true;
+            // 切换为静态表情图 → GIF停止播放
+            gifImg.src = STATIC_SRC;
+        });
+
+        wrap.addEventListener('mouseleave', function() {
+            if (!isHovering) return;
+            isHovering = false;
+            // 恢复GIF → 继续循环播放
+            gifImg.src = GIF_SRC;
+        });
+
+        /* 移动端触摸：按下显示静态，松开恢复 */
+        wrap.addEventListener('touchstart', function(e) {
+            if (isHovering) return;
+            isHovering = true;
+            gifImg.src = STATIC_SRC;
+        }, {passive: true});
+
+        wrap.addEventListener('touchend', function() {
+            if (!isHovering) return;
+            isHovering = false;
+            gifImg.src = GIF_SRC;
+        });
     })();
     document.getElementById('aiChatClose').addEventListener('click', closeDialog);
     dialog.addEventListener('click', function(e) {
