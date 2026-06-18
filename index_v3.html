@@ -2839,7 +2839,7 @@ window.__EMBEDDED__ = {
             font-family: 'Microsoft YaHei', 'PingFang SC', Arial, sans-serif;
             background: var(--bg-mint);
             min-height: 100vh;
-            padding: 20px;
+            padding: 28px;
         }
         
         .container {
@@ -2968,15 +2968,16 @@ window.__EMBEDDED__ = {
         
         /* 主导航菜单 */
         .main-nav-menu {
-            background: #ffffff;
-            border-radius: 16px;
-            padding: 12px 15px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 20px var(--line-green);
+            background: rgba(248,255,251,0.85);
+            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+            border-radius: 12px;
+            padding: 20px 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 16px rgba(7,82,54,0.06);
             display: flex;
             gap: 6px;
             justify-content: center;
-            border: 1px solid var(--line-green);
+            border: 1px solid rgba(220,238,230,0.5);
             position: relative;
             z-index: 9999;
             flex-wrap: nowrap;
@@ -3260,9 +3261,9 @@ window.__EMBEDDED__ = {
         }
         
         .business-card {
-            background: rgba(248,255,251,0.88);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
+            background: rgba(248,255,251,0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
             border-radius: 12px;
             padding: 20px;
             display: flex;
@@ -3273,7 +3274,7 @@ window.__EMBEDDED__ = {
             cursor: pointer;
             position: relative;
             overflow: hidden;
-            border-left: 3px solid rgba(21,51,41,0.15);
+            border: 1px solid rgba(220,238,230,0.5);
         }
         
         .business-card::before {
@@ -3430,10 +3431,11 @@ window.__EMBEDDED__ = {
         /* 市场热度监控 */
 
         .market-dashboard {
-            background: var(--bg-mint);
-            border-radius: 16px;
-            box-shadow: 0 4px 20px var(--line-green);
-            border: 1px solid var(--line-green);
+            background: rgba(248,255,251,0.85);
+            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+            border-radius: 12px;
+            box-shadow: 0 2px 16px rgba(7,82,54,0.06);
+            border: 1px solid rgba(220,238,230,0.5);
             overflow: hidden;
             margin-top: 20px;
         }
@@ -3611,9 +3613,10 @@ window.__EMBEDDED__ = {
         .mk-chart-grid.spot-pair-layout { grid-template-columns: 1fr 1fr; }
         #batteryChart, #industrialChart { display: block; width: 100%; }
         .mk-chart-card {
-            background: var(--card-bg); border-radius: 12px; padding: 24px;
+            background: rgba(248,255,251,0.85); border-radius: 12px; padding: 24px;
+            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
             box-shadow: 0 2px 12px rgba(7,83,54,0.05);
-            border: 1px solid rgba(7,83,54,0.05);
+            border: 1px solid rgba(220,238,230,0.5);
             transition: all 0.3s ease;
         }
         .mk-chart-card:hover {
@@ -4021,12 +4024,13 @@ window.__EMBEDDED__ = {
        .chain-node-change.down { color: #388e3c; }
 
         .market-monitor {
-            background: linear-gradient(135deg, var(--card-bg) 0%, var(--card-bg) 100%);
-            border-radius: 16px;
+            background: rgba(248,255,251,0.85);
+            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+            border-radius: 12px;
             padding: 25px 30px;
-            box-shadow: 0 4px 20px var(--line-green);
+            box-shadow: 0 2px 16px rgba(7,82,54,0.06);
             text-align: center;
-            border: 1px solid var(--line-green);
+            border: 1px solid rgba(220,238,230,0.5);
             position: relative;
             overflow: hidden;
         }
@@ -4091,14 +4095,15 @@ window.__EMBEDDED__ = {
         }
         
         .monitor-card {
-            background: linear-gradient(135deg, #EFF8F2 0%, #DCEEE6 100%);
+            background: rgba(248,255,251,0.85);
+            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
             border-radius: 12px;
             padding: 20px;
             display: flex;
             align-items: center;
             gap: 15px;
             transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            border: 2px solid transparent;
+            border: 1px solid rgba(220,238,230,0.5);
             cursor: pointer;
             position: relative;
             overflow: hidden;
@@ -4174,18 +4179,24 @@ window.__EMBEDDED__ = {
         }
         
         .monitor-value {
-            font-size: 20px;
-            font-weight: bold;
+            font-size: 30px;
+            font-weight: 700;
             color: var(--text-main);
             margin-bottom: 3px;
             display: flex;
             align-items: baseline;
             gap: 4px;
+            background: rgba(7,82,54,0.04);
+            padding: 8px 12px;
+            border-radius: 8px;
+            align-self: flex-start;
         }
         
         .unit {
             font-size: 12px;
-            font-weight: normal;
+            font-weight: 400;
+            color: var(--text-muted);
+        }
             color: #999;
             margin-left: 2px;
         }
@@ -4286,7 +4297,7 @@ window.__EMBEDDED__ = {
         
         .modal-content {
             background: white;
-            border-radius: 16px;
+            border-radius: 12px;
             width: 90%;
             max-width: 1200px;
             max-height: 90vh;
@@ -4312,7 +4323,7 @@ window.__EMBEDDED__ = {
             background: linear-gradient(135deg, var(--text-main) 0%, var(--text-secondary) 100%);
             color: white;
             padding: 25px 30px;
-            border-radius: 16px 16px 0 0;
+            border-radius: 12px 12px 0 0;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -5063,14 +5074,16 @@ window.__EMBEDDED__ = {
         .allbu-modal.active { display: flex; }
 
         .allbu-modal-content {
-            background: var(--card-bg);
+            background: rgba(248,255,251,0.92);
+            backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
             width: 98vw;
             height: 95vh;
             border-radius: 12px;
             display: flex;
             flex-direction: column;
             overflow: hidden;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+            border: 1px solid rgba(220,238,230,0.6);
         }
 
         .allbu-modal-header {
@@ -5110,10 +5123,11 @@ window.__EMBEDDED__ = {
         }
 
         .allbu-card {
-            background: white;
-            border-radius: 10px;
+            background: rgba(248,255,251,0.85);
+            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+            border-radius: 12px;
             padding: 0;
-            border-left: 4px solid var(--text-main);
+            border: 1px solid rgba(220,238,230,0.5);
             box-shadow: 0 2px 6px rgba(0,0,0,0.06);
             display: flex;
             flex-direction: column;
@@ -5260,7 +5274,7 @@ window.__EMBEDDED__ = {
         
         .history-modal-content {
             background: white;
-            border-radius: 16px;
+            border-radius: 12px;
             width: 90%;
             max-width: 1000px;
             max-height: 90vh;
@@ -5273,7 +5287,7 @@ window.__EMBEDDED__ = {
             background: linear-gradient(135deg, var(--text-main) 0%, var(--text-secondary) 100%);
             color: white;
             padding: 25px 30px;
-            border-radius: 16px 16px 0 0;
+            border-radius: 12px 12px 0 0;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -5531,8 +5545,9 @@ window.__EMBEDDED__ = {
         }
         
         .category-card {
-            background: white;
-            border: 2px solid var(--line-green);
+            background: rgba(248,255,251,0.85);
+            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(220,238,230,0.5);
             border-radius: 12px;
             padding: 20px;
             transition: all 0.3s;
@@ -7298,22 +7313,23 @@ window.__EMBEDDED__ = {
         /* 价格标签 */
         .price-label, .change-label {
             font-size: 12px;
-            color: #666;
+            color: var(--text-muted);
             margin-right: 1px;
             flex-shrink: 0;
         }
 
         /* 价格数值 */
         .chart-latest-price {
-            font-size: 28px;
+            font-size: 30px;
             font-weight: 700;
-            color: #333;
+            color: var(--text-main);
         }
 
         /* 涨跌幅数值 */
         .chart-latest-change {
-            font-size: 16px;
+            font-size: 18px;
             font-weight: 700;
+        }
         }
 
         /* 价格段文字 */
@@ -8422,22 +8438,23 @@ window.__EMBEDDED__ = {
         /* 价格标签 */
         .price-label, .change-label {
             font-size: 12px;
-            color: #666;
+            color: var(--text-muted);
             margin-right: 1px;
             flex-shrink: 0;
         }
 
         /* 价格数值 */
         .chart-latest-price {
-            font-size: 28px;
+            font-size: 30px;
             font-weight: 700;
-            color: #333;
+            color: var(--text-main);
         }
 
         /* 涨跌幅数值 */
         .chart-latest-change {
-            font-size: 16px;
+            font-size: 18px;
             font-weight: 700;
+        }
         }
 
         /* 价格段文字 */
