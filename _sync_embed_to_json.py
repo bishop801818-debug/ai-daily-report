@@ -23,6 +23,7 @@ EMBEDDED_DIR = os.path.join(BASE_DIR, "embedded")
 
 # 数据库配置：(embedded_js文件名, all_json文件名)
 # 顺序即处理顺序
+# 共7个数据库：lfp / carbonate / lib_battery / ternary / automotive / recycling / electrolyte
 DATABASES = [
     ("lfp_embedded_data.js",          "lfp_all_data.json"),
     ("carbonate_embedded_data.js",    "carbonate_all_data.json"),
@@ -30,10 +31,8 @@ DATABASES = [
     ("ternary_embedded_data.js",      "ternary_all_data.json"),
     ("automotive_embedded_data.js",    "automotive_all_data.json"),
     ("recycling_embedded_data.js",     "recycling_all_data.json"),
+    ("electrolyte_embedded_data.js",   "electrolyte_all_data.json"),
 ]
-
-# 电解液特殊：只有 embedded_js，没有独立 all_data.json
-# 故不在上述列表中
 
 
 def js_to_json(js_content: str) -> str:
