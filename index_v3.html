@@ -6798,15 +6798,18 @@ window.__EMBEDDED__ = {
 
         .ticker-name {
             font-size: 12px;
-            color: #000000;
+            color: var(--ticker-fg, #1a1a2e);
             white-space: nowrap;
+            transition: color 0.5s ease;
         }
 
         .ticker-value {
             font-size: 15px;
             font-weight: 600;
-            color: #000000;
+            color: var(--ticker-fg, #1a1a2e);
             font-variant-numeric: tabular-nums;
+            transition: color 0.5s ease;
+            text-shadow: var(--ticker-shadow, 0 1px 3px rgba(255,255,255,0.4));
         }
 
         .ticker-change {
@@ -6819,7 +6822,7 @@ window.__EMBEDDED__ = {
         }
 
         .ticker-change.up {
-            color: #e74c3c;
+            color: var(--ticker-up, #e74c3c);
             font-weight: 700;
         }
         .ticker-change.up::after {
@@ -6827,8 +6830,8 @@ window.__EMBEDDED__ = {
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            background: #e74c3c;
-            color: var(--text-main);
+            background: var(--ticker-up, #e74c3c);
+            color: #fff;
             font-size: 9px;
             width: 15px;
             height: 15px;
@@ -6837,7 +6840,7 @@ window.__EMBEDDED__ = {
         }
 
         .ticker-change.down {
-            color: #27ae60;
+            color: var(--ticker-down, #27ae60);
             font-weight: 700;
         }
         .ticker-change.down::after {
@@ -6845,8 +6848,8 @@ window.__EMBEDDED__ = {
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            background: #27ae60;
-            color: var(--text-main);
+            background: var(--ticker-down, #27ae60);
+            color: #fff;
             font-size: 9px;
             width: 15px;
             height: 15px;
@@ -20933,11 +20936,32 @@ document.addEventListener('DOMContentLoaded', function() {
         return 'cloudy';
     }
 
+    /* 根据天气类型动态调整行情条字体颜色 */
+    function updateTickerTheme(type) {
+        var wrap = document.getElementById('tickerWrap');
+        if (!wrap) return;
+        // 深色底（雨/雷暴）→ 白字；浅色底（晴/云/雪/雾）→ 深色字
+        var isDark = (type === 'rain' || type === 'thunderstorm');
+        if (isDark) {
+            wrap.style.setProperty('--ticker-fg', '#ffffff');
+            wrap.style.setProperty('--ticker-shadow', '0 1px 4px rgba(0,0,0,0.5)');
+            wrap.style.setProperty('--ticker-up', '#ff6b6b');
+            wrap.style.setProperty('--ticker-down', '#51cf66');
+        } else {
+            wrap.style.setProperty('--ticker-fg', '#1a1a2e');
+            wrap.style.setProperty('--ticker-shadow', '0 1px 3px rgba(255,255,255,0.4)');
+            wrap.style.setProperty('--ticker-up', '#e74c3c');
+            wrap.style.setProperty('--ticker-down', '#27ae60');
+        }
+        console.log('[天气] 行情条主题切换 → ' + type + (isDark ? ' (白字)' : ' (深色字)'));
+    }
+
     function fetchWeather() {
         console.log('[天气] fetchWeather() 触发，当前天气类型=' + weatherType);
         if (!navigator.geolocation) {
             console.log('[天气] 浏览器不支持geolocation，使用默认天气');
             if (!particlesInited) { initParticles(); particlesInited = true; }
+            updateTickerTheme(weatherType);
             return;
         }
         navigator.geolocation.getCurrentPosition(function(pos) {
@@ -20957,17 +20981,20 @@ document.addEventListener('DOMContentLoaded', function() {
                         snowGround = {};
                         initParticles();
                         particlesInited = true;
+                        updateTickerTheme(weatherType);
                     } else {
                         console.log('[天气] 天气类型未变化，保持当前动画');
                     }
                 })
-                .catch(function(e) { 
+                .catch(function(e) {
                     console.log('[天气] API请求失败', e);
                     if (!particlesInited) { initParticles(); particlesInited = true; }
+                    updateTickerTheme(weatherType);
                 });
         }, function(err) {
             console.log('[天气] 获取位置失败 code=' + err.code + ' msg=' + err.message);
             if (!particlesInited) { initParticles(); particlesInited = true; }
+            updateTickerTheme(weatherType);
         }, {timeout: 8000});
     }
 
