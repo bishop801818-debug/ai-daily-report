@@ -12,7 +12,7 @@
     <script src="chemical_data.js?v=20260613"></script>
     <script src="recycling_gantt.js?v=20260612"></script>
     <script>
-      window.HTML_VERSION = '20260618_001'; // 简单版本号，用于fetch缓存刷新
+      window.HTML_VERSION = '20260618_002'; // 简单版本号，用于fetch缓存刷新
 
       /* ---------- 彻底防止图表旧内容闪屏（bfcache + 渲染残留）----------
        * 问题：浏览器前进后退缓存(bfcache)会保存完整页面状态，
@@ -8101,11 +8101,11 @@ window.addEventListener('DOMContentLoaded', function() {
     (function(){
         var gifImg = document.getElementById("gifImg");
         if (!gifImg) return;
-        gifImg.src = "assets/dragon_anim_optimized.gif";
+        gifImg.src = "assets/dragon_4combined_anim.gif";
 
         /* ── 悬停时GIF暂停（切换为静态抬头表情）── */
-        var GIF_SRC = "assets/dragon_anim_optimized.gif";
-        var STATIC_SRC = "assets/dragon_hover_static.png";
+        var GIF_SRC = "assets/dragon_4combined_anim.gif";
+        var STATIC_SRC = "assets/dragon_4combined_hover_static.png";
         var wrap = document.getElementById("aiFloatWrap");
         if (!wrap) return;
 

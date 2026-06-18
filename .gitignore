@@ -158,6 +158,12 @@ lark_err.txt
 screenshot*.png
 sidebar_screenshot.png
 
+# ========== 例外：assets 目录中的图片需要部署 ==========
+!assets/*.png
+!assets/*.jpg
+!assets/*.jpeg
+!assets/*.gif
+
 # ------------------------------------------
 # 14. 输出目录
 # ------------------------------------------
