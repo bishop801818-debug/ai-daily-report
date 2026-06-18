@@ -2168,118 +2168,117 @@ window.__EMBEDDED__ = {
         .bu-section-wrap   { order: 3; }
         .market-monitor    { order: 4; }
         
-        /* 顶部导航栏 */
-        .header {
-            background: rgba(248,255,251,0.82);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border-radius: 12px;
-            padding: 20px 30px;
-            margin-bottom: 15px;
-            box-shadow: 0 2px 16px rgba(7,82,54,0.06);
-            display: flex;
-            justify-content: center;
-            align-items: center;
+        
+                /* Hero Banner（图片横幅） —— 替代原 .header + .main-nav-menu 区域 */
+        .hero-banner {
             position: relative;
-            border: 1px solid rgba(220,238,230,0.6);
-            transition: box-shadow 0.3s;
+            height: 240px;
+            border-radius: 12px;
             overflow: hidden;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 16px rgba(7,82,54,0.06);
         }
-        
-        /* 无左侧发光条（已移除，保持极简） */
-        
-        .header:hover {
-            box-shadow: 0 4px 20px rgba(7,82,54,0.08);
+
+        .hero-bg {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            object-fit: cover;
+            z-index: 0;
         }
-        
-        .header-left {
-            display: flex;
-            align-items: center;
-            gap: 20px;
+
+        .hero-overlay {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(180deg, rgba(0,0,0,0.10) 0%, rgba(0,0,0,0) 50%, rgba(0,0,0,0.18) 100%);
+            z-index: 1;
+            pointer-events: none;
         }
-        
-        .header-right {
-            color: #666;
-            font-size: 14px;
+
+        /* 导航菜单浮于图上顶部（毛玻璃半透明白底） */
+        .hero-banner > .main-nav-menu {
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            z-index: 10;
+            background: rgba(255,255,255,0.30);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            border-radius: 12px 12px 0 0;
+            margin-bottom: 0;
+            border: 1px solid rgba(255,255,255,0.35);
+            border-bottom: 1px solid rgba(220,238,230,0.25);
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+        }
+
+        .hero-banner > .main-nav-menu .main-nav-item {
+            color: #fff;
+            text-shadow: 0 1px 4px rgba(0,0,0,0.35);
+        }
+
+        .hero-banner > .main-nav-menu .main-nav-item:hover {
+            background: rgba(255,255,255,0.18);
+            color: #fff;
+        }
+
+        .hero-banner > .main-nav-menu .main-nav-item.active {
+            color: #fff;
+            font-weight: 600;
+        }
+
+        .hero-banner > .main-nav-menu .nav-arrow {
+            color: rgba(255,255,255,0.65);
+        }
+
+        /* 下拉菜单在图上时使用深色半透明背景 */
+        .hero-banner > .main-nav-menu .dropdown-menu {
+            background: rgba(25,35,30,0.92);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255,255,255,0.12);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.35);
+        }
+
+        .hero-banner > .main-nav-menu .dropdown-item {
+            color: rgba(255,255,255,0.88);
+        }
+
+        .hero-banner > .main-nav-menu .dropdown-item:hover {
+            background: rgba(255,255,255,0.10);
+            color: #fff;
+        }
+
+        /* 日期时间浮于图右下 */
+        .hero-datetime {
             position: absolute;
             right: 30px;
+            bottom: 18px;
+            z-index: 10;
             display: flex;
             flex-direction: column;
             align-items: flex-end;
             gap: 4px;
         }
-        
-        .header-time {
+
+        .hero-datetime .header-date,
+        .hero-datetime .header-time {
+            color: #fff;
+            text-shadow: 0 1px 6px rgba(0,0,0,0.6);
+        }
+
+        .hero-datetime .header-time {
             font-size: 18px;
             font-weight: bold;
-            color: var(--text-main);
             display: flex;
             align-items: center;
             gap: 6px;
         }
-        
-        .header-date {
+
+        .hero-datetime .header-date {
             font-size: 14px;
             font-weight: bold;
-            color: var(--text-main);
         }
-        
-        .logo {
-            font-size: 32px;
-            font-weight: bold;
-            color: var(--text-main);
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            cursor: pointer;
-            transition: all 0.3s;
-            position: relative;
-            min-height: 50px;
-            padding-left: 20px;
-        }
-        
-        .logo:hover {
-            transform: scale(1.05);
-            text-shadow: 0 2px 10px rgba(30, 60, 114, 0.3);
-        }
-        
-        .logo-icon {
-            font-size: 36px;
-            animation: logoPulse 2s infinite;
-        }
-        
-        @keyframes logoPulse {
-            0%, 100% {
-                transform: scale(1);
-                filter: brightness(1);
-            }
-            50% {
-                transform: scale(1.1);
-                filter: brightness(1.2);
-            }
-        }
-        
-        .logo-text {
-            position: relative;
-        }
-        
-        .logo-text::after {
-            content: '';
-            position: absolute;
-            bottom: -5px;
-            left: 0;
-            width: 0;
-            height: 3px;
-            background: linear-gradient(90deg, var(--text-main), var(--text-secondary));
-            transition: width 0.3s;
-            border-radius: 2px;
-        }
-        
-        .logo:hover .logo-text::after {
-            width: 100%;
-        }
-        
-        /* 主导航菜单 */
+
+        /* 主导航菜单（非hero模式下备用，hero模式下被 .hero-banner > .main-nav-menu 覆盖） */
         .main-nav-menu {
             background: rgba(248,255,251,0.85);
             backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
@@ -5221,7 +5220,7 @@ window.__EMBEDDED__ = {
                 grid-template-columns: 1fr;
             }
             
-            .header {
+            .hero-banner {
                 flex-direction: column;
                 gap: 15px;
             }
@@ -6517,7 +6516,7 @@ window.__EMBEDDED__ = {
         body.report-modal-open .main-nav-menu,
         body.report-modal-open .dashboard-nav,
         body.report-modal-open .top-nav-bar,
-        body.report-modal-open .header { filter:blur(4px) brightness(0.7); pointer-events:none; transition:filter 0.3s; }
+        body.report-modal-open .hero-banner { filter:blur(4px) brightness(0.7); pointer-events:none; transition:filter 0.3s; }
         body.panel-open .main-nav-menu { filter:blur(4px) brightness(0.7); pointer-events:none; transition:filter 0.3s; }
         .report-modal-content { background:var(--bg-mint); border-radius:14px; border:1px solid rgba(7,83,54,0.12); width:960px; max-width:97vw; max-height:92vh; display:flex; flex-direction:column; box-shadow:0 12px 40px rgba(15,30,60,0.15); overflow:hidden; }
         .report-modal-header { display:flex; align-items:center; justify-content:space-between; padding:14px 20px; background:var(--text-main); color:#fff; flex-shrink:0; position:relative; z-index:10; }
@@ -8234,24 +8233,12 @@ window.addEventListener('DOMContentLoaded', function() {
     </div>
     
     <div class="container">
-        <!-- 顶部导航栏 -->
-        <div class="header" id="mainHeader">
-            <div class="header-left">
-                <div class="logo" onclick="location.reload()" title="点击刷新页面">
-                    <span class="logo-text">龙蟠智研中心</span>
-                </div>
-            </div>
-            <div class="header-right">
-                <div class="header-date" id="currentDate"></div>
-                <div class="header-time">
-                    <span id="clockIcon">🕐</span>
-                    <span id="realTimeClock">00:00:00</span>
-                </div>
-            </div>
-        </div>
-        
-        <!-- 主导航菜单 -->
-        <div class="main-nav-menu" id="mainNavMenu">
+        <!-- Hero Banner（图片横幅） -->
+        <div class="hero-banner" id="heroBanner">
+            <img class="hero-bg" src="assets/hero-banner.png" alt="龙蟠科技">
+            <div class="hero-overlay"></div>
+            <!-- 主导航菜单（浮于图上，毛玻璃半透明白底） -->
+            <div class="main-nav-menu" id="mainNavMenu">
             <div class="main-nav-pill" id="mainNavPill"></div>
             <div class="main-nav-item" onclick="window.location.href='policy_center_v4.html'">
                 <span class="nav-icon">📜</span>
@@ -8375,8 +8362,16 @@ window.addEventListener('DOMContentLoaded', function() {
                 <span class="nav-icon">❓</span>
                 <span>帮助中心</span>
             </div>
+            </div>
+            <!-- 日期时间（浮于图右下） -->
+            <div class="hero-datetime">
+                <div class="header-date" id="currentDate"></div>
+                <div class="header-time">
+                    <span id="clockIcon">🕐</span>
+                    <span id="realTimeClock">00:00:00</span>
+                </div>
+            </div>
         </div>
-
         
         <!-- 材料品种展示（行情条） -->
 <div class="ticker-wrap" id="tickerWrap">
@@ -13577,7 +13572,7 @@ const BU_LOGOS = {
         body.report-modal-open .main-nav-menu,
         body.report-modal-open .dashboard-nav,
         body.report-modal-open .top-nav-bar,
-        body.report-modal-open .header { filter:blur(4px) brightness(0.7); pointer-events:none; transition:filter 0.3s; }
+        body.report-modal-open .hero-banner { filter:blur(4px) brightness(0.7); pointer-events:none; transition:filter 0.3s; }
         body.panel-open .main-nav-menu { filter:blur(4px) brightness(0.7); pointer-events:none; transition:filter 0.3s; }
         .report-modal-content { background:var(--bg-mint); border-radius:14px; border:1px solid rgba(7,83,54,0.12); width:960px; max-width:97vw; max-height:92vh; display:flex; flex-direction:column; box-shadow:0 12px 40px rgba(15,30,60,0.15); overflow:hidden; }
         .report-modal-header { display:flex; align-items:center; justify-content:space-between; padding:14px 20px; background:var(--text-main); color:#fff; flex-shrink:0; position:relative; z-index:10; }
