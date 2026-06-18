@@ -8934,7 +8934,7 @@ window.addEventListener('DOMContentLoaded', function() {
                         </div>
 
                     <!-- 产业链全景图 -->
-                    <div class="industry-chain-panel" id="chain-panel" style="margin-top: 30px; padding: 20px; background: #f8f9ff; border-radius: 12px; border: 1px solid #e8ecf0;">
+                    <div class="industry-chain-panel" id="chain-panel" style="margin-top: 30px; padding: 20px; background: rgba(248,255,251,0.85); backdrop-filter: blur(12px); border-radius: 12px; border: 1px solid rgba(220,238,230,0.5);">
                         <div class="comparison-title" style="font-size: 16px; font-weight: 600; color: #1e3c72; margin-bottom: 15px;">磷酸铁锂产业链全景图</div>
                         <div class="chain-flow" id="chain-flow" style="display: flex; align-items: center; justify-content: center; gap: 15px; margin: 20px 0; flex-wrap: wrap;">
                             <div style="color:#999;">加载中...</div>
@@ -12044,7 +12044,7 @@ function updatePageData(chainConfig, marketData) {
             
             const sourceLabel = document.createElement('div');
             sourceLabel.className = 'data-source-label';
-            sourceLabel.style.cssText = 'margin-top: 15px; padding: 10px; background: #f5f5f5; border-radius: 6px; font-size: 12px; color: #666; text-align: center;';
+            sourceLabel.style.cssText = 'margin-top: 15px; padding: 10px; background: rgba(248,255,251,0.7); backdrop-filter: blur(8px); border: 1px solid rgba(220,238,230,0.4); border-radius: 6px; font-size: 12px; color: #666; text-align: center;';
             sourceLabel.innerHTML = '📊 数据来源: AkShare-现货价格 | 更新时间: ' + (dataSourceInfo.updateTime || '未知');
             lastCard.appendChild(sourceLabel);
         }
@@ -12552,7 +12552,7 @@ function updatePageData(chainConfig, marketData) {
             if (display && display.levels) {
                 // 新分组层级布局
                 display.levels.forEach((level, levelIndex) => {
-                    flowHTML += '<div class="chain-level" style="background:' + (level.bgColor || '#f8f9ff') + ';">';
+                    flowHTML += '<div class="chain-level" style="background:' + (level.bgColor || 'rgba(248,255,251,0.8)') + '; backdrop-filter: blur(8px); border: 1px solid rgba(220,238,230,0.4);">';
                     flowHTML += '<div class="chain-level-label">' + level.label + '</div>';
                     flowHTML += '<div class="chain-level-body">';
 
@@ -12605,7 +12605,7 @@ function updatePageData(chainConfig, marketData) {
 
             const chainSourceLabel = document.createElement('div');
             chainSourceLabel.className = 'data-source-label';
-            chainSourceLabel.style.cssText = 'width: 100%; margin-top: 15px; padding: 10px; background: #f5f5f5; border-radius: 6px; font-size: 12px; color: #666; text-align: center;';
+            chainSourceLabel.style.cssText = 'width: 100%; margin-top: 15px; padding: 10px; background: rgba(248,255,251,0.7); backdrop-filter: blur(8px); border: 1px solid rgba(220,238,230,0.4); border-radius: 6px; font-size: 12px; color: #666; text-align: center;';
             chainSourceLabel.innerHTML = '📊 数据来源: AkShare-现货价格 | 更新时间: ' + (chainDataSourceInfo.updateTime || '未知');
             chainFlowEl.appendChild(chainSourceLabel);
         }
