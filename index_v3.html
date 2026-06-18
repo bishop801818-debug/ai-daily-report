@@ -5669,6 +5669,59 @@ window.__EMBEDDED__ = {
     box-shadow: 0 5px 18px rgba(0,125,78,0.65);
 }
 
+/* ── AI按钮悬停气泡 ── */
+.ai-tooltip {
+    position: absolute;
+    top: -44px;
+    left: 50%;
+    transform: translateX(-50%) scale(0.7);
+    background: linear-gradient(135deg, #0AA66A, #0d7a4a);
+    color: #fff;
+    font-size: 13px;
+    font-weight: 600;
+    font-family: "Microsoft YaHei", "微软雅黑", sans-serif;
+    padding: 6px 16px;
+    border-radius: 18px;
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.28s ease, transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
+    box-shadow: 0 4px 16px rgba(10,166,106,0.45);
+    z-index: 10000;
+}
+/* 气泡小三角 */
+.ai-tooltip::after {
+    content: '';
+    position: absolute;
+    bottom: -7px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0; height: 0;
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    border-top: 8px solid #0d7a4a;
+}
+/* 悬停时显示气泡 + 弹跳动画 */
+.ai-float-wrap:hover .ai-tooltip {
+    opacity: 1;
+    transform: translateX(-50%) scale(1);
+}
+/* 按钮悬停放大特效 */
+.ai-float-wrap:hover .ai-sphere {
+    transform: scale(1.08);
+    box-shadow:
+        inset 0 -7px 14px rgba(0,0,0,0.30),
+        inset 0  7px 14px rgba(255,255,255,0.30),
+        0  0  0  3px rgba(10,166,106,0.55),
+        0  0  28px 10px rgba(10,166,106,0.55),
+        0  0  60px 24px rgba(10,166,106,0.30),
+        0 20px 48px rgba(0,0,0,0.60);
+}
+/* 标签悬停时微微上移 */
+.ai-float-wrap:hover .ai-float-label {
+    transform: translateY(-2px);
+}
+
 /* ===== 悬停GIF动画按钮样式（覆盖原.ai-sphere） ===== */
 /* 按钮容器：保持原有定位不变 */
 .ai-float-wrap {
@@ -19216,6 +19269,8 @@ window.addEventListener('hashchange', function() {
         </div>
     </div>
     <div class="ai-sphere-shadow"></div>
+    <!-- 悬停气泡 -->
+    <div class="ai-tooltip" id="aiTooltip">需要帮忙吗？</div>
     <span class="ai-float-label">AI龙小蟠</span>
 </div>
 
