@@ -6764,6 +6764,8 @@ window.__EMBEDDED__ = {
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
             border-bottom: 1px solid rgba(31,29,26,0.08);
+            position: relative;
+            overflow: hidden;
         }
 
         .ticker-bar {
@@ -6775,6 +6777,8 @@ window.__EMBEDDED__ = {
             gap: 16px;
             overflow-x: auto;
             scrollbar-width: none;
+            position: relative;
+            z-index: 1;
         }
 
         .ticker-bar::-webkit-scrollbar { display: none; }
@@ -8229,7 +8233,6 @@ window.addEventListener('DOMContentLoaded', function() {
     <div class="container">
         <!-- 顶部导航栏 -->
         <div class="header" id="mainHeader">
-            <canvas id="weather-canvas" style="position:absolute;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none;"></canvas>
             <div class="header-left">
                 <div class="logo" onclick="location.reload()" title="点击刷新页面">
                     <span class="logo-text">龙蟠智研中心</span>
@@ -8373,7 +8376,8 @@ window.addEventListener('DOMContentLoaded', function() {
 
         
         <!-- 材料品种展示（行情条） -->
-<div class="ticker-wrap">
+<div class="ticker-wrap" id="tickerWrap">
+            <canvas id="weather-canvas" style="position:absolute;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none;"></canvas>
         <div class="ticker-bar">
             <div class="ticker-item" onclick="tickerNavigate('sec-lc-futures')">
                 <span class="ticker-name">碳酸锂期货</span>
@@ -20898,7 +20902,7 @@ document.addEventListener('DOMContentLoaded', function() {
     var cvs = document.getElementById('weather-canvas');
     if (!cvs) { console.log('[天气] 未找到canvas'); return; }
     var ctx = cvs.getContext('2d');
-    var header = document.getElementById('mainHeader');
+    var header = document.getElementById('tickerWrap');
     var W = 0, H = 0;
     var weatherType = 'cloudy';
     var particles = [];
