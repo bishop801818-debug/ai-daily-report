@@ -1,16 +1,10 @@
-// AI 悬浮按钮 - 自动注入脚本 v2
-// 将此文件通过 <script src="assets/ai_fab_inject.js"></script> 引入任何页面，
-// AI 按钮将自动出现在页面的固定位置。
-
 (function() {
-    'use strict';
-
-    // 防止重复注入
+    // Prevent double injection
     if (document.getElementById('aiFloatWrap')) return;
 
-    // ========== 1. 注入 CSS ==========
-    var css = `
-/* ===== AI 悬浮按钮样式 ===== */
+    // Inject CSS
+    var style = document.createElement('style');
+    style.textContent = `/* AI Floating Button - Injected Styles */
 .ai-float-wrap {
     position: fixed !important;
     bottom: 36px !important;
@@ -103,19 +97,12 @@
     letter-spacing: 2px !important; white-space: nowrap !important;
     box-shadow: 0 3px 12px rgba(45,159,110,0.45) !important;
     text-align: center !important; cursor: pointer !important;
-    transition: background 0.25s, box-shadow 0.25s, transform 0.25s !important;
-}
-.ai-float-label:hover {
-    background: linear-gradient(135deg, #268a5c, #3db87a) !important;
-    box-shadow: 0 5px 18px rgba(45,159,110,0.65) !important;
 }
 @media (max-width: 640px) {
     .ai-float-wrap { bottom: 20px !important; right: 20px !important; }
     #aiSphere { width: 64px !important; height: 64px !important; }
     #gifLayer { width: 58px !important; height: 58px !important; top: 3px !important; left: 3px !important; }
 }
-
-/* ===== AI 对话弹窗样式 ===== */
 #aiChatDialog {
     position: fixed; bottom: 130px; right: 24px;
     width: 360px; max-height: 480px;
@@ -191,16 +178,13 @@
     font-size: 16px; display: flex; align-items: center; justify-content: center;
     flex-shrink: 0; transition: transform 0.2s, box-shadow 0.2s;
 }
-.ai-dialog-send:hover { transform: scale(1.08); box-shadow: 0 4px 12px rgba(0,125,78,0.4); }
-`;
+.ai-dialog-send:hover { transform: scale(1.08); box-shadow: 0 4px 12px rgba(0,125,78,0.4); }`;
+    style.id = 'aiFabStyle';
+    document.head.appendChild(style);
 
-    var styleEl = document.createElement('style');
-    styleEl.id = 'aiFabStyles';
-    styleEl.textContent = css;
-    document.head.appendChild(styleEl);
-
-    // ========== 2. 注入 HTML ==========
-    var html = `
+    // Inject HTML
+    var wrap = document.createElement('div');
+    wrap.innerHTML = `<!-- AI Floating Button - Injected HTML -->
 <div class="ai-float-wrap" id="aiFloatWrap">
     <div class="ai-sphere" id="aiSphere">
         <div id="gifLayer">
@@ -230,157 +214,119 @@
         <button class="ai-dialog-send" id="aiChatSend" title="发送">➤</button>
     </div>
 </div>`;
+    document.body.appendChild(wrap);
 
-    var wrap = document.createElement('div');
-    wrap.innerHTML = html;
-    while (wrap.firstChild) {
-        document.body.appendChild(wrap.firstChild);
-    }
-
-    // ========== 3. 设置图片路径 ==========
+    // Set image sources
     var gifImg = document.getElementById('gifImg');
     var avatarImg = document.getElementById('aiDialogAvatar');
     if (gifImg) gifImg.src = 'assets/dragon_4combined_anim.gif';
     if (avatarImg) avatarImg.src = 'assets/dragon_4combined_hover_static.png';
 
-    // ========== 4. 拖拽功能 ==========
-    var aiFloatWrap = document.getElementById('aiFloatWrap');
+    // Drag functionality
     var isDragging = false;
-    var dragStartX, dragStartY, elemStartX, elemStartY;
+    var startX, startY, initX, initY;
+    var floatWrap = document.getElementById('aiFloatWrap');
+    var sphere = document.getElementById('aiSphere');
 
-    // 从 localStorage 恢复位置
-    var savedPos = localStorage.getItem('aiFabPos');
-    if (savedPos) {
-        try {
-            var pos = JSON.parse(savedPos);
-            aiFloatWrap.style.position = 'fixed';
-            aiFloatWrap.style.bottom = 'auto';
-            aiFloatWrap.style.right = 'auto';
-            aiFloatWrap.style.top = pos.y + 'px';
-            aiFloatWrap.style.left = pos.x + 'px';
-        } catch(e) {}
-    }
-
-    aiFloatWrap.addEventListener('mousedown', function(e) {
-        if (e.target.closest('#aiChatDialog') || e.target.closest('#aiSphere')) return;
+    sphere.addEventListener('mousedown', function(e) {
         isDragging = true;
-        dragStartX = e.clientX;
-        dragStartY = e.clientY;
-        var rect = aiFloatWrap.getBoundingClientRect();
-        elemStartX = rect.left;
-        elemStartY = rect.top;
-        e.preventDefault();
+        startX = e.clientX;
+        startY = e.clientY;
+        var rect = floatWrap.getBoundingClientRect();
+        initX = rect.left;
+        initY = rect.top;
+        floatWrap.style.cursor = 'grabbing';
     });
 
     document.addEventListener('mousemove', function(e) {
         if (!isDragging) return;
-        var dx = e.clientX - dragStartX;
-        var dy = e.clientY - dragStartY;
-        var newX = elemStartX + dx;
-        var newY = elemStartY + dy;
-        // 限制在视口内
-        newX = Math.max(0, Math.min(newX, window.innerWidth - 100));
-        newY = Math.max(0, Math.min(newY, window.innerHeight - 100));
-        aiFloatWrap.style.position = 'fixed';
-        aiFloatWrap.style.bottom = 'auto';
-        aiFloatWrap.style.right = 'auto';
-        aiFloatWrap.style.top = newY + 'px';
-        aiFloatWrap.style.left = newX + 'px';
+        var dx = e.clientX - startX;
+        var dy = e.clientY - startY;
+        floatWrap.style.left = (initX + dx) + 'px';
+        floatWrap.style.top = (initY + dy) + 'px';
     });
 
     document.addEventListener('mouseup', function() {
-        if (isDragging) {
-            isDragging = false;
-            // 保存位置
-            var rect = aiFloatWrap.getBoundingClientRect();
-            localStorage.setItem('aiFabPos', JSON.stringify({x: rect.left, y: rect.top}));
+        if (!isDragging) return;
+        isDragging = false;
+        floatWrap.style.cursor = 'grab';
+        // Save position
+        try {
+            localStorage.setItem('aiFab_pos', floatWrap.style.left + ',' + floatWrap.style.top);
+        } catch(e) {}
+    });
+
+    // Restore position
+    try {
+        var pos = localStorage.getItem('aiFab_pos');
+        if (pos) {
+            var parts = pos.split(',');
+            if (parts.length === 2) {
+                floatWrap.style.left = parts[0];
+                floatWrap.style.top = parts[1];
+            }
+        }
+    } catch(e) {}
+
+    // Hover pause - GIF to PNG
+    var hoverTimeout;
+    sphere.addEventListener('mouseenter', function() {
+        clearTimeout(hoverTimeout);
+        if (gifImg) {
+            hoverTimeout = setTimeout(function() {
+                gifImg.src = gifImg.src.replace('.gif', '_hover.png').replace('_hover.png', '_hover.png');
+            }, 200);
         }
     });
 
-    // ========== 5. 悬停暂停 GIF ==========
-    var aiSphere = document.getElementById('aiSphere');
-    var gifSrc = 'assets/dragon_4combined_anim.gif';
-    var staticSrc = 'assets/dragon_4combined_hover_static.png';
-    var isHovering = false;
-
-    aiSphere.addEventListener('mouseenter', function() {
-        isHovering = true;
-        gifImg.src = staticSrc + '?v=' + Date.now();
+    sphere.addEventListener('mouseleave', function() {
+        clearTimeout(hoverTimeout);
+        if (gifImg) {
+            gifImg.src = 'assets/dragon_4combined_anim.gif';
+        }
     });
 
-    aiSphere.addEventListener('mouseleave', function() {
-        isHovering = false;
-        gifImg.src = gifSrc + '?v=' + Date.now();
+    // Dialog toggle
+    var dialog = document.getElementById('aiChatDialog');
+    sphere.addEventListener('click', function() {
+        dialog.classList.toggle('open');
     });
 
-    // ========== 6. 点击打开对话弹窗 ==========
-    var aiChatDialog = document.getElementById('aiChatDialog');
-    var aiChatClose = document.getElementById('aiChatClose');
-
-    aiSphere.addEventListener('click', function(e) {
-        if (isDragging) return;
-        aiChatDialog.classList.toggle('open');
+    // Close dialog
+    var closeBtn = document.getElementById('aiChatClose');
+    closeBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        dialog.classList.remove('open');
     });
 
-    aiChatClose.addEventListener('click', function() {
-        aiChatDialog.classList.remove('open');
-    });
+    // Send message
+    var sendBtn = document.getElementById('aiChatSend');
+    var input = document.getElementById('aiChatInput');
+    var msgs = document.getElementById('aiDialogMsgs');
 
-    // ========== 7. 发送消息逻辑 ==========
-    var aiChatInput = document.getElementById('aiChatInput');
-    var aiChatSend = document.getElementById('aiChatSend');
-    var aiDialogMsgs = document.getElementById('aiDialogMsgs');
+    function addMessage(text, isUser) {
+        var msg = document.createElement('div');
+        msg.className = 'ai-msg' + (isUser ? ' user' : '');
+        msg.innerHTML = '<img class="ai-msg-avatar" src="' + (isUser ? '' : 'assets/dragon_4combined_hover_static.png') + '"><div class="ai-msg-bubble">' + text + '</div>';
+        msgs.appendChild(msg);
+        msgs.scrollTop = msgs.scrollHeight;
+    }
 
-    function sendMessage() {
-        var text = aiChatInput.value.trim();
+    sendBtn.addEventListener('click', function() {
+        var text = input.value.trim();
         if (!text) return;
-
-        // 添加用户消息
-        addMessage(text, 'user');
-        aiChatInput.value = '';
-        aiChatInput.style.height = 'auto';
-
-        // 模拟AI回复（可接入真实API）
+        addMessage(text, true);
+        input.value = '';
+        // Simulated response
         setTimeout(function() {
-            addMessage('感谢您的提问！我是龙蟠AI助手，目前处于演示模式。实际部署时，这里可以接入千问API实现智能对话。', 'assistant');
-        }, 800);
-    }
+            addMessage('收到您的消息！AI助手功能正在开发中...', false);
+        }, 500);
+    });
 
-    function addMessage(text, type) {
-        var msgEl = document.createElement('div');
-        msgEl.className = 'ai-msg ' + type;
-
-        var avatarSrc = (type === 'assistant')
-            ? 'assets/dragon_4combined_hover_static.png'
-            : 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjYiIGhlaWdodD0iMjYiIHZpZXdCb3g9IjAgMCAyNiAyNiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMTMiIGN5PSIxMyIgcj0iMTMiIGZpbGw9IiMwMDdENEYiLz4KPHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCAxNiAxNiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4PSI1IiB5PSI1Ij4KPHRleHQgeD0iNCIgeT0iMTIiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxMCIgZmlsbD0iI2ZmZiI+VXNlcjwvdGV4dD4KPC9zdmc+Cg==';
-
-        msgEl.innerHTML = '<img class="ai-msg-avatar" src="' + avatarSrc + '"><div class="ai-msg-bubble">' + escapeHtml(text) + '</div>';
-
-        aiDialogMsgs.appendChild(msgEl);
-        aiDialogMsgs.scrollTop = aiDialogMsgs.scrollHeight;
-    }
-
-    function escapeHtml(text) {
-        var div = document.createElement('div');
-        div.textContent = text;
-        return div.innerHTML;
-    }
-
-    if (aiChatSend) {
-        aiChatSend.addEventListener('click', sendMessage);
-    }
-    if (aiChatInput) {
-        aiChatInput.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                sendMessage();
-            }
-        });
-        // 自适应高度
-        aiChatInput.addEventListener('input', function() {
-            this.style.height = 'auto';
-            this.style.height = Math.min(this.scrollHeight, 80) + 'px';
-        });
-    }
-
+    input.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            sendBtn.click();
+        }
+    });
 })();
