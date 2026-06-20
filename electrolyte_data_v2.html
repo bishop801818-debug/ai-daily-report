@@ -852,8 +852,8 @@
             // 按日期降序排序
             function sortDesc(data) {
                 return [...data].sort((a, b) => {
-                    const da = a['日期'] || a['月份'] || '';
-                    const db = b['日期'] || b['月份'] || '';
+                    const da = a['日期'] || a['月份'] || a['数据年月'] || '';
+                    const db = b['日期'] || b['月份'] || b['数据年月'] || '';
                     return db.localeCompare(da);
                 });
             }
@@ -933,10 +933,23 @@
             let html = '';
             for (const row of sorted) {
                 html += '<tr>';
+
+                // FEC价格表特殊字段映射（每行只创建一次）
+                const localMap = Object.assign({}, fieldMap);
+                if (tableName.includes('FEC') && tableName.includes('价格')) {
+                    localMap['日期'] = '文本';
+                    localMap['最高价'] = '今日最高价格';
+                    localMap['均价'] = '今日均价';
+                }
+
                 for (let i = 0; i < headers.length; i++) {
                     const h = headers[i];
-                    let jsonKey = fieldMap[h] || h;
+                    let jsonKey = localMap[h] || h;
                     let val = row[jsonKey];
+                    // 空格变体 fallback（JSON 字段常有前后空格）
+                    if (val === null || val === undefined) {
+                        val = row[' ' + jsonKey + ' '] || row[' ' + jsonKey] || row[jsonKey + ' '];
+                    }
 
                     if (h === '序号') {
                         // 生成排名徽章
