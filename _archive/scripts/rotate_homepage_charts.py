@@ -614,16 +614,35 @@ def generate_insight_with_news(chart, metrics, report, division):
             if candidates:
                 dim, text = candidates[0]
                 text = text.rstrip('。')
-                if len(text) > 40:
-                    text = text[:40] + '…'
+                if len(text) > 45:
+                    text = text[:45] + '…'
+                
+                # 直接引用早报内容，不添加"据早报"等前缀
+                # 根据维度选择自然的表达方式
                 if dim == 'topnews':
-                    news_part = f"据早报：{text}。"
+                    # 行业新闻，直接叙述
+                    if text:
+                        news_part = f"{text}。"
+                    else:
+                        news_part = ""
                 elif dim == 'action':
-                    news_part = f"分析：{text}。"
+                    # 分析洞察，直接叙述
+                    if text:
+                        news_part = f"{text}。"
+                    else:
+                        news_part = ""
                 elif dim == 'policy':
-                    news_part = f"政策面：{text}。"
+                    # 政策影响，直接叙述
+                    if text:
+                        news_part = f"{text}。"
+                    else:
+                        news_part = ""
                 else:
-                    news_part = f"关注：{text}。"
+                    # market 等其他维度
+                    if text:
+                        news_part = f"{text}。"
+                    else:
+                        news_part = ""
 
     # 组合文案，控制总长度50-80字
     full_text = data_part + compare_part + news_part
@@ -653,7 +672,7 @@ def generate_insight_with_news(chart, metrics, report, division):
                 title = title.rstrip('。')
                 if len(title) > 20:
                     title = title[:20] + '…'
-                supplement = f"关注：{title}。"
+                supplement = f"{title}。"
                 if len(full_text) + len(supplement) <= 80:
                     full_text = full_text + supplement
 
