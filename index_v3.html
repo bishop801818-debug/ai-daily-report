@@ -21576,7 +21576,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     data: xData,
                     axisLine: { lineStyle: { color: 'rgba(61,41,20,0.15)', width: 1 } },
                     axisTick: { show: false },
-                    axisLabel: { show: showAxis, color: '#8C7B6B', fontSize: 10, interval: interval },
+                    axisLabel: { show: showAxis, color: '#8C7B6B', fontSize: 10, interval: 0, rotate: totalPoints > 8 ? 30 : 0 },
                     splitLine: { show: false }
                 },
                 yAxis: {
@@ -21681,7 +21681,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     data: xData,
                     axisLine: { lineStyle: { color: 'rgba(61,41,20,0.15)', width: 1 } },
                     axisTick: { show: false },
-                    axisLabel: { show: showAxis, color: '#8C7B6B', fontSize: 10, interval: interval },
+                    axisLabel: { show: showAxis, color: '#8C7B6B', fontSize: 10, interval: 0, rotate: totalPoints > 8 ? 30 : 0 },
                     splitLine: { show: false }
                 },
                 yAxis: {
