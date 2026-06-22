@@ -12,7 +12,52 @@
     <script src="chemical_data.js?v=20260613"></script>
     <script src="recycling_gantt.js?v=20260612"></script>
     <script>
-      window.HTML_VERSION = "20260622_007"; // 版本号，用于fetch缓存刷新（2026-06-22 产业链全景图仅LFP时显示）
+      window.HTML_VERSION = "20260622_009"; // 版本号，用于fetch缓存刷新（2026-06-22 事业部权限控制完成）
+
+        // ═══════════════════════════════════════════════════
+        // 事业部权限控制
+        // ═══════════════════════════════════════════════════
+        const BU_PERMISSIONS = {
+            'all': { name: '全部（集团领导）', allowed: ['czly','sdmd','sjld','lpsd','fnlt','lube','kls','dkhx','bych'] },
+            'czly': { name: '常州锂源（磷酸铁锂正极材料）', allowed: ['czly'] },
+            'sdmd': { name: '山东美多（磷酸铁锂正极材料）', allowed: ['sdmd'] },
+            'sjld': { name: '三金锂电（磷酸铁锂正极材料）', allowed: ['sjld'] },
+            'lpsd': { name: '龙蟠时代（锂电池）', allowed: ['lpsd'] },
+            'fnlt': { name: '法恩莱特（电解液）', allowed: ['fnlt'] },
+            'dkhx': { name: '迪克化学（电解液）', allowed: ['dkhx'] },
+            'lube': { name: '润滑油', allowed: ['lube'] },
+            'kls': { name: '可兰素（车用尿素）', allowed: ['kls'] },
+            'bych': { name: '铂源催化', allowed: ['bych'] }
+        };
+
+        // 获取当前用户允许的事业部列表
+        function getAllowedBUs() {
+            const saved = localStorage.getItem('user_bu_permission');
+            if (saved && BU_PERMISSIONS[saved]) {
+                return BU_PERMISSIONS[saved].allowed;
+            }
+            return BU_PERMISSIONS['all'].allowed; // 默认显示全部
+        }
+
+        // 检查是否有权限
+        function hasPermission(buId) {
+            return getAllowedBUs().includes(buId);
+        }
+
+        // 显示事业部选择弹窗
+        function showBUSelectModal() {
+            const modal = document.getElementById('bu-select-modal');
+            if (modal) modal.style.display = 'flex';
+        }
+
+        // 隐藏选择弹窗并保存选择
+        function saveBUSelection(buKey) {
+            localStorage.setItem('user_bu_permission', buKey);
+            const modal = document.getElementById('bu-select-modal');
+            if (modal) modal.style.display = 'none';
+            // 刷新页面以应用权限
+            location.reload();
+        }
 
       /* ---------- 彻底防止图表旧内容闪屏（bfcache + 渲染残留）----------
        * 问题：浏览器前进后退缓存(bfcache)会保存完整页面状态，
@@ -6361,6 +6406,100 @@ window.__EMBEDDED__ = {
             background: linear-gradient(135deg, var(--text-secondary) 0%, var(--text-main) 100%);
             box-shadow: 0 6px 18px rgba(30, 60, 114, 0.35);
         }
+
+/* ===== 事业部选择弹窗 ===== */
+.bu-select-modal {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    z-index: 100000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.bu-select-overlay {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.5);
+    backdrop-filter: blur(4px);
+}
+.bu-select-dialog {
+    position: relative;
+    background: #fff;
+    border-radius: 16px;
+    padding: 24px;
+    max-width: 400px;
+    width: 90%;
+    max-height: 80vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+}
+.bu-select-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: #1a1a1a;
+    text-align: center;
+    margin-bottom: 8px;
+}
+.bu-select-subtitle {
+    font-size: 14px;
+    color: #666;
+    text-align: center;
+    margin-bottom: 20px;
+}
+.bu-select-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.bu-select-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    background: #f8f9fa;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.bu-select-item:hover {
+    background: #e8f5e9;
+    transform: translateX(4px);
+}
+.bu-select-icon {
+    font-size: 20px;
+}
+.bu-select-name {
+    font-size: 15px;
+    font-weight: 600;
+    color: #1a1a1a;
+}
+.bu-select-tag {
+    font-size: 12px;
+    color: #888;
+    margin-left: auto;
+}
+
+/* 切换事业部按钮 */
+.bu-switch-btn {
+    position: fixed;
+    top: 16px;
+    right: 16px;
+    z-index: 9999;
+    padding: 8px 16px;
+    background: linear-gradient(135deg, #007D4E, #007D4E);
+    color: #fff;
+    border: none;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0,125,78,0.3);
+    transition: all 0.2s;
+}
+.bu-switch-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 16px rgba(0,125,78,0.4);
+}
 
 /* ===== 3D AI 龙蟠悬浮按钮 ===== */
 .ai-float-wrap {
@@ -18509,6 +18648,12 @@ function buildCard(buId) {
 }
 
 async function init() {
+    // 检查权限 - 首次访问时弹出选择框
+    const savedPermission = localStorage.getItem('user_bu_permission');
+    if (!savedPermission) {
+        showBUSelectModal();
+    }
+
     // 加载logo
     try {
         const res = await fetch('bu_logos.json');
@@ -18520,10 +18665,11 @@ async function init() {
         }
     } catch(e) {}
 
-    // 新能源：五边形布局
+    // 新能源：五边形布局（只显示有权限的）
     const pentagon = document.getElementById('pentagon-wrap');
     if (pentagon) {
         LI_BUIS.forEach(buId => {
+            if (!hasPermission(buId)) return; // 权限过滤
             const posClass = PENTAGON_POS[buId] || '';
             const wrap = document.createElement('div');
             wrap.className = posClass;
@@ -18534,23 +18680,37 @@ async function init() {
         console.warn('[init] pentagon-wrap 不存在，跳过新能源五边形布局');
     }
 
-    // 化学品：三卡片
+    // 化学品：三卡片（只显示有权限的）
     const chemContainer = document.getElementById('chemical-cards');
     if (chemContainer) {
-        CHEM_BUIS.forEach(id => { chemContainer.innerHTML += buildCard(id); });
+        CHEM_BUIS.forEach(id => { 
+            if (hasPermission(id)) chemContainer.innerHTML += buildCard(id); 
+        });
     } else {
         console.warn('[init] chemical-cards 不存在，跳过化学品卡片');
     }
 
-    // 氢能：单卡片
+    // 氢能：单卡片（只显示有权限的）
     const hydroContainer = document.getElementById('hydrogen-cards');
     if (hydroContainer) {
-        HYDROGEN_BUIS.forEach(id => { hydroContainer.innerHTML += buildCard(id); });
+        HYDROGEN_BUIS.forEach(id => { 
+            if (hasPermission(id)) hydroContainer.innerHTML += buildCard(id); 
+        });
     } else {
         console.warn('[init] hydrogen-cards 不存在，跳过氢能卡片');
     }
 
     bindEvents();
+
+    // 集团矩阵：根据权限显示/隐藏事业部卡片
+    const allowedBUs = getAllowedBUs();
+    document.querySelectorAll('.matrix-card').forEach(card => {
+        const buId = card.getAttribute('onclick')?.match(/openPanel\('(\w+)'\)/)?.[1];
+        if (buId && !allowedBUs.includes(buId)) {
+            card.style.display = 'none';
+        }
+    });
+
     // startCarousel() 已禁用 - 矩阵网格为静态展示，无需轮播
 }
 
@@ -21221,7 +21381,21 @@ document.addEventListener('DOMContentLoaded', function() {
         };
 
         // 所有可用的数据库看板配置（已根据实际数据文件校准）
-                        var DASHBOARDS = [
+                                var DASHBOARDS = [
+        {
+            id: 'electrolyte_prod',
+            tag: '电解液·行业产量',
+            title: '电解液行业月度产量',
+            link: 'electrolyte_charts.html',
+            dataFile: 'electrolyte_all_data.json',
+            tableName: '电解液-行业整体产量',
+            unit: '吨',
+            valueKey: '产量',
+            timeKey: '月份',
+            isBar: true,
+            scale: 1,
+            insight: '数据不足，无法生成分析。'
+        },
         {
             id: 'carbonate_prod',
             tag: '碳酸锂·行业产量',
@@ -21237,48 +21411,35 @@ document.addEventListener('DOMContentLoaded', function() {
             insight: '最新值10.70万吨，环比上涨3.8%。同比增43.6%，近期走强。。关注：。'
         },
         {
-            id: 'lym_price',
-            tag: '锂云母·价格',
-            title: '锂云母价格走势',
+            id: 'carbonate_price',
+            tag: '碳酸锂·现货价格',
+            title: '碳酸锂现货价格走势',
             link: 'carbonate_charts.html',
             dataFile: 'carbonate_all_data.json',
-            tableName: '锂云母-价格',
+            tableName: '碳酸锂—价格',
             unit: '万元/吨',
             valueKey: '均价（万元/吨）',
             timeKey: '日期',
             isBar: false,
             scale: 1,
-            insight: '最新值0.55万元/吨，环比下跌9.8%。同比减22.5%，近期走强。。关注：。'
-        },
-        {
-            id: 'ternary_prod',
-            tag: '三元正极·行业产量',
-            title: '三元正极材料产量走势',
-            link: 'ternary_charts.html',
-            dataFile: 'ternary_all_data.json',
-            tableName: 'NCM-行业整体产量',
-            unit: '吨',
-            valueKey: '产量（吨）',
-            timeKey: '月份',
-            isBar: true,
-            scale: 1,
             insight: '数据不足，无法生成分析。'
         },
         {
-            id: 'electrolyte_price_lfp',
-            tag: '电解液·LFP动力价格',
-            title: '电解液（LFP动力型）价格走势',
-            link: 'electrolyte_charts.html',
-            dataFile: 'electrolyte_all_data.json',
-            tableName: '电解液价格-磷酸铁锂动力型',
-            unit: '万元/吨',
-            valueKey: '均价',
-            timeKey: '日期',
-            isBar: false,
+            id: 'recycling_blackmass',
+            tag: '回收·黑粉处理量',
+            title: '锂电池黑粉处理量走势',
+            link: 'recycling_charts.html',
+            dataFile: 'recycling_all_data.json',
+            tableName: '黑粉处理量-总计',
+            unit: '吨',
+            valueKey: '总计',
+            timeKey: '当前日期',
+            isBar: true,
             scale: 1,
-            insight: '最新值2.75万元/吨，环比上涨0.0%。同比减3.5%，近期走强。'
+            insight: '最新值2.58万吨，环比下跌0.2%。同比增31.6%，近期承压。。关注：。'
         }
         ];
+        
         
         
 
@@ -22305,6 +22466,67 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 
 
+
+    <!-- 事业部选择弹窗 -->
+    <div id="bu-select-modal" class="bu-select-modal" style="display:none">
+        <div class="bu-select-overlay" onclick="showBUSelectModal()"></div>
+        <div class="bu-select-dialog">
+            <div class="bu-select-title">请选择您所属的事业部</div>
+            <div class="bu-select-subtitle">选择后将只显示该事业部的内容</div>
+            <div class="bu-select-list">
+                <div class="bu-select-item" onclick="saveBUSelection('all')">
+                    <span class="bu-select-icon">🏢</span>
+                    <span class="bu-select-name">全部（集团领导）</span>
+                </div>
+                <div class="bu-select-item" onclick="saveBUSelection('czly')">
+                    <span class="bu-select-icon">⚡</span>
+                    <span class="bu-select-name">常州锂源</span>
+                    <span class="bu-select-tag">磷酸铁锂正极材料</span>
+                </div>
+                <div class="bu-select-item" onclick="saveBUSelection('sdmd')">
+                    <span class="bu-select-icon">⚡</span>
+                    <span class="bu-select-name">山东美多</span>
+                    <span class="bu-select-tag">磷酸铁锂正极材料</span>
+                </div>
+                <div class="bu-select-item" onclick="saveBUSelection('sjld')">
+                    <span class="bu-select-icon">⚡</span>
+                    <span class="bu-select-name">三金锂电</span>
+                    <span class="bu-select-tag">磷酸铁锂正极材料</span>
+                </div>
+                <div class="bu-select-item" onclick="saveBUSelection('lpsd')">
+                    <span class="bu-select-icon">🔋</span>
+                    <span class="bu-select-name">龙蟠时代</span>
+                    <span class="bu-select-tag">锂电池</span>
+                </div>
+                <div class="bu-select-item" onclick="saveBUSelection('fnlt')">
+                    <span class="bu-select-icon">🧪</span>
+                    <span class="bu-select-name">法恩莱特</span>
+                    <span class="bu-select-tag">电解液</span>
+                </div>
+                <div class="bu-select-item" onclick="saveBUSelection('dkhx')">
+                    <span class="bu-select-icon">🧪</span>
+                    <span class="bu-select-name">迪克化学</span>
+                    <span class="bu-select-tag">电解液</span>
+                </div>
+                <div class="bu-select-item" onclick="saveBUSelection('lube')">
+                    <span class="bu-select-icon">🛢️</span>
+                    <span class="bu-select-name">润滑油</span>
+                </div>
+                <div class="bu-select-item" onclick="saveBUSelection('kls')">
+                    <span class="bu-select-icon">🚗</span>
+                    <span class="bu-select-name">可兰素</span>
+                    <span class="bu-select-tag">车用尿素</span>
+                </div>
+                <div class="bu-select-item" onclick="saveBUSelection('bych')">
+                    <span class="bu-select-icon">🔩</span>
+                    <span class="bu-select-name">铂源催化</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 切换事业部按钮 -->
+    <button id="bu-switch-btn" class="bu-switch-btn" onclick="showBUSelectModal()" title="切换事业部">🏢 切换</button>
 
     <script src="assets/ai_fab_inject.js?v=20260619"></script>
 </body>
