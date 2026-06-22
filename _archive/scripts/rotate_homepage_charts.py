@@ -542,41 +542,88 @@ def generate_insight_with_news(chart, metrics, report, division):
     trend3_str = "近期走强" if trend3 == 'up' else "近期承压"
     compare_part = f"{yoy_str}，{trend3_str}。"
 
-    # 3. 行业消息分析（从早报中提取，约30字）
+    # 3. 行业消息分析（从早报中提取，引用新闻佐证数据变化）
     news_part = ""
     if report and division:
         dept = report.get('departments', {}).get(division, {})
         if dept:
-            # 新格式：sections 是列表，每个元素有 dim 字段
             sections = dept.get('sections', [])
-            if isinstance(sections, list):
-                market_section = next((s for s in sections if s.get('dim') == 'market'), None)
-                supply_signals = market_section.get('items', []) if market_section else []
-                risk_section = next((s for s in sections if s.get('dim') == 'policy'), None)
-                risk_signals = risk_section.get('items', []) if risk_section else []
-            else:
-                # 兼容旧格式：sections 是字典
-                market = sections.get('market', {}) if isinstance(sections, dict) else {}
-                supply_signals = market.get('供给信号', [])
-                risk_signals = market.get('争议风险', [])
+            if not isinstance(sections, list):
+                sections = sections.get('sections', []) if isinstance(sections, dict) else []
 
-            # 优先使用供给信号
-            if supply_signals:
-                signal = supply_signals[0]
-                # 同时支持英文键名和中文键名
-                title = signal.get('title') or signal.get('标题') or ''
-                # 清洗标题：去掉末尾的句号（如果有）
-                title = title.rstrip('。')
-                if len(title) > 24:
-                    title = title[:24] + '…'
-                news_part = f"{title}。"
-            elif risk_signals:
-                signal = risk_signals[0]
-                title = signal.get('title') or signal.get('标题') or ''
-                title = title.rstrip('。')
-                if len(title) > 24:
-                    title = title[:24] + '…'
-                news_part = f"{title}。"
+            candidates = []
+
+            # 优先级1：topnews 维度（行业大事，通常解释价格变化原因）
+            topnews_sec = next((s for s in sections if s.get('dim') == 'topnews'), None)
+            if topnews_sec and topnews_sec.get('items'):
+                for item in topnews_sec['items'][:3]:
+                    title = item.get('title') or item.get('标题', '')
+                    content = item.get('content') or item.get('内容', '')
+                    if content and len(content) > len(title) + 5:
+                        summary = content[:60].replace('\n', '，').replace('  ', ' ')
+                        candidates.append(('topnews', summary))
+                        break
+                if not candidates and topnews_sec['items']:
+                    title = topnews_sec['items'][0].get('title') or topnews_sec['items'][0].get('标题', '')
+                    if title:
+                        candidates.append(('topnews', title[:35]))
+
+            # 优先级2：action 维度（分析洞察，解释市场变化）
+            if not candidates:
+                action_sec = next((s for s in sections if s.get('dim') == 'action'), None)
+                if action_sec and action_sec.get('items'):
+                    first_item = action_sec['items'][0]
+                    content = first_item.get('content') or first_item.get('内容', '')
+                    title = first_item.get('title') or first_item.get('标题', '')
+                    if content and len(content) > 20:
+                        summary = content[:60].replace('\n', '，').replace('  ', ' ')
+                        candidates.append(('action', summary))
+                    elif title:
+                        candidates.append(('action', title[:35]))
+
+            # 优先级3：policy 维度（政策影响）
+            if not candidates:
+                policy_sec = next((s for s in sections if s.get('dim') == 'policy'), None)
+                if policy_sec and policy_sec.get('items'):
+                    item = policy_sec['items'][0]
+                    content = item.get('content') or item.get('内容', '')
+                    title = item.get('title') or item.get('标题', '')
+                    if content and len(content) > len(title) + 5:
+                        summary = content[:50].replace('\n', '，')
+                        candidates.append(('policy', summary))
+                    elif title:
+                        candidates.append(('policy', title[:30]))
+
+            # 优先级4：market 维度（仅当前面无内容时使用）
+            if not candidates:
+                market_sec = next((s for s in sections if s.get('dim') == 'market'), None)
+                if market_sec and market_sec.get('items'):
+                    for item in market_sec['items'][:3]:
+                        title = item.get('title') or item.get('标题', '')
+                        content = item.get('content') or item.get('内容', '')
+                        if content and len(content) > len(title) + 5:
+                            summary = content[:60].replace('\n', '，').replace('  ', ' ')
+                            candidates.append(('market', summary))
+                            break
+                    if not candidates and market_sec['items']:
+                        title = market_sec['items'][0].get('title') or market_sec['items'][0].get('标题', '')
+                        if title:
+                            candidates.append(('market', title[:30]))
+
+            # 生成文案
+            if candidates:
+                dim, text = candidates[0]
+                text = text.rstrip('。')
+                if len(text) > 40:
+                    text = text[:40] + '…'
+                if dim == 'topnews':
+                    news_part = f"据早报：{text}。"
+                elif dim == 'action':
+                    news_part = f"分析：{text}。"
+                elif dim == 'policy':
+                    news_part = f"政策面：{text}。"
+                else:
+                    news_part = f"关注：{text}。"
 
     # 组合文案，控制总长度50-80字
     full_text = data_part + compare_part + news_part
