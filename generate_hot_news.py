@@ -374,8 +374,98 @@ def search_news_url(title, max_results=5):
     # 方法2：Bing搜索（备用）
     return search_with_bing(title, max_results)
 
+import re
+
+def extract_date_from_url(url):
+    """
+    从 URL 中提取日期，返回 date 对象或 None。
+    支持格式（按匹配优先级）：
+      - YYYY/MM/DD  或  YYYY/MM/DD/    （斜杠分隔）
+      - YYYY-MM-DD                      （短横杠分隔）
+      - YYYY-MM/DD  或  YYYY/MM-DD    （混合分隔，常见于国内新闻站）
+      - YYYYMMDD（8位连续数字，如东方财富）
+    """
+    if not url:
+        return None
+    import re
+
+    # 辅助：验证并构造 date 对象
+    def try_date(y, mo, d):
+        try:
+            y, mo, d = int(y), int(mo), int(d)
+            if 1 <= mo <= 12 and 1 <= d <= 31:
+                return datetime(y, mo, d).date()
+        except:
+            pass
+        return None
+
+    # 格式1：YYYY/MM/DD 或 YYYY/MM/DD/（纯斜杠）
+    m = re.search(r'/(\d{4})/(\d{1,2})/(\d{1,2})(?:/|$)', url)
+    if m:
+        d = try_date(m.group(1), m.group(2), m.group(3))
+        if d:
+            return d
+
+    # 格式2：YYYY-MM-DD（纯短横杠）
+    m = re.search(r'(\d{4})-(\d{2})-(\d{2})', url)
+    if m:
+        d = try_date(m.group(1), m.group(2), m.group(3))
+        if d:
+            return d
+
+    # 格式3：YYYY-MM/DD 或 YYYY/MM-DD（混合分隔）
+    m = re.search(r'/(\d{4})-(\d{2})/(\d{1,2})(?:/|$)', url)
+    if m:
+        d = try_date(m.group(1), m.group(2), m.group(3))
+        if d:
+            return d
+    m = re.search(r'/(\d{4})/(\d{2})-(\d{1,2})(?:/|$)', url)
+    if m:
+        d = try_date(m.group(1), m.group(2), m.group(3))
+        if d:
+            return d
+
+    # 格式4：YYYYMMDD（8位连续数字，如东方财富 URL）
+    for m4 in re.finditer(r'\d{8}', url):
+        s = m4.group(0)
+        y, mo, d = s[:4], s[4:6], s[6:8]
+        # 粗略过滤：年2000-2030，月1-12，日1-31
+        try:
+            y2, mo2, d2 = int(y), int(mo), int(d)
+            if 2000 <= y2 <= 2030 and 1 <= mo2 <= 12 and 1 <= d2 <= 31:
+                return datetime(y2, mo2, d2).date()
+        except:
+            pass
+
+    return None
+
+
+def is_old_url(url, max_days=7):
+    """
+    判断 URL 是否是旧闻（从 URL 中提取日期，早于当前日期-max_days 则认为是旧闻）。
+    返回 True 表示是旧闻，应该过滤。
+    """
+    if not url:
+        return False
+    url_date = extract_date_from_url(url)
+    if url_date is None:
+        return False  # 无法提取日期，不过滤
+    from datetime import date, timedelta
+    cutoff = date.today() - timedelta(days=max_days)
+    if url_date < cutoff:
+        print(f"    [日期过滤] 旧闻URL（{url_date}）: {url[:60]}...")
+        return True
+    return False
+
+
 def search_with_tavily(title, api_key):
-    """使用Tavily API搜索，同时获取图片URL"""
+    """
+    使用Tavily API搜索新闻URL（只获取URL，不获取图片）
+
+    ⚠️ 重要：Tavily返回的image_url全部是新闻文章的嵌入配图/截图/图表，
+    这类图片质量差且不符合展示要求。因此本函数不再返回任何image_url。
+    图片统一由 Unsplash 高质量图库提供。
+    """
     try:
         import urllib.request
         import json
@@ -383,7 +473,7 @@ def search_with_tavily(title, api_key):
         # Tavily Search API endpoint
         url = "https://api.tavily.com/search"
 
-        # 构建请求数据
+        # 构建请求数据（新增 max_days 参数，只返回近期结果）
         data = {
             "api_key": api_key,
             "query": title,
@@ -391,7 +481,8 @@ def search_with_tavily(title, api_key):
             "search_depth": "basic",
             "include_answer": False,
             "include_raw_content": False,
-            "include_images": True  # 添加此参数以获取图片URL
+            "include_images": False,
+            "max_days": 7  # 🆕 只返回最近7天的结果
         }
 
         req = urllib.request.Request(
@@ -404,38 +495,36 @@ def search_with_tavily(title, api_key):
 
         with urllib.request.urlopen(req, timeout=10) as resp:
             result = json.loads(resp.read().decode('utf-8'))
-        
-        # 提取第一个结果的URL和图片URL
+
+        # 提取结果，过滤付费墙和旧闻URL
         results = result.get('results', [])
-        images = result.get('images', [])  # Tavily返回的图片URL列表
-        
-        if results:
-            first_result = results[0]
-            url = first_result.get('url', '')
-            source = first_result.get('source', first_result.get('title', '未知来源'))
-            
-            # 提取图片URL（优先使用results中的图片，如果没有则使用images列表中的第一张）
-            image_url = first_result.get('image_url', '')
-            if not image_url and images:
-                image_url = images[0] if isinstance(images, list) else ''
-            
-            # 检查是否是付费墙
-            if is_paywall_url(url):
-                print(f"    [Tavily] 跳过付费墙: {url[:60]}...")
-                # 尝试第二个结果
-                if len(results) > 1:
-                    url2 = results[1].get('url', '')
-                    source2 = results[1].get('source', results[1].get('title', '未知来源'))
-                    image_url2 = results[1].get('image_url', '')
-                    if not image_url2 and images:
-                        image_url2 = images[0] if isinstance(images, list) else ''
-                    if not is_paywall_url(url2):
-                        print(f"    [Tavily] 找到链接: {source2} - {url2[:60]}...")
-                        return url2, source2, image_url2
-            else:
-                print(f"    [Tavily] 找到链接: {source} - {url[:60]}... [图片: {image_url[:50] if image_url else '无'}]")
-                return url, source, image_url
-        
+        valid_result = None
+        for res in results:
+            u = res.get('url', '')
+            s = res.get('source', res.get('title', '未知来源'))
+            # 检查付费墙
+            if is_paywall_url(u):
+                print(f"    [Tavily] 跳过付费墙: {u[:60]}...")
+                continue
+            # 🆕 检查是否是旧闻URL
+            if is_old_url(u, max_days=7):
+                continue  # 已打印日志，直接跳过
+            valid_result = (u, s)
+            break
+
+        if valid_result:
+            url, source = valid_result
+            print(f"    [Tavily] 找到链接: {source} - {url[:60]}... (图片由Unsplash提供)")
+            return url, source, ''
+        else:
+            # 所有结果都被过滤，回退：取第一个非付费墙结果（不过日期过滤）
+            for res in results:
+                u = res.get('url', '')
+                s = res.get('source', res.get('title', '未知来源'))
+                if not is_paywall_url(u):
+                    print(f"    [Tavily] ⚠️ 所有结果均为旧闻，回退使用: {s} - {u[:60]}...")
+                    return u, s, ''
+
         print(f"    [Tavily] 未找到有效结果: {title[:30]}...")
         return None, None, None
 
@@ -484,10 +573,13 @@ def search_with_bing(title, max_results=5):
             print(f"    [Bing] 未找到结果，HTML已保存到: {debug_file}")
             return None, None, None
             
-        # 过滤付费墙，取第一个有效链接
+        # 过滤付费墙和旧闻URL，取第一个有效链接
         for i, url in enumerate(all_matches[:max_results]):
             if is_paywall_url(url):
                 print(f"    [Bing] 跳过付费墙: {url[:60]}...")
+                continue
+            # 🆕 检查是否是旧闻URL
+            if is_old_url(url, max_days=30):  # Bing 结果较杂，放宽到30天
                 continue
             # 取来源网站名
             try:
@@ -498,7 +590,7 @@ def search_with_bing(title, max_results=5):
             print(f"    [Bing] 找到链接: {domain} - {url[:60]}...")
             return url, domain, None  # Bing搜索不返回图片URL
         
-        print(f"    [Bing] 所有结果均为付费墙，未找到有效链接: {title[:30]}...")
+        print(f"    [Bing] 所有结果均为付费墙或旧闻，未找到有效链接: {title[:30]}...")
         return None, None, None
 
     except Exception as e:
@@ -731,45 +823,110 @@ def is_low_quality_image(url):
     
     return False
 
+# 已知公司/品牌名列表（用于从标题中精确提取新闻主体）
+KNOWN_COMPANIES = [
+    # 锂电池产业链
+    '宁德时代', '比亚迪', '亿纬锂能', '国轩高科', '中创新航',
+    '欣旺达', '蜂巢能源', '瑞浦兰钧', '远景动力', 'LG新能源',
+    '松下电池', '三星SDI', 'SK on', '特斯拉', '蔚来', '小鹏', '理想',
+    '吉利', '长城汽车', '长安汽车', '广汽埃安', '赛力斯', '零跑',
+    # 上游资源
+    '天齐锂业', '赣锋锂业', '盛新锂能', '雅化集团', '融捷股份',
+    '藏格矿业', '盐湖股份', '西藏矿业', '西藏城投', '中矿资源',
+    '格林美', '华友钴业', '寒锐钴业', '洛阳钼业',
+    # 正极材料
+    '德方纳米', '湖南裕能', '万润新能', '龙蟠科技', '常州锂源', '长远锂科',
+    '容百科技', '当升科技', '杉杉股份', '厦钨新能', '振华新材',
+    # 电解液
+    '天赐材料', '新宙邦', '多氟多', '石大胜华', '法恩莱特',
+    # 隔膜/铜箔
+    '恩捷股份', '星源材质', '诺德股份', '嘉元科技',
+    # 其他化工
+    '蓝黛科技', '阳光氢能', '华电', '国家发改委', '发改委',
+    '工信部', '中煤', '山东黄金', '紫金矿业',
+]
+
+# 产品/场景关键词（用于补充搜索词）
+PRODUCT_KEYWORDS = {
+    '锂电池': ['lithium battery', 'battery factory'],
+    '磷酸铁锂': ['LFP battery', 'lithium iron phosphate'],
+    '碳酸锂': ['lithium carbonate', 'lithium mining'],
+    '电解液': ['electrolyte', 'chemical plant'],
+    '氢能': ['hydrogen energy', 'green hydrogen'],
+    '尿素': ['urea fertilizer', 'agriculture'],
+    '润滑油': ['lubricant oil', 'industrial oil'],
+    '回收': ['battery recycling', 'EV recycling'],
+    '新能源汽车': ['electric vehicle', 'EV car'],
+    '储能': ['energy storage', 'battery storage'],
+    '光伏': ['solar panel', 'solar energy'],
+    '风电': ['wind turbine', 'wind power'],
+}
+
+
 def extract_image_keywords(title, bu_name):
     """
     从新闻标题中提取用于图片搜索的核心关键词
-    
-    策略：
-    1. 去掉修饰词（上涨、下跌、暴跌、涨停等行情词）
-    2. 去掉具体数字、百分比
-    3. 保留公司名、产品名、行业词
-    4. 如果提取失败，回退到BU行业关键词
+
+    策略（2026-06-18 优化）：
+    1. 优先匹配已知公司/品牌名（最精准）
+    2. 提取产品/行业关键词
+    3. 去掉行情修饰词、数字、百分比
+    4. 如果提取到公司名 + 产品，组合为 "公司 产品" 英文搜索词
+    5. 回退到 BU 行业关键词
+
+    返回：Unsplash 可用的英文搜索关键词
     """
+    # 步骤1：检查是否包含已知公司名（最高优先级）
+    found_company = None
+    for company in KNOWN_COMPANIES:
+        if company in title:
+            found_company = company
+            break
+
+    # 步骤2：检查是否包含已知产品/场景关键词
+    found_product = None
+    for product, eng_terms in PRODUCT_KEYWORDS.items():
+        if product in title:
+            found_product = eng_terms[0]  # 取英文术语作为搜索词
+            break
+
+    # 步骤3：如果有公司名，优先用公司名搜索
+    if found_company:
+        # 公司名 + 产品（如果有的话）
+        if found_product:
+            return f"{found_company} {found_product}"
+        # 纯公司名 → 用公司名本身（Unsplash 支持中文搜索）
+        return found_company
+
+    # 步骤4：没有公司名，尝试从标题提取通用关键词
     # 行情修饰词（需要移除）
     market_words = [
         r'\d+[\.\d]*%', r'涨\d+', r'跌\d+', r'重挫\d+', r'暴跌\d+', r'飙升\d+',
         r'上涨\d+', r'下跌\d+', r'涨停', r'跌停', r'首板', r'腰斩',
         r'\d+元/吨', r'\d+美元', r'\d+万元', r'\d+亿吨',
         r'周涨', r'周跌', r'日涨', r'日跌', r'同比', r'环比',
-        r'创.*新高', r'创.*新低', r'突破', r'回落', r'反弹'
+        r'创.*新高', r'创.*新低', r'突破', r'回落', r'反弹',
+        r'第\d+个', r'TOP\d+', r'前\d+', r'\d+强',
+        r'年内', r'季度', r'月份', r'年度',
     ]
-    
-    # 提取关键词（去掉数字、百分比、行情词）
+
     keywords = title
     for pattern in market_words:
         keywords = re.sub(pattern, '', keywords)
-    
+
     # 只保留中英文和空格
     keywords = re.sub(r'[^\u4e00-\u9fa5a-zA-Z\s]', ' ', keywords)
     keywords = re.sub(r'\s+', ' ', keywords).strip()
-    
-    # 如果提取的关键词太短（<3字符），或太复杂（>50字符），回退到BU关键词
+
+    # 如果提取的关键词太短或太长，回退到BU关键词
     if len(keywords) < 3 or len(keywords) > 50:
         return BU_KEYWORDS.get(bu_name, "industry")
-    
-    # 尝试提取前两个有意义的词（通常是公司名+产品）
+
+    # 取前两个有意义的词
     parts = keywords.split()
     if len(parts) >= 2:
-        # 取前两个词
         return ' '.join(parts[:2])
     elif len(parts) == 1:
-        # 只有一个词，拼接BU关键词
         bu_kw = BU_KEYWORDS.get(bu_name, "industry")
         return f"{parts[0]} {bu_kw}"
     else:
@@ -847,40 +1004,37 @@ def fetch_unsplash_image(title, bu_name=""):
 
 def enrich_news_with_images(selected_items):
     """
-    为每条新闻绑定image_url（预绑定图片）
-    如果image_url已由enrich_news_with_urls设置（来自Tavily API或继承），则检查质量
-    如果是低质量截图/图表，尝试从Unsplash API获取替代图片
-    如果仍失败，设置为None（前端会fallback到API）
+    为每条新闻绑定image_url（高质量配图）
+
+    ⚠️ 图片策略（2026-06-18 更新）：
+    - 完全禁用 Tavily 返回的新闻嵌入图片（截图/图表/活动现场照）
+    - 全部使用 Unsplash 高质量图库图片
+    - 关键词从新闻标题中提取核心实体（公司名、产品名、行业场景）
+    - 如果 Unsplash 也失败，设置为 None（前端会 fallback 到默认图）
+
+    🔒 保护逻辑（2026-06-22 修复）：
+    - 如果 item 已有有效 image_url（来自 inheritance_map 或上次运行），
+      直接保留，绝不覆盖为 None
+    - 只有 image_url 为 null/空 的新闻才尝试获取新图片
+    - 获取失败时也保留原 image_url（不强制设为 None）
     """
     enriched = []
     for item in selected_items:
         new_item = dict(item)
-        image_url = new_item.get('image_url', '')
-        
-        if image_url:
-            # 检查图片质量：如果是截图/图表，尝试替换
-            if is_low_quality_image(image_url):
-                print(f"    [图片] 检测到截图/图表，尝试替换: {image_url[:50]}...")
-                unsplash_url = fetch_unsplash_image(new_item['title'], new_item.get('bu', ''))
-                if unsplash_url:
-                    new_item['image_url'] = unsplash_url
-                    print(f"    [图片] 已替换为Unsplash图片: {unsplash_url[:50]}...")
-                else:
-                    # Unsplash也失败了，清空image_url让前端fallback
-                    new_item['image_url'] = None
-                    print(f"    [图片] 未找到替代图片，清空让前端fallback")
-            else:
-                print(f"    [图片] 保留高质量图片: {image_url[:50]}...")
-        else:
-            # 没有图片URL，尝试从Unsplash获取
-            unsplash_url = fetch_unsplash_image(new_item['title'], new_item.get('bu', ''))
-            if unsplash_url:
-                new_item['image_url'] = unsplash_url
-                print(f"    [图片] 从Unsplash获取: {unsplash_url[:50]}...")
-            else:
-                new_item['image_url'] = None
-                print(f"    [图片] 未找到图片URL: {new_item['title'][:30]}...")
-        
+        existing_image = new_item.get('image_url')
+
+        # 🔒 保护：已有有效配图，直接保留
+        if existing_image and str(existing_image).strip():
+            print(f"    [图片] 保留已有配图: [{new_item.get('bu','')}] {new_item['title'][:30]}...")
+            enriched.append(new_item)
+            continue
+
+        # 无配图，尝试获取
+        unsplash_url = fetch_unsplash_image(new_item['title'], new_item.get('bu', ''))
+        if unsplash_url:
+            new_item['image_url'] = unsplash_url
+            print(f"    [图片] Unsplash高质量: {unsplash_url[:60]}...")
+        # 🔒 获取失败时保留原 image_url（已是 None，不用再设）
         enriched.append(new_item)
     return enriched
 
@@ -922,9 +1076,11 @@ def main():
     
     print(f"[信息] 找到 {found_count}/{len(bu_list)} 个事业部文件")
     
-    # 容错逻辑：如果不是所有事业部都更新了，沿用昨天的数据
-    if not all_updated:
-        print(f"[信息] 部分事业部未更新（{updated_count}/{len(bu_list)}），沿用昨天的热点新闻数据")
+    # 容错逻辑：如果更新的事业部少于7个，沿用昨天的数据
+    # 注意：三金锂电、铂源催化可能没有数据，所以阈值是7而不是9
+    MIN_UPDATED_THRESHOLD = 7
+    if updated_count < MIN_UPDATED_THRESHOLD:
+        print(f"[信息] 更新的事业部太少（{updated_count}/{MIN_UPDATED_THRESHOLD}），沿用昨天的热点新闻数据")
         existing_data = load_existing_data()
         if existing_data:
             print(f"[信息] 已加载昨天的数据 (生成时间: {existing_data.get('generated_at', '未知')})")
@@ -1026,11 +1182,38 @@ def main():
         "generated_at": datetime.now().isoformat(),
         "news": enriched_items
     }
-    
+
+    # 🔒 最终合并保护（2026-06-22 新增）
+    # 将现有 JSON 中的 image_url 按标题回填到新数据中，
+    # 防止因随机抽签变化导致已有配图丢失。
+    try:
+        if os.path.exists(OUTPUT_FILE):
+            with open(OUTPUT_FILE, 'r', encoding='utf-8') as f:
+                old_data = json.load(f)
+            old_image_map = {}
+            for old_item in old_data.get('news', []):
+                title = old_item.get('title', '')
+                image_url = old_item.get('image_url')
+                if title and image_url:
+                    old_image_map[title] = image_url
+
+            merged_count = 0
+            for item in output_data['news']:
+                title = item.get('title', '')
+                if not item.get('image_url') and title in old_image_map:
+                    item['image_url'] = old_image_map[title]
+                    merged_count += 1
+                    print(f"    [合并] 保留已有配图: [{item.get('bu','')}] {title[:30]}...")
+
+            if merged_count > 0:
+                print(f"[信息] 最终合并保护：为 {merged_count} 条新闻保留了已有配图")
+    except Exception as e:
+        print(f"[警告] 最终合并保护失败（不影响主流程）: {e}")
+
     # 写入文件
     with open(OUTPUT_FILE, 'w', encoding='utf-8') as f:
         json.dump(output_data, f, ensure_ascii=False, indent=2)
-    
+
     print(f"数据已写入: {OUTPUT_FILE}")
     return True
 
