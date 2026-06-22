@@ -1,1429 +1,277 @@
-<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>三金锂电 - 雷达看板</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: "Microsoft YaHei", "PingFang SC", sans-serif; background: #f0f2f5; min-height: 100vh; }
 
-        .page-header {
-            background: linear-gradient(135deg, #1a4c35 0%, #7986cb 60%, #3d8b5a 100%);
-            color: white;
-            padding: 20px 40px;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            box-shadow: 0 4px 20px rgba(26,76,143,0.35);
-        }
-        .page-header .back-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            color: rgba(255,255,255,0.85);
-            text-decoration: none;
-            font-size: 14px;
-            margin-bottom: 8px;
-            cursor: pointer;
-            transition: color 0.2s;
-        }
-        .page-header .back-btn:hover { color: white; }
-        .header-row {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
-        .bu-logo {
-            width: 48px;
-            height: 48px;
-            border-radius: 50%;
-            object-fit: contain;
-            background: rgba(255,255,255,0.2);
-            border: 2px solid rgba(255,255,255,0.4);
-            flex-shrink: 0;
-        }
-        .bu-name { font-size: 22px; font-weight: bold; }
-        .bu-subtitle { font-size: 13px; opacity: 0.8; }
-
-        .container { max-width: 1100px; margin: 24px auto; padding: 0 20px; }
-
-        /* 综合评分概览 */
-        .score-overview {
-            display: grid;
-            grid-template-columns: 180px 1fr;
-            gap: 16px;
-            margin-bottom: 20px;
-        }
-        .score-main {
-            flex: 0 0 160px;
-            background: white;
-            border-radius: 16px;
-            padding: 28px 20px;
-            text-align: center;
-            box-shadow: 0 2px 12px rgba(0,0,0,0.07);
-            border-left: 8px solid #7986cb;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-        }
-        .big-score {
-            font-size: 36px;
-            font-weight: 900;
-            color: #7986cb;
-            line-height: 1;
-            letter-spacing: -1px;
-        }
-        .big-score .score-unit { font-size: 16px; font-weight: 400; color: #64748B; margin-left: 2px; }
-        .score-label { font-size: 13px; color: #64748B; margin-top: 8px; letter-spacing: 1px; }
-        .score-sub { font-size: 11px; color: #aaa; margin-top: 4px; }
-
-        /* 分隔线 */
-        .score-divider {
-            height: 1px;
-            background: #e8eef4;
-            margin: 12px 0;
-            grid-column: 1 / -1;
-        }
-
-        .score-dims {
-            flex: 1;
-            background: white;
-            border-radius: 16px;
-            padding: 20px 24px;
-            box-shadow: 0 2px 12px rgba(0,0,0,0.07);
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            grid-template-rows: repeat(2, 1fr);
-            gap: 10px;
-        }
-        .dim-item {
-            text-align: center;
-            padding: 10px 8px;
-            border-radius: 8px;
-            background: #f4f7fb;
-            cursor: pointer;
-            transition: all 0.2s;
-            border: 1.5px solid transparent;
-        }
-        .dim-item:hover {
-            background: #eef4fc;
-            border-color: #7986cb;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(58,106,158,0.15);
-        }
-        .dim-item .dim-name { font-size: 11px; color: #64748B; margin-bottom: 6px; font-weight: 400; }
-        .dim-item .dim-score { font-size: 22px; font-weight: 800; color: #7986cb; }
-        .dim-item .dim-max { font-size: 10px; color: #aaa; }
-
-        /* 月份切换 */
-        .month-switcher {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 20px;
-        }
-        .month-btn {
-            padding: 8px 16px;
-            border: 2px solid #ddd;
-            background: white;
-            border-radius: 8px;
-            font-size: 13px;
-            cursor: pointer;
-            color: #888;
-            font-family: inherit;
-            transition: all 0.2s;
-        }
-        .month-btn:hover { border-color: #7986cb; color: #7986cb; }
-        .month-btn.active {
-            border-color: #7986cb;
-            background: #7986cb;
-            color: white;
-            font-weight: bold;
-        }
-
-        /* Tab 导航 */
-        .tab-nav {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 20px;
-            background: white;
-            border-radius: 16px;
-            padding: 6px;
-            box-shadow: 0 2px 12px rgba(0,0,0,0.07);
-        }
-        .tab-btn {
-            flex: 1;
-            padding: 10px 20px;
-            border: none;
-            background: none;
-            font-size: 14px;
-            color: #64748B;
-            cursor: pointer;
-            border-radius: 10px;
-            transition: all 0.2s;
-            font-family: inherit;
-            font-weight: 500;
-        }
-        .tab-btn:hover { color: #7986cb; background: #f4f7fb; }
-        .tab-btn.active { color: white; background: #7986cb; font-weight: bold; }
-
-        .tab-content { display: none; }
-        .tab-content.active { display: block; }
-
-        /* 图表区 */
-        .chart-section {
-            background: white;
-            border-radius: 16px;
-            padding: 24px;
-            box-shadow: 0 2px 12px rgba(0,0,0,0.07);
-            margin-bottom: 20px;
-            border-left: 8px solid #7986cb;
-            transition: box-shadow 0.2s, transform 0.2s;
-        }
-        .chart-section:hover {
-            box-shadow: 0 6px 24px rgba(58,106,158,0.14);
-            transform: translateY(-1px);
-        }
-        .chart-title {
-            font-size: 15px;
-            font-weight: bold;
-            color: #1a2a3a;
-            margin-bottom: 16px;
-            padding-bottom: 12px;
-            border-bottom: 2px solid #f4f7fb;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-        .chart-title::before {
-            content: '';
-            display: inline-block;
-            width: 4px;
-            height: 18px;
-            background: #7986cb;
-            border-radius: 2px;
-            margin-right: 8px;
-        }
-        .chart-wrap { height: 360px; }
-
-        /* ── 增强雷达图 ── */
-        .radar-section { padding: 20px 24px 16px; }
-
-        .radar-controls {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 12px;
-            margin-bottom: 12px;
-        }
-
-        /* 模式切换按钮 */
-        .radar-mode-btns { display: flex; gap: 6px; }
-        .radar-mode-btn {
-            padding: 6px 16px;
-            border: 2px solid #e0e0e0;
-            background: white;
-            border-radius: 20px;
-            font-size: 12px;
-            color: #64748B;
-            cursor: pointer;
-            font-family: inherit;
-            transition: all 0.2s;
-            font-weight: 500;
-        }
-        .radar-mode-btn:hover { border-color: #7986cb; color: #7986cb; background: #f4f7fb; }
-        .radar-mode-btn.active {
-            background: #7986cb;
-            border-color: #7986cb;
-            color: white;
-            font-weight: bold;
-            box-shadow: 0 2px 10px rgba(58,106,158,0.3);
-        }
-
-        /* 时间轴播放 */
-        .timeline-player {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            flex: 1;
-            max-width: 400px;
-        }
-        .play-btn {
-            width: 34px;
-            height: 34px;
-            border-radius: 50%;
-            border: 2px solid #7986cb;
-            background: white;
-            color: #7986cb;
-            font-size: 12px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s;
-            flex-shrink: 0;
-        }
-        .play-btn:hover, .play-btn.playing {
-            background: #7986cb;
-            color: white;
-        }
-        .play-btn.playing { animation: pulse-glow 1.5s ease-in-out infinite; }
-        @keyframes pulse-glow {
-            0%, 100% { box-shadow: 0 0 0 0 rgba(58,106,158,0.3); }
-            50% { box-shadow: 0 0 0 8px rgba(58,106,158,0); }
-        }
-
-        .timeline-track {
-            flex: 1;
-            height: 5px;
-            background: #e8eef4;
-            border-radius: 3px;
-            position: relative;
-            cursor: pointer;
-        }
-        .timeline-progress {
-            position: absolute;
-            left: 0;
-            top: 0;
-            height: 100%;
-            background: linear-gradient(90deg, #1a4c8f, #7986cb, #5a9fd4);
-            border-radius: 3px;
-            transition: width 0.3s ease;
-        }
-        .timeline-dot {
-            position: absolute;
-            top: 50%;
-            transform: translate(-50%, -50%);
-            width: 14px;
-            height: 14px;
-            border-radius: 50%;
-            background: white;
-            border: 2.5px solid #7986cb;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        .timeline-dot:hover, .timeline-dot.active {
-            background: #7986cb;
-            transform: translate(-50%, -50%) scale(1.4);
-        }
-
-        .timeline-label {
-            font-size: 12px;
-            color: #7986cb;
-            font-weight: bold;
-            min-width: 80px;
-            text-align: right;
-        }
-
-        /* 雷达图画布容器 */
-        .radar-chart-container {
-            position: relative;
-            height: 420px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .radar-wrap { height: 420px; width: 100%; position: relative; z-index: 2; }
-
-        /* 背景装饰同心圆 */
-        .radar-deco-hex {
-            position: absolute;
-            border-radius: 50%;
-            pointer-events: none;
-            z-index: 1;
-        }
-        .hex-1 {
-            width: 400px; height: 400px;
-            background: radial-gradient(circle, rgba(58,106,158,0.03) 0%, transparent 70%);
-            border: 1.5px dashed rgba(58,106,158,0.12);
-        }
-        .hex-2 {
-            width: 310px; height: 310px;
-            background: radial-gradient(circle, rgba(58,106,158,0.05) 0%, transparent 70%);
-            border: 1px dashed rgba(58,106,158,0.08);
-        }
-        .hex-3 {
-            width: 220px; height: 220px;
-            background: radial-gradient(circle, rgba(58,106,158,0.07) 0%, transparent 70%);
-            border: 1px dashed rgba(58,106,158,0.06);
-        }
-
-        /* 维度标签行（3列网格 + 交互联动）*/
-        .dim-tags-row {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 8px;
-            margin-top: 14px;
-        }
-        .dim-tag {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-            padding: 8px 12px;
-            border-radius: 8px;
-            background: #f4f7fb;
-            border: 1.5px solid transparent;
-            font-size: 12px;
-            color: #64748B;
-            transition: all 0.25s;
-            cursor: pointer;
-            font-weight: 500;
-        }
-        .dim-tag:hover {
-            border-color: #7986cb;
-            background: #eef4fc;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(58,106,158,0.15);
-        }
-        .dim-tag.active {
-            background: #7986cb;
-            color: white;
-            border-color: #7986cb;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 14px rgba(58,106,158,0.3);
-        }
-        .dim-tag .dim-icon { font-size: 15px; }
-        .dim-tag .dim-label { font-weight: 500; }
-        .dim-tag .dim-val {
-            font-weight: 800;
-            color: #7986cb;
-            font-size: 15px;
-            min-width: 24px;
-            text-align: right;
-        }
-        .dim-tag.active .dim-val { color: white; }
-
-        /* 对比图例 */
-        .compare-legend {
-            display: flex;
-            gap: 16px;
-            justify-content: center;
-            margin-top: 12px;
-            flex-wrap: wrap;
-        }
-        .compare-legend-item {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 13px;
-            color: #555;
-        }
-        .compare-legend-item .legend-line {
-            width: 20px;
-            height: 3px;
-            border-radius: 2px;
-        }
-        .compare-legend-item .legend-dot {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-        }
-
-        /* KPI表格 */
-        .data-table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 13px;
-        }
-        .data-table th {
-            background: #f4f7fb;
-            padding: 10px 14px;
-            text-align: center;
-            font-weight: bold;
-            color: #64748B;
-            border-bottom: 2px solid #d8e4f0;
-            font-size: 12px;
-        }
-        .data-table th:first-child { text-align: left; }
-        .data-table td {
-            padding: 10px 14px;
-            text-align: center;
-            border-bottom: 1px solid #e8eef4;
-            color: #1a2a3a;
-        }
-        .data-table td:first-child { text-align: left; font-weight: 500; }
-        .data-table tr:hover td { background: #f4f7fb; }
-        .data-table tr.highlight td { background: #eef4fc; font-weight: 600; }
-        .val-actual { color: #7986cb; font-weight: 800; }
-        .val-good { color: #27ae60; }
-        .val-bad { color: #e74c3c; }
-        .val-neutral { color: #888; }
-        .rate-badge {
-            display: inline-block;
-            padding: 2px 8px;
-            border-radius: 10px;
-            font-size: 11px;
-            font-weight: bold;
-        }
-        .rate-good { background: #eafaf1; color: #27ae60; }
-        .rate-ok { background: #fef9e7; color: #d4a017; }
-        .rate-bad { background: #fdeaea; color: #e74c3c; }
-
-        /* KPI卡片 */
-        .kpi-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 12px;
-            margin-bottom: 20px;
-        }
-        .kpi-card {
-            background: white;
-            border-radius: 12px;
-            padding: 14px;
-            box-shadow: 0 1px 4px rgba(0,0,0,0.06);
-            border-left: 3px solid #7986cb;
-            text-align: center;
-            transition: all 0.2s;
-            cursor: default;
-        }
-        .kpi-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 6px 20px rgba(58,106,158,0.15);
-        }
-        .kpi-card .kpi-name { font-size: 11px; color: #64748B; margin-bottom: 6px; }
-        .kpi-card .kpi-val { font-size: 20px; font-weight: 800; color: #7986cb; }
-        .kpi-card .kpi-unit { font-size: 11px; color: #aaa; margin-left: 2px; }
-        .kpi-card .kpi-sub { font-size: 11px; color: #aaa; margin-top: 3px; }
-
-        /* 维度说明 */
-        .dim-explain {
-            background: #f4f7fb;
-            border-radius: 8px;
-            padding: 12px 16px;
-            margin-top: 12px;
-            font-size: 12px;
-            color: #64748B;
-            line-height: 1.8;
-        }
-        .dim-explain strong { color: #7986cb; }
-
-        /* KPI达成率条 */
-        .achv-bar-wrap {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .achv-bar-bg {
-            flex: 1;
-            height: 6px;
-            background: #eee;
-            border-radius: 3px;
-            overflow: hidden;
-        }
-        .achv-bar {
-            height: 100%;
-            border-radius: 3px;
-            transition: width 0.5s ease;
-        }
-        .achv-val { font-size: 11px; min-width: 36px; text-align: right; }
-
-        /* 维度子项行 */
-        .dim-items-table { margin-top: 12px; }
-        .dim-items-table .section-subtitle {
-            font-size: 13px;
-            font-weight: bold;
-            color: #7986cb;
-            margin: 16px 0 10px;
-        }
-
-        /* 趋势摘要 */
-        .trend-summary {
-            display: flex;
-            gap: 16px;
-            margin-bottom: 20px;
-        }
-        .trend-card {
-            flex: 1;
-            background: white;
-            border-radius: 12px;
-            padding: 14px 16px;
-            box-shadow: 0 1px 4px rgba(0,0,0,0.06);
-            border-left: 3px solid #7986cb;
-        }
-        .trend-card .trend-label { font-size: 12px; color: #64748B; margin-bottom: 6px; }
-        .trend-card .trend-val { font-size: 22px; font-weight: 800; color: #7986cb; }
-        .trend-card .trend-delta { font-size: 12px; margin-top: 2px; }
-        .trend-card .trend-delta.up { color: #e74c3c; }
-        .trend-card .trend-delta.down { color: #27ae60; }
-
-        .footer-note {
-            text-align: center;
-            color: #9ab0cc;
-            font-size: 12px;
-            padding: 24px;
-            border-top: 1px solid #e8eef4;
-        }
-        .footer-note a { color: #7986cb; text-decoration: none; font-weight: 600; }
-        .footer-note a:hover { text-decoration: underline; }
-
-        @media (max-width: 768px) {
-            .score-overview { flex-direction: column; }
-            .score-dims { flex-wrap: wrap; }
-            .kpi-grid { grid-template-columns: repeat(2, 1fr); }
-            .trend-summary { flex-direction: column; }
-        }
-        /* AI 洞察卡片 */
-        .ai-insights-container {
-            background: white;
-            border-radius: 16px;
-            padding: 20px 24px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 12px rgba(0,0,0,0.07);
-            border-left: 8px solid #7986cb;
-            height: 520px;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
-        .ai-insights-header {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-bottom: 16px;
-            padding-bottom: 12px;
-            border-bottom: 1px solid #e8eef4;
-            flex-shrink: 0;
-        }
-        .ai-insights-icon { font-size: 20px; }
-        .ai-insights-title { font-size: 16px; font-weight: 600; color: #1e293b; flex: 1; }
-        .ai-insights-refresh {
-            padding: 6px 12px;
-            background: #7986cb;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 12px;
-        }
-        .ai-insights-refresh:hover { background: #2d5480; }
-        
-        /* AI洞察 - 左侧导航布局 */
-        .ai-insights-layout {
-            display: flex;
-            gap: 0;
-            flex: 1;
-            overflow: hidden;
-        }
-        .ai-insights-left-nav {
-            width: 160px;
-            background: #f8fafc;
-            border-right: 1px solid #e2e8f0;
-            padding: 12px 0;
-            flex-shrink: 0;
-            overflow-y: auto;
-        }
-        .ai-insights-nav-item {
-            padding: 12px 16px;
-            cursor: pointer;
-            font-size: 14px;
-            color: #475569;
-            border-left: 3px solid transparent;
-            transition: all 0.2s;
-        }
-        .ai-insights-nav-item:hover {
-            background: #e2e8f0;
-            color: #1e293b;
-        }
-        .ai-insights-nav-item.active {
-            background: #dbeafe;
-            color: #7986cb;
-            border-left-color: #7986cb;
-            font-weight: 600;
-        }
-        .ai-insights-right-content {
-            flex: 1;
-            padding: 16px;
-            overflow: hidden;
-            position: relative;
-        }
-        .ai-insights-panel {
-            display: none;
-            height: 100%;
-            overflow-y: auto;
-        }
-        .ai-insights-panel.active {
-            display: block;
-        }
-        
-        /* 维度分析面板 - 标签切换样式 */
-        .dims-tabs-header {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-bottom: 16px;
-            flex-wrap: nowrap;
-            overflow-x: auto;
-            padding-bottom: 4px;
-        }
-        .dims-tabs-title {
-            font-size: 13px;
-            font-weight: 600;
-            color: #1e293b;
-            margin-right: 8px;
-        }
-        .dims-tab-btn {
-            padding: 4px 10px;
-            background: #f1f5f9;
-            border: 1px solid #e2e8f0;
-            border-radius: 16px;
-            cursor: pointer;
-            font-size: 11px;
-            color: #475569;
-            transition: all 0.2s;
-            white-space: nowrap;
-        }
-        .dims-tab-btn:hover {
-            background: #e2e8f0;
-            color: #1e293b;
-        }
-        .dims-tab-btn.active {
-            background: #7986cb;
-            color: white;
-            border-color: #7986cb;
-            font-weight: 600;
-        }
-        .dims-tab-content {
-            display: none;
-        }
-        .dims-tab-content.active {
-            display: block;
-        }
-        
-        .ai-insights-cards {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 12px;
-        }
-        .ai-insight-card {
-            background: #f8fafc;
-            border: 1px solid #e2e8f0;
-            border-radius: 12px;
-            padding: 16px;
-            min-height: 140px;
-            height: auto;
-            transition: all 0.2s;
-        }
-        .ai-insight-card:hover {
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            transform: translateY(-2px);
-        }
-        .ai-insight-card-header {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-bottom: 12px;
-            padding-bottom: 8px;
-            border-bottom: 1px solid #e2e8f0;
-        }
-        .ai-insight-card-icon { font-size: 18px; }
-        .ai-insight-card-title { font-size: 14px; font-weight: 600; color: #1e293b; }
-        .ai-insight-card-body {
-            font-size: 13px;
-            line-height: 1.6;
-            color: #475569;
-        }
-        .ai-insight-card-body ul {
-            margin: 8px 0;
-            padding-left: 20px;
-        }
-        .ai-insight-card-body li {
-            margin-bottom: 4px;
-        }
-        .ai-insights-loading {
-            text-align: center;
-            padding: 40px;
-            color: #64748b;
-            font-size: 14px;
-        }
-
-        /* ========= 新版AI洞察样式 V2 ========= */
-        .insight-trend-analysis { margin-bottom: 16px; }
-        .insight-trend-header { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
-        .insight-trend-icon { font-size: 18px; }
-        .insight-trend-title { font-size: 15px; font-weight: 600; color: #1e293b; }
-        .insight-trend-badge { padding: 2px 8px; border-radius: 10px; font-size: 12px; font-weight: 600; margin-left: auto; }
-        .insight-trend-badge.positive { background: #dcfce7; color: #16a34a; }
-        .insight-trend-badge.negative { background: #fee2e2; color: #dc2626; }
-        .insight-trend-insight { font-size: 13px; color: #475569; line-height: 1.6; margin-bottom: 8px; }
-        
-        .insight-benchmark-analysis { margin-bottom: 16px; }
-        .insight-benchmark-list { list-style: none; padding: 0; margin: 8px 0; }
-        .insight-benchmark-list li { padding: 6px 0; font-size: 13px; color: #475569; }
-        .insight-benchmark-list li strong { margin: 0 4px; }
-        strong.positive { color: #16a34a; }
-        strong.negative { color: #dc2626; }
-        strong.warn { color: #d97706; }
-        
-        .insight-kpi-analysis { margin-bottom: 16px; }
-        .insight-kpi-summary { display: flex; gap: 12px; margin-bottom: 12px; }
-        .insight-kpi-card { flex: 1; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px; text-align: center; }
-        .insight-kpi-card.good { border-color: #bbf7d0; background: #f0fdf4; }
-        .insight-kpi-card.warn { border-color: #fde68a; background: #fefce8; }
-        .insight-kpi-card.bad { border-color: #fecaca; background: #fef2f2; }
-        .insight-kpi-card-value { font-size: 24px; font-weight: 700; color: #1e293b; }
-        .insight-kpi-card-label { font-size: 12px; color: #64748b; margin-top: 4px; }
-        .insight-kpi-detail-group { margin-bottom: 12px; }
-        .insight-kpi-detail-header { font-size: 13px; font-weight: 600; margin-bottom: 6px; }
-        .insight-kpi-detail-group ul { padding-left: 20px; margin: 4px 0; }
-        .insight-kpi-detail-group li { font-size: 12px; color: #475569; margin-bottom: 6px; line-height: 1.5; }
-        .insight-kpi-insight { font-size: 11px; color: #64748b; font-style: italic; }
-        
-        .insight-budget-analysis { margin-bottom: 16px; font-size: 13px; color: #475569; }
-        
-        .insight-dim-trend { margin-bottom: 10px; font-size: 13px; color: #475569; }
-        .insight-dim-trend-icon { margin-right: 4px; }
-        .insight-dim-benchmark { margin-bottom: 10px; font-size: 13px; color: #475569; }
-        .insight-dim-rootcause { margin-bottom: 10px; font-size: 13px; color: #475569; }
-        .insight-dim-rootcause ul { padding-left: 20px; margin: 4px 0; }
-        .insight-dim-rootcause li { margin-bottom: 6px; line-height: 1.5; }
-        .insight-dim-suggestion { margin-top: 12px; padding: 12px; border-radius: 8px; font-size: 13px; line-height: 1.6; }
-        .insight-dim-suggestion.bad { background: #fef2f2; border: 1px solid #fecaca; color: #991b1b; }
-        .insight-dim-suggestion.warn { background: #fefce8; border: 1px solid #fde68a; color: #92400e; }
-        .insight-dim-suggestion.good { background: #f0fdf4; border: 1px solid #bbf7d0; color: #166534; }
-        .insight-dim-suggestion.excellent { background: #eff6ff; border: 1px solid #bfdbfe; color: #1e40af; }
-        
-        .insight-risk-analysis { margin-bottom: 16px; }
-        .insight-risk-matrix { display: flex; gap: 12px; margin: 12px 0; }
-        .insight-risk-level { flex: 1; padding: 8px 12px; border-radius: 8px; font-size: 13px; font-weight: 600; text-align: center; }
-        .insight-risk-level.high { background: #fee2e2; color: #dc2626; border: 1px solid #fecaca; }
-        .insight-risk-level.medium { background: #fefce8; color: #d97706; border: 1px solid #fde68a; }
-        .insight-risk-level.low { background: #f0fdf4; color: #16a34a; border: 1px solid #bbf7d0; }
-        .insight-risk-list { list-style: none; padding: 0; margin: 8px 0; }
-        .insight-risk-item { padding: 10px 12px; margin-bottom: 8px; border-radius: 8px; border-left: 3px solid; }
-        .insight-risk-item.high { background: #fef2f2; border-color: #dc2626; }
-        .insight-risk-item.medium { background: #fefce8; border-color: #d97706; }
-        .insight-risk-item.low { background: #f0fdf4; border-color: #16a34a; }
-        .insight-risk-level-icon { margin-right: 6px; }
-        .insight-risk-name { font-weight: 600; color: #1e293b; margin-right: 8px; }
-        .insight-risk-detail { font-size: 12px; color: #64748b; margin-left: 8px; }
-        .insight-risk-impact { font-size: 11px; color: #9ca3af; margin-top: 4px; display: block; }
-        
-        .insight-highlight-analysis { margin-bottom: 16px; }
-        .insight-highlight-list { list-style: none; padding: 0; margin: 8px 0; }
-        .insight-highlight-item { padding: 10px 12px; margin-bottom: 8px; border-radius: 8px; border-left: 3px solid; }
-        .insight-highlight-item.breakthrough { background: #eff6ff; border-color: #3b82f6; }
-        .insight-highlight-item.momentum { background: #f0fdf4; border-color: #16a34a; }
-        .insight-highlight-item.stable { background: #f8fafc; border-color: #64748b; }
-        .insight-highlight-icon { margin-right: 6px; }
-        .insight-highlight-name { font-weight: 600; color: #1e293b; margin-right: 8px; }
-        .insight-highlight-detail { font-size: 12px; color: #64748b; margin-left: 8px; }
-        .insight-highlight-replicable { font-size: 11px; color: #9ca3af; margin-top: 4px; display: block; }
-        .insight-highlight-summary { font-size: 13px; color: #475569; margin-top: 12px; padding: 8px 12px; background: #f0fdf4; border-radius: 8px; }
-        
-        .insight-action-plan { margin-bottom: 16px; }
-        .insight-action-timeline { display: flex; gap: 12px; margin: 12px 0; }
-        .insight-action-phase { flex: 1; padding: 8px 12px; border-radius: 8px; font-size: 13px; font-weight: 600; text-align: center; }
-        .insight-action-phase.urgent { background: #fee2e2; color: #dc2626; border: 1px solid #fecaca; }
-        .insight-action-phase.important { background: #fefce8; color: #d97706; border: 1px solid #fde68a; }
-        .insight-action-phase.normal { background: #f0fdf4; color: #16a34a; border: 1px solid #bbf7d0; }
-        .insight-action-table { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 12px; }
-        .insight-action-table th { background: #f8fafc; padding: 8px 12px; text-align: left; border-bottom: 2px solid #e2e8f0; color: #475569; font-weight: 600; }
-        .insight-action-table td { padding: 8px 12px; border-bottom: 1px solid #f1f5f9; color: #64748b; vertical-align: top; }
-        .insight-action-table tr.urgent td { background: #fef2f2; }
-        .insight-action-table tr.important td { background: #fefce8; }
-        .insight-action-table tr.normal td { background: #f0fdf4; }
-
-        /* 问题预警模块新样式 V3 */
-        .insight-problems-detail { margin-top: 12px; }
-        .insight-problem-card { margin-bottom: 16px; border-radius: 10px; border: 1px solid; overflow: hidden; }
-        .insight-problem-card.high { background: #fef2f2; border-color: #fecaca; }
-        .insight-problem-card.medium { background: #fefce8; border-color: #fde68a; }
-        .insight-problem-card.low { background: #f0fdf4; border-color: #bbf7d0; }
-        .insight-problem-header { display: flex; align-items: center; gap: 8px; padding: 10px 16px; background: rgba(0,0,0,0.03); border-bottom: 1px solid rgba(0,0,0,0.06); }
-        .insight-problem-level { font-size: 12px; font-weight: 700; padding: 2px 8px; border-radius: 6px; }
-        .insight-problem-card.high .insight-problem-level { background: #fee2e2; color: #dc2626; }
-        .insight-problem-card.medium .insight-problem-level { background: #fefce8; color: #d97706; }
-        .insight-problem-card.low .insight-problem-level { background: #dcfce7; color: #16a34a; }
-        .insight-problem-name { font-size: 14px; font-weight: 600; color: #1e293b; }
-        .insight-problem-body { padding: 12px 16px; font-size: 13px; color: #475569; line-height: 1.6; }
-        .insight-problem-detail { margin-bottom: 6px; }
-        .insight-problem-history { margin-bottom: 6px; color: #64748b; }
-        .insight-problem-impact { margin-bottom: 6px; color: #dc2626; font-weight: 500; }
-        .insight-problem-card.medium .insight-problem-impact { color: #d97706; }
-        .insight-problem-card.low .insight-problem-impact { color: #16a34a; }
-        .insight-problem-rootcause { margin-bottom: 6px; color: #7c3aed; }
-        .insight-problem-action { color: #2563eb; font-weight: 500; }
-        
-        /* 改进建议模块新样式 V3 */
-        .insight-actions-detail { margin-top: 12px; }
-        .insight-action-card { margin-bottom: 16px; border-radius: 10px; border: 1px solid; overflow: hidden; }
-        .insight-action-card.urgent { background: #fef2f2; border-color: #fecaca; }
-        .insight-action-card.important { background: #fefce8; border-color: #fde68a; }
-        .insight-action-card.normal { background: #f0fdf4; border-color: #bbf7d0; }
-        .insight-action-header { display: flex; align-items: center; gap: 8px; padding: 10px 16px; background: rgba(0,0,0,0.03); border-bottom: 1px solid rgba(0,0,0,0.06); }
-        .insight-action-priority { font-size: 12px; font-weight: 700; padding: 2px 8px; border-radius: 6px; }
-        .insight-action-card.urgent .insight-action-priority { background: #fee2e2; color: #dc2626; }
-        .insight-action-card.important .insight-action-priority { background: #fefce8; color: #d97706; }
-        .insight-action-card.normal .insight-action-priority { background: #dcfce7; color: #16a34a; }
-        .insight-action-name { font-size: 14px; font-weight: 600; color: #1e293b; }
-        .insight-action-body { padding: 12px 16px; font-size: 13px; color: #475569; line-height: 1.6; }
-        .insight-action-detail { margin-bottom: 6px; }
-        .insight-action-timeline { margin-bottom: 6px; color: #7c3aed; }
-        .insight-action-owner { margin-bottom: 6px; color: #2563eb; }
-        .insight-action-actions { margin-bottom: 6px; }
-        .insight-action-actions ul { padding-left: 20px; margin: 4px 0; }
-        .insight-action-actions li { margin-bottom: 4px; line-height: 1.5; }
-        .insight-action-effect { color: #16a34a; font-weight: 500; }
-
-        /* TAB3 维度详情 - 左侧导航布局 */
-        .dims-layout {
-            display: flex;
-            gap: 0;
-            min-height: 500px;
-        }
-        .dims-left-nav {
-            width: 200px;
-            background: #f8fafc;
-            border-right: 1px solid #e2e8f0;
-            padding: 16px 0;
-            flex-shrink: 0;
-        }
-        .dims-nav-item {
-            padding: 12px 20px;
-            cursor: pointer;
-            font-size: 14px;
-            color: #475569;
-            border-left: 3px solid transparent;
-            transition: all 0.2s;
-        }
-        .dims-nav-item:hover {
-            background: #e2e8f0;
-            color: #1e293b;
-        }
-        .dims-nav-item.active {
-            background: #dbeafe;
-            color: #7986cb;
-            border-left-color: #7986cb;
-            font-weight: 600;
-        }
-        .dims-right-content {
-            flex: 1;
-            padding: 20px;
-            overflow-x: auto;
-        }
-        .dims-content-panel {
-            display: none;
-        }
-        .dims-content-panel.active {
-            display: block;
-        }
-
-    </style>
-
-<!-- BU 自检: SJLD -->
-<script>
-//<![CDATA[
-document.addEventListener('DOMContentLoaded', function() {
-    var _errors = [];
-    try { eval('BU_WEIGHTS_SJLD'); } catch(e) { _errors.push('BU_WEIGHTS_SJLD 未定义 ← 模板复制不完整'); }
-    try { eval('RADAR_HISTORY_SJLD'); } catch(e) { _errors.push('RADAR_HISTORY_SJLD 未定义'); }
-    try { eval('DIMS_DEF_SJLD'); } catch(e) { _errors.push('DIMS_DEF_SJLD 未定义 ← 模板复制不完整'); }
-    if (_errors.length > 0) {
-        document.open();
-        document.write('<div style="padding:40px;font-family:Microsoft YaHei,sans-serif;background:#fee;border:3px solid #c00;border-radius:8px">'
- + '<h2 style="color:#c00">BU 数据校验失败</h2>'
-            + '<p>文件: <b>' + location.pathname + '</b></p>'
-            + '<p>预期BU: <b>sjld</b></p>'
-            + '<p>发现问题：</p><ul style="color:#c00">'
-            + _errors.map(function(e){ return '<li>' + e + '</li>'; }).join('')
-            + '</ul><p style="color:#888">请从 _archive/ 恢复原始版本</p></div>');
-        document.close();
-        console.error('[BU ASSERTION FAILED]', _errors.join('; '));
-        throw new Error('BU ASSERTION: ' + _errors.join('; '));
-    }
-    console.log('[BU OK] sjld assertion passed, data clean');
-});
-// ]]>
-</script>
-<!-- BU 自检: SJLD 扩展检查 -->
-<script>
-//<![CDATA[
-document.addEventListener('DOMContentLoaded', function() {
-    var _errors = [];
-    try { eval('BU_WEIGHTS_SJLD'); } catch(e) { _errors.push('BU_WEIGHTS_SJLD 未定义 ← 模板复制不完整'); }
-    try { eval('RADAR_HISTORY_SJLD'); } catch(e) { _errors.push('RADAR_HISTORY_SJLD 未定义'); }
-    try { eval('DIMS_DEF_SJLD'); } catch(e) { _errors.push('DIMS_DEF_SJLD 未定义 ← 模板复制不完整'); }
-    try {
-        var _hist = eval('RADAR_HISTORY_SJLD');
-        var _months = Object.keys(_hist);
-        if (_months.length > 0) {
-            var _latest = _hist[_months[_months.length - 1]];
-            if (_latest && _latest.dims &&
-                _latest.dims.d1 === 90 &&
-                _latest.dims.d2 === 90 &&
-                _latest.dims.d3 === 82) {
-                _errors.push('RADAR_HISTORY_SJLD 被SDMD数据污染(d1=90/d2=90/d3=82)，请从 _archive/ 恢复');
-            }
-        }
-    } catch(e) {}
-    if (_errors.length > 0) {
-        document.open();
-        document.write('<div style="padding:40px;font-family:Microsoft YaHei,sans-serif;background:#fee;border:3px solid #c00;border-radius:8px">'
- + '<h2 style="color:#c00">BU 数据校验失败</h2>'
-            + '<p>文件: <b>' + location.pathname + '</b></p>'
-            + '<p>预期BU: <b>dkhx</b></p>'
-            + '<p>发现问题：</p><ul style="color:#c00">'
-            + _errors.map(function(e){ return '<li>' + e + '</li>'; }).join('')
-            + '</ul><p style="color:#888">请从 _archive/ 恢复原始版本</p></div>');
-        document.close();
-        console.error('[BU ASSERTION FAILED]', _errors.join('; '));
-        throw new Error('BU ASSERTION: ' + _errors.join('; '));
-    }
-    console.log('[BU OK] dkhx assertion passed, data clean');
-});
-// ]]>
-</script>
-</head>
-<body>
-<div class="page-header">
-    <a class="back-btn" href="radar_hub.html">← 雷达看板</a>
-    <a class="back-btn" href="index_v3.html" style="margin-left:8px">← 返回首页</a>
-    <div class="header-row">
-        <div style="width:48px;height:48px;border-radius:50%;background:rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;">🏭</div>
-        <div>
-            <div class="bu-name">三金锂电</div>
-            <div class="bu-subtitle">三元前驱体 · 新能源材料 · 基建期</div>
-        </div>
-    </div>
-</div>
-
-<div class="container">
-    <!-- 月份切换 -->
-    <div class="month-switcher" id="monthSwitcher"></div>
-
-    <!-- 综合评分概览 -->
-    <div class="score-overview">
-        <div class="score-main">
-            <div class="big-score" id="bigScore">--</div>
-            <div class="score-label">综合评分</div>
-            <div class="score-sub">加权综合 · 权重因业而异</div>
-        </div>
-        <div class="score-dims" id="scoreDims"></div>
-    </div>
-
-    <!-- AI 洞察 -->
-    <div class="ai-insights-container" id="aiInsightsContainer">
-        <div class="ai-insights-header">
-            <span class="ai-insights-icon">🤖</span>
-            <span class="ai-insights-title">AI 经营洞察</span>
-            <button class="ai-insights-refresh" onclick="refreshInsights()">🔄 重新分析</button>
-        </div>
-        <div class="ai-insights-layout">
-            <div class="ai-insights-left-nav">
-                <div class="ai-insights-nav-item active" data-panel="summary" onclick="switchInsightPanel('summary')">综合表现</div>
-                <div class="ai-insights-nav-item" data-panel="dims" onclick="switchInsightPanel('dims')">维度分析</div>
-                <div class="ai-insights-nav-item" data-panel="issues" onclick="switchInsightPanel('issues')">问题预警</div>
-                <div class="ai-insights-nav-item" data-panel="progress" onclick="switchInsightPanel('progress')">积极进展</div>
-                <div class="ai-insights-nav-item" data-panel="suggestions" onclick="switchInsightPanel('suggestions')">改进建议</div>
-            </div>
-            <div class="ai-insights-right-content">
-                <div class="ai-insights-panel active" id="ai-panel-summary"></div>
-                <div class="ai-insights-panel" id="ai-panel-dims"></div>
-                <div class="ai-insights-panel" id="ai-panel-issues"></div>
-                <div class="ai-insights-panel" id="ai-panel-progress"></div>
-                <div class="ai-insights-panel" id="ai-panel-suggestions"></div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Tab 导航 -->
-    <div class="tab-nav">
-        <button class="tab-btn active" onclick="switchTab(this, 'radar')">六维雷达图</button>
-        <button class="tab-btn" onclick="switchTab(this, 'kpi')">核心KPI</button>
-        <button class="tab-btn" onclick="switchTab(this, 'dims')">维度详情</button>
-    </div>
-
-    <!-- Tab: 雷达图 -->
-    <div id="tab-radar" class="tab-content active">
-        <div class="chart-section radar-section">
-            <!-- 雷达图控制栏 -->
-            <div class="radar-controls">
-                <div class="chart-title" style="margin-bottom:0;border:none;padding-bottom:0;">
-                    六维能力雷达图
-                    <div class="radar-mode-btns">
-                        <button class="radar-mode-btn active" id="mode-single" onclick="setRadarMode('single')">单对象模式</button>
-                        <button class="radar-mode-btn" id="mode-compare" onclick="setRadarMode('compare')">多对象对比</button>
-                    </div>
-                </div>
-                <!-- 时间轴播放控制 -->
-                <div class="timeline-player" id="timelinePlayer">
-                    <button class="play-btn" id="playBtn" onclick="togglePlay()">
-                        <span id="playIcon">▶</span>
-                    </button>
-                    <div class="timeline-track" id="timelineTrack"></div>
-                    <span class="timeline-label" id="timelineLabel">2026年05月</span>
-                </div>
-            </div>
-
-            <!-- 雷达图主区域（带装饰背景） -->
-            <div class="radar-chart-container">
-                <!-- 背景装饰六边形 -->
-                <div class="radar-deco-hex hex-1"></div>
-                <div class="radar-deco-hex hex-2"></div>
-                <div class="radar-deco-hex hex-3"></div>
-                <!-- 主雷达图画布 -->
-                <div class="chart-wrap radar-wrap" id="radarChart"></div>
-            </div>
-
-            <!-- 维度标签说明 -->
-            <div class="dim-tags-row">
-                <div class="dim-tag" data-d="d1"><span class="dim-icon">🎯</span><span class="dim-label">战略执行力</span><span class="dim-val" id="dv-d1">--</span></div>
-                <div class="dim-tag" data-d="d2"><span class="dim-icon">📊</span><span class="dim-label">经营效益</span><span class="dim-val" id="dv-d2">--</span></div>
-                <div class="dim-tag" data-d="d3"><span class="dim-icon">⚙️</span><span class="dim-label">运营效率</span><span class="dim-val" id="dv-d3">--</span></div>
-                <div class="dim-tag" data-d="d4"><span class="dim-icon">🔬</span><span class="dim-label">技术创新</span><span class="dim-val" id="dv-d4">--</span></div>
-                <div class="dim-tag" data-d="d5"><span class="dim-icon">🛡️</span><span class="dim-label">风险合规</span><span class="dim-val" id="dv-d5">--</span></div>
-                <div class="dim-tag" data-d="d6"><span class="dim-icon">🏢</span><span class="dim-label">组织活力</span><span class="dim-val" id="dv-d6">--</span></div>
-            </div>
-
-            <!-- 对比图例（多对象模式时显示） -->
-            <div class="compare-legend" id="compareLegend" style="display:none;"></div>
-        </div>
-    </div>
-
-    <!-- Tab: 核心KPI -->
-    <div id="tab-kpi" class="tab-content">
-        <div class="kpi-grid" id="kpiGrid"></div>
-        <div class="chart-section">
-            <div class="chart-title">5月核心KPI达标率（预算 → 挑战目标 → 实际）</div>
-            <div style="overflow-x:auto;">
-                <table class="data-table" id="kpiTable">
-                    <thead><tr>
-                        <th>指标名称</th><th>预算</th><th>挑战目标</th><th>实际达成</th><th>达成率</th><th>vs预算</th><th>vs目标</th>
-                    </tr></thead>
-                    <tbody></tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-
-    <!-- Tab: 维度详情 -->
-    <div id="tab-dims" class="tab-content">
-        <div class="dims-layout">
-            <div class="dims-left-nav" id="dimsLeftNav">
-                <div class="dims-nav-item active" data-dim="d1" onclick="switchDimPanel('d1')">D1 核心KPI</div>
-                <div class="dims-nav-item" data-dim="d2" onclick="switchDimPanel('d2')">D2 经营效益</div>
-                <div class="dims-nav-item" data-dim="d3" onclick="switchDimPanel('d3')">D3 运营效率</div>
-                <div class="dims-nav-item" data-dim="d4" onclick="switchDimPanel('d4')">D4 技术创新力</div>
-                <div class="dims-nav-item" data-dim="d5" onclick="switchDimPanel('d5')">D5 风险合规</div>
-                <div class="dims-nav-item" data-dim="d6" onclick="switchDimPanel('d6')">D6 组织活力</div>
-            </div>
-            <div class="dims-right-content">
-                <div class="dims-content-panel active" id="dims-panel-d1">
-                    <div class="chart-section">
-                        <div class="chart-title">D1 战略执行力 - 收入+利润+成本</div>
-                        <div style="overflow-x:auto;">
-                            <table class="data-table" id="dim1Table"><thead><tr><th>指标</th><th>预算</th><th>目标</th><th>实际</th><th>达成率</th><th>状态</th></tr></thead><tbody></tbody></table>
-                        </div>
-                    </div>
-                </div>
-                <div class="dims-content-panel" id="dims-panel-d2">
-                    <div class="chart-section">
-                        <div class="chart-title">D2 经营效益 - 电解液+溶剂</div>
-                        <div style="overflow-x:auto;">
-                            <table class="data-table" id="dim2Table"><thead><tr><th>指标</th><th>预算</th><th>目标</th><th>实际</th><th>达成率</th><th>状态</th></tr></thead><tbody></tbody></table>
-                        </div>
-                    </div>
-                </div>
-                <div class="dims-content-panel" id="dims-panel-d3">
-                    <div class="chart-section">
-                        <div class="chart-title">D3 运营效率 - 产能+交付</div>
-                        <div style="overflow-x:auto;">
-                            <table class="data-table" id="dim3Table"><thead><tr><th>指标</th><th>预算</th><th>目标</th><th>实际</th><th>达成率</th><th>状态</th></tr></thead><tbody></tbody></table>
-                        </div>
-                    </div>
-                </div>
-                <div class="dims-content-panel" id="dims-panel-d4">
-                    <div class="chart-section">
-                        <div class="chart-title">D4 技术创新力 - 研发+专利</div>
-                        <div style="overflow-x:auto;">
-                            <table class="data-table" id="dim4Table"><thead><tr><th>指标</th><th>上月</th><th>本月</th><th>环比</th><th>状态</th></tr></thead><tbody></tbody></table>
-                        </div>
-                    </div>
-                </div>
-                <div class="dims-content-panel" id="dims-panel-d5">
-                    <div class="chart-section">
-                        <div class="chart-title">D5 风险合规 - 安环+质量</div>
-                        <div style="overflow-x:auto;">
-                            <table class="data-table" id="dim5Table"><thead><tr><th>指标</th><th>上月</th><th>本月</th><th>环比</th><th>状态</th></tr></thead><tbody></tbody></table>
-                        </div>
-                    </div>
-                </div>
-                <div class="dims-content-panel" id="dims-panel-d6">
-                    <div class="chart-section">
-                        <div class="chart-title">D6 组织活力 - MoM环比</div>
-                        <div style="overflow-x:auto;">
-                            <table class="data-table" id="dim6Table"><thead><tr><th>指标</th><th>上月</th><th>本月</th><th>环比</th><th>状态</th></tr></thead><tbody></tbody></table>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="footer-note">
-    数据来源：法恩莱特2026年5月经营分析报告· <a href="radar_hub.html">返回雷达看板</a>
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
-<script>
 //------------------------------------------------------
-// 三金锂电 (SJLD) 雷达看板数据
+// 常州锂源 (CZLY) 雷达看板数据
 // -----------------------------------------------------------
 
-const BU_META_SJLD = {
-    name: '三金锂电',
-    subtitle: '三元前驱体 · 新能源材料 · 基建期',
-    color: '#34495e',
-    accent: '#34495e',
+const BU_META_CZLY = {
+    name: '常州锂源',
+    subtitle: '磷酸铁锂正极材料 · 新能源材料',
+    color: '#1e3c72',
+    accent: '#1e3c72',
 }
 
-// 三金锂电权重配置（基建期专属）：D1核心KPI15% D2基建进度18% D3运营准备15% D4客户开发17% D5竣工合规25% D6活力10%
-const BU_WEIGHTS_SJLD = [15, 18, 15, 17, 25, 10];
+// 常州锂源权重配置：D1战略20% D2经营20% D3运营18% D4创新17% D5合规13% D6活力12%
+// 磷酸铁锂正极材料业务，6大生产基地
+const BU_WEIGHTS_CZLY = [20, 20, 18, 17, 13, 12];
 
 
-const DIMS_DEF_SJLD = [
-    { id: 'd1', name: '核心KPI',       kpis: ['净利润达成率','管理费用控制率','主材降本达成率','回款率'], color: '#34495e' },
-    { id: 'd2', name: '基建进度',       kpis: ['竣工验收进度','正常化项目','机电板块进度','土建板块进度'], color: '#34495e' },
-    { id: 'd3', name: '运营准备',       kpis: ['元明粉出售','正常化施工','代工客户洽谈','成本测算'], color: '#34495e' },
-    { id: 'd4', name: '客户开发与技术', kpis: ['Ni93样品交付','BTR客户推进','GEM代工洽谈','LGES客户开发'], color: '#34495e' },
-    { id: 'd5', name: '竣工验收与合规', kpis: ['竣工验收达成','专项报告编制','EHS合规整改','三体系审核'], color: '#34495e' },
-    { id: 'd6', name: '组织活力',      kpis: ['人员稳定性','跨组织支援','数字化项目','AI创新项目'], color: '#34495e' },
+const DIMS_DEF_CZLY = [
+    { id: 'd1', name: '战略执行力',   kpis: ['收入达成率','利润达成率','毛利率','费用控制率'], color: '#1e3c72' },
+    { id: 'd2', name: '经营效益',     kpis: ['磷酸铁锂销量','新品销量','库存周转','客户结构'], color: '#1e3c72' },
+    { id: 'd3', name: '运营效率',     kpis: ['产能利用率','一次合格率','加工成本','准时交付率'], color: '#1e3c72' },
+    { id: 'd4', name: '技术创新力',   kpis: ['新品研发','高密度LFP','快充型LFP','工艺改进'], color: '#1e3c72' },
+    { id: 'd5', name: '风险合规',     kpis: ['质量体系','环保安全','一次合格率','客户投诉率'], color: '#1e3c72' },
+    { id: 'd6', name: '组织活力',     kpis: ['AI项目立项','新客户开发','人才引进','数字化项目'], color: '#1e3c72' },
 ];
 
-const RADAR_HISTORY_SJLD = {
-    // 数据来源：三金3月.pdf / 三金4月.pdf / 三金5月.pdf
+const RADAR_HISTORY_CZLY = {
+    // ══════════════════════════════════════════════════════════
+    // 2026年3月数据（来源: 锂源3月.pdf）
+    // 第4页: 关键考核指标达成情况
+    // 第5页: 销售偏差分析（销量9404吨，净利润-2569万）
+    // 第6页: 采购数据（碳酸锂折扣97%，磷酸铁9872元/吨）
+    // 第23页: 数字化项目（SAP切换准备中，印尼MES/WMS上线中）
+    // ══════════════════════════════════════════════════════════
     '2026-03': {
-        // 三金3月.pdf (2026年3月31日)
-        dims: { d1: 85, d2: 1, d3: 15, d4: 56, d5: 1, d6: 32 },
+        dims: { d1: 62, d2: 44, d3: 75, d4: 55, d5: 98, d6: 50 },
         kpis: {
-            d1: [85, 85, 85, 85],
-            d2: [1, 1, 1, 1],
-            d3: [15, 15, 15, 15],
-            d4: [56, 56, 56, 56],
-            d5: [1, 1, 1, 1],
-            d6: [32, 32, 32, 32],
+            d1: [47, 78, 0, 104],
+            d2: [42, 50, 85, 90],
+            d3: [42, 99, 81, 77],
+            d4: [50, 60, 60, 50],
+            d5: [99, 100, 100, 100],
+            d6: [0, 50, 60, 50],
         },
+        _isCurrent: false,
         _kpiComparison: {
             title: '3月核心KPI达成率',
             period: '2026年3月',
             items: [
-                { name: '净利润达成率',     budget: 85, target: 85, actual: 85, unit: '%' },
-                { name: '管理费用控制率',   budget: 85, target: 85, actual: 85, unit: '%' },
-                { name: '主材降本达成率',   budget: 85, target: 85, actual: 85, unit: '%' },
-                { name: '回款率',           budget: 85, target: 85, actual: 85, unit: '%' },
-            ],
-        },
-        _dimComparison_d1: {
-            title: '3月核心KPI',
-            items: [
-                { name: '净利润达成率',     value: '85',  unit: '%' },
-                { name: '管理费用控制率',   value: '85',  unit: '%' },
-                { name: '主材降本达成率',   value: '85',  unit: '%' },
-                { name: '回款率',           value: '85',  unit: '%' },
+                { name: '销量(吨)', budget: 25328, target: 25328, actual: 9404, unit: '吨' },
+                { name: '加工费(元/吨)', budget: 17900, target: 17900, actual: 17626, unit: '元/吨' },
+                { name: '净利润(万元)', budget: 3184, target: 3184, actual: -2569, unit: '万元' },
+                { name: '回款率(%)', budget: 85, target: 85, actual: 71, unit: '%' },
+                { name: '一次合格率(%)', budget: 99.38, target: 99.38, actual: 98.61, unit: '%' },
+                { name: '存货周转天数', budget: 60, target: 60, actual: 77, unit: '天' },
             ],
         },
         _dimComparison_d2: {
-            title: '3月基建进度',
+            title: '3月各基地产量概览',
             items: [
-                { name: '竣工验收进度',     value: '1',   unit: '%' },
-                { name: '正常化项目',       value: '1',   unit: '项' },
-                { name: '机电板块进度',     value: '1',   unit: '%' },
-                { name: '土建板块进度',     value: '1',   unit: '%' },
+                { name: '江苏基地产量(吨)', budget: 0, target: 0, actual: 2077, unit: '吨' },
+                { name: '四川基地产量(吨)', budget: 0, target: 0, actual: 5206, unit: '吨' },
+                { name: '山东基地产量(吨)', budget: 0, target: 0, actual: 1628, unit: '吨' },
+                { name: '湖北基地产量(吨)', budget: 0, target: 0, actual: 1627, unit: '吨' },
+                { name: '印尼基地产量(吨)', budget: 0, target: 0, actual: 962, unit: '吨' },
             ],
         },
         _dimComparison_d3: {
-            title: '3月运营准备',
+            title: '3月运营效率',
+            format: 'mom',
             items: [
-                { name: '元明粉出售',        value: '15',  unit: '万' },
-                { name: '正常化施工',        value: '15',  unit: '%' },
-                { name: '代工客户洽谈',     value: '15',  unit: '家' },
-                { name: '成本测算',          value: '15',  unit: '%' },
+                { name: '整体产能利用率', prev: null, curr: 42, unit: '%' },
+                { name: '一次合格率', prev: null, curr: 98.61, unit: '%' },
+                { name: '产发比', prev: null, curr: 81, unit: '%' },
+                { name: '各基地库存周转（天）', prev: null, curr: 77, unit: '天' },
             ],
         },
         _dimComparison_d4: {
-            title: '3月客户开发与技术',
+            title: '3月技术创新力',
+            format: 'mom',
             items: [
-                { name: 'Ni93样品交付',     value: '56',  unit: '批' },
-                { name: 'BTR客户推进',       value: '56',  unit: '家' },
-                { name: 'GEM代工洽谈',       value: '56',  unit: '家' },
-                { name: 'LGES客户开发',      value: '56',  unit: '家' },
+                { name: '发明专利新增', prev: null, curr: 5, unit: '件' },
+                { name: '实用新型专利', prev: null, curr: 6, unit: '件' },
+                { name: '研发项目立项', prev: null, curr: 2, unit: '项' },
+                { name: '在研项目（项）', prev: null, curr: 6, unit: '项' },
             ],
         },
         _dimComparison_d5: {
-            title: '3月竣工验收与合规',
+            title: '3月风险合规',
+            format: 'mom',
             items: [
-                { name: '竣工验收达成',     value: '1',   unit: '%' },
-                { name: '专项报告编制',     value: '1',   unit: '份' },
-                { name: 'EHS合规整改',      value: '1',   unit: '项' },
-                { name: '三体系审核',       value: '1',   unit: '项' },
+                { name: '质量合格率', prev: null, curr: 98.61, unit: '%' },
+                { name: '安全隐患整改率', prev: null, curr: 100, unit: '%' },
+                { name: '安全事故', prev: null, curr: 0, unit: '起' },
+                { name: '客户质量投诉', prev: null, curr: 0, unit: '次' },
+                { name: '廉洁举报', prev: null, curr: 0, unit: '次' },
             ],
         },
         _dimComparison_d6: {
             title: '3月组织活力',
+            format: 'mom',
             items: [
-                { name: '人员稳定性',        value: '32',  unit: '%' },
-                { name: '跨组织支援',        value: '32',  unit: '人次' },
-                { name: '数字化项目',        value: '32',  unit: '项' },
-                { name: 'AI创新项目',        value: '32',  unit: '项' },
+                { name: 'AI核心应用案例', prev: null, curr: 0, unit: '个' },
+                { name: '运营智能看板', prev: null, curr: 1, unit: '套' },
+                { name: '数字化项目立项', prev: null, curr: 5, unit: '项' },
+                { name: '新客户开发', prev: null, curr: 2, unit: '家' },
             ],
         },
     },
+
+    // ══════════════════════════════════════════════════════════
+    // 2026年4月数据（来源: 锂源4月.pdf）
+    // 第4页: 关键考核指标达成情况
+    // 第5页: 销售偏差分析（销量12206吨，净利润-2673万）
+    // 第6页: 各基地产量（合计12516吨，产能利用率45.8%）
+    // 第25页: 数字化项目（SAP上线/WMS/MES上线）
+    // ══════════════════════════════════════════════════════════
     '2026-04': {
-        // 三金4月.pdf (2026年4月30日)
-        dims: { d1: 80, d2: 14, d3: 48, d4: 56, d5: 40, d6: 55 },
+        dims: { d1: 73, d2: 44, d3: 75, d4: 55, d5: 99, d6: 56 },
         kpis: {
-            d1: [80, 80, 80, 80],
-            d2: [14, 14, 14, 14],
-            d3: [48, 48, 48, 48],
-            d4: [56, 56, 56, 56],
-            d5: [40, 40, 40, 40],
-            d6: [55, 55, 55, 55],
+            d1: [47, 95, 0, 97],
+            d2: [47, 60, 100, 100],
+            d3: [46, 99, 81, 89],
+            d4: [50, 60, 60, 50],
+            d5: [99, 100, 100, 100],
+            d6: [0, 60, 60, 50],
         },
+        _isCurrent: false,
         _kpiComparison: {
             title: '4月核心KPI达成率',
             period: '2026年4月',
             items: [
-                { name: '净利润达成率',     budget: 80, target: 80, actual: 80, unit: '%' },
-                { name: '管理费用控制率',   budget: 80, target: 80, actual: 80, unit: '%' },
-                { name: '主材降本达成率',   budget: 80, target: 80, actual: 80, unit: '%' },
-                { name: '回款率',           budget: 80, target: 80, actual: 80, unit: '%' },
-            ],
-        },
-        _dimComparison_d1: {
-            title: '4月核心KPI',
-            items: [
-                { name: '净利润达成率',     value: '80',  unit: '%' },
-                { name: '管理费用控制率',   value: '80',  unit: '%' },
-                { name: '主材降本达成率',   value: '80',  unit: '%' },
-                { name: '回款率',           value: '80',  unit: '%' },
+                { name: '销量(吨)', budget: 25948, target: 25948, actual: 12206, unit: '吨' },
+                { name: '加工费(元/吨)', budget: 17900, target: 17900, actual: 16989, unit: '元/吨' },
+                { name: '净利润(万元)', budget: 3832, target: 3832, actual: -2673, unit: '万元' },
+                { name: '回款率(%)', budget: 85, target: 85, actual: 78, unit: '%' },
+                { name: '一次合格率(%)', budget: 99.38, target: 99.38, actual: 98.68, unit: '%' },
+                { name: '存货周转天数', budget: 60, target: 60, actual: 72, unit: '天' },
             ],
         },
         _dimComparison_d2: {
-            title: '4月基建进度',
+            title: '4月各基地产量概览',
             items: [
-                { name: '竣工验收进度',     value: '14',  unit: '%' },
-                { name: '正常化项目',       value: '14',  unit: '项' },
-                { name: '机电板块进度',     value: '14',  unit: '%' },
-                { name: '土建板块进度',     value: '14',  unit: '%' },
+                { name: '江苏基地产量(吨)', budget: 0, target: 0, actual: 1435, unit: '吨' },
+                { name: '四川基地产量(吨)', budget: 0, target: 0, actual: 4170, unit: '吨' },
+                { name: '山东基地产量(吨)', budget: 0, target: 0, actual: 3831, unit: '吨' },
+                { name: '湖北基地产量(吨)', budget: 0, target: 0, actual: 701, unit: '吨' },
+                { name: '印尼基地产量(吨)', budget: 0, target: 0, actual: 2379, unit: '吨' },
             ],
         },
         _dimComparison_d3: {
-            title: '4月运营准备',
+            title: '4月运营效率',
+            format: 'mom',
             items: [
-                { name: '元明粉出售',        value: '48',  unit: '万' },
-                { name: '正常化施工',        value: '48',  unit: '%' },
-                { name: '代工客户洽谈',     value: '48',  unit: '家' },
-                { name: '成本测算',          value: '48',  unit: '%' },
+                { name: '整体产能利用率', prev: 42, curr: 45.8, unit: '%' },
+                { name: '一次合格率', prev: 98.61, curr: 98.68, unit: '%' },
+                { name: '产发比', prev: 81, curr: 81, unit: '%' },
+                { name: '各基地库存周转（天）', prev: 77, curr: 72, unit: '天' },
             ],
         },
         _dimComparison_d4: {
-            title: '4月客户开发与技术',
+            title: '4月技术创新力',
+            format: 'mom',
             items: [
-                { name: 'Ni93样品交付',     value: '56',  unit: '批' },
-                { name: 'BTR客户推进',       value: '56',  unit: '家' },
-                { name: 'GEM代工洽谈',       value: '56',  unit: '家' },
-                { name: 'LGES客户开发',      value: '56',  unit: '家' },
+                { name: '发明专利新增', prev: 5, curr: 5, unit: '件' },
+                { name: '实用新型专利', prev: 6, curr: 6, unit: '件' },
+                { name: '研发项目立项', prev: 2, curr: 2, unit: '项' },
+                { name: '在研项目（项）', prev: 6, curr: 6, unit: '项' },
             ],
         },
         _dimComparison_d5: {
-            title: '4月竣工验收与合规',
+            title: '4月风险合规',
+            format: 'mom',
             items: [
-                { name: '竣工验收达成',     value: '40',  unit: '%' },
-                { name: '专项报告编制',     value: '40',  unit: '份' },
-                { name: 'EHS合规整改',      value: '40',  unit: '项' },
-                { name: '三体系审核',       value: '40',  unit: '项' },
+                { name: '质量合格率', prev: 98.61, curr: 98.68, unit: '%' },
+                { name: '安全隐患整改率', prev: 100, curr: 100, unit: '%' },
+                { name: '安全事故', prev: 0, curr: 0, unit: '起' },
+                { name: '客户质量投诉', prev: 0, curr: 0, unit: '次' },
+                { name: '廉洁举报', prev: 0, curr: 0, unit: '次' },
             ],
         },
         _dimComparison_d6: {
             title: '4月组织活力',
+            format: 'mom',
             items: [
-                { name: '人员稳定性',        value: '55',  unit: '%' },
-                { name: '跨组织支援',        value: '55',  unit: '人次' },
-                { name: '数字化项目',        value: '55',  unit: '项' },
-                { name: 'AI创新项目',        value: '55',  unit: '项' },
+                { name: 'AI核心应用案例', prev: 0, curr: 0, unit: '个' },
+                { name: '运营智能看板', prev: 1, curr: 1, unit: '套' },
+                { name: '数字化项目立项', prev: 5, curr: 4, unit: '项' },
+                { name: '新客户开发', prev: 2, curr: 4, unit: '家' },
             ],
         },
     },
+
+    // ══════════════════════════════════════════════════════════
+    // 2026年5月数据（来源: 锂源5月.pdf）
+    // 第4页: 各基地销售收入/达成率
+    // 第5页: 各基地生产数据（产量30937/目标36010=85.9%）
+    // 第9页: 质量红线（合格率99.77%，安全100%，0投诉）
+    // 第13页: 6月交付计划（41600吨）
+    // 第18页: 研发试制项目（MS364/S501/压实密度改进）
+    // 第30页: 客户结构（C客户41%, LG 34%）
+    // 第37页: AI/数字化项目（各基地AI应用案例50+）
+    // ══════════════════════════════════════════════════════════
     '2026-05': {
-        // 三金5月.pdf (2026年5月) ★当前月
-        dims: { d1: 95, d2: 46, d3: 61, d4: 70, d5: 57, d6: 48 },
+        dims: { d1: 86, d2: 95, d3: 88, d4: 47, d5: 95, d6: 45 },
         kpis: {
-            d1: [95, 95, 95, 95],
-            d2: [46, 46, 46, 46],
-            d3: [61, 61, 61, 61],
-            d4: [70, 70, 70, 70],
-            d5: [57, 57, 57, 57],
-            d6: [48, 48, 48, 48],
+            d1: [86, 111, 80, 97],
+            d2: [100, 90, 100, 95],
+            d3: [103, 100, 95, 120],
+            d4: [50, 60, 17, 100],
+            d5: [99, 100, 100, 100],
+            d6: [50, 60, 60, 50],
         },
         _isCurrent: true,
         _kpiComparison: {
             title: '5月核心KPI达成率',
             period: '2026年5月',
             items: [
-                { name: '净利润达成率',     budget: 95, target: 95, actual: 95, unit: '%' },
-                { name: '管理费用控制率',   budget: 95, target: 95, actual: 95, unit: '%' },
-                { name: '主材降本达成率',   budget: 95, target: 95, actual: 95, unit: '%' },
-                { name: '回款率',           budget: 95, target: 95, actual: 95, unit: '%' },
-            ],
-        },
-        _dimComparison_d1: {
-            title: '5月核心KPI',
-            items: [
-                { name: '净利润达成率',     value: '95',  unit: '%' },
-                { name: '管理费用控制率',   value: '95',  unit: '%' },
-                { name: '主材降本达成率',   value: '95',  unit: '%' },
-                { name: '回款率',           value: '95',  unit: '%' },
+                { name: '销量(吨)', budget: 41600, target: 41600, actual: 27000, unit: '吨' },
+                { name: '产量(吨)', budget: 36010, target: 36010, actual: 30937, unit: '吨' },
+                { name: '发货量(吨)', budget: 29339, target: 29339, actual: 29339, unit: '吨' },
+                { name: '一次合格率(%)', budget: 99.38, target: 99.38, actual: 99.77, unit: '%' },
+                { name: '安全事故(起)', budget: 0, target: 0, actual: 0, unit: '起' },
             ],
         },
         _dimComparison_d2: {
-            title: '5月基建进度',
+            title: '5月各基地产量概览',
             items: [
-                { name: '竣工验收进度',     value: '46',  unit: '%' },
-                { name: '正常化项目',       value: '46',  unit: '项' },
-                { name: '机电板块进度',     value: '46',  unit: '%' },
-                { name: '土建板块进度',     value: '46',  unit: '%' },
+                { name: '江苏基地产量(吨)', budget: 2607, target: 2607, actual: 2674, unit: '吨' },
+                { name: '四川基地产量(吨)', budget: 9997, target: 9997, actual: 8995, unit: '吨' },
+                { name: '山东基地产量(吨)', budget: 9265, target: 9265, actual: 7672, unit: '吨' },
+                { name: '湖北基地产量(吨)', budget: 7049, target: 7049, actual: 4993, unit: '吨' },
+                { name: '印尼基地产量(吨)', budget: 7092, target: 7092, actual: 6603, unit: '吨' },
             ],
         },
         _dimComparison_d3: {
-            title: '5月运营准备',
+            title: '5月运营效率',
+            format: 'mom',
             items: [
-                { name: '元明粉出售',        value: '61',  unit: '万' },
-                { name: '正常化施工',        value: '61',  unit: '%' },
-                { name: '代工客户洽谈',     value: '61',  unit: '家' },
-                { name: '成本测算',          value: '61',  unit: '%' },
+                { name: '整体产能利用率', prev: 45.8, curr: 102.9, unit: '%' },
+                { name: '一次合格率', prev: 98.68, curr: 99.77, unit: '%' },
+                { name: '产发比', prev: 81, curr: 95, unit: '%' },
+                { name: '各基地库存周转（天）', prev: 72, curr: 54, unit: '天' },
             ],
         },
         _dimComparison_d4: {
-            title: '5月客户开发与技术',
+            title: '5月技术创新力',
+            format: 'mom',
             items: [
-                { name: 'Ni93样品交付',     value: '70',  unit: '批' },
-                { name: 'BTR客户推进',       value: '70',  unit: '家' },
-                { name: 'GEM代工洽谈',       value: '70',  unit: '家' },
-                { name: 'LGES客户开发',      value: '70',  unit: '家' },
+                { name: '发明专利新增', prev: 5, curr: 5, unit: '件' },
+                { name: '实用新型专利', prev: 6, curr: 6, unit: '件' },
+                { name: '研发项目立项', prev: 2, curr: 2, unit: '项' },
+                { name: '在研项目（项）', prev: 6, curr: 13, unit: '项' },
             ],
         },
         _dimComparison_d5: {
-            title: '5月竣工验收与合规',
+            title: '5月风险合规',
+            format: 'mom',
             items: [
-                { name: '竣工验收达成',     value: '57',  unit: '%' },
-                { name: '专项报告编制',     value: '57',  unit: '份' },
-                { name: 'EHS合规整改',      value: '57',  unit: '项' },
-                { name: '三体系审核',       value: '57',  unit: '项' },
+                { name: '质量合格率', prev: 98.68, curr: 99.77, unit: '%' },
+                { name: '安全隐患整改率', prev: 100, curr: 100, unit: '%' },
+                { name: '安全事故', prev: 0, curr: 0, unit: '起' },
+                { name: '客户质量投诉', prev: 0, curr: 0, unit: '次' },
+                { name: '廉洁举报', prev: 0, curr: 0, unit: '次' },
             ],
         },
         _dimComparison_d6: {
             title: '5月组织活力',
+            format: 'mom',
             items: [
-                { name: '人员稳定性',        value: '48',  unit: '%' },
-                { name: '跨组织支援',        value: '48',  unit: '人次' },
-                { name: '数字化项目',        value: '48',  unit: '项' },
-                { name: 'AI创新项目',        value: '48',  unit: '项' },
+                { name: 'AI核心应用案例', prev: 0, curr: 50, unit: '个' },
+                { name: '运营智能看板', prev: 1, curr: 1, unit: '套' },
+                { name: '数字化项目立项', prev: 5, curr: 2, unit: '项' },
+                { name: '新客户开发', prev: 2, curr: 2, unit: '家' },
             ],
         },
     },
@@ -1431,8 +279,8 @@ const RADAR_HISTORY_SJLD = {
 
 
 
-// 对比表数据已内嵌到 RADAR_HISTORY_SJLD 各月数据中
-const RADAR_HISTORY_SJLD_EXTRA = {};
+// 对比表数据已内嵌到 RADAR_HISTORY_CZLY 各月数据中
+const RADAR_HISTORY_CZLY_EXTRA = {};
 
 // 当前选中月份
 var currentMonth = '2026-05';
@@ -1441,11 +289,11 @@ var currentMonth = '2026-05';
 var MONTHS = ['2026-03', '2026-04', '2026-05'];
 
 function getMonthData(month) {
-    var hist = RADAR_HISTORY_SJLD[month];
+    var hist = RADAR_HISTORY_CZLY[month];
     if (!hist) return null;
     // 补充对比表数据（仅D1/D2有明细数据，D3-D6为定性评估）
-    if (RADAR_HISTORY_SJLD_EXTRA[month]) {
-        hist._dimComparison_d2 = hist._dimComparison_d2 || RADAR_HISTORY_SJLD_EXTRA[month]._dimComparison_d2;
+    if (RADAR_HISTORY_CZLY_EXTRA[month]) {
+        hist._dimComparison_d2 = hist._dimComparison_d2 || RADAR_HISTORY_CZLY_EXTRA[month]._dimComparison_d2;
     }
     // D1核心考核指标使用KPI数据
     if (hist._kpiComparison && !hist._dimComparison_d1) {
@@ -1456,9 +304,16 @@ function getMonthData(month) {
 
 // 工具函数
 function calcAchv(actual, target, isCost) {
+    // 零值/无数据 → 0
     if (!actual || actual <= 0) return 0;
     if (!target || target <= 0) return 0;
-    var rate = isCost ? target / actual : actual / target;
+    // 成本指标：actual 越大越差，超支 → 0%
+    if (isCost) {
+        return actual > target ? 0 : Math.min(120, target / actual * 100);
+    }
+    // 收益指标：actual 越大越好，正常计算
+    return Math.min(120, actual / target * 100);
+}
     return Math.min(120, rate * 100);
 }
 
@@ -1505,8 +360,8 @@ function renderMonthSwitcher() {
     var el = document.getElementById('monthSwitcher');
     el.innerHTML = '';
     MONTHS.forEach(function(m) {
-        var label = m.replace('-', '年') + '月';
-        var isCurrent = RADAR_HISTORY_SJLD[m] && RADAR_HISTORY_SJLD[m]._isCurrent;
+        var label = m === '2026-Q1' ? '2026年Q1' : m.replace('-', '年') + '月';
+        var isCurrent = RADAR_HISTORY_CZLY[m] && RADAR_HISTORY_CZLY[m]._isCurrent;
         if (isCurrent) label += ' ★';
         var btn = document.createElement('button');
         btn.className = 'month-btn' + (m === currentMonth ? ' active' : '');
@@ -1517,6 +372,8 @@ function renderMonthSwitcher() {
             btn.classList.add('active');
             updateTimelineProgress();
             renderAll();
+            // 如果生产基地 Tab 已渲染过，同步更新
+            if (_basesTabRendered) renderBaseTab();
         };
         el.appendChild(btn);
     });
@@ -1528,7 +385,7 @@ function renderScoreOverview() {
     if (!data) return;
     var dims = data.dims;
     var vals = [dims.d1, dims.d2, dims.d3, dims.d4, dims.d5, dims.d6];
-    var wts = BU_WEIGHTS_SJLD;
+    var wts = BU_WEIGHTS_CZLY;
     var score = Math.round(vals.reduce(function(a, b, i) { return a + b * wts[i] / 100; }, 0));
 
     document.getElementById('bigScore').textContent = score;
@@ -1541,7 +398,7 @@ function renderScoreOverview() {
         scoreDimsEl.innerHTML +=
             '<div class="dim-item">' +
             '<div class="dim-name">' + dimNames[i] + '<span style="font-size:10px;color:#94a3b8"> · ' + wts[i] + '%</span></div>' +
-            '<div class="dim-score" style="color:' + DIMS_DEF_SJLD[i].color + '">' + v + '</div>' +
+            '<div class="dim-score" style="color:' + DIMS_DEF_CZLY[i].color + '">' + v + '</div>' +
             '<div class="dim-max">/100</div>' +
             '</div>';
     });
@@ -1569,7 +426,7 @@ function initTimeline() {
 
     months.forEach(function(m, i) {
         var pos = i * pct;
-        var label = m.replace('-', '年') + '月';
+        var label = m === '2026-Q1' ? '2026年Q1' : m.replace('-', '年') + '月';
         var isActive = m === currentMonth;
         track.innerHTML +=
             '<div class="timeline-dot' + (isActive ? ' active' : '') + '" ' +
@@ -1609,8 +466,8 @@ function updateTimelineProgress() {
 
     // 更新 label
     if (label) {
-        var text = months[idx].replace('-', '年') + '月';
-        if (RADAR_HISTORY_SJLD[months[idx]] && RADAR_HISTORY_SJLD[months[idx]]._isCurrent) {
+        var text = months[idx] === '2026-Q1' ? '2026年Q1' : months[idx].replace('-', '年') + '月';
+        if (RADAR_HISTORY_CZLY[months[idx]] && RADAR_HISTORY_CZLY[months[idx]]._isCurrent) {
             text += ' ★';
         }
         label.textContent = text;
@@ -1642,7 +499,7 @@ function togglePlay() {
         isPlaying = true;
         btn.classList.add('playing');
         icon.textContent ='⏸';
-        playHistory = Object.keys(RADAR_HISTORY_SJLD);
+        playHistory = Object.keys(RADAR_HISTORY_CZLY);
         playIndex = playHistory.indexOf(currentMonth);
         if (playIndex < 0) playIndex = 0;
 
@@ -1658,11 +515,11 @@ function togglePlay() {
 function renderCompareLegend() {
     var el = document.getElementById('compareLegend');
     if (!el) return;
-    var allMonths = Object.keys(RADAR_HISTORY_SJLD);
+    var allMonths = Object.keys(RADAR_HISTORY_CZLY);
     var COMP_COLORS = [
-        { main: '#1a4c35', label: '法恩莱特' },
-        { main: '#3d8b5a', label: '法恩莱特' },
-        { main: '#7986cb', label: '法恩莱特' },
+        { main: '#1a4c35', label: '常州锂源' },
+        { main: '#3d8b5a', label: '常州锂源' },
+        { main: '#2e75b6', label: '法恩莱特' },
     ];
     el.innerHTML = '';
     allMonths.forEach(function(m, mi) {
@@ -1714,7 +571,7 @@ function renderRadar() {
 
     // 构建 series
     var seriesData = [];
-    var BRAND = '#7986cb';
+    var BRAND = '#2e75b6';
     var BRAND_DARK = '#1a4c35';
     var BRAND_LIGHT = '#3d8b5a';
 
@@ -1722,7 +579,7 @@ function renderRadar() {
         // 单对象：品牌蓝渐变雷达，2.5px线条 + 径向填充 + 发光数据点
         seriesData.push({
             value: vals,
-            name: '山东美多',
+            name: '常州锂源',
             lineStyle: {
                 color: {
                     type: 'linear',
@@ -1738,7 +595,7 @@ function renderRadar() {
             itemStyle: {
                 color: BRAND,
                 shadowBlur: 16,
-                shadowColor: 'rgba(58,106,158,0.6)',
+                shadowColor: 'rgba(46,117,182,0.6)',
                 borderWidth: 2,
                 borderColor: 'white',  //白色描边
             },
@@ -1747,8 +604,8 @@ function renderRadar() {
                     type: 'radial',
                     x: 0.5, y: 0.5, r: 0.5,
                     colorStops: [
-                        { offset: 0, color: 'rgba(58,106,158,0.30)' },  //中心30%
-                        { offset: 1, color: 'rgba(58,106,158,0.10)' } //边缘10%
+                        { offset: 0, color: 'rgba(46,117,182,0.30)' },  //中心30%
+                        { offset: 1, color: 'rgba(46,117,182,0.10)' } //边缘10%
                     ]
                 }
             },
@@ -1767,20 +624,20 @@ function renderRadar() {
     } else {
         // 多对象对比：3个月数据叠加（品牌蓝系）
         var COMP_COLORS = [
-            { main: '#7986cb', light: 'rgba(156,39,176,0.15)', label: '法恩莱特' },
+            { main: '#2e75b6', light: 'rgba(156,39,176,0.15)', label: '法恩莱特' },
             { main: '#3d8b5a', light: 'rgba(61,139,90,0.15)', label: '法恩莱特' },
             { main: '#66bb6a', light: 'rgba(102,187,106,0.1)', label: '法恩莱特' },
         ];
-        var allMonths = Object.keys(RADAR_HISTORY_SJLD);
+        var allMonths = Object.keys(RADAR_HISTORY_CZLY);
         allMonths.forEach(function(m, mi) {
-            var mData = RADAR_HISTORY_SJLD[m];
+            var mData = RADAR_HISTORY_CZLY[m];
             if (!mData) return;
             var mDims = mData.dims;
             var mVals = ['d1','d2','d3','d4','d5','d6'].map(function(d) { return mDims[d] || 0; });
             var c = COMP_COLORS[mi % COMP_COLORS.length];
             seriesData.push({
                 value: mVals,
-                name: m.replace('-', '年') + '月',
+                name: m === '2026-Q1' ? '2026年Q1' : m.replace('-', '年') + '月',
                 lineStyle: { color: c.main, width: mi === allMonths.length - 1 ? 2.5 : 1.5, type: mi === allMonths.length - 1 ? 'solid' : 'dashed' },
                 itemStyle: { color: c.main, shadowBlur: mi === allMonths.length - 1 ? 12 : 0, shadowColor: c.main + '66', borderWidth: 2, borderColor: 'white' },
                 areaStyle: mi === allMonths.length - 1 ? { color: c.light } : null,
@@ -1865,10 +722,10 @@ function renderRadar() {
                 show: true,
                 areaStyle: {
                     color: [
-                        'rgba(58,106,158,0.02)',
-                        'rgba(58,106,158,0.04)',
-                        'rgba(58,106,158,0.07)',
-                        'rgba(58,106,158,0.10)'
+                        'rgba(46,117,182,0.02)',
+                        'rgba(46,117,182,0.04)',
+                        'rgba(46,117,182,0.07)',
+                        'rgba(46,117,182,0.10)'
                     ]
                 }
             },
@@ -1930,6 +787,7 @@ function renderRadar() {
 // 全局 resize
 window.addEventListener('resize', function() {
     if (radarChart) radarChart.resize();
+    if (baseChartInstance) baseChartInstance.resize();
 });
 
 // 渲染KPI表格
@@ -1937,6 +795,10 @@ function renderKPITable() {
     var data = getMonthData(currentMonth);
     if (!data || !data._kpiComparison) return;
     var tbody = document.querySelector('#kpiTable tbody');
+    // 动态标题：3月→4月→5月
+    var monthLabel = currentMonth === '2026-Q1' ? 'Q1' : currentMonth.replace('2026-', '');
+    var titleEl = document.getElementById('kpiChartTitle');
+    if (titleEl) titleEl.textContent = monthLabel + '核心KPI达标率（预算 → 挑战目标 → 实际）';
     tbody.innerHTML = '';
 
     data._kpiComparison.items.forEach(function(item) {
@@ -2006,18 +868,14 @@ function renderDimTable(dimId, data, tableId) {
                 '<td><span class="rate-badge ' + rateClass(mom) + '">' + status + '</span></td>' +
                 '</tr>';
         } else {
-            // 支持 {name, value, unit} 格式（无 budget/target/actual 时降级处理）
-            var actual   = (item.actual   !== undefined) ? item.actual   : item.value;
-            var target   = (item.target   !== undefined) ? item.target   : item.value;
-            var budget   = (item.budget   !== undefined) ? item.budget   : item.value;
-            var achv     = calcAchv(actual, target, isCost);
-            var achvBudget = calcAchv(actual, budget, isCost);
+            var achv = calcAchv(item.actual, item.target, isCost);
+            var achvBudget = calcAchv(item.actual, item.budget, isCost);
             tbody.innerHTML +=
                 '<tr>' +
                 '<td>' + item.name + '</td>' +
-                '<td>' + fmtNum(budget) + '</td>' +
-                '<td>' + fmtNum(target) + '</td>' +
-                '<td class="val-actual">' + fmtNum(actual) + (item.unit ? ' <span style="color:#aaa;font-size:11px">' + item.unit + '</span>' : '') + '</td>' +
+                '<td>' + fmtNum(item.budget) + '</td>' +
+                '<td>' + fmtNum(item.target) + '</td>' +
+                '<td class="val-actual">' + fmtNum(item.actual) + '</td>' +
                 '<td style="color:' + rateColor(achv) + ';font-weight:bold">' + fmtRate(achv) + '</td>' +
                 '<td><span class="rate-badge ' + rateClass(achv) + '">' + (achv >= 100 ? '达标' : achv >= 85 ? '接近' : '待改进') + '</span></td>' +
                 '</tr>';
@@ -2043,18 +901,23 @@ function renderAll() {
     renderInsights();
 }
 
-// D3-D6 定性评估维度渲染（不展示占位符KPI，显示综合评分与状态说明）
+var _basesTabRendered = false;
 
 function switchTab(btn, tabId) {
     document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
     document.querySelectorAll('.tab-content').forEach(function(t) { t.classList.remove('active'); });
     btn.classList.add('active');
     document.getElementById('tab-' + tabId).classList.add('active');
+    if (tabId === 'bases' && !_basesTabRendered) {
+        _basesTabRendered = true;
+        renderBaseTab();
+    }
     setTimeout(function() {
         document.querySelectorAll('.chart-wrap').forEach(function(c) {
             var chart = echarts.getInstanceByDom(c);
             if (chart) chart.resize();
         });
+        if (baseChartInstance) baseChartInstance.resize();
     }, 50);
 }
 
@@ -2089,11 +952,11 @@ function getPreviousMonth(month) {
 
 function getRadarDataForInsights() {
     var month = currentMonth;
-    var data = RADAR_HISTORY_SJLD[month];
+    var data = RADAR_HISTORY_CZLY[month];
     if (!data) return null;
     
     var prevMonth = getPreviousMonth(month);
-    var prevData = prevMonth ? RADAR_HISTORY_SJLD[prevMonth] : null;
+    var prevData = prevMonth ? RADAR_HISTORY_CZLY[prevMonth] : null;
     
     return {
         current: data,
@@ -2154,7 +1017,7 @@ function generateLocalInsights(data) {
         var dimContributions = [];
         dimKeys.forEach(function(k) {
             var d = current.dims[k] - previous.dims[k];
-            var dimName = DIMS_DEF_SJLD.find(function(def){return def.id===k;}).name;
+            var dimName = DIMS_DEF_CZLY.find(function(def){return def.id===k;}).name;
             dimContributions.push({ name: dimName, diff: d, absDiff: Math.abs(d) });
         });
         dimContributions.sort(function(a, b) { return b.absDiff - a.absDiff; });
@@ -2182,9 +1045,9 @@ function generateLocalInsights(data) {
     var industryAvg = 75; // 假设行业平均75分
     var bestScore = 0;
     try {
-        var allMonths = Object.keys(RADAR_HISTORY_SJLD || {});
+        var allMonths = Object.keys(RADAR_HISTORY_CZLY || {});
         allMonths.forEach(function(m) {
-            var d = RADAR_HISTORY_SJLD[m];
+            var d = RADAR_HISTORY_CZLY[m];
             if (d && d.dims) {
                 var s = 0;
                 dimKeys.forEach(function(k) { s += d.dims[k]; });
@@ -2328,7 +1191,7 @@ function generateLocalInsights(data) {
     
     // === 维度分析：专业深度解读（增加对业务含义的解读）===
     dimKeys.forEach(function(dimKey) {
-        var dimDef = DIMS_DEF_SJLD.find(function(d) { return d.id === dimKey; });
+        var dimDef = DIMS_DEF_CZLY.find(function(d) { return d.id === dimKey; });
         var score = current.dims[dimKey];
         var dimName = dimDef.name;
         
@@ -2364,9 +1227,9 @@ function generateLocalInsights(data) {
         var industryDimAvg = { d1: 80, d2: 70, d3: 75, d4: 70, d5: 80, d6: 75 }; // 假设行业平均
         var dimBest = 0;
         try {
-            var allMonths2 = Object.keys(RADAR_HISTORY_SJLD || {});
+            var allMonths2 = Object.keys(RADAR_HISTORY_CZLY || {});
             allMonths2.forEach(function(m) {
-                var d = RADAR_HISTORY_SJLD[m];
+                var d = RADAR_HISTORY_CZLY[m];
                 if (d && d.dims && d.dims[dimKey]) {
                     if (d.dims[dimKey] > dimBest) dimBest = d.dims[dimKey];
                 }
@@ -2418,7 +1281,7 @@ function generateLocalInsights(data) {
             }
         } else {
             // D3-D6 无KPI明细数据，展示为定性评估
-            rootCauseAnalysis = '<div class="insight-dim-rootcause"><p>📋 <strong>定性评估：</strong>该维度暂无明细KPI数据，分数基于定性综合评估。详细数据待三金锂电提供完整KPI考核表后补充。</p></div>';
+            rootCauseAnalysis = '<div class="insight-dim-rootcause"><p>📋 <strong>定性评估：</strong>该维度暂无明细KPI数据，分数基于定性综合评估。详细数据待迪克化学提供完整KPI考核表后补充。</p></div>';
         }
         
         // 4. 改进建议（具体可执行）
@@ -2506,7 +1369,7 @@ function generateLocalInsights(data) {
     
     // 辅助函数：分析历史趋势
     function analyzeHistoryTrend(key, type) {
-        var history = RADAR_HISTORY_SJLD || {};
+        var history = RADAR_HISTORY_CZLY || {};
         var months = Object.keys(history).sort();
         
         if (months.length < 2) {
@@ -2542,7 +1405,7 @@ function generateLocalInsights(data) {
     // 维度风险
     dimKeys.forEach(function(k) {
         if (current.dims[k] < 60) {
-            var dimName = DIMS_DEF_SJLD.find(function(d){return d.id===k;}).name;
+            var dimName = DIMS_DEF_CZLY.find(function(d){return d.id===k;}).name;
             var rootCause = analyzeDimRootCause(k, current);
             var historyTrend = analyzeHistoryTrend(k, 'dim');
             var businessImpact = '';
@@ -2574,7 +1437,7 @@ function generateLocalInsights(data) {
             });
             riskLevelCounts.high++;
         } else if (current.dims[k] < 75) {
-            var dimName = DIMS_DEF_SJLD.find(function(d){return d.id===k;}).name;
+            var dimName = DIMS_DEF_CZLY.find(function(d){return d.id===k;}).name;
             var rootCause = analyzeDimRootCause(k, current);
             var historyTrend = analyzeHistoryTrend(k, 'dim');
             
@@ -2678,7 +1541,7 @@ function generateLocalInsights(data) {
     if (previous) {
         dimKeys.forEach(function(k) {
             if (current.dims[k] > previous.dims[k]) {
-                var dimName = DIMS_DEF_SJLD.find(function(d){return d.id===k;}).name;
+                var dimName = DIMS_DEF_CZLY.find(function(d){return d.id===k;}).name;
                 var diff = current.dims[k] - previous.dims[k];
                 var type = diff >= 5 ? 'breakthrough' : 'momentum';
                 positives.push({
@@ -2762,7 +1625,7 @@ function generateLocalInsights(data) {
     // 辅助函数：生成维度改进建议
     function generateDimAction(dimKey, current, previous) {
         var score = current.dims[dimKey];
-        var dimName = DIMS_DEF_SJLD.find(function(d){return d.id===dimKey;}).name;
+        var dimName = DIMS_DEF_CZLY.find(function(d){return d.id===dimKey;}).name;
         var priority = score < 60 ? 'urgent' : 'important';
         var timeline = score < 60 ? '本周内启动，30天内见效' : '本月内启动，60天内见效';
         
@@ -3092,13 +1955,221 @@ function refreshInsights() {
     setTimeout(renderInsights, 500);
 }
 
+// 生产基地静态基础信息（产能、主要产品，不随月份变化）
+const BASE_DEFS = [
+    { name: '江苏基地', capacity: 3236, mainProduct: 'S20/T系列' },
+    { name: '天津基地', capacity: 390,  mainProduct: '中试研发线' },
+    { name: '四川基地', capacity: 7920, mainProduct: 'S23/S27' },
+    { name: '山东基地', capacity: 7529, mainProduct: 'S20系列' },
+    { name: '湖北基地', capacity: 4932, mainProduct: 'S006/T系列' },
+    { name: '印尼基地', capacity: 6060, mainProduct: 'S20/S27出口' },
+];
+
+var baseChartInstance = null;
+
+// 从当前月份 _dimComparison_d2 中提取基地动态数据
+function getBaseMonthData() {
+    var data = getMonthData(currentMonth);
+    if (!data || !data._dimComparison_d2 || !data._dimComparison_d2.items) return null;
+    var result = {};
+    data._dimComparison_d2.items.forEach(function(item) {
+        // 从名称中提取基地名，如"江苏基地产量(吨)" → "江苏基地"
+        var match = item.name.match(/^(江苏|天津|四川|山东|湖北|印尼)基地/);
+        if (match) {
+            result[match[1] + '基地'] = {
+                // 5月格式用 target，3月/4月用 budget（两者至少有一个有效值）
+                target: item.target !== undefined ? item.target : (item.budget || 0),
+                actual: item.actual || 0,
+            };
+        }
+    });
+    return result;
+}
+
+// 判断当前月份是否有真实的排产目标数据（5月有，3月/4月无）
+function monthHasTarget() {
+    var md = getBaseMonthData();
+    if (!md) return false;
+    return Object.keys(md).some(function(base) { return md[base].target > 0; });
+}
+
+function renderBaseProductionChart() {
+    var el = document.getElementById('baseProductionChart');
+    if (!el) return;
+    if (baseChartInstance) { baseChartInstance.dispose(); }
+    baseChartInstance = echarts.init(el);
+
+    var hasTarget = monthHasTarget();
+    var monthData = getBaseMonthData();
+    var names = BASE_DEFS.map(function(d) { return d.name; });
+    var targets = BASE_DEFS.map(function(d) {
+        return monthData && monthData[d.name] ? (monthData[d.name].target || 0) : 0;
+    });
+    var actuals = BASE_DEFS.map(function(d) {
+        return monthData && monthData[d.name] ? (monthData[d.name].actual || 0) : 0;
+    });
+
+    var monthLabel = currentMonth.replace('2026-', '');
+    var titleEl = document.getElementById('baseChartTitle');
+
+    var option;
+
+    if (hasTarget) {
+        // 5月：有排产目标 → 双柱对比图
+        if (titleEl) titleEl.textContent = '各基地' + monthLabel + '产量 vs 排产目标（吨）';
+        option = {
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: { type: 'shadow' },
+                formatter: function(params) {
+                    var r = params[0].name + '<br/>';
+                    params.forEach(function(p) {
+                        r += p.marker + ' ' + p.seriesName + ': <b>' + p.value.toLocaleString() + ' 吨</b><br/>';
+                    });
+                    var achv = targets[params[0].dataIndex] > 0 ? (actuals[params[0].dataIndex] / targets[params[0].dataIndex] * 100).toFixed(1) : '--';
+                    r += '达成率: <b>' + achv + '%</b>';
+                    return r;
+                }
+            },
+            legend: { data: ['排产目标', '实际产量'], top: 0, textStyle: { fontSize: 13 } },
+            grid: { left: '3%', right: '10%', bottom: '3%', top: 40, containLabel: true },
+            xAxis: { type: 'value', name: '吨', axisLabel: { formatter: function(v) { return (v / 1000).toFixed(1) + 'k'; } } },
+            yAxis: { type: 'category', data: names, axisLabel: { fontSize: 13, fontWeight: 'bold', color: '#475569' } },
+            series: [
+                {
+                    name: '排产目标', type: 'bar', data: targets,
+                    itemStyle: { color: '#94a3b8', borderRadius: [0, 4, 4, 0] },
+                    barGap: '10%',
+                    label: { show: true, position: 'right', fontSize: 11, color: '#64748b',
+                        formatter: function(p) { return p.value > 0 ? (p.value / 1000).toFixed(1) + 'k' : '-'; } }
+                },
+                {
+                    name: '实际产量', type: 'bar', data: actuals,
+                    itemStyle: { color: function(p) {
+                        var t = targets[p.dataIndex], a = actuals[p.dataIndex];
+                        var achv = t > 0 ? a / t : 0;
+                        return achv >= 1 ? '#16a34a' : achv >= 0.85 ? '#d4a017' : achv > 0 ? '#e74c3c' : '#94a3b8';
+                    }, borderRadius: [0, 4, 4, 0] },
+                    label: { show: true, position: 'right', fontSize: 11, color: '#1e293b', fontWeight: 'bold',
+                        formatter: function(p) { return p.value > 0 ? (p.value / 1000).toFixed(1) + 'k' : '停机'; } }
+                }
+            ]
+        };
+    } else {
+        // 3月/4月：无排产目标 → 单柱实际产量图
+        if (titleEl) titleEl.textContent = '各基地' + monthLabel + '实际产量（吨）';
+        option = {
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: { type: 'shadow' },
+                formatter: function(params) {
+                    var a = params[0].value;
+                    return params[0].name + '<br/>' +
+                           params[0].marker + ' 实际产量: <b>' + a.toLocaleString() + ' 吨</b>';
+                }
+            },
+            legend: { data: ['实际产量'], top: 0, textStyle: { fontSize: 13 } },
+            grid: { left: '3%', right: '10%', bottom: '3%', top: 40, containLabel: true },
+            xAxis: { type: 'value', name: '吨', axisLabel: { formatter: function(v) { return (v / 1000).toFixed(1) + 'k'; } } },
+            yAxis: { type: 'category', data: names, axisLabel: { fontSize: 13, fontWeight: 'bold', color: '#475569' } },
+            series: [
+                {
+                    name: '实际产量', type: 'bar', data: actuals,
+                    itemStyle: {
+                        color: function(p) {
+                            var a = actuals[p.dataIndex];
+                            return a > 0 ? '#1e3c72' : '#f1f5f9';
+                        }, borderRadius: [0, 4, 4, 0]
+                    },
+                    label: { show: true, position: 'right', fontSize: 11, color: '#1e293b', fontWeight: 'bold',
+                        formatter: function(p) { return p.value > 0 ? (p.value / 1000).toFixed(1) + 'k' : '--'; } }
+                }
+            ]
+        };
+    }
+
+    baseChartInstance.setOption(option);
+}
+
+function renderBaseCards() {
+    var grid = document.getElementById('baseCardsGrid');
+    if (!grid) return;
+
+    var hasTarget = monthHasTarget();
+    var monthData = getBaseMonthData();
+    var monthLabel = currentMonth.replace('2026-', '');
+    var sectionEl = document.getElementById('baseSectionTitle');
+    if (sectionEl) sectionEl.textContent = monthLabel + '生产基地概览';
+
+    var targetLabel = hasTarget ? '排产目标' : '实际产量';
+    var achvLabel = hasTarget ? '目标达成率' : '产量';
+
+    var html = '';
+    BASE_DEFS.forEach(function(d) {
+        var md = monthData && monthData[d.name] ? monthData[d.name] : null;
+        var target = md ? (md.target || 0) : 0;
+        var actual = md ? (md.actual || 0) : 0;
+        var achv = hasTarget && target > 0 ? (actual / target * 100) : null;
+        var achvText = achv !== null ? achv.toFixed(1) + '%' : (hasTarget ? '--' : actual > 0 ? actual.toLocaleString() + ' 吨' : '--');
+        var achvClass = achv !== null ? (achv >= 100 ? 'good' : achv >= 85 ? 'ok' : 'bad') : (hasTarget ? 'off' : actual > 0 ? 'good' : 'off');
+        var achvColor = achv !== null ? (achv >= 100 ? '#16a34a' : achv >= 85 ? '#d97706' : '#dc2626') : '#94a3b8';
+
+        html += '<div class="base-card" style="border-left-color:' + achvColor + '">' +
+            '<div class="base-card-name">' + d.name + '</div>' +
+            '<div class="base-card-row"><span class="base-card-label">理论产能</span><span class="base-card-value">' + d.capacity.toLocaleString() + ' 吨</span></div>' +
+            '<div class="base-card-row"><span class="base-card-label">' + targetLabel + '</span><span class="base-card-value">' + (target > 0 ? target.toLocaleString() + ' 吨' : (hasTarget ? '--' : (actual > 0 ? actual.toLocaleString() + ' 吨' : '0'))) + '</span></div>' +
+            '<div class="base-card-row"><span class="base-card-label">' + (hasTarget ? '实际产量' : '') + '</span><span class="base-card-value">' + (hasTarget ? (actual > 0 ? actual.toLocaleString() + ' 吨' : '0') : '') + '</span></div>' +
+            '<div class="base-card-row"><span class="base-card-label">' + achvLabel + '</span><span class="base-card-achv ' + achvClass + '">' + achvText + '</span></div>' +
+            '<div class="base-card-row"><span class="base-card-label">主要产品</span><span class="base-card-value" style="font-size:12px">' + d.mainProduct + '</span></div>' +
+            '</div>';
+    });
+    grid.innerHTML = html;
+}
+
+function renderBaseTab() {
+    renderBaseProductionChart();
+    renderBaseCards();
+}
+
 // 初始化
 (function init() {
     renderMonthSwitcher();
     initTimeline();
     renderAll();
 })();
-</script>
-    <script src="assets/ai_fab_inject.js"></script>
-</body>
-</html>
+
+// BU 数据校验（文件末尾，同步执行，直接访问变量，避免 eval() 跨 script 块问题）
+(function buAssertion() {
+    var _errors = [];
+    if (typeof BU_WEIGHTS_CZLY === 'undefined') _errors.push('BU_WEIGHTS_CZLY 未定义 ← 模板复制不完整');
+    if (typeof RADAR_HISTORY_CZLY === 'undefined') _errors.push('RADAR_HISTORY_CZLY 未定义');
+    if (typeof DIMS_DEF_CZLY === 'undefined') _errors.push('DIMS_DEF_CZLY 未定义 ← 模板复制不完整');
+
+    // SDMD 污染指纹检测（d1=90, d2=90, d3=82）
+    if (typeof RADAR_HISTORY_CZLY !== 'undefined') {
+        var _hist = RADAR_HISTORY_CZLY;
+        var _months = Object.keys(_hist);
+        if (_months.length > 0) {
+            var _latest = _hist[_months[_months.length - 1]];
+            if (_latest && _latest.dims &&
+                _latest.dims.d1 === 90 && _latest.dims.d2 === 90 && _latest.dims.d3 === 82) {
+                _errors.push('RADAR_HISTORY_CZLY 被SDMD数据污染(d1=90/d2=90/d3=82)，请从 _archive/ 恢复');
+            }
+        }
+    }
+
+    if (_errors.length > 0) {
+        document.open();
+        document.write('<div style="padding:40px;font-family:Microsoft YaHei,sans-serif;background:#fee;border:3px solid #c00;border-radius:8px;max-width:600px;margin:40px auto">' +
+            '<h2 style="color:#c00;margin-top:0">BU 数据校验失败</h2>' +
+            '<p>文件: <b>' + location.pathname + '</b></p>' +
+            '<p>预期BU: <b>czly</b></p>' +
+            '<p>发现问题：</p><ul style="color:#c00">' +
+            _errors.map(function(e){ return '<li>' + e + '</li>'; }).join('') +
+            '</ul><p style="color:#888">请从 _archive/ 恢复原始版本</p></div>');
+        document.close();
+        console.error('[BU ASSERTION FAILED]', _errors.join('; '));
+        throw new Error('BU ASSERTION: ' + _errors.join('; '));
+    }
+    console.log('[BU OK] czly assertion passed, data clean');
+})();
