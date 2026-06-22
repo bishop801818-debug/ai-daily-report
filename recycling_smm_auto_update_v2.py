@@ -31,7 +31,6 @@ SMM_TO_KEY = {
     ("三元铝壳", "523"): "三元废料-三元铝壳523型",
     ("废旧磷酸铁锂铝壳电池",): "磷酸铁锂废料-废旧磷酸铁锂铝壳电池",
     ("废旧磷酸铁锂动力正极片",): "正极片-废旧磷酸铁锂动力正极片",
-    ("废旧磷酸铁锂储能正极片",): "正极片-废旧磷酸铁锂储能正极片",
     ("三元铝壳", "5系", "电池包"): "三元电池包-三元铝壳5系电池包",
     ("钴酸锂铝壳",): "钴酸锂电池包-钴酸锂铝壳电池包",
     ("三元软包",): "三元电池包-三元软包电池包",
@@ -58,8 +57,18 @@ def load_existing_data():
     
     json_str = match.group(1)
     
+    # 移除JS注释（// ...）后再解析JSON
+    json_lines = json_str.split('\n')
+    clean_lines = []
+    for line in json_lines:
+        stripped = line.lstrip()
+        if stripped.startswith('//'):
+            continue  # 跳过注释行
+        clean_lines.append(line)
+    json_str_clean = '\n'.join(clean_lines)
+    
     try:
-        data = json.loads(json_str)
+        data = json.loads(json_str_clean)
     except json.JSONDecodeError as e:
         print(f"[加载] JSON解析错误: {e}")
         return {}
@@ -227,8 +236,23 @@ def run_update():
         print("[错误] 加载SMM数据失败")
         return False
     
-    # 4. 匹配并更新
-    existing_data, updated = update_recycling_data(existing_data, smm_data, today)
+    # 4. 确定要更新的目标日期（优先今天，否则用最新可用日期）
+    dates_in_smm = set(d.get("日期", "") for d in smm_data if d.get("日期"))
+    if today in dates_in_smm:
+        target_date = today
+        print(f"[信息] 使用今天数据: {target_date}")
+    else:
+        # 今天数据不可用，使用SMM中最新的日期
+        available_dates = sorted(dates_in_smm, reverse=True)
+        if available_dates:
+            target_date = available_dates[0]
+            print(f"[警告] 今天({today})数据不可用，使用最新可用日期: {target_date}")
+        else:
+            print(f"[错误] SMM数据中没有任何日期")
+            return False
+    
+    # 5. 匹配并更新
+    existing_data, updated = update_recycling_data(existing_data, smm_data, target_date)
     
     if not updated:
         print("[完成] 没有新数据需要更新")
@@ -238,7 +262,7 @@ def run_update():
     for key, item in updated.items():
         print(f"  {key}: {item['今日均价']} 万元/吨")
     
-    # 5. 保存
+    # 6. 保存
     save_recycling_data(existing_data)
     
     print(f"\n[完成] 共更新 {len(updated)} 条数据")

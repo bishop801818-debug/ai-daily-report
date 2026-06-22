@@ -17,9 +17,16 @@ class NoCacheHandler(http.server.SimpleHTTPRequestHandler):
     """所有响应都加 Cache-Control: no-store，防止浏览器缓存"""
 
     def end_headers(self):
+        # 先写 Cache-Control 等通用头
         self.send_header("Cache-Control", "no-store, no-cache, must-revalidate")
         self.send_header("Pragma", "no-cache")
         self.send_header("Expires", "0")
+        # 覆盖 Content-Type：所有文本文件统一加 charset=utf-8
+        # SimpleHTTPRequestHandler 默认发 text/html / text/javascript（无 charset）
+        if self.path.endswith('.js'):
+            self.send_header("Content-Type", "application/javascript; charset=utf-8")
+        elif self.path.endswith('.html') or self.path.endswith('.htm'):
+            self.send_header("Content-Type", "text/html; charset=utf-8")
         super().end_headers()
 
     def log_message(self, format, *args):

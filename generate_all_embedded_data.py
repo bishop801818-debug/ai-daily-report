@@ -298,7 +298,37 @@ def generate_db(db_config):
     js_var = db_config['js_var']
     source_name = db_config['source_name']
     sheet_table_map = db_config['sheet_table_map']
-    
+
+    # ── 0. 保护机制：若当前 JS 已存在且比 Excel 新，先创建 golden backup ──
+    if os.path.exists(output_js):
+        try:
+            with open(output_js, 'r', encoding='utf-8') as f:
+                existing_content = f.read()
+            existing_data = json.loads(re.sub(r'^const\s+\w+\s*=\s*', '',
+                                               existing_content.strip()).rstrip().rstrip(';'))
+            existing_update = existing_data.get('update_time', '')
+            # 读取 Excel 修改时间
+            files = glob.glob(excel_glob)
+            if files:
+                excel_file = max(files, key=os.path.getmtime)
+                excel_mtime = os.path.getmtime(excel_file)
+                import datetime
+                excel_date = datetime.datetime.fromtimestamp(excel_mtime)
+                # 解析 JS update_time
+                if existing_update:
+                    try:
+                        js_date = datetime.datetime.strptime(existing_update, '%Y-%m-%d %H:%M:%S')
+                        # 如果当前 JS 比 Excel 更新（说明数据是手动录入而非从 Excel 生成），创建 golden backup
+                        if js_date > excel_date:
+                            backup_path = output_js + f'.golden_{datetime.datetime.now().strftime("%Y%m%d_%H%M%S")}'
+                            with open(backup_path, 'w', encoding='utf-8') as f:
+                                f.write(existing_content)
+                            print(f'  [PROTECT] 当前 JS 比 Excel 新，已创建备份: {os.path.basename(backup_path)}')
+                    except (ValueError, TypeError):
+                        pass
+        except Exception:
+            pass  # 保护机制失败不影响主流程
+
     # 找到Excel文件
     files = glob.glob(excel_glob)
     if not files:

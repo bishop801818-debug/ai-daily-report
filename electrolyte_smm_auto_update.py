@@ -28,6 +28,7 @@ SMM_CRAWLER = "smm_crawler.py"
 # SMM数据 -> electrolyte_data.js的品种映射
 # key: (SMM品名关键词, SMM规格关键词)
 # value: electrolyte_data.js的key
+# 注意：溶剂的规格字段不包含EC/EMC/DMC，需要从品名字段匹配
 SMM_TO_KEY = {
     ("电解液", "铁锂动力用"): "电解液价格-磷酸铁锂动力型",
     ("电解液", "铁锂储能用"): "电解液价格-磷酸铁锂储能型",
@@ -35,9 +36,9 @@ SMM_TO_KEY = {
     ("双氟磺酰亚胺锂", "LiFSI"): "LiFSI价格-固态",
     ("碳酸亚乙烯酯", "电池级"): "添加剂VC-价格",
     ("氟代碳酸乙烯酯", "电池级"): "添加剂FEC-价格",
-    ("碳酸乙烯酯", "EC"): "溶剂EC-价格",
-    ("碳酸甲乙酯", "EMC"): "溶剂EMC-价格",
-    ("碳酸二甲酯", "DMC"): "溶剂DMC-价格",
+    ("碳酸乙烯酯EC", ""): "溶剂EC-价格",  # 规格字段不包含EC，从品名匹配
+    ("碳酸甲乙酯EMC", ""): "溶剂EMC-价格",  # 规格字段不包含EMC，从品名匹配
+    ("碳酸二甲酯DMC", ""): "溶剂DMC-价格",  # 规格字段不包含DMC，从品名匹配
 }
 
 # 备用映射（当上面匹配失败时）
@@ -111,15 +112,17 @@ def match_smm_to_electrolyte(smm_item):
     name = smm_item.get("品名", "")
     spec = smm_item.get("规格", "")
 
-    # 优先精确匹配
+    # 优先精确匹配（规格为空字符串时跳过规格检查）
     for (smm_name, smm_spec), js_key in SMM_TO_KEY.items():
-        if smm_name in name and smm_spec in spec:
-            return js_key
+        if smm_name in name:
+            if smm_spec == "" or smm_spec in spec:
+                return js_key
 
     # 模糊匹配
     for js_key, (name_kw, spec_kw) in SMM_TO_KEY_FALLBACK.items():
-        if name_kw in name and spec_kw in spec:
-            return js_key
+        if name_kw in name:
+            if spec_kw == "" or spec_kw in spec:
+                return js_key
 
     return None
 
@@ -170,6 +173,13 @@ def update_electrolyte_data(existing_data, smm_data, today):
     updated = {}
     missing = []
 
+    # 找出SMM数据中的最新日期
+    smm_dates = set(d.get("日期", "") for d in smm_data if d.get("日期"))
+    latest_smm_date = max(smm_dates) if smm_dates else today
+
+    # 如果当天无数据，使用最新可用日期
+    target_date = latest_smm_date
+
     for smm_item in smm_data:
         js_key = match_smm_to_electrolyte(smm_item)
         if not js_key:
@@ -180,9 +190,9 @@ def update_electrolyte_data(existing_data, smm_data, today):
         min_price = smm_item.get("最低价", avg_price)
         max_price = smm_item.get("最高价", avg_price)
 
-        # 检查是否需要更新（只更新当天的）
+        # 检查是否需要更新（使用最新可用日期）
         date = smm_item.get("日期", "")
-        if date != today:
+        if date != target_date:
             continue
 
         # 创建新数据记录
@@ -197,9 +207,9 @@ def update_electrolyte_data(existing_data, smm_data, today):
         old_data = existing_data.get(js_key, [])
 
         # 检查是否已存在当天数据
-        has_today = any(d.get("日期") == today for d in old_data)
-        if has_today:
-            print(f"  {js_key}: 已存在{today}数据，跳过")
+        has_date = any(d.get("日期") == date for d in old_data)
+        if has_date:
+            print(f"  {js_key}: 已存在{date}数据，跳过")
             continue
 
         # 添加新数据
