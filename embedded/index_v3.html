@@ -21211,7 +21211,7 @@ document.addEventListener('DOMContentLoaded', function() {
         };
 
         // 所有可用的数据库看板配置（已根据实际数据文件校准）
-                                var DASHBOARDS = [
+                                        var DASHBOARDS = [
         {
             id: 'electrolyte_prod',
             tag: '电解液·行业产量',
@@ -21227,18 +21227,18 @@ document.addEventListener('DOMContentLoaded', function() {
             insight: '数据不足，无法生成分析。'
         },
         {
-            id: 'carbonate_prod',
-            tag: '碳酸锂·行业产量',
-            title: '碳酸锂行业总产量走势',
+            id: 'lym_price',
+            tag: '锂云母·价格',
+            title: '锂云母价格走势',
             link: 'carbonate_charts.html',
             dataFile: 'carbonate_all_data.json',
-            tableName: '碳酸锂-行业总产量',
-            unit: '吨',
-            valueKey: '产量（吨）',
-            timeKey: '月份',
-            isBar: true,
+            tableName: '锂云母-价格',
+            unit: '万元/吨',
+            valueKey: '均价（万元/吨）',
+            timeKey: '日期',
+            isBar: false,
             scale: 1,
-            insight: '最新值10.70万吨，环比上涨3.8%。同比增43.6%，近期走强。。关注：。'
+            insight: '最新值0.55万元/吨，环比下跌9.8%。同比减22.5%，近期走强。。关注：。'
         },
         {
             id: 'carbonate_price',
@@ -21255,20 +21255,21 @@ document.addEventListener('DOMContentLoaded', function() {
             insight: '数据不足，无法生成分析。'
         },
         {
-            id: 'recycling_blackmass',
-            tag: '回收·黑粉处理量',
-            title: '锂电池黑粉处理量走势',
-            link: 'recycling_charts.html',
-            dataFile: 'recycling_all_data.json',
-            tableName: '黑粉处理量-总计',
+            id: 'carbonate_prod',
+            tag: '碳酸锂·行业产量',
+            title: '碳酸锂行业总产量走势',
+            link: 'carbonate_charts.html',
+            dataFile: 'carbonate_all_data.json',
+            tableName: '碳酸锂-行业总产量',
             unit: '吨',
-            valueKey: '总计',
-            timeKey: '当前日期',
+            valueKey: '产量（吨）',
+            timeKey: '月份',
             isBar: true,
             scale: 1,
-            insight: '最新值2.58万吨，环比下跌0.2%。同比增31.6%，近期承压。。关注：。'
+            insight: '最新值10.70万吨，环比上涨3.8%。同比增43.6%，近期走强。。关注：。'
         }
         ];
+        
         
         
         
