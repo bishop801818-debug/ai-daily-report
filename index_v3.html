@@ -21627,7 +21627,32 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // 通用数据洞察生成函数
         function generateInsight(db, data) {
-            if (!data || data.length < 2) return '数据不足，无法生成分析。';
+            if (!data || !data.length) return '数据不足，无法生成分析。';
+            
+            // ===== 饼图专用洞察（分类/份额数据）=====
+            if (db.chartType === 'pie' && data.length > 0) {
+                var sorted = data.slice().sort(function(a, b) { return (b.value || 0) - (a.value || 0); });
+                var total = sorted.reduce(function(s, item) { return s + (item.value || 0); }, 0);
+                var t1 = sorted[0];
+                var p1 = total > 0 ? ((t1.value / total * 100)).toFixed(0) : '?';
+                var fmtVal = function(v) {
+                    return v >= 10000 ? (v / 10000).toFixed(1) + '万' : v.toFixed(1);
+                };
+                var text = 'TOP1「' + t1.name + '」占' + p1 + '%（' + fmtVal(t1.value) + ')';
+                if (sorted.length >= 2 && db.unit) {
+                    var t2 = sorted[1];
+                    var p2 = total > 0 ? ((t2.value / total * 100)).toFixed(0) : '?';
+                    text += db.unit + '，' + t2.name + p2 + '%';
+                }
+                text += '。';
+                // 如果后端已生成洞察，优先使用
+                if (db.insight && db.insight.indexOf('不足') < 0) {
+                    return db.insight;
+                }
+                return text;
+            }
+            
+            if (data.length < 2) return '数据不足，无法生成分析。';
             
             // 1. 计算基础数据
             var latest = data[data.length - 1][1];
