@@ -260,6 +260,58 @@ CHART_CATALOG = [
         "color": "#e74c3c",
         "division": "czly",
     },
+
+    # =========== 饼图候选（分类/份额数据）==========
+    {
+        "id": "ternary_ncm_split",
+        "tag": "三元材料·型号分布",
+        "title": "三元正极材料分型号产量占比",
+        "link": "ternary_charts.html",
+        "dataFile": "ternary_all_data.json",
+        "tableName": "NCM-分型号产量",
+        "chartType": "pie",
+        "pieMode": "row_columns",          # 取最新一行，非日期列作为分类
+        "pieExcludeColumns": ["月份"],      # 额外排除的列
+        "unit": "吨",
+        "scale": 1,
+        "color": "#8e44ad",
+        "division": "czly",
+    },
+    {
+        "id": "recycling_market_share",
+        "tag": "回收·企业份额",
+        "title": "锂电池回收企业市场份额",
+        "link": "recycling_charts.html",
+        "dataFile": "recycling_all_data.json",
+        "tableName": "黑粉整体处理量-分企业",
+        "chartType": "pie",
+        "pieMode": "filtered_rows",         # 按日期过滤，提取name+value
+        "pieDateKey": "时间",
+        "pieNameKey": "企业",
+        "pieValueKey": "当月总计",
+        "pieFilterExpr": "r.get('企业') and r['企业'] != '合计'",  # 排除合计行
+        "unit": "吨",
+        "scale": 1,
+        "color": "#e67e22",
+        "division": "sdmd",
+    },
+    {
+        "id": "automotive_nev_brand_share",
+        "tag": "汽车·NEV品牌份额",
+        "title": "新能源汽车品牌销量份额",
+        "link": "automotive_charts.html",
+        "dataFile": "automotive_all_data.json",
+        "tableName": "新能源汽车销量-乘用车零售分品牌",
+        "chartType": "pie",
+        "pieMode": "filtered_rows",
+        "pieDateKey": "日期",
+        "pieNameKey": "NEV厂商",
+        "pieValueKey": "销量（万辆）",
+        "unit": "万辆",
+        "scale": 1,
+        "color": "#e74c3c",
+        "division": "czly",
+    },
 ]
 
 
@@ -357,6 +409,99 @@ def load_latest_report(base_dir):
     except Exception as e:
         print(f"  [错误] 读取早报文件失败 {latest_file}: {e}")
         return None
+
+
+def generate_pie_insight(chart, data_json, latest_report, division):
+    """生成饼图数据洞察文案（50-80字）"""
+    rows = get_table_rows(data_json, chart['tableName'])
+    if not rows:
+        return '数据不足，无法生成分析。'
+
+    pie_mode = chart.get('pieMode', '')
+
+    # 模式1: row_columns — 取最新行
+    if pie_mode == 'row_columns':
+        last_row = rows[-1]
+        exclude_keys = set(['日期','月份','时间','date','_record_id','父记录','字段'])
+        exclude_keys.update(chart.get('pieExcludeColumns', []))
+        items = []
+        for k, v in last_row.items():
+            if k not in exclude_keys:
+                try:
+                    val = float(str(v).replace(',', ''))
+                    if val > 0:
+                        items.append((k, val))
+                except:
+                    pass
+        items.sort(key=lambda x: x[1], reverse=True)
+
+    # 模式2: filtered_rows
+    elif pie_mode == 'filtered_rows':
+        date_key = chart.get('pieDateKey', '日期')
+        name_key = chart.get('pieNameKey', '')
+        val_key = chart.get('pieValueKey', '')
+        filter_expr = chart.get('pieFilterExpr', '')
+
+        # 找最新日期
+        latest_date = ''
+        for r in rows:
+            rd = str(r.get(date_key, ''))
+            if rd > latest_date:
+                latest_date = rd
+
+        items = []
+        for r in rows:
+            if str(r.get(date_key, '')) != latest_date:
+                continue
+            # 应用过滤
+            if filter_expr and not eval(filter_expr):
+                continue
+            name = str(r.get(name_key, ''))
+            try:
+                val = float(str(r.get(val_key, '0')).replace(',', ''))
+                if name and val > 0:
+                    items.append((name, val))
+            except:
+                pass
+        items.sort(key=lambda x: x[1], reverse=True)
+    else:
+        return '未知饼图模式，无法生成分析。'
+
+    if not items:
+        return '数据不足，无法生成分析。'
+
+    total = sum(v for _, v in items)
+    top_name, top_val = items[0]
+    top_pct = (top_val / total * 100) if total > 0 else 0
+    top_str = f"{top_val:.1f}" if top_val < 10000 else f"{top_val/10000:.1f}万"
+
+    # 取前2名
+    part1 = f"TOP1「{top_name}」占{top_pct:.0f}%（{top_str}"
+    unit = chart.get('unit', '')
+    if unit:
+        part1 += f"{unit})"
+    else:
+        part1 += "）"
+
+    if len(items) >= 2:
+        sec_name, sec_val = items[1]
+        sec_pct = (sec_val / total * 100) if total > 0 else 0
+        part1 += f"，{sec_name}{sec_pct:.0f}%"
+
+    # 补充行业消息
+    news_part = ""
+    if latest_report and division:
+        dept = latest_report.get('departments', {}).get(division, {})
+        sections = dept.get('sections', [])
+        if isinstance(sections, list):
+            market_section = next((s for s in sections if s.get('dim') == 'market'), None)
+            supply_signals = market_section.get('items', []) if market_section else []
+            if supply_signals:
+                title = supply_signals[0].get('标题', '').rstrip('。')
+                news_part = f"{title[:24]}。" if len(title) > 24 else f"{title}。"
+
+    full_text = part1 + "。" + news_part
+    return full_text[:80] if len(full_text) > 80 else full_text
 
 
 def generate_insight_with_news(chart, metrics, report, division):
@@ -470,7 +615,7 @@ def select_diverse_charts(catalog, n=4, seed=None):
     """
     从目录中选择n个图表，确保图表类型多样性
     策略：
-      1. 确保至少选中1个折线图和1个柱状图（如果可用）
+      1. 确保至少选中1个折线图、1个柱状图和1个饼图（如果可用）
       2. 补充剩余位置时，优先选择当前占比较少的类型
       3. 最终打乱顺序，避免类型聚集
     """
@@ -484,46 +629,56 @@ def select_diverse_charts(catalog, n=4, seed=None):
         print(f"  [警告] 可用图表不足 {n} 个（仅有 {len(available)} 个），已减少选取数量")
         n = len(available)
 
-    # 按类型分组
-    line_charts = [c for c in available if not c.get('isBar', False)]
+    # 按类型分组：line / bar / pie
+    line_charts = [c for c in available if not c.get('isBar', False) and c.get('chartType') != 'pie']
     bar_charts = [c for c in available if c.get('isBar', False)]
+    pie_charts = [c for c in available if c.get('chartType') == 'pie']
 
     selected = []
 
-    # 步骤1：确保至少选中1个折线图和1个柱状图
-    if line_charts and len(selected) < n:
-        chosen = random.choice(line_charts)
-        selected.append(chosen)
+    # 步骤1：确保至少1个折线图、1个柱状图、1个饼图
+    type_picks = [
+        ('line', line_charts),
+        ('bar', bar_charts),
+        ('pie', pie_charts),
+    ]
+    for tname, pool in type_picks:
+        if pool and len(selected) < n:
+            remaining = [c for c in pool if c not in selected]
+            if remaining:
+                chosen = random.choice(remaining)
+                selected.append(chosen)
+            else:
+                print(f"  [注意] 无可用{tname}图")
 
-    if bar_charts and len(selected) < n:
-        # 避免重复选择同一个图表
-        remaining_bar = [c for c in bar_charts if c not in selected]
-        if remaining_bar:
-            selected.append(random.choice(remaining_bar))
-
-    # 步骤2：补充剩余位置，优先选择占比较少的类型
+    # 步骤2：补充剩余位置，优先选择当前数量最少的类型
     while len(selected) < n:
-        n_line = sum(1 for c in selected if not c.get('isBar', False))
-        n_bar = sum(1 for c in selected if c.get('isBar', False))
+        counts = {
+            'line': sum(1 for c in selected if not c.get('isBar', False) and c.get('chartType') != 'pie'),
+            'bar': sum(1 for c in selected if c.get('isBar', False)),
+            'pie': sum(1 for c in selected if c.get('chartType') == 'pie'),
+        }
+        pools = {'line': line_charts, 'bar': bar_charts, 'pie': pie_charts}
 
-        # 决定下一个选择的类型（优先选择占比较少的）
-        candidates = []
+        # 找到数量最少且有剩余的类型
+        candidates = None
+        min_count = 999
+        for tname in ['line', 'bar', 'pie']:
+            if counts[tname] < min_count:
+                remain = [c for c in pools[tname] if c not in selected]
+                if remain:
+                    candidates = remain
+                    min_count = counts[tname]
 
-        if n_line <= n_bar and len(line_charts) > n_line:
-            # 优先选折线图
-            candidates = [c for c in line_charts if c not in selected]
-        if not candidates and len(bar_charts) > n_bar:
-            # 选柱状图
-            candidates = [c for c in bar_charts if c not in selected]
         if not candidates:
-            # 两种类型都已选完，从所有可用图表中补充
-            candidates = [c for c in available if c not in selected]
+            # 所有类型都已选完或无剩余，从全部可用中随机选
+            all_remain = [c for c in available if c not in selected]
+            if all_remain:
+                candidates = all_remain
+            else:
+                break
 
-        if candidates:
-            selected.append(random.choice(candidates))
-        else:
-            # 没有更多可选图表
-            break
+        selected.append(random.choice(candidates))
 
     # 步骤3：打乱顺序
     random.shuffle(selected)
@@ -556,20 +711,44 @@ def build_dashboards_js(selected_charts):
         insight_text = c.get('_insight', '数据加载中...')
         # 转义JS字符串中的单引号
         insight_escaped = insight_text.replace('\\', '\\\\').replace("'", "\\'")
-        item = f"""        {{
-            id: '{c['id']}',
+
+        # 基础字段
+        base_fields = f"""            id: '{c['id']}',
             tag: '{c['tag']}',
             title: '{c['title']}',
             link: '{c['link']}',
             dataFile: '{c['dataFile']}',
             tableName: '{c['tableName']}',
             unit: '{c['unit']}',
+            scale: {c['scale']},
+            insight: '{insight_escaped}'"""
+
+        if c.get('chartType') == 'pie':
+            # 饼图特有字段
+            pie_mode = c.get('pieMode', '')
+            exclude_cols = json.dumps(c.get('pieExcludeColumns', []), ensure_ascii=False)
+            date_key = c.get('pieDateKey', '')
+            name_key = c.get('pieNameKey', '')
+            val_key = c.get('pieValueKey', '')
+            filter_expr = c.get('pieFilterExpr', '')
+
+            item = f"""        {{
+{base_fields},
+            chartType: 'pie',
+            isBar: false,
+            pieMode: '{pie_mode}',
+            pieExcludeColumns: {exclude_cols},
+            pieDateKey: '{date_key}',
+            pieNameKey: '{name_key}',
+            pieValueKey: '{val_key}'}}"""
+        else:
+            # 折线图/柱状图字段
+            item = f"""        {{
+{base_fields},
             valueKey: '{c['valueKey']}',
             timeKey: '{c['timeKey']}',
-            isBar: {'true' if c['isBar'] else 'false'},
-            scale: {c['scale']},
-            insight: '{insight_escaped}'
-        }}"""
+            isBar: {'true' if c['isBar'] else 'false'}}}"""
+
         items.append(item)
 
     js_array = ',\n'.join(items)
@@ -639,7 +818,9 @@ def main():
     selected = select_diverse_charts(CHART_CATALOG, n=4, seed=seed)
     print(f"  今日 ({today}) 选中图表：")
     for i, c in enumerate(selected):
-        print(f"    {i+1}. [{c['id']}] {c['title']}")
+        ctype = c.get('chartType', 'bar' if c.get('isBar') else 'line')
+        type_label = {'line': '折线', 'bar': '柱状', 'pie': '饼图'}.get(ctype, ctype)
+        print(f"    {i+1}. [{c['id']}] {c['title']} ({type_label})")
 
     # 3. 为每个选中图表计算指标并生成数据洞察文案
     print("\n[3/5] 计算数据指标并生成洞察文案...")
@@ -651,16 +832,26 @@ def main():
             c['_insight'] = '数据不足，无法生成分析。'
             continue
         rows = get_table_rows(data_json, c['tableName'])
-        metrics = compute_metrics(rows, c['valueKey'], c['timeKey'])
-        c['_metrics'] = metrics
-        if metrics:
-            print(f"  [{c['id']}] latest={metrics['latest']:.2f} change={metrics['change']:+.1f}%")
+        if c.get('chartType') == 'pie':
+            # 饼图不需要时间序列指标，直接跳到洞察生成
+            c['_metrics'] = None
+            print(f"  [{c['id']}] 饼图模式，使用专用解析")
         else:
-            print(f"  [{c['id']}] 数据不足")
+            metrics = compute_metrics(rows, c['valueKey'], c['timeKey'])
+            c['_metrics'] = metrics
+            if metrics:
+                print(f"  [{c['id']}] latest={metrics['latest']:.2f} change={metrics['change']:+.1f}%")
+            else:
+                print(f"  [{c['id']}] 数据不足")
 
         # 生成数据洞察文案
         division = c.get('division', '')
-        insight = generate_insight_with_news(c, metrics, latest_report, division)
+        if c.get('chartType') == 'pie':
+            # 饼图使用专用洞察生成器
+            insight = generate_pie_insight(c, data_json, latest_report, division)
+        else:
+            # 折线图/柱状图用原有逻辑
+            insight = generate_insight_with_news(c, metrics, latest_report, division)
         c['_insight'] = insight
         print(f"  文案: {insight[:60]}...")
 
