@@ -21261,7 +21261,7 @@ document.addEventListener('DOMContentLoaded', function() {
             title: '碳酸锂现货价格走势',
             link: 'carbonate_charts.html',
             dataFile: 'carbonate_all_data.json',
-            tableName: '碳酸锂—价格',
+            tableName: '碳酸锂-价格',
             unit: '万元/吨',
             scale: 1,
             insight: '数据不足，无法生成分析。',
@@ -21411,7 +21411,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
             }
             
-            // 5. 如果没有模板，返回默认文案
+            // 5. 如果没有模板，返回默认文案（空值保护）
+            if (latest === undefined || latest === null) {
+                return db.title + '数据暂不可用';
+            }
             return db.title + '最新值' + latest.toFixed(2) + db.unit + '，环比' + trend + absChange + '%。';
         }
 

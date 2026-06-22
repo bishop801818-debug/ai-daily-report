@@ -29,7 +29,7 @@ CHART_CATALOG = [
         "title": "碳酸锂现货价格走势",
         "link": "carbonate_charts.html",
         "dataFile": "carbonate_all_data.json",
-        "tableName": "碳酸锂—价格",
+        "tableName": "碳酸锂-价格",
         "valueKey": "均价（万元/吨）",
         "timeKey": "日期",
         "isBar": False,
