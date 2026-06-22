@@ -700,6 +700,62 @@ def fuzzy_match_title(new_title, inheritance_map, min_prefix=15):
     
     return None
 
+def deduplicate_news(selected_items, all_items, target_count=5, similarity_threshold=0.45):
+    """
+    对已选择的新闻去重（基于标题相似度）。
+    不同事业部可能选出同一事件的新闻，需要去重。
+    
+    算法：
+    1. 用 difflib.SequenceMatcher 计算标题相似度
+    2. 相似度 > threshold 的配对，保留第一条，移除后续重复项
+    3. 从 all_items 中补充新项（排除已选标题）
+    """
+    if not selected_items or len(selected_items) <= 1:
+        return selected_items
+    
+    import difflib
+    
+    # 找出所有重复项（相似度超阈值）
+    to_remove = set()
+    for i in range(len(selected_items)):
+        if i in to_remove:
+            continue
+        for j in range(i+1, len(selected_items)):
+            if j in to_remove:
+                continue
+            title_i = selected_items[i]['title']
+            title_j = selected_items[j]['title']
+            ratio = difflib.SequenceMatcher(None, title_i, title_j).ratio()
+            if ratio > similarity_threshold:
+                print(f"    [去重] 发现相似新闻（相似度{ratio:.2f}）：")
+                print(f"          保留: [{selected_items[i]['bu']}] {title_i[:35]}...")
+                print(f"          移除: [{selected_items[j]['bu']}] {title_j[:35]}...")
+                to_remove.add(j)
+    
+    if not to_remove:
+        return selected_items
+    
+    # 移除重复项，保留顺序
+    new_selected = [selected_items[i] for i in range(len(selected_items)) if i not in to_remove]
+    removed_count = len(to_remove)
+    
+    # 从 all_items 中补充新项（排除已选标题 + 已移除标题）
+    all_titles = {item['title'] for item in new_selected}
+    removed_titles = {selected_items[i]['title'] for i in to_remove}
+    all_titles.update(removed_titles)
+    
+    candidates = [item for item in all_items if item['title'] not in all_titles]
+    random.shuffle(candidates)
+    
+    added_count = 0
+    while len(new_selected) < target_count and candidates:
+        new_selected.append(candidates.pop(0))
+        added_count += 1
+    
+    print(f"[去重] 移除了 {removed_count} 条重复新闻，补充了 {added_count} 条新新闻")
+    return new_selected
+
+
 def enrich_news_with_urls(selected_items, inheritance_map=None):
     """
     为每条新闻搜索URL，返回带url、url_source、image_url字段的新列表
@@ -1132,6 +1188,9 @@ def main():
     max_retries = 3
     for attempt in range(max_retries):
         selected_items = select_news_evenly(all_items, target_count=5)
+        
+    # 【去重】防止不同事业部选中同一事件的新闻
+        selected_items = deduplicate_news(selected_items, all_items, target_count=5)
         
         # 检查选中的新闻是否能继承URL（模糊匹配）
         import re
