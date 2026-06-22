@@ -6487,6 +6487,29 @@ window.__EMBEDDED__ = {
     transform: translateY(-2px);
     box-shadow: 0 6px 18px rgba(45, 93, 229, 0.35);
 }
+.bu-select-feishu-hint {
+    font-size: 12px;
+    color: #666;
+    margin-top: 8px;
+    line-height: 1.4;
+}
+.bu-select-divider {
+    display: flex;
+    align-items: center;
+    margin: 20px 0;
+    color: #999;
+    font-size: 14px;
+}
+.bu-select-divider::before,
+.bu-select-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: #ddd;
+}
+.bu-select-divider span {
+    padding: 0 12px;
+}
 .bu-select-list {
     display: flex;
     flex-direction: column;
@@ -21525,8 +21548,22 @@ document.addEventListener('DOMContentLoaded', function() {
             return DASHBOARDS[idx];
         }
 
+        // 格式化横轴时间标签：去除日期中的 "日" 和 "时:分:秒" 部分
+        function formatXAxisLabel(raw) {
+            var s = String(raw);
+            // 处理 "2026-04-01 00:00:00" → "2026-04"
+            if (s.length >= 10 && s[4] === '-' && s[7] === '-') {
+                return s.slice(0, 7);  // 取 YYYY-MM
+            }
+            // 处理 "05-01 00:00:00" → "05-01" 或保留原样
+            if (s.indexOf(' ') !== -1) {
+                return s.split(' ')[0];  // 去掉时间部分
+            }
+            return s;
+        }
+
         function mkLineOpt(data, color, showAxis, unit) {
-            var xData = data.map(function(d) { return d[0]; });
+            var xData = data.map(function(d) { return formatXAxisLabel(d[0]); });
             var yData = data.map(function(d) { return d[1]; });
             var totalPoints = xData.length;
             var interval = totalPoints <= 6 ? 0 : Math.max(1, Math.floor(totalPoints / 4));
@@ -21631,7 +21668,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         function mkBarOpt(data, color, showAxis, unit) {
-            var xData = data.map(function(d) { return d[0]; });
+            var xData = data.map(function(d) { return formatXAxisLabel(d[0]); });
             var yData = data.map(function(d) { return d[1]; });
             var totalPoints = xData.length;
             var interval = totalPoints <= 6 ? 0 : Math.max(1, Math.floor(totalPoints / 4));
@@ -22533,12 +22570,17 @@ document.addEventListener('DOMContentLoaded', function() {
         <div class="bu-select-overlay" onclick="showBUSelectModal()"></div>
         <div class="bu-select-dialog">
             <div class="bu-select-title">请选择您所属的事业部</div>
-            <div class="bu-select-subtitle">选择后将只显示该事业部的内容</div>
+            <div class="bu-select-subtitle">方式一：使用飞书账号自动登录（推荐）</div>
             <div class="bu-select-feishu">
-                <button class="bu-select-feishu-btn" onclick="startFeishuAuth()">
-                    <span>🔐</span> 使用飞书账号登录（自动识别事业部）
+                <button class="bu-select-feishu-btn" onclick="startFeishuSilentLogin()">
+                    <span>🔐</span> 飞书自动登录（自动识别事业部）
                 </button>
+                <div class="bu-select-feishu-hint">在飞书客户端内打开时，可自动识别您的部门和事业部</div>
             </div>
+            <div class="bu-select-divider">
+                <span>或</span>
+            </div>
+            <div class="bu-select-subtitle">方式二：手动选择事业部</div>
             <div class="bu-select-list">
                 <div class="bu-select-item" onclick="saveBUSelection('all')">
                     <span class="bu-select-icon">🏢</span>
@@ -22595,6 +22637,7 @@ document.addEventListener('DOMContentLoaded', function() {
     <button id="bu-switch-btn" class="bu-switch-btn" onclick="showBUSelectModal()" title="切换事业部">🏢 切换</button>
 
     <script src="assets/ai_fab_inject.js?v=20260619"></script>
-    <script src="feishu-auth.js?v=20260622"></script>
+    <script src="https://lf1-cdn-tos.bytecdntp.com/obj/eden-cn/ptlheh7vho/ljhwZthlaukjlkulzlp/jssdk.js"></script>
+    <script src="feishu-jsapi.js?v=20260622"></script>
 </body>
 </html>
