@@ -1101,7 +1101,30 @@ def main():
     # 必须在脚本刚开始运行时就保存，不能等到enrich_news_with_urls内部再读文件
     inheritance_map = load_existing_news_for_url_inheritance()
     print(f"[信息] 已保存旧数据URL映射（{len(inheritance_map)}条），防止后续被覆盖")
-    
+    print(f"[信息] 已保存旧数据URL映射（{len(inheritance_map)}条），防止后续被覆盖")
+
+    # 【防重复生成】如果今日已生成热点新闻，则跳过重新抽签，直接返回已有数据
+    today_str = date.today().isoformat()
+    existing_file = 'hot_news_data.json'
+    if os.path.exists(existing_file):
+        try:
+            with open(existing_file, 'r', encoding='utf-8') as f:
+                existing_data = json.load(f)
+            existing_date = existing_data.get('generated_at', '')[:10]
+            if existing_date == today_str:
+                print(f"[跳过] 今日已生成热点新闻（{existing_date}），直接返回已有数据")
+                print(f"  如需强制重新生成，请删除 {existing_file} 后重新运行")
+                print("  当前新闻：")
+                for i, n in enumerate(existing_data.get('news', [])):
+                    print(f"    {i+1}. [{n['bu']}] {n['title'][:35]}...")
+                existing_data['generated_at'] = datetime.now().isoformat()
+                with open(existing_file, 'w', encoding='utf-8') as f:
+                    json.dump(existing_data, f, ensure_ascii=False, indent=2)
+                print("[完成] 时间戳已更新，新闻内容保持不变")
+                return True
+        except Exception as e:
+            print(f"[警告] 检查现有数据失败：{e}，将继续重新生成")
+
     # 动态获取所有事业部列表
     bu_list = list(BU_PREFIX_MAP.keys())
     
