@@ -12,7 +12,7 @@
     <script src="chemical_data.js?v=20260613"></script>
     <script src="recycling_gantt.js?v=20260612"></script>
     <script>
-      window.HTML_VERSION = '20260618_002'; // 简单版本号，用于fetch缓存刷新
+      window.HTML_VERSION = '20260622_001'; // 版本号，用于fetch缓存刷新（2026-06-22 集团矩阵修复）
 
       /* ---------- 彻底防止图表旧内容闪屏（bfcache + 渲染残留）----------
        * 问题：浏览器前进后退缓存(bfcache)会保存完整页面状态，
@@ -13034,6 +13034,7 @@ const BU_LOGOS = {
             for (const id of buList) {
                 const d = dynamicReportData[id];
                 if (!d) {
+                    // 数据完全不存在时，显示占位卡片
                     html += `<div class="allbu-card ${id}" onclick="enterDeptFromAllBu('${id}')">
                         <div class="allbu-card-top">
                             <img class="allbu-card-logo" src="${BU_LOGOS[id] || ''}" alt="${buNames[id] || id}" />
@@ -13042,7 +13043,7 @@ const BU_LOGOS = {
                             </div>
                         </div>
                         <div class="allbu-card-body">
-                            <div class="allbu-card-no-data">今日暂无数据</div>
+                            <div class="allbu-card-no-data">暂无早报数据</div>
                         </div>
                     </div>`;
                     continue;
@@ -13065,12 +13066,21 @@ const BU_LOGOS = {
                     }
                 }
                 let topnewsHtml = '';
-                for (let i = 0; i < topnewsItems.length; i++) {
-                    const item = topnewsItems[i];
-                    const t = (item.title || '').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-                    // 只用标题，不展示 content 内容
-                    topnewsHtml += `<div class="allbu-topnews-item">
+                
+                // 优先使用 topnews 内容，如果为空则使用 lead_judgment 作为后备
+                if (topnewsItems.length > 0) {
+                    for (let i = 0; i < topnewsItems.length; i++) {
+                        const item = topnewsItems[i];
+                        const t = (item.title || '').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+                        topnewsHtml += `<div class="allbu-topnews-item">
   <div class="allbu-topnews-title">${i + 1}. ${t}</div>
+</div>`;
+                    }
+                } else if (d.lead_judgment) {
+                    // sections 为空时，使用 lead_judgment 作为"今日关注"内容
+                    const lj = d.lead_judgment.replace(/</g,'&lt;').replace(/>/g,'&gt;');
+                    topnewsHtml = `<div class="allbu-topnews-item">
+  <div class="allbu-topnews-title">${lj}</div>
 </div>`;
                 }
 
@@ -13082,7 +13092,7 @@ const BU_LOGOS = {
                         `</div>` +
                     `</div>` +
                     `<div class="allbu-card-body">` +
-                        (topnewsHtml ? topnewsHtml : `<div class="allbu-card-no-data">今日暂无数据</div>`) +
+                        (topnewsHtml ? topnewsHtml : `<div class="allbu-card-no-data">${d.lead_judgment || '今日暂无数据'}</div>`) +
                     `</div>` +
                 `</div>`;
             }
