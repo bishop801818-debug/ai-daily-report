@@ -32,6 +32,21 @@
 
         // 获取当前用户允许的事业部列表
         function getAllowedBUs() {
+            // 优先检查飞书认证
+            const feishuUserInfoStr = localStorage.getItem('feishu_user_info');
+            if (feishuUserInfoStr) {
+                try {
+                    const feishuUserInfo = JSON.parse(feishuUserInfoStr);
+                    if (feishuUserInfo && feishuUserInfo.matched_bu) {
+                        console.log('[权限] 使用飞书认证，事业部:', feishuUserInfo.matched_dept_name || feishuUserInfo.matched_bu);
+                        return [feishuUserInfo.matched_bu];
+                    }
+                } catch (e) {
+                    console.error('[权限] 解析飞书用户信息失败:', e);
+                }
+            }
+            
+            // 否则使用手动选择
             const saved = localStorage.getItem('user_bu_permission');
             if (saved && BU_PERMISSIONS[saved]) {
                 return BU_PERMISSIONS[saved].allowed;
@@ -6445,6 +6460,32 @@ window.__EMBEDDED__ = {
     color: #666;
     text-align: center;
     margin-bottom: 20px;
+}
+.bu-select-feishu {
+    margin-bottom: 20px;
+    text-align: center;
+    padding: 16px;
+    background: linear-gradient(135deg, #f8f9ff 0%, #e8edff 100%);
+    border-radius: 12px;
+    border: 1px solid #d0d7f0;
+}
+.bu-select-feishu-btn {
+    background: linear-gradient(135deg, #2d5de5 0%, #1e3a8a 100%);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+.bu-select-feishu-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(45, 93, 229, 0.35);
 }
 .bu-select-list {
     display: flex;
@@ -18648,12 +18689,32 @@ function buildCard(buId) {
 }
 
 async function init() {
-    // 检查权限 - 首次访问时弹出选择框
-    const savedPermission = localStorage.getItem('user_bu_permission');
-    if (!savedPermission) {
-        showBUSelectModal();
+    // 检查权限 - 优先使用飞书认证
+    const feishuUserInfoStr = localStorage.getItem('feishu_user_info');
+    let useFeishuAuth = false;
+    
+    if (feishuUserInfoStr) {
+        try {
+            const feishuUserInfo = JSON.parse(feishuUserInfoStr);
+            if (feishuUserInfo && feishuUserInfo.matched_bu) {
+                useFeishuAuth = true;
+                // 设置 user_bu_permission 以便现有逻辑工作
+                localStorage.setItem('user_bu_permission', feishuUserInfo.matched_bu);
+                console.log('[init] 使用飞书认证，事业部:', feishuUserInfo.matched_dept_name || feishuUserInfo.matched_bu);
+            }
+        } catch (e) {
+            console.error('[init] 解析飞书用户信息失败:', e);
+        }
     }
-
+    
+    // 如果没有飞书认证，检查手动选择
+    if (!useFeishuAuth) {
+        const savedPermission = localStorage.getItem('user_bu_permission');
+        if (!savedPermission) {
+            showBUSelectModal();
+        }
+    }
+    
     // 加载logo
     try {
         const res = await fetch('bu_logos.json');
@@ -22473,6 +22534,11 @@ document.addEventListener('DOMContentLoaded', function() {
         <div class="bu-select-dialog">
             <div class="bu-select-title">请选择您所属的事业部</div>
             <div class="bu-select-subtitle">选择后将只显示该事业部的内容</div>
+            <div class="bu-select-feishu">
+                <button class="bu-select-feishu-btn" onclick="startFeishuAuth()">
+                    <span>🔐</span> 使用飞书账号登录（自动识别事业部）
+                </button>
+            </div>
             <div class="bu-select-list">
                 <div class="bu-select-item" onclick="saveBUSelection('all')">
                     <span class="bu-select-icon">🏢</span>
@@ -22529,5 +22595,6 @@ document.addEventListener('DOMContentLoaded', function() {
     <button id="bu-switch-btn" class="bu-switch-btn" onclick="showBUSelectModal()" title="切换事业部">🏢 切换</button>
 
     <script src="assets/ai_fab_inject.js?v=20260619"></script>
+    <script src="feishu-auth.js?v=20260622"></script>
 </body>
 </html>
