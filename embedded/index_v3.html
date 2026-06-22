@@ -21211,7 +21211,7 @@ document.addEventListener('DOMContentLoaded', function() {
         };
 
         // 所有可用的数据库看板配置（已根据实际数据文件校准）
-                                                var DASHBOARDS = [
+                                                                                var DASHBOARDS = [
         {
             id: 'electrolyte_prod',
             tag: '电解液·行业产量',
@@ -21222,6 +21222,7 @@ document.addEventListener('DOMContentLoaded', function() {
             unit: '吨',
             scale: 1,
             insight: '数据不足，无法生成分析。',
+            division: 'felt',
             valueKey: '产量',
             timeKey: '月份',
             isBar: true},
@@ -21234,7 +21235,8 @@ document.addEventListener('DOMContentLoaded', function() {
             tableName: '锂云母-价格',
             unit: '万元/吨',
             scale: 1,
-            insight: '最新值0.55万元/吨，环比下跌9.8%。同比减22.5%，近期走强。。关注：。',
+            insight: '最新值0.55万元/吨，环比下跌9.8%。同比减22.5%，近期走强。碳酸锂（电池级）。关注：磷酸铁锂主流报价稳居6万元上方。',
+            division: 'czly',
             valueKey: '均价（万元/吨）',
             timeKey: '日期',
             isBar: false},
@@ -21248,6 +21250,7 @@ document.addEventListener('DOMContentLoaded', function() {
             unit: '吨',
             scale: 1,
             insight: 'TOP1「NCM811」占45%（1.8万吨)，NCM52328%。。',
+            division: 'czly',
             chartType: 'pie',
             isBar: false,
             pieMode: 'row_columns',
@@ -21264,11 +21267,16 @@ document.addEventListener('DOMContentLoaded', function() {
             tableName: '碳酸锂-价格',
             unit: '万元/吨',
             scale: 1,
-            insight: '数据不足，无法生成分析。',
+            insight: '最新值16.00万元/吨，环比下跌0.6%。同比减6.7%，近期承压。碳酸锂（电池级）。关注：磷酸铁锂主流报价稳居6万元上方。',
+            division: 'czly',
             valueKey: '均价（万元/吨）',
             timeKey: '日期',
             isBar: false}
         ];
+        
+        
+        
+        
         
         
         

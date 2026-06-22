@@ -21465,7 +21465,7 @@ document.addEventListener('DOMContentLoaded', function() {
         };
 
         // 所有可用的数据库看板配置（已根据实际数据文件校准）
-                                                var DASHBOARDS = [
+                                                                                var DASHBOARDS = [
         {
             id: 'electrolyte_prod',
             tag: '电解液·行业产量',
@@ -21476,6 +21476,7 @@ document.addEventListener('DOMContentLoaded', function() {
             unit: '吨',
             scale: 1,
             insight: '数据不足，无法生成分析。',
+            division: 'felt',
             valueKey: '产量',
             timeKey: '月份',
             isBar: true},
@@ -21488,7 +21489,8 @@ document.addEventListener('DOMContentLoaded', function() {
             tableName: '锂云母-价格',
             unit: '万元/吨',
             scale: 1,
-            insight: '最新值0.55万元/吨，环比下跌9.8%。同比减22.5%，近期走强。。关注：。',
+            insight: '最新值0.55万元/吨，环比下跌9.8%。同比减22.5%，近期走强。碳酸锂（电池级）。关注：磷酸铁锂主流报价稳居6万元上方。',
+            division: 'czly',
             valueKey: '均价（万元/吨）',
             timeKey: '日期',
             isBar: false},
@@ -21502,6 +21504,7 @@ document.addEventListener('DOMContentLoaded', function() {
             unit: '吨',
             scale: 1,
             insight: 'TOP1「NCM811」占45%（1.8万吨)，NCM52328%。。',
+            division: 'czly',
             chartType: 'pie',
             isBar: false,
             pieMode: 'row_columns',
@@ -21518,11 +21521,16 @@ document.addEventListener('DOMContentLoaded', function() {
             tableName: '碳酸锂-价格',
             unit: '万元/吨',
             scale: 1,
-            insight: '数据不足，无法生成分析。',
+            insight: '最新值16.00万元/吨，环比下跌0.6%。同比减6.7%，近期承压。碳酸锂（电池级）。关注：磷酸铁锂主流报价稳居6万元上方。',
+            division: 'czly',
             valueKey: '均价（万元/吨）',
             timeKey: '日期',
             isBar: false}
         ];
+        
+        
+        
+        
         
         
         
@@ -21627,6 +21635,16 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // 通用数据洞察生成函数
         function generateInsight(db, data) {
+            // ===== 优先使用后端生成的洞察（含早报内容）=====
+            // 后端在 rotate_homepage_charts.py 中已生成含早报内容的 insight
+            // 若 db.insight 有效（不含"不足"/"暂不可用"），直接返回
+            if (db.insight && db.insight.trim() &&
+                db.insight.indexOf('不足') < 0 &&
+                db.insight.indexOf('暂不可用') < 0 &&
+                db.insight.indexOf('数据加载中') < 0) {
+                return db.insight;
+            }
+
             if (!data || !data.length) return '数据不足，无法生成分析。';
             
             // ===== 饼图专用洞察（分类/份额数据）=====

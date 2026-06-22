@@ -563,7 +563,8 @@ def generate_insight_with_news(chart, metrics, report, division):
             # 优先使用供给信号
             if supply_signals:
                 signal = supply_signals[0]
-                title = signal.get('标题', '')
+                # 同时支持英文键名和中文键名
+                title = signal.get('title') or signal.get('标题') or ''
                 # 清洗标题：去掉末尾的句号（如果有）
                 title = title.rstrip('。')
                 if len(title) > 24:
@@ -571,7 +572,7 @@ def generate_insight_with_news(chart, metrics, report, division):
                 news_part = f"{title}。"
             elif risk_signals:
                 signal = risk_signals[0]
-                title = signal.get('标题', '')
+                title = signal.get('title') or signal.get('标题') or ''
                 title = title.rstrip('。')
                 if len(title) > 24:
                     title = title[:24] + '…'
@@ -600,7 +601,8 @@ def generate_insight_with_news(chart, metrics, report, division):
             else:
                 topnews = sections.get('topnews', []) if isinstance(sections, dict) else []
             if topnews:
-                title = topnews[0].get('标题', '')
+                # 同时支持英文键名和中文键名
+                title = topnews[0].get('title') or topnews[0].get('标题') or ''
                 title = title.rstrip('。')
                 if len(title) > 20:
                     title = title[:20] + '…'
@@ -713,6 +715,7 @@ def build_dashboards_js(selected_charts):
         insight_escaped = insight_text.replace('\\', '\\\\').replace("'", "\\'")
 
         # 基础字段
+        division_val = c.get('division', '')
         base_fields = f"""            id: '{c['id']}',
             tag: '{c['tag']}',
             title: '{c['title']}',
@@ -721,7 +724,8 @@ def build_dashboards_js(selected_charts):
             tableName: '{c['tableName']}',
             unit: '{c['unit']}',
             scale: {c['scale']},
-            insight: '{insight_escaped}'"""
+            insight: '{insight_escaped}',
+            division: '{division_val}'"""
 
         if c.get('chartType') == 'pie':
             # 饼图特有字段
