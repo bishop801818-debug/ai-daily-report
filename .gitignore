@@ -94,6 +94,12 @@ reports/*.json
 !reports/ur_history.json
 !reports/wti_history.json
 
+# ========== 例外：每日早报文件需要部署 ==========
+# 日期格式的报告文件（YYYY-MM-DD.json）
+!reports/2026-*.json
+!reports/2025-*.json
+!reports/2024-*.json
+
 # ------------------------------------------
 # 6. 嵌入版每日快照
 # ------------------------------------------
