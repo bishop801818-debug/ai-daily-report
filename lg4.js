@@ -1,0 +1,1 @@
+{ name:"解液产量", color: new foo.bar(1,[{a:1},{b:2}]) }

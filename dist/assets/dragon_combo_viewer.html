@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🐉 龙蟠AI助手 · 3D预览</title>
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://unpkg.com/three@0.170.0/build/three.module.js",
+            "three/addons/": "https://unpkg.com/three@0.170.0/examples/jsm/"
+        }
+    }
+    </script>
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body {
+            overflow:hidden;
+            background: #1a1a2e;
+            font-family: -apple-system,'PingFang SC','Microsoft YaHei',sans-serif;
+        }
+        #canvas-container { width:100vw; height:100vh; position:relative; }
+
+        /* Top brand bar */
+        .brand-bar {
+            position:absolute; top:0; left:0; right:0; height:4px;
+            background: linear-gradient(90deg, #c8462c 0%, #e67e22 50%, #f39c12 100%);
+            z-index:20;
+        }
+
+        /* Info panel - top left */
+        .info-panel {
+            position:absolute; top:18px; left:18px;
+            background: rgba(255,255,255,0.95); backdrop-filter: blur(16px);
+            padding:16px 22px; border-radius:14px;
+            box-shadow: 0 6px 28px rgba(0,0,0,0.12); z-index:10;
+            max-width:320px; border:1px solid rgba(200,70,44,0.08);
+        }
+        .info-panel h3 {
+            color:#c8462c; font-size:15px; margin-bottom:6px;
+            display:flex; align-items:center; gap:7px; letter-spacing:0.5px;
+        }
+        .info-panel p { color:#555; font-size:12px; line-height:1.65; }
+        .pose-indicator {
+            margin-top:10px; padding-top:10px;
+            border-top:1px solid rgba(200,70,44,0.1);
+            display:flex; align-items:center; gap:8px;
+        }
+        .pose-dot {
+            width:8px; height:8px; border-radius:50%;
+            background:#4caf50; transition:all 0.3s ease;
+            box-shadow:0 0 8px rgba(76,175,80,0.5); flex-shrink:0;
+        }
+        .pose-text { font-size:12px; color:#333; font-weight:500; }
+
+        /* Controls - bottom center */
+        .controls {
+            position:absolute; bottom:22px; left:50%; transform:translateX(-50%);
+            background: rgba(255,255,255,0.94); backdrop-filter: blur(18px);
+            padding:10px 24px; border-radius:50px;
+            box-shadow: 0 4px 24px rgba(200,70,44,0.08), 0 1px 3px rgba(0,0,0,0.06);
+            display:flex; gap:6px; align-items:center; z-index:10;
+        }
+        .ctrl-btn {
+            background:transparent; border:none; color:#666;
+            padding:8px 18px; border-radius:20px;
+            cursor:pointer; font-size:13px; font-weight:500;
+            transition:all 0.25s cubic-bezier(.34,1.56,.64,1);
+            white-space:nowrap; position:relative; overflow:hidden;
+        }
+        .ctrl-btn::after {
+            content:''; position:absolute; inset:0; border-radius:20px;
+            background:linear-gradient(135deg,#c8462c,#e67e22); opacity:0;
+            transition:opacity 0.25s;
+        }
+        .ctrl-btn:hover { color:#c8462c; }
+        .ctrl-btn:hover::after { opacity:0.06; }
+        .ctrl-btn.active { color:#fff; }
+        .ctrl-btn.active::after { opacity:1; }
+        .ctrl-btn span { position:relative; z-index:1; }
+
+        /* Hint text */
+        .hint {
+            position:absolute; bottom:80px; left:50%; transform:translateX(-50%);
+            color:rgba(255,255,255,0.55); font-size:12px; pointer-events:none;
+            letter-spacing:0.5px;
+        }
+
+        /* Loading */
+        .loading-overlay {
+            position:fixed; inset:0; background:#1a1a2e;
+            display:flex; align-items:center; justify-content:center; z-index:100;
+            transition:opacity 0.6s ease;
+        }
+        .spinner-wrap { text-align:center; color:#fff; }
+        .spinner-circle {
+            width:52px;height:52px;border:3.5px solid rgba(255,255,255,0.12);
+            border-top-color:#f39c12; border-radius:50%;
+            animation:spin 0.85s linear infinite;margin:0 auto 18px;
+        }
+        @keyframes spin { to{transform:rotate(360deg)} }
+        .load-bar {
+            width:180px; height:3px; background:rgba(255,255,255,0.1); border-radius:2px;
+            margin:16px auto 0; overflow:hidden;
+        }
+        .load-fill {
+            height:100%; width:0%; background:linear-gradient(90deg,#c8462c,#f39c12);
+            border-radius:2px; transition:width 0.5s ease;
+        }
+
+        /* Toast */
+        .toast {
+            position:fixed; top:72px; left:50%;
+            transform:translateX(-50%) translateY(-16px) scale(0.9);
+            background:rgba(30,30,45,0.92); color:#fff; padding:9px 22px;
+            border-radius:24px; font-size:13px; font-weight:500; letter-spacing:0.3px;
+            opacity:0; transition:all 0.35s cubic-bezier(.34,1.56,.64,1);
+            z-index:200; pointer-events:none; backdrop-filter:blur(8px);
+            border:1px solid rgba(200,70,44,0.2);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+        }
+        .toast.show { opacity:1; transform:translateX(-50%) translateY(0) scale(1); }
+
+        /* Particle canvas overlay */
+        #particle-canvas {
+            position:fixed; inset:0; pointer-events:none; z-index:6;
+        }
+
+        /* Vignette overlay */
+        .vignette {
+            position:fixed; inset:0; pointer-events:none; z-index:4;
+            background: radial-gradient(ellipse at center, transparent 40%, rgba(10,10,20,0.5) 100%);
+        }
+
+        /* Transition flash on model switch */
+        .transition-flash {
+            position:fixed; inset:0; pointer-events:none; z-index:7;
+            background: radial-gradient(circle at center, rgba(243,156,18,0.15), transparent 60%);
+            opacity:0; transition:opacity 0.2s;
+        }
+        .transition-flash.active { opacity:1; }
+    </style>
+</head>
+<body>
+
+<div class="brand-bar"></div>
+<div class="vignette"></div>
+<div class="transition-flash" id="flash"></div>
+<canvas id="particle-canvas"></canvas>
+
+<div class="loading-overlay" id="loadingOverlay">
+    <div class="spinner-wrap">
+        <div class="spinner-circle"></div>
+        <p style="font-weight:600;font-size:15px;">正在加载 3D 模型...</p>
+        <p style="opacity:0.6;font-size:12px;" id="loadText">准备中</p>
+        <div class="load-bar"><div class="load-fill" id="loadFill"></div></div>
+    </div>
+</div>
+
+<div id="canvas-container"></div>
+
+<div class="info-panel">
+    <h3><span>&#x1F409;</span> 龙蟠AI助手</h3>
+    <p>Tencent Hunyuan 文生3D<br>程序化动画待机 + 多姿态切换</p>
+    <div class="pose-indicator">
+        <div class="pose-dot" id="poseDot"></div>
+        <span class="pose-text" id="poseText">加载中...</span>
+    </div>
+</div>
+
+<p class="hint">&#x1F5B1;&#xFE0F; 拖拽旋转 &#x2022; 滚轮缩放 &#x2022; 点击模型切换姿态 &#x2022; 双击重置视角</p>
+
+<div class="controls" id="controlsBar">
+    <button class="ctrl-btn active" id="btnIdle"><span>&#x2728; 待机</span></button>
+    <button class="ctrl-btn" id="btnType"><span>&#x2328; 打字中</span></button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+
+const container = document.getElementById('canvas-container');
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x12121f);
+
+// Hero camera - slightly low angle for dramatic look
+const camera = new THREE.PerspectiveCamera(38, window.innerWidth/window.innerHeight, 0.1, 1000);
+camera.position.set(0.8, 1.4, 4.0);
+
+const renderer = new THREE.WebGLRenderer({ antialias:true, alpha:false });
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.1;
+container.appendChild(renderer.domElement);
+
+// Post-processing: Bloom effect
+const composer = new EffectComposer(renderer);
+composer.addPass(new RenderPass(scene, camera));
+const bloomPass = new UnrealBloomPass(
+    new THREE.Vector2(window.innerWidth, window.innerHeight),
+    0.35,   // strength
+    0.4,     // radius
+    0.85     // threshold
+);
+composer.addPass(bloomPass);
+
+// Controls
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+controls.dampingFactor = 0.07;
+controls.minDistance = 2.0;
+controls.maxDistance = 8;
+controls.maxPolarAngle = Math.PI * 0.82;
+controls.target.set(0, 0.88, 0);
+controls.enablePan = false;
+
+// === LIGHTING ===
+// Ambient
+scene.add(new THREE.AmbientLight(0xffffff, 0.42));
+
+// Key light - warm front-right
+const keyLight = new THREE.DirectionalLight(0xfff8ee, 1.4);
+keyLight.position.set(4, 6, 5);
+scene.add(keyLight);
+
+// Fill - cool blue from left
+const fillLight = new THREE.DirectionalLight(0xaaccff, 0.35);
+fillLight.position.set(-5, 3, -2);
+scene.add(fillLight);
+
+// Rim light - warm orange from back
+const rimLight = new THREE.DirectionalLight(0xffaa66, 0.5);
+rimLight.position.set(0, 4, -6);
+scene.add(rimLight);
+
+// Subtle ground glow
+const groundGlow = new THREE.PointLight(0xc8462c, 0.25, 5);
+groundGlow.position.set(0, 0.05, 0);
+scene.add(groundGlow);
+
+// Spotlight on the dragon
+const spotLight = new THREE.SpotLight(0xffffff, 0.6, 10, Math.PI / 6, 0.5);
+spotLight.position.set(0, 5, 3);
+spotLight.target.position.set(0, 0.8, 0);
+scene.add(spotLight);
+scene.add(spotLight.target);
+
+// Ground plane with subtle shadow
+const groundGeo = new THREE.CircleGeometry(6, 64);
+const groundMat = new THREE.MeshStandardMaterial({
+    color: 0x1a1a28,
+    roughness: 0.85,
+    metalness: 0.05,
+});
+const ground = new THREE.Mesh(groundGeo, groundMat);
+ground.rotation.x = -Math.PI / 2;
+ground.position.y = 0;
+ground.receiveShadow = true;
+scene.add(ground);
+
+// === MODELS ===
+let models = { idle: null, typing: null };
+let currentPose = 'idle';
+let rotationY = 0;
+
+const loader = new GLTFLoader();
+
+function setLoadProgress(pct, label) {
+    document.getElementById('loadFill').style.width = pct + '%';
+    document.getElementById('loadText').textContent = label;
+}
+
+function loadModel(key, path, label, callback) {
+    setLoadProgress(33, label);
+    loader.load(path, (gltf) => {
+        const m = gltf.scene;
+        
+        // Auto-scale & center
+        const box = new THREE.Box3().setFromObject(m);
+        const size = box.getSize(new THREE.Vector3());
+        const maxDim = Math.max(size.x, size.y, size.z);
+        const scale = 1.9 / maxDim;
+        m.scale.setScalar(scale);
+        
+        // Position feet at y=0
+        const center = box.getCenter(new THREE.Vector3());
+        m.position.y = -(center.y - size.y/2) * scale;
+        
+        // Enable shadows
+        m.traverse(c => { if(c.isMesh) { c.castShadow = true; c.receiveShadow = true; }});
+        
+        m.visible = false;
+        scene.add(m);
+        models[key] = m;
+        setLoadProgress(66, `${label} 完成`);
+        if(callback) callback();
+    }, undefined, (err) => console.error(`Load error [${key}]:`, err));
+}
+
+// Load sequence
+loadModel('idle', './dragon_pose_glasses.glb', '&#x1F9D0; 加载待机模型', () => {
+    loadModel('typing', './dragon_pose_typing.glb', '&#x2328; 加载打字模型', () => {
+        setLoadProgress(100, '准备就绪');
+        setTimeout(() => {
+            document.getElementById('loadingOverlay').style.opacity = '0';
+            setTimeout(() => document.getElementById('loadingOverlay').remove(), 600);
+            switchPose('idle', false);
+        }, 400);
+    });
+});
+
+// === POSE SWITCHING ===
+let transitionTimeout = null;
+
+function switchPose(pose, showMsg=true) {
+    if(currentPose === pose && models[pose]?.visible && !isTransitioning()) return;
+    
+    // Flash effect
+    triggerFlash();
+    
+    currentPose = pose;
+    
+    // Hide all, show target
+    Object.keys(models).forEach(k => {
+        if(models[k]) models[k].visible = (k === pose);
+    });
+
+    // Update UI
+    updatePoseUI(pose);
+    
+    if(showMsg) showToast(
+        pose === 'idle' ? '\u2728 \u56DE\u5230\u5F85\u673A\u72B6\u6001' : '\u2328 \u6B63\u5728\u4E3A\u60A8\u5904\u7406...'
+    );
+}
+window.switchPose = switchPose;
+
+function isTransitioning() {
+    return transitionTimeout !== null;
+}
+
+function updatePoseUI(pose) {
+    const names = { idle: '\u{1F9D0} \u6276\u773C\u955C\uFF08\u9ED8\u8BA4\u5F85\u673A\uFF09', typing: '\u2328 \u6253\u5B57\u5DE5\u4F5C\u4E2D' };
+    const colors = { idle: '#4caf50', typing: '#2196f3' };
+    document.getElementById('poseText').textContent = names[pose] || pose;
+    document.getElementById('poseDot').style.background = colors[pose];
+    document.getElementById('btnIdle').classList.toggle('active', pose==='idle');
+    document.getElementById('btnType').classList.toggle('active', pose==='type' || pose==='typing');
+}
+
+// === CLICK INTERACTION ===
+renderer.domElement.addEventListener('click', (e) => {
+    const rect = renderer.domElement.getBoundingClientRect();
+    const x = ((e.clientX-rect.left)/rect.width)*2-1;
+    const y = -((e.clientY-rect.top)/rect.height)*2+1;
+    const raycaster = new THREE.Raycaster();
+    raycaster.setFromCamera(new THREE.Vector2(x,y), camera);
+    const hits = raycaster.intersectObjects(scene.children, true);
+    if(hits.length > 0) {
+        spawnClickParticles(e.clientX, e.clientY);
+        const next = currentPose === 'idle' ? 'typing' : 'idle';
+        switchPose(next);
+        
+        // Auto-return after 1.8s when switching TO a non-idle pose
+        if(next !== 'idle') {
+            clearTimeout(transitionTimeout);
+            transitionTimeout = setTimeout(() => {
+                switchPose('idle');
+                transitionTimeout = null;
+            }, 1800);
+        } else {
+            clearTimeout(transitionTimeout);
+            transitionTimeout = null;
+        }
+    }
+});
+
+// === PARTICLE SYSTEM (Canvas 2D) ===
+const particleCanvas = document.getElementById('particle-canvas');
+const pCtx = particleCanvas.getContext('2d');
+let particles = [];
+const MAX_PARTICLES = 60;
+
+function resizeParticleCanvas() {
+    particleCanvas.width = window.innerWidth;
+    particleCanvas.height = window.innerHeight;
+}
+resizeParticleCanvas();
+
+class Particle {
+    constructor(x, y, isSparkle) {
+        this.x = x || Math.random() * particleCanvas.width;
+        this.y = y || Math.random() * particleCanvas.height;
+        this.isSparkle = isSparkle;
+        if(isSparkle) {
+            this.vx = (Math.random()-0.5) * 4;
+            this.vy = (Math.random()-0.5) * 4 - 1.5;
+            this.life = 1;
+            this.decay = 0.02 + Math.random()*0.03;
+            this.size = 2 + Math.random()*3;
+            this.color = `rgba(${240+Math.floor(Math.random()*15)},${180+Math.floor(Math.random()*40)},${40+Math.floor(Math.random()*30)},`;
+        } else {
+            this.vx = (Math.random()-0.5) * 0.3;
+            this.vy = -0.2 - Math.random() * 0.5;
+            this.life = 0;
+            this.maxLife = 0.5 + Math.random() * 1.5;
+            this.size = 1 + Math.random() * 2;
+            this.color = `rgba(243,156,18,`;
+        }
+    }
+    update(dt) {
+        this.x += this.vx;
+        this.y += this.vy;
+        if(this.isSparkle) {
+            this.life -= this.decay;
+            this.vy += 0.05; // gravity
+        } else {
+            this.life += dt / this.maxLife;
+            this.vy -= 0.003;
+        }
+        return this.isSparkle ? this.life > 0 : this.life < 1;
+    }
+    draw(ctx) {
+        const alpha = this.isSparkle ? this.life : (1-Math.abs(this.life*2-1))*0.6;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size*(this.isSparkle?this.life+0.3:(1-this.life)+0.5), 0, Math.PI*2);
+        ctx.fillStyle = this.color + alpha + ')';
+        ctx.fill();
+    }
+}
+
+// Ambient floating particles
+function initAmbientParticles() {
+    for(let i=0; i<MAX_PARTICLES; i++) {
+        particles.push(new Particle(null, null, false));
+        particles[i].life = Math.random(); // stagger
+    }
+}
+initAmbientParticles();
+
+function spawnClickParticles(cx, cy) {
+    for(let i=0; i<12; i++) {
+        particles.push(new Particle(cx, cy, true));
+    }
+}
+
+function animateParticles(dt) {
+    pCtx.clearRect(0, 0, particleCanvas.width, particleCanvas.height);
+    particles = particles.filter(p => p.update(dt));
+    
+    // Replenish ambient particles
+    while(particles.length < MAX_PARTICLES) {
+        particles.push(new Particle(null, null, false));
+    }
+    
+    particles.forEach(p => p.draw(pCtx));
+}
+
+// === FLASH EFFECT ===
+function triggerFlash() {
+    const f = document.getElementById('flash');
+    f.classList.add('active');
+    setTimeout(() => f.classList.remove('active'), 250);
+}
+
+// === TOAST ===
+function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 1500);
+}
+
+// === MAIN ANIMATION LOOP ===
+const clock = new THREE.Clock();
+function animate() {
+    requestAnimationFrame(animate);
+    const t = clock.getElapsedTime();
+    const dt = clock.getDelta();
+
+    // Animate visible model
+    Object.keys(models).forEach(key => {
+        const m = models[key];
+        if(!m || !m.visible) return;
+
+        if(key === 'idle') {
+            // Gentle float
+            m.position.y += Math.sin(t * 1.1) * 0.0015;
+            // Subtle body sway
+            m.rotation.z = Math.sin(t * 0.65) * 0.01;
+            m.rotation.x = Math.sin(t * 0.45) * 0.005;
+            // Slow auto-rotation
+            rotationY += 0.0028;
+            m.rotation.y = rotationY;
+            
+            // Pulse bloom slightly
+            bloomPass.strength = 0.32 + Math.sin(t*0.8) * 0.05;
+        } else if(key === 'typing') {
+            // Faster bob (like typing rhythm)
+            m.position.y += Math.sin(t * 3.2) * 0.001;
+            // Slight head tilt
+            m.rotation.z = Math.sin(t * 1.8) * 0.005;
+            // Slower rotation while "working"
+            rotationY += 0.0008;
+            m.rotation.y = rotationY;
+            
+            // Reduce bloom during typing
+            bloomPass.strength = 0.28;
+        }
+    });
+
+    // Animate ground glow
+    groundGlow.intensity = 0.2 + Math.sin(t * 0.5) * 0.08;
+
+    controls.update();
+    composer.render();
+    
+    // Particles
+    animateParticles(dt || 0.016);
+}
+animate();
+
+// Resize handler
+window.addEventListener('resize', () => {
+    camera.aspect = window.innerWidth/window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    composer.setSize(window.innerWidth, window.innerHeight);
+    resizeParticleCanvas();
+});
+
+// Double-click reset
+renderer.domElement.addEventListener('dblclick', () => {
+    // Smooth reset animation
+    const startPos = camera.position.clone();
+    const startTarget = controls.target.clone();
+    const endPos = new THREE.Vector3(0.8, 1.4, 4.0);
+    const endTarget = new THREE.Vector3(0, 0.88, 0);
+    
+    let progress = 0;
+    function lerpReset() {
+        progress += 0.04;
+        if(progress >= 1) {
+            camera.position.copy(endPos);
+            controls.target.copy(endTarget);
+            rotationY = 0;
+            Object.values(models).forEach(m => { if(m){ m.rotation.set(0,0,0); }});
+            return;
+        }
+        const e = 1-Math.pow(1-progress,3); // ease-out cubic
+        camera.position.lerpVectors(startPos, endPos, e);
+        controls.target.lerpVectors(startTarget, endTarget, e);
+        requestAnimationFrame(lerpReset);
+    }
+    lerpReset();
+});
+</script>
+</body>
+</html>
