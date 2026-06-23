@@ -312,15 +312,14 @@ def generate_db(db_config):
             if files:
                 excel_file = max(files, key=os.path.getmtime)
                 excel_mtime = os.path.getmtime(excel_file)
-                import datetime
-                excel_date = datetime.datetime.fromtimestamp(excel_mtime)
+                excel_date = datetime.fromtimestamp(excel_mtime)
                 # 解析 JS update_time
                 if existing_update:
                     try:
-                        js_date = datetime.datetime.strptime(existing_update, '%Y-%m-%d %H:%M:%S')
+                        js_date = datetime.strptime(existing_update, '%Y-%m-%d %H:%M:%S')
                         # 如果当前 JS 比 Excel 更新（说明数据是手动录入而非从 Excel 生成），创建 golden backup
                         if js_date > excel_date:
-                            backup_path = output_js + f'.golden_{datetime.datetime.now().strftime("%Y%m%d_%H%M%S")}'
+                            backup_path = output_js + f'.golden_{datetime.now().strftime("%Y%m%d_%H%M%S")}'
                             with open(backup_path, 'w', encoding='utf-8') as f:
                                 f.write(existing_content)
                             print(f'  [PROTECT] 当前 JS 比 Excel 新，已创建备份: {os.path.basename(backup_path)}')
