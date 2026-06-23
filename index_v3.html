@@ -15232,7 +15232,7 @@ const BU_LOGOS = {
         // 加载历史数据
         async function loadHistoryData() {
             try {
-                const response = await fetch('reports/index.json?v=' + HTML_VERSION);
+                const response = await fetch('reports/index.json?v=' + HTML_VERSION + '&_cb=' + Date.now());
                 const indexData = await response.json();
                 historyData = indexData;
 

@@ -555,17 +555,37 @@ def generate_pie_insight(chart, data_json, latest_report, division):
                     news_part = text
                     break
     
-    # 压缩 news_part 到合理长度（目标：总长度 ≤100 字）
+    # 压缩 news_part 到合理长度（目标：总长度 ≤100 字，完整句子不截断）
     # part1 ~40字，留给 news_part ~58字
     if news_part:
         max_news_pie = 100 - len(part1) - 3
-        if max_news_pie > 10 and len(news_part) > max_news_pie:
-            truncated = news_part[:max_news_pie]
+        if max_news_pie > 15 and len(news_part) > max_news_pie:
+            # 智能截断：优先在标点处截断，保证句子完整
+            truncated = news_part[:max_news_pie + 10]  # 多取10字找标点
+            # 优先级1：找最后一个句号
             last_period = truncated.rfind('。')
-            if last_period > 5:
-                news_part = truncated[:last_period + 1]
+            if last_period > max_news_pie * 0.4:
+                news_part = news_part[:last_period + 1]
             else:
-                news_part = news_part[:max_news_pie - 1] + '。'
+                # 优先级2：找最后一个逗号
+                last_comma = truncated.rfind('，')
+                if last_comma > max_news_pie * 0.4:
+                    news_part = news_part[:last_comma + 1]
+                else:
+                    # 优先级3：找最后一个分号/顿号
+                    for sep in ['；', '、', '及', '与', '和']:
+                        last_sep = truncated.rfind(sep)
+                        if last_sep > max_news_pie * 0.5:
+                            news_part = news_part[:last_sep] + '。'
+                            break
+                    else:
+                        # 都不行，在空格处截断（英文术语后）
+                        last_space = truncated.rfind(' ')
+                        if last_space > max_news_pie * 0.5:
+                            news_part = news_part[:last_space] + '。'
+                        # 最后才硬截断（这种情况应该很少）
+        # 去除 news_part 末尾可能多余的句号（后面组合时会统一加）
+        news_part = news_part.rstrip('。')
     
     # 组合文案
     full_text = part1 + "。"
@@ -620,16 +640,26 @@ def generate_insight_with_news(chart, metrics, report, division):
     # 1. 数据描述部分（约20字）
     data_part = f"最新值{latest_str}{unit}，环比{trend}{abs_change:.1f}%。"
     
-    # 2. 同环比分析（约15字）
+    # 2. 同环比分析（约15字，表述要与同比方向一致）
     yoy = metrics.get('yoyChange')
     trend3 = metrics.get('trend3', 'up')
     if yoy is not None:
         yoy_str = f"同比{'增' if yoy >= 0 else '减'}{abs(yoy):.1f}%"
     else:
         yoy_str = "暂无同比"
-    
-    trend3_str = "近期走强" if trend3 == 'up' else "近期承压"
-    compare_part = f"{yoy_str}，{trend3_str}。"
+
+    # 近期走势表述：与同比方向一致时才显示，否则省略（避免矛盾）
+    if trend3 == 'up' and (yoy is None or yoy >= -3):
+        trend3_str = "近期走强"
+    elif trend3 == 'down' and (yoy is None or yoy <= 3):
+        trend3_str = "近期承压"
+    else:
+        trend3_str = ""  # 涨跌方向矛盾时省略，避免误导
+
+    if trend3_str:
+        compare_part = f"{yoy_str}，{trend3_str}。"
+    else:
+        compare_part = f"{yoy_str}。"
     
     # 3. 行业分析（从早报提取摘要，目标50-100字，完整展示不截断）
     news_part = ""
@@ -742,21 +772,39 @@ def generate_insight_with_news(chart, metrics, report, division):
                     if text and len(text) > 20:
                         news_part = text
                         break
-    # 压缩 news_part 到合理长度（目标：总长度 ≤100 字）
-    # data_part ~25字，compare_part ~20字，留给 news_part ~55字
+    # 压缩 news_part 到合理长度（目标：总长度 ≤100 字，完整句子不截断）
+    # data_part ~25字，compare_part ~15字，留给 news_part ~60字
     if news_part:
         max_news = 100 - len(data_part) - len(compare_part) - 2
-        if max_news < 10:
-            max_news = 10
+        if max_news < 15:
+            max_news = 15
         if len(news_part) > max_news:
-            # 在句号处截断，不添加省略号
-            truncated = news_part[:max_news]
+            # 智能截断：优先在标点处截断，保证句子完整
+            truncated = news_part[:max_news + 10]  # 多取10字找标点
+            # 优先级1：找最后一个句号
             last_period = truncated.rfind('。')
-            if last_period > 5:
-                news_part = truncated[:last_period + 1]
+            if last_period > max_news * 0.4:
+                news_part = news_part[:last_period + 1]
             else:
-                # 找不到句号，直接在 max_news 处截断并补句号
-                news_part = news_part[:max_news - 1] + '。'
+                # 优先级2：找最后一个逗号
+                last_comma = truncated.rfind('，')
+                if last_comma > max_news * 0.4:
+                    news_part = news_part[:last_comma + 1]
+                else:
+                    # 优先级3：找最后一个分号/顿号
+                    for sep in ['；', '、', '及', '与', '和']:
+                        last_sep = truncated.rfind(sep)
+                        if last_sep > max_news * 0.5:
+                            news_part = news_part[:last_sep] + '。'
+                            break
+                    else:
+                        # 都不行，在空格处截断（英文术语后）
+                        last_space = truncated.rfind(' ')
+                        if last_space > max_news * 0.5:
+                            news_part = news_part[:last_space] + '。'
+                        # 最后才硬截断（这种情况应该很少）
+        # 去除 news_part 末尾可能多余的句号（后面组合时会统一加）
+        news_part = news_part.rstrip('。')
     
     # 组合文案：数据 + 分析（总长度 ≤100 字，完整展示不截断）
     full_text = data_part + compare_part
@@ -766,22 +814,6 @@ def generate_insight_with_news(chart, metrics, report, division):
         if not news_part.endswith(('。', '！', '？')):
             news_part += '。'
         full_text += news_part
-    
-    # 最终长度控制：上限100字（句号处截断，不添加省略号）
-    if len(full_text) > 100:
-        # 智能截断：保留数据部分，在句号处截断新闻部分
-        base_len = len(data_part) + len(compare_part)
-        max_news = 100 - base_len - 3
-        if max_news > 10:
-            # 在句号处截断，不添加省略号
-            truncated = news_part[:max_news]
-            last_period = truncated.rfind('。')
-            if last_period > 10:
-                truncated = truncated[:last_period + 1]
-            # 若找不到句号，直接截断，不加省略号
-            full_text = data_part + compare_part + truncated
-        else:
-            full_text = full_text[:100]
     
     return full_text
 
