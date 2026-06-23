@@ -12,7 +12,7 @@
     <script src="chemical_data.js?v=20260613"></script>
     <script src="recycling_gantt.js?v=20260612"></script>
     <script>
-      window.HTML_VERSION = "20260622_009"; // 版本号，用于fetch缓存刷新（2026-06-22 事业部权限控制完成）
+      window.HTML_VERSION = "20260623_001"; // 版本号，用于fetch缓存刷新（2026-06-23 早报更新）
 
         // ═══════════════════════════════════════════════════
         // 事业部权限控制
@@ -11572,7 +11572,7 @@ window.addEventListener('DOMContentLoaded', function() {
                 // 加载失败时，从 index.json 的 available_dates 找到最近有数据的日期
                 console.log('[loadReport] 尝试从 index.json 获取 available_dates...');
                 try {
-                    const idxResp = await fetch('reports/index.json?v=' + HTML_VERSION);
+                    const idxResp = await fetch('reports/index.json?v=' + HTML_VERSION + '&_cb=' + Date.now());
                     if (idxResp.ok) {
                         const idxData = await idxResp.json();
                         const availableDates = idxData.available_dates || [];
@@ -12353,7 +12353,7 @@ window.addEventListener('DOMContentLoaded', function() {
                     let found = false;
                     // 优先：index.json latest_date
                     try {
-                        const idxResp = await fetch('reports/index.json?v=' + HTML_VERSION);
+                        const idxResp = await fetch('reports/index.json?v=' + HTML_VERSION + '&_cb=' + Date.now());
                         if (idxResp.ok) {
                             const idxData = await idxResp.json();
                             const dates = idxData.available_dates || [];

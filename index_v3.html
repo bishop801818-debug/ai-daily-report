@@ -12,7 +12,7 @@
     <script src="chemical_data.js?v=20260613"></script>
     <script src="recycling_gantt.js?v=20260612"></script>
     <script>
-      window.HTML_VERSION = "20260622_009"; // 版本号，用于fetch缓存刷新（2026-06-22 事业部权限控制完成）
+      window.HTML_VERSION = "20260623_001"; // 版本号，用于fetch缓存刷新（2026-06-23 优化加载逻辑：加超时+减少回溯）
 
         // ═══════════════════════════════════════════════════
         // 事业部权限控制
@@ -11550,53 +11550,39 @@ window.addEventListener('DOMContentLoaded', function() {
          * @param {string} date - YYYY-MM-DD 格式
          * @returns {Promise<object>} 报告数据对象
          */
+        // ============================================================
+        // 工具函数：带超时的 fetch（默认 5 秒）
+        // ============================================================
+        async function fetchWithTimeout(url, timeout = 5000) {
+            const controller = new AbortController();
+            const id = setTimeout(() => controller.abort(), timeout);
+            try {
+                const resp = await fetch(url, { signal: controller.signal });
+                clearTimeout(id);
+                return resp;
+            } catch (e) {
+                clearTimeout(id);
+                throw e;
+            }
+        }
+
+        // ============================================================
+        // 加载指定日期的报告 JSON 文件（单一职责：只加载指定日期）
+        // 失败直接抛异常，不做内部 fallback，由调用方决定降级策略
+        // ============================================================
         async function loadReportJSON(date) {
             const TODAY = new Date().toISOString().slice(0, 10);
             console.log(`[loadReport] 开始加载 ${date}.json...`);
-            try {
-                const resp = await fetch(`reports/${date}.json?v=${HTML_VERSION}&_cb=${Date.now()}`);
-                console.log(`[loadReport] HTTP状态: ${resp.status}, url=${resp.url}`);
-                if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-                const data = await resp.json();
-                console.log(`[loadReport] 成功加载 ${date}，${Object.keys(data.departments || {}).length} 个事业部`);
-                // 如果加载的是今天的报告且成功，标记缓存
-                if (date === TODAY) {
-                    try { localStorage.setItem('cached_report_date', TODAY); } catch(e) {}
-                }
-                return data;
-            } catch (e) {
-                console.warn(`[loadReport] 加载 ${date} 失败:`, e.message);
-                // 加载失败时，从 index.json 的 available_dates 找到最近有数据的日期
-                console.log('[loadReport] 尝试从 index.json 获取 available_dates...');
-                try {
-                    const idxResp = await fetch('reports/index.json?v=' + HTML_VERSION);
-                    if (idxResp.ok) {
-                        const idxData = await idxResp.json();
-                        const availableDates = idxData.available_dates || [];
-                        console.log('[loadReport] available_dates (前5):', availableDates.slice(0, 5));
-                        // 遍历 available_dates（从最新开始），找到第一个有数据的日期
-                        for (const availDate of availableDates) {
-                            try {
-                                const resp2 = await fetch(`reports/${availDate}.json?v=${HTML_VERSION}&_cb=${Date.now()}`);
-                                if (resp2.ok) {
-                                    const data2 = await resp2.json();
-                                    if (data2.departments && Object.keys(data2.departments).length > 0) {
-                                        console.log(`[loadReport] ✅ fallback 到: ${availDate}`);
-                                        return data2;
-                                    }
-                                }
-                            } catch(e2) {
-                                console.log(`[loadReport] 尝试 ${availDate} 失败:`, e2.message);
-                            }
-                        }
-                    }
-                } catch(e3) {
-                    console.warn('[loadReport] index.json 也失败:', e3);
-                }
-                // 所有方式都失败，生成今日占位报告（防止白屏）
-                console.log('[loadReport] 生成今日占位报告...');
-                return generatePlaceholderReport(TODAY);
+            const resp = await fetchWithTimeout(`reports/${date}.json?v=${HTML_VERSION}&_cb=${Date.now()}`, 5000);
+            console.log(`[loadReport] HTTP状态: ${resp.status}, url=${resp.url}`);
+            if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+            const data = await resp.json();
+            console.log(`[loadReport] 成功加载 ${date}，${Object.keys(data.departments || {}).length} 个事业部`);
+            // 如果加载的是今天的报告且成功，标记缓存
+            if (date === TODAY) {
+                try { localStorage.setItem('cached_report_date', TODAY); } catch(e) {}
             }
+            return data;
         }
 
         // 生成占位报告（���所有方式都失败时使用）
@@ -12334,47 +12320,55 @@ window.addEventListener('DOMContentLoaded', function() {
                 const today = new Date();
                 const todayStr = urlDate || `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
                 console.log(`[initDynamicData] 网络模式，尝试加载 ${todayStr}.json...`);
-                const jsonData = await loadReportJSON(todayStr);
-                console.log('[initDynamicData] todayStr jsonData 结果:', jsonData ? '有数据' : '空');
-                if (jsonData && jsonData.departments) {
-                    try {
+                try {
+                    const jsonData = await loadReportJSON(todayStr);
+                    console.log('[initDynamicData] todayStr jsonData 结果:', jsonData ? '有数据' : '空');
+                    if (jsonData && jsonData.departments) {
                         dynamicReportData = buildDynamicReportData(jsonData);
                         CURRENT_REPORT_DATE = todayStr;
                         console.log('[initDynamicData] todayStr 构建成功, keys:', Object.keys(dynamicReportData));
-                    } catch(e) {
-                        console.warn('[initDynamicData] todayStr build 失败，进入 fallback:', e);
                     }
+                } catch (e) {
+                    console.warn('[initDynamicData] todayStr 加载失败，进入 fallback:', e.message);
                 }
                 // 如果 dynamicReportData 仍为空（todayStr 失败，或 build 抛异常），走 fallback
                 if (!dynamicReportData) {
                     let found = false;
-                    // 优先：index.json latest_date
+                    let availableDates = [];
+                    // 优先：读取 index.json，获取可用日期列表
                     try {
-                        const idxResp = await fetch('reports/index.json?v=' + HTML_VERSION);
+                        const idxResp = await fetchWithTimeout('reports/index.json?v=' + HTML_VERSION, 5000);
                         if (idxResp.ok) {
                             const idxData = await idxResp.json();
-                            const dates = idxData.available_dates || [];
-                            if (dates.length > 0) {
-                                const latestDate = dates[0];
-                                console.log('[initDynamicData] fallback: index.json latest_date = ' + latestDate);
-                                try {
-                                    const fbData = await loadReportJSON(latestDate);
-                                    if (fbData && fbData.departments) {
-                                        dynamicReportData = buildDynamicReportData(fbData);
-                                        CURRENT_REPORT_DATE = latestDate;
-                                        found = true;
-                                    }
-                                } catch(e3) {
-                                    console.warn('[initDynamicData] index.json latest_date 解析失败:', e3);
-                                }
-                            }
+                            availableDates = idxData.available_dates || [];
+                            console.log('[initDynamicData] index.json 可用日期数:', availableDates.length, '最新:', availableDates[0]);
                         }
                     } catch(e2) {
-                        console.warn('[initDynamicData] index.json 请求失败:', e2);
+                        console.warn('[initDynamicData] index.json 请求失败，走日期回溯:', e2);
                     }
-                    // 兜底：30 天回溯
+                    // 策略1：用 index.json 里的 available_dates（从最新开始尝试，最多试10个）
+                    if (!found && availableDates.length > 0) {
+                        const maxTry = Math.min(availableDates.length, 10);
+                        for (let i = 0; i < maxTry; i++) {
+                            const tryDate = availableDates[i];
+                            try {
+                                const fbData = await loadReportJSON(tryDate);
+                                if (fbData && fbData.departments) {
+                                    dynamicReportData = buildDynamicReportData(fbData);
+                                    CURRENT_REPORT_DATE = tryDate;
+                                    found = true;
+                                    console.log('[initDynamicData] ✅ 从 available_dates 加载成功:', tryDate);
+                                    break;
+                                }
+                            } catch(e3) {
+                                console.log(`[initDynamicData] available_dates[${i}] ${tryDate} 失败:`, e3.message);
+                            }
+                        }
+                    }
+                    // 策略2：如果 index.json 没有可用日期，7 天回溯（原30天太多）
                     if (!found) {
-                        for (let daysBack = 1; daysBack <= 30; daysBack++) {
+                        console.log('[initDynamicData] 进入日期回溯（最多7天）...');
+                        for (let daysBack = 1; daysBack <= 7; daysBack++) {
                             const d = new Date(today.getTime() - daysBack * 86400000);
                             const candidate = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
                             try {
@@ -12383,10 +12377,11 @@ window.addEventListener('DOMContentLoaded', function() {
                                     dynamicReportData = buildDynamicReportData(data);
                                     CURRENT_REPORT_DATE = candidate;
                                     found = true;
+                                    console.log('[initDynamicData] ✅ 回溯加载成功:', candidate);
                                     break;
                                 }
                             } catch(e3) {
-                                console.warn(`[initDynamicData] 回溯 ${candidate} 失败:`, e3);
+                                console.log(`[initDynamicData] 回溯 ${candidate} 失败:`, e3.message);
                             }
                         }
                     }
