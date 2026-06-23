@@ -8341,12 +8341,9 @@ window.__EMBEDDED__ = {
             font-size: 12px;
             color: #6B5B4F;
             line-height: 1.6;
-            max-height: 58px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            display: -webkit-box;
-            -webkit-line-clamp: 3;
-            -webkit-box-orient: vertical;
+            overflow: visible;
+            max-height: none;
+            white-space: normal;
         }
         .chart-summary .summary-date {
             font-size: 10px;
@@ -21211,7 +21208,7 @@ document.addEventListener('DOMContentLoaded', function() {
         };
 
         // 所有可用的数据库看板配置（已根据实际数据文件校准）
-                                                                                                                                                        var DASHBOARDS = [
+                                                                                                                                                                        var DASHBOARDS = [
         {
             id: 'carbonate_price',
             tag: '碳酸锂·现货价格',
@@ -21221,7 +21218,7 @@ document.addEventListener('DOMContentLoaded', function() {
             tableName: '碳酸锂-价格',
             unit: '万元/吨',
             scale: 1,
-            insight: '最新值16.00万元/吨，环比下跌0.6%。同比减6.7%，近期承压。高端产能结构性紧缺，第四代/第五代高压实LFP单吨利润较普通产品高1000-2000元。叠加新能源车下乡155款车型推广、第三批625亿元国补6月底下达及多省独立储能容量电价落地，下半年动力+储能需求确定增强，头部企业订单已排至2027年。',
+            insight: '最新值16.00万元/吨，环比下跌0.6%。同比减6.7%，近期承压。高端产能结构性紧缺，第四代/第五代高压实LFP单吨利润较普通产品高1000-2000元。',
             division: 'czly',
             valueKey: '均价（万元/吨）',
             timeKey: '日期',
@@ -21235,7 +21232,7 @@ document.addEventListener('DOMContentLoaded', function() {
             tableName: '新能源汽车销量-乘用车零售分品牌',
             unit: '万辆',
             scale: 1,
-            insight: 'TOP1「比亚迪汽车」占30%（20.7万辆)，吉利汽车16%。高端产能结构性紧缺，第四代/第五代高压实LFP单吨利润较普通产品高1000-2000元。叠加新能源车下乡155款车型推广、第三批625亿元国补6月底下达及多省独立储能容量电价落地，下半年动力+储能需求确定增强，头部企业订单已排至2027年。',
+            insight: 'TOP1「比亚迪汽车」占30%（20.7万辆)，吉利汽车16%。高端产能结构性紧缺，第四代/第五代高压实LFP单吨利润较普通产品高1000-2000元。',
             division: 'czly',
             chartType: 'pie',
             isBar: false,
@@ -21267,12 +21264,14 @@ document.addEventListener('DOMContentLoaded', function() {
             tableName: '电解液价格-三元动力型',
             unit: '万元/吨',
             scale: 1,
-            insight: '最新值3.00万元/吨，环比上涨0.0%。同比增3.4%，近期走强。优美科常熟催化剂工厂投产与捷氢M5X 328kW电堆发布标志国产PEM催化剂和大功率电堆进入量产突破期，2030年FCV保有量10万辆目标叠加PEM电解槽招标占比提升，铂基催化剂需求确定性增强，国产替代窗口已经打开。',
+            insight: '最新值3.00万元/吨，环比上涨0.0%。同比增3.4%，近期走强。优美科常熟催化剂工厂投产与捷氢M5X 328kW电堆发布标志国产PEM催化剂和大功率电堆进入量产突破期，2030年FCV保有量。',
             division: 'felt',
             valueKey: '均价',
             timeKey: '日期',
             isBar: false}
         ];
+        
+        
         
         
         

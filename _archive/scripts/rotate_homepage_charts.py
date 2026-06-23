@@ -555,6 +555,18 @@ def generate_pie_insight(chart, data_json, latest_report, division):
                     news_part = text
                     break
     
+    # 压缩 news_part 到合理长度（目标：总长度 ≤100 字）
+    # part1 ~40字，留给 news_part ~58字
+    if news_part:
+        max_news_pie = 100 - len(part1) - 3
+        if max_news_pie > 10 and len(news_part) > max_news_pie:
+            truncated = news_part[:max_news_pie]
+            last_period = truncated.rfind('。')
+            if last_period > 5:
+                news_part = truncated[:last_period + 1]
+            else:
+                news_part = news_part[:max_news_pie - 1] + '。'
+    
     # 组合文案
     full_text = part1 + "。"
     if news_part:
@@ -563,20 +575,20 @@ def generate_pie_insight(chart, data_json, latest_report, division):
             news_part += '。'
         full_text += news_part
     
-    # 上限200字（完整展示行业分析）
-    if len(full_text) > 200:
+    # 上限100字（完整展示，句号处截断，不添加省略号）
+    if len(full_text) > 100:
         base_len = len(part1) + 1  # part1 + "。"
-        max_news = 200 - base_len - 3
+        max_news = 100 - base_len - 3
         if max_news > 10:
+            # 在句号处截断，不添加省略号
             truncated = news_part[:max_news]
             last_period = truncated.rfind('。')
-            if last_period > max_news * 0.5:
+            if last_period > 10:
                 truncated = truncated[:last_period + 1]
-            else:
-                truncated += '…'
+            # 若找不到句号，直接截断，不加省略号
             full_text = part1 + "。" + truncated
         else:
-            full_text = full_text[:197] + '…'
+            full_text = full_text[:100]
     
     return full_text
 
@@ -730,8 +742,23 @@ def generate_insight_with_news(chart, metrics, report, division):
                     if text and len(text) > 20:
                         news_part = text
                         break
+    # 压缩 news_part 到合理长度（目标：总长度 ≤100 字）
+    # data_part ~25字，compare_part ~20字，留给 news_part ~55字
+    if news_part:
+        max_news = 100 - len(data_part) - len(compare_part) - 2
+        if max_news < 10:
+            max_news = 10
+        if len(news_part) > max_news:
+            # 在句号处截断，不添加省略号
+            truncated = news_part[:max_news]
+            last_period = truncated.rfind('。')
+            if last_period > 5:
+                news_part = truncated[:last_period + 1]
+            else:
+                # 找不到句号，直接在 max_news 处截断并补句号
+                news_part = news_part[:max_news - 1] + '。'
     
-    # 组合文案：数据 + 分析（总长度约70-130字，完整展示不截断）
+    # 组合文案：数据 + 分析（总长度 ≤100 字，完整展示不截断）
     full_text = data_part + compare_part
     if news_part:
         # 清理news_part：去换行、多余空格
@@ -740,22 +767,21 @@ def generate_insight_with_news(chart, metrics, report, division):
             news_part += '。'
         full_text += news_part
     
-    # 最终长度控制：上限150字（完整展示行业分析，不轻易截断）
-    if len(full_text) > 200:
-        # 智能截断：保留数据部分，截断新闻部分但不断句中间切断
+    # 最终长度控制：上限100字（句号处截断，不添加省略号）
+    if len(full_text) > 100:
+        # 智能截断：保留数据部分，在句号处截断新闻部分
         base_len = len(data_part) + len(compare_part)
-        max_news = 200 - base_len - 3
-        if max_news > 15:
-            # 尝试在句号处截断
+        max_news = 100 - base_len - 3
+        if max_news > 10:
+            # 在句号处截断，不添加省略号
             truncated = news_part[:max_news]
             last_period = truncated.rfind('。')
-            if last_period > max_news * 0.5:
+            if last_period > 10:
                 truncated = truncated[:last_period + 1]
-            else:
-                truncated += '…'
+            # 若找不到句号，直接截断，不加省略号
             full_text = data_part + compare_part + truncated
         else:
-            full_text = full_text[:197] + '…'
+            full_text = full_text[:100]
     
     return full_text
 
