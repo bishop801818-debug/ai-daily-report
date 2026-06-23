@@ -412,7 +412,7 @@ def load_latest_report(base_dir):
 
 
 def generate_pie_insight(chart, data_json, latest_report, division):
-    """生成饼图数据洞察文案（50-80字）"""
+    """生成饼图数据洞察文案（完整展示，含行业分析）"""
     rows = get_table_rows(data_json, chart['tableName'])
     if not rows:
         return '数据不足，无法生成分析。'
@@ -488,24 +488,101 @@ def generate_pie_insight(chart, data_json, latest_report, division):
         sec_pct = (sec_val / total * 100) if total > 0 else 0
         part1 += f"，{sec_name}{sec_pct:.0f}%"
 
-    # 补充行业消息
+    # 补充行业消息（使用与折线图/柱状图相同的提取逻辑）
     news_part = ""
     if latest_report and division:
         dept = latest_report.get('departments', {}).get(division, {})
-        sections = dept.get('sections', [])
-        if isinstance(sections, list):
-            market_section = next((s for s in sections if s.get('dim') == 'market'), None)
-            supply_signals = market_section.get('items', []) if market_section else []
-            if supply_signals:
-                title = supply_signals[0].get('标题', '').rstrip('。')
-                news_part = f"{title[:24]}。" if len(title) > 24 else f"{title}。"
-
-    full_text = part1 + "。" + news_part
-    return full_text[:80] if len(full_text) > 80 else full_text
+        
+        if dept:
+            sections = dept.get('sections', {})
+        elif isinstance(latest_report, dict) and 'sections' in latest_report:
+            sections = latest_report.get('sections', {})
+        else:
+            sections = {}
+        
+        # 复用相同的提取逻辑
+        def extract_pie_news(sections_obj):
+            """从早报中提取行业分析内容"""
+            if not sections_obj:
+                return ""
+            
+            best_content = ""
+            
+            # 英文dim格式（list）
+            if isinstance(sections_obj, list):
+                for dim_name in ['action', 'topnews', 'policy']:
+                    sec = next((s for s in sections_obj if s.get('dim') == dim_name), None)
+                    if sec and sec.get('items'):
+                        item = sec['items'][0]
+                        content = item.get('content') or item.get('内容', '')
+                        if content and len(content) > 15:
+                            best_content = content
+                            break
+            
+            # 中文键名格式（dict）
+            elif isinstance(sections_obj, dict):
+                tips = sections_obj.get('专属提示', {})
+                if isinstance(tips, dict):
+                    for cat in ['机会', '风险']:
+                        items_list = tips.get(cat, [])
+                        if items_list:
+                            summary = items_list[0].get('总结', '')
+                            if summary and len(summary) > 15:
+                                best_content = summary
+                                break
+                
+                if not best_content or len(best_content) < 15:
+                    policy_list = sections_obj.get('政策_行业', [])
+                    if policy_list:
+                        item = policy_list[0]
+                        sm = item.get('摘要', '')
+                        if sm and len(sm) > 15:
+                            best_content = sm
+            
+            return best_content
+        
+        news_part = extract_pie_news(sections)
+        
+        # 跨事业部回退
+        if (not news_part or len(news_part) < 15) and isinstance(latest_report, dict):
+            depts = latest_report.get('departments', {})
+            for div_id, div_data in depts.items():
+                if div_id == division:
+                    continue
+                div_secs = div_data.get('sections', {})
+                text = extract_pie_news(div_secs)
+                if text and len(text) > 15:
+                    news_part = text
+                    break
+    
+    # 组合文案
+    full_text = part1 + "。"
+    if news_part:
+        news_part = news_part.replace('\n', '，').replace('  ', ' ').strip()
+        if not news_part.endswith(('。', '！', '？')):
+            news_part += '。'
+        full_text += news_part
+    
+    # 上限200字（完整展示行业分析）
+    if len(full_text) > 200:
+        base_len = len(part1) + 1  # part1 + "。"
+        max_news = 200 - base_len - 3
+        if max_news > 10:
+            truncated = news_part[:max_news]
+            last_period = truncated.rfind('。')
+            if last_period > max_news * 0.5:
+                truncated = truncated[:last_period + 1]
+            else:
+                truncated += '…'
+            full_text = part1 + "。" + truncated
+        else:
+            full_text = full_text[:197] + '…'
+    
+    return full_text
 
 
 def generate_insight_with_news(chart, metrics, report, division):
-    """生成数据洞察文案（50-80字），从早报中提取行业分析"""
+    """生成数据洞察文案，从早报中提取行业分析（完整展示，不截断）"""
     if metrics is None:
         return '数据不足，无法生成分析。'
     
@@ -531,7 +608,7 @@ def generate_insight_with_news(chart, metrics, report, division):
     # 1. 数据描述部分（约20字）
     data_part = f"最新值{latest_str}{unit}，环比{trend}{abs_change:.1f}%。"
     
-    # 2. 同环比分析（约20字）
+    # 2. 同环比分析（约15字）
     yoy = metrics.get('yoyChange')
     trend3 = metrics.get('trend3', 'up')
     if yoy is not None:
@@ -542,104 +619,106 @@ def generate_insight_with_news(chart, metrics, report, division):
     trend3_str = "近期走强" if trend3 == 'up' else "近期承压"
     compare_part = f"{yoy_str}，{trend3_str}。"
     
-    # 3. 行业分析（从早报提取摘要，目标50-80字）
+    # 3. 行业分析（从早报提取摘要，目标50-100字，完整展示不截断）
     news_part = ""
     if report and division:
         # 获取该事业部的数据
         dept = report.get('departments', {}).get(division, {})
-        if not dept:
-            # 如果report是合并文件，尝试直接获取
-            if isinstance(report, dict) and 'sections' in report:
-                # 单事业部文件格式
-                pass
         
         if dept:
             sections = dept.get('sections', {})
+        elif isinstance(report, dict) and 'sections' in report:
+            # 单事业部文件格式（sections在顶层）
+            sections = report.get('sections', {})
+        else:
+            sections = {}
+        
+        # 辅助函数：从中文键名sections中提取内容
+        def extract_from_chinese_sections(sections_dict):
+            """从中文键名sections中提取有价值的分析内容"""
+            if not isinstance(sections_dict, dict):
+                return ""
             
-            # 辅助函数：从中文键名sections中提取内容
-            def extract_from_chinese_sections(sections_dict):
-                """从中文键名sections中提取有价值的分析内容（50-80字）"""
-                if not isinstance(sections_dict, dict):
-                    return ""
-                
-                # 优先级1：专属提示→机会（最有价值的行业分析）
-                tips = sections_dict.get('专属提示', {})
-                if isinstance(tips, dict):
-                    # 机会
-                    opp_items = tips.get('机会', [])
-                    if opp_items and len(opp_items) > 0:
-                        summary = opp_items[0].get('总结', '')
-                        if len(summary) > 20:
-                            return summary[:80]
-                    # 行动建议
-                    action_items = tips.get('行动建议', [])
-                    if action_items and len(action_items) > 0:
-                        summary = action_items[0].get('总结', '')
-                        if len(summary) > 20:
-                            return summary[:80]
-                
-                # 优先级2：政策_行业（政策影响分析）
+            best_content = ""
+            
+            # 优先级1：专属提示→机会（最有价值的行业分析，通常60-100字）
+            tips = sections_dict.get('专属提示', {})
+            if isinstance(tips, dict):
+                for cat in ['机会', '风险', '行动建议', '重点关注']:
+                    items = tips.get(cat, [])
+                    if items and len(items) > 0:
+                        summary = items[0].get('总结', '')
+                        if summary and len(summary) > 20:
+                            best_content = summary
+                            break  # 找到第一个有内容的就使用
+            
+            # 如果专属提示没有足够内容，尝试政策_行业
+            if not best_content or len(best_content) < 20:
                 policy_list = sections_dict.get('政策_行业', [])
                 if isinstance(policy_list, list) and len(policy_list) > 0:
                     item = policy_list[0]
                     summary = item.get('摘要', '')
-                    if len(summary) > 20:
-                        return summary[:80]
-                
-                # 优先级3：企业动态（行业事件）
+                    if summary and len(summary) > 20:
+                        best_content = summary
+            
+            # 备选：企业动态
+            if not best_content or len(best_content) < 20:
                 ent_list = sections_dict.get('企业动态', [])
                 if isinstance(ent_list, list) and len(ent_list) > 0:
                     item = ent_list[0]
                     summary = item.get('摘要', '')
-                    if len(summary) > 20:
-                        return summary[:80]
-                
-                # 优先级4：今日关注（仅作备选）
-                topnews_list = sections_dict.get('今日关注', [])
-                if isinstance(topnews_list, list) and len(topnews_list) > 0:
-                    item = topnews_list[0]
-                    title = item.get('标题', '')
-                    if title:
-                        return title
-                
+                    if summary and len(summary) > 20:
+                        best_content = summary
+            
+            # 最后备选：技术_产品（含具体产品/技术信息）
+            if not best_content or len(best_content) < 20:
+                tech_list = sections_dict.get('技术_产品', [])
+                if isinstance(tech_list, list) and len(tech_list) > 0:
+                    item = tech_list[0]
+                    summary = item.get('摘要', '')
+                    if summary and len(summary) > 20:
+                        best_content = summary
+            
+            return best_content
+        
+        # 辅助函数：从英文dim sections中提取内容（兼容旧格式）
+        def extract_from_english_sections(sections_list):
+            """从英文dim sections中提取内容"""
+            if not isinstance(sections_list, list):
                 return ""
             
-            # 辅助函数：从英文dim sections中提取内容（兼容旧格式）
-            def extract_from_english_sections(sections_list):
-                """从英文dim sections中提取内容"""
-                if not isinstance(sections_list, list):
-                    return ""
-                
-                # 优先级1：action（分析洞察）
-                action_sec = next((s for s in sections_list if s.get('dim') == 'action'), None)
-                if action_sec and action_sec.get('items'):
-                    item = action_sec['items'][0]
+            best_content = ""
+            # 按优先级查找
+            for dim_name in ['action', 'topnews', 'policy', 'tech']:
+                sec = next((s for s in sections_list if s.get('dim') == dim_name), None)
+                if sec and sec.get('items'):
+                    item = sec['items'][0]
                     content = item.get('content') or item.get('内容', '')
+                    title = item.get('title') or item.get('标题', '')
                     if content and len(content) > 20:
-                        return content[:80]
-                
-                # 优先级2：topnews（行业大事）
-                topnews_sec = next((s for s in sections_list if s.get('dim') == 'topnews'), None)
-                if topnews_sec and topnews_sec.get('items'):
-                    item = topnews_sec['items'][0]
-                    content = item.get('content') or item.get('内容', '')
-                    if content and len(content) > 20:
-                        return content[:80]
-                
-                return ""
+                        best_content = content
+                        break
+                    elif title and not best_content:
+                        best_content = title
             
-            # 根据sections格式选择提取方式
-            if isinstance(sections, dict):
-                # 中文键名格式
-                news_part = extract_from_chinese_sections(sections)
-            elif isinstance(sections, list):
-                # 英文dim格式
-                news_part = extract_from_english_sections(sections)
-            
-            # 如果本事业部没找到，尝试从其他事业部获取（针对跨事业部图表）
-            if not news_part and isinstance(report, dict):
-                # 遍历所有事业部，找第一个有内容的
-                for div_id, div_data in report.get('departments', {}).items():
+            return best_content
+        
+        # 根据sections格式选择提取方式
+        if isinstance(sections, dict):
+            news_part = extract_from_chinese_sections(sections)
+        elif isinstance(sections, list):
+            news_part = extract_from_english_sections(sections)
+        
+        # 跨事业部回退：如果本事业部没找到有效内容，遍历所有事业部
+        if (not news_part or len(news_part) < 20) and isinstance(report, dict):
+            depts = report.get('departments', {})
+            if not depts and isinstance(report, dict) and 'sections' in report:
+                # 单文件格式，没有departments，跳过回退
+                pass
+            else:
+                for div_id, div_data in depts.items():
+                    if div_id == division:
+                        continue  # 已检查过
                     div_sections = div_data.get('sections', {})
                     if isinstance(div_sections, dict):
                         text = extract_from_chinese_sections(div_sections)
@@ -652,26 +731,33 @@ def generate_insight_with_news(chart, metrics, report, division):
                         news_part = text
                         break
     
-    # 组合文案，控制总长度50-80字
+    # 组合文案：数据 + 分析（总长度约70-130字，完整展示不截断）
     full_text = data_part + compare_part
     if news_part:
-        # 清理news_part
+        # 清理news_part：去换行、多余空格
         news_part = news_part.replace('\n', '，').replace('  ', ' ').strip()
-        if not news_part.endswith('。'):
+        if not news_part.endswith(('。', '！', '？')):
             news_part += '。'
         full_text += news_part
     
-    # 如果太长，截断
-    if len(full_text) > 80:
-        # 保留data_part + compare_part，截断news_part
-        max_news_len = 80 - len(data_part) - len(compare_part) - 3
-        if max_news_len > 10:
-            news_part = news_part[:max_news_len] + '…'
-            full_text = data_part + compare_part + news_part
+    # 最终长度控制：上限150字（完整展示行业分析，不轻易截断）
+    if len(full_text) > 200:
+        # 智能截断：保留数据部分，截断新闻部分但不断句中间切断
+        base_len = len(data_part) + len(compare_part)
+        max_news = 200 - base_len - 3
+        if max_news > 15:
+            # 尝试在句号处截断
+            truncated = news_part[:max_news]
+            last_period = truncated.rfind('。')
+            if last_period > max_news * 0.5:
+                truncated = truncated[:last_period + 1]
+            else:
+                truncated += '…'
+            full_text = data_part + compare_part + truncated
         else:
-            full_text = (data_part + compare_part)[:77] + '…'
+            full_text = full_text[:197] + '…'
     
-    return full_text[:80]
+    return full_text
 
 
 def select_diverse_charts(catalog, n=4, seed=None):
