@@ -12,7 +12,67 @@
     <script src="chemical_data.js?v=20260613"></script>
     <script src="recycling_gantt.js?v=20260612"></script>
     <script>
-      window.HTML_VERSION = "20260622_001"; // 版本号，用于fetch缓存刷新（2026-06-22 集团矩阵遍历所有可用日期）
+      window.HTML_VERSION = "20260623_001"; // 版本号，用于fetch缓存刷新（2026-06-23 优化加载逻辑：加超时+减少回溯）
+
+        // ═══════════════════════════════════════════════════
+        // 事业部权限控制
+        // ═══════════════════════════════════════════════════
+        const BU_PERMISSIONS = {
+            'all': { name: '全部（集团领导）', allowed: ['czly','sdmd','sjld','lpsd','fnlt','lube','kls','dkhx','bych'] },
+            'czly': { name: '常州锂源（磷酸铁锂正极材料）', allowed: ['czly'] },
+            'sdmd': { name: '山东美多（磷酸铁锂正极材料）', allowed: ['sdmd'] },
+            'sjld': { name: '三金锂电（磷酸铁锂正极材料）', allowed: ['sjld'] },
+            'lpsd': { name: '龙蟠时代（锂电池）', allowed: ['lpsd'] },
+            'fnlt': { name: '法恩莱特（电解液）', allowed: ['fnlt'] },
+            'dkhx': { name: '迪克化学（电解液）', allowed: ['dkhx'] },
+            'lube': { name: '润滑油', allowed: ['lube'] },
+            'kls': { name: '可兰素（车用尿素）', allowed: ['kls'] },
+            'bych': { name: '铂源催化', allowed: ['bych'] }
+        };
+
+        // 获取当前用户允许的事业部列表
+        function getAllowedBUs() {
+            // 优先检查飞书认证
+            const feishuUserInfoStr = localStorage.getItem('feishu_user_info');
+            if (feishuUserInfoStr) {
+                try {
+                    const feishuUserInfo = JSON.parse(feishuUserInfoStr);
+                    if (feishuUserInfo && feishuUserInfo.matched_bu) {
+                        console.log('[权限] 使用飞书认证，事业部:', feishuUserInfo.matched_dept_name || feishuUserInfo.matched_bu);
+                        return [feishuUserInfo.matched_bu];
+                    }
+                } catch (e) {
+                    console.error('[权限] 解析飞书用户信息失败:', e);
+                }
+            }
+            
+            // 否则使用手动选择
+            const saved = localStorage.getItem('user_bu_permission');
+            if (saved && BU_PERMISSIONS[saved]) {
+                return BU_PERMISSIONS[saved].allowed;
+            }
+            return BU_PERMISSIONS['all'].allowed; // 默认显示全部
+        }
+
+        // 检查是否有权限
+        function hasPermission(buId) {
+            return getAllowedBUs().includes(buId);
+        }
+
+        // 显示事业部选择弹窗
+        function showBUSelectModal() {
+            const modal = document.getElementById('bu-select-modal');
+            if (modal) modal.style.display = 'flex';
+        }
+
+        // 隐藏选择弹窗并保存选择
+        function saveBUSelection(buKey) {
+            localStorage.setItem('user_bu_permission', buKey);
+            const modal = document.getElementById('bu-select-modal');
+            if (modal) modal.style.display = 'none';
+            // 刷新页面以应用权限
+            location.reload();
+        }
 
       /* ---------- 彻底防止图表旧内容闪屏（bfcache + 渲染残留）----------
        * 问题：浏览器前进后退缓存(bfcache)会保存完整页面状态，
@@ -6362,6 +6422,149 @@ window.__EMBEDDED__ = {
             box-shadow: 0 6px 18px rgba(30, 60, 114, 0.35);
         }
 
+/* ===== 事业部选择弹窗 ===== */
+.bu-select-modal {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    z-index: 100000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.bu-select-overlay {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.5);
+    backdrop-filter: blur(4px);
+}
+.bu-select-dialog {
+    position: relative;
+    background: #fff;
+    border-radius: 16px;
+    padding: 24px;
+    max-width: 400px;
+    width: 90%;
+    max-height: 80vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+}
+.bu-select-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: #1a1a1a;
+    text-align: center;
+    margin-bottom: 8px;
+}
+.bu-select-subtitle {
+    font-size: 14px;
+    color: #666;
+    text-align: center;
+    margin-bottom: 20px;
+}
+.bu-select-feishu {
+    margin-bottom: 20px;
+    text-align: center;
+    padding: 16px;
+    background: linear-gradient(135deg, #f8f9ff 0%, #e8edff 100%);
+    border-radius: 12px;
+    border: 1px solid #d0d7f0;
+}
+.bu-select-feishu-btn {
+    background: linear-gradient(135deg, #2d5de5 0%, #1e3a8a 100%);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+.bu-select-feishu-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(45, 93, 229, 0.35);
+}
+.bu-select-feishu-hint {
+    font-size: 12px;
+    color: #666;
+    margin-top: 8px;
+    line-height: 1.4;
+}
+.bu-select-divider {
+    display: flex;
+    align-items: center;
+    margin: 20px 0;
+    color: #999;
+    font-size: 14px;
+}
+.bu-select-divider::before,
+.bu-select-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: #ddd;
+}
+.bu-select-divider span {
+    padding: 0 12px;
+}
+.bu-select-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.bu-select-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    background: #f8f9fa;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.bu-select-item:hover {
+    background: #e8f5e9;
+    transform: translateX(4px);
+}
+.bu-select-icon {
+    font-size: 20px;
+}
+.bu-select-name {
+    font-size: 15px;
+    font-weight: 600;
+    color: #1a1a1a;
+}
+.bu-select-tag {
+    font-size: 12px;
+    color: #888;
+    margin-left: auto;
+}
+
+/* 切换事业部按钮 */
+.bu-switch-btn {
+    position: fixed;
+    top: 16px;
+    right: 16px;
+    z-index: 9999;
+    padding: 8px 16px;
+    background: linear-gradient(135deg, #007D4E, #007D4E);
+    color: #fff;
+    border: none;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0,125,78,0.3);
+    transition: all 0.2s;
+}
+.bu-switch-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 16px rgba(0,125,78,0.4);
+}
+
 /* ===== 3D AI 龙蟠悬浮按钮 ===== */
 .ai-float-wrap {
     position: fixed;
@@ -11347,53 +11550,39 @@ window.addEventListener('DOMContentLoaded', function() {
          * @param {string} date - YYYY-MM-DD 格式
          * @returns {Promise<object>} 报告数据对象
          */
+        // ============================================================
+        // 工具函数：带超时的 fetch（默认 5 秒）
+        // ============================================================
+        async function fetchWithTimeout(url, timeout = 5000) {
+            const controller = new AbortController();
+            const id = setTimeout(() => controller.abort(), timeout);
+            try {
+                const resp = await fetch(url, { signal: controller.signal });
+                clearTimeout(id);
+                return resp;
+            } catch (e) {
+                clearTimeout(id);
+                throw e;
+            }
+        }
+
+        // ============================================================
+        // 加载指定日期的报告 JSON 文件（单一职责：只加载指定日期）
+        // 失败直接抛异常，不做内部 fallback，由调用方决定降级策略
+        // ============================================================
         async function loadReportJSON(date) {
             const TODAY = new Date().toISOString().slice(0, 10);
             console.log(`[loadReport] 开始加载 ${date}.json...`);
-            try {
-                const resp = await fetch(`reports/${date}.json?v=${HTML_VERSION}&_cb=${Date.now()}`);
-                console.log(`[loadReport] HTTP状态: ${resp.status}, url=${resp.url}`);
-                if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-                const data = await resp.json();
-                console.log(`[loadReport] 成功加载 ${date}，${Object.keys(data.departments || {}).length} 个事业部`);
-                // 如果加载的是今天的报告且成功，标记缓存
-                if (date === TODAY) {
-                    try { localStorage.setItem('cached_report_date', TODAY); } catch(e) {}
-                }
-                return data;
-            } catch (e) {
-                console.warn(`[loadReport] 加载 ${date} 失败:`, e.message);
-                // 加载失败时，从 index.json 的 available_dates 找到最近有数据的日期
-                console.log('[loadReport] 尝试从 index.json 获取 available_dates...');
-                try {
-                    const idxResp = await fetch('reports/index.json?v=' + HTML_VERSION);
-                    if (idxResp.ok) {
-                        const idxData = await idxResp.json();
-                        const availableDates = idxData.available_dates || [];
-                        console.log('[loadReport] available_dates (前5):', availableDates.slice(0, 5));
-                        // 遍历 available_dates（从最新开始），找到第一个有数据的日期
-                        for (const availDate of availableDates) {
-                            try {
-                                const resp2 = await fetch(`reports/${availDate}.json?v=${HTML_VERSION}&_cb=${Date.now()}`);
-                                if (resp2.ok) {
-                                    const data2 = await resp2.json();
-                                    if (data2.departments && Object.keys(data2.departments).length > 0) {
-                                        console.log(`[loadReport] ✅ fallback 到: ${availDate}`);
-                                        return data2;
-                                    }
-                                }
-                            } catch(e2) {
-                                console.log(`[loadReport] 尝试 ${availDate} 失败:`, e2.message);
-                            }
-                        }
-                    }
-                } catch(e3) {
-                    console.warn('[loadReport] index.json 也失败:', e3);
-                }
-                // 所有方式都失败，生成今日占位报告（防止白屏）
-                console.log('[loadReport] 生成今日占位报告...');
-                return generatePlaceholderReport(TODAY);
+            const resp = await fetchWithTimeout(`reports/${date}.json?v=${HTML_VERSION}&_cb=${Date.now()}`, 5000);
+            console.log(`[loadReport] HTTP状态: ${resp.status}, url=${resp.url}`);
+            if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+            const data = await resp.json();
+            console.log(`[loadReport] 成功加载 ${date}，${Object.keys(data.departments || {}).length} 个事业部`);
+            // 如果加载的是今天的报告且成功，标记缓存
+            if (date === TODAY) {
+                try { localStorage.setItem('cached_report_date', TODAY); } catch(e) {}
             }
+            return data;
         }
 
         // 生成占位报告（���所有方式都失败时使用）
@@ -12131,47 +12320,55 @@ window.addEventListener('DOMContentLoaded', function() {
                 const today = new Date();
                 const todayStr = urlDate || `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
                 console.log(`[initDynamicData] 网络模式，尝试加载 ${todayStr}.json...`);
-                const jsonData = await loadReportJSON(todayStr);
-                console.log('[initDynamicData] todayStr jsonData 结果:', jsonData ? '有数据' : '空');
-                if (jsonData && jsonData.departments) {
-                    try {
+                try {
+                    const jsonData = await loadReportJSON(todayStr);
+                    console.log('[initDynamicData] todayStr jsonData 结果:', jsonData ? '有数据' : '空');
+                    if (jsonData && jsonData.departments) {
                         dynamicReportData = buildDynamicReportData(jsonData);
                         CURRENT_REPORT_DATE = todayStr;
                         console.log('[initDynamicData] todayStr 构建成功, keys:', Object.keys(dynamicReportData));
-                    } catch(e) {
-                        console.warn('[initDynamicData] todayStr build 失败，进入 fallback:', e);
                     }
+                } catch (e) {
+                    console.warn('[initDynamicData] todayStr 加载失败，进入 fallback:', e.message);
                 }
                 // 如果 dynamicReportData 仍为空（todayStr 失败，或 build 抛异常），走 fallback
                 if (!dynamicReportData) {
                     let found = false;
-                    // 优先：index.json latest_date
+                    let availableDates = [];
+                    // 优先：读取 index.json，获取可用日期列表
                     try {
-                        const idxResp = await fetch('reports/index.json?v=' + HTML_VERSION);
+                        const idxResp = await fetchWithTimeout('reports/index.json?v=' + HTML_VERSION, 5000);
                         if (idxResp.ok) {
                             const idxData = await idxResp.json();
-                            const dates = idxData.available_dates || [];
-                            if (dates.length > 0) {
-                                const latestDate = dates[0];
-                                console.log('[initDynamicData] fallback: index.json latest_date = ' + latestDate);
-                                try {
-                                    const fbData = await loadReportJSON(latestDate);
-                                    if (fbData && fbData.departments) {
-                                        dynamicReportData = buildDynamicReportData(fbData);
-                                        CURRENT_REPORT_DATE = latestDate;
-                                        found = true;
-                                    }
-                                } catch(e3) {
-                                    console.warn('[initDynamicData] index.json latest_date 解析失败:', e3);
-                                }
-                            }
+                            availableDates = idxData.available_dates || [];
+                            console.log('[initDynamicData] index.json 可用日期数:', availableDates.length, '最新:', availableDates[0]);
                         }
                     } catch(e2) {
-                        console.warn('[initDynamicData] index.json 请求失败:', e2);
+                        console.warn('[initDynamicData] index.json 请求失败，走日期回溯:', e2);
                     }
-                    // 兜底：30 天回溯
+                    // 策略1：用 index.json 里的 available_dates（从最新开始尝试，最多试10个）
+                    if (!found && availableDates.length > 0) {
+                        const maxTry = Math.min(availableDates.length, 10);
+                        for (let i = 0; i < maxTry; i++) {
+                            const tryDate = availableDates[i];
+                            try {
+                                const fbData = await loadReportJSON(tryDate);
+                                if (fbData && fbData.departments) {
+                                    dynamicReportData = buildDynamicReportData(fbData);
+                                    CURRENT_REPORT_DATE = tryDate;
+                                    found = true;
+                                    console.log('[initDynamicData] ✅ 从 available_dates 加载成功:', tryDate);
+                                    break;
+                                }
+                            } catch(e3) {
+                                console.log(`[initDynamicData] available_dates[${i}] ${tryDate} 失败:`, e3.message);
+                            }
+                        }
+                    }
+                    // 策略2：如果 index.json 没有可用日期，7 天回溯（原30天太多）
                     if (!found) {
-                        for (let daysBack = 1; daysBack <= 30; daysBack++) {
+                        console.log('[initDynamicData] 进入日期回溯（最多7天）...');
+                        for (let daysBack = 1; daysBack <= 7; daysBack++) {
                             const d = new Date(today.getTime() - daysBack * 86400000);
                             const candidate = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
                             try {
@@ -12180,10 +12377,11 @@ window.addEventListener('DOMContentLoaded', function() {
                                     dynamicReportData = buildDynamicReportData(data);
                                     CURRENT_REPORT_DATE = candidate;
                                     found = true;
+                                    console.log('[initDynamicData] ✅ 回溯加载成功:', candidate);
                                     break;
                                 }
                             } catch(e3) {
-                                console.warn(`[initDynamicData] 回溯 ${candidate} 失败:`, e3);
+                                console.log(`[initDynamicData] 回溯 ${candidate} 失败:`, e3.message);
                             }
                         }
                     }
@@ -18506,6 +18704,32 @@ function buildCard(buId) {
 }
 
 async function init() {
+    // 检查权限 - 优先使用飞书认证
+    const feishuUserInfoStr = localStorage.getItem('feishu_user_info');
+    let useFeishuAuth = false;
+    
+    if (feishuUserInfoStr) {
+        try {
+            const feishuUserInfo = JSON.parse(feishuUserInfoStr);
+            if (feishuUserInfo && feishuUserInfo.matched_bu) {
+                useFeishuAuth = true;
+                // 设置 user_bu_permission 以便现有逻辑工作
+                localStorage.setItem('user_bu_permission', feishuUserInfo.matched_bu);
+                console.log('[init] 使用飞书认证，事业部:', feishuUserInfo.matched_dept_name || feishuUserInfo.matched_bu);
+            }
+        } catch (e) {
+            console.error('[init] 解析飞书用户信息失败:', e);
+        }
+    }
+    
+    // 如果没有飞书认证，检查手动选择
+    if (!useFeishuAuth) {
+        const savedPermission = localStorage.getItem('user_bu_permission');
+        if (!savedPermission) {
+            showBUSelectModal();
+        }
+    }
+    
     // 加载logo
     try {
         const res = await fetch('bu_logos.json');
@@ -18517,10 +18741,11 @@ async function init() {
         }
     } catch(e) {}
 
-    // 新能源：五边形布局
+    // 新能源：五边形布局（只显示有权限的）
     const pentagon = document.getElementById('pentagon-wrap');
     if (pentagon) {
         LI_BUIS.forEach(buId => {
+            if (!hasPermission(buId)) return; // 权限过滤
             const posClass = PENTAGON_POS[buId] || '';
             const wrap = document.createElement('div');
             wrap.className = posClass;
@@ -18531,23 +18756,37 @@ async function init() {
         console.warn('[init] pentagon-wrap 不存在，跳过新能源五边形布局');
     }
 
-    // 化学品：三卡片
+    // 化学品：三卡片（只显示有权限的）
     const chemContainer = document.getElementById('chemical-cards');
     if (chemContainer) {
-        CHEM_BUIS.forEach(id => { chemContainer.innerHTML += buildCard(id); });
+        CHEM_BUIS.forEach(id => { 
+            if (hasPermission(id)) chemContainer.innerHTML += buildCard(id); 
+        });
     } else {
         console.warn('[init] chemical-cards 不存在，跳过化学品卡片');
     }
 
-    // 氢能：单卡片
+    // 氢能：单卡片（只显示有权限的）
     const hydroContainer = document.getElementById('hydrogen-cards');
     if (hydroContainer) {
-        HYDROGEN_BUIS.forEach(id => { hydroContainer.innerHTML += buildCard(id); });
+        HYDROGEN_BUIS.forEach(id => { 
+            if (hasPermission(id)) hydroContainer.innerHTML += buildCard(id); 
+        });
     } else {
         console.warn('[init] hydrogen-cards 不存在，跳过氢能卡片');
     }
 
     bindEvents();
+
+    // 集团矩阵：根据权限显示/隐藏事业部卡片
+    const allowedBUs = getAllowedBUs();
+    document.querySelectorAll('.matrix-card').forEach(card => {
+        const buId = card.getAttribute('onclick')?.match(/openPanel\('(\w+)'\)/)?.[1];
+        if (buId && !allowedBUs.includes(buId)) {
+            card.style.display = 'none';
+        }
+    });
+
     // startCarousel() 已禁用 - 矩阵网格为静态展示，无需轮播
 }
 
@@ -19315,10 +19554,20 @@ function switchLithiumSubCategory(subCategory) {
         if (activeTab) activeTab.classList.add('active');
     }
     
+    // 控制产业链全景图显示：仅在磷酸铁锂产业时显示
+    var chainPanel = document.getElementById('chain-panel');
+    if (chainPanel) {
+        if (subCategory === 'lfp') {
+            chainPanel.style.display = 'block';
+        } else {
+            chainPanel.style.display = 'none';
+        }
+    }
+    
     // 重新渲染甘特图
     renderLithiumGantt(subCategory);
     
-    console.log('[锂电子分类] 已切换到: ' + subCategory);
+    console.log('[锂电子分类] 已切换到: ' + subCategory + ', 产业链全景图: ' + (subCategory === 'lfp' ? '显示' : '隐藏'));
 }
 
 function renderLithiumGantt(subCategory) {
@@ -21389,6 +21638,16 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // 通用数据洞察生成函数
         function generateInsight(db, data) {
+            // ===== 优先使用后端生成的洞察（含早报内容）=====
+            // 后端在 rotate_homepage_charts.py 中已生成含早报内容的 insight
+            // 若 db.insight 有效（不含"不足"/"暂不可用"），直接返回
+            if (db.insight && db.insight.trim() &&
+                db.insight.indexOf('不足') < 0 &&
+                db.insight.indexOf('暂不可用') < 0 &&
+                db.insight.indexOf('数据加载中') < 0) {
+                return db.insight;
+            }
+
             if (!data || !data.length) return '数据不足，无法生成分析。';
             
             // ===== 饼图专用洞察（分类/份额数据）=====
@@ -21517,11 +21776,21 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         // 饼图配置：环形饼图，用于分类/份额数据
+        // data 格式: [{name: '类别', value: 数值}, ...]
         function mkPieOpt(data, color) {
             var total = data.reduce(function(s, d) { return s + (d.value || 0); }, 0);
+            // 饼图配色：使用与 accent 同色系的渐变色组
             var pieColors = [
-                color, color + 'CC', color + '99', color + '77', color + '55',
-                '#5B9BD5', '#ED7D31', '#70AD47', '#FFC000', '#A5A5A5'
+                color,           // 主色
+                color + 'CC',    // 稍浅
+                color + '99',
+                color + '77',
+                color + '55',
+                '#5B9BD5',      // 蓝色补充
+                '#ED7D31',      // 橙色补充
+                '#70AD47',      // 绿色补充
+                '#FFC000',      // 黄色
+                '#A5A5A5'       // 灰色
             ];
             return {
                 backgroundColor: 'transparent',
@@ -21538,26 +21807,48 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 },
                 legend: {
-                    type: 'scroll', orient: 'vertical', right: 10, top: 'center',
-                    itemWidth: 10, itemHeight: 10, itemGap: 8,
+                    type: 'scroll',
+                    orient: 'vertical',
+                    right: 10,
+                    top: 'center',
+                    itemWidth: 10,
+                    itemHeight: 10,
+                    itemGap: 8,
                     textStyle: { color: '#8C7B6B', fontSize: 11 },
                     formatter: function(name) {
+                        // 找到对应值，显示名称+百分比
                         var item = data.find(function(d) { return d.name === name; });
-                        if (item && total > 0) return name + '  ' + ((item.value / total) * 100).toFixed(1) + '%';
+                        if (item && total > 0) {
+                            var pct = ((item.value / total) * 100).toFixed(1);
+                            return name + '  ' + pct + '%';
+                        }
                         return name;
                     }
                 },
                 series: [{
-                    type: 'pie', radius: ['40%', '68%'], center: ['38%', '50%'],
+                    type: 'pie',
+                    radius: ['40%', '68%'],
+                    center: ['38%', '50%'],
                     avoidLabelOverlap: true,
-                    itemStyle: { borderRadius: 4, borderColor: '#fff', borderWidth: 2 },
+                    itemStyle: {
+                        borderRadius: 4,
+                        borderColor: '#fff',
+                        borderWidth: 2
+                    },
                     label: { show: false },
-                    emphasis: { label: { show: true, fontSize: 13, fontWeight: 'bold' } },
+                    emphasis: {
+                        label: { show: true, fontSize: 13, fontWeight: 'bold' }
+                    },
                     data: data.map(function(d, i) {
-                        return { name: d.name, value: d.value, itemStyle: { color: pieColors[i % pieColors.length] } };
+                        return {
+                            name: d.name,
+                            value: d.value,
+                            itemStyle: { color: pieColors[i % pieColors.length] }
+                        };
                     })
                 }],
-                animation: true, animationDuration: 800
+                animation: true,
+                animationDuration: 800
             };
         }
 
@@ -21679,9 +21970,10 @@ document.addEventListener('DOMContentLoaded', function() {
                         throw new Error('表数据为空');
                     }
 
-                    // ===== 饼图数据解析 =====
+                    // ===== 饼图数据解析（分类/份额数据）=====
                     if (db.chartType === 'pie') {
                         var pieData;
+                        // 模式1: row_columns — 取最新一行，非日期列作为分类
                         if (db.pieMode === 'row_columns') {
                             var lastRow = rows[rows.length - 1];
                             var excludeKeys = {};
@@ -21696,22 +21988,31 @@ document.addEventListener('DOMContentLoaded', function() {
                                     }
                                 }
                             }
-                        } else if (db.pieMode === 'filtered_rows') {
+                        }
+                        // 模式2: filtered_rows — 按日期过滤，提取nameKey+valueKey
+                        else if (db.pieMode === 'filtered_rows') {
                             var dateCol = db.pieDateKey || '日期';
                             var nameCol = db.pieNameKey || 'name';
                             var valCol = db.pieValueKey || 'value';
+                            // 找到最新日期
                             var latestDate = '';
                             rows.forEach(function(r) { var rd = String(r[dateCol] || ''); if (rd > latestDate) latestDate = rd; });
+                            // 过滤该日期的行
                             var filterFn = db.pieFilter || function() { return true; };
                             pieData = rows.filter(function(r) {
                                 return String(r[dateCol] || '') === latestDate && filterFn(r);
                             }).map(function(r) {
                                 return { name: String(r[nameCol] || ''), value: parseFloat(String(r[valCol] || '0').replace(/,/g, '')) * (db.scale || 1) };
                             }).filter(function(d) { return d.name && d.value > 0; });
-                        } else {
+                        }
+                        else {
                             throw new Error('未知饼图模式: ' + (db.pieMode || ''));
                         }
-                        if (pieData.length === 0) throw new Error('饼图数据解析后无有效数据');
+
+                        if (pieData.length === 0) {
+                            throw new Error('饼图数据解析后无有效数据');
+                        }
+                        // 按值降序排列
                         pieData.sort(function(a, b) { return b.value - a.value; });
                         renderChartSlide(pieData);
                         updateChartInfo(pieData);
@@ -22446,6 +22747,78 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 
+    <!-- 事业部选择弹窗 -->
+    <div id="bu-select-modal" class="bu-select-modal" style="display:none">
+        <div class="bu-select-overlay" onclick="showBUSelectModal()"></div>
+        <div class="bu-select-dialog">
+            <div class="bu-select-title">请选择您所属的事业部</div>
+            <div class="bu-select-subtitle">方式一：使用飞书账号自动登录（推荐）</div>
+            <div class="bu-select-feishu">
+                <button class="bu-select-feishu-btn" onclick="startFeishuSilentLogin()">
+                    <span>🔐</span> 飞书自动登录（自动识别事业部）
+                </button>
+                <div class="bu-select-feishu-hint">在飞书客户端内打开时，可自动识别您的部门和事业部</div>
+            </div>
+            <div class="bu-select-divider">
+                <span>或</span>
+            </div>
+            <div class="bu-select-subtitle">方式二：手动选择事业部</div>
+            <div class="bu-select-list">
+                <div class="bu-select-item" onclick="saveBUSelection('all')">
+                    <span class="bu-select-icon">🏢</span>
+                    <span class="bu-select-name">全部（集团领导）</span>
+                </div>
+                <div class="bu-select-item" onclick="saveBUSelection('czly')">
+                    <span class="bu-select-icon">⚡</span>
+                    <span class="bu-select-name">常州锂源</span>
+                    <span class="bu-select-tag">磷酸铁锂正极材料</span>
+                </div>
+                <div class="bu-select-item" onclick="saveBUSelection('sdmd')">
+                    <span class="bu-select-icon">⚡</span>
+                    <span class="bu-select-name">山东美多</span>
+                    <span class="bu-select-tag">磷酸铁锂正极材料</span>
+                </div>
+                <div class="bu-select-item" onclick="saveBUSelection('sjld')">
+                    <span class="bu-select-icon">⚡</span>
+                    <span class="bu-select-name">三金锂电</span>
+                    <span class="bu-select-tag">磷酸铁锂正极材料</span>
+                </div>
+                <div class="bu-select-item" onclick="saveBUSelection('lpsd')">
+                    <span class="bu-select-icon">🔋</span>
+                    <span class="bu-select-name">龙蟠时代</span>
+                    <span class="bu-select-tag">锂电池</span>
+                </div>
+                <div class="bu-select-item" onclick="saveBUSelection('fnlt')">
+                    <span class="bu-select-icon">🧪</span>
+                    <span class="bu-select-name">法恩莱特</span>
+                    <span class="bu-select-tag">电解液</span>
+                </div>
+                <div class="bu-select-item" onclick="saveBUSelection('dkhx')">
+                    <span class="bu-select-icon">🧪</span>
+                    <span class="bu-select-name">迪克化学</span>
+                    <span class="bu-select-tag">电解液</span>
+                </div>
+                <div class="bu-select-item" onclick="saveBUSelection('lube')">
+                    <span class="bu-select-icon">🛢️</span>
+                    <span class="bu-select-name">润滑油</span>
+                </div>
+                <div class="bu-select-item" onclick="saveBUSelection('kls')">
+                    <span class="bu-select-icon">🚗</span>
+                    <span class="bu-select-name">可兰素</span>
+                    <span class="bu-select-tag">车用尿素</span>
+                </div>
+                <div class="bu-select-item" onclick="saveBUSelection('bych')">
+                    <span class="bu-select-icon">🔩</span>
+                    <span class="bu-select-name">铂源催化</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 切换事业部按钮 -->
+    <button id="bu-switch-btn" class="bu-switch-btn" onclick="showBUSelectModal()" title="切换事业部">🏢 切换</button>
+
     <script src="assets/ai_fab_inject.js?v=20260619"></script>
+    <script src="feishu-jsapi.js?v=20260622"></script>
 </body>
 </html>
