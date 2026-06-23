@@ -164,6 +164,11 @@ sidebar_screenshot.png
 !assets/*.jpeg
 !assets/*.gif
 
+# ========== 例外：generated-images 目录中的图片需要部署 ==========
+!generated-images/*.png
+!generated-images/*.jpg
+!generated-images/*.jpeg
+
 # ------------------------------------------
 # 14. 输出目录
 # ------------------------------------------
