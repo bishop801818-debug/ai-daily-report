@@ -2,9 +2,9 @@
   "meta": {
     "description": "有色金属2026年累计涨跌幅",
     "data_source": "各产品源数据文件",
-    "update_time": "2026-06-23 16:56:06",
+    "update_time": "2026-06-24 11:58:17",
     "year": 2026,
-    "generated_at": "2026-06-23T16:56:06.361698",
+    "generated_at": "2026-06-24T11:58:17.617264",
     "generator_version": "20260616_v2"
   },
   "products": [
@@ -470,13 +470,13 @@
       "name": "钯期货主力",
       "unit": "元/克",
       "start_date": "2026-01-05",
-      "end_date": "2026-06-22",
+      "end_date": "2026-06-23",
       "start_price": 452.85,
-      "end_price": 307.2,
-      "change": -145.65,
-      "change_pct": -32.16,
+      "end_price": 293.35,
+      "change": -159.5,
+      "change_pct": -35.22,
       "direction": "down",
-      "data_points": 110,
+      "data_points": 111,
       "price_series": [
         {
           "date": "2026-01-05",
@@ -917,6 +917,10 @@
         {
           "date": "2026-06-22",
           "price": 307.2
+        },
+        {
+          "date": "2026-06-23",
+          "price": 293.35
         }
       ]
     },
