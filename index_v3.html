@@ -12665,7 +12665,7 @@ window.addEventListener('DOMContentLoaded', function() {
                 // 2. 加载市场数据 + 图表历史数据（用于产业链节点价格）
                 console.log('[初始化] 加载市场数据...');
                 const timestamp = new Date().getTime();
-                const [lcResp, lfpResp, lfpPowerResp, lfpStorageResp, lcFuturesResp, ironPhosResp, carbonateResp, oreResp, lepidoliteResp, lfpAllResp, ptFuturesResp, pdFuturesResp, iFuturesResp, egFuturesResp] = await Promise.allSettled([
+                const [lcResp, lfpResp, lfpPowerResp, lfpStorageResp, lcFuturesResp, ironPhosResp, carbonateResp, oreResp, lepidoliteResp, lfpAllResp, ptFuturesResp, pdFuturesResp, iFuturesResp, egFuturesResp, automotiveResp, recyclingResp] = await Promise.allSettled([
                     fetch('reports/market_lc.json?t=' + timestamp),
                     fetch('reports/market_lfp.json?t=' + timestamp),
                     fetch('reports/lfp_power_history.json?t=' + timestamp),
@@ -12679,7 +12679,9 @@ window.addEventListener('DOMContentLoaded', function() {
                     fetch('reports/pt_futures_history.json?t=' + timestamp),
                     fetch('reports/pd_futures_history.json?t=' + timestamp),
                     fetch('reports/i_futures_history.json?t=' + timestamp),
-                    fetch('reports/eg_futures_history.json?t=' + timestamp)
+                    fetch('reports/eg_futures_history.json?t=' + timestamp),
+                    fetch('embedded/automotive_embedded_data.js?t=' + timestamp),
+                    fetch('embedded/recycling_embedded_data.js?t=' + timestamp)
                 ]);
 
                 let marketData = {};
@@ -12885,11 +12887,36 @@ window.addEventListener('DOMContentLoaded', function() {
                     } catch (e) { console.log('[初始化] ⚠️ 锂云母数据解析异常:', e.message); }
                 }
 
+                // 补充：锂辉石精矿数据来自 oreResp（锂辉石(5%)，月环比）
+                if (oreResp && oreResp.status === 'fulfilled' && oreResp.value.ok) {
+                    try {
+                        const oreData = await oreResp.value.clone().json();
+                        const history = (oreData.history || []).filter(d => d.date >= '2026-01-01');
+                        if (history.length >= 2) {
+                            const latest = history[history.length - 1];
+                            const latestMonth = latest.date.substring(0, 7);
+                            const [y, m] = latestMonth.split('-');
+                            const prevMonth = m === '01' ? (parseInt(y) - 1) + '-12' : y + '-' + String(parseInt(m) - 1).padStart(2, '0');
+                            let prevEntry = null;
+                            for (let i = history.length - 2; i >= 0; i--) {
+                                if (history[i].date.substring(0, 7) === prevMonth) { prevEntry = history[i]; break; }
+                            }
+                            if (prevEntry) {
+                                const latestPrice = parseFloat(latest.avg_price) || 0;
+                                const prevPrice = parseFloat(prevEntry.avg_price) || 0;
+                                const mom = prevPrice > 0 ? ((latestPrice - prevPrice) / prevPrice * 100) : 0;
+                                chainHistoryData['锂辉石(5%)'] = { price: latestPrice, change_pct: parseFloat(mom.toFixed(2)), unit: '美元/吨', date: latest.date, prevDate: prevEntry.date };
+                                console.log('[初始化] ✅ 锂辉石精矿数据加载成功: price=' + latestPrice + ', mom=' + mom + '%');
+                            }
+                        }
+                    } catch (e) { console.log('[初始化] ⚠️ 锂辉石精矿数据解析异常:', e.message); }
+                }
+
                 // 补充：磷矿石30%品位数据来自 lfp_all_data.json（磷酸盐价格sheet，月环比）
                 if (lfpAllResp.status === 'fulfilled' && lfpAllResp.value.ok) {
                     try {
                         const lfpAllData = await lfpAllResp.value.json();
-                        const phosphateTable = (lfpAllData.tables || []).find(t => t.table_name === '磷酸盐价格数据');
+                        const phosphateTable = (lfpAllData.tables || []).find(t => t.table_name === '磷酸盐价格');
                         if (phosphateTable && phosphateTable.data && phosphateTable.data.length > 0) {
                             // 筛选磷矿石30%品位数据
                             const oreData = phosphateTable.data.filter(r => r['规格'] === '磷矿石30%品位');
@@ -12916,7 +12943,105 @@ window.addEventListener('DOMContentLoaded', function() {
                                 console.log('[初始化] ✅ 磷矿石30%品位数据加载成功: price=' + (latestPrice * 10000) + ', mom=' + mom + '%');
                             }
                         }
-                    } catch (e) { console.log('[初始化] ⚠️ 磷矿石数据解析异常:', e.message); }
+
+                        // 补充：硫酸亚铁来自 lfp_all_data.json（非磷原料价格表，月环比）
+                        const feTable = (lfpAllData.tables || []).find(t => t.table_name === '非磷原料价格');
+                        if (feTable && feTable.data && feTable.data.length > 0) {
+                            const feData = feTable.data.filter(r => (r['规格'] || '').includes('硫酸亚铁'));
+                            if (feData.length >= 2) {
+                                feData.sort((a, b) => a['日期'] > b['日期'] ? 1 : -1);
+                                const latest = feData[feData.length - 1];
+                                const latestMonth = (latest['日期'] || '').substring(0, 7);
+                                const [y, m] = latestMonth.split('-');
+                                const prevMonth = m === '01' ? (parseInt(y) - 1) + '-12' : y + '-' + String(parseInt(m) - 1).padStart(2, '0');
+                                const prevList = feData.filter(r => (r['日期'] || '').substring(0, 7) === prevMonth);
+                                const prev = prevList[prevList.length - 1];
+                                const latestPrice = parseFloat(latest['今日均价']) || 0;
+                                const prevPrice = prev ? (parseFloat(prev['今日均价']) || 0) : 0;
+                                const mom = prevPrice > 0 ? ((latestPrice - prevPrice) / prevPrice * 100) : 0;
+                                chainHistoryData['硫酸亚铁'] = {
+                                    price: latestPrice,
+                                    change_pct: parseFloat(mom.toFixed(2)),
+                                    unit: '元/吨',
+                                    date: (latest['日期'] || '').split(' ')[0],
+                                    prevDate: prev ? prev['日期'].split(' ')[0] : ''
+                                };
+                                console.log('[初始化] ✅ 硫酸亚铁数据加载成功: price=' + latestPrice + ', mom=' + mom + '%');
+                            }
+                        }
+                    } catch (e) { console.log('[初始化] ⚠️ 磷矿石/硫酸亚铁数据解析异常:', e.message); }
+                }
+
+                // 补充：新能源车数据来自 automotive_embedded_data.js（新能源汽车销量—国内市场，月环比）
+                if (automotiveResp && automotiveResp.status === 'fulfilled' && automotiveResp.value.ok) {
+                    try {
+                        const jsText = await automotiveResp.value.text();
+                        const eqIdx = jsText.indexOf('=');
+                        const braceStart = jsText.indexOf('{', eqIdx);
+                        const braceEnd = jsText.lastIndexOf('}');
+                        const jsonStr = jsText.substring(braceStart, braceEnd + 1);
+                        const autoData = JSON.parse(jsonStr);
+                        const autoTable = (autoData.tables || []).find(t => t.table_name === '新能源汽车销量—国内市场');
+                        if (autoTable && autoTable.data && autoTable.data.length > 0) {
+                            const byMonth = {};
+                            autoTable.data.forEach(r => {
+                                const month = (r['日期'] || '').substring(0, 7);
+                                if (!byMonth[month] || r['日期'] > byMonth[month]['日期']) byMonth[month] = r;
+                            });
+                            const months = Object.keys(byMonth).sort();
+                            if (months.length >= 2) {
+                                const latest = byMonth[months[months.length - 1]];
+                                const prev = byMonth[months[months.length - 2]];
+                                const latestVal = parseFloat(latest['本期销量（万辆）']) || 0;
+                                const prevVal = parseFloat(prev['本期销量（万辆）']) || 0;
+                                const mom = prevVal > 0 ? ((latestVal - prevVal) / prevVal * 100) : 0;
+                                chainHistoryData['新能源车'] = {
+                                    price: latestVal,
+                                    change_pct: parseFloat(mom.toFixed(2)),
+                                    unit: '万辆',
+                                    date: (latest['日期'] || '').split(' ')[0],
+                                    prevDate: (prev['日期'] || '').split(' ')[0]
+                                };
+                                console.log('[初始化] ✅ 新能源车数据加载成功: price=' + latestVal + ', mom=' + mom + '%');
+                            }
+                        }
+                    } catch (e) { console.log('[初始化] ⚠️ 新能源车数据解析异常:', e.message); }
+                }
+
+                // 补充：锂电池价格数据来自 recycling_embedded_data.js（锂电池价格-铁锂铝壳电池包，月环比）
+                if (recyclingResp && recyclingResp.status === 'fulfilled' && recyclingResp.value.ok) {
+                    try {
+                        const jsText = await recyclingResp.value.text();
+                        const eqIdx = jsText.indexOf('=');
+                        const braceStart = jsText.indexOf('{', eqIdx);
+                        const braceEnd = jsText.lastIndexOf('}');
+                        const jsonStr = jsText.substring(braceStart, braceEnd + 1);
+                        const recycleData = JSON.parse(jsonStr);
+                        const batTable = (recycleData.tables || []).find(t => t.table_name === '锂电池价格-铁锂铝壳电池包');
+                        if (batTable && batTable.data && batTable.data.length > 0) {
+                            const byMonth = {};
+                            batTable.data.forEach(r => {
+                                const month = (r['当前日期'] || '').substring(0, 7);
+                                if (!byMonth[month] || r['当前日期'] > byMonth[month]['当前日期']) byMonth[month] = r;
+                            });
+                            const months = Object.keys(byMonth).sort();
+                            if (months.length >= 2) {
+                                const latest = byMonth[months[months.length - 1]];
+                                const prev = byMonth[months[months.length - 2]];
+                                const latestVal = parseFloat(latest['今日均价']) || 0;
+                                const prevVal = parseFloat(prev['今日均价']) || 0;
+                                const mom = prevVal > 0 ? ((latestVal - prevVal) / prevVal * 100) : 0;
+                                chainHistoryData['锂电池'] = {
+                                    price: latestVal * 10000,
+                                    change_pct: parseFloat(mom.toFixed(2)),
+                                    unit: '元/吨',
+                                    date: (latest['当前日期'] || '').split(' ')[0],
+                                    prevDate: (prev['当前日期'] || '').split(' ')[0]
+                                };
+                                console.log('[初始化] ✅ 锂电池数据加载成功: price=' + (latestVal * 10000) + ', mom=' + mom + '%');
+                            }
+                        }
+                    } catch (e) { console.log('[初始化] ⚠️ 锂电池数据解析异常:', e.message); }
                 }
 
                 // 计算有色金属板块累积涨跌幅数据（从各品种数据源实时计算）
@@ -13652,6 +13777,7 @@ function updatePageData(chainConfig, marketData) {
                     if (nodeName.includes(key) || key.includes(nodeName)) return marketData[key];
                 }
                 const aliasMap = {
+                    '锂辉石精矿': ['锂辉石(5%)', '锂辉石'],
                     '碳酸锂': ['电池级碳酸锂', '工业级碳酸锂', '碳酸锂期货'],
                     '锂云母': ['锂云母矿', '云母精矿', '宜春锂云母'],
                     '硫酸亚铁': ['铁源', '氧化铁'],
@@ -13661,12 +13787,28 @@ function updatePageData(chainConfig, marketData) {
                 const aliases = aliasMap[nodeName];
                 if (aliases) {
                     for (const alias of aliases) {
+                        // 先在 chainHistoryData 中精确查找（支持锂辉石精矿→锂辉石(5%)等映射）
+                        if (chainHistoryData && chainHistoryData[alias]) {
+                            console.log('[findNodeData] ' + nodeName + ' → 别名命中 chainHistoryData[' + alias + ']');
+                            return chainHistoryData[alias];
+                        }
+                        // chainHistoryData 模糊匹配
+                        if (chainHistoryData) {
+                            const chainKeys = Object.keys(chainHistoryData);
+                            for (const ck of chainKeys) {
+                                if (ck.includes(alias) || alias.includes(ck)) {
+                                    console.log('[findNodeData] ' + nodeName + ' → 模糊命中 chainHistoryData[' + ck + '] via alias ' + alias);
+                                    return chainHistoryData[ck];
+                                }
+                            }
+                        }
                         if (marketData[alias]) return marketData[alias];
                         for (const key of keys) {
                             if (key.includes(alias)) return marketData[key];
                         }
                     }
                 }
+                console.log('[findNodeData] ' + nodeName + ' → 完全未命中，返回null');
                 return null;
             }
 
