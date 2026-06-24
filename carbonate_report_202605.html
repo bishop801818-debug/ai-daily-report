@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>中国碳酸锂市场 · 2026年05月分析报告</title>
+<style>
+:root {
+  --primary: #0a6e3f;
+  --primary-light: #0d8a52;
+  --primary-dark: #064d2b;
+  --text-color: #1a1a1a;
+  --text-secondary: #555;
+  --text-light: #888;
+  --border-color: #e0e0e0;
+  --bg-light: #f0f7f3;
+  --bg-white: #fff;
+  --green: #2e7d32;
+  --orange: #ef6c00;
+  --red: #c62828;
+  --blue-light: rgba(10,110,63,0.06);
+  --green-light: rgba(10,110,63,0.08);
+  --gold: #d4a017;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', 'Segoe UI', sans-serif; color: var(--text-color); background: var(--bg-light); line-height: 1.8; font-size: 14px; }
+a { color: inherit; text-decoration: none; }
+
+.topbar { position: sticky; top: 0; z-index: 100; background: linear-gradient(135deg, var(--primary-dark), var(--primary)); color: #fff; padding: 0 24px; height: 56px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 2px 8px rgba(0,0,0,0.18); }
+.topbar-left { display: flex; align-items: center; gap: 8px; }
+.topbar-back-btn { background: rgba(255,255,255,0.15); color: #fff; border: 1px solid rgba(255,255,255,0.3); padding: 5px 14px; border-radius: 20px; font-size: 12px; cursor: pointer; transition: all 0.2s; }
+.topbar-back-btn:hover { background: rgba(255,255,255,0.25); }
+.topbar-export-btn { background: rgba(255,255,255,0.2); color: #fff; border: 1px solid rgba(255,255,255,0.4); padding: 5px 14px; border-radius: 20px; font-size: 12px; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
+.topbar-export-btn:hover { background: rgba(255,255,255,0.35); }
+.topbar-export-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.topbar-export-btn.loading::after { content: ' 生成中…'; }
+.topbar-center { font-size: 18px; font-weight: 700; letter-spacing: 1px; }
+.topbar-right { font-size: 12px; opacity: 0.85; }
+
+.page-wrapper { display: flex; max-width: 1200px; margin: 0 auto; padding: 24px 16px; gap: 20px; }
+.toc-sidebar { flex: 0 0 200px; position: sticky; top: 80px; height: fit-content; background: #fff; border-radius: 12px; padding: 16px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+.toc-sidebar h3 { font-size: 13px; color: var(--primary); margin-bottom: 12px; padding-bottom: 8px; border-bottom: 2px solid var(--primary); font-weight: 700; }
+.toc-list { list-style: none; }
+.toc-list li { margin-bottom: 4px; }
+.toc-list a { display: block; padding: 6px 8px; border-radius: 6px; font-size: 12px; color: var(--text-secondary); transition: all 0.2s; }
+.toc-list a:hover { background: var(--blue-light); color: var(--primary); }
+.toc-list a.active { background: var(--blue-light); color: var(--primary); font-weight: 600; }
+.toc-part { font-weight: 700; color: var(--text-color); }
+.toc-sub { padding-left: 16px; font-size: 11px; }
+.main-content { flex: 1; min-width: 0; }
+
+.report-header { background: linear-gradient(135deg, var(--primary-dark), var(--primary)); color: #fff; border-radius: 16px; padding: 40px 32px 32px; margin-bottom: 20px; }
+.report-header .report-subtitle { font-size: 14px; opacity: 0.8; margin-bottom: 8px; }
+.report-header h1 { font-size: 28px; font-weight: 700; margin-bottom: 8px; }
+.report-header .report-meta { font-size: 13px; opacity: 0.75; display: flex; gap: 16px; flex-wrap: wrap; }
+.report-header .report-meta span { display: flex; align-items: center; gap: 4px; }
+
+.kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
+.kpi-card { background: #fff; border-radius: 12px; padding: 16px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); border-top: 3px solid var(--primary); }
+.kpi-label { font-size: 12px; color: var(--text-light); margin-bottom: 6px; font-weight: 500; }
+.kpi-value { font-size: 22px; font-weight: 800; color: var(--primary); line-height: 1.2; }
+.kpi-change { font-size: 12px; margin-top: 4px; font-weight: 600; padding: 2px 8px; border-radius: 10px; display: inline-block; }
+.kpi-change.up { background: rgba(46,125,50,0.1); color: var(--green); }
+.kpi-change.down { background: rgba(198,40,40,0.1); color: var(--red); }
+.kpi-change.neutral { background: rgba(100,100,100,0.08); color: var(--text-light); }
+
+.part-section { background: #fff; border-radius: 12px; margin-bottom: 20px; padding: 24px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+.part-title { display: flex; align-items: center; gap: 10px; font-size: 18px; font-weight: 700; color: var(--primary); margin-bottom: 16px; padding-bottom: 10px; border-bottom: 2px solid var(--border-color); }
+.part-title .part-num { width: 32px; height: 32px; background: var(--primary); color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; flex-shrink: 0; }
+
+.insight-block { margin-bottom: 16px; line-height: 1.9; font-size: 14px; }
+.insight-block p { margin-bottom: 10px; text-align: justify; }
+.highlight { background: linear-gradient(transparent 60%, rgba(10,110,63,0.15) 60%); font-weight: 600; }
+.strong { font-weight: 700; color: var(--text-color); }
+
+.event-table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 13px; }
+.event-table thead th { background: var(--bg-light); border-bottom: 2px solid var(--border-color); padding: 8px 12px; text-align: left; font-weight: 600; color: var(--text-secondary); }
+.event-table tbody td { padding: 10px 12px; border-bottom: 1px solid var(--border-color); vertical-align: top; }
+.event-table tbody tr:hover { background: var(--bg-light); }
+.event-table .priority-A { color: var(--red); font-weight: 700; }
+.event-table .priority-B { color: var(--orange); font-weight: 700; }
+.event-table .priority-C { color: var(--text-light); }
+
+.data-table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 13px; }
+.data-table thead th { background: var(--bg-light); border-bottom: 2px solid var(--border-color); padding: 8px 12px; text-align: right; font-weight: 600; color: var(--text-secondary); }
+.data-table thead th:first-child { text-align: left; }
+.data-table tbody td { padding: 8px 12px; border-bottom: 1px solid var(--border-color); text-align: right; }
+.data-table tbody td:first-child { text-align: left; font-weight: 500; }
+.data-table tbody tr.row-highlight { background: var(--blue-light); }
+.data-table tbody tr.row-highlight td { color: var(--primary); font-weight: 600; }
+.data-table tbody tr:hover { background: var(--bg-light); }
+
+.chart-card { background: #fff; border-radius: 10px; padding: 20px; margin: 16px 0; box-shadow: 0 1px 4px rgba(0,0,0,0.05); }
+.chart-card h4 { font-size: 14px; color: var(--text-secondary); margin-bottom: 12px; font-weight: 600; }
+.chart-container { width: 100%; height: 280px; }
+
+.callout { border-radius: 8px; padding: 14px 16px; margin: 14px 0; font-size: 13px; line-height: 1.8; }
+.callout-info { background: rgba(10,110,63,0.06); border-left: 4px solid var(--primary); }
+.callout-warn { background: rgba(239,108,0,0.08); border-left: 4px solid var(--orange); }
+.callout-danger { background: rgba(198,40,40,0.07); border-left: 4px solid var(--red); }
+.callout-success { background: rgba(46,125,50,0.08); border-left: 4px solid var(--green); }
+.callout-title { font-weight: 700; margin-bottom: 6px; font-size: 14px; }
+.callout p { color: var(--text-secondary); }
+
+.sub-title { font-size: 15px; font-weight: 700; color: var(--text-color); margin: 20px 0 10px; display: flex; align-items: center; gap: 8px; }
+.sub-title::before { content: ''; width: 4px; height: 16px; background: var(--primary); border-radius: 2px; }
+
+.data-source { font-size: 11px; color: var(--text-light); margin-top: 16px; padding-top: 10px; border-top: 1px solid var(--border-color); }
+.data-source span { display: inline-flex; align-items: center; gap: 2px; margin-right: 12px; }
+
+.lpsd-card { background: linear-gradient(135deg, rgba(10,110,63,0.08), rgba(10,110,63,0.03)); border: 1px solid rgba(10,110,63,0.2); border-radius: 12px; padding: 16px 20px; margin: 16px 0; }
+.lpsd-card-title { font-size: 13px; font-weight: 700; color: var(--primary); margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+.lpsd-card-body { font-size: 13px; color: var(--text-secondary); line-height: 1.8; }
+.lpsd-card-body strong { color: var(--text-color); }
+
+.rec-card { border-radius: 10px; padding: 16px 20px; margin: 12px 0; border: 1px solid; }
+.rec-opportunity { background: rgba(46,125,50,0.07); border-color: rgba(46,125,50,0.3); }
+.rec-risk { background: rgba(198,40,40,0.07); border-color: rgba(198,40,40,0.3); }
+.rec-action { background: rgba(10,110,63,0.07); border-color: rgba(10,110,63,0.3); }
+.rec-title { font-size: 14px; font-weight: 700; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+.rec-opportunity .rec-title { color: var(--green); }
+.rec-risk .rec-title { color: var(--red); }
+.rec-action .rec-title { color: var(--primary); }
+.rec-item { font-size: 13px; color: var(--text-secondary); padding: 5px 0; display: flex; gap: 8px; line-height: 1.7; }
+.rec-item::before { content: attr(data-num); font-weight: 700; color: var(--text-light); flex-shrink: 0; }
+
+.market-analysis { background: #fafafa; border-radius: 8px; padding: 14px 16px; margin: 12px 0; border: 1px solid var(--border-color); }
+.market-analysis h5 { font-size: 13px; font-weight: 700; color: var(--primary); margin-bottom: 8px; }
+.market-analysis p { font-size: 13px; color: var(--text-secondary); line-height: 1.8; margin-bottom: 6px; }
+
+.price-table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 13px; }
+.price-table th { background: var(--bg-light); padding: 8px 12px; text-align: center; font-weight: 600; border: 1px solid var(--border-color); }
+.price-table td { padding: 8px 12px; text-align: center; border: 1px solid var(--border-color); }
+.price-table td:first-child { text-align: left; font-weight: 600; }
+.price-up { color: var(--red); font-weight: 700; }
+.price-down { color: var(--green); font-weight: 700; }
+.price-flat { color: var(--text-light); font-weight: 700; }
+
+.dims-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 12px 0; }
+.dim-card { background: #f8fffa; border: 1px solid rgba(10,110,63,0.15); border-radius: 8px; padding: 10px 14px; text-align: center; }
+.dim-label { font-size: 11px; color: var(--text-light); margin-bottom: 4px; }
+.dim-score { font-size: 22px; font-weight: 800; color: var(--primary); }
+.dim-name { font-size: 11px; color: var(--text-secondary); margin-top: 2px; }
+
+.conclusion-banner { background: linear-gradient(135deg, var(--primary-dark), var(--primary)); color: #fff; border-radius: 12px; padding: 24px; margin-bottom: 20px; }
+.conclusion-banner h3 { font-size: 16px; margin-bottom: 10px; opacity: 0.9; }
+.conclusion-banner p { font-size: 15px; line-height: 1.8; }
+
+.report-footer { text-align: center; color: var(--text-light); font-size: 12px; padding: 24px 0; margin-top: 20px; border-top: 1px solid var(--border-color); }
+
+@media print { .topbar, .toc-sidebar { display: none; } .page-wrapper { padding: 0; } .main-content { max-width: 100%; } .part-section { break-inside: avoid; } }
+@media (max-width: 1100px) { .toc-sidebar { display: none; } .kpi-row { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 600px) { .kpi-row { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-left">
+    <a href="javascript:history.back()" class="topbar-back-btn">← 返回</a>
+  </div>
+  <div class="topbar-center">中国碳酸锂市场 · 月度分析报告</div>
+  <div class="topbar-right">战略中心信息情报部</div>
+</div>
+
+<div class="page-wrapper">
+<aside class="toc-sidebar">
+  <h3>目 录</h3>
+  <ul class="toc-list">
+    <li><a href="#p1" class="toc-part">一、产业动态</a></li>
+    <li><a href="#p1-1" class="toc-sub">　行业资讯</a></li>
+    <li><a href="#p1-2" class="toc-sub">　锂资源资讯</a></li>
+    <li><a href="#p1-3" class="toc-sub">　竞品动态</a></li>
+    <li><a href="#p2" class="toc-part">二、碳酸锂市场分析</a></li>
+    <li><a href="#p2-1" class="toc-sub">　产量</a></li>
+    <li><a href="#p2-2" class="toc-sub">　TOP15企业</a></li>
+    <li><a href="#p2-3" class="toc-sub">　龙蟠时代经营</a></li>
+    <li><a href="#p2-4" class="toc-sub">　价格分析</a></li>
+    <li><a href="#p2-5" class="toc-sub">　进出口</a></li>
+    <li><a href="#p3" class="toc-part">三、氢氧化锂市场</a></li>
+    <li><a href="#p4" class="toc-part">四、锂资源市场</a></li>
+    <li><a href="#p5" class="toc-part">五、总结及建议</a></li>
+  </ul>
+</aside>
+
+<main class="main-content">
+
+<!-- ========== REPORT HEADER ========== -->
+<header class="report-header">
+  <div class="report-subtitle">战略中心信息情报部 · 碳酸锂行业</div>
+  <h1>中国碳酸锂市场 · 2026年05月分析报告</h1>
+  <div class="report-meta">
+    <span>📅 数据月份：2026年05月</span>
+    <span>📊 报告日期：2026年06月24日</span>
+    <span>⚙️ 数据来源：碳酸锂数据库 · 行业新闻 · 雷达看板</span>
+  </div>
+</header>
+
+<!-- ========== KPI ROW ========== -->
+<div class="kpi-row">
+  <div class="kpi-card">
+    <div class="kpi-label">碳酸锂5月产量</div>
+    <div class="kpi-value">10.53万吨</div>
+    <div class="kpi-change down">▼ -1.6% MoM</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-label">电池级99.5%矿石均(5月)</div>
+    <div class="kpi-value">18.66万/吨</div>
+    <div class="kpi-change up">▲ 历史峰值20.88万</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-label">碳酸锂5月进口量</div>
+    <div class="kpi-value">3.76万吨</div>
+    <div class="kpi-change up">▲ +15% MoM</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-label">产能利用率</div>
+    <div class="kpi-value">91.81%</div>
+    <div class="kpi-change up">▲ +17.2pct YoY</div>
+  </div>
+</div>
+
+<!-- ========== PART 1: 产业动态 ========== -->
+<section class="part-section" id="p1">
+  <div class="part-title"><span class="part-num">1</span>产业动态</div>
+
+  <div class="insight-block">
+    <p><span class="highlight">5月碳酸锂市场演绎"政策驱动冲高、供需博弈回调"的N型走势。</span>上半月，受宜春云母矿停产换证、津巴布韦矿到港断层、澳矿预期下调三重供给扰动共振，碳酸锂价格自17.7万/吨快速上攻，5月12日刷新历史高位208,800元/吨。下半月，私募操纵传闻、高盛预警供应过剩及库存累积压力集中释放，价格高位回落至18-19万/吨区间。月内振幅超3万元/吨，期现联动高度敏感。</p>
+    <p>需求侧持续强劲：5月锂电排产249GWh创历史新高，储能占比42.3%，1-4月储能电芯产量累计同比+113%，淡季不淡特征显著。政策端《矿产资源法实施条例（草案）》落地，0.4%氧化锂品位红线明确，采矿权审批上收自然资源部，供给端刚性约束预期持续收紧。</p>
+    <p><span class="strong">龙蟠时代5月净利润超额完成预算17个百分点</span>（达成率117%），毛利率达20.2%（超预算7.1pct），量超产叠加成本管控有效；但营收仅达预算51%，原料价格快速上行阶段价格传导存在时滞。</p>
+  </div>
+
+  <!-- 1.1 碳酸锂行业资讯 -->
+  <div class="sub-title" id="p1-1">一、碳酸锂行业资讯</div>
+
+  <table class="event-table">
+    <thead>
+      <tr>
+        <th style="width:50px">级别</th>
+        <th>事件</th>
+        <th style="width:80px">日期</th>
+        <th>核心影响</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="priority-A">P0</td>
+        <td><strong>碳酸锂期货刷新历史高位208,800元/吨</strong><br><span style="color:#888;font-size:12px">广期所碳酸锂期货LC2609于5月12日盘中触及208,800元/吨历史新高，较4月1日累计上涨37%，资金净流入持续攀升。自2025年低点累计涨幅超240%。</span></td>
+        <td>2026-05-12</td>
+        <td>价格刷新历史记录，短期供给紧张叠加需求高增共振；高位引发监管关注</td>
+      </tr>
+      <tr>
+        <td class="priority-A">P0</td>
+        <td><strong>《矿产资源法实施条例》落地，0.4%品位红线明确</strong><br><span style="color:#888;font-size:12px">5月9日国务院常务会审议通过，明确锂矿为战略矿产，探矿/采矿权审批上收至自然资源部，禁止以陶瓷土、高岭土名义变相开采，0.4%氧化锂品位准入门槛消息引发宜春云母矿供给减量预期急速升温。</span></td>
+        <td>2026-05-12</td>
+        <td>国内锂矿审批全面收紧，中长期供给收缩预期强化，支撑价格高位</td>
+      </tr>
+      <tr>
+        <td class="priority-A">P0</td>
+        <td><strong>碳酸锂期货高位回调失守19万，私募操纵遭监管介入</strong><br><span style="color:#888;font-size:12px">5月14日起期货大幅回调，主力资金净流出超20亿，5月20日失守19万关口。高盛发布预警2026年供应过剩超10%；21世纪经济报道披露私募在LC2609合约组织多头哄抬价格，监管介入调查。</span></td>
+        <td>2026-05-14/20</td>
+        <td>高位价格面临负反馈压力，期货贴水结构警示阶段性调整风险</td>
+      </tr>
+      <tr>
+        <td class="priority-A">P0</td>
+        <td><strong>5月锂电排产249GWh创历史新高，储能占比42.3%</strong><br><span style="color:#888;font-size:12px">国内Top20电池厂排产约249GWh，环比+6%；4月储能电芯产量74.3GWh，同比+113.20%。锂电排产持续刷新历史峰值，储能已成锂需求核心引擎。</span></td>
+        <td>2026-05-12</td>
+        <td>需求高增为价格提供基本面支撑，淡季不淡特征显著</td>
+      </tr>
+      <tr>
+        <td class="priority-A">P0</td>
+        <td><strong>宜春4家主力锂云母矿5月1日起停产换证</strong><br><span style="color:#888;font-size:12px">占宜春近四成产能，直接削减全国逾八成锂云母产能；换证流程预计3-12个月。津巴布韦锂矿出口仍受限制，首批货物推迟至6月下旬到港，5-6月原料持续紧张。</span></td>
+        <td>2026-05-06</td>
+        <td>原料端双重供给扰动，推动价格快速上行；中期关注换证节奏</td>
+      </tr>
+      <tr>
+        <td class="priority-A">P0</td>
+        <td><strong>全球锂矿巨头Q1业绩集体爆发</strong><br><span style="color:#888;font-size:12px">天齐锂业Q1净利润18.76亿/+1,699%，赣锋锂业18.37亿/+616%，宁德时代227.37亿/+52.99%，雅宝3.19亿美元/+547%。碳酸锂涨价直接驱动矿业龙头盈利高增。</span></td>
+        <td>2026-05-07/11</td>
+        <td>锂价高位支撑上游业绩高增；关注赣锋阿根廷RIGI计划进展</td>
+      </tr>
+      <tr>
+        <td class="priority-B">P1</td>
+        <td><strong>常州锂源获4.4亿元B轮增资</strong><br><span style="color:#888;font-size:12px">龙蟠科技公告，金沙产业投资以4.4亿元认购常州锂源约6,117万元注册资本（占扩股后6.83%），增资款项主要用于磷酸铁锂正极材料产能建设。</span></td>
+        <td>2026-05-11</td>
+        <td>龙蟠磷酸铁锂扩产资金充裕；关注CIBF2026新技术/新客户拓展</td>
+      </tr>
+      <tr>
+        <td class="priority-B">P1</td>
+        <td><strong>高盛 vs 瑞银/摩根士丹利多空严重分歧</strong><br><span style="color:#888;font-size:12px">高盛看空至6.5万/吨，预测2026年全球供应过剩20%-22%；瑞银上调预测至20万/吨；摩根士丹利下调全球锂供应预期至40万吨LCE，供需缺口8-10万吨。</span></td>
+        <td>2026-05-10</td>
+        <td>机构观点严重分歧凸显价格不确定性；需持续跟踪供需边际变化</td>
+      </tr>
+      <tr>
+        <td class="priority-B">P1</td>
+        <td><strong>赣锋阿根廷Cauchari-Olaroz盐湖二期入选RIGI计划</strong><br><span style="color:#888;font-size:12px">赣锋阿根廷Cauchari-Olaroz盐湖二期成功入选阿根廷国家级大型投资激励制度，总投资12.4亿美元，扩建后产能约4.5万吨LCE/年。赣锋持股46.7%，为最大股东。</span></td>
+        <td>2026-05-19</td>
+        <td>阿根廷RIGI政策红利释放，赣锋海外盐湖战略加速</td>
+      </tr>
+      <tr>
+        <td class="priority-B">P1</td>
+        <td><strong>CIBF2026深圳电池展开幕，全球3,000+企业参会</strong><br><span style="color:#888;font-size:12px">天齐锂业展出固态电池关键材料硫化锂（纯度突破99.9%），国城锂业携全链条成果亮相。CIBF成为新技术发布和客户对接的核心平台。</span></td>
+        <td>2026-05-13</td>
+        <td>固态电池商业化节点加速，硫化锂成为关键材料赛道</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- 1.2 锂资源资讯 -->
+  <div class="sub-title" id="p1-2">二、锂资源行业资讯</div>
+
+  <table class="event-table">
+    <thead>
+      <tr>
+        <th style="width:50px">级别</th>
+        <th>事件</th>
+        <th style="width:80px">日期</th>
+        <th>核心影响</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="priority-A">P0</td>
+        <td><strong>宜春矿企换证停产持续推进，湖南鸡脚山成全国首获采矿证项目</strong><br><span style="color:#888;font-size:12px">枧下窝、水南矿完成换证审批但仍停产处于环评阶段；同安瓷矿、大港瓷土矿等4座矿山已停产，换证流程或进一步拖慢。新法框架下湖南鸡脚山锂矿成为全国首获采矿证的锂矿项目。</span></td>
+        <td>2026-05-18</td>
+        <td>云母供给短期难恢复，品位低于0.4%矿山整改周期不确定性大</td>
+      </tr>
+      <tr>
+        <td class="priority-B">P1</td>
+        <td><strong>莫桑比克议会通过《采矿法》全面禁止锂矿出口</strong><br><span style="color:#888;font-size:12px">非洲主要锂矿新规落地，将进一步收紧全球锂矿流通量，中国企业在非锂矿项目权益面临政策不确定性。</span></td>
+        <td>2026-05-10</td>
+        <td>全球锂矿出口政策持续收紧，资源民族主义趋势延续</td>
+      </tr>
+      <tr>
+        <td class="priority-B">P1</td>
+        <td><strong>尼日利亚大幅上调锂矿权益金税率</strong><br><span style="color:#888;font-size:12px">2026年1月新版政策落地，锂矿权益金税率从3%提升至7.5%-15%，叠加本地加工强制要求和数字化征管升级，每吨碳酸锂成本增加约2.2万元。</span></td>
+        <td>2026-05-18</td>
+        <td>非洲锂矿成本显著上升，中国在非项目盈利能力承压</td>
+      </tr>
+      <tr>
+        <td class="priority-B">P1</td>
+        <td><strong>MRL旗下Bald Hill矿山官宣7月重启</strong><br><span style="color:#888;font-size:12px">若7月开始生产、四季度满负荷运行，预计2026年可供应5-7万吨SC6锂精矿，将对年内全球锂矿供应形成边际增量。</span></td>
+        <td>2026-05-19</td>
+        <td>澳矿重启信号出现，关注实际复产节奏</td>
+      </tr>
+      <tr>
+        <td class="priority-B">P1</td>
+        <td><strong>IGO下调Greenbushes锂矿2026财年产量预期约13%</strong><br><span style="color:#888;font-size:12px">因地缘冲突导致柴油进口受阻，澳洲部分矿山生产受限，澳矿发运量骤降，锂辉石现货可售资源偏紧。</span></td>
+        <td>2026-05-06</td>
+        <td>澳矿供给趋紧预期推升锂辉石价格</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- 1.3 竞品动态 -->
+  <div class="sub-title" id="p1-3">三、竞品动态</div>
+
+  <div class="market-analysis">
+    <h5>华友钴业 · 14.3亿元收购加纳Ewoyaa锂矿</h5>
+    <p>华友钴业5月7日公告拟收购澳大利亚大西洋锂业100%股权，核心资产为加纳Ewoyaa锂矿项目（资源量折合112.7万吨LCE），强化上游锂资源自给，完善"资源—冶炼—材料"一体化产业链布局。已获加纳议会正式核准采矿租约及环保、矿山经营等关键许可。</p>
+  </div>
+
+  <div class="market-analysis">
+    <h5>海南矿业 · 氢氧化锂项目正式投产</h5>
+    <p>海南矿业在海南洋浦投资建设的氢氧化锂项目正式投产，旗下马里布谷尼锂矿产出的首批3万吨锂精矿于2026年1月运抵海南洋浦港，"海外资源+海南加工+全球销售"模式进入实质运营阶段。</p>
+  </div>
+
+  <div class="market-analysis">
+    <h5>中矿资源 · 拟非公开发行募资52亿元</h5>
+    <p>中矿资源拟募资不超过52亿元投向津巴布韦年产10万吨硫酸锂项目、赞比亚Kitumba铜矿项目、江西中矿新材年产2000吨铯铷产品项目，三大项目总投资合计约82.72亿元。硫酸锂项目依托Bikita锂矿（资源量1.41亿吨、LCE 343万吨）。</p>
+  </div>
+
+</section>
+
+<!-- ========== PART 2: 碳酸锂市场分析 ========== -->
+<section class="part-section" id="p2">
+  <div class="part-title"><span class="part-num">2</span>碳酸锂市场分析</div>
+
+  <!-- 2.1 产量 -->
+  <div class="sub-title" id="p2-1">一、行业整体产量</div>
+  <div class="insight-block">
+    <p>2026年5月，国内碳酸锂总产量为<strong>105,310吨</strong>，环比减少1.6%（4月107,000吨），同比增长43.3%（2025年5月73,490吨），产能利用率91.81%。1-5月累计产量约50.9万吨，累计同比增长约48.7%。</p>
+    <p>从供应结构看：<span class="highlight">5月锂辉石端产量环比小幅下降</span>，主因津巴布韦矿到港断层、江西锂云母停产换证持续扰动；<strong>盐湖端增量显著</strong>，来自盐湖股份（蓝科锂业）新增产能爬坡；云母端因枧下窝持续停产整体偏紧。需求端维持高增速，锂电排产249GWh创历史新高，储能订单饱满，碳酸锂单月需求量突破14万吨，市场维持去库态势。</p>
+  </div>
+
+  <div class="callout callout-info">
+    <div class="callout-title">📌 供需格局判断</div>
+    <p>5月国内碳酸锂市场供应端边际收紧（云母减量+津巴布韦到港断层），需求端（储能）淡季不淡，单月供需缺口再度打开。库存已降至12万吨以下，可用天数不足1个月，供给紧平衡格局延续。</p>
+  </div>
+
+  <!-- 2.2 分企业产量 -->
+  <div class="sub-title" id="p2-2">二、分企业产量 TOP15（2026年5月）</div>
+
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>排名</th>
+        <th>企业</th>
+        <th>产量（吨）</th>
+        <th>环比</th>
+        <th>同比</th>
+        <th>开工率</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>1</td><td>其它</td><td>22,100</td><td>—</td><td>+71%</td><td>110%</td></tr>
+      <tr><td>2</td><td>九岭锂业</td><td>7,500</td><td>—</td><td>+74%</td><td>100%</td></tr>
+      <tr><td>3</td><td>蓝科锂业</td><td>6,650</td><td>+1%</td><td>+85%</td><td>127%</td></tr>
+      <tr><td>4</td><td>四川雅化</td><td>4,600</td><td>—</td><td>+156%</td><td>153%</td></tr>
+      <tr><td>5</td><td>新疆西海锂业</td><td>4,500</td><td>—</td><td>+41%</td><td>60%</td></tr>
+      <tr><td>6</td><td>赣锋锂业</td><td>4,500</td><td>-15%</td><td>+61%</td><td>82%</td></tr>
+      <tr><td>7</td><td>盛新锂能</td><td>4,400</td><td>—</td><td>+100%</td><td>70%</td></tr>
+      <tr><td>8</td><td>广西华友</td><td>4,300</td><td>+8%</td><td>+95%</td><td>103%</td></tr>
+      <tr><td>9</td><td>天齐锂业</td><td>4,300</td><td>+2%</td><td>+30%</td><td>94%</td></tr>
+      <tr><td>10</td><td>中信国安</td><td>3,250</td><td>+2%</td><td>-14%</td><td>87%</td></tr>
+      <tr><td>11</td><td>中矿资源</td><td>2,500</td><td>—</td><td>+56%</td><td>100%</td></tr>
+      <tr class="row-highlight"><td>12</td><td>龙蟠时代 ⭐</td><td>2,302</td><td>+13%</td><td>-32%</td><td>69%</td></tr>
+      <tr><td>13</td><td>银锂</td><td>2,300</td><td>—</td><td>+21%</td><td>79%</td></tr>
+      <tr><td>14</td><td>融捷股份</td><td>2,000</td><td>-2%</td><td>—</td><td>104%</td></tr>
+      <tr><td>15</td><td>永兴材料</td><td>2,000</td><td>-5%</td><td>-17%</td><td>80%</td></tr>
+    </tbody>
+  </table>
+  <div class="callout callout-info">
+    <div class="callout-title">📌 行业格局观察</div>
+    <p>5月行业呈现"头部稳定、二三线放量"格局，CR10占比50.2%（较4月有所下行）。蓝科锂业、四川雅化超产运营（开工率127%/153%），融捷股份开工率104%亦超产。行业集中度下降源于头部企业产量稳定而二三梯队实现增量，整体产能利用率维持91.81%高位。</p>
+  </div>
+
+  <!-- 2.3 龙蟠时代 -->
+  <div class="sub-title" id="p2-3">三、龙蟠时代5月经营情况</div>
+
+  <div class="lpsd-card">
+    <div class="lpsd-card-title">⭐ 龙蟠时代 · 2026年5月核心KPI</div>
+    <div class="lpsd-card-body">
+      5月碳酸锂产量<strong>2,302吨</strong>，行业排名第12位，环比<strong>+13%</strong>（4月2,037吨），同比-32%，产能利用率69%。<br>
+      <strong>经营亮点：</strong>净利润达成率<strong>117%</strong>（实际3,550万 vs 预算3,030万），毛利率<strong>20.2%</strong>（超预算154%），量超产叠加成本管控有效，盈利能力超预期。<br>
+      <strong>待提升项：</strong>营收仅达预算51%（22,885万 vs 预算45,101万），云母收率79.22%（略低于预算80.34%），存货周转率5.2次（低于预算6.0次）。
+    </div>
+  </div>
+
+  <!-- 龙蟠时代六维雷达 -->
+  <div class="lpsd-card" style="margin-top:8px;">
+    <div class="lpsd-card-title">📊 六维度综合评分（5月）</div>
+    <div class="dims-grid">
+      <div class="dim-card">
+        <div class="dim-label">D1 · 战略执行力</div>
+        <div class="dim-score">58</div>
+        <div class="dim-name">营收达成51%</div>
+      </div>
+      <div class="dim-card">
+        <div class="dim-label">D2 · 经营效益</div>
+        <div class="dim-score">88</div>
+        <div class="dim-name">净利达成117%</div>
+      </div>
+      <div class="dim-card">
+        <div class="dim-label">D3 · 运营效率</div>
+        <div class="dim-score">75</div>
+        <div class="dim-name">超产106%</div>
+      </div>
+      <div class="dim-card">
+        <div class="dim-label">D4 · 技术创新力</div>
+        <div class="dim-score">85</div>
+        <div class="dim-name">发明专利+5件</div>
+      </div>
+      <div class="dim-card">
+        <div class="dim-label">D5 · 风险合规</div>
+        <div class="dim-score">85</div>
+        <div class="dim-name">EHS全合规</div>
+      </div>
+      <div class="dim-card">
+        <div class="dim-label">D6 · 组织活力</div>
+        <div class="dim-score">75</div>
+        <div class="dim-name">新客户+2家</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="callout callout-success">
+    <div class="callout-title">✅ 经营建议</div>
+    <p>① 关注5月云母收率（79.22% vs 预算80.34%）复盘，储备多来源原料差异化提锂工艺；② 营收缺口主要受市场价格节奏影响，建议优化顺价机制；③ 存货周转率5.2次低于预算，关注库存结构优化。</p>
+  </div>
+
+  <!-- 2.4 价格分析 -->
+  <div class="sub-title" id="p2-4">四、价格分析</div>
+  <div class="insight-block">
+    <p>5月碳酸锂价格演绎<strong>"冲高回落"</strong>的N型走势，月内振幅超3万元/吨，为近三年最剧烈波动月份。</p>
+    <p><strong>上半月快速上行</strong>（5月1日→5月12日）：三重供给扰动（宜春云母矿停产换证、津巴布韦矿到港断层、IGO下调Greenbushes产量预期约13%）共振驱动，碳酸锂期货LC2609自5月初约17.7万/吨快速上攻，5月7日首破20万/吨，5月12日刷新历史高位<strong>208,800元/吨</strong>。SMM电池级碳酸锂现货5月7日约19.5万/吨。</p>
+    <p><strong>下半月高位回调</strong>（5月13日→5月20日）：5月14日起期货大幅回调，主力资金净流出超20亿，仓单升至49,310手高位，冶炼厂库存小幅累积，期货贴水近月。5月20日期货失守19万，高盛预警供应过剩叠加SMM库存口径调整引发隐性库存担忧，高位资金获利了结。</p>
+    <p>至5月末，电池级99.5%矿石系均价约<strong>18.66万/吨</strong>，18万一线形成较强支撑。6月17日最新均价回升至17.25万/吨（矿石系）。</p>
+  </div>
+
+  <table class="price-table">
+    <thead>
+      <tr>
+        <th>规格</th>
+        <th>5月均价</th>
+        <th>走势</th>
+        <th>备注</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>工业级98.5%</td><td>16.71万/吨</td><td class="price-up">▲</td><td>底部品种，跟涨滞后</td></tr>
+      <tr><td>电池级99.5%（矿石）</td><td>18.66万/吨</td><td class="price-up">▲▲</td><td>领涨品种，5月12日峰值20.88万/吨</td></tr>
+      <tr><td>电池级99.5%（盐湖）</td><td>18.11万/吨</td><td class="price-up">▲</td><td>涨幅次之</td></tr>
+      <tr><td>电池级99.5%（再生）</td><td>17.87万/吨</td><td class="price-up">▲</td><td>原料成本支撑</td></tr>
+      <tr><td>广期所期货主力（5月均）</td><td>约18.5万/吨</td><td class="price-up">▲</td><td>月内振幅超3万/吨</td></tr>
+    </tbody>
+  </table>
+
+  <!-- 2.5 进出口 -->
+  <div class="sub-title" id="p2-5">五、进出口分析</div>
+
+  <div class="kpi-row" style="grid-template-columns: repeat(2, 1fr); margin-bottom: 12px;">
+    <div class="kpi-card">
+      <div class="kpi-label">5月进口量</div>
+      <div class="kpi-value">3.76万吨</div>
+      <div class="kpi-change up">▲ +15% MoM | +78% YoY</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">5月出口量</div>
+      <div class="kpi-value">201吨</div>
+      <div class="kpi-change down">▼ -46% MoM</div>
+    </div>
+  </div>
+
+  <div class="insight-block">
+    <p><strong>进口：</strong>2026年5月中国碳酸锂进口量<strong>37,555吨</strong>，环比增长15%，同比增长78%，进口均价约13.1万元/吨。智利为第一大供应国（24,522吨，占65%），阿根廷（11,423吨，占30%）延续高速增长。智利4月出口碳酸锂创单月历史新高2.95万吨，有效补充了国内供给。1-5月累计进口约17.3万吨，同比增长约58%。</p>
+    <p><strong>出口：</strong>5月出口约201吨，主要目的国为韩国（约102吨，占51%），出口均价约16.4万元/吨（高于进口均价），延续少量特色品种出口格局。</p>
+  </div>
+
+</section>
+
+<!-- ========== PART 3: 氢氧化锂 ========== -->
+<section class="part-section" id="p3">
+  <div class="part-title"><span class="part-num">3</span>氢氧化锂市场分析</div>
+
+  <div class="insight-block">
+    <p>2026年5月国内氢氧化锂产量约<strong>31,030吨</strong>，环比基本持平，同比小幅下滑，产能利用率约55%。5月氢氧化锂市场呈现<strong>"内热外冷"</strong>格局：内贸受锂价整体上行驱动价格跟涨，外贸受海外三元材料需求波动影响出现回调。</p>
+  </div>
+
+  <div class="kpi-row" style="grid-template-columns: repeat(3, 1fr);">
+    <div class="kpi-card">
+      <div class="kpi-label">氢氧化锂5月产量</div>
+      <div class="kpi-value">3.10万吨</div>
+      <div class="kpi-change neutral">— MoM</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">粗颗粒均价（6月17日）</div>
+      <div class="kpi-value">16.45万/吨</div>
+      <div class="kpi-change up">▲ 跟涨碳酸锂</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">产能利用率</div>
+      <div class="kpi-value">55%</div>
+      <div class="kpi-change neutral">低位运行</div>
+    </div>
+  </div>
+
+  <div class="callout callout-warn">
+    <div class="callout-title">⚠️ 氢氧化锂 vs 碳酸锂价差收窄</div>
+    <p>5月氢氧化锂（粗颗粒，均价约12.5万/吨）与碳酸锂（电池级99.5%，均价约18.7万/吨）价差明显收窄。氢氧化锂价格涨幅整体滞后于碳酸锂，但6月后跟涨态势明显（6月17日粗颗粒已至16.45万/吨）。下游三元材料厂采购节奏仍偏谨慎，短期价格或区间震荡。</p>
+  </div>
+
+  <div class="insight-block">
+    <p><strong>进出口：</strong>5月氢氧化锂进口约3,932吨，印尼为主要供应国（占比约85%以上），进口均价约11.2万元/吨。出口约3,549吨，日韩为主要目的地，同比大幅增长。整体呈现"内热外冷"格局，内贸价格受锂价整体上行驱动跟涨，外贸受海外三元材料需求波动出现回调。</p>
+  </div>
+</section>
+
+<!-- ========== PART 4: 锂资源市场 ========== -->
+<section class="part-section" id="p4">
+  <div class="part-title"><span class="part-num">4</span>锂资源市场分析</div>
+
+  <!-- 锂云母 -->
+  <div class="sub-title">一、锂云母价格</div>
+  <div class="insight-block">
+    <p>2026年5月锂云母价格持续上行。江西地区锂云母矿停产换证持续扰动市场，流通现货持续偏紧，持货商挺价心态浓厚。截至6月17日，<strong>1.8%品位锂云母精矿均价约0.53万/吨</strong>，较年初约0.24万/吨累计上涨约121%，成本端对碳酸锂价格形成显著支撑。值得关注的是，新《实施条例》0.4%氧化锂品位准入门槛若严格执行，将对大量现有云母矿构成合规压力，供给侧约束长期存在。</p>
+  </div>
+
+  <!-- 锂辉石 -->
+  <div class="sub-title">二、锂辉石价格</div>
+  <div class="insight-block">
+    <p>锂辉石价格5月整体上涨，受碳酸锂涨价传导明显。截至6月17日：</p>
+    <p>• <strong>5.5%澳洲锂辉石精矿</strong>：均价约<strong>$2,410/吨</strong>（CIF中国），较年初约$800/吨累计上涨约200%。IGO下调Greenbushes产量预期叠加地缘因素影响澳矿发运，供应偏紧。</p>
+    <p>• <strong>2%非洲锂辉石精矿</strong>：均价约<strong>$1,280/吨</strong>，津巴布韦出口限制持续，到港资源偏少。</p>
+  </div>
+
+  <!-- 锂辉石进口 -->
+  <div class="sub-title">三、锂辉石进口</div>
+  <div class="insight-block">
+    <p>2026年5月中国锂辉石进口量约<strong>68.1万实物吨</strong>，折合碳酸锂当量约6.4万吨，环比有所下降，主因津巴布韦矿发运受阻。自澳大利亚进口约33万吨（占比48.5%），自尼日利亚进口约11万吨（占比16.2%），自津巴布韦进口约10.5万吨（占比15.4%），三国合计贡献约80%。广期所碳酸锂期货主力合约5月均价约18.5万/吨，持续高位运行对上游矿端价格形成正向传导。</p>
+  </div>
+
+  <table class="price-table">
+    <thead>
+      <tr>
+        <th>品种</th>
+        <th>最新价格</th>
+        <th>近30日变化</th>
+        <th>备注</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>锂云母 1.8%（万/吨）</td><td>0.53</td><td class="price-up">▲ +121% YoY</td><td>云母矿停产换证，供应持续偏紧</td></tr>
+      <tr><td>锂辉石 5.5% 澳洲（美元/吨）</td><td>$2,410</td><td class="price-up">▲ +200% YoY</td><td>IGO下调财年产量预期13%</td></tr>
+      <tr><td>锂辉石 2% 非洲（美元/吨）</td><td>$1,280</td><td class="price-up">▲</td><td>津巴布韦出口限制，到港偏少</td></tr>
+      <tr><td>锂辉石月度进口（万吨）</td><td>68.1</td><td class="price-down">▼ -10% MoM</td><td>津巴布韦矿发运受阻</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ========== PART 5: 总结及建议 ========== -->
+<section class="part-section" id="p5">
+  <div class="part-title"><span class="part-num">5</span>总结及建议</div>
+
+  <div class="conclusion-banner">
+    <h3>核心结论</h3>
+    <p><strong>5月碳酸锂市场核心特征为"政策驱动冲高，供需博弈回调"。</strong>供给侧，宜春云母矿停产换证、津巴布韦矿到港断层及澳矿预期下调三重因素叠加，推动价格于5月11-12日刷新历史高位20.88万/吨。下半月私募操纵传闻、高盛预警供应过剩及库存累积压力集中释放，价格高位回落至18-19万/吨区间，月内振幅超3万元/吨。需求侧储能成核心引擎，5月锂电排产249GWh创历史新高，淡季不淡特征显著。</p>
+  </div>
+
+  <div class="rec-card rec-opportunity">
+    <div class="rec-title">💡 机会</div>
+    <div class="rec-item" data-num="①">储能需求超预期已成共识，1-4月储能电芯产量累计同比+113%，锂电排产持续刷新历史峰值，短期供需紧平衡格局难以根本性缓解。</div>
+    <div class="rec-item" data-num="②">《矿产资源法实施条例》落地+莫桑比克禁止锂矿出口，国内外政策共振收紧，中长期供给收缩确定性增强，支撑价格中高位运行。</div>
+    <div class="rec-item" data-num="③">龙蟠时代5月净利润超额完成预算17个百分点，量超产叠加成本管控有效显示自身经营韧性。</div>
+  </div>
+
+  <div class="rec-card rec-risk">
+    <div class="rec-title">⚠️ 风险</div>
+    <div class="rec-item" data-num="①">高价负反馈风险：碳酸锂价格突破20万/吨后，下游电芯厂成本压力显著上升，电池出口退税率下调叠加利润率压缩，或触发负反馈抑制需求。</div>
+    <div class="rec-item" data-num="②">澳矿重启信号：Bald Hill矿山7月重启若顺利，四季度满产后可贡献5-7万吨SC6锂精矿，中期供给边际改善预期正在积累。</div>
+    <div class="rec-item" data-num="③">高价库存风险：5月冶炼厂在高位建库，若价格持续回调可能面临减值压力。</div>
+    <div class="rec-item" data-num="④">钠电替代：中长期宁德时代40GWh钠电产能建设加速，固态电池商业化节点临近，锂需求结构面临潜在变化。</div>
+  </div>
+
+  <div class="rec-card rec-action">
+    <div class="rec-title">🎯 战略建议</div>
+    <div class="rec-item" data-num="①"><strong>原料保供优先：</strong>当前原料（云母/锂辉石）价格高位且供应偏紧，建议滚动储备2-3个月安全库存，优先锁定江西合规供应商，动态跟踪枧下窝复产进展。</div>
+    <div class="rec-item" data-num="②"><strong>顺价管理：</strong>碳酸锂价格处于高位区间，建议与核心客户逐步建立价格联动机制，平衡利润与合作粘性，避免踏空行情利润。</div>
+    <div class="rec-item" data-num="③"><strong>边际变量跟踪：</strong>密切跟踪广期所仓单变化、期货持仓走向及津巴布韦矿实际到港节奏，在价格快速下行阶段适度缩短库存周期，在价格企稳阶段适度补库。</div>
+    <div class="rec-item" data-num="④"><strong>龙蟠时代经营优化：</strong>5月云母收率（79.22%）略低于预算（80.34%），建议复盘原料结构，储备差异化提锂工艺以应对未来多来源原料切换需求；存货周转率优化空间较大。</div>
+  </div>
+</section>
+
+<footer class="report-footer">
+  <p>数据来源：龙蟠时代碳酸锂产业链数据库（更新至2026年5月） · 广期所碳酸锂期货行情 · 行业新闻嵌入式系统 · 龙蟠时代雷达看板</p>
+  <p>战略中心信息情报部 · 每月25日发布 · © 2026</p>
+</footer>
+
+</main>
+</div><!-- page-wrapper -->
+
+</body>
+</html>
