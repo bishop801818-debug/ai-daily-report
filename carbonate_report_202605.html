@@ -152,6 +152,7 @@ a { color: inherit; text-decoration: none; }
 @media (max-width: 1100px) { .toc-sidebar { display: none; } .kpi-row { grid-template-columns: repeat(2, 1fr); } }
 @media (max-width: 600px) { .kpi-row { grid-template-columns: 1fr; } }
 </style>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 </head>
 <body>
 
@@ -383,7 +384,29 @@ a { color: inherit; text-decoration: none; }
     <p>从供应结构看：<span class="highlight">5月锂辉石端产量环比小幅下降</span>，主因津巴布韦矿到港断层、江西锂云母停产换证持续扰动；<strong>盐湖端增量显著</strong>，来自盐湖股份（蓝科锂业）新增产能爬坡；云母端因枧下窝持续停产整体偏紧。需求端维持高增速，锂电排产249GWh创历史新高，储能订单饱满，碳酸锂单月需求量突破14万吨，市场维持去库态势。</p>
   </div>
 
-  <div class="callout callout-info">
+  
+<div class="chart-card">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+    <h4 style="font-size:14px;color:var(--text-secondary);font-weight:600;margin:0;">&#x1F4CA; 图1：国内碳酸锂月度产量趋势（2025-06 ~ 2026-05）</h4>
+  </div>
+  <div style="position:relative;height:280px;">
+    <canvas id="chart_lc_prod"></canvas>
+  </div>
+</div>
+<div class="chart-card" style="display:inline-block;width:49%;vertical-align:top;">
+  <h4 style="font-size:13px;color:var(--text-secondary);font-weight:600;margin-bottom:10px;">&#x1F4CA; 图3：碳酸锂月度产量趋势（2025-2026对比）</h4>
+  <div style="position:relative;height:240px;">
+    <canvas id="chart_lc_yoy"></canvas>
+  </div>
+</div><div class="chart-card" style="display:inline-block;width:49%;vertical-align:top;">
+  <h4 style="font-size:13px;color:var(--text-secondary);font-weight:600;margin-bottom:10px;">&#x1F4C8; 图4：碳酸锂 & 氢氧化锂产能利用率走势</h4>
+  <div style="position:relative;height:240px;">
+    <canvas id="chart_capacity"></canvas>
+  </div>
+</div>
+
+
+<div class="callout callout-info">
     <div class="callout-title">📌 供需格局判断</div>
     <p>5月国内碳酸锂市场供应端边际收紧（云母减量+津巴布韦到港断层），需求端（储能）淡季不淡，单月供需缺口再度打开。库存已降至12万吨以下，可用天数不足1个月，供给紧平衡格局延续。</p>
   </div>
@@ -422,6 +445,15 @@ a { color: inherit; text-decoration: none; }
   </table>
   <div class="callout callout-info">
     <div class="callout-title">📌 行业格局观察</div>
+
+<div class="chart-card">
+  <h4 style="font-size:14px;color:var(--text-secondary);font-weight:600;margin-bottom:10px;">&#x1F4CA; 图2：碳酸锂TOP15企业产量分布（2026年5月，单位：吨）</h4>
+  <div style="position:relative;height:320px;">
+    <canvas id="chart_top15"></canvas>
+  </div>
+</div>
+
+
     <p>5月行业呈现"头部稳定、二三线放量"格局，CR10占比50.2%（较4月有所下行）。蓝科锂业、四川雅化超产运营（开工率127%/153%），融捷股份开工率104%亦超产。行业集中度下降源于头部企业产量稳定而二三梯队实现增量，整体产能利用率维持91.81%高位。</p>
   </div>
 
@@ -480,7 +512,12 @@ a { color: inherit; text-decoration: none; }
   </div>
 
   <!-- 2.4 价格分析 -->
-  <div class="sub-title" id="p2-4">四、价格分析</div>
+  
+
+
+
+
+<div class="sub-title" id="p2-4">四、价格分析</div>
   <div class="insight-block">
     <p>5月碳酸锂价格演绎<strong>"冲高回落"</strong>的N型走势，月内振幅超3万元/吨，为近三年最剧烈波动月份。</p>
     <p><strong>上半月快速上行</strong>（5月1日→5月12日）：三重供给扰动（宜春云母矿停产换证、津巴布韦矿到港断层、IGO下调Greenbushes产量预期约13%）共振驱动，碳酸锂期货LC2609自5月初约17.7万/吨快速上攻，5月7日首破20万/吨，5月12日刷新历史高位<strong>208,800元/吨</strong>。SMM电池级碳酸锂现货5月7日约19.5万/吨。</p>
@@ -507,7 +544,22 @@ a { color: inherit; text-decoration: none; }
   </table>
 
   <!-- 2.5 进出口 -->
-  <div class="sub-title" id="p2-5">五、进出口分析</div>
+  
+<div class="chart-card" style="display:inline-block;width:49%;vertical-align:top;">
+  <h4 style="font-size:13px;color:var(--text-secondary);font-weight:600;margin-bottom:10px;">&#x1F4C8; 图5：电池级99.5%矿石价格走势（万元/吨）</h4>
+  <div style="position:relative;height:240px;">
+    <canvas id="chart_lc_price_main"></canvas>
+  </div>
+</div>
+
+<div class="chart-card" style="display:inline-block;width:49%;vertical-align:top;">
+  <h4 style="font-size:13px;color:var(--text-secondary);font-weight:600;margin-bottom:10px;">&#x1F4C8; 图6：碳酸锂各规格价格走势对比（万元/吨）</h4>
+  <div style="position:relative;height:240px;">
+    <canvas id="chart_lc_price_all"></canvas>
+  </div>
+</div>
+
+<div class="sub-title" id="p2-5">五、进出口分析</div>
 
   <div class="kpi-row" style="grid-template-columns: repeat(2, 1fr); margin-bottom: 12px;">
     <div class="kpi-card">
@@ -528,6 +580,21 @@ a { color: inherit; text-decoration: none; }
   </div>
 
 </section>
+
+
+<div class="chart-card" style="display:inline-block;width:49%;vertical-align:top;">
+  <h4 style="font-size:13px;color:var(--text-secondary);font-weight:600;margin-bottom:10px;">&#x1F4CA; 图7：碳酸锂月度进口量趋势（吨）</h4>
+  <div style="position:relative;height:240px;">
+    <canvas id="chart_lc_import"></canvas>
+  </div>
+</div>
+
+<div class="chart-card" style="display:inline-block;width:49%;vertical-align:top;">
+  <h4 style="font-size:13px;color:var(--text-secondary);font-weight:600;margin-bottom:10px;">&#x1F4CA; 图8：锂辉石月度进口量趋势（吨）</h4>
+  <div style="position:relative;height:240px;">
+    <canvas id="chart_lx_import"></canvas>
+  </div>
+</div>
 
 <!-- ========== PART 3: 氢氧化锂 ========== -->
 <section class="part-section" id="p3">
@@ -555,13 +622,32 @@ a { color: inherit; text-decoration: none; }
     </div>
   </div>
 
-  <div class="callout callout-warn">
+  
+<div class="chart-card">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+    <h4 style="font-size:14px;color:var(--text-secondary);font-weight:600;margin:0;">&#x1F4CA; 图9：国内氢氧化锂月度产量趋势（2025-06 ~ 2026-05）</h4>
+  </div>
+  <div style="position:relative;height:260px;">
+    <canvas id="chart_hl_prod"></canvas>
+  </div>
+</div>
+
+<div class="callout callout-warn">
     <div class="callout-title">⚠️ 氢氧化锂 vs 碳酸锂价差收窄</div>
     <p>5月氢氧化锂（粗颗粒，均价约12.5万/吨）与碳酸锂（电池级99.5%，均价约18.7万/吨）价差明显收窄。氢氧化锂价格涨幅整体滞后于碳酸锂，但6月后跟涨态势明显（6月17日粗颗粒已至16.45万/吨）。下游三元材料厂采购节奏仍偏谨慎，短期价格或区间震荡。</p>
   </div>
 
   <div class="insight-block">
-    <p><strong>进出口：</strong>5月氢氧化锂进口约3,932吨，印尼为主要供应国（占比约85%以上），进口均价约11.2万元/吨。出口约3,549吨，日韩为主要目的地，同比大幅增长。整体呈现"内热外冷"格局，内贸价格受锂价整体上行驱动跟涨，外贸受海外三元材料需求波动出现回调。</p>
+    <p><strong>进出口：</strong>5月氢氧化锂进口约3,932吨
+
+<div class="chart-card" style="display:inline-block;width:49%;vertical-align:top;">
+  <h4 style="font-size:13px;color:var(--text-secondary);font-weight:600;margin-bottom:10px;">&#x1F4C8; 图10：氢氧化锂价格走势（万元/吨）</h4>
+  <div style="position:relative;height:240px;">
+    <canvas id="chart_hl_price"></canvas>
+  </div>
+</div>
+
+，印尼为主要供应国（占比约85%以上），进口均价约11.2万元/吨。出口约3,549吨，日韩为主要目的地，同比大幅增长。整体呈现"内热外冷"格局，内贸价格受锂价整体上行驱动跟涨，外贸受海外三元材料需求波动出现回调。</p>
   </div>
 </section>
 
@@ -647,6 +733,433 @@ a { color: inherit; text-decoration: none; }
 
 </main>
 </div><!-- page-wrapper -->
+
+
+
+<script>
+new Chart(document.getElementById('chart_lc_prod').getContext('2d'), {
+  type: 'bar',
+  data: {
+    labels: ['25-06','25-07','25-08','25-09','25-10','25-11','25-12','26-01','26-02','26-03','26-04','26-05'],
+    datasets: [
+      {
+        label: '产量（吨）',
+        data: [77300,81040,84827,87127,89700,92872,97444,99100,86710,103100,107000,105310],
+        backgroundColor: 'rgba(10,110,63,0.75)',
+        borderColor: '#0a6e3f',
+        borderWidth: 1.5,
+        borderRadius: 4,
+        yAxisID: 'y'
+      },
+      {
+        label: '产能利用率（右轴）',
+        data: [78.5,75.9,77.6,76.8,79.1,81.3,85.3,86.4,75.6,89.9,93.3,91.8],
+        type: 'line',
+        borderColor: '#E88040',
+        backgroundColor: 'rgba(232,128,64,0.1)',
+        borderWidth: 2.5,
+        pointRadius: 4,
+        pointBackgroundColor: '#E88040',
+        tension: 0.4,
+        fill: false,
+        yAxisID: 'y1'
+      }
+    ]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { position: 'top', labels: { font: { size: 11 }, boxWidth: 12 } },
+      tooltip: {
+        callbacks: {
+          label: function(ctx) {
+            if(ctx.datasetIndex===0) return ctx.raw.toLocaleString()+' 吨';
+            return ctx.raw+'%';
+          }
+        }
+      }
+    },
+    scales: {
+      y: { position: 'left', title: { display:true, text:'产量（吨）', font:{size:11} }, grid:{color:'rgba(0,0,0,0.06)'}, ticks:{font:{size:10}} },
+      y1: { position: 'right', title: { display:true, text:'产能利用率%', font:{size:11} }, grid:{display:false}, min:60, max:100, ticks:{font:{size:10}} }
+    }
+  }
+});
+</script>
+
+<script>
+new Chart(document.getElementById('chart_hl_prod').getContext('2d'), {
+  type: 'bar',
+  data: {
+    labels: ['25-06','25-07','25-08','25-09','25-10','25-11','25-12','26-01','26-02','26-03','26-04','26-05'],
+    datasets: [
+      {
+        label: '产量（吨）',
+        data: [28450,26300,26950,28400,28150,26650,28600,28150,25940,30350,30810,31030],
+        backgroundColor: 'rgba(53,200,212,0.7)',
+        borderColor: '#35C8D4',
+        borderWidth: 1.5,
+        borderRadius: 4,
+        yAxisID: 'y'
+      },
+      {
+        label: '产能利用率（右轴%）',
+        data: [55,51,52,57,57,51,54,54,49,56,55,55],
+        type: 'line',
+        borderColor: '#5B8DEF',
+        backgroundColor: 'rgba(91,141,239,0.1)',
+        borderWidth: 2.5,
+        pointRadius: 4,
+        pointBackgroundColor: '#5B8DEF',
+        tension: 0.4,
+        fill: false,
+        yAxisID: 'y1'
+      }
+    ]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { position: 'top', labels: { font: { size: 11 }, boxWidth: 12 } },
+      tooltip: {
+        callbacks: {
+          label: function(ctx) {
+            if(ctx.datasetIndex===0) return ctx.raw.toLocaleString()+' 吨';
+            return ctx.raw+'%';
+          }
+        }
+      }
+    },
+    scales: {
+      y: { position: 'left', title: { display:true, text:'产量（吨）', font:{size:11} }, grid:{color:'rgba(0,0,0,0.06)'}, ticks:{font:{size:10}} },
+      y1: { position: 'right', title: { display:true, text:'产能利用率%', font:{size:11} }, grid:{display:false}, min:45, max:65, ticks:{font:{size:10}} }
+    }
+  }
+});
+</script>
+
+<script>
+new Chart(document.getElementById('chart_lc_yoy').getContext('2d'), {
+  type: 'bar',
+  data: {
+    labels: ['25-06','25-07','25-08','25-09','25-10','25-11','25-12','26-01','26-02','26-03','26-04','26-05'],
+    datasets: [
+      {
+        label: '2025年产量',
+        data: [77300,81040,84827,87127,89700,92872,97444,null,null,null,null,null],
+        backgroundColor: 'rgba(10,110,63,0.25)',
+        borderColor: 'rgba(10,110,63,0.4)',
+        borderWidth: 1.5, borderRadius: 3
+      },
+      {
+        label: '2026年产量',
+        data: [null,null,null,null,null,null,null,99100,86710,103100,107000,105310],
+        backgroundColor: 'rgba(10,110,63,0.75)',
+        borderColor: '#0a6e3f',
+        borderWidth: 1.5, borderRadius: 3
+      }
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: {
+      legend: { position: 'top', labels: { font: { size: 11 }, boxWidth: 12 } },
+      tooltip: {
+        callbacks: {
+          label: function(ctx) {
+            if(ctx.raw === null) return '无数据';
+            return ctx.raw.toLocaleString()+' 吨';
+          },
+          afterLabel: function(ctx) {
+            if(ctx.raw === null) return '';
+            var yoy = [null,null,null,null,null,null,null,51.5,29.6,37.8,43.6,43.3];
+            if(yoy[ctx.dataIndex] !== null) return '同比: +'+yoy[ctx.dataIndex]+'%';
+            return '';
+          }
+        }
+      }
+    },
+    scales: {
+      y: { title: { display:true, text:'产量（吨）', font:{size:11} }, grid:{color:'rgba(0,0,0,0.06)'}, ticks:{font:{size:10}, callback: v=>v?v.toLocaleString():''} },
+      x: { grid:{color:'rgba(0,0,0,0.04)'}, ticks:{font:{size:9}} }
+    }
+  }
+});
+</script>
+
+<script>
+new Chart(document.getElementById('chart_capacity').getContext('2d'), {
+  type: 'line',
+  data: {
+    labels: ['25-06','25-07','25-08','25-09','25-10','25-11','25-12','26-01','26-02','26-03','26-04','26-05'],
+    datasets: [
+      {
+        label: '碳酸锂产能利用率',
+        data: [78.5,75.9,77.6,76.8,79.1,81.3,85.3,86.4,75.6,89.9,93.3,91.8],
+        borderColor: '#0a6e3f', backgroundColor:'rgba(10,110,63,0.08)',
+        borderWidth: 2.5, tension: 0.4, fill: true, pointRadius: 4, pointBackgroundColor:'#0a6e3f'
+      },
+      {
+        label: '氢氧化锂产能利用率',
+        data: [55,51,52,57,57,51,54,54,49,56,55,55],
+        borderColor: '#35C8D4', backgroundColor:'rgba(53,200,212,0.08)',
+        borderWidth: 2.5, tension: 0.4, fill: true, pointRadius: 4, pointBackgroundColor:'#35C8D4'
+      }
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: {
+      legend: { position: 'bottom', labels: { font: { size: 11 }, boxWidth: 12 } },
+      tooltip: { callbacks: { label: ctx => ctx.dataset.label+': '+ctx.raw+'%' } }
+    },
+    scales: {
+      y: { min: 40, title: { display:true, text:'产能利用率（%）', font:{size:11} }, grid:{color:'rgba(0,0,0,0.06)'}, ticks:{font:{size:10}} },
+      x: { grid:{color:'rgba(0,0,0,0.04)'}, ticks:{font:{size:10}} }
+    }
+  }
+});
+</script>
+
+<script>
+new Chart(document.getElementById('chart_lc_price_main').getContext('2d'), {
+  type: 'line',
+  data: {
+    labels: ['2025-12','2026-01','2026-02','2026-03','2026-04','2026-05','2026-06'],
+    datasets: [{
+      label: '电池级99.5% 矿石',
+      data: [10.20,15.23,15.25,15.75,16.51,18.66,17.15],
+      borderColor: '#0a6e3f',
+      backgroundColor: 'rgba(10,110,63,0.1)',
+      borderWidth: 2.5,
+      fill: true,
+      tension: 0.35,
+      pointRadius: 5,
+      pointBackgroundColor: '#0a6e3f',
+      pointBorderColor: '#fff',
+      pointBorderWidth: 2
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      tooltip: { callbacks: { label: ctx => ctx.raw.toFixed(2)+' 万/吨' } }
+    },
+    scales: {
+      y: { min: 9, title: { display:true, text:'万元/吨', font:{size:11} }, grid:{color:'rgba(0,0,0,0.06)'}, ticks:{font:{size:10}, callback: v=>v.toFixed(0)} },
+      x: { grid:{color:'rgba(0,0,0,0.04)'}, ticks:{font:{size:10}} }
+    }
+  }
+});
+</script>
+
+<script>
+new Chart(document.getElementById('chart_lc_price_all').getContext('2d'), {
+  type: 'line',
+  data: {
+    labels: ['2025-12','2026-01','2026-02','2026-03','2026-04','2026-05','2026-06'],
+    datasets: [
+      {
+        label: '矿石电池级99.5%',
+        data: [10.20,15.23,15.25,15.75,16.51,18.66,17.15],
+        borderColor: '#0a6e3f', backgroundColor:'transparent', borderWidth:2, tension:0.35, pointRadius:3, pointBackgroundColor:'#0a6e3f'
+      },
+      {
+        label: '盐湖电池级99.5%',
+        data: [9.97,14.68,14.70,15.20,15.96,18.11,16.77],
+        borderColor: '#35C8D4', backgroundColor:'transparent', borderWidth:2, tension:0.35, pointRadius:3, pointBackgroundColor:'#35C8D4'
+      },
+      {
+        label: '工业级98.5%',
+        data: [9.50,13.32,13.24,13.80,14.55,16.71,15.89],
+        borderColor: '#D5A858', backgroundColor:'transparent', borderWidth:2, tension:0.35, pointRadius:3, pointBackgroundColor:'#D5A858'
+      },
+      {
+        label: '再生电池级99.5%',
+        data: [9.92,14.48,14.50,15.00,15.75,17.87,16.62],
+        borderColor: '#5B8DEF', backgroundColor:'transparent', borderWidth:2, tension:0.35, pointRadius:3, pointBackgroundColor:'#5B8DEF'
+      }
+    ]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { position: 'bottom', labels: { font: { size: 10 }, boxWidth: 10 } },
+      tooltip: { callbacks: { label: ctx => ctx.dataset.label+': '+ctx.raw.toFixed(2)+' 万' } }
+    },
+    scales: {
+      y: { min: 8, title: { display:true, text:'万元/吨', font:{size:11} }, grid:{color:'rgba(0,0,0,0.06)'}, ticks:{font:{size:10}, callback: v=>v.toFixed(0)} },
+      x: { grid:{color:'rgba(0,0,0,0.04)'}, ticks:{font:{size:10}} }
+    }
+  }
+});
+</script>
+
+<script>
+new Chart(document.getElementById('chart_lc_import').getContext('2d'), {
+  type: 'bar',
+  data: {
+    labels: ['25-06','25-07','25-08','25-09','25-10','25-11','25-12','26-01','26-02','26-03','26-04','26-05'],
+    datasets: [
+      {
+        label: '进口量（吨）',
+        data: [17698,13845,21847,19597,23881,22055,23989,26858,26427,29974,32650,37555],
+        backgroundColor: function(ctx) {
+          const idx = ctx.dataIndex;
+          return idx >= 7 ? 'rgba(10,110,63,0.7)' : 'rgba(10,110,63,0.3)';
+        },
+        borderColor: function(ctx) {
+          return ctx.dataIndex >= 7 ? '#0a6e3f' : 'rgba(10,110,63,0.5)';
+        },
+        borderWidth: 1.5, borderRadius: 3, yAxisID: 'y'
+      },
+      {
+        label: '进口均价（万元/吨）',
+        data: [7.3,7.2,6.2,6.1,6.4,7.0,7.2,6.8,8.5,10.4,11.5,13.1],
+        type: 'line', borderColor: '#E85B73', backgroundColor:'transparent',
+        borderWidth: 2.5, pointRadius: 4, pointBackgroundColor: '#E85B73',
+        tension: 0.4, fill: false, yAxisID: 'y1'
+      }
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: {
+      legend: { position: 'top', labels: { font: { size: 11 }, boxWidth: 12 } },
+      tooltip: { callbacks: { label: ctx => ctx.raw.toLocaleString()+(ctx.datasetIndex===0?' 吨':' 万/吨') } }
+    },
+    scales: {
+      y: { position: 'left', title: { display:true, text:'进口量（吨）', font:{size:11} }, grid:{color:'rgba(0,0,0,0.06)'}, ticks:{font:{size:10}} },
+      y1: { position: 'right', title: { display:true, text:'均价（万元/吨）', font:{size:11} }, grid:{display:false}, min:5, max:15, ticks:{font:{size:10}, callback: v=>v.toFixed(0)} }
+    }
+  }
+});
+</script>
+
+<script>
+new Chart(document.getElementById('chart_lx_import').getContext('2d'), {
+  type: 'bar',
+  data: {
+    labels: ['25-06','25-07','25-08','25-09','25-10','25-11','25-12','26-01','26-02','26-03','26-04','26-05'],
+    datasets: [
+      {
+        label: '锂辉石进口量（吨）',
+        data: [575727,751489,620729,710845,651116,729691,788494,831919,557722,837424,757975,680776],
+        backgroundColor: 'rgba(91,141,239,0.65)',
+        borderColor: '#5B8DEF',
+        borderWidth: 1.5,
+        borderRadius: 3,
+        yAxisID: 'y'
+      },
+      {
+        label: '折碳酸锂当量（右轴，万吨）',
+        data: [5.4,7.0,5.8,6.7,6.1,6.9,7.4,7.8,5.2,7.9,7.1,6.4],
+        type: 'line',
+        borderColor: '#D5A858',
+        backgroundColor: 'rgba(213,168,88,0.1)',
+        borderWidth: 2.5,
+        pointRadius: 4,
+        pointBackgroundColor: '#D5A858',
+        tension: 0.4,
+        fill: false,
+        yAxisID: 'y1'
+      }
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: {
+      legend: { position: 'top', labels: { font: { size: 11 }, boxWidth: 12 } },
+      tooltip: { callbacks: { label: ctx => ctx.raw.toLocaleString()+(ctx.datasetIndex===0?' 吨':'') } }
+    },
+    scales: {
+      y: { position: 'left', title: { display:true, text:'进口量（吨）', font:{size:11} }, grid:{color:'rgba(0,0,0,0.06)'}, ticks:{font:{size:10}, callback: v=>(v/1000).toFixed(0)+'k'} },
+      y1: { position: 'right', title: { display:true, text:'LCE当量（万吨）', font:{size:11} }, grid:{display:false}, min:4, max:10, ticks:{font:{size:10}} }
+    }
+  }
+});
+</script>
+
+<script>
+new Chart(document.getElementById('chart_hl_price').getContext('2d'), {
+  type: 'line',
+  data: {
+    labels: ['2025-12','2026-01','2026-02','2026-03','2026-04','2026-05','2026-06'],
+    datasets: [
+      {
+        label: '56.5%粗颗粒',
+        data: [8.58,13.73,14.75,14.89,15.36,16.81,16.21],
+        borderColor: '#0a6e3f', backgroundColor:'transparent', borderWidth:2.5, tension:0.35, pointRadius:4, pointBackgroundColor:'#0a6e3f'
+      },
+      {
+        label: '56.5%微粉级',
+        data: [9.13,14.45,15.34,15.64,16.08,17.77,16.64],
+        borderColor: '#35C8D4', backgroundColor:'transparent', borderWidth:2.5, tension:0.35, pointRadius:4, pointBackgroundColor:'#35C8D4'
+      }
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: {
+      legend: { position: 'bottom', labels: { font: { size: 11 }, boxWidth: 12 } },
+      tooltip: { callbacks: { label: ctx => ctx.dataset.label+': '+ctx.raw.toFixed(2)+' 万/吨' } }
+    },
+    scales: {
+      y: { min: 7, title: { display:true, text:'万元/吨', font:{size:11} }, grid:{color:'rgba(0,0,0,0.06)'}, ticks:{font:{size:10}, callback: v=>v.toFixed(0)} },
+      x: { grid:{color:'rgba(0,0,0,0.04)'}, ticks:{font:{size:10}} }
+    }
+  }
+});
+</script>
+
+<script>
+new Chart(document.getElementById('chart_top15').getContext('2d'), {
+  type: 'bar',
+  data: {
+    labels: ['其它','九岭锂业','蓝科锂业','四川雅化','新疆西海','赣锋锂业','盛新锂能','广西华友','天齐锂业','中信国安','中矿资源','龙蟠时代','银锂','融捷股份','永兴材料'],
+    datasets: [{
+      label: '产量（吨）',
+      data: [22100,7500,6650,4600,4500,4500,4400,4300,4300,3250,2500,2302,2300,2000,2000],
+      backgroundColor: function(ctx) {
+        return ctx.dataIndex === 11 ? 'rgba(213,168,88,0.85)' : 'rgba(10,110,63,0.65)';
+      },
+      borderColor: function(ctx) {
+        return ctx.dataIndex === 11 ? '#D5A858' : '#0a6e3f';
+      },
+      borderWidth: 1.5,
+      borderRadius: 3
+    }]
+  },
+  options: {
+    indexAxis: 'y',
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        callbacks: {
+          label: function(ctx) {
+            return ctx.raw.toLocaleString()+' 吨  排名#'+(ctx.dataIndex+1);
+          },
+          afterLabel: function(ctx) {
+            if(ctx.dataIndex === 11) return '★ 龙蟠时代';
+            return '';
+          }
+        }
+      }
+    },
+    scales: {
+      x: { title: { display:true, text:'产量（吨）', font:{size:11} }, grid:{color:'rgba(0,0,0,0.06)'}, ticks:{font:{size:10}, callback: v=>v.toLocaleString()} },
+      y: { grid:{display:false}, ticks:{font:{size:10}} }
+    }
+  }
+});
+</script>
 
 </body>
 </html>
