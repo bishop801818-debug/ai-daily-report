@@ -9104,46 +9104,46 @@ window.addEventListener('DOMContentLoaded', function() {
     wrap.addEventListener('click', function(e) {
         if (e.target.closest('.ai-sphere') && !dragging) openDialog();
     });
-    /* GIF动画：页面加载后立即循环播放 */
+    /* GIF动画：页面加载后播放一次，然后暂停 */
     (function(){
         var gifImg = document.getElementById("gifImg");
+        var gifLayer = document.getElementById("gifLayer");
         if (!gifImg) return;
+        
+        // 播放动画
         gifImg.src = "assets/dragon_4combined_anim.gif";
-
-        /* ── 悬停时GIF暂停（切换为静态抬头表情）── */
-        var GIF_SRC = "assets/dragon_4combined_anim.gif";
+        
+        // 显示GIF图层
+        if (gifLayer) gifLayer.style.opacity = "1";
+        
+        // 2秒后暂停（替换为静态图）— 假设GIF播放一次约2秒
+        setTimeout(function() {
+            gifImg.src = "assets/dragon_4combined_hover_static.png";
+        }, 2000);
+        
+        /* ── 悬停时保持静态图（不再恢复动画）── */
         var STATIC_SRC = "assets/dragon_4combined_hover_static.png";
         var wrap = document.getElementById("aiFloatWrap");
         if (!wrap) return;
-
+        
         var isHovering = false;
-
+        
         wrap.addEventListener('mouseenter', function() {
             if (isHovering) return;
             isHovering = true;
-            // 切换为静态表情图 → GIF停止播放
+            // 确保显示静态图
             gifImg.src = STATIC_SRC;
         });
-
+        
         wrap.addEventListener('mouseleave', function() {
-            if (!isHovering) return;
+            // 鼠标离开时，保持静态图（不再恢复动画）
             isHovering = false;
-            // 恢复GIF → 继续循环播放
-            gifImg.src = GIF_SRC;
         });
-
-        /* 移动端触摸：按下显示静态，松开恢复 */
+        
+        /* 移动端触摸：显示静态图 */
         wrap.addEventListener('touchstart', function(e) {
-            if (isHovering) return;
-            isHovering = true;
             gifImg.src = STATIC_SRC;
         }, {passive: true});
-
-        wrap.addEventListener('touchend', function() {
-            if (!isHovering) return;
-            isHovering = false;
-            gifImg.src = GIF_SRC;
-        });
     })();
     document.getElementById('aiChatClose').addEventListener('click', closeDialog);
     dialog.addEventListener('click', function(e) {
@@ -9257,11 +9257,13 @@ window.addEventListener('DOMContentLoaded', function() {
                '回答（100字以内，直接给出答案，不需要额外说明）：';
     }
 
-    // Coze v3 API: 维护会话上下文
-    // 注意：现在通过本地代理服务器调用，避免CORS问题
+    // 智谱AI API (GLM-4-Flash): 维护会话上下文
+    // 注意：直接调用智谱API，无需代理
     var __ai_conv_id__ = 'ai-web-' + Date.now();
-    var __ai_api_base__ = 'http://localhost:5000/api';  // 代理服务器地址
-    
+    var __zhipu_api_key__ = 'a84b9b55d2f34a7bbdc68afdd40bcafa.sb7cDCFaJkxjGluv';
+    var __zhipu_model__ = 'glm-4-flash';
+    var __ai_messages__ = [];  // 维护对话历史
+
     async function sendMessage() {
         var text = input.value.trim();
         if (!text) return;
@@ -9270,92 +9272,52 @@ window.addEventListener('DOMContentLoaded', function() {
         showTyping();
         sendBtn.disabled = true;
         try {
-            // Step 1: 发起对话（通过代理）
-            var startResp = await fetch(__ai_api_base__ + '/chat', {
+            // 添加用户消息到历史
+            __ai_messages__.push({role: 'user', content: buildPrompt(text)});
+
+            // 调用智谱API（同步返回，无需轮询）
+            var resp = await fetch('https://open.bigmodel.cn/api/paas/v4/chat/completions', {
                 method: 'POST',
                 headers: {
+                    'Authorization': 'Bearer ' + __zhipu_api_key__,
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    bot_id: '7637362584282316806',  // 直接从配置读取
-                    user_id: 'web-user',
-                    conversation_id: __ai_conv_id__,
-                    stream: false,
-                    auto_save_history: true,
-                    additional_messages: [
-                        { role: 'user', content: buildPrompt(text), content_type: 'text' }
-                    ]
+                    model: __zhipu_model__,
+                    messages: __ai_messages__,
+                    max_tokens: 512,
+                    temperature: 0.7
                 })
             });
-            var startData = await startResp.json();
-
-            // Step 2: 轮询直到完成（最多30秒）
-            var chatId = startData.data && startData.data.id;
-            var convId = startData.data && startData.data.conversation_id;
-            var initialContent = startData.data && startData.data.content; // 通义千问代理可能直接返回content
-            if (!chatId || startData.code !== 0) {
-                removeTyping();
-                addMsg('bot', '[错误] 发起对话失败：' + (startData.msg || 'code ' + startData.code), botAvatar);
-                sendBtn.disabled = false;
-                return;
-            }
-            
-            // 如果代理直接返回了content（通义千问模式），直接使用
-            if (initialContent) {
-                removeTyping();
-                addMsg('bot', initialContent, botAvatar);
-                __ai_conv_id__ = convId;
-                sendBtn.disabled = false;
-                return;
-            }
-            
-            var pollCount = 0;
-            var chatData = null;
-            while (pollCount < 30) {
-                await new Promise(r => setTimeout(r, 1000));
-                var pollResp = await fetch(
-                    __ai_api_base__ + '/chat/retrieve?chat_id=' + chatId + '&conversation_id=' + convId
-                );
-                chatData = await pollResp.json();
-                if (chatData.data && chatData.data.status === 'completed') {
-                    // 检查是否有content（通义千问代理模式）
-                    if (chatData.data.content) {
-                        removeTyping();
-                        addMsg('bot', chatData.data.content, botAvatar);
-                        __ai_conv_id__ = convId;
-                        sendBtn.disabled = false;
-                        return;
-                    }
-                    break;
-                }
-                if (chatData.data && chatData.data.status === 'failed') break;
-                pollCount++;
-            }
+            var data = await resp.json();
 
             removeTyping();
 
-            if (!chatData || chatData.data.status !== 'completed') {
-                addMsg('bot', '[超时] AI 响应超时，请稍后再试。', botAvatar);
+            if (data.error) {
+                addMsg('bot', '[错误] ' + (data.error.message || 'API调用失败'), botAvatar);
                 sendBtn.disabled = false;
                 return;
             }
 
-            // Step 3: 获取消息列表（通过代理）
-            var msgResp = await fetch(
-                __ai_api_base__ + '/chat/messages?chat_id=' + chatId + '&conversation_id=' + convId
-            );
-            var msgData = await msgResp.json();
-            var answer = (msgData.data && msgData.data.find(function(m){ return m.role === 'assistant' && m.type === 'answer'; }))
-                       || { content: '抱歉，暂时无法回答，请稍后再试。' };
-            addMsg('bot', answer.content || '收到！', botAvatar);
+            // 提取回复内容
+            var reply = data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content;
+            if (reply) {
+                // 添加助手回复到历史
+                __ai_messages__.push({role: 'assistant', content: reply});
+                addMsg('bot', reply, botAvatar);
+                sendBtn.disabled = false;
+                return;
+            }
 
-            // 保持会话连贯
-            __ai_conv_id__ = convId;
-        } catch(err) {
+            // 无有效回复
+            addMsg('bot', '[超时] AI 响应超时，请稍后再试。', botAvatar);
+            sendBtn.disabled = false;
+            return;
+        } catch(e) {
             removeTyping();
-            addMsg('bot', '[网络错误] 请检查代理服务器是否启动：' + err.message, botAvatar);
+            addMsg('bot', '[错误] ' + (e.message || 'AI 响应失败'), botAvatar);
+            sendBtn.disabled = false;
         }
-        sendBtn.disabled = false;
     }
 
     input.addEventListener('keydown', function(e) {
