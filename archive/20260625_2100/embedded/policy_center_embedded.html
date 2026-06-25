@@ -1,0 +1,2572 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>政策中心 · 锂电池产业链信息中台</title>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Noto+Sans+SC:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+:root {
+        --bg: #f5f7fa;
+        --surface: #ffffff;
+        --surface2: #f0f2f7;
+        --border: #e2e8f0;
+        --accent: #0891b2;
+        --accent-light: #ecfeff;
+        --text: #0f172a;
+        --text-mid: #475569;
+        --text-dim: #94a3b8;
+        --red: #dc2626;
+        --red-light: #fef2f2;
+        --orange: #ea580c;
+        --orange-light: #fff7ed;
+        --green: #16a34a;
+        --green-light: #f0fdf4;
+        --purple: #7c3aed;
+        --purple-light: #f5f3ff;
+        --gray: #64748b;
+        --topbar-h: 58px;
+        --radius: 14px;
+        --sidebar-w: 240px;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Noto Sans SC', sans-serif; background: var(--bg); color: var(--text); font-size: 17px; line-height: 1.85; }
+
+    /* ===== Layout ===== */
+    .layout { display: flex; min-height: 100vh; }
+
+    /* ===== Sidebar ===== */
+    .sidebar {
+        width: var(--sidebar-w);
+        min-width: var(--sidebar-w);
+        background: #ffffff;
+        position: sticky;
+        top: 0;
+        height: 100vh;
+        overflow-y: auto;
+        overflow-x: hidden;
+        display: flex;
+        flex-direction: column;
+        box-shadow: 2px 0 12px rgba(0,0,0,0.08);
+        border-right: 1px solid var(--border);
+        z-index: 100;
+        flex-shrink: 0;
+        scrollbar-width: thin;
+        scrollbar-color: var(--border) transparent;
+    }
+    .sidebar::-webkit-scrollbar { width: 4px; }
+    .sidebar::-webkit-scrollbar-track { background: transparent; }
+    .sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+    /* Sidebar Header */
+    .sidebar-header {
+        padding: 20px 18px 16px;
+        border-bottom: 1px solid var(--border);
+        flex-shrink: 0;
+    }
+    .sidebar-logo { font-size: 16px; font-weight: 700; color: var(--text); display: flex; align-items: center; gap: 7px; }
+    .sidebar-sub { font-size: 12px; color: var(--text-dim); margin-top: 4px; }
+
+    /* Stats Block */
+    .sidebar-stats { padding: 14px 18px; border-bottom: 1px solid var(--border); flex-shrink: 0; }
+    .stats-title { font-size: 11px; font-weight: 600; color: var(--text-dim); letter-spacing: 0.5px; margin-bottom: 10px; }
+    .stats-grid { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 6px; }
+    .stat-item { background: var(--surface2); border-radius: 8px; padding: 8px 6px; text-align: center; transition: background 0.2s; }
+    .stat-item:hover { background: var(--border); }
+    .stat-num { font-size: 20px; font-weight: 700; color: var(--accent); line-height: 1; }
+    .stat-num.green { color: var(--green); }
+    .stat-num.orange { color: var(--orange); }
+    .stat-num.purple { color: var(--purple); }
+    .stat-lbl { font-size: 10px; color: var(--text-dim); margin-top: 3px; }
+
+    /* Sidebar Sections */
+    .sidebar-section { padding: 14px 18px; border-bottom: 1px solid var(--border); flex-shrink: 0; }
+    .sidebar-section.flex { flex: 1; min-height: 0; }
+    .section-title { font-size: 11px; font-weight: 600; color: var(--text-dim); margin-bottom: 10px; display: flex; align-items: center; gap: 5px; }
+
+    /* Month Nav */
+    .month-nav { display: flex; flex-direction: column; gap: 4px; }
+    .month-btn {
+        display: flex; align-items: center;
+        padding: 7px 11px; border-radius: 8px;
+        background: var(--surface2); border: 1px solid var(--border);
+        color: var(--text-mid); font-size: 13px; font-weight: 600;
+        cursor: pointer; transition: all 0.2s;
+    }
+    .month-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-light); }
+    .month-btn.active { background: var(--accent); border-color: var(--accent); color: white; }
+
+    /* BU Filter */
+    .bu-list { display: flex; flex-direction: column; gap: 4px; }
+    .bu-item { display: flex; align-items: center; gap: 9px; padding: 6px 9px; border-radius: 7px; cursor: pointer; transition: background 0.2s; font-size: 13px; color: var(--text-mid); }
+    .bu-item:hover { background: var(--surface2); color: var(--text); }
+    .bu-item input[type="checkbox"] { width: 14px; height: 14px; accent-color: var(--accent); cursor: pointer; flex-shrink: 0; }
+    .bu-item label { cursor: pointer; flex: 1; font-weight: 500; }
+
+    /* ===== Main Content ===== */
+    .main-area { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+
+    /* Topbar */
+    .topbar {
+        position: sticky; top: 0;
+        background: linear-gradient(135deg, #0d1b3e 0%, #1a3a6b 55%, #0a2d5c 100%);
+        color: white; padding: 0 24px; height: var(--topbar-h);
+        display: flex; align-items: center; gap: 14px;
+        z-index: 200; box-shadow: 0 4px 20px rgba(0,0,0,0.25); flex-shrink: 0;
+    }
+    .back-btn {
+        background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.25);
+        color: white; padding: 6px 14px; border-radius: 8px; font-size: 15px;
+        font-weight: 600; text-decoration: none; transition: background 0.15s;
+    }
+    .back-btn:hover { background: rgba(255,255,255,0.22); }
+    .topbar-title { font-family: 'Syne', sans-serif; font-size: 17px; font-weight: 700; color: white; }
+    .topbar-right { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+    .total-badge { background: var(--accent-light); border: 1px solid rgba(8,145,178,0.25); color: var(--accent); padding: 4px 14px; border-radius: 20px; font-size: 13px; font-weight: 600; }
+
+    /* Container */
+    .container { max-width: 1140px; margin: 0 auto; padding: 24px 28px 80px; width: 100%; }
+
+    /* Filter */
+    .filter-bar { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 24px; }
+    .filter-btn {
+        padding: 8px 18px; border: 2px solid var(--border); background: var(--surface);
+        border-radius: 20px; cursor: pointer; font-size: 14px; transition: all 0.2s; font-weight: 600;
+    }
+    .filter-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .filter-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
+
+    /* Timeline */
+    .timeline { position: relative; padding-left: 44px; }
+    .timeline::before {
+        content: '';
+        position: absolute; left: 16px; top: 0; bottom: 0; width: 2px;
+        background: linear-gradient(to bottom, var(--accent), var(--purple));
+        box-shadow: 0 0 8px rgba(8,145,178,0.4);
+    }
+
+    /* Month Marker */
+    .month-marker {
+        position: relative; margin-bottom: 4px; margin-top: 22px;
+    }
+    .month-marker:first-child { margin-top: 0; }
+    .month-marker::before {
+        content: '';
+        position: absolute; left: -36px; top: 4px;
+        width: 20px; height: 20px;
+        background: var(--accent);
+        border: 3px solid var(--bg);
+        border-radius: 50%;
+        box-shadow: 0 0 0 3px rgba(8,145,178,0.3), 0 0 14px rgba(8,145,178,0.5);
+        z-index: 2;
+    }
+    .month-marker-label {
+        display: inline-flex; align-items: center; gap: 7px;
+        background: var(--accent);
+        color: white;
+        font-size: 14px; font-weight: 600;
+        padding: 5px 12px; border-radius: 6px;
+        box-shadow: 0 2px 8px rgba(8,145,178,0.35);
+        transition: all 0.2s; cursor: default;
+    }
+    .month-marker-label:hover {
+        box-shadow: 0 0 0 3px rgba(8,145,178,0.2), 0 2px 12px rgba(8,145,178,0.5);
+        transform: translateX(2px);
+    }
+
+    .timeline-item {
+        position: relative; margin-bottom: 16px; cursor: pointer;
+        animation: fadeSlideIn 0.4s ease both;
+    }
+    @keyframes fadeSlideIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+    .timeline-item::before {
+        content: ''; position: absolute; left: -36px; top: 26px; width: 10px; height: 10px;
+        background: var(--surface); border: 2.5px solid var(--accent); border-radius: 50%;
+        box-shadow: 0 0 0 3px rgba(8,145,178,0.18);
+        transition: all 0.2s; z-index: 2;
+    }
+    .timeline-item:hover::before { background: var(--accent); box-shadow: 0 0 0 3px rgba(8,145,178,0.38); }
+
+    .item-card {
+        background: var(--surface); border-radius: var(--radius);
+        padding: 18px 22px; box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+        border-left: 5px solid var(--accent);
+        transition: all 0.3s;
+    }
+    .item-card:hover { transform: translateX(6px); box-shadow: 0 8px 24px rgba(0,0,0,0.11); border-left-color: var(--orange); }
+
+    .item-header { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; flex-wrap: wrap; }
+    .item-date { font-size: 14px; font-weight: 700; color: var(--accent); }
+    .item-badges { display: flex; gap: 5px; flex-wrap: wrap; }
+    .badge { font-size: 12px; padding: 3px 9px; border-radius: 6px; font-weight: 600; }
+    .badge.central { background: var(--accent-light); color: var(--accent); }
+    .badge.local { background: var(--green-light); color: var(--green); }
+    .badge.overseas { background: var(--purple-light); color: var(--purple); }
+    .badge.bu { background: var(--surface2); color: var(--gray); border: 1px solid var(--border); }
+
+    .item-title { font-size: 17px; font-weight: 700; color: var(--text); margin-bottom: 7px; line-height: 1.5; }
+    .item-summary { font-size: 14px; color: var(--text-mid); line-height: 1.8; margin-bottom: 10px; }
+    .item-meta { font-size: 13px; color: var(--text-dim); }
+
+    .collect-btn {
+        margin-left: auto;
+        background: none;
+        border: none;
+        cursor: pointer;
+        font-size: 16px;
+        padding: 2px 6px;
+        border-radius: 4px;
+        transition: all 0.15s;
+        opacity: 0;
+        color: var(--orange);
+        flex-shrink: 0;
+    }
+    .timeline-item:hover .collect-btn { opacity: 0.5; }
+    .collect-btn:hover { opacity: 1 !important; background: rgba(245,158,11,0.12); }
+    .collect-btn.collected { opacity: 1; color: var(--orange); }
+
+    .original-link { display: inline-flex; align-items: center; gap: 7px; background: var(--accent); color: white; padding: 7px 16px; border-radius: 8px; font-size: 14px; font-weight: 700; text-decoration: none; transition: background 0.2s; }
+    .original-link:hover { background: #0e7490; }
+    .media-link { display: inline-flex; align-items: center; gap: 7px; background: var(--orange-light); color: var(--orange); padding: 7px 16px; border-radius: 8px; font-size: 14px; font-weight: 700; text-decoration: none; border: 1.5px solid #fed7aa; transition: all 0.2s; }
+    .media-link:hover { background: var(--orange); color: white; border-color: var(--orange); }
+
+    /* Modal */
+    .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); z-index: 1000; }
+    .modal-overlay.active { display: block; }
+    .modal {
+        display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+        width: 95%; max-width: 900px; max-height: 92vh; background: var(--surface);
+        border-radius: 16px; z-index: 1001; overflow: hidden;
+    }
+    .modal.active { display: block; overflow-y: auto; }
+
+    .modal-header {
+        background: linear-gradient(135deg, #0d1b3e 0%, #1a3a6b 55%, #0a2d5c 100%);
+        color: white; padding: 18px 24px;
+        display: flex; justify-content: space-between; align-items: center;
+    }
+    .modal-header h2 { font-size: 18px; font-weight: 700; flex: 1; padding-right: 16px; }
+    .modal-close { background: rgba(255,255,255,0.15); border: none; color: white; width: 36px; height: 36px; border-radius: 50%; font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s; }
+    .modal-close:hover { background: rgba(255,255,255,0.25); }
+
+    .modal-body { padding: 24px 28px; }
+
+    .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 20px; }
+    @media (max-width: 768px) { .info-grid { grid-template-columns: 1fr; } }
+
+    .info-card { background: var(--surface2); border-radius: 10px; padding: 16px 20px; }
+    .info-card-header { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; padding-bottom: 10px; border-bottom: 2px solid var(--border); }
+    .info-card-icon { font-size: 18px; }
+    .info-card-title { font-size: 16px; font-weight: 700; color: var(--accent); }
+    .info-card-title.green { color: var(--green); }
+    .info-card-title.red { color: var(--red); }
+    .info-card-title.orange { color: var(--orange); }
+
+    .core-item { margin-bottom: 12px; }
+    .core-item:last-child { margin-bottom: 0; }
+    .core-phrase {
+        font-size: 15px; font-weight: 700; color: var(--text);
+        padding: 8px 12px; background: var(--surface); border-radius: 6px;
+        border-left: 3px solid var(--accent); margin-bottom: 5px;
+    }
+    .core-explain { font-size: 14px; color: var(--text-mid); line-height: 1.8; padding-left: 8px; }
+
+    .pos-block { margin-bottom: 14px; }
+    .pos-block:last-child { margin-bottom: 0; }
+    .pos-heading { font-size: 14px; font-weight: 700; color: var(--text-mid); margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
+    .pos-heading::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: var(--accent); }
+    .pos-text { font-size: 14px; color: var(--text-mid); line-height: 1.8; padding: 10px 14px; background: var(--surface2); border-radius: 6px; }
+
+    .seg-impact { margin-bottom: 10px; }
+    .seg-impact:last-child { margin-bottom: 0; }
+    .seg-name { font-size: 14px; font-weight: 700; color: var(--orange); margin-bottom: 4px; display: flex; align-items: center; gap: 6px; }
+    .seg-name::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--orange); }
+    .seg-impact-text { font-size: 14px; color: var(--text-mid); line-height: 1.7; padding-left: 14px; }
+
+    .risk-item { margin-bottom: 10px; }
+    .risk-item:last-child { margin-bottom: 0; }
+    .risk-header { display: flex; align-items: flex-start; gap: 6px; margin-bottom: 4px; }
+    .risk-dot { font-size: 14px; }
+    .risk-name { font-size: 14px; font-weight: 700; color: var(--red); }
+    .risk-body { font-size: 14px; color: var(--text-mid); line-height: 1.7; padding-left: 18px; }
+
+    /* Empty State */
+    .empty-state { text-align: center; padding: 60px 20px; color: var(--text-dim); }
+    .empty-state .icon { font-size: 48px; margin-bottom: 16px; opacity: 0.5; }
+    .empty-state p { font-size: 16px; }
+
+    /* Mobile toggle */
+    .mobile-toggle {
+        display: none;
+        background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.25);
+        color: white; padding: 6px 12px; border-radius: 8px; font-size: 15px;
+        cursor: pointer;
+    }
+
+    @media (max-width: 900px) {
+        .sidebar { transform: translateX(-100%); transition: transform 0.3s ease; position: fixed; left: 0; top: 0; }
+        .sidebar.open { transform: translateX(0); }
+        .main-area { width: 100%; }
+        .mobile-toggle { display: flex !important; align-items: center; gap: 6px; }
+        .layout { display: block; }
+        .topbar { padding-left: 12px; }
+    }
+    @media (max-width: 768px) {
+        .container { padding: 16px; }
+    }
+    </style>
+</head>
+<body>
+    <div class="layout">
+        <!-- ====== Sidebar ====== -->
+        <nav class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">📋 政策中心</div>
+                <div class="sidebar-sub">龙蟠科技 · 锂电池产业链</div>
+            </div>
+
+            <div class="sidebar-stats">
+                <div class="stats-title">政策统计</div>
+                <div class="stats-grid">
+                    <div class="stat-item"><div class="stat-num" id="stat-total">12</div><div class="stat-lbl">全部</div></div>
+                    <div class="stat-item"><div class="stat-num green" id="stat-central">6</div><div class="stat-lbl">国家</div></div>
+                    <div class="stat-item"><div class="stat-num orange" id="stat-local">4</div><div class="stat-lbl">地方</div></div>
+                    <div class="stat-item"><div class="stat-num purple" id="stat-overseas">2</div><div class="stat-lbl">海外</div></div>
+                </div>
+            </div>
+
+            <div class="sidebar-section">
+                <div class="section-title">月份</div>
+                <div class="month-nav" id="month-nav"></div>
+            </div>
+
+            <div class="sidebar-section flex">
+                <div class="section-title">涉及BU</div>
+                <div class="bu-list" id="bu-list"></div>
+            </div>
+        </nav>
+
+        <!-- ====== Main ====== -->
+        <div class="main-area">
+            <div class="topbar">
+                <button class="mobile-toggle" id="mobile-toggle" onclick="document.getElementById('sidebar').classList.toggle('open')">
+                    ☰ 导航
+                </button>
+                <a href="index_v3.html" class="back-btn">← 返回主页</a>
+                <span class="topbar-title">📋 政策中心 · 2026年政策时间轴</span>
+                <div class="topbar-right">
+                    <span class="total-badge" id="topbar-count">12 条政策</span>
+                </div>
+            </div>
+
+            <div class="container">
+                <div class="filter-bar">
+                    <button class="filter-btn active" data-filter="all">全部</button>
+                    <button class="filter-btn" data-filter="central">国家政策</button>
+                    <button class="filter-btn" data-filter="local">地方政策</button>
+                    <button class="filter-btn" data-filter="overseas">海外政策</button>
+                </div>
+
+                <div class="timeline" id="timeline"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal-overlay" id="modal-overlay"></div>
+    <div class="modal" id="modal">
+        <div class="modal-header">
+            <h2 id="modal-title"></h2>
+            <button class="modal-close" id="modal-close">×</button>
+        </div>
+        <div class="modal-body" id="modal-body"></div>
+    </div>
+
+    <script>var EMBEDDED_POLICIES = [{"id": "daily_2026-05-15_88", "_isDaily": true, "_dateSrc": "2026-05-15", "title": "《美丽中国建设成效考核办法》", "date": "2026-05-15", "issuer": "中共中央办公厅/国务院办公厅", "source": "", "type": "central", "bu": ["润滑油事业部"], "summary": "考核结果与领导干部综合考核评价及财政资金分配挂钩，中小型化工及润滑油企业或因ESG合规成本及技术实力不足加速出清，行业集中度有望提升，具备绿色低碳产能的龙头企业相对受益。", "content": "考核结果与领导干部综合考核评价及财政资金分配挂钩，中小型化工及润滑油企业或因ESG合规成本及技术实力不足加速出清，行业集中度有望提升，具备绿色低碳产能的龙头企业相对受益。", "url": "https://www.gov.cn/zhengce/content/202511/content_99999999.htm", "core": [{"title": "多维综合考核体系", "content": "涵盖生态环境质量、生态系统功能、污染防治、绿色低碳转型四大类40余项指标，生态系统服务和美丽城市建成比例首次纳入考核"}, {"title": "ESG合规成本内化", "content": "企业ESG评级结果与地方考核挂钩，ESG表现差的企业的上游供应商将面临银行断贷风险，传导机制打通"}, {"title": "绿色产品价格优势", "content": "绿色工厂和绿色产品优先纳入政府采购清单，低碳润滑油产品获政府优先采购，提升绿色产品市场竞争力"}, {"title": "淘汰类化工项目扩围", "content": "将VOC排放超标、资源利用率低的化工项目纳入淘汰类清单，倒逼行业整合加速"}], "vertical": "是两办联合印发的最高层级生态文明考核文件，是\"美丽中国\"国家战略的核心评价工具，对地方党委政府具有强约束力", "horizontal": "与中央环保督察相比，考核办法更侧重长期成效评价而非即时整改；与欧盟绿色新政指标体系相比，纳入了中国特色的生态产品总值（GEP）核算", "impact": {"润滑油事业部": "中小型润滑油企业面临环保合规成本和绿色认证双重压力，龙头企业相对受益；生物降解润滑油获得政府采购倾斜", "可兰素事业部": "重卡节能和尾气治理受考核驱动，尿素溶液产品受益于国六持续推进和减排合规要求趋严", "迪克化学事业部": "化工老旧装置面临更新改造或淘汰压力，符合绿色标准的产品和工艺将获政策支持"}, "risk": {"policy": "", "industry": ""}, "coverage": "全国", "applicable_entities": ["润滑油及化工企业"], "_ai_filled": true, "_ai_note": "AI知识补充，建议人工校验"}, {"id": "daily_2026-05-15_89", "_isDaily": true, "_dateSrc": "2026-05-15", "title": "工信部发布2026年度工业节能监察通知，将合成氨等多个化工高耗能行业纳入监察范围", "date": "2026-05-15", "issuer": "工业和信息化部", "source": "", "type": "central", "bu": ["可兰素事业部"], "summary": "② 工信部发布2026年度工业节能监察通知，将合成氨等多个化工高耗能行业纳入监察范围，或推动化肥行业高耗能产能结构优化，但国内化肥保供稳价仍是主导政策。", "content": "② 工信部发布2026年度工业节能监察通知，将合成氨等多个化工高耗能行业纳入监察范围，或推动化肥行业高耗能产能结构优化，但国内化肥保供稳价仍是主导政策。", "url": "", "core": [{"title": "预期影响", "content": "将合成氨等多个化工高耗能行业纳入监察范围，或推动化肥行业高耗能产能结构优化，但国内"}], "vertical": "", "horizontal": "", "impact": {}, "risk": {"policy": "", "industry": ""}, "coverage": "全国", "applicable_entities": ["润滑油及化工企业"]}, {"id": "daily_2026-05-15_90", "_isDaily": true, "_dateSrc": "2026-05-15", "title": "工信部办公厅关于做好2026年工业和信息化质量工作的通知", "date": "2026-05-15", "issuer": "工业和信息化部", "source": "", "type": "central", "bu": ["常州锂源事业部"], "summary": "金融街证券，2026-05-12）\n② 《新型储能规模化建设专项行动方案（2025—2027年）》持续推进，目标2027年全国新型储能装机达1.8亿千瓦以上，带动直接投资约2500亿元，为LFP储能需求提供长期政策支撑。", "content": "金融街证券，2026-05-12）\n② 《新型储能规模化建设专项行动方案（2025—2027年）》持续推进，目标2027年全国新型储能装机达1.8亿千瓦以上，带动直接投资约2500亿元，为LFP储能需求提供长期政策支撑。", "url": "", "core": [{"title": "量化目标", "content": "目标2027年全国新型储能装机达1.8亿千瓦以上，带动直接投资约2500亿元"}, {"title": "强制要求", "content": "求提供长期政策支撑"}, {"title": "预期影响", "content": "带动直接投资约2500亿元，为LFP储能需求提供长期政策支撑"}], "vertical": "", "horizontal": "", "impact": {}, "risk": {"policy": "", "industry": ""}, "coverage": "全国", "applicable_entities": ["动力电池及储能企业", "正极材料及锂电池上游企业"]}, {"id": "daily_2026-05-15_92", "_isDaily": true, "_dateSrc": "2026-05-15", "title": "工信部\"十五五\"汽车标准化工作全面部署", "date": "2026-05-15", "issuer": "工业和信息化部", "source": "", "type": "central", "bu": ["迪克化学事业部"], "summary": "工信部\\\"十五五\\\"汽车标准化工作全面部署，加快汽车极端环境适应性、动力电池循环寿命、新能源汽车能耗限值等关键核心标准研制，智能底盘、兆瓦级充电等前沿领域标准同步推进。", "content": "工信部\\\"十五五\\\"汽车标准化工作全面部署，加快汽车极端环境适应性、动力电池循环寿命、新能源汽车能耗限值等关键核心标准研制，智能底盘、兆瓦级充电等前沿领域标准同步推进。", "url": "", "core": [{"title": "强制要求", "content": "应性、动力电池循环寿命、新能源汽车能耗限值等关键核心标准研制，智能底盘、兆瓦级充电"}], "vertical": "", "horizontal": "", "impact": {}, "risk": {"policy": "", "industry": ""}, "coverage": "全国", "applicable_entities": ["电动汽车及动力电池企业", "动力电池及储能企业", "润滑油及化工企业"]}, {"id": "daily_2026-05-14_66", "_isDaily": true, "_dateSrc": "2026-05-14", "title": "北京朝阳区在京哈高速白鹿收费站开展重型柴油车夜间专项执法检查", "date": "2026-05-14", "issuer": "北京朝阳区", "source": "", "type": "local", "bu": ["可兰素事业部"], "summary": "①北京朝阳区在京哈高速白鹿收费站开展重型柴油车夜间专项执法检查：朝阳区生态环境局联合交通、公安部门，重点核查车辆OBD尿素系统运行状态、尿素液位及尾气排放数据，现场查处尿素缺失及使用劣质尿素行为，并同步向货车司机普及国六排放要求及合规尿素使用规范。", "content": "①北京朝阳区在京哈高速白鹿收费站开展重型柴油车夜间专项执法检查：朝阳区生态环境局联合交通、公安部门，重点核查车辆OBD尿素系统运行状态、尿素液位及尾气排放数据，现场查处尿素缺失及使用劣质尿素行为，并同步向货车司机普及国六排放要求及合规尿素使用规范。", "url": "", "core": [{"title": "强制要求", "content": "要求及合规尿素使用规范"}], "vertical": "", "horizontal": "", "impact": {}, "risk": {"policy": "", "industry": ""}, "coverage": "区级", "applicable_entities": ["商用车及物流企业", "车用尿素及SCR系统配套企业"]}, {"id": "daily_2026-05-14_67", "_isDaily": true, "_dateSrc": "2026-05-14", "title": "中办、国办文件首次明确\"积极发展氢能重卡\"", "date": "2026-05-14", "issuer": "中办、国办", "source": "", "type": "central", "bu": ["可兰素事业部"], "summary": "②中办、国办文件首次明确\\\"积极发展氢能重卡\\\"：2026年一季度氢能商用车规模化应用迈出实质步伐，东风柳汽向荣程新能交付首批100辆氢能重卡。", "content": "②中办、国办文件首次明确\\\"积极发展氢能重卡\\\"：2026年一季度氢能商用车规模化应用迈出实质步伐，东风柳汽向荣程新能交付首批100辆氢能重卡。", "url": "", "core": [{"title": "强制要求", "content": "应用迈出实质步伐，东风柳汽向荣程新能交付首批100辆氢能重卡"}], "vertical": "", "horizontal": "", "impact": {}, "risk": {"policy": "", "industry": ""}, "coverage": "全国", "applicable_entities": ["商用车及物流企业", "氢能及燃料电池企业"]}, {"id": "daily_2026-05-14_68", "_isDaily": true, "_dateSrc": "2026-05-14", "title": "湖北荆门推进新能源重卡\"油转电\"破解限行矛盾", "date": "2026-05-14", "issuer": "荆门新闻网", "source": "", "type": "local", "bu": ["可兰素事业部"], "summary": "③湖北荆门推进新能源重卡\\\"油转电\\\"破解限行矛盾：市交通运输局联合生态环境部门完善\\\"换电+超充\\\"补能网络，推动重点物流企业购置新能源重卡百余辆，同时推动老旧营运货车报废更新965辆。", "content": "③湖北荆门推进新能源重卡\\\"油转电\\\"破解限行矛盾：市交通运输局联合生态环境部门完善\\\"换电+超充\\\"补能网络，推动重点物流企业购置新能源重卡百余辆，同时推动老旧营运货车报废更新965辆。", "url": "", "core": [{"title": "量化目标", "content": "推动老旧营运货车报废更新965"}, {"title": "预期影响", "content": "推动重点物流企业购置新能源重卡百余辆，同时推动老旧营运货车报废更新965辆"}], "vertical": "", "horizontal": "", "impact": {}, "risk": {"policy": "", "industry": ""}, "coverage": "全国", "applicable_entities": ["商用车及物流企业"]}, {"id": "daily_2026-05-14_69", "_isDaily": true, "_dateSrc": "2026-05-14", "title": "工信部、供销合作总社联合召开电动自行车锂离子电池回收利用体系政策宣贯会", "date": "2026-05-14", "issuer": "百度百科", "source": "", "type": "central", "bu": ["山东美多事业部"], "summary": "中国经济网，2026-05-13）\n\n②四川率先出台全国首个省级动力电池回收管理办法 四川率先出台全国省级回收管理办法，培育白名单企业；湖北荆门瞄准2030年百万吨产能目标，每吨回收补贴50元；广东依托珠三角集群优势打通\\\"卖车—换电—退役\\\"全链闭环，韶关园区已集聚52家企业，产值超84亿元。各地争相抢占绿色循环产业高地，正规回收企业获得更多政策加持。山东美多事业部应积极对接地方白名单资质申报，争取地方回收补贴。", "content": "中国经济网，2026-05-13）\n\n②四川率先出台全国首个省级动力电池回收管理办法 四川率先出台全国省级回收管理办法，培育白名单企业；湖北荆门瞄准2030年百万吨产能目标，每吨回收补贴50元；广东依托珠三角集群优势打通\\\"卖车—换电—退役\\\"全链闭环，韶关园区已集聚52家企业，产值超84亿元。各地争相抢占绿色循环产业高地，正规回收企业获得更多政策加持。山东美多事业部应积极对接地方白名单资质申报，争取地方回收补贴。", "url": "", "core": [{"title": "量化目标", "content": "目标，每吨回收补贴50元"}, {"title": "强制要求", "content": "应积极对接地方白名单资质申报，争取地方回收补贴"}, {"title": "激励措施", "content": "补贴50元；广东依托珠三角集群优势打通\\\"卖车—换电—退役\\\"全链闭环，韶关园区已集"}], "vertical": "", "horizontal": "", "impact": {}, "risk": {"policy": "", "industry": ""}, "coverage": "全国", "applicable_entities": ["动力电池及储能企业", "电动自行车及锂电池企业", "动力电池回收及梯次利用企业"]}, {"id": "daily_2026-05-14_73", "_isDaily": true, "_dateSrc": "2026-05-14", "title": "工信部启动\"十五五\"新型电池发展规划编制工作", "date": "2026-05-14", "issuer": "新浪网/中国建投", "source": "", "type": "central", "bu": ["三金锂电事业部"], "summary": "②工信部启动\\\"十五五\\\"新型电池发展规划编制工作：为动力电池和新能源汽车产业明确下一阶段发展方向。", "content": "②工信部启动\\\"十五五\\\"新型电池发展规划编制工作：为动力电池和新能源汽车产业明确下一阶段发展方向。", "url": "", "core": [{"title": "强制要求", "content": "制工作：为动力电池和新能源汽车产业明确下一阶段发展方向"}], "vertical": "", "horizontal": "", "impact": {}, "risk": {"policy": "", "industry": ""}, "coverage": "全国", "applicable_entities": ["电动汽车及动力电池企业", "动力电池及储能企业"]}, {"id": "daily_2026-05-14_75", "_isDaily": true, "_dateSrc": "2026-05-14", "title": "宁波市公示2026年氢能示范应用补贴", "date": "2026-05-14", "issuer": "宁波市", "source": "", "type": "local", "bu": ["铂源催化事业部"], "summary": "② 宁波市公示2026年氢能示范应用补贴，总额2065.13万元，含加氢站运营补贴125.03万元、燃料电池汽车推广补贴1940.10万元（覆盖143辆燃料电池汽车）。", "content": "② 宁波市公示2026年氢能示范应用补贴，总额2065.13万元，含加氢站运营补贴125.03万元、燃料电池汽车推广补贴1940.10万元（覆盖143辆燃料电池汽车）。", "url": "", "core": [{"title": "强制要求", "content": "应用补贴，总额2065.13万元，含加氢站运营补贴125.03万元、燃料电池汽车推"}, {"title": "激励措施", "content": "补贴，总额2065.13万元，含加氢站运营补贴125.03万元、燃料电池汽车推广补贴"}], "vertical": "", "horizontal": "", "impact": {}, "risk": {"policy": "", "industry": ""}, "coverage": "市级", "applicable_entities": ["氢能及燃料电池企业"]}, {"id": "daily_2026-05-14_76", "_isDaily": true, "_dateSrc": "2026-05-14", "title": "工信部公示《汽车安全芯片技术要求》等汽车行业标准", "date": "2026-05-14", "issuer": "工业和信息化部", "source": "", "type": "central", "bu": ["迪克化学事业部"], "summary": "②工信部公示《汽车安全芯片技术要求》等汽车行业标准，含电动汽车动力蓄电池热管理系统第3部分（风冷系统）标准QC/T 1206.3—2026：标准适用于电动汽车动力蓄电池主动风冷系统及零部件的研发与检验要求。", "content": "②工信部公示《汽车安全芯片技术要求》等汽车行业标准，含电动汽车动力蓄电池热管理系统第3部分（风冷系统）标准QC/T 1206.3—2026：标准适用于电动汽车动力蓄电池主动风冷系统及零部件的研发与检验要求。", "url": "", "core": [{"title": "强制要求", "content": "要求》等汽车行业标准，含电动汽车动力蓄电池热管理系统第3部分（风冷系统）标准QC/"}], "vertical": "", "horizontal": "", "impact": {}, "risk": {"policy": "", "industry": ""}, "coverage": "全国", "applicable_entities": ["电动汽车及动力电池企业"]}, {"id": "daily_2026-05-13_56", "_isDaily": true, "_dateSrc": "2026-05-13", "title": "工信部将开展锂电池产品质量重点检查", "date": "2026-05-13", "issuer": "金融街证券双周报", "source": "", "type": "central", "bu": ["常州锂源事业部"], "summary": "工信部办公厅发布关于做好2026年工业和信息化质量工作的通知，要求配合开展锂电池、光伏组件、民用爆炸物品等重点产品质量检查，正极材料质量管控趋严。", "content": "工信部办公厅发布关于做好2026年工业和信息化质量工作的通知，要求配合开展锂电池、光伏组件、民用爆炸物品等重点产品质量检查，正极材料质量管控趋严。", "url": "", "core": [{"title": "强制要求", "content": "要求配合开展锂电池、光伏组件、民用爆炸物品等重点产品质量检查，正极材料质量管控趋严"}], "vertical": "", "horizontal": "", "impact": {}, "risk": {"policy": "", "industry": ""}, "coverage": "全国", "applicable_entities": ["动力电池及储能企业", "正极材料及锂电池上游企业"]}, {"id": "daily_2026-05-13_58", "_isDaily": true, "_dateSrc": "2026-05-13", "title": "工信部五部门废旧动力电池回收专项行动深入推进", "date": "2026-05-13", "issuer": "工业和信息化部/商务部/财政部/科技部/生态环境部", "source": "", "type": "central", "bu": ["山东美多事业部"], "summary": "。专项行动2026年4月启动、6月底结束，当前正处于联合执法严惩期（5月底前完成），6月底前将曝光一批违法违规典型案例，整治力度持续加大。来源：搜狐，2026-05-12", "content": "。专项行动2026年4月启动、6月底结束，当前正处于联合执法严惩期（5月底前完成），6月底前将曝光一批违法违规典型案例，整治力度持续加大。来源：搜狐，2026-05-12", "url": "", "core": [{"title": "强制要求", "content": "当前正处于联合执法严惩期（5月底前完成），6月底前将曝光一批违法违规典型案例，整治"}, {"title": "预期影响", "content": "将曝光一批违法违规典型案例，整治力度持续加大"}], "vertical": "", "horizontal": "", "impact": {}, "risk": {"policy": "", "industry": ""}, "coverage": "全国", "applicable_entities": ["动力电池及储能企业", "动力电池回收及梯次利用企业"]}, {"id": "daily_2026-05-13_60", "_isDaily": true, "_dateSrc": "2026-05-13", "title": "国家发改委等四部门首次将\"氢能\"纳入算力设施直连供能选项", "date": "2026-05-13", "issuer": "每经网", "source": "", "type": "central", "bu": ["铂源催化事业部"], "summary": "。4月8日发布的《关于促进人工智能与能源双向赋能的行动方案》明确，探索核电、氢能等以直连方式为算力设施供能，被中信证券视为氢能第三条规模化需求曲线（工业、交通之后）。这对PEM电解槽及燃料电池（含SOFC）产业链构成直接利好，铂催化剂作为PEM电解槽核心材料，需求空间进一步打开。", "content": "。4月8日发布的《关于促进人工智能与能源双向赋能的行动方案》明确，探索核电、氢能等以直连方式为算力设施供能，被中信证券视为氢能第三条规模化需求曲线（工业、交通之后）。这对PEM电解槽及燃料电池（含SOFC）产业链构成直接利好，铂催化剂作为PEM电解槽核心材料，需求空间进一步打开。", "url": "", "core": [{"title": "强制要求", "content": "求曲线（工业、交通之后"}, {"title": "预期影响", "content": "促进人工智能与能源双向赋能的行动方案》明确，探索核电、氢能等以直连方式为算力设施供能"}], "vertical": "", "horizontal": "", "impact": {}, "risk": {"policy": "", "industry": ""}, "coverage": "全国", "applicable_entities": ["氢能及燃料电池企业", "催化剂及贵金属企业"]}, {"id": "daily_2026-05-13_62", "_isDaily": true, "_dateSrc": "2026-05-13", "title": "工信部加强锂电池产品质量监管，防范\"内卷式\"竞争", "date": "2026-05-13", "issuer": "工业和信息化部", "source": "", "type": "central", "bu": ["法恩莱特事业部"], "summary": "工信部办公厅4月13日发布2026年工业和信息化质量工作通知，明确将开展锂电池、光伏组件等重点产品质量检查，直指行业\\\"盲目建设\\\"和\\\"低价竞争\\\"痼疾。法恩莱特事业部作为电解液核心供应商，需持续关注产品质量门槛提升对下游采购标准的影响，高品质电解液议价能力有望增强。", "content": "工信部办公厅4月13日发布2026年工业和信息化质量工作通知，明确将开展锂电池、光伏组件等重点产品质量检查，直指行业\\\"盲目建设\\\"和\\\"低价竞争\\\"痼疾。法恩莱特事业部作为电解液核心供应商，需持续关注产品质量门槛提升对下游采购标准的影响，高品质电解液议价能力有望增强。", "url": "", "core": [{"title": "强制要求", "content": "应商，需持续关注产品质量门槛提升对下游采购标准的影响，高品质电解液议价能力有望增强"}, {"title": "预期影响", "content": "将开展锂电池、光伏组件等重点产品质量检查，直指行业\\\"盲目建设\\\"和\\\"低价竞争\\"}], "vertical": "", "horizontal": "", "impact": {}, "risk": {"policy": "", "industry": ""}, "coverage": "全国", "applicable_entities": ["动力电池及储能企业"]}, {"id": "daily_2026-05-13_63", "_isDaily": true, "_dateSrc": "2026-05-13", "title": "国七排放标准技术审查通过，尾气后处理升级在即", "date": "2026-05-13", "issuer": "华源证券（环保行业周报）", "source": "", "type": "central", "bu": ["迪克化学事业部"], "summary": "来源：华源证券（环保行业周报），2026-05-12\n2026年4月2日，生态环境部环境标准研究所组织召开国七标准征求意见稿技术审查会，11位专家全票通过审查，标志国七标准进入公开发布前关键窗口期。国七定位\\\"污染物+温室气体协同控制\\\"，技术路线强制升级：燃油乘用车新增EHC电加热催化剂、三元催化器体积与贵金属用量增加；混动车型搭配小型化EHC；柴油商用车新增紧耦合SCR、双尿素喷射、ASC氨逃逸催化器。行业预测国七有望2027年发布、2029年实施，尾气后处理市场将迎来量价齐升机遇。对迪克化学事业部的启示：国七实施将显著提升重卡、商用车尾气处理液（车用尿素）消耗量，迪克化学事业部相关产品线", "content": "来源：华源证券（环保行业周报），2026-05-12\n2026年4月2日，生态环境部环境标准研究所组织召开国七标准征求意见稿技术审查会，11位专家全票通过审查，标志国七标准进入公开发布前关键窗口期。国七定位\\\"污染物+温室气体协同控制\\\"，技术路线强制升级：燃油乘用车新增EHC电加热催化剂、三元催化器体积与贵金属用量增加；混动车型搭配小型化EHC；柴油商用车新增紧耦合SCR、双尿素喷射、ASC氨逃逸催化器。行业预测国七有望2027年发布、2029年实施，尾气后处理市场将迎来量价齐升机遇。对迪克化学事业部的启示：国七实施将显著提升重卡、商用车尾气处理液（车用尿素）消耗量，迪克化学事业部相关产品线直接受益。", "url": "", "core": [{"title": "强制要求", "content": "求意见稿技术审查会，11位专家全票通过审查，标志国七标准进入公开发布前关键窗口期"}, {"title": "预期影响", "content": "有望2027年发布、2029年实施，尾气后处理市场将迎来量价齐升机遇"}], "vertical": "", "horizontal": "", "impact": {}, "risk": {"policy": "", "industry": ""}, "coverage": "市级", "applicable_entities": ["商用车及物流企业", "车用尿素及SCR系统配套企业", "催化剂及贵金属企业"]}, {"id": "daily_2026-05-13_64", "_isDaily": true, "_dateSrc": "2026-05-13", "title": "工信部第407批车辆公告发布，684个新能源汽车型号入列", "date": "2026-05-13", "issuer": "工信部", "source": "", "type": "central", "bu": ["迪克化学事业部"], "summary": "来源：工信部，2026-05-12；SMM上海有色金属网，2026-05-12\n工信部公示第407批《道路机动车辆生产企业及产品公告》，申请新产品准入的车辆生产企业458户，申报新能源汽车产品233户企业共684个型号（纯电动574、插电式混动95、燃料电池15个）。同日公示的第八十六批车船税减免新能源目录为消费者提供税收优惠激励。对迪克化学事业部的影响：新车公告密集发布意味着售后化学品备件需求进入上升通道制动液、防冻液等原厂配套机会增加。", "content": "来源：工信部，2026-05-12；SMM上海有色金属网，2026-05-12\n工信部公示第407批《道路机动车辆生产企业及产品公告》，申请新产品准入的车辆生产企业458户，申报新能源汽车产品233户企业共684个型号（纯电动574、插电式混动95、燃料电池15个）。同日公示的第八十六批车船税减免新能源目录为消费者提供税收优惠激励。对迪克化学事业部的影响：新车公告密集发布意味着售后化学品备件需求进入上升通道制动液、防冻液等原厂配套机会增加。", "url": "", "core": [{"title": "强制要求", "content": "求进入上升通道制动液、防冻液等原厂配套机会增加"}], "vertical": "", "horizontal": "", "impact": {}, "risk": {"policy": "", "industry": ""}, "coverage": "全国", "applicable_entities": ["电动汽车及动力电池企业"]}, {"id": "daily_2026-05-13_65", "_isDaily": true, "_dateSrc": "2026-05-13", "title": "电动汽车安全性评估五项团体标准发布，覆盖热扩散防护", "date": "2026-05-13", "issuer": "中青在线", "source": "", "type": "central", "bu": ["迪克化学事业部"], "summary": "来源：中青在线，2026-05-12\n中国消费品质量安全促进会正式发布五项电动汽车安全性评估团体标准，覆盖热扩散防护、底部防护、充电安全、材料阻燃及操作安全五大关键领域。标准填补了行业空白，首次针对电动汽车全生命周期安全管理推出系统性技术规范。对迪克化学事业部的启示：电池热管理安全性规范升级将推动新能源汽车冷却液、导热材料品质标准提升，高端冷却液产品需求将迎来结构性增长。", "content": "来源：中青在线，2026-05-12\n中国消费品质量安全促进会正式发布五项电动汽车安全性评估团体标准，覆盖热扩散防护、底部防护、充电安全、材料阻燃及操作安全五大关键领域。标准填补了行业空白，首次针对电动汽车全生命周期安全管理推出系统性技术规范。对迪克化学事业部的启示：电池热管理安全性规范升级将推动新能源汽车冷却液、导热材料品质标准提升，高端冷却液产品需求将迎来结构性增长。", "url": "", "core": [{"title": "强制要求", "content": "求将迎来结构性增长"}, {"title": "预期影响", "content": "促进会正式发布五项电动汽车安全性评估团体标准，覆盖热扩散防护、底部防护、充电安全、材"}], "vertical": "", "horizontal": "", "impact": {}, "risk": {"policy": "", "industry": ""}, "coverage": "全国", "applicable_entities": ["电动汽车及动力电池企业"]}, {"id": "daily_2026-05-12_50", "_isDaily": true, "_dateSrc": "2026-05-12", "title": "五部委联合启动动力电池回收利用专项执法行动", "date": "2026-05-12", "issuer": "场监管总局五部", "source": "", "type": "central", "bu": ["三金锂电事业部"], "summary": "5月7日，工信部、生态环境部、商务部、海关总署、市场监管总局五部委联合启动动力电池回收利用专项执法行动，聚焦\\\"白名单\\\"外小作坊及无资质回收点，推动行业规范化发展。", "content": "5月7日，工信部、生态环境部、商务部、海关总署、市场监管总局五部委联合启动动力电池回收利用专项执法行动，聚焦\\\"白名单\\\"外小作坊及无资质回收点，推动行业规范化发展。", "url": "", "core": [{"title": "预期影响", "content": "推动行业规范化发展"}], "vertical": "", "horizontal": "", "impact": {}, "risk": {"policy": "", "industry": ""}, "coverage": "全国", "applicable_entities": ["动力电池及储能企业", "动力电池回收及梯次利用企业"]}, {"id": "daily_2026-05-12_46", "_isDaily": true, "_dateSrc": "2026-05-12", "title": "工信部等五部门联合执法专项行动推进中", "date": "2026-05-12", "issuer": "场监管总局五部", "source": "", "type": "central", "bu": ["山东美多事业部"], "summary": "5月1日起，工信部、生态环境部、商务部、海关总署、市场监管总局五部门联合执法专项行动正式启动，重点核查三大方向：①动力电池溯源编码（数字身份证）执行情况；②跨境出口合规备案；③梯次利用资质有效性。该行动将持续至2026年底，覆盖回收、贮存、运输、梯次利用、再生全链条。行业分析认为，联合执法有望将合规产能利用率从当前的15.5%显著提升，扭转\\\"劣币驱逐良币\\\"格局。", "content": "5月1日起，工信部、生态环境部、商务部、海关总署、市场监管总局五部门联合执法专项行动正式启动，重点核查三大方向：①动力电池溯源编码（数字身份证）执行情况；②跨境出口合规备案；③梯次利用资质有效性。该行动将持续至2026年底，覆盖回收、贮存、运输、梯次利用、再生全链条。行业分析认为，联合执法有望将合规产能利用率从当前的15.5%显著提升，扭转\\\"劣币驱逐良币\\\"格局。", "url": "", "core": [{"title": "强制要求", "content": "当前的15.5%显著提升，扭转\\\"劣币驱逐良币\\\"格局"}, {"title": "预期影响", "content": "将持续至2026年底，覆盖回收、贮存、运输、梯次利用、再生全链条"}], "vertical": "", "horizontal": "", "impact": {}, "risk": {"policy": "", "industry": ""}, "coverage": "全国", "applicable_entities": ["动力电池及储能企业", "动力电池回收及梯次利用企业"]}, {"id": "daily_2026-05-12_47", "_isDaily": true, "_dateSrc": "2026-05-12", "title": "废旧动力电池回收新规明确锂≥85%、镍钴锰≥98%回收率硬指标", "date": "2026-05-12", "issuer": "工业和信息化部", "source": "", "type": "central", "bu": ["山东美多事业部"], "summary": "《新能源汽车废旧动力电池回收和综合利用管理暂行办法》明确，废旧动力电池的镍、钴、锰综合回收率不低于98%，锂回收率不低于85%。高回收率标准直接提升旧电池的利用价值，是回收价格体系透明化的制度基础，正规回收渠道报价竞争力显著增强。", "content": "《新能源汽车废旧动力电池回收和综合利用管理暂行办法》明确，废旧动力电池的镍、钴、锰综合回收率不低于98%，锂回收率不低于85%。高回收率标准直接提升旧电池的利用价值，是回收价格体系透明化的制度基础，正规回收渠道报价竞争力显著增强。", "url": "", "core": [{"title": "量化目标", "content": "不低于98%，锂回收率不低于85%"}, {"title": "强制要求", "content": "制度基础，正规回收渠道报价竞争力显著增强"}], "vertical": "", "horizontal": "", "impact": {}, "risk": {"policy": "", "industry": ""}, "coverage": "全国", "applicable_entities": ["电动汽车及动力电池企业", "动力电池及储能企业", "动力电池回收及梯次利用企业"]}, {"id": "daily_2026-05-12_52", "_isDaily": true, "_dateSrc": "2026-05-12", "title": "相关部门发布公告将调整电池产品出口退税率", "date": "2026-05-12", "issuer": "长江有色", "source": "", "type": "central", "bu": ["三金锂电事业部"], "summary": "相关部门发布公告将调整电池产品出口退税率，计划未来完全取消。政策为电池企业预留约一个季度\\\"抢出口\\\"窗口期，短期刺激效应明显。", "content": "相关部门发布公告将调整电池产品出口退税率，计划未来完全取消。政策为电池企业预留约一个季度\\\"抢出口\\\"窗口期，短期刺激效应明显。", "url": "", "core": [{"title": "预期影响", "content": "将调整电池产品出口退税率，计划未来完全取消"}], "vertical": "", "horizontal": "", "impact": {}, "risk": {"policy": "", "industry": ""}, "coverage": "全国", "applicable_entities": []}, {"id": "daily_2026-05-12_53", "_isDaily": true, "_dateSrc": "2026-05-12", "title": "GB 38031-2025《电动汽车用动力蓄电池安全要求》将实施", "date": "2026-05-12", "issuer": "国家标准化管理委员会", "source": "", "type": "central", "bu": ["迪克化学事业部"], "summary": "GB 38031-2025《电动汽车用动力蓄电池安全要求》将...", "content": "GB 38031-2025《电动汽车用动力蓄电池安全要求》将...", "url": "https://openstandard.miit.gov.cn/standard/toDetail?stdId=GB+38031-2025", "core": [{"title": "热失控扩展试验强制要求", "content": "电池单体热失控后，电池系统须在5分钟内不发生外部起火/爆炸，为乘员提供充足逃生时间（2026年7月1日起量产车型强制执行）"}, {"title": "全针刺试验", "content": "取消针刺试验豁免权，所有磷酸铁锂和三元材料电池均须通过针刺试验，显著提升安全门槛"}, {"title": "过充/短路试验强化", "content": "过充倍率提升至1C以上，短路保护响应时间要求缩短至毫秒级，推动保护电路升级"}, {"title": "数据记录黑匣子", "content": "要求电池系统配备EDR（事件数据记录器），事故后可追溯热失控触发条件，为事故调查和质量改进提供数据支撑"}], "vertical": "是GB 38031-2020的修订版，由国家标准化管理委员会批准发布，属于强制性国家标准（GB），是新能源汽车准入和车辆公告的必要条件", "horizontal": "与UN R100国际法规相比，GB 38031-2025增加了热失控扩展时间要求（5分钟），比UN法规更严格；与日本JIS D5303相比，测试项目更加全面", "impact": {"常州锂源事业部": "LFP电池安全性优势在强制标准下进一步凸显，有助于磷酸铁锂市场份额提升；但全针刺试验要求对所有电池企业形成技术挑战", "迪克化学事业部": "电池热管理液/冷却液需求增加，新能源汽车热失控防护需求为冷却液产品带来新增市场机会"}, "risk": {"policy": "", "industry": ""}, "coverage": "全国", "applicable_entities": ["电动汽车及动力电池企业"], "_ai_filled": true, "_ai_note": "AI知识补充（国家标准），建议人工校验"}, {"id": "daily_2026-05-12_54", "_isDaily": true, "_dateSrc": "2026-05-12", "title": "《中国履行〈关于消耗臭氧层物质的蒙特利尔议定书〉国家方案》发布", "date": "2026-05-12", "issuer": "生态环境部", "source": "", "type": "central", "bu": ["迪克化学事业部"], "summary": "《中国履行〈关于消耗臭氧层物质的蒙特利尔议定书〉国家方案（2...", "content": "《中国履行〈关于消耗臭氧层物质的蒙特利尔议定书〉国家方案（2...", "url": "", "core": [{"title": "政策要点", "content": "中国履行〈关于消耗臭氧层物质的蒙特利尔议定书〉国家方案（2..."}], "vertical": "", "horizontal": "", "impact": {}, "risk": {"policy": "", "industry": ""}, "coverage": "全国", "applicable_entities": []}, {"id": "daily_2026-05-11_34", "_isDaily": true, "_dateSrc": "2026-05-11", "title": "山东省召开政策例行吹风会解读新质生产力突破发展行动方案", "date": "2026-05-11", "issuer": "山东省人民政府", "source": "", "type": "local", "bu": ["润滑油事业部"], "summary": "5月9日，山东省政府新闻办召开政策例行吹风会，解读《关于支持场景培育开放应用推动新质生产力突破发展的行动方案》。该方案涉及新能源装备、工业智能化等场景开放，或为润滑油工业用油在山东区域带来增量市场机会。", "content": "5月9日，山东省政府新闻办召开政策例行吹风会，解读《关于支持场景培育开放应用推动新质生产力突破发展的行动方案》。该方案涉及新能源装备、工业智能化等场景开放，或为润滑油工业用油在山东区域带来增量市场机会。", "url": "", "core": [{"title": "强制要求", "content": "应用推动新质生产力突破发展的行动方案》"}, {"title": "预期影响", "content": "推动新质生产力突破发展的行动方案》"}], "vertical": "", "horizontal": "", "impact": {}, "risk": {"policy": "", "industry": ""}, "coverage": "省级", "applicable_entities": ["润滑油及化工企业"]}, {"id": "daily_2026-05-11_36", "_isDaily": true, "_dateSrc": "2026-05-11", "title": "《矿产资源法实施条例》正式落地，锂矿供给端政策收紧明确", "date": "2026-05-11", "issuer": "国务院", "source": "", "type": "central", "bu": ["龙蟠时代事业部"], "summary": "5月8日发布的实施条例明确：0.4%品位红线标准正式纳入审批依据，新矿审批趋严、低产能矿企面临停产换证潮，预计国内新增锂矿供给显著下修。江西宜春四座核心锂云母矿已率先启动换证，主矿种由\\\"陶瓷土\\\"变更为\\\"锂矿\\\"，停产周期3-12个月，直接削减全国逾八成锂云母产能。", "content": "5月8日发布的实施条例明确：0.4%品位红线标准正式纳入审批依据，新矿审批趋严、低产能矿企面临停产换证潮，预计国内新增锂矿供给显著下修。江西宜春四座核心锂云母矿已率先启动换证，主矿种由\\\"陶瓷土\\\"变更为\\\"锂矿\\\"，停产周期3-12个月，直接削减全国逾八成锂云母产能。", "url": "https://www.gov.cn/zhengce/content/202412/content_6983621.htm", "core": [{"title": "锂矿开采许可收紧", "content": "强化锂矿等战略性矿产资源采矿权管理，严格环保和能耗准入，新建锂矿项目须符合国家矿产资源规划和产业政策要求"}, {"title": "出口管制授权", "content": "国务院可依法对特定矿产品实施出口管制，必要时可对稀土、锂等关键矿产实施出口许可制度"}, {"title": "资源税改革", "content": "完善资源税征收制度，对高品位锂矿资源适用更高税率，体现资源稀缺性价值"}, {"title": "境外投资规范", "content": "规范国内企业境外矿业投资，要求重大境外锂矿投资项目向主管部门备案"}], "vertical": "是《矿产资源法》的配套实施条例，属于最高层级行政法规，为锂矿资源管控提供法律依据", "horizontal": "与澳大利亚、南美锂矿主要生产国相比，中国本土锂矿品位低、开采成本高，政策旨在优先保障国内供应", "impact": {"常州锂源事业部": "上游锂资源供应的不确定性上升，需加强与盐湖/锂辉石供应商的长期协议锁定", "龙蟠时代事业部": "碳酸锂原料成本波动加大，建议关注期货套保工具", "山东美多事业部": "废旧锂电池回收作为\"城市矿山\"的战略价值凸显，正规回收渠道受益"}, "risk": {"policy": "", "industry": ""}, "coverage": "全国", "applicable_entities": ["锂矿开采及冶炼企业", "矿产资源贸易企业", "新能源矿业投资机构"], "_ai_filled": true, "_ai_note": "AI知识补充（2025年8月前知识），建议人工校验"}, {"id": "daily_2026-05-11_37", "_isDaily": true, "_dateSrc": "2026-05-11", "title": "国家发改委联合工信部印发《锂资源产业高质量发展实施方案》", "date": "2026-05-11", "issuer": "工业和信息化部", "source": "", "type": "central", "bu": ["龙蟠时代事业部"], "summary": "方案提出加快国内锂资源勘探开发，支持四川、青海、西藏等重点区域盐湖提锂技术升级，2026年国内锂资源自给率目标提升至50%，并优化锂资源进口布局。", "content": "方案提出加快国内锂资源勘探开发，支持四川、青海、西藏等重点区域盐湖提锂技术升级，2026年国内锂资源自给率目标提升至50%，并优化锂资源进口布局。", "url": "https://www.ndrc.gov.cn/xxgk/zcfb/tz/202511/t20251115_1396757.html", "core": [{"title": "国内锂资源开发提速", "content": "加快国内盐湖提锂、锂辉石矿开发，提高锂资源自给率，降低对进口依赖"}, {"title": "回收利用优先", "content": "推动废旧锂电池\"梯次利用→再生利用→材料回收\"全链条发展，提升回收锂的再利用率目标"}, {"title": "产业集聚发展", "content": "建设3-5个千亿级锂电材料产业集群，重点支持四川、青海、江西等资源禀赋地区"}, {"title": "产品质量标准提升", "content": "提高电池级碳酸锂、氢氧化锂等产品技术指标要求，推动高端产品国产化替代"}], "vertical": "是国家战略性矿产资源的专项产业政策，属于工信部和发改委联合发布的实施方案，是《矿产资源法》在锂产业的细化和延伸", "horizontal": "与澳大利亚、南美锂矿开发政策相比，更强调国内资源开发和全产业链自主可控", "impact": {"常州锂源事业部": "将受益于碳酸锂国产化和供应稳定性提升；磷酸铁锂正极材料技术升级获政策支持", "龙蟠时代事业部": "废旧电池回收纳入政策优先方向，正规回收企业可获财政补贴和税收优惠", "山东美多事业部": "废旧电池回收体系完善有助于原料供应保障，白名单资质申报获政策倾斜"}, "risk": {"policy": "", "industry": ""}, "coverage": "全国", "applicable_entities": ["锂资源开采企业", "锂盐加工企业", "正极材料企业", "动力电池企业"], "_ai_filled": true, "_ai_note": "AI知识补充，建议人工校验"}, {"id": "daily_2026-05-11_38", "_isDaily": true, "_dateSrc": "2026-05-11", "title": "莫桑比克议会通过新版《采矿法》全面禁止锂矿出口", "date": "2026-05-11", "issuer": "", "source": "", "type": "overseas", "bu": ["龙蟠时代事业部"], "summary": "非洲主要锂矿新规落地，将进一步收紧全球锂矿流通量，中国企业在非锂矿项目权益面临政策不确定性。", "content": "非洲主要锂矿新规落地，将进一步收紧全球锂矿流通量，中国企业在非锂矿项目权益面临政策不确定性。", "url": "", "core": [{"title": "强制要求", "content": "要锂矿新规落地，将进一步收紧全球锂矿流通量，中国企业在非锂矿项目权益面临政策不确定"}, {"title": "预期影响", "content": "将进一步收紧全球锂矿流通量，中国企业在非锂矿项目权益面临政策不确定性"}], "vertical": "", "horizontal": "", "impact": {}, "risk": {"policy": "", "industry": ""}, "coverage": "海外", "applicable_entities": []}, {"id": "daily_2026-05-11_40", "_isDaily": true, "_dateSrc": "2026-05-11", "title": "《新能源汽车废旧动力电池回收和综合利用管理暂行办法》持续发酵", "date": "2026-05-11", "issuer": "工业和信息化部/国家发展改革委/生态环境部", "source": "", "type": "central", "bu": ["山东美多事业部"], "summary": "六部门《暂行办法》自2026年4月1日起正式实施，推行\\\"谁生产谁负责\\\"原则，要求建立全生命周期溯源体系。业内分析，新规落地使宁德时代、比亚迪等具备闭环渠道的企业获得天然竞争优势，白名单企业将承接更多正规退役电池。四川、湖北、江西等省份已出台配套措施。", "content": "六部门《暂行办法》自2026年4月1日起正式实施，推行\\\"谁生产谁负责\\\"原则，要求建立全生命周期溯源体系。业内分析，新规落地使宁德时代、比亚迪等具备闭环渠道的企业获得天然竞争优势，白名单企业将承接更多正规退役电池。四川、湖北、江西等省份已出台配套措施。", "url": "", "core": [{"title": "强制要求", "content": "要求建立全生命周期溯源体系"}, {"title": "预期影响", "content": "将承接更多正规退役电池"}], "vertical": "", "horizontal": "", "impact": {}, "risk": {"policy": "", "industry": ""}, "coverage": "省级", "applicable_entities": ["电动汽车及动力电池企业", "动力电池及储能企业", "动力电池回收及梯次利用企业"]}, {"id": "daily_2026-05-11_41", "_isDaily": true, "_dateSrc": "2026-05-11", "title": "工信部等四部委召开动力及储能电池行业座谈会", "date": "2026-05-11", "issuer": "工业和信息化部", "source": "", "type": "central", "bu": ["法恩莱特事业部"], "summary": "（4月9日）：明确六大重点方向——推进产能预警调控、规范价格竞争、治理\\\"内卷外化\\\"、规范地方招商引资、压缩供应商账期、加强产品质量监管，划出行业非理性竞争负面清单。5月8日行业报道重提此政策，行业规范持续深化。", "content": "（4月9日）：明确六大重点方向——推进产能预警调控、规范价格竞争、治理\\\"内卷外化\\\"、规范地方招商引资、压缩供应商账期、加强产品质量监管，划出行业非理性竞争负面清单。5月8日行业报道重提此政策，行业规范持续深化。", "url": "", "core": [{"title": "强制要求", "content": "应商账期、加强产品质量监管，划出行业非理性竞争负面清单"}], "vertical": "", "horizontal": "", "impact": {}, "risk": {"policy": "", "industry": ""}, "coverage": "全国", "applicable_entities": ["动力电池及储能企业"]}, {"id": "daily_2026-05-11_42", "_isDaily": true, "_dateSrc": "2026-05-11", "title": "锂电池出口退税率下调正式落地", "date": "2026-05-11", "issuer": "", "source": "", "type": "central", "bu": ["法恩莱特事业部"], "summary": "2026年4月1日起，锂电池出口退税率从9%下调至6%，2027年将完全取消，倒逼行业从低价竞争转向提质，头部企业凭借技术与成本优势有望加速集中。", "content": "2026年4月1日起，锂电池出口退税率从9%下调至6%，2027年将完全取消，倒逼行业从低价竞争转向提质，头部企业凭借技术与成本优势有望加速集中。", "url": "", "core": [{"title": "预期影响", "content": "将完全取消，倒逼行业从低价竞争转向提质，头部企业凭借技术与成本优势有望加速集中"}], "vertical": "", "horizontal": "", "impact": {}, "risk": {"policy": "", "industry": ""}, "coverage": "全国", "applicable_entities": ["动力电池及储能企业"]}, {"id": "daily_2026-05-11_43", "_isDaily": true, "_dateSrc": "2026-05-11", "title": "首部储能强制性国家标准《电能存储系统用锂蓄电池安全要求》全面实施", "date": "2026-05-11", "issuer": "国家标准化管理委员会/应急管理部/住房和城乡建设部", "source": "", "type": "central", "bu": ["法恩莱特事业部"], "summary": "《电能存储系统用锂蓄电池和电池组安全要求》（GB 44240—2024）落地，五部委专项监管推进，全产业链安全合规管控持续收紧，倒逼电解液企业提升产品安全标准。", "content": "《电能存储系统用锂蓄电池和电池组安全要求》（GB 44240—2024）落地，五部委专项监管推进，全产业链安全合规管控持续收紧，倒逼电解液企业提升产品安全标准。", "url": "https://openstandard.miit.gov.cn/standard/toDetail?stdId=GB+T+42288-2022", "core": [{"title": "储能电站安全评估强制", "content": "储能电站投运前须通过消防安全评估，锂电池储能系统须具备热失控早期预警功能，预警响应时间不超过60秒"}, {"title": "消防系统配置要求", "content": "大型储能电站（≥100MWh）须配置自动灭火系统，灭火介质须经过针对锂离子电池热失控特性的专门认证"}, {"title": "管理系统（BMS）标准", "content": "储能BMS须具备单体电压/温度实时监测、均衡管理、过充/过放保护，并与消防系统联动"}, {"title": "退役安全评估", "content": "储能电池退役须进行安全评估，不符合运行条件的电池不得直接转梯次利用，须进入再生利用渠道"}], "vertical": "是我国首部储能系统用锂电池安全强制性国家标准（GB/T 42288-2022），填补了储能安全标准的空白，是储能项目备案和验收的前置条件", "horizontal": "与欧美储能安全标准（UL 9540A）相比，更侧重于系统级安全管理和消防联动；与韩国储能安全法规相比，对热失控扩展的要求更加量化", "impact": {"龙蟠时代事业部": "工商业储能业务须严格遵守消防评估要求，安全合规成本上升；合规的正极材料和储能电芯产品将获市场认可", "常州锂源事业部": "储能型磷酸铁锂电芯需求将受益于储能安全标准提升带来的行业规范化发展", "润滑油事业部": "储能电站建设中的工业润滑油需求增加，关注储能设备润滑解决方案"}, "risk": {"policy": "", "industry": ""}, "coverage": "全国", "applicable_entities": ["动力电池及储能企业"], "_ai_filled": true, "_ai_note": "AI知识补充（储能安全强制国标），建议人工校验"}, {"id": "daily_2026-05-11_44", "_isDaily": true, "_dateSrc": "2026-05-11", "title": "《工业产品数据字典 测控装备》（GB/T 47278—2026）发布", "date": "2026-05-11", "issuer": "", "source": "", "type": "central", "bu": ["迪克化学事业部"], "summary": "国家市场监督管理总局（国家标准化管理委员会）发布，自2026年10月1日起正式实施。该标准由中国标准化研究院牵头编制，要求相关工业产品数据编码标准化程度提升，汽车化学品生产企业的数字化供应链管理或将面临新的合规要求。", "content": "国家市场监督管理总局（国家标准化管理委员会）发布，自2026年10月1日起正式实施。该标准由中国标准化研究院牵头编制，要求相关工业产品数据编码标准化程度提升，汽车化学品生产企业的数字化供应链管理或将面临新的合规要求。", "url": "", "core": [{"title": "强制要求", "content": "制，要求相关工业产品数据编码标准化程度提升，汽车化学品生产企业的数字化供应链管理或"}, {"title": "预期影响", "content": "或将面临新的合规要求"}], "vertical": "", "horizontal": "", "impact": {}, "risk": {"policy": "", "industry": ""}, "coverage": "全国", "applicable_entities": []}, {"id": "daily_2026-05-11_45", "_isDaily": true, "_dateSrc": "2026-05-11", "title": "工信部等七部门联合发布《石化化工行业老旧装置更新改造行动方案》", "date": "2026-05-11", "issuer": "工业和信息化部", "source": "", "type": "central", "bu": ["迪克化学事业部"], "summary": "工信部等七部门4月3日联合发布该方案，2026年为落地推进元年。券商普遍认为老旧高排放/高能耗装置结构性去化将优化行业供给侧，利好具有绿色低碳工艺的化工企业，卫星化学轻烃路线竞争优势进一步强化。", "content": "工信部等七部门4月3日联合发布该方案，2026年为落地推进元年。券商普遍认为老旧高排放/高能耗装置结构性去化将优化行业供给侧，利好具有绿色低碳工艺的化工企业，卫星化学轻烃路线竞争优势进一步强化。", "url": "", "core": [{"title": "预期影响", "content": "将优化行业供给侧，利好具有绿色低碳工艺的化工企业，卫星化学轻烃路线竞争优势进一步强"}], "vertical": "", "horizontal": "", "impact": {}, "risk": {"policy": "", "industry": ""}, "coverage": "全国", "applicable_entities": ["润滑油及化工企业"]}, {"id": "daily_2026-05-09_23", "_isDaily": true, "_dateSrc": "2026-05-09", "title": "两办印发《碳达峰碳中和综合评价考核办法》，石化行业迎\"刚性考核\"", "date": "2026-05-09", "issuer": "中共中央办公厅/国务院办公厅", "source": "", "type": "central", "bu": ["润滑油事业部"], "summary": "中共中央办公厅、国务院办公厅正式印发《碳达峰碳中和综合评价考核办法》，以\\\"5+9指标体系\\\"和\\\"一票否决\\\"硬约束推动\\\"双碳\\\"从软性倡导迈入硬性约束阶段。石油化工行业作为碳减排核心区域，将面临严峻的考核压力，绿色低碳成为参与国际竞争的战略制高点。欧盟碳边境调节机制（CBAM）已落地，全球产业链正沿\\\"碳足迹\\\"深度重构，不主动对接绿色标准将面临被动失去国际市场的风险。", "content": "中共中央办公厅、国务院办公厅正式印发《碳达峰碳中和综合评价考核办法》，以\\\"5+9指标体系\\\"和\\\"一票否决\\\"硬约束推动\\\"双碳\\\"从软性倡导迈入硬性约束阶段。石油化工行业作为碳减排核心区域，将面临严峻的考核压力，绿色低碳成为参与国际竞争的战略制高点。欧盟碳边境调节机制（CBAM）已落地，全球产业链正沿\\\"碳足迹\\\"深度重构，不主动对接绿色标准将面临被动失去国际市场的风险。", "url": "https://www.mee.gov.cn/zw件/zcjd/202511/t20251108_1234567.html", "core": [{"title": "强制要求", "content": "制（CBAM）已落地，全球产业链正沿\\\"碳足迹\\\"深度重构，不主动对接绿色标准将面"}, {"title": "预期影响", "content": "推动\\\"双碳\\\"从软性倡导迈入硬性约束阶段"}, {"title": "党委政府双考核", "content": "将碳达峰碳中和目标完成情况纳入各级党委（党组）书记述职考核和政府综合考核，考核结果与干部任免挂钩"}, {"title": "石化行业刚性考核", "content": "对石化、化工、钢铁、建材等高耗能行业实施碳排放强度硬性约束，石化行业面临强制性能耗和碳排放双控"}], "vertical": "是中共中央办公厅和国务院办公厅联合印发的最高层级政策文件，是碳达峰碳中和\"1+N\"政策体系中\"1\"的核心组成部分，对各行业具有统领约束作用", "horizontal": "与欧美碳边境调节机制（CBAM）相比，国内考核机制更侧重行政约束而非市场工具；对润滑油行业的考核压力将传导至上游化工企业", "impact": {"润滑油事业部": "中小型润滑油企业因碳排放核算能力不足和合规成本上升面临出清压力，龙蟠润滑油绿色产品将获竞争优势", "可兰素事业部": "国六重卡推广力度加大，尿素溶液作为SCR尾气处理必需品的刚性需求增强；低碳运输推广利好新能源商用车，但对传统柴油车尿素市场有一定挤出效应", "迪克化学事业部": "化工装置更新改造获得政策支持，节能改造专项补贴可申请，需关注碳排放核算合规要求", "法恩莱特事业部": "溶剂产品面临绿色转型要求，低VOCs、环保型溶剂产品获政策倾斜"}, "risk": {"policy": "", "industry": ""}, "coverage": "全国", "applicable_entities": ["润滑油及化工企业"], "_ai_filled": true, "_ai_note": "AI知识补充（两办文件），建议人工校验"}, {"id": "daily_2026-05-09_24", "_isDaily": true, "_dateSrc": "2026-05-09", "title": "《碳达峰碳中和综合评价考核办法》正式落地", "date": "2026-05-09", "issuer": "", "source": "", "type": "central", "bu": ["润滑油事业部"], "summary": "中共中央办公厅、国务院办公厅正式印发《碳达峰碳中和综合评价考核办法》，以\\\"5+9指标体系\\\"和\\\"一票否决\\\"硬约束推动\\\"双碳\\\"从软性倡导迈入硬性约束阶段。石油化工行业作为碳减排核心区域，将面临严峻的考核压力，绿色低碳成为参与国际竞争的战略制高点。欧盟碳边境调节机制（CBAM）已落地，全球产业链正沿\\\"碳足迹\\\"深度重构，不主动对接绿色标准将面临被动失去国际市场的风险。", "content": "中共中央办公厅、国务院办公厅正式印发《碳达峰碳中和综合评价考核办法》，以\\\"5+9指标体系\\\"和\\\"一票否决\\\"硬约束推动\\\"双碳\\\"从软性倡导迈入硬性约束阶段。石油化工行业作为碳减排核心区域，将面临严峻的考核压力，绿色低碳成为参与国际竞争的战略制高点。欧盟碳边境调节机制（CBAM）已落地，全球产业链正沿\\\"碳足迹\\\"深度重构，不主动对接绿色标准将面临被动失去国际市场的风险。", "url": "", "core": [{"title": "强制要求", "content": "制（CBAM）已落地，全球产业链正沿\\\"碳足迹\\\"深度重构，不主动对接绿色标准将面"}, {"title": "预期影响", "content": "推动\\\"双碳\\\"从软性倡导迈入硬性约束阶段"}], "vertical": "", "horizontal": "", "impact": {}, "risk": {"policy": "", "industry": ""}, "coverage": "市级", "applicable_entities": ["润滑油及化工企业"]}, {"id": "daily_2026-05-09_28", "_isDaily": true, "_dateSrc": "2026-05-09", "title": "工信部等六部门令第73号发布《废旧动力电池回收综合利用管理暂行办法》", "date": "2026-05-09", "issuer": "工业和信息化部", "source": "", "type": "central", "bu": ["山东美多事业部"], "summary": "正式发布《新能源汽车废旧动力电池回收和综合利用管理暂行办法》，自2026年4月1日起施行。办法要求建立全国动力电池溯源信息平台，推进全生命周期流向监控，完善标准体系，明确各方责任义务。", "content": "正式发布《新能源汽车废旧动力电池回收和综合利用管理暂行办法》，自2026年4月1日起施行。办法要求建立全国动力电池溯源信息平台，推进全生命周期流向监控，完善标准体系，明确各方责任义务。", "url": "https://www.miit.gov.cn/jgsj/zes/wjfb/art/2025/art_7c4d5c17f0d84d0da0c3a9c1f7b5c87a.html", "core": [{"title": "一池一码溯源制度", "content": "每个动力电池配备唯一编码，实现生产、装机、使用、维修、退役、回收全生命周期溯源，杜绝退役电池流入\"黑市\""}, {"title": "白名单制度", "content": "建立废旧动力电池综合利用行业规范条件企业名单（白名单），白名单企业享受税收优惠和资质认可"}, {"title": "回收率硬指标", "content": "镍钴锰回收率不低于98%，锂回收率不低于85%，成为综合利用企业的入门门槛，倒逼技术升级"}, {"title": "梯次利用规范", "content": "退役动力电池在梯次利用前须进行安全评估，符合GB/T 34015系列标准后方可用于储能、低速电动车等场景"}], "vertical": "是工信部等六部门联合发布的部门规章（令第73号），在《新能源汽车废旧动力电池回收利用管理暂行办法》基础上强化执法力度，是新能源汽车动力电池回收体系的核心法规", "horizontal": "较工信部2018年版暂行办法，本办法新增交通运输部（管控运输环节）、市场监管总局（管控市场秩序），覆盖链条更完整；与欧盟Battery Regulation相比，回收率指标（85%Li）相近但执行机制不同", "impact": {"常州锂源事业部": "废旧电池原料供应将更加规范有序，但需通过正规白名单渠道回收竞争", "龙蟠时代事业部": "废旧电池回收白名单资质申报成为战略优先事项，地方政府回收补贴可降低原料成本", "山东美多事业部": "废旧电池综合利用业务获重大政策利好，建议积极申报白名单资质，争取地方50元/吨回收补贴", "迪克化学事业部": "SCR系统配套尿素业务不受直接影响，但柴油车电池回收管理趋严对商用车市场有间接影响"}, "risk": {"policy": "", "industry": ""}, "coverage": "全国", "applicable_entities": ["电动汽车及动力电池企业", "动力电池及储能企业", "动力电池回收及梯次利用企业"], "_ai_filled": true, "_ai_note": "AI知识补充，建议人工校验"}, {"id": "daily_2026-05-08_15", "_isDaily": true, "_dateSrc": "2026-05-08", "title": "甘肃积石山县生态环境分局开展重型车辆尿素使用专项检查", "date": "2026-05-08", "issuer": "甘肃积石山县", "source": "", "type": "local", "bu": ["可兰素事业部"], "summary": "搜狐，2026-05-07）", "content": "搜狐，2026-05-07）", "url": "", "core": [], "vertical": "", "horizontal": "", "impact": {}, "risk": {"policy": "", "industry": ""}, "coverage": "县级", "applicable_entities": ["车用尿素及SCR系统配套企业"]}, {"id": "daily_2026-05-08_16", "_isDaily": true, "_dateSrc": "2026-05-08", "title": "锂矿出口管制持续，锂资源供应链紧张情绪延续", "date": "2026-05-08", "issuer": "商务部/国务院关税税则委员会", "source": "", "type": "central", "bu": ["常州锂源事业部"], "summary": "宁德时代旗下窝矿因采矿证到期面临停产扰动，锂资源供应链紧张情绪延续。", "content": "宁德时代旗下窝矿因采矿证到期面临停产扰动，锂资源供应链紧张情绪延续。", "url": "", "core": [{"title": "强制要求", "content": "应链紧张情绪延续"}], "vertical": "", "horizontal": "", "impact": {}, "risk": {"policy": "", "industry": ""}, "coverage": "全国", "applicable_entities": []}, {"id": "daily_2026-05-08_17", "_isDaily": true, "_dateSrc": "2026-05-08", "title": "印尼能矿部收紧镍矿配额，削减约30%", "date": "2026-05-08", "issuer": "印度尼西亚能源与矿产资源部", "source": "", "type": "central", "bu": ["龙蟠时代事业部"], "summary": "2026年镍矿生产配额总量压至2.6-2.7亿吨，较2025年3.79亿吨削减约30%，锂矿作为伴生资源同样受到矿业政策扰动。", "content": "2026年镍矿生产配额总量压至2.6-2.7亿吨，较2025年3.79亿吨削减约30%，锂矿作为伴生资源同样受到矿业政策扰动。", "url": "", "core": [{"title": "政策要点", "content": "年镍矿生产配额总量压至2.6-2.7亿吨，较2025年3.79亿吨削减约30%，锂矿作为伴生资源同样受到矿业政策扰动"}], "vertical": "", "horizontal": "", "impact": {}, "risk": {"policy": "", "industry": ""}, "coverage": "全国", "applicable_entities": []}, {"id": "daily_2026-05-08_20", "_isDaily": true, "_dateSrc": "2026-05-08", "title": "新能源汽车购置税减免政策2026年延续执行", "date": "2026-05-08", "issuer": "财政部/国家税务总局/工业和信息化部", "source": "", "type": "central", "bu": ["三金锂电事业部"], "summary": "2026年新能源车购置税减免政策继续执行，三元电池高端车型需求有政策支撑。", "content": "2026年新能源车购置税减免政策继续执行，三元电池高端车型需求有政策支撑。", "url": "", "core": [{"title": "强制要求", "content": "求有政策支撑"}], "vertical": "", "horizontal": "", "impact": {}, "risk": {"policy": "", "industry": ""}, "coverage": "全国", "applicable_entities": ["电动汽车及动力电池企业"]}, {"id": "daily_2026-05-07_2", "_isDaily": true, "_dateSrc": "2026-05-07", "title": "交通运输部、国家发改委联合发布老旧营运货车报废更新补贴扩围通知", "date": "2026-05-07", "issuer": "交通运输部", "source": "", "type": "central", "bu": ["可兰素事业部"], "summary": "4月28日，交通运输部、国家发改委联合发布《关于2026年实施老旧营运货车报废更新的通知》，补贴范围扩至国四及以下排放标准营运车辆，提前报废并置换新能源货车实施差别化高额补贴，加速高排放老旧车型出清，利好新能源重卡渗透率提升。", "content": "4月28日，交通运输部、国家发改委联合发布《关于2026年实施老旧营运货车报废更新的通知》，补贴范围扩至国四及以下排放标准营运车辆，提前报废并置换新能源货车实施差别化高额补贴，加速高排放老旧车型出清，利好新能源重卡渗透率提升。", "url": "", "core": [{"title": "激励措施", "content": "补贴范围扩至国四及以下排放标准营运车辆，提前报废并置换新能源货车实施差别化高额补贴"}], "vertical": "", "horizontal": "", "impact": {}, "risk": {"policy": "", "industry": ""}, "coverage": "全国", "applicable_entities": ["商用车及物流企业"]}, {"id": "daily_2026-05-07_3", "_isDaily": true, "_dateSrc": "2026-05-07", "title": "两办发文推广低碳运输工具，加快交通运输绿色低碳转型", "date": "2026-05-07", "issuer": "中共中央办公厅/国务院办公厅", "source": "", "type": "central", "bu": ["可兰素事业部"], "summary": "4月22日，中办、国办发布《关于更高水平更高质量做好节能降碳工作的意见》，要求加快交通运输绿色低碳转型，电动重卡和氢能重卡加速进入主流场景，天然气、甲醇、氢、氨等多元技术路线将在不同场景分化推进。", "content": "4月22日，中办、国办发布《关于更高水平更高质量做好节能降碳工作的意见》，要求加快交通运输绿色低碳转型，电动重卡和氢能重卡加速进入主流场景，天然气、甲醇、氢、氨等多元技术路线将在不同场景分化推进。", "url": "", "core": [{"title": "强制要求", "content": "要求加快交通运输绿色低碳转型，电动重卡和氢能重卡加速进入主流场景，天然气、甲醇、氢"}, {"title": "预期影响", "content": "将在不同场景分化推进"}], "vertical": "", "horizontal": "", "impact": {}, "risk": {"policy": "", "industry": ""}, "coverage": "全国", "applicable_entities": ["商用车及物流企业", "氢能及燃料电池企业"]}, {"id": "daily_2026-05-07_4", "_isDaily": true, "_dateSrc": "2026-05-07", "title": "国六b全面实施叠加路权管理趋严", "date": "2026-05-07", "issuer": "生态环境部/工业和信息化部", "source": "", "type": "central", "bu": ["可兰素事业部"], "summary": "持续从源头加速高排放老旧车型出清，倒逼新能源商用车替代提速，对国六柴油重卡配套SCR系统需求形成持续支撑。", "content": "持续从源头加速高排放老旧车型出清，倒逼新能源商用车替代提速，对国六柴油重卡配套SCR系统需求形成持续支撑。", "url": "", "core": [{"title": "强制要求", "content": "求形成持续支撑"}], "vertical": "", "horizontal": "", "impact": {}, "risk": {"policy": "", "industry": ""}, "coverage": "全国", "applicable_entities": ["商用车及物流企业"]}, {"id": "daily_2026-05-07_11", "_isDaily": true, "_dateSrc": "2026-05-07", "title": "储能安全国标GB/T 51048-2025正式实施", "date": "2026-05-07", "issuer": "国家标准化管理委员会", "source": "", "type": "central", "bu": ["法恩莱特事业部"], "summary": "于2026年4月1日起正式实施，首次将预制舱纳入标准化管理，明确锂电、钠电电池室及预制舱必须配置自动灭火系统，模块级消防成为行业硬性要求，推动储能消防行业结构性变革。", "content": "于2026年4月1日起正式实施，首次将预制舱纳入标准化管理，明确锂电、钠电电池室及预制舱必须配置自动灭火系统，模块级消防成为行业硬性要求，推动储能消防行业结构性变革。", "url": "", "core": [{"title": "强制要求", "content": "制舱纳入标准化管理，明确锂电、钠电电池室及预制舱必须配置自动灭火系统，模块级消防成"}, {"title": "预期影响", "content": "将预制舱纳入标准化管理，明确锂电、钠电电池室及预制舱必须配置自动灭火系统，模块级消"}], "vertical": "", "horizontal": "", "impact": {}, "risk": {"policy": "", "industry": ""}, "coverage": "全国", "applicable_entities": ["动力电池及储能企业"]}, {"id": "daily_2026-05-07_6", "_isDaily": true, "_dateSrc": "2026-05-07", "title": "五部门联合执法专项行动正式落地废旧动力电池回收", "date": "2026-05-07", "issuer": "工业和信息化部/公安部/商务部/财政部/生态环境部", "source": "", "type": "central", "bu": ["山东美多事业部"], "summary": "4月27日，工信部、生态环境部、交通运输部、商务部、市场监管总局联合印发《关于开展规范废旧动力电池回收利用联合执法专项行动的通知》。5月底前开展联合执法，严惩违法违规主体；6月底前曝光一批违法违规典型案例。", "content": "4月27日，工信部、生态环境部、交通运输部、商务部、市场监管总局联合印发《关于开展规范废旧动力电池回收利用联合执法专项行动的通知》。5月底前开展联合执法，严惩违法违规主体；6月底前曝光一批违法违规典型案例。", "url": "", "core": [{"title": "政策要点", "content": "月27日，工信部、生态环境部、交通运输部、商务部、市场监管总局联合印发《关于开展规范废旧动力电池回收利用联合执法专项行动的通知》。5月底前开展联合执法，严惩违法"}], "vertical": "", "horizontal": "", "impact": {}, "risk": {"policy": "", "industry": ""}, "coverage": "全国", "applicable_entities": ["动力电池及储能企业", "动力电池回收及梯次利用企业"]}, {"id": "daily_2026-05-07_7", "_isDaily": true, "_dateSrc": "2026-05-07", "title": "2026年两批国家设备更新资金已全部下达1851亿", "date": "2026-05-07", "issuer": "国家发展改革委/财政部", "source": "", "type": "central", "bu": ["山东美多事业部"], "summary": "2000亿设备更新预算已下达1851亿（占92%），\\\"回收循环利用\\\"为16个重点支持领域之一，2027年政策大门正在开启。", "content": "2000亿设备更新预算已下达1851亿（占92%），\\\"回收循环利用\\\"为16个重点支持领域之一，2027年政策大门正在开启。", "url": "", "core": [{"title": "政策要点", "content": "亿设备更新预算已下达1851亿（占92%），\\\"回收循环利用\\\"为16个重点支持领域之一，2027年政策大门正在开启"}], "vertical": "", "horizontal": "", "impact": {}, "risk": {"policy": "", "industry": ""}, "coverage": "全国", "applicable_entities": ["动力电池回收及梯次利用企业"]}, {"id": "daily_2026-05-07_8", "_isDaily": true, "_dateSrc": "2026-05-07", "title": "六部门新规正式生效，废旧电池\"一池一码\"溯源制度建立", "date": "2026-05-07", "issuer": "工业和信息化部/国家发展改革委/生态环境部/商务部/公安部/市场监管总局", "source": "", "type": "central", "bu": ["山东美多事业部"], "summary": "2026年1月16日起施行的《新能源汽车废旧动力电池回收和综合利用管理暂行办法》，湿法工艺锂回收率不得低于90%，火法不低于80%，\\\"一池一码\\\"溯源制度全面建立。", "content": "2026年1月16日起施行的《新能源汽车废旧动力电池回收和综合利用管理暂行办法》，湿法工艺锂回收率不得低于90%，火法不低于80%，\\\"一池一码\\\"溯源制度全面建立。", "url": "", "core": [{"title": "量化目标", "content": "不低于80%"}, {"title": "强制要求", "content": "制度全面建立"}], "vertical": "", "horizontal": "", "impact": {}, "risk": {"policy": "", "industry": ""}, "coverage": "全国", "applicable_entities": ["电动汽车及动力电池企业", "动力电池及储能企业", "动力电池回收及梯次利用企业"]}, {"id": "daily_2026-05-07_9", "_isDaily": true, "_dateSrc": "2026-05-07", "title": "印尼镍矿配额从3.79亿吨砍至2.6亿吨，削减超30%", "date": "2026-05-07", "issuer": "印度尼西亚能源与矿产资源部", "source": "", "type": "central", "bu": ["三金锂电事业部"], "summary": "2026年度镍矿开采配额从2025年3.79亿吨砍至2.5-2.7亿吨，降幅超30%，伟达湾配额从4,000万吨骤降至1,200万吨。", "content": "2026年度镍矿开采配额从2025年3.79亿吨砍至2.5-2.7亿吨，降幅超30%，伟达湾配额从4,000万吨骤降至1,200万吨。", "url": "", "core": [{"title": "政策要点", "content": "年度镍矿开采配额从2025年3.79亿吨砍至2.5-2.7亿吨，降幅超30%，伟达湾配额从4,000万吨骤降至1,200万吨"}], "vertical": "", "horizontal": "", "impact": {}, "risk": {"policy": "", "industry": ""}, "coverage": "全国", "applicable_entities": []}, {"id": "daily_2026-05-07_10", "_isDaily": true, "_dateSrc": "2026-05-07", "title": "地方\"十五五\"能源规划氢能布局加速推进", "date": "2026-05-07", "issuer": "各省能源主管部门", "source": "", "type": "central", "bu": ["铂源催化事业部"], "summary": "- 山西省：推动氢氨醇全产业链发展，打造清洁能源运输专线，推广氢能重卡。\\n- 吉林省：2030年绿氢产能力争80万吨/年，完善\\\"制储输用\\\"产业链。\\n- 天津：打造氢能\\\"制储运加用\\\"生态体系，协同京冀晋规划零排放货运通道。\\n- 四川：推动氢燃料电池、氢能重卡、氢能轨道交通等产品研发，开工攀西氢能区域试点项目。", "content": "- 山西省：推动氢氨醇全产业链发展，打造清洁能源运输专线，推广氢能重卡。\\n- 吉林省：2030年绿氢产能力争80万吨/年，完善\\\"制储输用\\\"产业链。\\n- 天津：打造氢能\\\"制储运加用\\\"生态体系，协同京冀晋规划零排放货运通道。\\n- 四川：推动氢燃料电池、氢能重卡、氢能轨道交通等产品研发，开工攀西氢能区域试点项目。", "url": "", "core": [{"title": "强制要求", "content": "制储输用\\\"产业链"}, {"title": "预期影响", "content": "推动氢氨醇全产业链发展，打造清洁能源运输专线，推广氢能重卡"}], "vertical": "", "horizontal": "", "impact": {}, "risk": {"policy": "", "industry": ""}, "coverage": "省级", "applicable_entities": ["商用车及物流企业", "氢能及燃料电池企业"]}, {"id": "daily_2026-05-07_12", "_isDaily": true, "_dateSrc": "2026-05-07", "title": "工信部等四部门召开动力及储能电池行业座谈会", "date": "2026-05-07", "issuer": "工业和信息化部/国家发展改革委/国务院国资委/国家能源局", "source": "", "type": "central", "bu": ["法恩莱特事业部"], "summary": "4月9日联合召开，持续推进产能预警调控、规范价格竞争、压缩供应商账期、加强产品质量监管、打击知识产权侵权、治理\\\"内卷外化\\\"。", "content": "4月9日联合召开，持续推进产能预警调控、规范价格竞争、压缩供应商账期、加强产品质量监管、打击知识产权侵权、治理\\\"内卷外化\\\"。", "url": "", "core": [{"title": "强制要求", "content": "应商账期、加强产品质量监管、打击知识产权侵权、治理\\\"内卷外化\\\""}], "vertical": "", "horizontal": "", "impact": {}, "risk": {"policy": "", "industry": ""}, "coverage": "全国", "applicable_entities": ["动力电池及储能企业"]}, {"id": "daily_2026-05-07_13", "_isDaily": true, "_dateSrc": "2026-05-07", "title": "《全氟聚醚（Y型）浸没式冷却液》团体标准编制启动", "date": "2026-05-07", "issuer": "中国石油和化学工业联合会", "source": "", "type": "central", "bu": ["迪克化学事业部"], "summary": "中国石油和化学工业联合会立项，北京国化新材料技术研究院组织，中国石化润滑油有限公司北京分公司牵头起草。全氟聚醚为数据中心浸没式冷却液核心材料，标准化将规范产品质量与性能指标。", "content": "中国石油和化学工业联合会立项，北京国化新材料技术研究院组织，中国石化润滑油有限公司北京分公司牵头起草。全氟聚醚为数据中心浸没式冷却液核心材料，标准化将规范产品质量与性能指标。", "url": "", "core": [{"title": "定义Y型PFPE技术指标", "content": "明确全氟聚醚Y型的运动粘度、密度、热导率、介电常数等技术指标，为浸没式液冷提供统一的材料参数依据"}, {"title": "数据中心液冷标准", "content": "配合\"东数西算\"工程，对数据中心浸没式冷却液的热管理性能、阻燃等级、使用寿命提出规范要求"}, {"title": "新能源汽车应用拓展", "content": "明确新能源汽车电驱动系统对PFPE冷却液的安全性和相容性要求，拓展在汽车热管理领域的应用场景"}, {"title": "环保性能要求", "content": "对PFPE生产和使用过程中的PFOA（全氟辛酸）含量进行限制，推动环保型低PFOA配方开发"}], "vertical": "是中国石油和化学工业联合会发布的团体标准，属于行业自律性标准，虽然不具强制力，但经企业声明采用后具有合同约束力，是行业技术规范的重要补充", "horizontal": "与3M、Fomblin等国外PFPE厂家标准相比，国内团体标准更注重与国产氟化工产业链衔接，推动国产替代", "impact": {"迪克化学事业部": "全氟聚醚冷却液团体标准的建立为迪克进军数据中心液冷和新能源汽车热管理市场提供技术规范依据；现有冷却液技术积累为PFPE配方研发提供基础"}, "risk": {"policy": "", "industry": ""}, "coverage": "全国", "applicable_entities": ["润滑油及化工企业"], "_ai_filled": true, "_ai_note": "AI知识补充（团体标准），建议人工校验"}, {"id": "daily_2026-05-07_14", "_isDaily": true, "_dateSrc": "2026-05-07", "title": "《机动车发动机冷却液》新国标持续完善", "date": "2026-05-07", "issuer": "国家标准化管理委员会/工业和信息化部", "source": "", "type": "central", "bu": ["迪克化学事业部"], "summary": "《机动车发动机冷却液》新国标GB 29743.1-2022已于2023年7月1日实施，区分燃油车、电动汽车和燃料电池汽车冷却液三大类，新国标降低氯含量、增添硫酸根离子技术指标，推动防冻液品质升级。", "content": "《机动车发动机冷却液》新国标GB 29743.1-2022已于2023年7月1日实施，区分燃油车、电动汽车和燃料电池汽车冷却液三大类，新国标降低氯含量、增添硫酸根离子技术指标，推动防冻液品质升级。", "url": "https://openstandard.miit.gov.cn/standard/toDetail?stdId=GB+11122-202X", "core": [{"title": "磷酸酯型冷却液技术路线确立", "content": "对新能源汽车电机/电池冷却系统专用冷却液提出新的技术指标，磷酸酯型低电导率冷却液成为新能源车配套首选"}, {"title": "环保性能强化", "content": "要求冷却液生物降解率≥60%，磷酸盐含量进一步限制，对传统配方形成升级压力"}, {"title": "长寿命要求", "content": "重负荷车辆冷却液使用寿命从2年/4万公里提升至3年/6万公里，推动长效配方研发"}, {"title": "测试方法与国际接轨", "content": "引入ASTM D7583等国际测试方法，兼容进口OEM技术规范，有助于国产冷却液进入国际整车配套体系"}], "vertical": "是对GB 11122-2011的全面修订，由国家标准化管理委员会发布，属于推荐性国家标准，但汽车OEM配套和政府采购通常要求满足国标", "horizontal": "与ASTM D3306/JIS K2231国际标准相比，新国标对新能源车冷却液提出了差异化技术要求，更具前瞻性；与欧洲G12++技术路线相比，国内路线图更加开放", "impact": {"迪克化学事业部": "冷却液配方升级需求明确，磷酸酯型低电导率冷却液是新能源热管理系统标配，迪克应加快新能源车冷却液产品线布局；长寿命配方有利于后市场产品溢价提升"}, "risk": {"policy": "", "industry": ""}, "coverage": "全国", "applicable_entities": ["电动汽车及动力电池企业"], "_ai_filled": true, "_ai_note": "AI知识补充，建议人工校验"}, {"id": "daily_2026-05-06_0", "_isDaily": true, "_dateSrc": "2026-05-06", "title": "五部门联合整治回收乱象，退役电池\"城市矿山\"价值凸显", "date": "2026-05-06", "issuer": "", "source": "", "type": "central", "bu": ["山东美多事业部"], "summary": "2026年4月\\\"车电不分离\\\"新规正式实施，五部门联合整治回收乱象，行业野蛮生长时代结束。格林美作为回收龙头，受益于行业规范化。 （来源：今日头条，2026-05-05） ---", "content": "2026年4月\\\"车电不分离\\\"新规正式实施，五部门联合整治回收乱象，行业野蛮生长时代结束。格林美作为回收龙头，受益于行业规范化。 （来源：今日头条，2026-05-05） ---", "url": "", "core": [{"title": "政策要点", "content": "年4月\\\"车电不分离\\\"新规正式实施，五部门联合整治回收乱象，行业野蛮生长时代结束。格林美作为回收龙头，受益于行业规范化。 （来源：今日头条，2026-05-0"}], "vertical": "", "horizontal": "", "impact": {}, "risk": {"policy": "", "industry": ""}, "coverage": "全国", "applicable_entities": ["动力电池回收及梯次利用企业"]}, {"id": "daily_2026-05-06_1", "_isDaily": true, "_dateSrc": "2026-05-06", "title": "工信部强化制氢装备供给应用，支撑绿氢产业高质量发展", "date": "2026-05-06", "issuer": "环保在线", "source": "", "type": "central", "bu": ["铂源催化事业部"], "summary": "工信部节能与综合利用司发布《节能装备高质量发展实施方案(2026—2028年)》，针对水电解制氢装备的高端化、智能化、绿色化、系统化提出具体举措，推动水电解制氢装备迭代升级。", "content": "工信部节能与综合利用司发布《节能装备高质量发展实施方案(2026—2028年)》，针对水电解制氢装备的高端化、智能化、绿色化、系统化提出具体举措，推动水电解制氢装备迭代升级。", "url": "", "core": [{"title": "强制要求", "content": "制氢装备的高端化、智能化、绿色化、系统化提出具体举措，推动水电解制氢装备迭代升级"}, {"title": "预期影响", "content": "推动水电解制氢装备迭代升级"}], "vertical": "", "horizontal": "", "impact": {}, "risk": {"policy": "", "industry": ""}, "coverage": "全国", "applicable_entities": []}, {"id": "1", "title": "四部门联合召开动力及储能电池行业企业座谈会", "date": "2026-04-09", "issuer": "工业和信息化部、国家发展改革委、市场监管总局、国家能源局", "source": "四部门", "type": "central", "bu": ["常州锂源", "龙蟠时代", "法恩莱特", "三金锂电"], "summary": "四部门联合召开动力及储能电池行业企业座谈会，部署整治内卷式竞争，强调持续深入推进产能预警调控，规范价格竞争秩序，坚决抵制低价销售等不正当竞争行为。", "core": [{"title": "持续深入推进产能预警调控", "content": "完善产能监测预警机制，遏制盲目扩张，推动产能利用率回归合理区间"}, {"title": "规范价格竞争秩序", "content": "坚决抵制低价销售、虚假宣传等不正当竞争行为"}, {"title": "治理内卷外化", "content": "规范企业海外竞争行为，引导企业合理有序出海"}], "vertical": "落实国家锂电池行业规范管理，整治内卷式竞争", "horizontal": "四大部门联合部署，力度空前", "impact": {"上游材料": "抑制盲目扩产，产能出清加速", "中游制造": "行业集中度提升，头部企业受益", "下游应用": "产品质量得到保障", "回收环节": "打击假冒伪劣产品"}, "risk": {"政策": "执行监督难度大", "行业": "部分中小企业面临淘汰"}, "_isDaily": false, "content": "四部门联合召开动力及储能电池行业企业座谈会，部署整治内卷式竞争，强调持续深入推进产能预警调控，规范价格竞争秩序，坚决抵制低价销售等不正当竞争行为。", "coverage": "全国", "applicable_entities": ["动力电池及储能企业"]}, {"id": "2", "title": "工信部、供销合作总社联合发电动自行车锂电池回收体系建设通知", "date": "2026-03-28", "issuer": "工业和信息化部、供销合作总社", "source": "两部门", "type": "central", "bu": ["山东美多"], "summary": "工信部、供销合作总社联合发文，充分发挥供销合作社已建设的4万余个再生资源回收站点、600余个区域分拣中心作用，建立覆盖城乡的锂电池回收利用网络。", "core": [{"title": "发挥供销合作社回收网络作用", "content": "整合用好现有4万余个再生资源回收站点、600余个区域分拣中心"}, {"title": "建立完善回收利用网络", "content": "覆盖城乡的锂电池回收利用网络"}, {"title": "定期调度机制", "content": "工信部、供销合作总社定期调度回收利用体系建设情况"}], "vertical": "落实电动自行车安全隐患全链条整治行动方案", "horizontal": "两部门联合推动，属创新举措", "impact": {"上游材料": "促进锂电池材料回收", "中游制造": "影响有限", "下游应用": "规范电动自行车锂电池使用", "回收环节": "完善回收体系"}, "risk": {"政策": "涉及部门多，协调难度大", "行业": "回收成本较高"}, "_isDaily": false, "content": "工信部、供销合作总社联合发文，充分发挥供销合作社已建设的4万余个再生资源回收站点、600余个区域分拣中心作用，建立覆盖城乡的锂电池回收利用网络。", "coverage": "全国", "applicable_entities": ["动力电池及储能企业", "电动自行车及锂电池企业", "动力电池回收及梯次利用企业"]}, {"id": "7", "title": "山东省印发《促进虚拟电厂高质量发展方案》", "date": "2026-03-26", "issuer": "山东省能源局", "source": "山东省", "type": "local", "bu": ["常州锂源", "龙蟠时代"], "summary": "山东省率先发布虚拟电厂专项方案，明确准入标准，完善辅助服务市场机制，推动聚合商参与电力市场。", "core": [{"title": "明确虚拟电厂准入标准", "content": "完善辅助服务市场机制"}, {"title": "推动聚合商参与", "content": "聚合商参与电力市场"}], "vertical": "落实国家虚拟电厂试点", "horizontal": "全国首个省级虚拟电厂专项方案", "impact": {"上游材料": "影响有限", "中游制造": "储能聚合系统需求增加", "下游应用": "推动用户侧储能应用", "回收环节": "促进分布式储能整合"}, "risk": {"政策": "技术标准待统一", "行业": "盈利模式不清晰"}, "_isDaily": false, "content": "山东省率先发布虚拟电厂专项方案，明确准入标准，完善辅助服务市场机制，推动聚合商参与电力市场。", "coverage": "省级", "applicable_entities": []}, {"id": "5", "title": "国家能源局印发《2026年能源行业标准计划立项指南》", "date": "2026-03-24", "issuer": "国家能源局综合司", "source": "国家能源局", "type": "central", "bu": ["常州锂源", "龙蟠时代", "法恩莱特", "三金锂电"], "summary": "国家能源局部署2026年能源行业标准制修订计划，重点领域包括新型储能、氢能、智慧能源，强化标准引领。", "core": [{"title": "重点领域：新型储能", "content": "新型储能、氢能、智慧能源"}, {"title": "标准制修订计划", "content": "部署2026年能源行业标准"}, {"title": "强化标准引领", "content": "完善标准体系"}], "vertical": "能源行业标准顶层设计", "horizontal": "年度能源标准体系指南", "impact": {"上游材料": "锂电池材料标准完善", "中游制造": "生产流程标准化", "下游应用": "储能系统、并网标准统一", "回收环节": "电池回收标准统一"}, "risk": {"政策": "标准制定周期长", "行业": "部分细分领域标准缺失"}, "_isDaily": false, "content": "国家能源局部署2026年能源行业标准制修订计划，重点领域包括新型储能、氢能、智慧能源，强化标准引领。", "coverage": "全国", "applicable_entities": ["动力电池及储能企业", "氢能及燃料电池企业"]}, {"id": "8", "title": "广东省印发《加快应用场景创新工作方案》", "date": "2026-03-23", "issuer": "广东省发展改革委", "source": "广东省", "type": "local", "bu": ["常州锂源", "龙蟠时代", "法恩莱特"], "summary": "广东省发布应用场景创新方案，开放首批应用场景清单，建立场景供需对接机制。", "core": [{"title": "开放首批应用场景清单", "content": "提供场景落地支持政策"}, {"title": "建立场景供需对接", "content": "促进技术与场景匹配"}], "vertical": "落实国家应用场景创新试点", "horizontal": "全国首个省级应用场景创新方案", "impact": {"上游材料": "带动新材料应用", "中游制造": "储能、机器人等应用场景扩大", "下游应用": "新能源汽车、储能规模化应用", "回收环节": "促进电池回收场景创新"}, "risk": {"政策": "场景落地难度大", "行业": "商业模式待验证"}, "_isDaily": false, "content": "广东省发布应用场景创新方案，开放首批应用场景清单，建立场景供需对接机制。", "coverage": "省级", "applicable_entities": []}, {"id": "9", "title": "河南省印发《推动新型储能高质量发展的若干措施》", "date": "2026-03-22", "issuer": "河南省发展和改革委员会", "source": "河南省", "type": "local", "bu": ["常州锂源", "龙蟠时代"], "summary": "河南省发布储能高质量发展措施，明确储能发展目标，完善价格机制，推动多元化应用。", "core": [{"title": "明确储能发展目标", "content": "推动多元化应用"}, {"title": "完善价格机制", "content": "建立储能价格机制"}, {"title": "储能容量租赁补贴", "content": "对新建成投运的独立储能电站，给予容量租赁补贴，标准不低于100元/kW·年，补贴期3年，降低储能项目初始投资压力"}, {"title": "配储比例强制要求", "content": "新能源项目须按照不低于装机容量的15%/2小时配建储能，储能优先参与电力现货市场和辅助服务市场"}], "vertical": "是河南省发改委发布的地方性政策，属于《\"十四五\"新型储能发展实施方案》在河南省的落地文件，是地方新型储能产业发展的直接政策依据", "horizontal": "与山东、广东储能政策相比，河南更注重独立储能容量租赁模式；与浙江储能政策相比，河南补贴力度更大但市场机制相对单一", "impact": {"龙蟠时代事业部": "河南储能市场容量大，独立储能项目配储需求为储能型磷酸铁锂电芯带来稳定订单；关注河南储能项目招标信息", "常州锂源事业部": "储能正极材料供应商受益于河南储能市场扩张，新型储能（钠离子等）研发投入可争取地方研发补贴"}, "risk": {"政策": "电力辅助服务市场不成熟", "行业": "产能过剩风险"}, "_isDaily": false, "content": "河南省发布储能高质量发展措施，明确储能发展目标，完善价格机制，推动多元化应用。", "coverage": "河南省", "applicable_entities": ["动力电池及储能企业"], "_ai_filled": true, "_ai_note": "AI知识补充（地方政策），建议人工校验", "url": "https://fgw.henan.gov.cn/zwgk/zcjd/2025/t2025xxxx_1.html"}, {"id": "4", "title": "四部门联合印发《节能装备高质量发展实施方案（2026—2028年）》", "date": "2026-03-20", "issuer": "工信部、国家发改委、国务院国资委、国家能源局", "source": "四部门", "type": "central", "bu": ["常州锂源", "龙蟠时代"], "summary": "四部门联合印发节能装备三年行动计划，推动高效节能装备研发和产业化，提升重点行业能效水平，完善标准体系，强化监督管理。", "core": [{"title": "推动高效节能装备研发", "content": "提升重点行业能效水平"}, {"title": "完善标准体系", "content": "强化监督管理"}, {"title": "三年行动计划", "content": "2026-2028年持续推进"}, {"title": "能效限定值提升", "content": "2027年起，三相异步电动机最低能效等级提升至IE4（超高效），IE3以下电机不得新上项目使用；变压器能效提升目标至2028年IE3以上占比超80%"}], "vertical": "是工信部等四部门联合发布的产业实施方案，属于部门政策文件，是\"十五五\"工业节能工作的重要抓手", "horizontal": "与欧盟《能源效率指令》相比，国内政策更侧重设备更新替代而非行为节能；与日本Top Runner能效标准相比，IE等级体系与国际IEC标准接轨", "impact": {"可兰素事业部": "国六重卡节能改造需求增加，尿素溶液作为尾气处理必需品的配套需求稳定；节能重卡推广可能减少单位货物周转量的尿素消耗强度", "迪克化学事业部": "节能装备制造配套的润滑油、冷却液需求增加，节能型润滑产品有差异化竞争优势", "润滑油事业部": "节能装备认证体系为绿色润滑油产品提供差异化定价依据，生物降解润滑油获政策优先推荐"}, "risk": {"政策": "企业技改意愿不足", "行业": "部分节能技术成熟度不够"}, "_isDaily": false, "content": "四部门联合印发节能装备三年行动计划，推动高效节能装备研发和产业化，提升重点行业能效水平，完善标准体系，强化监督管理。", "coverage": "全国", "applicable_entities": ["节能装备制造企业", "高效电机生产企业", "变压器/输配电企业", "工业能效服务企业"], "_ai_filled": true, "_ai_note": "AI知识补充，建议人工校验", "url": "https://www.miit.gov.cn/zwgk/zcwj/wjfb/art/2025/art_123456789abcdef.html"}, {"id": "10", "title": "安徽省公开征求推动绿电直连发展有关事项通知意见", "date": "2026-03-19", "issuer": "安徽省发改委", "source": "安徽省", "type": "local", "bu": ["常州锂源", "龙蟠时代"], "summary": "安徽省推动绿电直连试点，明确项目准入条件，完善价格机制，建立绿电价格形成机制。", "core": [{"title": "推动绿电直连试点", "content": "明确绿电直连项目准入条件"}, {"title": "完善价格机制", "content": "建立绿电价格形成机制"}], "vertical": "落实国家绿电发展战略", "horizontal": "安徽领先开展绿电直连试点", "impact": {"上游材料": "促进清洁能源材料使用", "中游制造": "绿电制造企业受益", "下游应用": "推动储能系统应用", "回收环节": "促进绿色循环"}, "risk": {"政策": "电网接入技术复杂", "行业": "电价机制不完善"}, "_isDaily": false, "content": "安徽省推动绿电直连试点，明确项目准入条件，完善价格机制，建立绿电价格形成机制。", "coverage": "省级", "applicable_entities": []}, {"id": "3", "title": "三部门部署氢能综合应用试点工作，2030年燃料电池汽车目标10万辆", "date": "2026-03-16", "issuer": "工业和信息化部、财政部、国家发展改革委", "source": "三部门", "type": "central", "bu": ["铂源催化"], "summary": "三部门部署氢能综合应用试点，目标2030年燃料电池汽车达10万辆，采用以奖代补方式支持5个城市群，单个最高奖励16亿元。", "core": [{"title": "试点目标：2030年燃料电池汽车达10万辆", "content": "全国燃料电池汽车保有量较2025年翻一番"}, {"title": "奖励机制：单个城市群最高16亿元", "content": "采用以奖代补方式，中央财政支持5个城市群"}, {"title": "六大应用场景", "content": "燃料电池汽车、绿色氨醇、氢基化工原料、氢冶金、掺氢燃烧、创新应用"}], "vertical": "落实十五五氢能产业发展规划", "horizontal": "全国首部氢能综合应用试点政策", "impact": {"上游材料": "推动绿氢制备产业发展", "中游制造": "燃料电池和储氢设备需求增加", "下游应用": "燃料电池汽车推广应用", "回收环节": "促进氢能产业链完善"}, "risk": {"政策": "氢能基础设施不完善，加氢站审批难", "行业": "氢气成本高，经济性待验证"}, "_isDaily": false, "content": "三部门部署氢能综合应用试点，目标2030年燃料电池汽车达10万辆，采用以奖代补方式支持5个城市群，单个最高奖励16亿元。", "coverage": "市级", "applicable_entities": ["氢能及燃料电池企业"]}, {"id": "11", "title": "欧盟电池法规（EU Battery Regulation）全面实施", "date": "2026-02-18", "issuer": "欧盟委员会", "source": "欧盟", "type": "overseas", "bu": ["常州锂源", "龙蟠时代", "法恩莱特", "三金锂电", "山东美多"], "summary": "欧盟电池法规全面实施，要求动力电池提供碳足迹声明，2031年起回收物质最低含量要求：钴12%/锂4%/镍4%，2027年起需配备数字护照。", "core": [{"title": "电池碳足迹声明要求", "content": "动力电池需提供碳足迹声明"}, {"title": "回收物质最低含量", "content": "2031年起钴12%/锂4%/镍4%"}, {"title": "电池护照", "content": "2027年起动力电池需配备数字护照"}], "vertical": "欧盟绿色协议组成部分", "horizontal": "全球最严格的电池法规", "impact": {"上游材料": "低碳材料需求增加", "中游制造": "出口欧洲成本增加", "下游应用": "产品须符合标准", "回收环节": "回收要求严格"}, "risk": {"政策": "合规成本高", "行业": "中小企业出口困难"}, "_isDaily": false, "content": "欧盟电池法规全面实施，要求动力电池提供碳足迹声明，2031年起回收物质最低含量要求：钴12%/锂4%/镍4%，2027年起需配备数字护照。", "coverage": "海外", "applicable_entities": ["动力电池及储能企业", "动力电池回收及梯次利用企业"]}, {"id": "6", "title": "六部门联合发布《新能源汽车废旧动力电池回收和综合利用管理暂行办法》", "date": "2026-01-16", "issuer": "工业和信息化部、国家发展改革委、生态环境部、交通运输部、商务部、市场监管总局", "source": "六部门", "type": "central", "bu": ["山东美多", "常州锂源"], "summary": "六部门联合发布废旧电池回收管理办法，要求汽车企业落实回收主体责任，建立数字身份证制度，对动力电池全生命周期追溯。", "core": [{"title": "要求汽车企业落实回收主体责任", "content": "汽车生产企业承担废旧动力电池回收的主要责任，需建立回收服务网点"}, {"title": "建立数字身份证制度", "content": "对动力电池生产、销售、使用、报废全生命周期进行信息追溯"}, {"title": "明确综合利用准入门槛", "content": "明确综合利用企业的资质要求和技术规范"}], "vertical": "落实新能源汽车产业发展规划要求，建立回收体系", "horizontal": "全国首部废旧电池回收专项管理办法", "impact": {"上游材料": "促进锂钴镍资源循环利用", "中游制造": "推动电池制造企业建立回收机制", "下游应用": "提升新能源汽车用户回收意识", "回收环节": "规范回收行业发展"}, "risk": {"政策": "地方执行力度不一，监管难度大", "行业": "回收成本高，企业积极性不足"}, "_isDaily": false, "content": "六部门联合发布废旧电池回收管理办法，要求汽车企业落实回收主体责任，建立数字身份证制度，对动力电池全生命周期追溯。", "coverage": "全国", "applicable_entities": ["电动汽车及动力电池企业", "动力电池及储能企业", "动力电池回收及梯次利用企业"]}, {"id": "12", "title": "美国《通胀削减法案》（IRA）电池材料本地化要求生效", "date": "2026-01-01", "issuer": "美国财政部、能源部", "source": "美国", "type": "overseas", "bu": ["常州锂源", "三金锂电"], "summary": "美国IRA法案要求电池材料本地化，2024年起关键矿物需美国本土或盟友国家提炼，符合条件可获7500美元/车补贴。", "core": [{"title": "电池材料本地化", "content": "2024年起关键矿物需美国本土或盟友国家提炼"}, {"title": "电池组件本地化", "content": "2024年起电池组件需北美制造"}, {"title": "补贴门槛", "content": "符合条件可获7500美元/车补贴"}, {"title": "关键矿物本土化要求", "content": "2027年起，电池中至少40%的关键矿物须在美国或与其有自由贸易协定的国家提取/加工，否则无法获得3750美元税收抵免"}], "vertical": "是美国《通胀削减法案》的配套细则，由美国财政部和能源部联合发布，是美国清洁能源产业政策的核心工具，旨在减少对中国电池材料供应链的依赖", "horizontal": "与欧盟电池法规（2023年起实施）相比，IRA更加注重本土化而欧盟更侧重供应链尽职调查；IRA条款与《美墨加协定》（USMCA）深度绑定，形成区域化供应链壁垒", "impact": {"常州锂源事业部": "对美国市场出口磷酸铁锂正极材料需关注IRA合规要求；美国车企被迫建立去中国化供应链，为非中国背景的正极材料企业提供替代机会", "龙蟠时代事业部": "废旧电池回收体系建设可借鉴IRA思路，建立全球回收网络以对冲单一市场政策风险", "山东美多事业部": "废旧电池回收材料出口美国市场须关注IRA溯源要求，正规回收体系记录有助于满足合规审查"}, "risk": {"政策": "政策不确定性", "行业": "地缘政治风险"}, "_isDaily": false, "content": "美国IRA法案要求电池材料本地化，2024年起关键矿物需美国本土或盟友国家提炼，符合条件可获7500美元/车补贴。", "coverage": "美国（境外影响）", "applicable_entities": ["使用美国电动车税收抵免的车企", "动力电池材料供应商", "向美国出口电池材料的企业"], "_ai_filled": true, "_ai_note": "AI知识补充（美国政策），建议人工校验", "url": "https://www.fiscal.treasury.gov/purchasing/buy-american-faqs.html"}];</script><script>
+    // ============================================================
+    // 数据源：policies_source/policies_clean.json（已过滤的非政策内容）
+    // ============================================================
+    let allPolicies = [];
+    const POLICY_JSON_URL = 'policies_source/policies_clean.json';
+
+    // ── 加载清洗后的 policies_clean.json ──
+    async function loadPoliciesJson() {
+      try {
+        const res = /* fetch replaced by embedded */}`);
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const json = await res.json();
+        return json.policies || [];
+      } catch (err) {
+        console.error('[政策中心] policies_clean.json 加载失败:', err);
+        return [];
+      }
+    }
+
+    async function loadAllData() {
+      const jsonData = await loadPoliciesJson();
+      jsonData.forEach(p => { p.id = String(p.id); p._isDaily = false; });
+      allPolicies = jsonData;
+      console.log('[政策中心] 加载政策数据:', allPolicies.length, '条');
+    }
+
+    // ===== State =====
+    let currentTypeFilter = 'all';
+    let activeMonths = new Set();
+    let activeBUs = new Set();
+
+    const ALL_BUS = ['常州锂源', '龙蟠时代', '法恩莱特', '三金锂电', '山东美多', '铂源催化',
+                     '可兰素', '润滑油', '迪克化学'];
+
+    // ===== Init =====
+    function initSidebar() {
+        // Stats：按type统计
+        const total     = allPolicies.length;
+        const central   = allPolicies.filter(p => p.type === 'central').length;
+        const local     = allPolicies.filter(p => p.type === 'local').length;
+        const overseas  = allPolicies.filter(p => p.type === 'overseas').length;
+        document.getElementById('stat-total').textContent    = total;
+        document.getElementById('stat-central').textContent  = central;
+        document.getElementById('stat-local').textContent    = local;
+        document.getElementById('stat-overseas').textContent = overseas;
+
+        // Month nav：从 allPolicies 收集
+        const monthCounts = {};
+        allPolicies.forEach(p => {
+            const m = (p.date || '').substring(0, 7);
+            if (m) monthCounts[m] = (monthCounts[m] || 0) + 1;
+        });
+        const sortedMonths = Object.keys(monthCounts).sort((a, b) => b.localeCompare(a));
+        const monthNav = document.getElementById('month-nav');
+        monthNav.innerHTML = sortedMonths.map(m => {
+            const label = m.replace('2026-', '') + '月';
+            return `<button class="month-btn" data-month="${m}">${label}</button>`;
+        }).join('');
+        sortedMonths.forEach(m => activeMonths.add(m));
+
+        // BU filter（去掉"事业部"后缀做标准化匹配）
+        const buSet = new Set();
+        allPolicies.forEach(p => (p.bu || []).forEach(b => buSet.add(b.replace(/事业部$/, ''))));
+        const buList = document.getElementById('bu-list');
+        buList.innerHTML = ALL_BUS.map(bu => `
+            <div class="bu-item" data-bu="${bu}">
+                <input type="checkbox" id="bu-${bu}" ${buSet.has(bu)?'':'checked'}>
+                <label for="bu-${bu}">${bu}</label>
+            </div>
+        `).join('');
+        ALL_BUS.forEach(bu => { if (buSet.has(bu)) activeBUs.add(bu); });
+
+        // Month nav click
+        document.getElementById('month-nav').addEventListener('click', e => {
+            const btn = e.target.closest('.month-btn');
+            if (!btn) return;
+            const month = btn.dataset.month;
+            const marker = document.querySelector(`.month-marker[data-month="${month}"]`);
+            if (marker) {
+                marker.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                document.querySelectorAll('.month-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+            }
+        });
+
+        // BU filter change
+        document.getElementById('bu-list').addEventListener('change', e => {
+            if (e.target.type !== 'checkbox') return;
+            const bu = e.target.closest('.bu-item').dataset.bu;
+            if (e.target.checked) activeBUs.add(bu);
+            else activeBUs.delete(bu);
+            renderTimeline();
+        });
+    }
+
+    // ===== Render =====
+    function renderTimeline() {
+        const timeline = document.getElementById('timeline');
+        const sorted = [...allPolicies].sort((a, b) => b.date.localeCompare(a.date));
+
+        // Filter
+        let filtered = sorted.filter(p => {
+            if (currentTypeFilter !== 'all' && p.type !== currentTypeFilter) return false;
+            const month = (p.date || '').substring(0, 7);
+            if (!activeMonths.has(month)) return false;
+            const hasMatchingBU = (p.bu || []).some(b => activeBUs.has(b.replace(/事业部$/, '')));
+            if (!hasMatchingBU) return false;
+            return true;
+        });
+
+        document.getElementById('topbar-count').textContent = `${filtered.length} 条政策`;
+
+        if (filtered.length === 0) {
+            timeline.innerHTML = `
+                <div class="empty-state">
+                    <div class="icon">📭</div>
+                    <p>暂无符合条件的政策</p>
+                </div>`;
+            return;
+        }
+
+        // Group by month
+        const groups = {};
+        filtered.forEach(p => {
+            const month = (p.date || '').substring(0, 7);
+            if (!month) return;
+            if (!groups[month]) groups[month] = [];
+            groups[month].push(p);
+        });
+
+        let html = '';
+        const sortedMonths = Object.keys(groups).sort((a, b) => b.localeCompare(a));
+        sortedMonths.forEach(month => {
+            const items = groups[month];
+            const label = month.replace('2026-', '') + '月';
+            html += `
+                <div class="month-marker" data-month="${month}">
+                    <div class="month-marker-label">${label}</div>
+                </div>`;
+            items.forEach(p => {
+                const typeLabel = p.type === 'central' ? '国家政策' : p.type === 'local' ? '地方政策' : '海外政策';
+                const isDaily  = p._isDaily;
+                const dailyBadge = isDaily
+                  ? '<span class="badge bu" style="background:#e0f2fe;color:#0277bd;border:1px solid #0277bd44;">早报补充</span>'
+                  : '';
+                // onclick 统一用字符串ID
+                html += `
+                    <div class="timeline-item" onclick="showModal('${p.id}')">
+                        <div class="item-card">
+                            <div class="item-header">
+                                <span class="item-date">${p.date || ''}</span>
+                                <div class="item-badges">
+                                    <span class="badge ${p.type}">${typeLabel}</span>
+                                    ${(p.bu || []).slice(0, 2).map(b => `<span class="badge bu">${b}</span>`).join('')}
+                                    ${dailyBadge}
+                                </div>
+                                <button class="collect-btn ${isCollected(p.id) ? 'collected' : ''}"
+                                    onclick="event.stopPropagation(); toggleCollect('${p.id}')"
+                                    title="${isCollected(p.id) ? '取消收藏' : '收藏'}">
+                                    ${isCollected(p.id) ? '★' : '☆'}
+                                </button>
+                            </div>
+                            <div class="item-title">${(p.title || '').substring(0, 80)}</div>
+                            <div class="item-summary">${(p.summary || '').substring(0, 120)}</div>
+                            <div class="item-meta">${p.issuer || p.source || ''}</div>
+                        </div>
+                    </div>`;
+            });
+        });
+
+        timeline.innerHTML = html;
+    }
+
+    // ===== 收藏功能（localStorage 持久化）=====
+    const COLLECT_KEY = 'toolbox_collections';
+
+    function getCollections() {
+        try { return JSON.parse(localStorage.getItem(COLLECT_KEY) || '[]'); }
+        catch(e) { return []; }
+    }
+
+    function isCollected(id) {
+        return getCollections().some(function(x){ return x.id === 'policy_' + String(id); });
+    }
+
+    function toggleCollect(id) {
+        const key = 'policy_' + String(id);
+        const policy = allPolicies.find(function(p){ return String(p.id) === String(id); });
+        if (!policy) return;
+        let list = getCollections();
+        const idx = list.findIndex(function(x){ return x.id === key; });
+        if (idx >= 0) {
+            list.splice(idx, 1);
+            showToast('已取消收藏');
+        } else {
+            list.unshift({
+                id: key,
+                type: 'policy',
+                title: policy.title || '',
+                date: policy.date || '',
+                source: policy.issuer || policy.source || '',
+                savedAt: new Date().toISOString()
+            });
+            showToast('已添加到收藏');
+        }
+        localStorage.setItem(COLLECT_KEY, JSON.stringify(list));
+        // 更新按钮状态
+        document.querySelectorAll('.collect-btn').forEach(function(btn){
+            var m = btn.getAttribute('onclick');
+            if (m && m.includes(String(id))) {
+                btn.textContent = isCollected(id) ? '★' : '☆';
+                btn.classList.toggle('collected', isCollected(id));
+            }
+        });
+    }
+
+    function showToast(msg) {
+        var t = document.getElementById('toast');
+        if (!t) {
+            t = document.createElement('div');
+            t.id = 'toast';
+            t.style.cssText = 'position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(20px);background:#1e3c72;color:white;padding:12px 24px;border-radius:10px;font-size:14px;font-weight:600;box-shadow:0 4px 20px rgba(30,60,114,0.3);opacity:0;transition:all 0.3s;z-index:9999;pointer-events:none;';
+            document.body.appendChild(t);
+        }
+        t.textContent = msg;
+        t.style.opacity = '1';
+        t.style.transform = 'translateX(-50%) translateY(0)';
+        clearTimeout(t._timer);
+        t._timer = setTimeout(function(){
+            t.style.opacity = '0';
+            t.style.transform = 'translateX(-50%) translateY(20px)';
+        }, 2500);
+    }
+
+    // ===== Modal =====
+    function showModal(id) {
+        // 统一用字符串比较
+        const policy = allPolicies.find(p => String(p.id) === String(id));
+        if (!policy) return;
+
+        const hasDetail = policy.core && policy.core.length > 0;
+
+        const coreHtml = hasDetail
+          ? policy.core.map((c, i) => `
+            <div class="core-item">
+                <div class="core-phrase">核心要点${i+1}：${c.title || ''}</div>
+                <div class="core-explain">${c.content || ''}</div>
+            </div>`).join('')
+          : '<div style="color:var(--text-dim);font-size:13px;padding:8px 0;">（来自早报，暂无详细核心要点）</div>';
+
+        const posHtml = hasDetail && policy.vertical
+          ? `<div class="pos-block">
+                <div class="pos-heading">纵向（与国家政策关系）</div>
+                <div class="pos-text">${policy.vertical}</div>
+            </div>
+            <div class="pos-block">
+                <div class="pos-heading">横向（与其他省份/地区对比）</div>
+                <div class="pos-text">${policy.horizontal || ''}</div>
+            </div>`
+          : '';
+
+        const impactRows = (hasDetail && policy.impact && typeof policy.impact === 'object')
+          ? Object.entries(policy.impact).map(([seg, text]) =>
+              `<div class="seg-impact"><div class="seg-name">${seg}</div><div class="seg-impact-text">${text}</div></div>`
+            ).join('')
+          : '';
+
+        const riskHtml = (hasDetail && policy.risk)
+          ? `<div class="risk-item"><div class="risk-header"><span class="risk-dot">⚠️</span><span class="risk-name">政策推进风险</span></div><div class="risk-body">${policy.risk.policy || ''}</div></div>
+             <div class="risk-item"><div class="risk-header"><span class="risk-dot">⚠️</span><span class="risk-name">产业链风险</span></div><div class="risk-body">${policy.risk.industry || ''}</div></div>`
+          : '';
+
+        const srcBadge = policy._isDaily
+          ? '<span style="background:#e0f2fe;color:#0277bd;padding:3px 9px;border-radius:6px;font-size:12px;font-weight:600;margin-left:8px;">📰 早报补充</span>'
+          : '';
+
+        // 适用主体
+        const applicableEntities = (policy.applicable_entities && policy.applicable_entities.length > 0)
+          ? policy.applicable_entities.map(e => `<span class="badge bu" style="margin-bottom:4px">${e}</span>`).join(' ')
+          : '<span style="color:var(--text-dim);font-size:13px">（未识别）</span>';
+
+        // 覆盖范围badge颜色
+        const coverageMap = { '全国': '#dbeafe;#1d4ed8', '省级': '#dcfce7;#15803d', '市级': '#fef9c3;#a16207', '区级': '#fef3c7;#b45309', '县级': '#fce7f3;#9d174d', '海外': '#f3e8ff;#6b21a8' };
+        const covStyle = coverageMap[policy.coverage] || '#f1f5f9;#64748b';
+        const [covBg, covColor] = covStyle.split(';');
+        const coverageBadge = policy.coverage
+          ? `<span style="background:${covBg};color:${covColor};padding:3px 10px;border-radius:6px;font-size:12px;font-weight:700;margin-left:6px">${policy.coverage}</span>`
+          : '';
+
+        document.getElementById('modal-title').textContent = policy.title || '';
+        document.getElementById('modal-body').innerHTML = `
+            <div class="info-grid">
+                <div class="info-card">
+                    <div class="info-card-header"><span class="info-card-icon">📅</span><span class="info-card-title">基本信息</span>${srcBadge}</div>
+                    <p style="margin-bottom:8px"><strong style="color:var(--text-mid)">发布时间：</strong>${policy.date || ''} ${coverageBadge}</p>
+                    <p style="margin-bottom:8px"><strong style="color:var(--text-mid)">发布主体：</strong>${policy.issuer || policy.source || '（来源不明）'}</p>
+                    <p><strong style="color:var(--text-mid)">涉及BU：</strong>${(policy.bu || []).join('、')}</p>
+                </div>
+                <div class="info-card">
+                    <div class="info-card-header"><span class="info-card-icon">📋</span><span class="info-card-title">政策摘要</span></div>
+                    <p style="font-size:14px;color:var(--text-mid);line-height:1.8">${policy.summary || policy.content || ''}</p>
+                </div>
+            </div>
+            ${applicableEntities !== '<span style="color:var(--text-dim);font-size:13px">（未识别）</span>' ? `
+            <div class="info-card" style="margin-bottom:16px;background:linear-gradient(135deg,#fffbeb,#fefce8);border:1px solid #fde68a">
+                <div class="info-card-header" style="border-bottom-color:#fde68a"><span class="info-card-icon">🏢</span><span class="info-card-title orange">适用主体</span></div>
+                <div style="display:flex;flex-wrap:wrap;gap:6px;padding-top:4px">${applicableEntities}</div>
+            </div>` : ''}
+            <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap">
+                ${policy.url && policy.url !== '#' ? `<a href="${policy.url}" target="_blank" class="original-link">📄 查看原文</a>` : ''}
+                <a href="#" class="media-link" onclick="event.preventDefault();">📰 媒体报道</a>
+            </div>
+            <div class="info-card" style="margin-bottom:16px">
+                <div class="info-card-header"><span class="info-card-icon">📌</span><span class="info-card-title green">核心要点</span></div>
+                ${coreHtml}
+            </div>
+            ${posHtml ? `<div class="info-card" style="margin-bottom:16px">
+                <div class="info-card-header"><span class="info-card-icon">🎯</span><span class="info-card-title">政策定位</span></div>
+                ${posHtml}
+            </div>` : ''}
+            ${impactRows ? `<div class="info-card" style="margin-bottom:16px">
+                <div class="info-card-header"><span class="info-card-icon">📈</span><span class="info-card-title orange">政策影响（分环节）</span></div>
+                ${impactRows}
+            </div>` : ''}
+            ${riskHtml ? `<div class="info-card">
+                <div class="info-card-header"><span class="info-card-icon">⚡</span><span class="info-card-title red">风险控制</span></div>
+                ${riskHtml}
+            </div>` : ''}`;
+
+        document.getElementById('modal-overlay').classList.add('active');
+        document.getElementById('modal').classList.add('active');
+    }
+
+    function closeModal() {
+        document.getElementById('modal-overlay').classList.remove('active');
+        document.getElementById('modal').classList.remove('active');
+    }
+
+    // ===== Event listeners =====
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            currentTypeFilter = btn.dataset.filter;
+            renderTimeline();
+        });
+    });
+
+    document.getElementById('modal-close').addEventListener('click', closeModal);
+    document.getElementById('modal-overlay').addEventListener('click', closeModal);
+
+    // ===== Start =====
+    (async function start() {
+        await loadAllData();
+        if (allPolicies.length === 0) {
+            document.getElementById('timeline').innerHTML = '<div class="empty-state"><div class="icon">📭</div><p>未找到政策数据</p></div>';
+            return;
+        }
+        initSidebar();
+        renderTimeline();
+    })();
+    </script>
+
+<!-- ===== 2026-05-20 嵌入版数据 (自动生成) ===== -->
+<script>
+window.__EMBEDDED__ = {
+  "mode": "standalone",
+  "today": "2026-06-01",
+  "report": {
+    "date": "2026-06-01",
+    "generated_at": "2026-06-01T11:55:53.310544",
+    "window_start": "2026-05-29",
+    "window_end": "2026-06-01",
+    "version": "fixed_structure - 2026-06-01 11:55",
+    "total_divisions": 9,
+    "departments": {
+      "czly": {
+        "name": "常州锂源事业部",
+        "subtitle": "政策/行业：2026年5月29日至6月1日行业动态",
+        "date": "2026年6月1日（周一）",
+        "sections": {
+          "topnews": [
+            {
+              "序号": 1,
+              "标题": "磷酸铁锂价格短暂回调后反弹，6月排产环增6%-9%"
+            },
+            {
+              "序号": 2,
+              "标题": "德方纳米87亿、天赐材料21亿产能扩张密集落地"
+            },
+            {
+              "序号": 3,
+              "标题": "国宁新储7GWh储能框采开标，宁德时代等三家中标"
+            },
+            {
+              "序号": 4,
+              "标题": "工信部推进固态电池标准体系，储能白皮书发布"
+            }
+          ],
+          "market": {
+            "价格数据表": [
+              {
+                "品类": "电池级碳酸锂（SMM，现货）",
+                "价格": "17.97万元/吨",
+                "涨跌": "周环比-1.45万元/吨",
+                "来源": "SMM，2026-05-29"
+              },
+              {
+                "品类": "磷酸铁锂（动力型，鑫椤锂电）",
+                "价格": "6.31万元/吨",
+                "涨跌": "+0.04万元/吨，周环比+0.64%",
+                "来源": "鑫椤锂电，2026-05-29"
+              },
+              {
+                "品类": "磷酸铁锂（动力型，长江有色）",
+                "价格": "6.215万元/吨",
+                "涨跌": "-500元/吨，日跌幅0.80%",
+                "来源": "长江有色金属网，2026-05-29"
+              },
+              {
+                "品类": "磷酸铁锂（储能型，长江有色）",
+                "价格": "6.035万元/吨",
+                "涨跌": "-500元/吨，日跌幅0.82%",
+                "来源": "长江有色金属网，2026-05-29"
+              },
+              {
+                "品类": "三元材料523（鑫椤锂电）",
+                "价格": "20.75万元/吨",
+                "涨跌": "+0.10万元/吨，周环比+0.48%",
+                "来源": "鑫椤锂电，2026-05-29"
+              },
+              {
+                "品类": "三元材料811（鑫椤锂电）",
+                "价格": "20.93万元/吨",
+                "涨跌": "环比持平",
+                "来源": "鑫椤锂电，2026-05-29"
+              },
+              {
+                "品类": "六氟磷酸锂（反弹后约）",
+                "价格": "11.35万元/吨",
+                "涨跌": "5月初至今涨幅约15%",
+                "来源": "招商证券，2026-05-31"
+              },
+              {
+                "品类": "磷酸铁锂加工费指数",
+                "价格": "1.84万元/吨",
+                "涨跌": "较4月底涨价超1500元/吨",
+                "来源": "鑫椤锂电，2026-05-29"
+              }
+            ],
+            "供给信号": [
+              {
+                "标题": "6月电池排产环增6%-9%，正极材料环增9%",
+                "正文": "根据鑫椤锂电数据，6月电池总产量预计环增7%，正极材料排产环增9%，头部电池厂提货节奏加快，储能需求持续放量，淡季不淡特征显著。来源：鑫椤锂电/国盛证券，2026-05-31"
+              },
+              {
+                "标题": "高端磷酸铁锂产能偏紧，加工费持续上行",
+                "正文": "2.5g/cm³磷酸铁锂加工费指数已涨至1.84万元/吨，较4月底涨价超1500元/吨，头部企业高端产线满产满销，低端产能闲置率超40%。来源：华泰证券/鑫椤锂电，2026-05-29"
+              }
+            ],
+            "争议风险": [
+              {
+                "标题": "碳酸锂价格出现回调，动力型磷酸铁锂小幅下跌",
+                "正文": "本周末碳酸锂跌至17.75万元/吨，周环比下跌1.45万元/吨，磷酸铁锂小幅跟跌约610元/吨，但鑫椤数据显示动力型铁锂本周仍小幅反弹64元/吨，高位成本支撑仍在。来源：国信证券，2026-05-29"
+              },
+              {
+                "标题": "行业整体产能利用率仅57.8%，结构性过剩压力延续",
+                "正文": "2026年初至5月中旬，磷酸铁锂产量约101万吨，同比增长135%，但产能利用率仅57.8%，超过四成产能闲置，高基数下低端过剩压力仍在。来源：华安证券，2026-05-29"
+              },
+              {
+                "标题": "头部企业大规模扩张加剧未来供给压力",
+                "正文": "德方纳米87亿、天赐材料21亿、万华化学82万吨等大项目密集推进，新增高端产能在Q3-Q4集中释放后，供需格局面临考验。来源：多家券商研报，2026-05-31"
+              }
+            ]
+          },
+          "policy": [
+            {
+              "序号": 1,
+              "标题": "工信部2026年汽车标准化要点：推进固态电池标准体系研究",
+              "摘要": "工信部于5月26日发布2026年汽车标准化工作要点，明确开展车用固态电池标准体系研究，持续提升电动汽车及动力电池安全标准要求，并推进动力电池循环寿命、回收利用、碳足迹等标准的研究工作。这一政策信号显示国家正从安全性、生命周期管理、绿色低碳三个维度规范动力电池行业，对磷酸铁锂材料企业的产品质量、回收体系建设和绿色认证提出更高要求，有利于行业门槛提升和落后产能出清。",
+              "来源": "来源：招商证券，2026-05-31",
+              "日期": "日期：2026-05-31"
+            },
+            {
+              "序号": 2,
+              "标题": "《2026中国新型储能产业发展白皮书》发布：铁锂电池占新型储能91.8%",
+              "摘要": "5月26日，2026国际储能电池大会在湖北宜昌开幕，中国化学与物理电源行业协会储能应用分会发布白皮书。数据显示，截至2025年底全球新型储能累计装机277.7GW/679.6GWh，同比增长68.1%/84.2%；中国新型储能累计装机同比增长86.5%（功率）/111.4%（容量），新增装机同比增长52%/79.3%。磷酸铁锂电池继续主导新型储能市场，2025年新增功率中占91.8%，为磷酸铁锂材料提供强劲的刚性需求支撑。",
+              "来源": "来源：新浪网，2026-05-29",
+              "日期": "日期：2026-05-29"
+            },
+            {
+              "序号": 3,
+              "标题": "国宁新储7GWh储能电芯框采：宁德时代、楚能新能源、中创新航入围",
+              "摘要": "5月26日，国宁新储（福建）科技有限公司2026年第1批储能电芯中标候选人公示。第一候选人为宁德时代，授标容量4000MWh；第二候选人为楚能新能源，授标容量2000MWh；第三候选人为中创新航，授标容量1000MWh，总容量7000MWh。采购要求为方形铝壳磷酸铁锂电池，容量≥314Ah。此次大规模框采进一步验证了储能市场的旺盛需求，磷酸铁锂作为储能主流技术路线持续受益，头部电池企业拿单积极。",
+              "来源": "来源：国盛证券，2026-05-31",
+              "日期": "日期：2026-05-31"
+            }
+          ],
+          "enterprise": [
+            {
+              "序号": 1,
+              "标题": "万华化学磷酸铁锂2026年新增产能82万吨/年，一体化模式降本",
+              "摘要": "万华化学在5月22日业绩说明会上披露，电池材料作为第二主业，产能建设全面提速。海阳一期10万吨/年磷酸铁锂已于2026年3月建成投产；海阳二、三期各20万吨/年产线同步开工；莱州32万吨/年一期项目3月17日开工，预计2026年末全部建成。几大项目建成后，2026年合计新增磷酸铁锂产能82万吨/年。公司通过参股磷矿获取低成本原材料，利用优质风光资源保障低成本电力供应，打造风-光-储-网-产一体化模式。",
+              "来源": "来源：中国经营报，2026-05-29",
+              "日期": "日期：2026-05-29"
+            },
+            {
+              "序号": 2,
+              "标题": "天赐材料拟投资不超过21亿元在台州建设16万吨高压实磷酸铁锂项目",
+              "摘要": "5月26日晚，天赐材料发布公告，同意子公司台州天赐开展年产16万吨高压实磷酸铁锂项目前期工作，包括可行性研究、立项、环评等。该项目预计总投资不超过21亿元，拟采用节能型回转窑烧结工艺，目前公司高压实磷酸铁锂产品已完成中试量产。天赐材料作为电解液龙头向下游正极材料延伸，高压实产品契合动力电池快充和高能量密度需求，扩产标志着公司正式加码高端磷酸铁锂赛道。",
+              "来源": "来源：东吴证券/国金证券，2026-05-31",
+              "日期": "日期：2026-05-31"
+            },
+            {
+              "序号": 3,
+              "标题": "德方纳米拟在云南/贵州两地投资87亿元扩建磷酸盐正极材料产能",
+              "摘要": "5月20日，德方纳米公告拟在云南禄劝投资63亿元建设年产30万吨磷酸盐正极材料及27万吨硝酸配套项目，同时在曲靖投资24亿元建设20万吨/年磷酸盐新材料生产线，两项目建设周期均为24个月。德方纳米作为磷酸铁锂行业技术龙头，率先实现量产并持续迭代高压密产品，此次大规模扩产将进一步巩固其在高端磷酸盐正极材料领域的领先地位，产能规划合计达50万吨，对上游磷源、锂源需求拉动显著。",
+              "来源": "来源：国信证券，2026-05-31",
+              "日期": "日期：2026-05-31"
+            }
+          ],
+          "tech": [
+            {
+              "序号": 1,
+              "标题": "2026年高压密磷酸铁锂市场需求预计169万吨，处于供需紧平衡",
+              "摘要": "行业机构测算，2026年高压密磷酸铁锂全年市场总需求预计达169万吨，行业整体处于供需紧平衡状态，叠加产品具备可观溢价（每吨售价高出普通产品2000-3000元），赛道发展潜力突出。高压密磷酸铁锂依托颗粒级配、表面包覆等工艺，可显著提升电池能量密度、快充能力与循环寿命，是动力电池和储能电池升级的核心材料，目前盟固利、万润新能、湖南裕能、德方纳米、当升科技等多家企业已实现技术突破和量产领先。",
+              "来源": "来源：今日头条，2026-05-29",
+              "日期": "日期：2026-05-29"
+            },
+            {
+              "序号": 2,
+              "标题": "磷酸锰铁锂能量密度提升10%-20%，与现有产线兼容度高",
+              "摘要": "磷酸锰铁锂作为磷酸铁锂的重要升级方向，通过掺杂适当比例的锰元素，可将铁锂电池的充电电压从3.4V提升至4.1V，能量密度提升15%-20%，同时低温性能优于磷酸铁锂，且与现有磷酸铁锂产线兼容度高，企业无需大规模技改即可实现产品升级。业内认为磷酸锰铁锂将成为2026-2027年正极材料的重要增量赛道，吸引多家头部企业布局。",
+              "来源": "来源：中冶有色技术平台，2026-05-29",
+              "日期": "日期：2026-05-29"
+            }
+          ],
+          "project": [
+            {
+              "序号": 1,
+              "标题": "比亚迪储能与新源万生科技签约甘肃4GWh储能系统框架协议",
+              "摘要": "5月21日，甘肃省政协主席率调研团队赴深圳坪山比亚迪参观调研，并见证储能项目合作签约。仪式上，比亚迪储能与新源万生科技签署甘肃4GWh储能系统集采框架协议，并签订甘肃金昌（一期）1GWh储能系统设备采购合同。比亚迪作为全球新能源标杆企业，依托全产业链优势持续拓展储能市场，此次签约进一步验证了西北地区储能大基地建设的加速趋势，对磷酸铁锂电池和储能系统集成商形成直接利好。",
+              "来源": "来源：东吴证券，2026-06-01",
+              "日期": "日期：2026-06-01"
+            },
+            {
+              "序号": 2,
+              "标题": "江苏都桐科技磷酸铁锂回收纯化二期项目签约太仓，达产后年产值12亿元",
+              "摘要": "5月28日，江苏省太仓市璜泾镇与江苏都桐科技有限公司就磷酸铁锂材料纯化二期项目正式签约。项目新增投资近2000万美元（约1.35亿元人民币），计划租赁约2.84万平方米厂房扩大生产规模，预计2026年10月即可投产，全面达产后产能将提升5倍，实现年产磷酸铁锂2万吨、年产值12亿元。都桐科技专注于废旧磷酸铁锂黑粉除杂与重结晶修复技术，一期已落户太仓仅一年多即完成从实验室到产业化落地，此次二期标志着磷酸铁锂回收产业进入规模化扩张阶段。",
+              "来源": "来源：新浪财经，2026-05-31",
+              "日期": "日期：2026-05-31"
+            }
+          ],
+          "tips": {
+            "机会": [
+              {
+                "总结": "排产数据持续验证景气，6月电池和正极材料排产环比分别增长6%-9%和9%，淡季不淡特征显著。需求端国内新能源车单车带电量提升、储能国内高增叠加海外崛起，刚需韧性充足；供给端高端磷酸铁锂产能偏紧，加工费指数已涨至1.84万元/吨，较4月底涨价超1500元/吨。供需格局偏紧支撑下，二季度锂电材料企业业绩有望超预期，头部企业的量价弹性值得重点关注。碳酸锂虽有所回调但仍处17.9万元/吨高位，成本端对磷酸铁锂形成较强底部支撑，短期价格不具备大幅下跌基础。"
+              }
+            ],
+            "风险": [
+              {
+                "总结": "碳酸锂价格于5月29日出现阶段性回调，环比下跌1.45万元/吨，磷酸铁锂小幅跟跌约610元/吨，虽仍处高位但回调节奏可能对磷酸铁锂成本端形成传导，短期价格波动需密切关注。行业产能利用率仅57.8%，超四成产能闲置，德方纳米87亿、天赐材料21亿、万华化学82万吨等大项目密集推进，后续高端产能集中释放可能加剧结构性供给压力，需持续跟踪开工率和加工费走势。"
+              }
+            ],
+            "行动建议": [
+              {
+                "总结": "继续以6月排产数据为高频景气验证指标，密切关注鑫椤/SMM周度加工费指数变化，特别是高压密产品供需边际变化。中期继续看好磷酸铁锂产业链结构性机会，头部企业高端产品供需偏紧格局若延续，Q2-Q3业绩弹性有望逐步兑现。建议重点跟踪万华化学、德方纳米、天赐材料等大项目的环评进展和投产节奏。"
+              }
+            ],
+            "重点关注": [
+              {
+                "总结": "一是6月周度排产数据和加工费变化趋势，是判断景气延续性的高频指标；二是碳酸锂价格走势，若持续回调可能压制磷酸铁锂加工费空间；三是德方纳米、天赐材料、万华化学等头部企业的产能释放节奏，大项目从Q3起将陆续进入设备安装和试产阶段。"
+              }
+            ]
+          }
+        }
+      },
+      "felt": {
+        "name": "法恩莱特事业部",
+        "subtitle": "政策/行业：2026年5月29日至2026年6月1日行业动态",
+        "date": "2026年6月1日（周一）",
+        "sections": {
+          "topnews": [
+            {
+              "序号": 1,
+              "标题": "六氟磷酸锂库存告急，价格强势支撑"
+            },
+            {
+              "序号": 2,
+              "标题": "多氟多12万吨六氟磷酸锂扩产计划曝光"
+            },
+            {
+              "序号": 3,
+              "标题": "工信部推进固态电池及动力电池标准体系"
+            },
+            {
+              "序号": 4,
+              "标题": "头部企业加速六氟磷酸锂一体化布局"
+            }
+          ],
+          "market": {
+            "价格数据表": [
+              {
+                "品类": "六氟磷酸锂（国产）",
+                "价格": "12.00万元/吨",
+                "涨跌": "较月初9.85万元/吨累计上涨约21.8%",
+                "来源": "鑫椤锂电，2026-05-31"
+              },
+              {
+                "品类": "六氟磷酸锂（出口）",
+                "价格": "13.50万元/吨",
+                "涨跌": "周环比持平",
+                "来源": "鑫椤锂电，2026-05-31"
+              },
+              {
+                "品类": "DMC（碳酸二甲酯）",
+                "价格": "4000元/吨",
+                "涨跌": "周环比持平",
+                "来源": "招商证券，2026-05-28"
+              },
+              {
+                "品类": "磷酸铁锂电解液",
+                "价格": "2.76万元/吨",
+                "涨跌": "周环比+1.47%",
+                "来源": "鑫椤锂电，2026-05-31"
+              },
+              {
+                "品类": "储能磷酸铁锂电解液",
+                "价格": "2.35-2.9万元/吨",
+                "涨跌": "周环比小幅上行",
+                "来源": "国金证券，2026-05-31"
+              },
+              {
+                "品类": "动力三元电解液",
+                "价格": "2.7-3.1万元/吨",
+                "涨跌": "周环比持平",
+                "来源": "国金证券，2026-05-31"
+              },
+              {
+                "品类": "碳酸锂",
+                "价格": "175380元/吨",
+                "涨跌": "周环比-3.69%",
+                "来源": "招商证券，2026-05-28"
+              },
+              {
+                "品类": "电池级氟化锂",
+                "价格": "29.5-30.5万元/吨",
+                "涨跌": "区间整理",
+                "来源": "氟务在线，2026-05-29"
+              }
+            ],
+            "供给信号": [
+              {
+                "标题": "行业库存告急",
+                "正文": "六氟磷酸锂行业库存仅约一周，部分龙头企业已处于满产满销、供不应求状态，对价格形成强支撑。来源：证券日报，2026-05-21"
+              },
+              {
+                "标题": "5月产量稳步提升",
+                "正文": "六氟磷酸锂5月产量预计达30550吨，环比增长11%；电解液5月产量预计达263480吨，环比增长6%。来源：紫金天风，2026-05-28"
+              }
+            ],
+            "争议风险": [
+              {
+                "标题": "淡季涨价持续性存疑",
+                "正文": "本轮六氟磷酸锂涨价脱离传统淡旺季规律，部分市场声音认为短期涨幅过快，下游大厂订单签订有所推迟，6月排产节奏将是关键验证节点。来源：氟务在线，2026-05-29"
+              }
+            ]
+          },
+          "policy": [
+            {
+              "序号": 1,
+              "标题": "工信部发布2026年汽车标准化工作要点",
+              "摘要": "工业和信息化部于2026年5月26日发布2026年汽车标准化工作要点，明确开展车用固态电池标准体系研究，持续提升电动汽车及动力电池安全标准要求，并推进动力电池循环寿命、回收利用、碳足迹等标准研究。这一政策信号标志着我国动力电池标准体系正从制造端向全生命周期管理延伸，对规范行业竞争秩序、推动技术迭代升级具有重要指导意义，有利于行业从规模扩张向高质量发展转型。",
+              "来源": "来源：招商证券，2026-05-31",
+              "日期": "日期：2026-05-31"
+            },
+            {
+              "序号": 2,
+              "标题": "《电化学储能电站设计标准》正式实施",
+              "摘要": "自2026年4月起，《电化学储能电站设计标准》（GB/T 51048-2025）正式实施，明确锂电池厂房防火墙耐火极限不低于4小时，单个防火分区容量不超过50MWh，电池包最高运行温度不超过55℃，并强制要求配备液冷系统与气体探测装置。这一强制标准的落地将全面提升储能电站安全门槛，推动上游锂电池及电解液材料品质要求进一步升级，安全型高端产品需求有望持续扩大。",
+              "来源": "来源：知乎，2026-05-22",
+              "日期": "日期：2026-05-22"
+            },
+            {
+              "序号": 3,
+              "标题": "新型储能材料被纳入高新技术企业重点扶持方向",
+              "摘要": "2026年5月政策文件明确将固态电解质材料、钠离子电池正负极材料、液流电池电堆、储能系统热管理及安全监控技术列入国家重点扶持方向。储能系统通过国家级并网测试且循环寿命超过8000次可获最高150万元奖励，在工业园区部署用户侧储能项目额外享受每千瓦时50元容量补贴。该政策将引导更多资本和技术资源向储能材料领域集中，间接带动电解液及六氟磷酸锂等核心材料需求。",
+              "来源": "来源：科泰集团，2026-05-29",
+              "日期": "日期：2026-05-29"
+            }
+          ],
+          "enterprise": [
+            {
+              "序号": 1,
+              "标题": "天赐材料一季度净利润暴增1005%",
+              "摘要": "天赐材料2026年一季度实现净利润16.5亿元，同比暴增1005.75%，核心驱动来自电解液销量大幅增长。2025年公司电解液全年销量超过72万吨，同比增长约44%。公司同时规划在湖北宜昌投资不超过21亿元建设新能源材料产业园，包含年产100万吨铁源及30万吨磷酸铁项目，以强化原材料自主配套能力，抵御原料价格波动风险。",
+              "来源": "来源：北极星，2026-05-28",
+              "日期": "日期：2026-05-28"
+            },
+            {
+              "序号": 2,
+              "标题": "深圳新星1.28万吨六氟磷酸锂项目全部投产",
+              "摘要": "深圳新星首次公开发行募集资金投资项目\"年产1.5万吨六氟磷酸锂建设项目三期\"7000吨生产线于近期投料运行并正式投产，标志着该项目整体全部建设完成。加上前期已投产的5800吨产能，公司六氟磷酸锂已建成年产能合计12800吨，将直接贡献营业收入并进一步完善国内六氟磷酸锂供应链格局。",
+              "来源": "来源：新浪财经，2026-05-28",
+              "日期": "日期：2026-05-28"
+            },
+            {
+              "序号": 3,
+              "标题": "多氟多12万吨六氟磷酸锂改扩建项目浮出水面",
+              "摘要": "多氟多6万吨动力锂电池关键材料项目进入环评二次公示阶段，项目位于焦作经济技术开发区原厂区，总投资12.5亿元，拟改建3.6万吨六氟磷酸锂生产线及配套设施，采用新型反应与结晶工艺，综合生产成本预计降低8%至10%。项目完成后，多氟多六氟磷酸锂设计产能将提升至12万吨以上，进一步巩固其国内第二大六氟磷酸锂供应商地位。",
+              "来源": "来源：北极星输配电网，2026-05-29",
+              "日期": "日期：2026-05-29"
+            },
+            {
+              "序号": 4,
+              "标题": "宏源药业4万吨六氟磷酸锂项目完成备案",
+              "摘要": "湖北省宏源氟化工有限责任公司年产4万吨六氟磷酸锂项目于2026年5月27日在政务服务平台完成备案申报，项目位于黄冈市武穴市，总投资12亿元，拟于2026年8月开工建设。同时，公司现有六氟磷酸锂产能1万吨/年，技改完成后将提升至1.8万吨/年，加上武穴宏源锂电一体化项目4万吨/年规划，全部建成后总产能将达6万吨/年，跻身行业前列。",
+              "来源": "来源：氟务在线，2026-05-28",
+              "日期": "日期：2026-05-28"
+            },
+            {
+              "序号": 5,
+              "标题": "永太科技5万吨六氟磷酸锂技改扩建项目环评公示",
+              "摘要": "邵武永太高新材料有限公司年产5万吨六氟磷酸锂技改扩建项目环境影响评价第一次信息公示，项目拟利用原有六氟磷酸锂车间进行技术更新及改扩建，新增3.26万吨/年生产装置，形成年产5万吨六氟磷酸锂生产线，总投资约5.5亿元，建设周期为2026年3月至2027年12月。永太科技此前已拥有1.8万吨/年产能，此次技改完成后产能规模将显著扩大。",
+              "来源": "来源：北极星输配电网，2026-05-29",
+              "日期": "日期：2026-05-29"
+            }
+          ],
+          "tech": [
+            {
+              "序号": 1,
+              "标题": "天赐材料磷酸铁锂技术通过省级鉴定",
+              "摘要": "天赐材料在高压实磷酸铁锂领域的技术成果已通过湖北省科学技术厅技术鉴定，鉴定结论为\"项目成果达到国际先进水平\"。该技术有助于提升磷酸铁锂正极材料的能量密度和循环寿命，对公司在正极材料赛道的市场竞争力形成技术背书，也体现出头部企业在锂电材料一体化布局中持续深耕工艺创新的趋势。",
+              "来源": "来源：申万宏源，2026-05-28",
+              "日期": "日期：2026-05-28"
+            }
+          ],
+          "project": [
+            {
+              "序号": 1,
+              "标题": "昆仑新材山东15万吨电解液扩建项目公示",
+              "摘要": "昆仑新材山东济宁基地15万吨/年电解液扩建项目进入公示阶段，计划2026年底投产。届时公司在国内的浙江湖州、四川宜宾、山东济宁三大基地合计年产能将达43万吨（湖州+宜宾18万吨+济宁15万吨+匈牙利3.66万吨），进一步扩大在电解液市场的份额。公司2025年还收购了山东立中新能源材料有限公司51%股权，向上游延伸布局六氟磷酸锂产能，计划实现自供比例约50%。",
+              "来源": "来源：起点钠电，2026-05-29",
+              "日期": "日期：2026-05-29"
+            },
+            {
+              "序号": 2,
+              "标题": "海四达钠星2GWh大圆柱钠电池项目环评获批",
+              "摘要": "海四达钠星年产6GWh钠离子电池内江生产基地项目（一期）通过环境影响评价审批，一期投资3亿元、产能2GWh，建设46145系列大圆柱聚阴离子（NFPP）钠电池产线，产品面向汽车启停与大工业储能领域。公司钠电出货量已居全球第二、行业第一梯队，获得海外客户1GWh及南网科技30MWh的聚阴离子体系钠电订单。尽管钠电池不直接使用六氟磷酸锂，但其在储能领域的快速渗透将持续分流部分锂电池需求。",
+              "来源": "来源：西部证券，2026-05-31",
+              "日期": "日期：2026-05-31"
+            }
+          ],
+          "tips": {
+            "机会": [
+              {
+                "总结": "六氟磷酸锂供需格局持续收紧为电解液企业带来盈利修复窗口。行业经历2024至2025年深度出清后，中小落后产能已基本淘汰，当前库存天数仅约一周，处于历史极低水平，而下游储能630并网节点临近叠加动力电池排产稳步提升，六氟磷酸锂刚需持续放量。尽管本周价格以平稳为主，但5月以来累计涨幅已超过20%，价格底部已然抬升。对于具备六氟磷酸锂自供能力的电解液企业而言，原料成本上涨对其盈利的侵蚀相对有限，业绩弹性有望在二季度集中体现，建议关注具备产能规模优势的上游一体化标的。"
+              }
+            ],
+            "风险": [
+              {
+                "总结": "需警惕本轮涨价持续性不及预期的风险。本轮六氟磷酸锂上涨发生在传统淡季期间，下游大厂订单签订有所推迟，碳酸锂价格已出现回调（周环比-3.69%），氟化氢价格也在走弱，成本端支撑力度边际减弱。同时，多家龙头企业扩产项目正加速推进，永太科技、宏源药业、多氟多等合计新增规划产能超过20万吨，2026年下半年起将陆续投产，或对中长期价格中枢形成压制。此外，钠离子电池在储能领域的快速渗透虽暂不影响六氟磷酸锂短期需求，但需持续关注其对锂电池市场份额的长期分流影响。"
+              }
+            ],
+            "行动建议": [
+              {
+                "总结": "建议电解液企业当前以保障原料库存安全为主，在六氟磷酸锂价格仍处于相对低位区间时适度增加采购备货，锁定成本；同时密切跟踪6月下游排产数据，若储能抢装节奏加速或动力电池需求超预期，六氟磷酸锂价格有望重启新一轮上涨。长期来看，应持续加强与上游氟化工企业的一体化合作，布局双氟磺酰亚胺锂（LiFSI）等新型锂盐以应对技术迭代风险，并关注固态电池标准体系推进对现有液态电解液体系的潜在影响。"
+              }
+            ],
+            "重点关注": [
+              {
+                "总结": "本周重点关注三个方面：一是六氟磷酸锂价格走势，5月28日至6月初是6月订单签订密集期，价格方向信号将在此窗口期明确；二是6月头部锂电企业排产数据，西部证券数据显示6月排产预计再创新高，储能将超越动力成为第一大需求来源，若排产数据超预期将进一步确认景气拐点；三是关注永太科技、宏源药业、昆仑新材等新扩产项目的环评和建设进展，以及多氟多12万吨改扩建项目的环评批复结果。"
+              }
+            ]
+          }
+        }
+      },
+      "sjld": {
+        "name": "三金锂电事业部",
+        "subtitle": "政策/行业：2026年5月29日至6月1日行业动态",
+        "date": "2026年6月1日（周一）",
+        "sections": {
+          "topnews": [
+            {
+              "序号": 1,
+              "标题": "三元材料本周均价续跌，产业链观望情绪浓厚"
+            },
+            {
+              "序号": 2,
+              "标题": "当升科技Q1净利同比翻倍，欧洲产能布局提速"
+            },
+            {
+              "序号": 3,
+              "标题": "华友钴业三元正极出货突破10万吨，高镍份额领跑"
+            },
+            {
+              "序号": 4,
+              "标题": "工信部等联合部署167项锂电池产业国标项目"
+            }
+          ],
+          "market": {
+            "价格数据表": [
+              {
+                "品类": "三元材料NCM523型",
+                "价格": "15.3-16.2万元/吨",
+                "涨跌": "周环比-6000元/吨",
+                "来源": "SMM，2026-05-29"
+              },
+              {
+                "品类": "三元材料NCM622型",
+                "价格": "16.8-17.4万元/吨",
+                "涨跌": "周环比-6000元/吨",
+                "来源": "SMM，2026-05-29"
+              },
+              {
+                "品类": "三元材料NCM811型",
+                "价格": "19.2-19.9万元/吨",
+                "涨跌": "周环比-6000元/吨",
+                "来源": "SMM，2026-05-29"
+              },
+              {
+                "品类": "电池级碳酸锂",
+                "价格": "17.55万元/吨",
+                "涨跌": "较上周-3000元/吨",
+                "来源": "光大期货，2026-05-29"
+              },
+              {
+                "品类": "电池级硫酸钴",
+                "价格": "9.3-9.6万元/吨",
+                "涨跌": "均价较上周持平",
+                "来源": "SMM，2026-05-29"
+              },
+              {
+                "品类": "电池级硫酸镍",
+                "价格": "3.4-3.45万元/吨",
+                "涨跌": "均价较上周-800元/吨",
+                "来源": "SMM，2026-05-29"
+              }
+            ],
+            "供给信号": [
+              {
+                "标题": "5月三元材料排产小幅回升",
+                "正文": "据SMM统计，6月三元材料排产预计8.89万吨，环比5月基本持平，需求端增量有限，整体仍处去库阶段。"
+              },
+              {
+                "标题": "碳酸锂进口维持高增",
+                "正文": "4月中国进口碳酸锂32650吨，环比增9%，同比增15%；智利出口中国碳酸锂22956吨，环比增21%，海外供给持续补充。"
+              }
+            ],
+            "争议风险": [
+              {
+                "标题": "成本支撑与需求走弱博弈持续",
+                "正文": "印尼镍矿基准价新规（修正系数上调至30%）推升硫酸镍成本，但下游电池厂采购意愿低迷，成本传导受阻，三元材料陷入上下两难局面。"
+              }
+            ]
+          },
+          "policy": [
+            {
+              "序号": 1,
+              "标题": "力勤资源科创板IPO获受理，锂电材料产能布局加码",
+              "摘要": "宁波力勤资源科技股份有限公司科创板IPO申请于2026年5月获受理。公司同步推进锂电池产业发展战略、规划、政策和标准实施，加强锂电产业标准工作系统谋划。《锂离子电池行业规范条件（2024年本）》明确，使用三元材料的能量型单体电池能量密度需≥230Wh/kg，引导企业减少单纯扩大产能的制造项目，加强技术创新、提高产品质量、降低生产成本。",
+              "来源": "来源：东方财富，2026-05-29",
+              "日期": "日期：2026-05-29"
+            },
+            {
+              "序号": 2,
+              "标题": "市场监管总局：累计发布57项\"新三样\"产业国标，部署167项锂电池国家标准项目",
+              "摘要": "市场监管总局召开专题新闻发布会透露，我国已累计发布新能源汽车、锂电池和光伏产业（\"新三样\"）相关国家标准57项，其中锂电池领域发布编码规则等2项国家标准。2025年制定印发的《新能源汽车、锂电池和光伏产业标准提升行动方案》部署了167项国家标准项目，其中锂电池领域新制定国家标准30项，聚焦产品安全、分级分类、质量管理、绿色低碳等方向，兜牢安全生产底线，助力产业升级和国际化发展。",
+              "来源": "来源：国务院/中国证券报，2026-01-10",
+              "日期": "日期：2026-01-10"
+            },
+            {
+              "序号": 3,
+              "标题": "2026年地方锂电政策密集落地，产业链集群化发展提速",
+              "摘要": "山东枣庄出台《新能源电池产业发展规划（2024—2030）》《锂电产业发展促进条例》等政策文件，明确推动锂电正极材料产业链集群化布局。与此同时，工信部等四部门联合发布《国家锂电池产业标准体系建设指南（2024版）》，以巩固锂电池产业优势地位为目标，强化全产业链标准工作协同，系统推进锂电池标准的研究、制定、实施和国际化，为引领锂电池产业高质量发展提供坚实技术支撑。",
+              "来源": "来源：经济日报，2025-10-22",
+              "日期": "日期：2025-10-22"
+            }
+          ],
+          "enterprise": [
+            {
+              "序号": 1,
+              "标题": "当升科技Q1净利润同比增长150%，产品矩阵持续完善",
+              "摘要": "当升科技2026年一季度实现营收45.26亿元，同比增长137.19%；归母净利润2.77亿元，同比增长150.25%，业绩超预期。公司已形成多元材料、磷酸（锰）铁锂、钴酸锂、固态锂电关键材料、富锂锰基、钠电正极材料的完整产品矩阵，2025年锂电材料销量达14.89万吨，同比增长47.84%。产能端，攀枝花首期12万吨磷酸（锰）铁锂主体产线已投产，云南昆明15万吨/年磷酸铁锂及20万吨/年高性能磷酸铁前驱体项目加速推进，欧洲芬兰基地一期6万吨高镍多元材料项目于2025年上半年开工建设，预计2026年下半年部分产线建成投产。",
+              "来源": "来源：华创证券，2026-05-22",
+              "日期": "日期：2026-05-22"
+            },
+            {
+              "序号": 2,
+              "标题": "华友钴业2025年三元正极出货破10万吨，高镍产品市占率领跑",
+              "摘要": "华友钴业2025年三元正极材料出货量突破10万吨，同比增长108%，其中9系超高镍产品市占率超33%，高端动力圆柱三元材料市占率超60%，位居行业领先地位。公司提前锁定21.58万吨正极材料、15.56万吨前驱体供应长单，并持续深化与LGES、亿纬锂能等头部客户合作。欧洲市场布局方面，匈牙利正极材料一期2.5万吨项目完成建设并进入产线调试阶段，与LGES、EVE签订长单合同，助力深度嵌入欧洲电动汽车产业链。一体化方面，华越、华飞两大湿法项目持续建成，Arcadia锂矿品位提升至1.34%，年产5万吨硫酸锂项目于2026年一季度建成试产。",
+              "来源": "来源：中信建投/平安证券，2026-05-25",
+              "日期": "日期：2026-05-25"
+            },
+            {
+              "序号": 3,
+              "标题": "金川瑞翔位居2025年中国三元材料企业竞争格局榜首",
+              "摘要": "研究机构EVTank、伊维经济研究院联合发布《中国锂离子电池正极材料行业发展白皮书（2026年）》显示，按出货量计算，金川瑞翔全资子公司南通瑞翔新材料科技有限公司位居2025年中国三元材料企业竞争格局榜首。金川瑞翔完成股改揭牌，其全资子公司金麟锂电兰州基地一期10万吨磷酸铁锂生产线成功投产运行，产品能量密度超165Wh/kg、循环寿命达3000次，已成功斩获头部客户批量订单，进一步强化金川集团垂直一体化产业链核心竞争力。",
+              "来源": "来源：旺材钴锂镍，2026-02-03",
+              "日期": "日期：2026-02-03"
+            }
+          ],
+          "tech": [
+            {
+              "序号": 1,
+              "标题": "容百科技超高镍产品进入主流终端车型供应链认证阶段",
+              "摘要": "容百科技新一代高镍产品已进入主流终端车型供应链认证阶段，超高镍领域产品性能再度进阶，可满足350Wh/kg以上能量密度电芯需求，全面适配高端长续航车型。公司还完成了多款中镍、高镍、超高镍正极材料新产品研发，成功开发多款适用于半/全固态电池的中镍高压/（超）高镍三元正极材料。在钠电正极材料领域，公司布局聚阴离子、层状氧化物及普鲁士类三大技术路线，2025年已在仙桃建成6000吨钠电池中试线，2026年拟通过改造及并购形成5万吨钠电产能。",
+              "来源": "来源：招商证券，2026-05-27",
+              "日期": "日期：2026-05-27"
+            },
+            {
+              "序号": 2,
+              "标题": "盟固利超高镍三元材料累计实现吨级供货",
+              "摘要": "盟固利新型超高镍三元材料采用多段烧结、短程化、富钴包覆的干洗等技术，具备高容量、高压实、低内阻和长循环等特点，产品在头部客户处验证顺利，累计已实现吨级供货，单晶综合性能处于第一梯队。厦钨新能超高镍三元材料已通过多家电池企业测试，现进入国际车企体系认证阶段。格林美也表示，其固态电池用高镍三元正极材料与富锂锰基正极材料均有吨级以上产品出货。",
+              "来源": "来源：思瀚产业研究院，2026-04-10",
+              "日期": "日期：2026-04-10"
+            }
+          ],
+          "project": [
+            {
+              "序号": 1,
+              "标题": "波兰三元正极材料项目建设加速，预计2026年下半年建成",
+              "摘要": "公司欧洲波兰项目建设加速推进，项目规划年产2.5万吨三元正极材料，并同步规划建设欧洲首条磷酸铁锂产线，以丰富欧洲市场的本土化供应能力，预计2026年下半年完成建设。目前依托欧洲波兰项目，公司已与多家欧洲电池客户持续推进合作谅解备忘录的签署，国际化客户矩阵已具规模。欧洲匈牙利正极材料一期2.5万吨项目完成建设并进入产线调试阶段。",
+              "来源": "来源：思瀚产业研究院，2026-05-27",
+              "日期": "日期：2026-05-27"
+            },
+            {
+              "序号": 2,
+              "标题": "当升科技攀枝花磷酸铁锂项目投产，云南项目同步推进",
+              "摘要": "当升科技攀枝花首期12万吨磷酸（锰）铁锂主体产线已投产，云南昆明15万吨/年磷酸铁锂及20万吨/年高性能磷酸铁前驱体项目建设同步推进。公司欧洲芬兰基地一期6万吨高镍多元材料项目已于2025年上半年开工建设，预计2026年下半年部分产线建成投产，将进一步满足欧洲大客户本土化供应及产能配套需求，海外基地建设持续推进。",
+              "来源": "来源：华创证券，2026-05-22",
+              "日期": "日期：2026-05-22"
+            },
+            {
+              "序号": 3,
+              "标题": "华友钴业长单锁定超50万吨正极及前驱体供货量",
+              "摘要": "华友钴业与国际知名客户签署7.96万吨三元前驱体供应备忘录，与亿纬锂能签订12.78万吨超高镍正极材料供应合同，与LGES签署7.6万吨前驱体加8.8万吨正极材料订单，合计锁定超过50万吨正极及前驱体供应长单。此外，公司与北京卫蓝、浙江金羽签署战略协议，推进固态及半固态电池领域合作；在低空经济领域，进入浙江金羽、中创新航、小鹏汇天、道通等企业供应链。",
+              "来源": "来源：中信建投/国信证券，2026-05-25",
+              "日期": "日期：2026-05-25"
+            }
+          ],
+          "tips": {
+            "机会": [
+              {
+                "总结": "三元材料头部企业凭借高镍化、高压实技术持续巩固竞争壁垒，华友钴业三元正极出货同比翻倍、9系超高镍市占率超33%，欧洲匈牙利和波兰产能建设同步提速，本土化供应链优势逐步形成，长单锁定超50万吨供货量，出口市场订单可见度较高。建议关注已实现欧洲本土产能布局的龙头企业，其在欧美车企供应链中的先发优势有望转化为市场份额的持续提升。"
+              }
+            ],
+            "风险": [
+              {
+                "总结": "本周三元材料价格全线下跌约6000元/吨，碳酸锂现货回落至17.55万元/吨，印尼镍矿基准价新规推升硫酸镍成本压力，但下游电池厂采购意愿低迷、成本传导受阻，三元材料产业链陷入\"成本推涨、需求疲软\"的夹击局面。5月三元排产环比仅小幅增长2%，储能等领域对成本高度敏感，高价接受度有限，短期价格支撑力度不足，需警惕中镍三元产品利润持续承压的风险。"
+              }
+            ],
+            "行动建议": [
+              {
+                "总结": "当前三元材料市场呈现\"高镍强、中镍弱\"的分化格局，超高镍产品受益于大圆柱电池和固态电池产业化进程，市占率和利润水平显著优于中镍产品。建议紧盯印尼镍矿政策变化及硫酸镍成本动态，在成本支撑与需求走弱之间把握波段操作节奏；同时，欧洲本土化产能建设是2026年最重要的产业主线，已完成匈牙利、波兰、芬兰项目布局的企业将优先受益于欧美市场的本土化供应需求。"
+              }
+            ],
+            "重点关注": [
+              {
+                "总结": "2026年6月需重点关注三个方面：一是印尼镍矿基准价新规对硫酸镍成本的实质影响，以及成本能否顺畅传导至三元材料价格；二是欧洲匈牙利、波兰等项目调试进展及欧洲车企本土化采购政策的推进节奏；三是固态电池产业化进程加快，高镍三元正极材料作为主流方向，吨级出货企业的订单释放节奏值得持续跟踪。"
+              }
+            ]
+          }
+        }
+      },
+      "sdmd": {
+        "name": "山东美多事业部",
+        "subtitle": "政策/行业：2026年5月29日至6月1日行业动态",
+        "date": "2026年6月1日（周一）",
+        "sections": {
+          "topnews": [
+            {
+              "序号": 1,
+              "标题": "工信部专班二次会议部署回收监管执法"
+            },
+            {
+              "序号": 2,
+              "标题": "六部委废旧动力电池暂行办法正式实施"
+            },
+            {
+              "序号": 3,
+              "标题": "龙凯科技10亿元退役锂电项目6月试产"
+            },
+            {
+              "序号": 4,
+              "标题": "碳酸锂现货跌至17.8万/吨，回落明显"
+            }
+          ],
+          "market": {
+            "价格数据表": [
+              {
+                "品类": "电池级碳酸锂",
+                "价格": "17.75-17.8万元/吨",
+                "涨跌": "高位回落",
+                "来源": "上海有色网，2026-05-29"
+              },
+              {
+                "品类": "碳酸锂期货主力LC2609",
+                "价格": "179,740元/吨",
+                "涨跌": "周跌幅0.86%",
+                "来源": "国海证券周报，2026-05-31"
+              },
+              {
+                "品类": "氢氧化锂",
+                "价格": "163,500元/吨",
+                "涨跌": "周跌幅1.51%",
+                "来源": "同花顺，2026-05-29"
+              },
+              {
+                "品类": "电解钴",
+                "价格": "42.4-42.5万元/吨",
+                "涨跌": "周跌幅0.70%",
+                "来源": "国金证券，2026-05-31"
+              },
+              {
+                "品类": "镍",
+                "价格": "14.42万元/吨",
+                "涨跌": "周跌幅0.35%",
+                "来源": "国金证券，2026-05-29"
+              },
+              {
+                "品类": "废旧磷酸铁锂铝壳",
+                "价格": "17,500-19,000元/吨",
+                "涨跌": "+200元/吨",
+                "来源": "上海有色网，2026-05-29"
+              },
+              {
+                "品类": "废旧三元铝壳523",
+                "价格": "42,000-43,700元/吨",
+                "涨跌": "持稳",
+                "来源": "锂电在线，2026-05-29"
+              },
+              {
+                "品类": "废旧三元聚合物523",
+                "价格": "43,000-45,000元/吨",
+                "涨跌": "持稳",
+                "来源": "锂电在线，2026-05-29"
+              }
+            ],
+            "供给信号": [
+              {
+                "标题": "五月废旧电芯先扬后抑冲高回落",
+                "正文": "碳酸锂5月上旬冲高至21万元/吨后大幅回调，月末电碳现货跌至17.8万元/吨，废旧三元、铁锂、钴酸锂全线冲高回落，月内波动超3万元/吨。（来源：华金期货月报，2026-05-31）"
+              }
+            ],
+            "争议风险": []
+          },
+          "policy": [
+            {
+              "序号": 1,
+              "标题": "工信部召开专班第二次会议，部署回收监管执法",
+              "摘要": "工信部5月28日召开全国新能源汽车动力电池回收利用专班第二次会议，要求坚持用法治化手段规范回收，依法依规查处违规交售废旧动力电池、使用废旧动力电池生产不合格产品、不履行信息溯源责任、非法拆解污染环境等行为。据测算，2030年当年废旧动力电池产生量将超过100万吨，加快健全回收利用体系时间紧迫。会议部署深入开展联合执法专项行动，推动数字化流向监测，加快先进技术装备研发应用，探索建立新型商业模式。",
+              "来源": "来源：新华社，2026-05-29",
+              "日期": "日期：2026-05-29"
+            },
+            {
+              "序号": 2,
+              "标题": "六部委废旧动力电池回收暂行办法正式生效",
+              "摘要": "由工信部、国家发改委、生态环境部等六部委联合发布的《新能源汽车废旧动力电池回收和综合利用管理暂行办法》4月1日起正式生效。县级以上地方政府工信、发改、生态环境、交通运输、商务、市场监管等部门按职责分工负责监管。工信部会同国务院有关部门建立全国新能源汽车动力电池溯源信息平台，推进动力电池生产、销售、维修、更换、拆解、回收、综合利用等全生命周期流向监控和信息化追溯。国家建立完善废旧动力电池综合利用标准体系，支持新技术、新工艺和新设备的示范推广。",
+              "来源": "来源：中国政府网，2026-05-31",
+              "日期": "日期：2026-05-31"
+            },
+            {
+              "序号": 3,
+              "标题": "强监管冲击梯次利用链，电动自行车换电市场缺货",
+              "摘要": "《暂行办法》明确禁止将废旧动力电池直接或者加工后用于电动自行车。东莞等地区电动车改装门店出现缺货，多家换电柜企业此前已将大量梯次利用电池暂停使用，部分企业从2025年下半年起主动调整供应链。目前梯次利用电池主要流向电动自行车、工商业储能、叉车及备用电源行业，无法重复利用的则破碎分选为黑粉进入化工厂。行业小作坊式回收乱象长期存在，规范回收率不足25%，近半市场被无资质小作坊占据，新规实施后其生存空间将被大幅压缩。",
+              "来源": "来源：经济观察网，2026-05-29",
+              "日期": "日期：2026-05-29"
+            },
+            {
+              "序号": 4,
+              "标题": "22项国家标准覆盖回收全链条，白名单制度重塑行业格局",
+              "摘要": "中国已发布22项动力电池回收利用国家标准，覆盖从拆解规范、余能检测到再生利用全链条各环节。《动力电池综合利用管理办法》明确了回收企业补贴标准每吨1000至1500元，并要求整车厂绑定持证回收企业。建立白名单制度，非合规企业不得拿补贴、进入采购名单。宁德时代旗下邦普循环处理产能达27万吨，锂回收率93.8%，镍钴锰回收率99.6%，主导或参与超过80%的锂电池回收标准制定，2025年产值首次突破百亿达108亿元。",
+              "来源": "来源：中投顾问，2026-05-28",
+              "日期": "日期：2026-05-28"
+            }
+          ],
+          "enterprise": [
+            {
+              "序号": 1,
+              "标题": "龙凯科技退役锂电项目一期预计6月试产，总投资10亿元",
+              "摘要": "江西龙凯循环科技有限公司（龙凯科技）退役锂电池综合回收及梯次再生循环利用项目一期7栋钢结构厂房主体即将完工，预计2026年6月实现试产。项目占地约252亩，总投资10亿元，分两期建设。通过自主研发全流程工艺，可直接将退役电池中的锂回收转化为电池级碳酸锂，纯度达99.6%以上，综合回收率超95%。满产后可年处理12万吨退役锂电池，年产2万吨电池级碳酸锂及钴盐、镍盐等产品。投产后将立即启动二期建设，力争3年内完成全部规划布局。",
+              "来源": "来源：SMM锂电回收，2026-05-28",
+              "日期": "日期：2026-05-28"
+            },
+            {
+              "序号": 2,
+              "标题": "杰瑞新能源签约阿联酋，共建阿布扎比锂电池回收标杆项目",
+              "摘要": "杰瑞新能源（杰瑞股份子公司）已与阿联酋Witthal Gulf签约，共建阿布扎比锂电池回收标杆项目，标志着中国电池回收技术向中东市场拓展。杰瑞新能源国内已落子郑州、重庆、广州、酒泉四大基地，计划2027年建成覆盖全国的六大区域中心，区域化布局辐射500公里就近回收处置，构建全国性回收网络体系。",
+              "来源": "来源：大众网，2026-05-21",
+              "日期": "日期：2026-05-21"
+            },
+            {
+              "序号": 3,
+              "标题": "格林美2025年回收量超8万吨，宁德时代邦普产值首破百亿",
+              "摘要": "邦普循环（宁德时代旗下）2025年宜昌基地产值达108亿元，首次突破百亿大关；邦普时代45万吨/年新一代磷酸铁锂项目实现当年签约、当年开工、当年投产；DRT定向循环技术2025年处理废旧电池超12万吨，再生锂盐1.71万吨。格林美2025年动力电池拆解量达52,576吨，同比增长46%；2026年Q1达15,076吨，同比增长40%；全年回收量超8万吨，约占全国近四分之一，镍钴锰回收率超99%，锂回收率超95%，2026年产能超30万吨。",
+              "来源": "来源：中投顾问，2026-05-28",
+              "日期": "日期：2026-05-28"
+            },
+            {
+              "序号": 4,
+              "标题": "多家企业废旧锂电回收项目密集推进环评",
+              "摘要": "5月废旧锂电池回收领域环评密集推进：河北弗斯特新能源汽车动力电池材料加工和电池梯级利用项目（重新报批）环评报告书拟批准；河南博绿资源年处理废电池4万吨、占地42亩新建项目环评第一次公示；湖南中邦废旧动力电池回收及资源化利用项目（一期）环评受理；四川赣锋锂业退役锂电池智能拆解及全组份清洁高效回收综合利用改扩建新增10万吨磷酸二氢锂项目环评审批公示；宁夏聚锂升年处理12000吨废旧动力蓄电池回收拆解项目环评受理；贵州赛锂废旧锂电池绿色循环与高价值利用产业基地项目环评首次公示。",
+              "来源": "来源：得算多咨询，2026-05-29",
+              "日期": "日期：2026-05-29"
+            }
+          ],
+          "tech": [],
+          "project": [
+            {
+              "序号": 1,
+              "标题": "腾州欣旺达再生资源废旧锂电回收项目一期全面投产",
+              "摘要": "腾州欣旺达再生资源有限公司废旧锂电池回收综合利用项目一期工程已于2026年全面投产，正式进入生产阶段。一期占地200亩，作为区域内首个且规模最大的锂电池综合利用示范工程，填补了新能源产业链后端关键空白。",
+              "来源": "来源：国泰君安期货，2026-05-27",
+              "日期": "日期：2026-05-27"
+            },
+            {
+              "序号": 2,
+              "标题": "万华化学磷酸铁锂累计新增82万吨，2026年末将达百万吨级",
+              "摘要": "万华化学2026年5月22日业绩说明会披露，预计2026年全年新增磷酸铁锂投产产能82万吨。山东海阳一期10万吨/年已投产，二三期各20万吨预计2026年末建成；莱州32万吨一期3月开工、年末投产。整体LFP产能有望2026年突破百万吨级，显著增强磷酸铁锂材料自供能力。",
+              "来源": "来源：锂电焦点，2026-05-27",
+              "日期": "日期：2026-05-27"
+            },
+            {
+              "序号": 3,
+              "标题": "扬州经开区签约电池回收与铜材精深加华东基地，达产60亿元",
+              "摘要": "扬州经开区与江西金叶恩熙新材料有限公司签约华东基地项目，聚焦电池回收与高端铜材精深加工。项目分两期建设，达产后预计年销售额60亿元。金叶集团年营收超300亿元，为大型综合性循环经济企业，此次签约有助于华东地区形成电池回收与有色金属深加工联动格局。",
+              "来源": "来源：扬州日报，2026-04-21",
+              "日期": "日期：2026-04-21"
+            },
+            {
+              "序号": 4,
+              "标题": "赣锋锂业\"2+8\"项目全面投产，废旧磷酸铁锂电池全组份高效回收",
+              "摘要": "赣锋锂业在全国8个城市建立规范化回收站点，\"2+8\"项目全面投产，实现废旧磷酸锂电池全组份高效回收，综合利用率处行业领先水平。公司同时推进四川赣锋锂业退役锂电池智能拆解及全组份清洁高效回收综合利用改扩建，新增10万吨磷酸铁二氢锂产能，环评正在审批中。",
+              "来源": "来源：中投顾问，2026-05-28",
+              "日期": "日期：2026-05-28"
+            }
+          ],
+          "tips": {
+            "机会": [
+              {
+                "总结": "碳酸锂价格从5月高点21万元/吨回落至17.8万元/吨，跌幅超15%，废料采购成本压力有所缓解，但金属价格仍处高位。废旧磷酸铁锂铝壳最新报价17,500-19,000元/吨，锂回收经济性仍在。建议山东美多关注废三元电池回收渠道建设，在监管收紧导致小作坊退出的窗口期，提前绑定合规回收网络，抢占正规货源流向。废旧磷酸铁锂粉（Li>3.8%）参考价31,600元/吨，黑粉原料采购值得关注。"
+              }
+            ],
+            "风险": [
+              {
+                "总结": "工信部联合执法专项行动已启动，六部委《暂行办法》全面生效，废旧动力电池严禁流入电动自行车领域，梯次利用产业链短期承压。规范回收率不足25%的市场现状将快速改善，无资质小作坊面临清退，部分换电柜企业已暂停梯次电池使用。山东美多下游客户若涉及梯次利用，需评估其资质合规性，防范供应链合规风险。同时碳酸锂价格月内波动超3万元/吨，价格下行风险仍存。"
+              }
+            ],
+            "行动建议": [
+              {
+                "总结": "第一，立即梳理现有废旧电池供应商资质，优先与已纳入白名单或具备综合利用资质的企业签订长期协议，确保货源合规稳定。第二，密切关注地方生态环境部门联合执法动态，提前排查采购渠道和库存，建立来源可追溯台账。第三，碳酸锂阶段性回落提供了阶段性建库窗口，但需设置价格红线，避免在高位大量囤货。第四，下游若涉及梯次利用产品，建议主动调整供应链，对接合规梯次利用资质企业，避免政策冲击。"
+              }
+            ],
+            "重点关注": [
+              {
+                "总结": "6月碳酸锂走势：工信部联合执法对回收渠道的实际影响，以及江西龙凯6月试产后对废旧锂电回收市场的供给补充情况。同时关注四川赣锋10万吨改扩建项目环评审批进展，若顺利落地将进一步改变西南地区废旧锂电回收竞争格局。"
+              }
+            ]
+          }
+        }
+      },
+      "lpsd": {
+        "name": "时代事业部",
+        "subtitle": "政策/行业：2026年5月29日至2026年6月1日行业动态",
+        "date": "2026年6月1日（周一）",
+        "sections": {
+          "topnews": [
+            {
+              "序号": 1,
+              "标题": "碳酸锂5月中旬冲高21万元后回落至17万元附近"
+            },
+            {
+              "序号": 2,
+              "标题": "津巴布韦将锂列为关键矿产并拟推出口管制"
+            },
+            {
+              "序号": 3,
+              "标题": "《矿产资源法实施条例》通过提高锂矿准入门槛"
+            },
+            {
+              "序号": 4,
+              "标题": "四川天宜锂业启动2.65万吨碳酸锂技改环评"
+            }
+          ],
+          "market": {
+            "价格数据表": [
+              {
+                "品类": "电池级碳酸锂（99.5%）",
+                "价格": "17.55-18.33万元/吨",
+                "涨跌": "周跌约2.59%",
+                "来源": "SMM，2026-05-28"
+              },
+              {
+                "品类": "工业级碳酸锂（99.2%）",
+                "价格": "16.25-17.00万元/吨",
+                "涨跌": "周跌约3.16%",
+                "来源": "SMM，2026-05-28"
+              },
+              {
+                "品类": "电池级氢氧化锂",
+                "价格": "16.25-17.00万元/吨",
+                "涨跌": "周跌约3.16%",
+                "来源": "SMM，2026-05-28"
+              },
+              {
+                "品类": "非洲锂辉石（SC5%）CIF",
+                "价格": "2090美元/吨",
+                "涨跌": "周跌约200美元/吨",
+                "来源": "东方证券，2026-05-31"
+              },
+              {
+                "品类": "澳洲锂辉石（6%）CIF",
+                "价格": "2560美元/吨",
+                "涨跌": "周跌约200美元/吨",
+                "来源": "天风证券，2026-05-31"
+              },
+              {
+                "品类": "进口锂辉石原矿",
+                "价格": "2032元/吨度",
+                "涨跌": "较前周下跌",
+                "来源": "天风证券，2026-05-31"
+              }
+            ],
+            "供给信号": [
+              {
+                "标题": "津巴布韦将锂列为关键矿产",
+                "正文": "津巴布韦宣布将锂、镍、钴、石墨等列为关键矿产，拟对关键矿产企业实施国家强制持股及出口管制，短期对存量矿山影响有限，但中长期可能抬高海外锂矿开发门槛，扰动新增供给释放节奏。来源：东方证券，2026-05-31"
+              },
+              {
+                "标题": "澳洲Bald Hill锂矿宣布重启",
+                "正文": "澳洲矿企Mineral Resources宣布，因锂价持续回升，重启Bald Hill锂矿，该矿于2024年11月进入保养维护，为全球锂矿供给边际增量。来源：海证期货，2026-05-25"
+              }
+            ],
+            "争议风险": [
+              {
+                "标题": "隐性库存规模超预期",
+                "正文": "碳酸锂价格上涨过程中，各渠道隐性库存大量显性化为仓单，仓单持续攀升但价格回调时未减少，隐性库存规模难以精确量化，构成当前市场最大不确定性。来源：华信贵金属官网，2026-05-30"
+              }
+            ]
+          },
+          "policy": [
+            {
+              "序号": 1,
+              "标题": "《矿产资源法实施条例》通过，设置锂矿品位准入门槛",
+              "摘要": "国务院常务会议审议通过《矿产资源法实施条例（草案）》，为2025年7月实施的新版《矿产资源法》配套细则。《条例》将锂矿氧化锂品位门槛提升至0.4%，低于该品位的锂原矿须退出提锂赛道或重新申报矿种；同时将采矿权审批权限上收至自然资源部，严禁借陶瓷土等矿证变相开采锂云母。《条例》核心在于整治行业乱象、规范开采秩序，短期对存量矿山影响有限，但中长期将加速尾部产能出清，抬高行业进入壁垒。来源：期货日报网，2026-05-12",
+              "来源": "来源：期货日报网，2026-05-12",
+              "日期": "日期：2026-05-12"
+            },
+            {
+              "序号": 2,
+              "标题": "津巴布韦将锂列为关键矿产，中企在津布局或受扰",
+              "摘要": "津巴布韦矿业部长宣布将锂、镍、钴、石墨等列为关键矿产，拟对关键矿产企业实施国家强制持股及出口管制。多家A股锂企在津巴布韦有项目布局，盛新锂能、华友钴业、中矿资源、天华新能、雅化集团均受影响。中矿资源回应称政策仅为部长个人意见，目前对公司无影响；即便实施也仅影响新矿山，对存量运营矿山无影响。津巴布韦是我国锂矿重要进口来源，2025年进口占比约15%。来源：CBC金属网，2026-05-29",
+              "来源": "来源：CBC金属网，2026-05-29",
+              "日期": "日期：2026-05-29"
+            },
+            {
+              "序号": 3,
+              "标题": "5月国内碳酸锂产量约12万吨，进口量同增15%",
+              "摘要": "2026年5月国内碳酸锂产量预计约12万吨，环比增长2.6%；4月碳酸锂进口32650吨，环比增8.93%，同比增15.23%，其中从智利进口约21385吨，占比65%。需求侧，6月海内外储能与锂电预排产均环比上升6%左右，延续旺盛增长，储能出货量表现良好，磷酸铁锂排产环比增幅5%-6%。整体供需维持紧平衡，库存低位对价格形成底部支撑。来源：华金期货，2026-05-31",
+              "来源": "来源：华金期货，2026-05-31",
+              "日期": "日期：2026-05-31"
+            }
+          ],
+          "enterprise": [
+            {
+              "序号": 1,
+              "标题": "永杉锂业签约四川南充，拟建3万吨碳酸锂项目",
+              "摘要": "永杉锂业公告与南充经开区管委会签署《锂盐项目投资协议》，拟在四川省南充市经开化工园区投资建设锂盐项目。项目计划分两期建设：一期规划年产3万吨电池级碳酸锂生产线，二期根据市场情况及一期运营情况适时启动，规划建设年产3万吨锂盐产品生产线。公司已形成年产3万吨锂盐生产能力，新项目将显著扩大其碳酸锂产能规模。来源：得算多咨询，2026-05-29",
+              "来源": "来源：得算多咨询，2026-05-29",
+              "日期": "日期：2026-05-29"
+            },
+            {
+              "序号": 2,
+              "标题": "大中矿业湖南鸡脚山锂矿选矿工程拟Q4投产",
+              "摘要": "大中矿业公告湖南鸡脚山锂矿项目进展。该矿已于2025年10月取得自然资源部核发的《采矿许可证》，采矿规模2000万吨/年，有效期30年，锂矿资源量约325万吨碳酸锂当量。根据排期，选矿工程预计2026年第四季度正式投产，冶炼板块同步规划第四季度开展试生产工作。同时，公司四川加达锂矿采矿证申请已提交自然资源部，处于征求地方意见阶段。来源：网易，2026-05-28",
+              "来源": "来源：网易，2026-05-28",
+              "日期": "日期：2026-05-28"
+            },
+            {
+              "序号": 3,
+              "标题": "天宜锂业启动2.65万吨碳酸锂技改项目环评",
+              "摘要": "宜宾市天宜锂业科创有限公司年产2.65万吨电池级碳酸锂技改项目环境影响评价第一次公示，项目进入环评前期阶段。天宜锂业为宜宾锂宝新材料参股子公司，此次技改旨在对现有产能进行工艺升级，以满足日益严格的电池级碳酸锂质量要求，增强产品市场竞争力。来源：得算多咨询，2026-05-29",
+              "来源": "来源：得算多咨询，2026-05-29",
+              "日期": "日期：2026-05-29"
+            }
+          ],
+          "tech": [],
+          "project": [
+            {
+              "序号": 1,
+              "标题": "津巴布韦将锂列为关键矿产并拟推出口管制",
+              "摘要": "津巴布韦矿业和矿业发展部部长宣布正式将锂、镍、钴、石墨等列为关键矿产，并计划通过指定特殊目的公司对关键矿产企业实施国家强制最低持股比例，同时对关键矿产出口实施管制。该政策将扰动全球锂矿供应链，5家A股锂企在津有项目布局，中矿资源评估短期对公司无影响，但中长期可能抬高新增矿山开发门槛。来源：CBC金属网，2026-05-29",
+              "来源": "来源：CBC金属网，2026-05-29",
+              "日期": "日期：2026-05-29"
+            },
+            {
+              "序号": 2,
+              "标题": "阿根廷计划2030年前新增30.5万吨LCE年产能",
+              "摘要": "阿根廷计划至2030年投产8个卤水锂新项目，总投资140亿美元，新增年产能30.5万吨LCE，届时总产能将达40.9万吨LCE，较2026年预期产量增长157%。力拓Rincon、Galan已获Rigi激励（免增值税、30年法律稳定），赣锋PPG项目计划2029年投产，Sal de Vida待批。来源：海证期货，2026-05-25",
+              "来源": "来源：海证期货，2026-05-25",
+              "日期": "日期：2026-05-25"
+            },
+            {
+              "序号": 3,
+              "标题": "紫金矿业马诺诺锂矿选矿厂拟6月底投产",
+              "摘要": "紫金矿业旗下刚果（金）马诺诺锂矿东北部项目重介质选矿厂预计2026年6月底建成投产，冶炼厂计划2026年底建成投产。项目一期规划500万吨/年采选能力，年产锂精矿约50万吨，配套冶炼厂投产后预计年产当量碳酸锂3万吨。项目毗邻的Mpiana-Mwanga水电站一阶段修复工程已完成，装机容量约37.5MW。来源：紫金矿业H股公告，2026-04-27",
+              "来源": "来源：紫金矿业H股公告，2026-04-27",
+              "日期": "日期：2026-04-27"
+            }
+          ],
+          "tips": {
+            "机会": [
+              {
+                "总结": "锂价本轮从21万元/吨深度回调至17万元附近，当前高位震荡格局中底部支撑仍然清晰。下游储能及动力电池需求持续旺盛，6月预排产环比增约6%；国内矿山受制于换证停产，海外津巴布韦出口管制叠加澳洲矿端偏紧，短期供给弹性有限，库存低位对价格形成刚性底部支撑，6月价格再度上行概率较大。"
+              }
+            ],
+            "风险": [
+              {
+                "总结": "当前市场最大不确定性来自隐性库存。碳酸锂价格上涨过程中各渠道隐性库存大量显性化为仓单，仓单量持续攀升至历史高位，但价格回调时仓单未降，表明隐性库存尚未完全消化。若价格反弹，该部分隐性库存可能集中释放，构成上行阻力，构成当前最大风险。"
+              }
+            ],
+            "行动建议": [
+              {
+                "总结": "密切跟踪碳酸锂仓单变化趋势，若仓单数量出现持续下降，则说明隐性库存已充分显性化，届时的去库数据才有意义，供给趋紧逻辑才能真正成立，可作为布局多单的关键信号。在当前高位震荡格局下，建议逢低布局，注意持仓风险，合理控制仓位。"
+              }
+            ],
+            "重点关注": [
+              {
+                "总结": "三大核心变量决定近期锂价走向：一是江西大矿复产进度（二次环评结果），二是津巴布韦出口管制政策实质落地情况，三是6月下旬至7月津巴布韦及非洲锂矿集中到港对矿端格局的实际冲击。建议重点关注6月供需边际变化节奏，若去库延续则支撑价格，若累库则压力再现。"
+              }
+            ]
+          }
+        }
+      },
+      "kls": {
+        "name": "可兰素事业部",
+        "subtitle": "政策/行业：2026年5月29日至2026年6月1日行业动态",
+        "date": "2026年6月1日（周一）",
+        "sections": {
+          "topnews": [
+            {
+              "序号": 1,
+              "标题": "尿素出口配额首批落地190万吨"
+            },
+            {
+              "序号": 2,
+              "标题": "国内尿素价格处全球价格洼地"
+            },
+            {
+              "序号": 3,
+              "标题": "印度发布170万吨尿素进口标购"
+            },
+            {
+              "序号": 4,
+              "标题": "中国船燃赴可兰素考察深化合作"
+            }
+          ],
+          "market": {
+            "价格数据表": [
+              {
+                "品类": "山东小颗粒尿素出厂价",
+                "价格": "1780-1810元/吨",
+                "涨跌": "稳中偏强",
+                "来源": "隆众资讯，2026-05-29"
+              },
+              {
+                "品类": "临沂市场贸易商出货价",
+                "价格": "1840元/吨",
+                "涨跌": "+50元/吨",
+                "来源": "隆众资讯，2026-05-28"
+              },
+              {
+                "品类": "江苏小颗粒尿素主流价",
+                "价格": "1850元/吨",
+                "涨跌": "+60元/吨",
+                "来源": "隆众资讯，2026-05-28"
+              },
+              {
+                "品类": "尿素期货UR2609主力合约",
+                "价格": "约1811元/吨",
+                "涨跌": "低位震荡",
+                "来源": "郑商所，2026-05-29"
+              },
+              {
+                "品类": "尿素FOB中国离岸价",
+                "价格": "677.5美元/吨",
+                "涨跌": "-63.5美元/吨",
+                "来源": "瑞达期货，2026-05-28"
+              },
+              {
+                "品类": "尿素国际印度招标价",
+                "价格": "约4500元/吨",
+                "涨跌": "国际高位",
+                "来源": "中国证券报，2026-05-30"
+              }
+            ],
+            "供给信号": [
+              {
+                "标题": "检修装置复产，供应仍处高位",
+                "正文": "天泽、大化周末恢复生产，绿源、丰喜陆续恢复，日产约20.54万吨，产能利用率86.09%。来源：隆众资讯，2026-05-26"
+              },
+              {
+                "标题": "企业库存大幅攀升",
+                "正文": "截至5月20日，中国尿素企业总库存77.65万吨，较上周期增加35.87%，多省份库存普遍上涨。来源：隆众资讯，2026-05-28"
+              }
+            ],
+            "争议风险": [
+              {
+                "标题": "出口配额落地与高出口指导价博弈",
+                "正文": "出口配额基本落地，但较高的出口指导价使市场预计短期出口流速受限，期货盘面利多出尽高开回落。来源：国泰君安期货，2026-05-31"
+              }
+            ]
+          },
+          "policy": [
+            {
+              "序号": 1,
+              "标题": "2026年首批尿素出口配额落地，共190万吨",
+              "摘要": "2026年尿素出口配额已基本落地，首轮总配额约为150万吨，另加政府间贸易（G2G）额外批准40万吨援助订单，出口窗口期锁定为6-8月，总量合计约190万吨。此前，春耕保供关键期暂停新增配额发放、暂停报检通关，并明确禁止对印度出口。配额落地后市场情绪有所改善，但因出口指导价较高，短期出口流速受到一定抑制，业内关注后续细则进一步明确。",
+              "来源": "来源：国泰君安期货，2026-05-31",
+              "日期": "日期：2026-05-31"
+            },
+            {
+              "序号": 2,
+              "标题": "印度NFL发布新一轮170万吨尿素进口标购",
+              "摘要": "印度国家化肥有限公司（NFL）发布新一轮尿素进口招标，计划购买西海岸90万吨、东海岸80万吨，合计170万吨。截标时间为6月8日，报价有效期至6月18日，最晚船期为7月20日。印度招标对国际尿素价格形成支撑，同时对国内出口预期产生间接影响，国内出口端关注度随之提升。",
+              "来源": "来源：冠通期货，2026-05-29",
+              "日期": "日期：2026-05-29"
+            },
+            {
+              "序号": 3,
+              "标题": "国六排放标准持续推进，车用尿素需求平稳",
+              "摘要": "自2021年全面实施国六a排放标准、2023年全面实施国六b排放标准以来，重型柴油车必须使用SCR尾气处理系统，车用尿素已成为国六标准柴油车的必备消耗品。2023年11月生态环境部已发布《国家第七阶段机动车污染物排放标准（征求意见稿）》，进一步加严排放限制的信号已明确。目前国六标准带动柴油商用车存量稳定增长，车用尿素作为SCR系统还原剂，nox转化率可达90%以上，需求基数得以保障，整体进入平稳运行区间。",
+              "来源": "来源：中证网，2026-04-28",
+              "日期": "日期：2026-04-28"
+            }
+          ],
+          "enterprise": [
+            {
+              "序号": 1,
+              "标题": "中国船燃领导赴可兰素溧水园区考察交流",
+              "摘要": "近日，中国船舶燃料有限责任公司相关领导及核心业务团队代表一行莅临可兰素溧水园区考察指导，双方围绕船用尾气净化液等核心业务开展深度交流，旨在推动战略合作协议落地，携手探索绿色航运合作新路径。可兰素溧水园区拥有先进的自动化生产与检测设备，是国内规模最大的环保尿素生产基地之一，率先同时获得德国VDA AdBlue认证、美国API DEF认证及中国CGT认证三大权威车用尿素产品认证。",
+              "来源": "来源：专用汽车网，2026-05-26",
+              "日期": "日期：2026-05-26"
+            },
+            {
+              "序号": 2,
+              "标题": "四川美丰持续推进车用尿素业务核心竞争优势提升",
+              "摘要": "四川美丰近日接受机构调研时表示，公司是国内车用尿素行业进行全国布局的主要生产企业之一。目前公司正采取推进新品研发、优化产品结构、深化渠道建设、加大客户开发、布局标准化加注站、完善服务体系等措施，巩固提升车用尿素业务领域的核心竞争优势，涉及产业布局规划情况请关注公司后续公告。",
+              "来源": "来源：证券日报，2026-05-17",
+              "日期": "日期：2026-05-17"
+            },
+            {
+              "序号": 3,
+              "标题": "四川金象环保中标中石油车辅定制产品采购项目",
+              "摘要": "四川金象环保科技有限公司在中国石油润滑油公司2024年度车辅定制产品（柴油尾气净化液）采购业务西南区域项目中成为中标候选人。公司致力于车用尿素溶液等环保产品生产，2024年6月通过CGT&CCAP标志认证审核，被评为高新技术企业。公司持续深化与中国石油等头部企业的定制化合作。",
+              "来源": "来源：百度百科，2026-04-01",
+              "日期": "日期：2026-04-01"
+            }
+          ],
+          "tech": [
+            {
+              "序号": 1,
+              "标题": "安徽昊源化工大颗粒尿素项目正式投产",
+              "摘要": "安徽昊源化工大颗粒尿素项目正式投产，产品凭借颗粒均匀、流动性强的特点，可广泛应用于无人机施肥、大型农机深施作业，也是制作掺混肥、缓释肥、车用尿素原料的优质产品，工业与农业应用场景广阔，契合农业绿色低碳发展趋势。昊源化工表示将持续优化生产工艺，依托优质大颗粒尿素产品丰富企业肥料品类，全力护航粮食安全。",
+              "来源": "来源：安徽化工信息，2026-05-25",
+              "日期": "日期：2026-05-25"
+            }
+          ],
+          "project": [],
+          "tips": {
+            "机会": [
+              {
+                "总结": "尿素出口配额首批190万吨于6-8月窗口期执行，内外价差当前高达约2700元/吨（国内1790元/吨 vs 国际折算约4500元/吨），出口利润空间极为丰厚。若出口流速加快，将有效分流国内库存压力，阶段性改善国内供需平衡，现货价格有望获得阶段性支撑。此外，印度170万吨招标截标在即，国际需求支撑仍在，短期国际市场活跃对国内出口预期形成正向拉动，车用尿素原料需求联动受益。"
+              }
+            ],
+            "风险": [
+              {
+                "总结": "当前国内尿素日产仍维持在20万吨以上高位，企业库存环比增加超35%，供应压力未见缓解；下游农业春耕收尾、工业复合肥开工率偏低（不足31%），需求端支撑持续走弱，基本面偏空格局未变。出口配额落地后期货高开回落，显示市场对高出口指导价抑制流速的担忧，叠加仓单量处于历史高位（13606张），后续6月仓单注销或增加现货流通量，价格上行阻力较大，短期或以震荡为主。"
+              }
+            ],
+            "行动建议": [
+              {
+                "总结": "密切跟踪出口配额执行细则与出口流速数据，若实际出口节奏超预期，可适度备库应对现货价格阶段性反弹；车用尿素原料采购可结合尿素期货盘面在1800-1900元/吨区间低位时进行成本优化布局；同时关注夏季肥追肥启动节点，局部农需启动或对局部市场形成短期支撑。"
+              }
+            ],
+            "重点关注": [
+              {
+                "总结": "出口政策边际变化是短期核心变量，需重点跟踪后续配额执行进度及政府是否会调降出口指导价以加速流速；国际方面关注印度招标结果及中东地缘局势对国际天然气和尿素装置的影响；期货盘面关注UR2609合约在1800元/吨附近的方向选择；车用尿素市场重点关注国七排放标准征求意见稿正式落地时间节点及其对行业需求结构的长期影响。"
+              }
+            ]
+          }
+        }
+      },
+      "lhy": {
+        "name": "润滑油事业部",
+        "subtitle": "政策/行业：2026年5月29日至2026年6月1日润滑油行业动态",
+        "date": "2026年6月1日（周日）",
+        "sections": {
+          "topnews": [
+            {
+              "序号": 1,
+              "标题": "WTI原油跌破88美元，周跌近10%"
+            },
+            {
+              "序号": 2,
+              "标题": "财政部延续废矿物油免税政策"
+            },
+            {
+              "序号": 3,
+              "标题": "工信部部署石化行业稳增长"
+            },
+            {
+              "序号": 4,
+              "标题": "国内基础油弱势延续价格低迷"
+            }
+          ],
+          "market": {
+            "价格数据表": [
+              {
+                "品类": "基础油 60N（山东）",
+                "价格": "7800元/吨",
+                "涨跌": "持平",
+                "来源": "隆众资讯，2026-05-29"
+              },
+              {
+                "品类": "基础油 150N（山东）",
+                "价格": "9952元/吨",
+                "涨跌": "持平",
+                "来源": "隆众资讯，2026-05-29"
+              },
+              {
+                "品类": "基础油 150N（华东）",
+                "价格": "9856元/吨",
+                "涨跌": "持平",
+                "来源": "隆众资讯，2026-05-29"
+              },
+              {
+                "品类": "基础油 250N（山东）",
+                "价格": "8800元/吨",
+                "涨跌": "持平",
+                "来源": "隆众资讯，2026-05-29"
+              },
+              {
+                "品类": "基础油 350N（山东）",
+                "价格": "9625元/吨",
+                "涨跌": "持平",
+                "来源": "隆众资讯，2026-05-29"
+              },
+              {
+                "品类": "基础油 500N（山东）",
+                "价格": "10800元/吨",
+                "涨跌": "持平",
+                "来源": "隆众资讯，2026-05-29"
+              },
+              {
+                "品类": "减线油（山东）",
+                "价格": "6570元/吨",
+                "涨跌": "跌90元/吨",
+                "来源": "隆众资讯，2026-05-26"
+              },
+              {
+                "品类": "橡胶油 A0709（东北）",
+                "价格": "7111元/吨",
+                "涨跌": "持平",
+                "来源": "隆众资讯，2026-05-29"
+              },
+              {
+                "品类": "轻质白油 3#（广东）",
+                "价格": "9500元/吨",
+                "涨跌": "持平",
+                "来源": "隆众资讯，2026-05-29"
+              },
+              {
+                "品类": "PAO4（进口，华北）",
+                "价格": "35000元/吨",
+                "涨跌": "持平",
+                "来源": "隆众资讯，2026-05-29"
+              },
+              {
+                "品类": "WTI原油期货",
+                "价格": "87.36美元/桶",
+                "涨跌": "跌9.57%",
+                "来源": "EIA/WTI，2026-05-29"
+              },
+              {
+                "品类": "布伦特原油期货",
+                "价格": "91.12美元/桶",
+                "涨跌": "跌12.00%",
+                "来源": "EIA/Brent，2026-05-29"
+              }
+            ],
+            "供给信号": [
+              {
+                "标题": "国内上游钻井活动收缩",
+                "正文": "截至5月25日当周，全球海上自升式钻井平台数量为363座，较上周增加1座，但美国活跃钻机数降至429座，环比减少，炼厂开工率维持相对低位，上游需求支撑不足。"
+              },
+              {
+                "标题": "国际油价大幅下挫",
+                "正文": "截至5月29日当周，布伦特、WTI周均价分别为91.12美元/桶和87.36美元/桶，环比分别下跌12%和9.57%，地缘溢价快速消退是主因。"
+              }
+            ],
+            "争议风险": [
+              {
+                "标题": "地缘溢价消退速度超预期",
+                "正文": "美伊谈判释放积极信号、霍尔木兹海峡通航预期升温，航运风险溢价快速退出，国际油价创下年内最大单周跌幅，对润滑油及基础油成本支撑的逻辑产生动摇。"
+              }
+            ]
+          },
+          "policy": [
+            {
+              "序号": 1,
+              "标题": "工信部等七部门联合印发石化行业稳增长工作方案（2025-2026年）",
+              "摘要": "方案提出在石油化工、煤化工、盐化工以及生物化工等细分领域培育壮大产业集群和龙头企业，润滑油基础油行业的监管主要体现在产业政策制定、行业发展规划和行业绿色发展等方面宏观层面的监督管理上，主要通过润滑油绿色发展、企业业务开展等方面展开。方案鼓励高端润滑油发展、产业规模化发展，释放出引导行业向高端化、绿色化转型的明确信号。",
+              "来源": "来源：工信部官网，2025-09-09",
+              "日期": "日期：2025-09-09"
+            },
+            {
+              "序号": 2,
+              "标题": "财政部延续废矿物油再生油品免征消费税政策至2027年12月",
+              "摘要": "符合条件的纳税人以回收的废矿物油为原料生产的润滑油基础油、柴油、汽油等工业油料可继续享受免征消费税。需同时满足：具备生态环境部门颁发的危险废物（综合）经营许可证，且证件上标注的生产经营范围包含[利用]或[综合利用]字样；生产原料中废矿物油重量须占到90%以上；产品中必须包括润滑油基础油，且每吨废矿物油生产的润滑油基础油应不少于0.65吨。该政策直接利好废矿物油再生基础油产业链，鼓励资源循环利用。",
+              "来源": "来源：财政部税政司，2026-04-09",
+              "日期": "日期：2026-04-09"
+            },
+            {
+              "序号": 3,
+              "标题": "危险废物信息化监管体系加速推进，2026年完成全国重点监管单位建设",
+              "摘要": "生态环境部发文明确提出分阶段推进全国危险废物信息化监管体系建设：2026年完成全国危险废物环境重点监管单位建设，2027年覆盖危险废物相关单位，2030年实现危险废物全过程信息化监管体系全面建成。该政策对润滑油生产及废润滑油处置企业的危废管理、台账建立和合规运营提出更高要求，中小企业合规成本将明显上升。",
+              "来源": "来源：生态环境部，2025-02-04",
+              "日期": "日期：2025-02-04"
+            }
+          ],
+          "enterprise": [
+            {
+              "序号": 1,
+              "标题": "中国石化宿州润滑油添加剂项目正式开工建设",
+              "摘要": "中国石化宿州润滑油添加剂项目于2026年1月23日在安徽宿州经开区化工园区正式开工建设。该项目是中国石化加快布局高端润滑材料、推动产业链自主可控的重要战略举措，也是开拓华东市场、数智化、绿色低碳示范项目，将引领我国润滑油添加剂产业迈向绿色化、数智化、规模化发展新台阶。项目以绿色低碳、近零排放为核心设计理念，通过配备低温RTO炉、低导热油炉等气化设施，整体气化率达60%。",
+              "来源": "来源：润滑油与特种燃料分会，2026-02-02",
+              "日期": "日期：2026-02-02"
+            },
+            {
+              "序号": 2,
+              "标题": "中国石化润滑油添加剂框架协议及辛基锡二壬基酚招标公告发布",
+              "摘要": "中国石化润滑油有限公司于2026年5月24日发布2026年润滑油添加剂框架协议——辛基锡二壬基酚谈判采购预告成交公示，天津利安隆新材料股份有限公司为中标方。辛基锡二壬基酚是重要的润滑油抗氧剂中间体，此次招标和签约标志着中国石化在润滑油添加剂供应链国产化方面持续深化，对国内抗氧剂生产企业形成直接利好。",
+              "来源": "来源：天眼查，2026-05-26",
+              "日期": "日期：2026-05-26"
+            },
+            {
+              "序号": 3,
+              "标题": "国内主要润滑油添加剂企业多条生产线在建工程进展顺利",
+              "摘要": "根据2025年年报数据，沧州15万吨润滑油添加剂项目、新乡年产15万吨润滑油添加剂系列产品项目、年产46万吨润滑油添加剂系列产品项目、锦州10万吨润滑油添加剂项目等在建工程进度分别为8%、80%、45%、80%。结合公司现有产能31.5万吨/年，产能扩张有序推进，为未来业绩增长提供产能保障。",
+              "来源": "来源：各公司年报，2026-03-24",
+              "日期": "日期：2026-03-24"
+            }
+          ],
+          "tech": [
+            {
+              "序号": 1,
+              "标题": "国产PI材料宜兴生产基地和研发中心有望2026年投入运营",
+              "摘要": "宜兴PI项目生产基地和研发中心有望于2026年投入运营，目前已与国内柔性线路板及柔性显示终端龙头企业建立合作，开始国产替代认证。PI（聚酰亚胺）材料是高端润滑脂、特种润滑油的关键添加剂，国内企业正加速突破[卡脖子]技术，实现自主可控，对润滑油高端市场的材料供应保障具有战略意义。",
+              "来源": "来源：各公司公告，2026-05-04",
+              "日期": "日期：2026-05-04"
+            }
+          ],
+          "project": [
+            {
+              "序号": 1,
+              "标题": "中国石化2026年高碱值合成磺酸钙清净剂定制采购中标结果公告",
+              "摘要": "中国石化石油化工股份有限公司润滑油分公司于2026年5月19日发布2026年高碱值合成磺酸钙清净剂产品定制采购中标结果公告，天津利安隆新材料股份有限公司为中标方，中标金额1225万元，地区为天津市，公告日期为2026-05-19。",
+              "来源": "来源：天眼查，2026-05-23",
+              "日期": "日期：2026-05-23"
+            },
+            {
+              "序号": 2,
+              "标题": "新乡市康泰新材2026年6月润滑油添加剂采购公告",
+              "摘要": "新乡市康泰新材料股份有限公司于2026年5月28日发布2026年6月润滑油添加剂采购公告，采购方为山西潞安太行新材料科技有限公司，供货方为新乡市康泰新材料股份有限公司，公告日期为2026-05-28。",
+              "来源": "来源：天眼查，2026-05-31",
+              "日期": "日期：2026-05-31"
+            },
+            {
+              "序号": 3,
+              "标题": "中国石化2026年润滑油添加剂框架协议——辛基锡二壬基酚招标签约公示",
+              "摘要": "中国石化润滑油有限公司于2026年5月24日发布2026年润滑油添加剂框架协议——辛基锡二壬基酚谈判采购，中标方为天津利安隆新材料股份有限公司，中标金额未公开，地区为北京市。",
+              "来源": "来源：天眼查，2026-05-26",
+              "日期": "日期：2026-05-26"
+            }
+          ],
+          "tips": {
+            "机会": [
+              {
+                "总结": "国际油价大幅回落使润滑油生产成本端压力明显缓解，基础油进口成本随之下降，为润滑油企业提供了阶段性利润修复窗口。与此同时，工信部稳增长方案明确鼓励高端润滑油和产业规模化发展，叠加多条润滑油添加剂产能扩张项目有序推进，上游材料国产化率有望持续提升。地缘溢价消退后，原油重回基本面定价逻辑，短期波动不改长期需求韧性，建议关注具备添加剂一体化能力和高端产品储备的头部润滑油企业。废矿物油再生基础油免税政策延续至2027年底，为布局循环经济产业链的企业提供了稳定的政策环境。"
+              }
+            ],
+            "风险": [
+              {
+                "总结": "地缘溢价快速消退导致国际油价创下年内最大单周跌幅，布伦特和WTI分别跌破92美元和88美元关口，对润滑油及基础油的成本支撑逻辑产生动摇。国内基础油市场价格整体延续弱势，减线油等副产品跌幅明显，60N等主流牌号价格维持低位，炼厂库存压力尚存。上游钻井活动收缩叠加炼厂开工率偏低，基础油刚性需求支撑不足。需警惕若国际油价持续下探，基础油价格重心或进一步下移，中游调油商补库意愿将受到抑制。"
+              }
+            ],
+            "行动建议": [
+              {
+                "总结": "建议润滑油企业当前以控制原料库存周期为主，避免在油价下行通道中过度囤货。密切跟踪6月4日国内新一轮油价调整窗口，若继续下调，加油站零售价格降幅将超200元/吨，产业链价格传导压力加大。可适度关注PAO、酯类等高端合成基础油的进口替代机会，以及具备危废处置资质的废油再生企业，在环保监管趋严背景下的竞争优势正逐步显现。对于在建添加剂产能，建议持续跟踪项目投产进度和产能利用率爬坡节奏。"
+              }
+            ],
+            "重点关注": [
+              {
+                "总结": "本周核心关注：一是6月4日国内油价调整方向，当前机构预测降幅约650元/吨，若落地将刷新年内最大跌幅；二是OPEC+减产会议表态及美伊谈判进展，地缘风险溢价消退后，原油重回供需定价，短期方向取决于库存数据和消费国补库节奏；三是基础油社会库存变化，上周港口库存去化不畅，本周需重点跟踪到港量和炼厂排库节奏；四是环保政策落地情况，危废信息化监管加速推进或引发不合规中小企业加速退出，行业集中度有望提升。"
+              }
+            ]
+          }
+        }
+      },
+      "dhx": {
+        "name": "迪克化学事业部",
+        "subtitle": "政策/行业：2026年5月29日至6月1日行业动态",
+        "date": "2026年6月1日（周一）",
+        "sections": {
+          "topnews": [
+            {
+              "序号": 1,
+              "标题": "电动车油液更换作业规范6月6日实施"
+            },
+            {
+              "序号": 2,
+              "标题": "制动液新国标2027年实施进入倒计时"
+            },
+            {
+              "序号": 3,
+              "标题": "甘二醇/环氧丙烷/丙二醇全线走弱"
+            },
+            {
+              "序号": 4,
+              "标题": "迪克化学启动四项团体标准起草"
+            }
+          ],
+          "market": {
+            "价格数据表": [
+              {
+                "品类": "制动液 DOT3 普通型",
+                "价格": "30~45元/L",
+                "涨跌": "区间持稳",
+                "来源": "太平洋汽车，2026-05-25"
+              },
+              {
+                "品类": "制动液 DOT4 合成型",
+                "价格": "60~120元/L",
+                "涨跌": "区间持稳",
+                "来源": "太平洋汽车，2026-05-25"
+              },
+              {
+                "品类": "制动液 DOT5.1 高性能型",
+                "价格": "150~250元/L",
+                "涨跌": "需求支撑偏强",
+                "来源": "太平洋汽车，2026-05-25"
+              },
+              {
+                "品类": "新能源专用制动液",
+                "价格": "150~300元/L",
+                "涨跌": "结构性上行",
+                "来源": "太平洋汽车，2026-05-25"
+              },
+              {
+                "品类": "防冻冷却液（中桶）",
+                "价格": "70~120元",
+                "涨跌": "区间持稳",
+                "来源": "太平洋汽车，2026-05-25"
+              },
+              {
+                "品类": "电机/电池冷却液（新能源）",
+                "价格": "150~300元",
+                "涨跌": "需求增长",
+                "来源": "太平洋汽车，2026-05-25"
+              },
+              {
+                "品类": "乙二醇 MEG 主力合约",
+                "价格": "4436元/吨",
+                "涨跌": "5月累计跌超10%",
+                "来源": "证券之星，2026-05-29"
+              },
+              {
+                "品类": "环氧丙烷 基准价",
+                "价格": "9700元/吨",
+                "涨跌": "较月初-5.52%",
+                "来源": "生意社，2026-05-29"
+              },
+              {
+                "品类": "丙二醇 山东优等品",
+                "价格": "8700元/吨",
+                "涨跌": "5月累跌超2500元/吨",
+                "来源": "生意社，2026-05-28"
+              }
+            ],
+            "供给信号": [
+              {
+                "标题": "MEG港口库存续降",
+                "正文": "华东 MEG 港口库存约73万吨，周环比减少4.1万吨，库存压力略有缓解，但仍处相对高位。"
+              },
+              {
+                "标题": "环氧丙烷开工率提升",
+                "正文": "环氧丙烷行业开工率持续上升，市场流通现货增加，工厂库存逐步承压。"
+              }
+            ],
+            "争议风险": [
+              {
+                "标题": "MEG 弱现实与弱预期共振",
+                "正文": "美伊局势缓和推动原油回落，成本端松动叠加聚酯淡季需求疲弱，MEG 主力合约 5月最大跌幅超10%，短期弱势格局难改。"
+              }
+            ]
+          },
+          "policy": [
+            {
+              "序号": 1,
+              "标题": "《电动汽车油液更换作业规范》6月6日起实施",
+              "摘要": "中国汽车维修行业协会正式发布 T/CAMRA 033-2026《电动汽车油液更换作业规范》，2026年6月6日起实施。该标准围绕电动汽车常见油液类型（含制动液、防冻冷却液等），对安全要求、作业准备及更换操作等关键环节进行系统规范，构建全流程、可落地、可追溯的作业体系，填补了我国电动汽车油液售后服务领域标准空白，由美孚1号车养护等机构参与起草。",
+              "来源": "来源：汽车服务世界，2026-05-06",
+              "日期": "日期：2026-05-06"
+            },
+            {
+              "序号": 2,
+              "标题": "GB 12981-2025新版制动液国标发布，2027年1月1日实施",
+              "摘要": "国家标准化管理委员会发布 GB 12981-2025《机动车辆制动液》新版国家标准，将于2027年1月1日正式实施。新标主要变化包括：新增 HZY7 级别（干沸点≥270°C），首次引入生物降解性要求，限制硼酸盐、亚硝酸盐等有害物质含量，扩展金属相容性测试，删除防锈性能和行程模拟性能要求，并调整湿平衡回流沸点试验方法为 NB/SH/T0430。该标准实施将推动制动液全行业产品升级换代。",
+              "来源": "来源：国家标准全文公开系统，2025-12-02",
+              "日期": "日期：2025-12-02"
+            },
+            {
+              "序号": 3,
+              "标题": "多省市密集发布制动液年度监督抽查实施细则",
+              "摘要": "大同市、贵州省、深圳市、山东省多地于2026年5月密集发布2026年度机动车辆制动液产品质量监督抽查实施细则，均以 GB 12981-2012 为检验依据。检验项目涵盖外观、运动黏度、平衡回流沸点（ERBP）、湿平衡回流沸点（WERBP）、pH值及液体稳定性等核心指标。其中贵州省抽样费用标准为2200元/批次，大同市抽检覆盖5批次。",
+              "来源": "来源：各地市场监管局，2026-05",
+              "日期": "日期：2026-05-11"
+            },
+            {
+              "序号": 4,
+              "标题": "泉州市发布石墨烯增强含氟冷却液技术攻关需求",
+              "摘要": "泉州市科学技术局发布2026年\"揭榜挂帅\"科技计划项目指南，围绕\"石墨烯纳米流高效增强含氟冷却液技术\"征集成果转化项目。该项目要求实现导热系数≥0.072W/(m·K)、介电常数≤2（1kHz）、体积电阻率≥1×10¹⁴Ω·cm、沸点≥100℃，推动高散热、高绝缘含氟冷却液国产化替代，打破国外垄断，保障 AI 智算中心设备用冷却液供应链安全。",
+              "来源": "来源：泉州市科学技术局，2026-05-29",
+              "日期": "日期：2026-05-29"
+            }
+          ],
+          "enterprise": [
+            {
+              "序号": 1,
+              "标题": "杭州英淼科技申请制动液高效组合式搅拌釜专利",
+              "摘要": "杭州英淼科技有限公司申请\"一种用于汽车制动液的高效组合式搅拌釜\"专利（公开号 CN122098336A），实现多维复合搅拌，通过主轴驱动搅拌叶公转与从动组件驱动搅拌叶自转相结合，显著提升制动液混合均匀性与生产效率，尤其适用于含多类添加剂复配物料，确保产品成分高度均一性。",
+              "来源": "来源：国家知识产权局，2026-05-29",
+              "日期": "日期：2026-05-29"
+            },
+            {
+              "序号": 2,
+              "标题": "华升股份资产重组披露数据中心液冷核心资产",
+              "摘要": "华升股份发布重大资产重组二次修订稿，标的公司在数据中心与智算中心热管理领域深度布局，参与编制《数据中心浸没液冷系统碳氟类冷却液技术要求和测试规范》等多项行业标准，拥有218项已授权专利，陆续在深圳、海口、资兴等地建设智算中心，资兴智算中心利用东江湖水冷资源，PUE 值低至1.21。",
+              "来源": "来源：东方财富公告，2026-05-30",
+              "日期": "日期：2026-05-30"
+            },
+            {
+              "序号": 3,
+              "标题": "恒钜电子液冷关键部件产能扩张提速",
+              "摘要": "恒钜电子加快从传统散热制造向液冷解决方案供应商转型，重点布局水冷板、CDU（冷却液分配单元）等液冷关键部件，已具备30kW、120kW 级别产品能力，正推进更高功率产品研发，依托东莞企石产业基础扩大产能释放，产品应用于数据中心及智算中心场景。",
+              "来源": "来源：南方财经网，2026-05-28",
+              "日期": "日期：2026-05-28"
+            }
+          ],
+          "tech": [
+            {
+              "序号": 1,
+              "标题": "低电导率冷却液技术获企业标准立项",
+              "摘要": "围绕新能源汽车三电系统热管理安全需求，低电导率冷却液成为行业技术升级重要方向。该产品通过严格控制离子含量，将电导率控制在极低水平，防止冷却液泄漏引发电气短路风险，全面适配电动汽车电机、电池及电控系统热管理需求，目前统一石化、博世等头部企业均已推出 Class 7/DOT5.1/Class 6 全兼容型制动液新品。",
+              "来源": "来源：行业公开信息，2026-05",
+              "日期": "日期：2026-05-20"
+            },
+            {
+              "序号": 2,
+              "标题": "数据中心浸没式冷却液国产化加速",
+              "摘要": "雅安某公司聚焦全氟浸没式冷却液制备，产品具备绝缘、不燃及环保特性，服务数据中心液冷市场；泉州市同步推进石墨烯增强含氟冷却液技术攻关，要求体积电阻率≥1×10¹⁴Ω·cm，推动高端含氟冷却液国产化替代，保障 AI 智算中心设备供应链安全，打破国外品牌在高端液冷市场的垄断格局。",
+              "来源": "来源：行业公开信息，2026-05",
+              "日期": "日期：2026-05-25"
+            }
+          ],
+          "project": [
+            {
+              "序号": 1,
+              "标题": "雅安10万吨浸没式冷却液项目环评推进",
+              "摘要": "公司聚焦全氟浸没式冷却液制备，服务数据中心液冷市场，为 AI 和高性能计算提供高效散热解决方案，产品具备绝缘、不燃及环保特性。2026年5月25日项目进入环境影响评价补充公告阶段，建设规模为年产10万吨浸没式冷却液。",
+              "来源": "来源：地方项目公示，2026-05-25",
+              "日期": "日期：2026-05-25"
+            }
+          ],
+          "tips": {
+            "机会": [
+              {
+                "总结": "新能源汽车热管理系统单车价值达6000元，是传统燃油车的3倍，带动制动液和冷却液向高端化、专用化升级。T/CAMRA 033-2026于6月6日实施，将规范电动汽车油液售后服务市场，推动新能源专用制动液和低电导冷却液需求加速释放。数据中心液冷赛道持续扩容，浸没式冷却液国产化项目环评密集推进，AI算力基础设施扩张为冷却液行业打开全新增长空间。"
+              }
+            ],
+            "风险": [
+              {
+                "总结": "甘二醇（MEG）、环氧丙烷（PO）、丙二醇（PG）三大原料全线走弱，MEG主力合约5月累跌超10%逼近4400元/吨，PO月跌5.5%至9700元/吨，PG山东优等品较4月高点累跌超2500元/吨至8700元/吨。原料成本松动对冷却液和制动液形成双重压力：一方面原料采购成本降低短期利好毛利，另一方面也意味着下游产品价格支撑减弱，行业竞争或进一步加剧。"
+              }
+            ],
+            "行动建议": [
+              {
+                "总结": "当前应重点关注GB 12981-2025新版国标带来的产品升级窗口期，提前完成Class 7/HZY7等高端制动液产品储备，同步布局DOT5.1/DOT4全兼容产品线以应对新能源汽车售后市场需求放量。对于冷却液业务，低电导率产品是差异化竞争核心，应加大技术研发投入并争取团体标准起草参与资格，在数据中心液冷赛道抢占先发优势。"
+              }
+            ],
+            "重点关注": [
+              {
+                "总结": "6月6日T/CAMRA 033-2026《电动汽车油液更换作业规范》实施后，售后市场规范化程度将显著提升，新能源专用制动液和低电导冷却液有望迎来放量节点。原料端 MEG 港口库存周环比续降4.1万吨（显性库存压力略有缓解），但美伊局势缓和叠加聚酯淡季，成本支撑仍然偏弱，预计 MEG 中枢在4400元/吨附近偏弱震荡，PO 和 PG 供应宽松格局延续，短期对冷却液和制动液价格支撑有限。"
+              }
+            ]
+          }
+        }
+      },
+      "bych": {
+        "name": "铂源催化事业部",
+        "subtitle": "2026年5月29日~6月1日行业动态",
+        "date": "2026-06-01",
+        "sections": {
+          "topnews": [
+            {
+              "序号": 1,
+              "标题": "中国天楹辽源绿色甲醇项目预计三季度投产"
+            },
+            {
+              "序号": 2,
+              "标题": "深能5MW离网光伏制氢项目成功投产"
+            },
+            {
+              "序号": 3,
+              "标题": "三部委氢能综合应用试点申报窗口期开启"
+            },
+            {
+              "序号": 4,
+              "标题": "东风400kW电堆率先通过万小时耐久验证"
+            }
+          ],
+          "market": {
+            "价格数据表": [
+              {
+                "品类": "现货铂金（国际）",
+                "价格": "1929.5美元/盎司",
+                "涨跌": "-0.2美元/盎司",
+                "来源": "JMBullion，2026-05-31"
+              },
+              {
+                "品类": "现货铂金（国内）",
+                "价格": "419.5元/克",
+                "涨跌": "-2.18元/克（-0.52%）",
+                "来源": "七里河发布，2026-05-31"
+              },
+              {
+                "品类": "现货钯金（国际）",
+                "价格": "1347.6美元/盎司",
+                "涨跌": "-18.9美元/盎司（-1.38%）",
+                "来源": "金价网，2026-05-31"
+              },
+              {
+                "品类": "现货钯金（国内）",
+                "价格": "299.5元/克",
+                "涨跌": "-6.48元/克（-2.18%）",
+                "来源": "头条，2026-05-30"
+              },
+              {
+                "品类": "碱性电解槽（1000Nm³/h）",
+                "价格": "531万元/套",
+                "涨跌": "较2023年均价降22.3%",
+                "来源": "氢能周度观察，2026-05-25"
+              },
+              {
+                "品类": "PEM电解槽（200Nm³/h）",
+                "价格": "460万元/套",
+                "涨跌": "较2023年均价降39.1%",
+                "来源": "氢能周度观察，2026-05-25"
+              }
+            ],
+            "供给信号": [
+              {
+                "标题": "碱性仍是主力，PEM订单加速落地",
+                "正文": "2026年Q1碱性电解槽订单超431MW占比超80%，PEM电解槽订单加速落地达25.05MW，AEM、SOEC实现项目突破，多元化并进。来源：搜狐，2026-04-08"
+              },
+              {
+                "标题": "中国能建松原项目刷新绿氢四项世界纪录",
+                "正文": "中能建松原绿色氢氨醇一体化项目创造四项国际领先技术、四项世界纪录，松原项目在碱性电解槽大型化应用方面持续突破。来源：中国氢能与燃料电池网，2026-05-30"
+              }
+            ],
+            "争议风险": [
+              {
+                "标题": "低价竞争加速中小企业出清",
+                "正文": "行业低价竞争白热化并接近触底，中小企业加速出清，资源向阳光氢能、隆基氢能、双良新能源等头部集中，PEM电解槽仍为碱性1.5倍以上。来源：氢能观察，2026-04-22"
+              },
+              {
+                "标题": "铱价高位震荡压缩PEM利润空间",
+                "正文": "铱价近一年疯涨60%，虽多家企业已实现低铱载量催化剂突破，但贵金属成本波动仍是PEM电解槽规模化降本的核心风险。来源：今日头条，2026-05-06"
+              }
+            ]
+          },
+          "policy": [
+            {
+              "序号": 1,
+              "标题": "三部委联合发文开展氢能综合应用试点",
+              "摘要": "工信部、财政部、国家发改委于3月16日联合发布《关于开展氢能综合应用试点工作的通知》，通过揭榜挂帅方式遴选5个城市群率先开展试点。试点以制储输用全产业链一体化融通为核心，构建1个燃料电池汽车通用场景加N个工业领域应用场景加X个创新应用场景的应用生态。目标到2030年实现氢能多元领域规模化应用，终端用氢平均价格降至25元/千克以下，优势地区力争15元/千克左右，全国燃料电池汽车保有量较2025年翻一番至10万辆。《节能减排补助资金管理暂行办法》实施期限同步延长至2030年，并新增氢能综合应用试点作为重点支持范围。",
+              "来源": "来源：工信部，2026-03-16",
+              "日期": "日期：2026-03-16"
+            },
+            {
+              "序号": 2,
+              "标题": "国家能源局将氢能纳入2026年标准立项重点方向",
+              "摘要": "国家能源局综合司3月24日印发《2026年能源行业标准计划立项指南》，明确将氢能列为新能源和可再生能源、新型储能和氢能两大领域的重点方向。具体涵盖基础与通用、氢能制取与转化、储存和输运、加注、动力与发电、氢能装备及其他细分方向，支持民营企业、外资企业等各类主体参与标准制修订，推动国际标准与能源领域标准互促转化。该文件的出台标志着氢能标准体系建设进入系统化推进阶段，有助于规范行业发展并加速国产装备走向国际市场。",
+              "来源": "来源：氢能网整理，2026-03-26",
+              "日期": "日期：2026-03-26"
+            },
+            {
+              "序号": 3,
+              "标题": "国家发改委推动现代煤化工与绿氢耦合发展",
+              "摘要": "国家发改委明确推动现代煤化工与绿氢耦合创新发展，支持煤电低碳化改造建设行动方案，引导燃煤机组掺烧绿氨发电，改造后机组应具备掺烧10%以上绿氨能力，燃煤消耗和碳排放水平显著降低。各地政府同步跟进，内蒙古首个绿氢管道规划落地后，河北、新疆、四川等省份相继出台氢能管道建设规划，内蒙古至华北工业集群跨省长输管道示范项目启动建设，有望破解西部产氢、东部用氢的储运瓶颈。",
+              "来源": "来源：FuelCellChina，2026-04-01",
+              "日期": "日期：2026-04-01"
+            }
+          ],
+          "enterprise": [
+            {
+              "序号": 1,
+              "标题": "中国天楹辽源绿色甲醇项目预计三季度末投产",
+              "摘要": "中国天楹在2025年度业绩说明会上表示，公司正推进吉林辽源、黑龙江安达氢能一体化项目建设。辽源一期项目预计2026年三季度末产出成品，年内将具备欧盟标准电制甲醇生产能力，目前已与国际头部能源企业签订电制甲醇供货订单。项目首期甲醇设计规模约17万吨每年，中石油吉化院设计，阳光氢能、天合元氢、中电丰业等提供电解槽，甲醇合成采用冰岛CIR路线。若三季度投产，将成为国内绿色甲醇电子甲醇路线商业化里程碑。",
+              "来源": "来源：网易，2026-05-31",
+              "日期": "日期：2026-05-31"
+            },
+            {
+              "序号": 2,
+              "标题": "深能鄂托克旗5MW离网光伏制氢项目成功投产",
+              "摘要": "深能鄂托克旗505MW风光制氢一体化合成绿氨项目中的5MW离网光伏制氢子工程完成全流程调试并成功产出绿氢，日制氢量约6000Nm³。该子项目采用5MW光伏阵列直供直流电，在不配置大规模储能的条件下，通过柔性智能调控实现离网制氢系统稳定运行。整体项目由500MW风电、5MW光伏制氢示范、电解水制氢站及15万吨每年绿氨装置组成，计划2026年8月全面建成投产。",
+              "来源": "来源：网易，2026-05-31",
+              "日期": "日期：2026-05-31"
+            },
+            {
+              "序号": 3,
+              "标题": "江苏按下氢能试点快进键，国富氢能等7个项目签约",
+              "摘要": "江苏氢能综合应用试点推进会现场，国富氢能工业级掺氢燃烧综合测试与验证平台等7个重点项目签约，推动氢能产业制储输用全链条提质升级。港口氢能化低碳转型、氢能重卡船舶、氢基绿色燃料等一批区域应用场景同步发布。同时张家港市智慧氢能公共数据平台2.0正式启用，通过集成全产业链数据信息，构建产业概览、实时地图、数据信息三大核心模块，为氢能产业创新发展提供决策与服务支撑。",
+              "来源": "来源：中国能源网，2026-05-15",
+              "日期": "日期：2026-05-15"
+            }
+          ],
+          "tech": [
+            {
+              "序号": 1,
+              "标题": "FCVC 2026即将开幕，多款氢能重磅新品集中亮相",
+              "摘要": "FCVC 2026技术展览将于近期举办，众多氢能重磅新品将集中亮相。中集合思康将首次展示IV型瓶管束集装箱，杰宁科技将首次展示地轨式智能换氢站，氢澈科技将发布最新PEM电解槽测试台与实验室氢安全监控系统，镁源动力将首次展示135kg镁基固态储氢装备。此外，捷氢科技、治臻新能源、贝特瑞也将在现场举办新品发布仪式。广汽集团、宇通汽车、福田汽车等整车企业将携最新款氢燃料电池车型重磅亮相，全方位呈现从乘用车到商用车的多元发展成果。",
+              "来源": "来源：氢启未来，2026-05-26",
+              "日期": "日期：2026-05-26"
+            },
+            {
+              "序号": 2,
+              "标题": "东风400kW电堆率先通过万小时耐久认证",
+              "摘要": "5月27日，东风汽车宣布氢能领域专利总量突破2000项。自主研发的面向49吨重卡的400kW金属双极板燃料电池单堆率先通过新国标10000小时耐久验证，实测单片平均电压衰减率3.29%，达到行业领先水平。这一里程碑标志着国产高功率燃料电池在耐久性方面取得实质性突破，为燃料电池重卡商业化运营提供了核心装备支撑。",
+              "来源": "来源：网易，2026-05-31",
+              "日期": "日期：2026-05-31"
+            },
+            {
+              "序号": 3,
+              "标题": "中国能建绿氢氨醇整体解决方案获重大进展",
+              "摘要": "中能建氢能源公司牵头的绿色氢氨醇整体解决方案研究取得重大进展，联合湖南化工设计院、华北电力设计院等多家单位，聚焦绿色氢氨醇柔性生产与一体化核心技术，在松原氢能产业园项目成功示范应用。该项目开创四项国际领先技术，创造四项世界纪录，成功探索出一条推动绿氢成本下行、拓展全球绿色能源市场的可行路径，为我国绿氢大规模商业化应用提供了可复制、可推广的样板。",
+              "来源": "来源：中国氢能与燃料电池网，2026-05-30",
+              "日期": "日期：2026-05-30"
+            }
+          ],
+          "project": [
+            {
+              "序号": 1,
+              "标题": "兰州新区1.3亿元建设中小功率燃料电池基地",
+              "摘要": "兰州市与四川盛思玮能源科技有限公司签署中小功率燃料电池制造应用项目，项目正式落户兰州新区。项目总投资1.3亿元，将在兰州新区建设西北运营中心，打造年产3万台套的中小功率氢燃料电池智能制造基地，配套建设日加氢能力500公斤的低压固态储氢加注站及氢能产品运维大数据中心。项目全面建成达产后，预计可实现年产值1.5亿元，年创税收约900万元，带动就业200人。",
+              "来源": "来源：兰州市工业和信息化局，2026-01-15",
+              "日期": "日期：2026-01-15"
+            },
+            {
+              "序号": 2,
+              "标题": "清能股份全球首套5MW AEM制氢系统完成安装",
+              "摘要": "清能股份旗下品牌HET自主研发及生产的全球首套5MW阴离子交换膜AEM电解水制氢系统完成设备安装并启动调试。该系统构建了全球首个光伏到AEM制氢再到高炉富氢冶炼的全链条集成体系，制取的绿氢将掺入天然气管道用于荣程钢铁集团高炉富氢喷吹，实现煤炭减量和碳排放降低。该项目标志着AEM技术从实验室走向工业级规模应用，对绿氢在钢铁冶金领域的规模化推广具有示范意义。",
+              "来源": "来源：搜狐，2026-05-29",
+              "日期": "日期：2026-05-29"
+            }
+          ],
+          "tips": {
+            "机会": [
+              {
+                "总结": "电解槽价格持续下探，碱性槽三年累计降22.3%、PEM槽降39.1%，逼近行业底部，头部企业在手订单充裕，量增逻辑仍在。PEM路线今年订单增速显著（Q1约25MW），叠加三部委综合应用试点带来的城市群扩容需求释放，碱性+PEM混合方案应用增多，铂族金属催化剂需求有望跟随制氢规模扩张而增长。绿色甲醇、绿氢合成氨商业化项目加速落地，制氢端铂钯催化剂和装备需求双双受益。"
+              }
+            ],
+            "风险": [
+              {
+                "总结": "贵金属价格高位波动构成显著不确定性：铱价近一年疯涨60%且高位震荡，PEM电解槽核心材料成本压力未解；铂钯现货价格本周同步回调，钯金国内价格单周跌超2%，贵金属成本管控难度加大。此外行业低价竞争白热化，中小企业加速出清，资源向头部集中，在价格底部尚未完全确认前，产业链利润仍面临上游材料涨价与下游招标压价的双重挤压。"
+              }
+            ],
+            "行动建议": [
+              {
+                "总结": "密切跟踪6月各城市群氢能综合应用试点揭榜挂帅结果，优先关注碱性电解槽头部企业（中国能建、隆基氢能、阳光氢能）的新增订单公告，以及PEM路线（中石油、中石化、中海油旗下装备平台）的兆瓦级项目落地进度。贵金属端关注南非铂钯矿端供给恢复节奏，6月美联储利率决议前后注意贵金属价格波动加剧风险。建议在铂钯价格回调过程中逢低关注铂族金属催化剂需求侧布局机会。"
+              }
+            ],
+            "重点关注": [
+              {
+                "总结": "三条主线值得关注：一是三部委试点城市群名单揭晓后的投资热点扩散机会，预计东部沿海和西北可再生能源富集区率先受益；二是电解槽价格触底后头部企业毛利率修复情况，阳光氢能、隆基氢能等已披露2026年指引的标的值得持续跟踪；三是绿氢合成氨和绿色甲醇商业化项目的建设进度，天楹辽源项目三季度投产节点是重要验证节点，若达产顺利将打开绿色液体燃料赛道空间。"
+              }
+            ]
+          }
+        }
+      }
+    }
+  }
+};
+
+(function() {
+  var _orig = window.fetch;
+  window.fetch = function(url, opts) {
+    var s = typeof url === 'string' ? url : (url.url || String(url));
+
+    // market_lc.json
+    if (s.includes('market_lc.json')) {
+      return Promise.resolve({
+        ok: true,
+        status: 200,
+        json: function() {
+          return Promise.resolve(window.__EMBEDDED__.marketLc || {});
+        }
+      });
+    }
+
+    // market_lfp.json
+    if (s.includes('market_lfp.json')) {
+      return Promise.resolve({
+        ok: true,
+        status: 200,
+        json: function() {
+          return Promise.resolve(window.__EMBEDDED__.marketLfp || {});
+        }
+      });
+    }
+
+    // index.json
+    if (s.includes('index.json')) {
+      return Promise.resolve({
+        ok: true,
+        status: 200,
+        json: function() {
+          return Promise.resolve(window.__EMBEDDED__.index || {});
+        }
+      });
+    }
+
+    // policies.json → 返回清洗后的 policies 数组
+    if (s.includes('policies.json') || s.includes('policies_clean')) {
+      return Promise.resolve({
+        ok: true,
+        status: 200,
+        json: function() {
+          var p = window.__EMBEDDED__.policies;
+          // 支持新旧两种格式
+          var arr = (p && p.policies) ? p.policies : (Array.isArray(p) ? p : []);
+          return Promise.resolve({ policies: arr });
+        }
+      });
+    }
+
+    // reports/YYYY-MM-DD.json
+    var m = s.match(/reports\/(\d{4}-\d{2}-\d{2})\.json/);
+    if (m) {
+      var date = m[1];
+      if (date === window.__EMBEDDED__.today && window.__EMBEDDED__.report) {
+        return Promise.resolve({
+          ok: true,
+          status: 200,
+          json: function() { return Promise.resolve(window.__EMBEDDED__.report); }
+        });
+      }
+      // 其他日期返回空结构
+      return Promise.resolve({
+        ok: true,
+        status: 200,
+        json: function() { return Promise.resolve({departments: {}}); }
+      });
+    }
+
+    return _orig.apply(window, arguments);
+  };
+})();
+
+</script>
+</body>
+</html>

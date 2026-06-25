@@ -8,6 +8,7 @@ import http.server
 import functools
 import sys
 import os
+from socketserver import ThreadingMixIn
 
 PORT = int(sys.argv[1]) if len(sys.argv) > 1 else 8888
 DIRECTORY = sys.argv[2] if len(sys.argv) > 2 else os.path.dirname(os.path.abspath(__file__))
@@ -35,10 +36,14 @@ class NoCacheHandler(http.server.SimpleHTTPRequestHandler):
             super().log_message(format, *args)
 
 
+class ThreadingHTTPServer(ThreadingMixIn, http.server.HTTPServer):
+    """支持多线程的 HTTP Server — 解决单请求阻塞问题"""
+    daemon_threads = True
+
 if __name__ == "__main__":
     os.chdir(DIRECTORY)
     handler = functools.partial(NoCacheHandler, directory=DIRECTORY)
-    with http.server.HTTPServer(("0.0.0.0", PORT), handler) as httpd:
+    with ThreadingHTTPServer(("0.0.0.0", PORT), handler) as httpd:
         print(f"[no_cache_server] 监听 0.0.0.0:{PORT}  根目录: {DIRECTORY}")
         print(f"[no_cache_server] 所有响应附带 Cache-Control: no-store")
         try:
