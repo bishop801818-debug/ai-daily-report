@@ -1,0 +1,188 @@
+# ==========================================
+# AI Daily Report - Git Ignore Rules
+# 整理后目录结构：
+#  根目录 = 仅保留核心网站文件 (~87个)
+#   _archive/ = 历史存档（按类别分子目录）
+#   _docs/    = 设计文档
+#   data/     = 大型数据JSON
+#   embedded/ = 嵌入版文件
+#   reports/  = 早报JSON存档
+#   scripts/  = 工具脚本
+# ==========================================
+
+# ------------------------------------------
+# 1. Python 开发脚本（仅保留核心脚本）
+# ------------------------------------------
+*.py
+!generate_all_embedded_data.py
+!generate_electrolyte_data.py
+!safe_rollback.py
+!generate_briefing.py
+!generate_briefing_v2.py
+!generate_hot_news.py
+!_update_charts_data.py
+!_update_wti_ur_data.py
+!no_cache_server.py
+!server_service.py
+
+# ------------------------------------------
+# 2. 调试/临时文件（覆盖下划线开头）
+# ------------------------------------------
+_*
+!_docs/
+!_docs/*
+debug_*
+test_*
+diag_*
+check_*
+fix_*
+__test*
+tmp/
+temp/
+*.tmp
+
+# ------------------------------------------
+# 3.备份文件（通配）
+# ------------------------------------------
+*.bak
+*.bak_*
+*_bak_*
+*_backup_*
+*_olden_*
+*_stable_*
+*_stable_latest*
+*_golden_*
+
+# ------------------------------------------
+# 4. 大型数据文件（可从Excel重新生成）
+# ------------------------------------------
+data/*.json
+data/*.csv
+!data/README.md
+
+# ========== GitHub Pages 同步白名单 ==========
+# 关键数据文件必须同步到 GitHub，否则页面无法加载
+!data/industry_chain.json
+!data/carbonate_spot_price_merged.json
+!data/lithium_ore_price_history.json
+!data/lepidolite_price_history.json
+!data/phosphate_rock_price.json
+!data/phosphate_rock_price_jin10.json
+!data/carbonate_spot_price_jin10.json
+
+# ------------------------------------------
+# 5.早报历史存档（按日期自动生成）
+# ------------------------------------------
+reports/*.json
+# ========== GitHub Pages 同步白名单 ==========
+# 关键数据文件必须同步到 GitHub，否则图表无法加载
+!reports/index.json
+!reports/market_lc.json
+!reports/market_lfp.json
+!reports/lfp_power_history.json
+!reports/lfp_storage_history.json
+!reports/lc_futures_history.json
+!reports/iron_phosphate_history.json
+!reports/lfp_all_data.json
+!reports/pt_futures_history.json
+!reports/pd_futures_history.json
+!reports/i_futures_history.json
+!reports/eg_futures_history.json
+!reports/market_cumulative.json
+!reports/market_cumulative_metals.json
+!reports/market_cumulative_chemical.json
+!reports/ur_history.json
+!reports/wti_history.json
+
+# ========== 例外：每日早报文件需要部署 ==========
+# 日期格式的报告文件（YYYY-MM-DD.json）
+!reports/2026-*.json
+!reports/2025-*.json
+!reports/2024-*.json
+
+# ------------------------------------------
+# 6. 嵌入版每日快照
+# ------------------------------------------
+embedded/*.json
+
+# ------------------------------------------
+# 7. 历史存档子目录（按需跟踪）
+#    _archive/ 下直接文件可提交，子目录分类忽略
+# ------------------------------------------
+# 先放开 _archive/ 本身及其根目录所有文件
+!_archive/
+!_archive/*
+# 再把各子目录重新忽略
+_archive/debug/
+_archive/versions/
+_archive/reports/
+_archive/scripts/
+_archive/server/
+
+# ------------------------------------------
+# 8.操作系统文件
+# ------------------------------------------
+Thumbs.db
+Desktop.ini
+.DS_Store
+nul
+
+# ------------------------------------------
+# 9. Python 缓存
+# ------------------------------------------
+__pycache__/
+*.pyc
+*.pyo
+
+# ------------------------------------------
+# 10. IDE 文件
+# ------------------------------------------
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# ------------------------------------------
+# 11. WorkBuddy / AI 代理文件
+# ------------------------------------------
+.workbuddy/
+ai_proxy.py
+ai_proxy.log
+
+# ------------------------------------------
+# 12. 日志文件
+# ------------------------------------------
+*.log
+lark_err.txt
+
+# ------------------------------------------
+# 13. 截图（不部署）
+# ------------------------------------------
+*.png
+*.jpg
+*.jpeg
+screenshot*.png
+sidebar_screenshot.png
+
+# ========== 例外：assets 目录中的图片需要部署 ==========
+!assets/*.png
+!assets/*.jpg
+!assets/*.jpeg
+!assets/*.gif
+
+# ========== 例外：generated-images 目录中的图片需要部署 ==========
+!generated-images/*.png
+!generated-images/*.jpg
+!generated-images/*.jpeg
+
+# ------------------------------------------
+# 14. 输出目录
+# ------------------------------------------
+output/
+
+# ------------------------------------------
+# 15. 环境变量文件（包含API密钥，禁止提交）
+# ------------------------------------------
+.env
+.env.*
+dist/assets/dragon_4combined_anim_original_backup.gif
