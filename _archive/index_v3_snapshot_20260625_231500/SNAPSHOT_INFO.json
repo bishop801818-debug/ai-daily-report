@@ -1,0 +1,133 @@
+{
+  "snapshot_time": "2026-06-25 23:15:30 (GMT+8)",
+  "snapshot_dir": "_archive/index_v3_snapshot_20260625_231500",
+  "total_size": "84M",
+  "main_page": {
+    "name": "index_v3.html",
+    "size": 1524729,
+    "html_version": "20260625_1900"
+  },
+  "sub_pages_count": 16,
+  "all_pages": [
+    "index_v3.html",
+    "strategy_hub.html",
+    "analysis_hub.html",
+    "archive_v3.html",
+    "automotive_data_v2.html",
+    "carbonate_data_v2.html",
+    "database_hub.html",
+    "electrolyte_data_v2.html",
+    "help.html",
+    "industry_news_embedded.html",
+    "lfp_data_v2.html",
+    "lib_battery_data_v2.html",
+    "policy_center_v4.html",
+    "radar_hub.html",
+    "recycling_data_v2.html",
+    "ternary_data_v2.html",
+    "toolbox.html"
+  ],
+  "page_details": {
+    "index_v3.html": {
+      "size": 1524729,
+      "url": "http://localhost:8888/index_v3.html"
+    },
+    "strategy_hub.html": {
+      "size": 1098644,
+      "url": "http://localhost:8888/strategy_hub.html"
+    },
+    "analysis_hub.html": {
+      "size": 19187,
+      "url": "http://localhost:8888/analysis_hub.html"
+    },
+    "archive_v3.html": {
+      "size": 1082430,
+      "url": "http://localhost:8888/archive_v3.html"
+    },
+    "automotive_data_v2.html": {
+      "size": 212624,
+      "url": "http://localhost:8888/automotive_data_v2.html"
+    },
+    "carbonate_data_v2.html": {
+      "size": 61473,
+      "url": "http://localhost:8888/carbonate_data_v2.html"
+    },
+    "database_hub.html": {
+      "size": 28854,
+      "url": "http://localhost:8888/database_hub.html"
+    },
+    "electrolyte_data_v2.html": {
+      "size": 657072,
+      "url": "http://localhost:8888/electrolyte_data_v2.html"
+    },
+    "help.html": {
+      "size": 37441,
+      "url": "http://localhost:8888/help.html"
+    },
+    "industry_news_embedded.html": {
+      "size": 1285751,
+      "url": "http://localhost:8888/industry_news_embedded.html"
+    },
+    "lfp_data_v2.html": {
+      "size": 59967,
+      "url": "http://localhost:8888/lfp_data_v2.html"
+    },
+    "lib_battery_data_v2.html": {
+      "size": 37814,
+      "url": "http://localhost:8888/lib_battery_data_v2.html"
+    },
+    "policy_center_v4.html": {
+      "size": 131553,
+      "url": "http://localhost:8888/policy_center_v4.html"
+    },
+    "radar_hub.html": {
+      "size": 30814,
+      "url": "http://localhost:8888/radar_hub.html"
+    },
+    "recycling_data_v2.html": {
+      "size": 57076,
+      "url": "http://localhost:8888/recycling_data_v2.html"
+    },
+    "ternary_data_v2.html": {
+      "size": 32289,
+      "url": "http://localhost:8888/ternary_data_v2.html"
+    },
+    "toolbox.html": {
+      "size": 36325,
+      "url": "http://localhost:8888/toolbox.html"
+    }
+  },
+  "data_files": [
+    "automotive_all_data.json",
+    "carbonate_all_data.json",
+    "carbonate_spot_price.json",
+    "carbonate_spot_price_jin10.json",
+    "carbonate_spot_price_merged.json",
+    "chart_data.json",
+    "electrolyte_all_data.json",
+    "electrolyte_april_data.json",
+    "extra_chart_data.json",
+    "industry_chain.json",
+    "lepidolite_price_history.json",
+    "lfp_all_data.json",
+    "lib_battery_all_data.json",
+    "lithium_ore_price.json",
+    "lithium_ore_price_history.json",
+    "lithium_ore_price_scrapmonster.json",
+    "market_cumulative.json",
+    "market_cumulative_chemical.json",
+    "market_cumulative_metals.json",
+    "phosphate_rock_price.json",
+    "phosphate_rock_price_jin10.json",
+    "policy_center_data.json",
+    "recycling_all_data.json",
+    "report_2026-06-22.json",
+    "search_tasks.json",
+    "self_data.json",
+    "temp_metals.json",
+    "ternary_all_data.json"
+  ],
+  "embedded_files_count": 49,
+  "source_url": "http://localhost:8888/",
+  "server": "no_cache_server.py / no_cache_server_gzip.py (本地测试服务)"
+}
