@@ -290,6 +290,18 @@ def excel_to_records(df):
         records.append(record)
     return records
 
+def _extract_latest_month(tables):
+    """从表格数据中提取最新月份（用于比较新旧数据的时间范围）"""
+    DATE_KEYS = ('日期', '当前日期', '时间', '月份')
+    latest = ''
+    for t in tables:
+        for row in t.get('data', []):
+            for dk in DATE_KEYS:
+                v = str(row.get(dk, ''))[:7]  # 取 YYYY-MM
+                if v and v > latest:
+                    latest = v
+    return latest
+
 def generate_db(db_config):
     """为一个数据库生成嵌入数据JS文件"""
     name = db_config['name']
@@ -299,34 +311,21 @@ def generate_db(db_config):
     source_name = db_config['source_name']
     sheet_table_map = db_config['sheet_table_map']
 
-    # ── 0. 保护机制：若当前 JS 已存在且比 Excel 新，先创建 golden backup ──
+    # ── 0. 读取现有数据（用于后续保护对比）──
+    existing_tables = []
+    existing_latest_month = ''
+    existing_content = ''
     if os.path.exists(output_js):
         try:
             with open(output_js, 'r', encoding='utf-8') as f:
                 existing_content = f.read()
             existing_data = json.loads(re.sub(r'^const\s+\w+\s*=\s*', '',
                                                existing_content.strip()).rstrip().rstrip(';'))
-            existing_update = existing_data.get('update_time', '')
-            # 读取 Excel 修改时间
-            files = glob.glob(excel_glob)
-            if files:
-                excel_file = max(files, key=os.path.getmtime)
-                excel_mtime = os.path.getmtime(excel_file)
-                excel_date = datetime.fromtimestamp(excel_mtime)
-                # 解析 JS update_time
-                if existing_update:
-                    try:
-                        js_date = datetime.strptime(existing_update, '%Y-%m-%d %H:%M:%S')
-                        # 如果当前 JS 比 Excel 更新（说明数据是手动录入而非从 Excel 生成），创建 golden backup
-                        if js_date > excel_date:
-                            backup_path = output_js + f'.golden_{datetime.now().strftime("%Y%m%d_%H%M%S")}'
-                            with open(backup_path, 'w', encoding='utf-8') as f:
-                                f.write(existing_content)
-                            print(f'  [PROTECT] 当前 JS 比 Excel 新，已创建备份: {os.path.basename(backup_path)}')
-                    except (ValueError, TypeError):
-                        pass
+            existing_tables = existing_data.get('tables', [])
+            existing_latest_month = _extract_latest_month(existing_tables)
+            print(f'  [INFO] 现有数据最新月份: {existing_latest_month}')
         except Exception:
-            pass  # 保护机制失败不影响主流程
+            pass  # 读取失败不影响主流程
 
     # 找到Excel文件
     files = glob.glob(excel_glob)
@@ -409,6 +408,27 @@ def generate_db(db_config):
 
     # 全局排序：按'当前日期'倒序，保证展示时最近日期在上
     sort_tables(tables)
+
+    # ── 数据时间范围保护：阻止用旧 Excel 覆盖新数据 ──
+    new_latest_month = _extract_latest_month(tables)
+    print(f'  [INFO] Excel 数据最新月份: {new_latest_month}')
+    if existing_latest_month and new_latest_month:
+        if existing_latest_month > new_latest_month:
+            # 现有 JS 数据比 Excel 更新 → 阻止覆盖！
+            backup_path = output_js + f'.golden_{datetime.now().strftime("%Y%m%d_%H%M%S")}'
+            with open(backup_path, 'w', encoding='utf-8') as f:
+                f.write(existing_content)
+            print(f'')
+            print(f'  {"="*60}')
+            print(f'  [BLOCKED] {name}: 拒绝用旧数据覆盖新数据！')
+            print(f'  现有 JS 最新月份: {existing_latest_month}')
+            print(f'  Excel 最新月份:   {new_latest_month}')
+            print(f'  Excel 文件: {os.path.basename(excel_file)}')
+            print(f'  已备份当前 JS 到: {os.path.basename(backup_path)}')
+            print(f'  请更新 Excel 源文件后再运行此脚本。')
+            print(f'  {"="*60}')
+            print(f'')
+            return False
 
     # Generate JS file
     js_content = f'''const {js_var} = {json.dumps({
