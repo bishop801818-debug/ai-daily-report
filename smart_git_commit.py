@@ -44,8 +44,11 @@ class SmartCommit:
     def get_git_file_content(self, filepath):
         """获取Git中文件的最新版本内容"""
         try:
+            # 修复：将 Windows 路径的反斜杠转换为正斜杠
+            git_filepath = str(filepath).replace('\\', '/')
+            
             result = subprocess.run(
-                ['git', 'show', f'HEAD:{filepath}'],
+                ['git', 'show', f'HEAD:{git_filepath}'],
                 capture_output=True,
                 text=False
             )
@@ -88,32 +91,42 @@ class SmartCommit:
         return files_to_check
     
     def compare_file(self, filepath):
-        """比较文件是否有变化"""
+        """比较文件是否有变化（使用 git status 判断）"""
         filepath_str = str(filepath)
         
-        # 1. 检查是否在Git中
-        git_hash = self.get_git_file_hash(filepath_str)
-        if git_hash is None:
-            return True, "新增文件"
-        
-        # 2. 计算当前文件哈希值
+        # 使用 git status --short 判断文件是否有变化
+        try:
+            result = subprocess.run(
+                ['git', 'status', '--short', '--', filepath_str],
+                capture_output=True,
+                text=True
+            )
+            
+            if result.stdout.strip():
+                # git status 有输出，说明文件有变化
+                return True, "Git检测到变化"
+            else:
+                # git status 无输出，说明文件无变化
+                return False, "Git无变化"
+        except Exception as e:
+            # 如果 git status 失败，回退到哈希值比较
+            return self._compare_file_by_hash(filepath_str)
+    
+    def _compare_file_by_hash(self, filepath_str):
+        """备用方法：使用哈希值比较文件（处理换行符问题）"""
         try:
             current_hash = self.file_hash(filepath_str)
         except Exception as e:
             return False, f"读取文件失败: {e}"
         
-        # 3. 比较哈希值
+        # 获取Git中的文件哈希
+        git_hash = self.get_git_file_hash(filepath_str)
+        if git_hash is None:
+            return True, "新增文件"
+        
+        # 比较哈希值
         if current_hash == git_hash:
             return False, "内容无变化"
-        
-        # 4. 如果启用了调试模式，进行JSON字段比较
-        if self.config.get('debug_mode') and filepath_str.endswith('.json'):
-            try:
-                changes = self.compare_json_fields(filepath_str)
-                if changes:
-                    return True, f"JSON字段变化: {changes}"
-            except:
-                pass
         
         return True, "内容有变化"
     
