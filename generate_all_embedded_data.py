@@ -302,6 +302,23 @@ def _extract_latest_month(tables):
                     latest = v
     return latest
 
+
+def _extract_per_table_latest(tables):
+    """为每个表提取最新月份，返回 {table_name: latest_month}"""
+    DATE_KEYS = ('日期', '当前日期', '时间', '月份')
+    result = {}
+    for t in tables:
+        tname = t.get('table_name', '')
+        latest = ''
+        for row in t.get('data', []):
+            for dk in DATE_KEYS:
+                v = str(row.get(dk, ''))[:7]
+                if v and v > latest:
+                    latest = v
+        if tname:
+            result[tname] = latest
+    return result
+
 def generate_db(db_config):
     """为一个数据库生成嵌入数据JS文件"""
     name = db_config['name']
@@ -409,20 +426,31 @@ def generate_db(db_config):
     # 全局排序：按'当前日期'倒序，保证展示时最近日期在上
     sort_tables(tables)
 
-    # ── 数据时间范围保护：阻止用旧 Excel 覆盖新数据 ──
-    new_latest_month = _extract_latest_month(tables)
-    print(f'  [INFO] Excel 数据最新月份: {new_latest_month}')
-    if existing_latest_month and new_latest_month:
-        if existing_latest_month > new_latest_month:
-            # 现有 JS 数据比 Excel 更新 → 阻止覆盖！
+    # ── 数据时间范围保护：逐表比较，防止旧 Excel 覆盖新数据 ──
+    new_per_table = _extract_per_table_latest(tables)
+    if existing_tables and new_per_table:
+        regressions = []
+        for existing_t in existing_tables:
+            existing_tname = existing_t.get('table_name', '')
+            existing_t_latest = ''
+            for row in existing_t.get('data', []):
+                for dk in ('日期', '当前日期', '时间', '月份'):
+                    v = str(row.get(dk, ''))[:7]
+                    if v and v > existing_t_latest:
+                        existing_t_latest = v
+            new_t_latest = new_per_table.get(existing_tname, '')
+            if existing_t_latest and new_t_latest and existing_t_latest > new_t_latest:
+                regressions.append((existing_tname, existing_t_latest, new_t_latest))
+
+        if regressions:
             backup_path = output_js + f'.golden_{datetime.now().strftime("%Y%m%d_%H%M%S")}'
             with open(backup_path, 'w', encoding='utf-8') as f:
                 f.write(existing_content)
             print(f'')
             print(f'  {"="*60}')
-            print(f'  [BLOCKED] {name}: 拒绝用旧数据覆盖新数据！')
-            print(f'  现有 JS 最新月份: {existing_latest_month}')
-            print(f'  Excel 最新月份:   {new_latest_month}')
+            print(f'  [BLOCKED] {name}: 以下 {len(regressions)} 个表会数据回退，拒绝覆盖！')
+            for tname, old_m, new_m in regressions:
+                print(f'    {tname}: 现有={old_m}  →  新Excel={new_m}  ▼')
             print(f'  Excel 文件: {os.path.basename(excel_file)}')
             print(f'  已备份当前 JS 到: {os.path.basename(backup_path)}')
             print(f'  请更新 Excel 源文件后再运行此脚本。')
