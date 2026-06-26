@@ -1,0 +1,27 @@
+{
+  "snapshot_time": "2026-06-25_21:00",
+  "description": "首页 index_v3.html 及所有子页面完整存档（含 embedded 目录）",
+  "root_pages": 32,
+  "embedded_pages": 44,
+  "total_size_mb": 85,
+  "highlights": [
+    "index_v3.html (1488KB) 含完整嵌入数据",
+    "embedded/index_v3_embedded.html (1516KB)",
+    "embedded/industry_news_embedded.html (8582KB)",
+    "embedded/lfp_data_embedded.html (11363KB)",
+    "embedded/carbonate_data_embedded.html (9088KB)",
+    "lib_battery 锂电池数据库 2026-05 最新数据已恢复",
+    "recycling 回收数据库 2026-05 最新数据已恢复",
+    "server 已升级为多线程 (ThreadingHTTPServer)",
+    "head scripts 已优化：删无用脚本 + defer 属性"
+  ],
+  "key_changes_this_session": [
+    "no_cache_server.py: 升级为 ThreadingHTTPServer 多线程",
+    "index_v3.html head: 删除 recycling_data_v2.js(922KB) + chemical_data.js(14KB)",
+    "index_v3.html head: echarts/electrolyte_data/recycling_gantt 加 defer",
+    "lib_battery_all_data.json: 从 git commit 3afcd21 恢复 2026-05 数据",
+    "recycling_all_data.json: 从 git commit 76cd0bc 恢复 2026-05 数据",
+    "generate_all_embedded_data.py: 新增数据时间范围保护（阻止旧数据覆盖新数据）",
+    ".git/hooks/pre-commit: 新增数据库回归检测"
+  ]
+}
