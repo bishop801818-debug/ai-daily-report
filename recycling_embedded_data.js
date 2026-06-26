@@ -1,6 +1,6 @@
 const EMBEDDED_DATA = {
-  "update_time": "2026-06-26 13:56:32",
-  "source": "锂电池回收行业数据库.xlsx",
+  "update_time": "2026-06-26 15:50:29",
+  "source": "recycling_all_data.json",
   "tables": [
     {
       "table_name": "黑粉处理量-总计",

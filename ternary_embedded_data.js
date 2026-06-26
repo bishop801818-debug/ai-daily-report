@@ -1,6 +1,6 @@
 const EMBEDDED_DATA = {
-  "update_time": "2026-06-18 15:30:10",
-  "source": "🔋 【三金锂电】三元前驱体产业链数据库.xlsx",
+  "update_time": "2026-06-26 15:50:30",
+  "source": "ternary_all_data.json",
   "tables": [
     {
       "table_name": "NCM-行业整体产量",

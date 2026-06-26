@@ -1,6 +1,6 @@
 const EMBEDDED_DATA = {
-  "update_time": "2026-06-26 13:56:25",
-  "source": "🏔️ 【龙蟠时代】碳酸锂产业链数据库.xlsx",
+  "update_time": "2026-06-26 15:50:29",
+  "source": "carbonate_all_data.json",
   "tables": [
     {
       "table_name": "碳酸锂-行业总产量",

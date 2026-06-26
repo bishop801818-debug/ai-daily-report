@@ -1,6 +1,6 @@
 const EMBEDDED_DATA = {
-  "update_time": "2026-06-26 13:56:50",
-  "source": "🚗全球汽车市场数据库 (1).xlsx",
+  "update_time": "2026-06-26 15:50:29",
+  "source": "automotive_all_data.json",
   "tables": [
     {
       "table_name": "汽车销量-全球分区域",

@@ -1,6 +1,6 @@
 const EMBEDDED_DATA = {
-  "update_time": "2026-06-26 13:56:20",
-  "source": "电解液行业数据库 (2).xlsx",
+  "update_time": "2026-06-26 15:50:28",
+  "source": "electrolyte_all_data.json",
   "tables": [
     {
       "table_name": "电解液-行业整体产量",

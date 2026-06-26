@@ -1,294 +1,69 @@
 """
 生成所有7个数据库的 *_embedded_data.js 文件
-从Downloads文件夹的Excel文件读取数据，生成嵌入数据JS文件
+从 *All_Data.json 文件读取数据，生成嵌入数据JS文件
+（自动化运行，无需人工放Excel到Downloads）
 """
 import pandas as pd
 import json
 import glob
 import os
 from datetime import datetime
+import re
 
 # ========== 配置：7个数据库 =========
+# 从早报流程生成的 *_all_data.json 读取数据
 DB_CONFIGS = [
     {
-        'name': 'Carbonate',
-        'excel_glob': 'C:/Users/1/Downloads/*电解液行业数据库*.xlsx',
+        'name': 'Electrolyte',
+        'json_path': 'D:/trae/AI Daily report/electrolyte_all_data.json',
         'output_js': 'D:/trae/AI Daily report/electrolyte_embedded_data.js',
-        'output_json': 'D:/trae/AI Daily report/electrolyte_all_data.json',
         'js_var': 'EMBEDDED_DATA',
-        'source_name': '电解液行业数据库.xlsx',
-        'sheet_table_map': {
-            '电解液产量-全企业': '电解液-行业整体产量',
-            '电解液产量-分企业': '电解液-分企业产量横向',
-            '电解液产量-top15': '电解液-top15排名',
-            '电解液产量年累-top15': '电解液年累-top15',
-            '电解液价格-磷酸铁锂动力型': '电解液价格-磷酸铁锂动力型',
-            '电解液价格-磷酸铁锂储能型': '电解液价格-磷酸铁锂储能型',
-            '电解液价格-三元动力型': '电解液价格-三元动力型',
-            '电解液价格-圆柱2600mAh': '电解液价格-圆柱2600mAh',
-            '电解液价格-圆柱2200mAh': '电解液价格-圆柱2200mAh',
-            '高压电解液-＞4.4V': '高压电解液价格-4.4V以上',
-            '高压电解液-4.4V': '高压电解液价格-4.4V',
-            '高压电解液-4.35V': '高压电解液价格-4.35V',
-            '电解液价格-分企业': '电解液价格-分企业横向',
-            '六氟产量-全行业': '六氟磷酸锂-行业总产量',
-            '六氟产量-分企业': '六氟-分企业产量',
-            '六氟产量-top15': '六氟-top15排名',
-            '六氟产量年累-top15': '六氟年累-top15',
-            '溶质价格-六氟主流市场': '六氟磷酸锂价格-主流市场',
-            '溶质价格-六氟出口': '六氟磷酸锂价格-出口',
-            '溶质价格-LiFSI-固态': 'LiFSI价格-固态',
-            '溶质价格-LiFSI-液态': 'LiFSI价格-液态',
-            '六氟-出口': '六氟磷酸锂出口-总量',
-            '六氟出口-分国别': '六氟出口-分国别',
-            '添加剂-产量-VC': '添加剂VC-产量',
-            '添加剂-产量-FEC': '添加剂FEC-产量',
-            '添加剂-价格-VC': '添加剂VC-价格',
-            '添加剂-价格-PS': '添加剂PS-价格',
-            '添加剂-价格-FEC': '添加剂FEC-价格',
-        }
+        'source_name': 'electrolyte_all_data.json',
     },
     {
-        'name': 'Carbonate_Li',
-        'excel_glob': 'C:/Users/1/Downloads/*碳酸锂产业链数据库*.xlsx',
+        'name': 'Carbonate',
+        'json_path': 'D:/trae/AI Daily report/carbonate_all_data.json',
         'output_js': 'D:/trae/AI Daily report/carbonate_embedded_data.js',
         'js_var': 'EMBEDDED_DATA',
-        'source_name': '碳酸锂产业链数据库.xlsx',
-        'sheet_table_map': {
-            '碳酸锂-行业总产量': '碳酸锂-行业总产量',
-            '碳酸锂-分企业产量': '碳酸锂-分企业产量',
-            '碳酸锂-进口量': '碳酸锂-进口量',
-            '碳酸锂-进口贸易伙伴': '碳酸锂-进口贸易伙伴',
-            '碳酸锂-出口量': '碳酸锂-出口量',
-            '碳酸锂-出口贸易伙伴': '碳酸锂-出口贸易伙伴',
-            '碳酸锂—价格': '碳酸锂-价格',
-            '氢氧化锂-行业总产量': '氢氧化锂-行业总产量',
-            '氢氧化锂—分企业产量': '氢氧化锂-分企业产量',
-            '氢氧化锂-进口量': '氢氧化锂-进口量',
-            '氢氧化锂-进口贸易伙伴': '氢氧化锂-进口贸易伙伴',
-            '氢氧化锂-出口量': '氢氧化锂-出口量',
-            '氢氧化锂—出口贸易伙伴': '氢氧化锂-出口贸易伙伴',
-            '氢氧化锂-价格': '氢氧化锂-价格',
-            '锂云母—价格': '锂云母-价格',
-            '锂辉石-进口量': '锂辉石-进口量',
-            '锂辉石-进口贸易伙伴': '锂辉石-进口贸易伙伴',
-            '锂辉石-出口量': '锂辉石-出口量',
-            '锂辉石—出口贸易伙伴': '锂辉石-出口贸易伙伴',
-            '锂辉石精矿-价格': '锂辉石精矿-价格',
-        }
-    },
-    {
-        'name': 'LFP',
-        'excel_glob': 'C:/Users/1/Downloads/*磷酸铁锂产业链数据库*.xlsx',
-        'output_js': 'D:/trae/AI Daily report/lfp_embedded_data.js',
-        'js_var': 'EMBEDDED_DATA',
-        'source_name': '磷酸铁锂产业链数据库.xlsx',
-        'sheet_table_map': {
-            'LFP-行业整体产量': 'LFP-行业整体产量',
-            'LFP-分企业产量': 'LFP-分企业产量',
-            'LFP竞对销量（客户采购量）': 'LFP竞对销量',
-            'LFP-出口量': 'LFP-出口量',
-            'LFP-出口贸易伙伴': 'LFP-出口贸易伙伴',
-            'FP-行业整体产量': 'FP-行业整体产量',
-            'FP-分企业产量': 'FP-分企业产量',
-            'FP竞对销量（客户采购量）': 'FP竞对销量',
-            '现货市场价（分压实密度）': 'LFP现货市场价-分压实密度',
-            'LFP现货市场价': 'LFP现货市场价',
-            'FP现货市场价': 'FP现货市场价',
-            '磷酸盐价格数据': '磷酸盐价格',
-            '非磷原料价格数据': '非磷原料价格',
-        }
-    },
-    {
-        'name': 'NCM',
-        'excel_glob': 'C:/Users/1/Downloads/*三元前驱体产业链数据库*.xlsx',
-        'output_js': 'D:/trae/AI Daily report/ternary_embedded_data.js',
-        'js_var': 'EMBEDDED_DATA',
-        'source_name': '三元前驱体产业链数据库.xlsx',
-        'sheet_table_map': {
-            'NCM-行业整体产量': 'NCM-行业整体产量',
-            'NCM-分型号产量': 'NCM-分型号产量',
-            'NCM-分企业产量': 'NCM-分企业产量',
-            'NCM-出口-总量': 'NCM-出口总量',
-            'NCM-出口-目的地': 'NCM-出口目的地',
-            'NCM-进口-总量': 'NCM-进口总量',
-            'NCM-进口-目的地': 'NCM-进口目的地',
-            'NCM-现货市场价 万元吨': 'NCM-现货市场价',
-            'NCMpre-行业整体产量': 'NCMpre-行业整体产量',
-            'NCMpre-分型号产量': 'NCMpre-分型号产量',
-            'NCMpre-分企业产量': 'NCMpre-分企业产量',
-            'NCMpre-出口-总量': 'NCMpre-出口总量',
-            'NCMpre-出口-目的地': 'NCMpre-出口目的地',
-            'NCMpre-进口-总量': 'NCMpre-进口总量',
-            'NCMpre-进口-目的地': 'NCMpre-进口目的地',
-            'NCMpre-现货市场价 万元吨': 'NCMpre-现货市场价',
-            '关键原料-现货市场价 万元吨': '关键原料-现货市场价',
-            '四氧化三钴-行业整体产量': '四氧化三钴-行业整体产量',
-            '四氧化三钴-现货市场价 万元吨': '四氧化三钴-现货市场价',
-        }
-    },
-    {
-        'name': 'LIB_BATT',
-        'excel_glob': 'C:/Users/1/Downloads/*锂电池行业数据库*.xlsx',
-        'output_js': 'D:/trae/AI Daily report/lib_battery_embedded_data.js',
-        'js_var': 'EMBEDDED_DATA',
-        'source_name': '锂电池行业数据库.xlsx',
-        'sheet_table_map': {
-            '锂电池行业产量（分规格）': '锂电池行业产量-分规格',
-            '锂电池行业产量产能（不分规格）': '锂电池行业产量产能',
-            '锂电池分企业产量（分规格）': '锂电池分企业产量-分规格',
-            '锂电池分企业产量产能（不分规格）': '锂电池分企业产量产能',
-            '电池排产预测': '电池排产预测',
-        }
+        'source_name': 'carbonate_all_data.json',
     },
     {
         'name': 'Recycling',
-        'excel_glob': 'C:/Users/1/Downloads/*锂电池回收行业数据库*.xlsx',
+        'json_path': 'D:/trae/AI Daily report/recycling_all_data.json',
         'output_js': 'D:/trae/AI Daily report/recycling_embedded_data.js',
         'js_var': 'EMBEDDED_DATA',
-        'source_name': '锂电池回收行业数据库.xlsx',
-        'sheet_table_map': {
-            '黑粉处理量-总计': '黑粉处理量-总计',
-            '黑粉处理量-三元+钴酸锂': '黑粉处理量-三元+钴酸锂',
-            '黑粉处理量-铁锂': '黑粉处理量-铁锂',
-            '黑粉整体处理量-分企业': '黑粉整体处理量-分企业',
-            '黑粉三元+钴酸锂处理量-分企业': '黑粉三元+钴酸锂处理量-分企业',
-            '黑粉磷酸铁锂处理量-分企业': '黑粉磷酸铁锂处理量-分企业',
-            '锂电池价格-大三元聚合物电池包': '锂电池价格-大三元聚合物电池包',
-            '锂电池价格-大三元铝壳电池包': '锂电池价格-大三元铝壳电池包',
-            '锂电池价格-钴酸锂铝壳电池包': '锂电池价格-钴酸锂铝壳电池包',
-            '锂电池价格-加工费电池包': '锂电池价格-加工费电池包',
-            '锂电池价格-铁锂钢壳电池包': '锂电池价格-铁锂钢壳电池包',
-            '锂电池价格-铁锂铝壳电池包': '锂电池价格-铁锂铝壳电池包',
-            '极片价格-负极片 25%＞Cu＞22%': '极片价格-负极片',
-            '极片价格-钴酸锂正极片Co≥45%;Li＞5%': '极片价格-钴酸锂正极片',
-            '极片价格-加工费': '极片价格-加工费',
-            '极片价格-三元523正极片Ni≥23%;Co≥8%;Li＞5%': '极片价格-三元523正极片',
-            '极片价格-铁锂正极片3.8%≥Li≥3.2%': '极片价格-铁锂正极片',
-            '辅料价格-铝粉Al≥90%': '辅料价格-铝粉',
-            '辅料价格-铜粉Cu≥90%': '辅料价格-铜粉',
-            '黑粉价格-钴酸锂电池粉30%≥Co≥25%;3.8%≥Li≥3': '黑粉价格-钴酸锂电池粉',
-            '黑粉价格-钴酸锂极片粉55%≥Co≥50%;6.3%≥Li≥5': '黑粉价格-钴酸锂极片粉',
-            '黑粉价格-三元523电池粉17%≥Ni≥15%;7.5%≥Co': '黑粉价格-三元523电池粉',
-            '黑粉价格-三元523极片粉30%≥Ni≥26%;12%≥Co≥': '黑粉价格-三元523极片粉',
-            '黑粉价格-石墨粉': '黑粉价格-石墨粉',
-            '黑粉价格-铁锂电池粉加工费2.8%≥Li≥2.2%': '黑粉价格-铁锂电池粉加工费',
-            '黑粉价格-铁锂极片粉4.2%≥Li＞3.6%': '黑粉价格-铁锂极片粉',
-            '黑粉价格-铁锂极片粉加工费4.2%≥Li≥3.6%': '黑粉价格-铁锂极片粉加工费',
-        }
+        'source_name': 'recycling_all_data.json',
     },
     {
         'name': 'Auto',
-        'excel_glob': 'C:/Users/1/Downloads/*全球汽车市场数据库*.xlsx',
+        'json_path': 'D:/trae/AI Daily report/automotive_all_data.json',
         'output_js': 'D:/trae/AI Daily report/automotive_embedded_data.js',
         'js_var': 'EMBEDDED_DATA',
-        'source_name': '全球汽车市场数据库.xlsx',
-        'sheet_table_map': {
-            '汽车销量—全球分区域市场': '汽车销量-全球分区域',
-            '汽车销量—全球分国家市场': '汽车销量-全球分国家',
-            '汽车销量—中国汽车市场': '汽车销量-中国市场',
-            '汽车销量—中国乘用车市场': '汽车销量-中国乘用车',
-            '汽车销量—中国乘用车出口': '汽车销量-中国乘用车出口',
-            '汽车销量-中国乘用车-分整车厂': '汽车销量-中国乘用车分整车厂',
-            '汽车销量—中国商用车市场': '汽车销量-中国商用车',
-            '汽车销量-中国商用车-分整车厂': '汽车销量-中国商用车分整车厂',
-            '汽车销量-中国商用车-中重卡-分整车厂': '汽车销量-中国商用车中重卡',
-            '汽车销量-中国商用车-轻卡-分整车厂': '汽车销量-中国商用车轻卡',
-            '汽车销量-中国商用车-轻客-分整车厂': '汽车销量-中国商用车轻客',
-            '汽车销量-中国商用车-大中客-分整车厂': '汽车销量-中国商用车大中客',
-            '新能源汽车销量-全球市场-整体': '新能源汽车销量-全球整体',
-            '新能源汽车销量-全球市场-分地区': '新能源汽车销量-全球分地区',
-            '新能源汽车销量—中国市场': '新能源汽车销量-中国市场',
-            '新能源汽车销量-出口': '新能源汽车销量-出口',
-            '新能源汽车销量-国内-乘用车零售销量': '新能源汽车销量-国内乘用车零售',
-            '新能源汽车销量-国内-商用车零售销量': '新能源汽车销量-国内商用车零售',
-            '新能源汽车销量-乘用车零售-分类型': '新能源汽车销量-乘用车零售分类型',
-            '新能源汽车销量-乘用车零售-分级别': '新能源汽车销量-乘用车零售分级别',
-            '新能源汽车销量-乘用车零售-分品牌': '新能源汽车销量-乘用车零售分品牌',
-            '新能源汽车销量-乘用车出口-分类型': '新能源汽车销量-乘用车出口分类型',
-            '新能源汽车销量-乘用车出口-分市场': '新能源汽车销量-乘用车出口分市场',
-            '新能源汽车销量-乘用车出口-分车企': '新能源汽车销量-乘用车出口分车企',
-        }
+        'source_name': 'automotive_all_data.json',
+    },
+    {
+        'name': 'LFP',
+        'json_path': 'D:/trae/AI Daily report/lfp_all_data.json',
+        'output_js': 'D:/trae/AI Daily report/lfp_embedded_data.js',
+        'js_var': 'EMBEDDED_DATA',
+        'source_name': 'lfp_all_data.json',
+    },
+    {
+        'name': 'NCM',
+        'json_path': 'D:/trae/AI Daily report/ternary_all_data.json',
+        'output_js': 'D:/trae/AI Daily report/ternary_embedded_data.js',
+        'js_var': 'EMBEDDED_DATA',
+        'source_name': 'ternary_all_data.json',
+    },
+    {
+        'name': 'LIB_BATT',
+        'json_path': 'D:/trae/AI Daily report/lib_battery_all_data.json',
+        'output_js': 'D:/trae/AI Daily report/lib_battery_embedded_data.js',
+        'js_var': 'EMBEDDED_DATA',
+        'source_name': 'lib_battery_all_data.json',
     },
 ]
 
-def to_utf8(v):
-    """Force value to clean UTF-8 string, eliminating GBK/latin1 mixed-encoding hazards.
-
-    When openpyxl reads Excel files, non-ASCII characters in sheet names / column names
-    may be decoded as latin1 instead of UTF-8, producing garbled strings like
-    '����Ų�Ԥ��'. These byte sequences are valid UTF-8 encoded as latin1.
-    We detect this by trying to re-encode as UTF-8 and decode as GBK (which is
-    compatible with the mis-decoded bytes) to recover the original Chinese text.
-    """
-    if v is None:
-        return None
-    if isinstance(v, (int, float)):
-        return v
-    if isinstance(v, bytes):
-        return v.decode('utf-8', errors='replace')
-    if isinstance(v, str):
-        # Already valid UTF-8?
-        try:
-            v.encode('utf-8')
-            return v
-        except UnicodeEncodeError:
-            pass
-        # openpyxl latin1 mis-decode fix: bytes are valid UTF-8 encoded text,
-        # but opened as latin1. Re-encode as latin1 (getting the raw UTF-8 bytes)
-        # then decode as GBK -> re-encode as UTF-8.
-        # This works because latin1 decode of UTF-8 bytes gives garbage that,
-        # when re-encoded as latin1, produces the original UTF-8 byte sequence.
-        try:
-            raw_bytes = v.encode('latin1')
-            # Only fix if the resulting bytes look like valid UTF-8 (high byte set)
-            # and GBK decode of those bytes gives readable Chinese
-            try:
-                gbk_decoded = raw_bytes.decode('gbk')
-                # Verify it's actually Chinese-rich (not a random latin1 string)
-                chinese_count = sum(1 for c in gbk_decoded if '\u4e00' <= c <= '\u9fff')
-                if chinese_count >= len(gbk_decoded) * 0.3:
-                    return gbk_decoded
-            except (UnicodeDecodeError, LookupError):
-                pass
-        except (UnicodeEncodeError, UnicodeDecodeError):
-            pass
-        # Fallback: latin1 round-trip
-        return v.encode('latin1').decode('utf-8', errors='replace')
-    return str(v)
-
-def sort_tables(tables):
-    """按'当前日期'倒序排列所有表格数据（最近日期在前），保证展示顺序一致性"""
-    DATE_KEYS = ('当前日期', '日期', 'date', 'update_date')
-    for table in tables:
-        rows = table.get('data', [])
-        if not rows:
-            continue
-        date_key = next((k for k in DATE_KEYS if k in rows[0]), None)
-        if not date_key:
-            continue
-        table['data'] = sorted(rows, key=lambda r: str(r.get(date_key) or ''), reverse=True)
-
-
-def excel_to_records(df):
-    """Convert DataFrame to records list, handle NaN."""
-    records = []
-    for idx, row in df.iterrows():
-        record = {}
-        for col in df.columns:
-            col_name = to_utf8(col)
-            val = row[col]
-            if pd.isna(val):
-                record[col_name] = None
-            elif isinstance(val, (int, float)):
-                if pd.isna(val):
-                    record[col_name] = None
-                else:
-                    record[col_name] = val
-            else:
-                record[col_name] = to_utf8(val)
-        records.append(record)
-    return records
 
 def _extract_latest_month(tables):
     """从表格数据中提取最新月份（用于比较新旧数据的时间范围）"""
@@ -319,14 +94,27 @@ def _extract_per_table_latest(tables):
             result[tname] = latest
     return result
 
+
+def sort_tables(tables):
+    """按'当前日期'倒序排列所有表格数据（最近日期在前），保证展示顺序一致性"""
+    DATE_KEYS = ('当前日期', '日期', 'date', 'update_date')
+    for table in tables:
+        rows = table.get('data', [])
+        if not rows:
+            continue
+        date_key = next((k for k in DATE_KEYS if k in rows[0]), None)
+        if not date_key:
+            continue
+        table['data'] = sorted(rows, key=lambda r: str(r.get(date_key) or ''), reverse=True)
+
+
 def generate_db(db_config):
-    """为一个数据库生成嵌入数据JS文件"""
+    """为一个数据库生成嵌入数据JS文件（从JSON读取）"""
     name = db_config['name']
-    excel_glob = db_config['excel_glob']
+    json_path = db_config['json_path']
     output_js = db_config['output_js']
     js_var = db_config['js_var']
     source_name = db_config['source_name']
-    sheet_table_map = db_config['sheet_table_map']
 
     # ── 0. 读取现有数据（用于后续保护对比）──
     existing_tables = []
@@ -337,96 +125,31 @@ def generate_db(db_config):
             with open(output_js, 'r', encoding='utf-8') as f:
                 existing_content = f.read()
             existing_data = json.loads(re.sub(r'^const\s+\w+\s*=\s*', '',
-                                               existing_content.strip()).rstrip().rstrip(';'))
+                                              existing_content.strip()).rstrip().rstrip(';'))
             existing_tables = existing_data.get('tables', [])
             existing_latest_month = _extract_latest_month(existing_tables)
             print(f'  [INFO] 现有数据最新月份: {existing_latest_month}')
         except Exception:
             pass  # 读取失败不影响主流程
 
-    # 找到Excel文件
-    files = glob.glob(excel_glob)
-    if not files:
-        print(f'[WARN] {name}: Excel file not found, glob={excel_glob}')
+    # ── 1. 读取 JSON 文件 ──
+    if not os.path.exists(json_path):
+        print(f'[WARN] {name}: JSON file not found, path={json_path}')
         return False
-
-    # Pick the newest file (not first alphabetical), to avoid picking stale "(1)" copies
-    excel_file = max(files, key=os.path.getmtime)
-    print('[INFO] ' + name + ': reading ' + ''.join([c if ord(c) < 128 or c in ' ()-.' else '_' for c in os.path.basename(excel_file)]))
-
-    # Fix: openpyxl mis-decodes some sheet names as GBK (locale default) when the XML
-    # stores them as UTF-8. We read the raw UTF-8 bytes directly from the xlsx zip
-    # (workbook.xml is always UTF-8 encoded per the XML declaration) and extract
-    # the correct sheet names to replace the garbled ones from pandas.
-    def _fix_openpyxl_sheet_names(excel_file, sheet_names):
-        try:
-            import zipfile, re as re_module
-            with zipfile.ZipFile(excel_file) as z:
-                with z.open('xl/workbook.xml') as f:
-                    raw_bytes = f.read()
-            # Extract sheet names from raw UTF-8 bytes.
-            # The XML encoding declaration says UTF-8, so attribute values ARE UTF-8.
-            # We scan byte-by-byte to extract the name attribute values.
-            xml_sheet_names = []
-            needle = b'<sheet name="'
-            pos = 0
-            while True:
-                idx = raw_bytes.find(needle, pos)
-                if idx < 0:
-                    break
-                # Find the closing quote
-                start = idx + len(needle)
-                end = raw_bytes.find(b'"', start)
-                if end < 0:
-                    break
-                name_bytes = raw_bytes[start:end]
-                # Decode this UTF-8 name to a Python string
-                name = name_bytes.decode('utf-8', errors='replace')
-                xml_sheet_names.append(name)
-                pos = end
-            # Match by position: both pandas and XML give sheets in same order
-            if len(xml_sheet_names) == len(sheet_names):
-                # Verify at least one name is different (fix is actually needed)
-                changed = any(a != b for a, b in zip(sheet_names, xml_sheet_names))
-                if changed:
-                    return xml_sheet_names
-            return sheet_names
-        except Exception:
-            return sheet_names
 
     try:
-        xl = pd.ExcelFile(excel_file)
+        with open(json_path, 'r', encoding='utf-8') as f:
+            json_data = json.load(f)
+        tables = json_data.get('tables', [])
+        if not tables:
+            print(f'[WARN] {name}: JSON has no tables, path={json_path}')
+            return False
+        print(f'[INFO] {name}: read from {source_name}, tables={len(tables)}')
     except Exception as e:
-        print(f'[ERROR] {name}: Excel read error - {e}')
+        print(f'[ERROR] {name}: JSON read error - {e}')
         return False
 
-    tables = []
-    update_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-
-    # Fix openpyxl sheet name encoding (GBK mis-decode issue)
-    fixed_sheet_names = _fix_openpyxl_sheet_names(excel_file, xl.sheet_names)
-
-    for i, sheet_name in enumerate(xl.sheet_names):
-        # Use fixed name for both data reading and table naming
-        fixed_name = fixed_sheet_names[i] if i < len(fixed_sheet_names) else sheet_name
-        try:
-            df = pd.read_excel(excel_file, sheet_name=sheet_name)
-            records = excel_to_records(df)
-            table_name = sheet_table_map.get(fixed_name, fixed_name)
-            tables.append({
-                'table_name': table_name,
-                'sheet_name': fixed_name,
-                'data': records,
-                'row_count': len(records)
-            })
-            print(f'  [OK] {fixed_name} -> {table_name}: {len(records)} rows')
-        except Exception as e:
-            print(f'  [FAIL] {sheet_name}: error - {e}')
-
-    # 全局排序：按'当前日期'倒序，保证展示时最近日期在上
-    sort_tables(tables)
-
-    # ── 数据时间范围保护：逐表比较，防止旧 Excel 覆盖新数据 ──
+    # ── 2. 数据时间范围保护：防止旧 JSON 覆盖新数据 ──
     new_per_table = _extract_per_table_latest(tables)
     if existing_tables and new_per_table:
         regressions = []
@@ -450,18 +173,22 @@ def generate_db(db_config):
             print(f'  {"="*60}')
             print(f'  [BLOCKED] {name}: 以下 {len(regressions)} 个表会数据回退，拒绝覆盖！')
             for tname, old_m, new_m in regressions:
-                print(f'    {tname}: 现有={old_m}  →  新Excel={new_m}  ▼')
-            print(f'  Excel 文件: {os.path.basename(excel_file)}')
+                print(f'    {tname}: 现有={old_m}  →  新JSON={new_m}  ▼')
+            print(f'  JSON 文件: {source_name}')
             print(f'  已备份当前 JS 到: {os.path.basename(backup_path)}')
-            print(f'  请更新 Excel 源文件后再运行此脚本。')
+            print(f'  请更新数据源后再运行此脚本。')
             print(f'  {"="*60}')
             print(f'')
             return False
 
-    # Generate JS file
+    # ── 3. 排序：按日期倒序 ──
+    sort_tables(tables)
+
+    # ── 4. 生成 JS 文件 ──
+    update_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     js_content = f'''const {js_var} = {json.dumps({
         "update_time": update_time,
-        "source": os.path.basename(excel_file),
+        "source": source_name,
         "tables": tables
     }, ensure_ascii=False, indent=2)};
 '''
@@ -476,12 +203,9 @@ def generate_db(db_config):
         print(f'[ERROR] {name}: JS write failed - {e}')
         return False
 
-def sync_html_table_names():
-    """生成后联动：扫描 HTML 页面，将 allData['已失效表名'] 替换为嵌入数据实际的表名。
 
-    触发条件：HTML 中引用的表名在当前 *embedded_data.js 中不存在，
-    且恰好有一个嵌入表名是它的前缀变体（差一个"数据"或"（xxx）"等常见后缀）。
-    """
+def sync_html_table_names():
+    """生成后联动：扫描 HTML 页面，将 allData['已失效表名'] 替换为嵌入数据实际的表名。"""
     import re, os
     project = os.path.dirname(os.path.abspath(__file__))
 
@@ -524,36 +248,25 @@ def sync_html_table_names():
         if not missing:
             continue
 
-        # 找最佳匹配：差一个常见后缀的表名
-        #   '磷酸盐价格数据' → '磷酸盐价格'
-        #   'LFP竞对销量（客户采购量）' → 'LFP竞对销量'
-        #   '现货市场价（分压实密度）' → 'LFP现货市场价-分压实密度'
+        # 找最佳匹配
         fixes = []
         for bad_name in missing:
-            # 去掉常见后缀后匹配
             candidates = []
             for actual in actual_names:
-                # actual 是 bad_name 去掉某些后缀的版本
                 if bad_name.startswith(actual) and bad_name[len(actual):]:
                     suffix = bad_name[len(actual):]
-                    # 后缀是这些常见词时才接受
                     if suffix in ('数据', '（客户采购量）', '（分压实密度）',
                                   '(客户采购量)', '(分压实密度)',
                                   '（万元吨）', '(万元吨)', '-分压实密度'):
                         candidates.append(actual)
-                # 或者 actual 是 bad_name 去掉某些后缀的版本（反向）
                 if actual.startswith(bad_name) and actual[len(bad_name):]:
                     suffix = actual[len(bad_name):]
                     if suffix in ('-分压实密度',):
                         candidates.append(actual)
-                # 完全包含匹配（actual 含 bad_name 或 bad_name 含 actual）
                 if actual in bad_name or bad_name in actual:
-                    # 长度差大于0且合理
                     if len(actual) != len(bad_name):
                         candidates.append(actual)
-            # 选择最佳候选：长度最接近且不为空
             if candidates:
-                # 优先选长度最接近的
                 best = min(candidates, key=lambda c: abs(len(c) - len(bad_name)))
                 fixes.append((bad_name, best))
 
@@ -561,11 +274,9 @@ def sync_html_table_names():
             print(f'  [WARN] {html_path}: 以下表名无匹配 → {missing}')
             continue
 
-        # 替换 content 中的表名
         modified = False
         for bad_name, correct_name in fixes:
             if bad_name in content:
-                # 精确替换 allData['xxx'] 中的表名
                 pattern = r"(allData\[')" + re.escape(bad_name) + r"('\])"
                 new_pattern = r"\g<1>" + correct_name + r"\g<2>"
                 new_content = re.sub(pattern, new_pattern, content)
@@ -595,7 +306,6 @@ def post_generate_validation():
     ok_count = 0
 
     # 1. 数据库看板 *_embedded_data.js 必须导出 EMBEDDED_DATA
-    #    （跳过 policy_center 等非图表数据文件）
     DB_CHART_BASES = {'automotive', 'carbonate', 'electrolyte', 'lfp',
                       'lib_battery', 'recycling', 'ternary'}
     for fname in os.listdir(project):
@@ -614,7 +324,7 @@ def post_generate_validation():
             except Exception as e:
                 errors.append(f'  [FAIL] {fname}: read error - {e}')
 
-    # 2. 所有 *_charts.html 必须引用 EMBEDDED_DATA（不能有旧变量名）
+    # 2. 所有 *_charts.html 必须引用 EMBEDDED_DATA
     OLD_VARS = {'ELECTROLYTE_DATA', 'TERNARY_DATA', 'AUTOMOTIVE_DATA',
                 'LIB_BATTERY_DATA', 'RECYCLING_DATA', 'CARBONATE_DATA', 'LFP_DATA'}
     for fname in os.listdir(project):
@@ -646,6 +356,7 @@ def post_generate_validation():
 if __name__ == '__main__':
     print('=' * 60)
     print('Generate all DB embedded JS files')
+    print('  数据源: *_all_data.json (自动读取)')
     print('=' * 60)
 
     success_count = 0
@@ -660,23 +371,20 @@ if __name__ == '__main__':
     print(f'Done: {success_count}/{len(DB_CONFIGS)} DB generated')
     print('=' * 60)
 
-    # 强制一致性检查：失败则退出非0
+    # 强制一致性检查
     if not post_generate_validation():
         print()
         print('[ERROR] 数据一致性检查失败！请修复后再重新生成。')
         import sys
         sys.exit(1)
 
-    # ── C方案：HTML 表名联动 ───────────────────────────────────────────
+    # HTML 表名联动
     print()
     print('=' * 60)
     print('  HTML 表名联动检查')
     print('=' * 60)
     sync_html_table_names()
 
-    # ── B方案：自动同步 JS → JSON（看板数据）────────────────────────────
+    # 同步 JSON（由于数据源已经是 JSON，这里可以跳过或保留空操作）
     print()
-    print('[INFO] 开始同步看板 JSON 文件...')
-    from _sync_embed_to_json import sync_all, print_report
-    results = sync_all()
-    print_report(results)
+    print('[INFO] 数据源已是 JSON，无需重复同步')

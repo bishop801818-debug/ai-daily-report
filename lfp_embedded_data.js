@@ -1,6 +1,6 @@
 const EMBEDDED_DATA = {
-  "update_time": "2026-06-18 15:30:07",
-  "source": "🔋 【常州锂源】磷酸铁锂产业链数据库 (1).xlsx",
+  "update_time": "2026-06-26 15:50:30",
+  "source": "lfp_all_data.json",
   "tables": [
     {
       "table_name": "LFP-行业整体产量",

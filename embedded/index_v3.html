@@ -15492,7 +15492,7 @@ const BUS_DATA = {
         // kpis/dims为占位值（RADAR_HISTORY无对比表数据），calcScores已回退使用此处硬编码
         dims:{d1:80,d2:80,d3:80,d4:80,d5:80,d6:80},
         kpis:{d1:[80,80,80,80],d2:[80,80,80,80],d3:[80,80,80,80],d4:[80,80,80,80],d5:[80,80,80,80],d6:[80,80,80,80]}},
-    sjld:{ name:'三金锂电', logo:'', tag:'三元前驱体', accent:'#ff9800', detailPage:'radar_detail_sjld.html',
+    sjld:{ name:'三金锂电', logo:'', tag:'三元前驱体', accent:'#ff9800', detailPage:'radar_detail_sjl.html',
         dims:{d1:80,d2:80,d3:80,d4:80,d5:80,d6:80},
         kpis:{d1:[80,80,80,80],d2:[80,80,80,80],d3:[80,80,80,80],d4:[80,80,80,80],d5:[80,80,80,80],d6:[80,80,80,80]}},
     fnlt:{ name:'法恩莱特', logo:'', tag:'电解液', accent:'#9c27b0', detailPage:'radar_detail_felt.html',
@@ -15658,14 +15658,14 @@ const BUS_DATA = {
             ]
         }
     },
-    lube: { name:'润滑油事业部', logo:'', tag:'车用润滑油', accent:'#c0392b', detailPage:'radar_detail_lhy.html',
+    lube: { name:'润滑油', logo:'', tag:'车用润滑油', accent:'#c0392b', detailPage:'radar_detail_lhy.html',
         dims:{d1:98,d2:88,d3:77,d4:78,d5:83,d6:75},
         kpis:{d1:[100,98,93,100],d2:[52,100,100,100],d3:[96,80,32,100],d4:[80,85,75,80],d5:[85,85,80,80],d6:[70,80,75,75]}},
-    kls: { name:'可兰素', logo:'', tag:'车用尿素', accent:'#a1887f', detailPage:'radar_detail_kls.html',
+    kls: { name:'可兰素', logo:'', tag:'车用尿素', accent:'#a1887f', detailPage:'radar_detail_kelan.html',
         // kpis/dims为占位值（无PDF数据），calcScores已回退使用此处硬编码
         dims:{d1:80,d2:78,d3:82,d4:62,d5:82,d6:73},
         kpis:{d1:[80,80,80,80],d2:[80,78,80,80],d3:[80,80,80,80],d4:[60,60,60,70],d5:[80,80,80,80],d6:[70,70,70,80]}},
-    bych:{ name:'铂源催化', logo:'', tag:'催化材料', accent:'#00bcd4', detailPage:'radar_detail_bych.html',
+    bych:{ name:'铂源催化', logo:'', tag:'催化材料', accent:'#00bcd4',
         dims:{d1:72,d2:80,d3:78,d4:88,d5:75,d6:72},
         kpis:{d1:[72,72,72,72],d2:[80,80,80,80],d3:[80,80,80,80],d4:[88,88,88,80],d5:[80,70,70,80],d6:[70,70,70,70]}},
     dkhx: { name:'迪克化学', logo:'', tag:'冷却液', accent:'#7986cb', detailPage:'radar_detail_dkhx.html',
@@ -18636,69 +18636,81 @@ document.addEventListener('DOMContentLoaded', function() {
         };
 
         // 所有可用的数据库看板配置（已根据实际数据文件校准）
-                                                                                                                                                                                        var DASHBOARDS = [
+                                                                                                                                                                                                                                                                                                var DASHBOARDS = [
         {
-            id: 'lipf6_price',
-            tag: '六氟磷酸锂·价格',
-            title: '六氟磷酸锂价格走势',
-            link: 'electrolyte_charts.html',
-            dataFile: 'electrolyte_all_data.json',
-            tableName: '六氟磷酸锂价格-主流市场',
-            unit: '万元/吨',
-            scale: 1,
-            insight: '最新值7.00万元/吨，环比上涨0.0%。同比增5.3%，近期走强。2026年3月工信部、财政部、国家发改委联合印发《关于开展氢能综合应用试点工作的通知》，。',
-            division: 'felt',
-            valueKey: '均价',
-            timeKey: '月份',
-            isBar: false},
-        {
-            id: 'recycling_market_share',
-            tag: '回收·处理量',
-            title: '黑粉处理量走势（三元 vs 铁锂）',
-            link: 'recycling_charts.html',
-            dataFile: 'recycling_all_data.json',
-            tableName: '黑粉处理量-三元+钴酸锂',
-            unit: '吨',
-            scale: 1,
-            insight: function(data) {
-                if (!data || !data.length) return '数据不足，无法生成分析。';
-                var latest = data[data.length - 1];
-                return '最新值' + latest[1].toFixed(0) + '吨，环比变化待计算。';
-            },
-            division: 'sdmd',
-            valueKey: '总计',
-            timeKey: '当前日期',
-            isBar: false,
-            chartType: 'line'},
-        {
-            id: 'lh_price',
-            tag: '氢氧化锂·现货价格',
-            title: '氢氧化锂现货价格走势',
+            id: 'carbonate_prod',
+            tag: '碳酸锂·行业产量',
+            title: '碳酸锂行业总产量走势',
             link: 'carbonate_charts.html',
             dataFile: 'carbonate_all_data.json',
-            tableName: '氢氧化锂-价格',
-            unit: '万元/吨',
-            scale: 1,
-            insight: '最新值16.75万元/吨，环比上涨1.8%。同比增2.1%，近期走强。工业和信息化部联合五部门部署启动2026年新能源汽车下乡活动，共计155款新能源车型纳入下乡目录，叠加车船税和购置税优惠延续，。',
-            division: 'czly',
-            valueKey: '均价（万元/吨）',
-            timeKey: '日期',
-            isBar: false},
-        {
-            id: 'ternary_prod',
-            tag: '三元正极·行业产量',
-            title: '三元正极材料产量走势',
-            link: 'ternary_charts.html',
-            dataFile: 'ternary_all_data.json',
-            tableName: 'NCM-行业整体产量',
+            tableName: '碳酸锂-行业总产量',
             unit: '吨',
             scale: 1,
-            insight: '数据不足，无法生成分析。',
+            insight: '碳酸锂期货主力单日跌超4%至15.3万元/吨，电池级碳酸锂高价格抑制下游采购意愿；硫磺、磷酸铁价格高位虽提供成本托底但MMLC联动下挫风险仍在；行业1764万吨规划产能若兑现度超70%将于2027年末集中释放，远期供给压力凸显。',
             division: 'czly',
             valueKey: '产量（吨）',
             timeKey: '月份',
-            isBar: true}
+            isBar: true},
+        {
+            id: 'electrolyte_price_lfp',
+            tag: '电解液·LFP动力价格',
+            title: '电解液（LFP动力型）价格走势',
+            link: 'electrolyte_charts.html',
+            dataFile: 'electrolyte_all_data.json',
+            tableName: '电解液价格-磷酸铁锂动力型',
+            unit: '万元/吨',
+            scale: 1,
+            insight: '电解液（LFP动力型）价格：28500元/吨，涨跌：周持平，月涨3.64%。电解液赛道一年长单累计超400万吨，VC单日再涨8000元/吨至15.5万元/吨、三季度电池排产走高供需缺口持续扩大；磷酸铁锂电解液月涨3.64%、高电压(>4.4V)月涨2.60%，适配快充/4.4V+体系的高附加值电解液溢价能力突出。',
+            division: 'felt',
+            valueKey: '均价',
+            timeKey: '日期',
+            isBar: false},
+        {
+            id: 'lfp_price_ternary',
+            tag: '电解液·三元动力价格',
+            title: '电解液（三元动力型）价格走势',
+            link: 'electrolyte_charts.html',
+            dataFile: 'electrolyte_all_data.json',
+            tableName: '电解液价格-三元动力型',
+            unit: '万元/吨',
+            scale: 1,
+            insight: '电解液（三元动力型）价格：28500元/吨，涨跌：周持平，月涨3.64%。电解液赛道一年长单累计超400万吨，VC单日再涨8000元/吨至15.5万元/吨、三季度电池排产走高供需缺口持续扩大；磷酸铁锂电解液月涨3.64%、高电压(>4.4V)月涨2.60%，适配快充/4.4V+体系的高附加值电解液溢价能力突出。',
+            division: 'felt',
+            valueKey: '均价',
+            timeKey: '日期',
+            isBar: false},
+        {
+            id: 'automotive_nev_brand_share',
+            tag: '汽车·NEV品牌份额',
+            title: '新能源汽车品牌销量份额',
+            link: 'automotive_charts.html',
+            dataFile: 'automotive_all_data.json',
+            tableName: '新能源汽车销量-乘用车零售分品牌',
+            unit: '万辆',
+            scale: 1,
+            insight: 'TOP1「比亚迪汽车」占30%（20.7万辆），吉利汽车16%。国家发改委、国家能源局6月25日印发《新型能源体系建设"十五五"规划》，提出2030年新能源发电量占比达30%、可再生能源制氢规模200万吨；大力发展新型储能、加力发展长时储能，鼓励多元化储能技术路线，拓展储能在电源协同、电网支撑、虚拟电厂等领域应用。',
+            division: 'czly',
+            chartType: 'pie',
+            isBar: false,
+            pieMode: 'filtered_rows',
+            pieExcludeColumns: [],
+            pieDateKey: '日期',
+            pieNameKey: 'NEV厂商',
+            pieValueKey: '销量（万辆）'}
         ];
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
         
         
         
