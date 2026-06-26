@@ -18674,6 +18674,26 @@ function getBuTableData(buId) {
 }
 
 // ═══════════════════════════════════════════════════
+// 事业部差异化权重（与 radar_hub.html BU_WEIGHTS 完全一致）
+// ═══════════════════════════════════════════════════
+const BU_WEIGHTS = {
+    sdmd:   [0.18, 0.18, 0.20, 0.15, 0.18, 0.11],
+    felt:   [0.15, 0.20, 0.22, 0.18, 0.15, 0.10],
+    lhy:    [0.18, 0.22, 0.15, 0.22, 0.15, 0.08],
+    lubricant: [0.18, 0.22, 0.15, 0.22, 0.15, 0.08],  // lhy 同套权重
+    sjld:   [0.15, 0.18, 0.15, 0.17, 0.25, 0.10],
+    sjl:    [0.15, 0.18, 0.15, 0.17, 0.25, 0.10],      // sjld 同套权重
+    dhx:    [0.20, 0.22, 0.18, 0.15, 0.15, 0.10],
+    dkhx:   [0.20, 0.22, 0.18, 0.15, 0.15, 0.10],      // dhx 同套权重
+    lpsd:   [0.20, 0.20, 0.18, 0.17, 0.13, 0.12],
+    kls:    [0.18, 0.22, 0.15, 0.22, 0.15, 0.08],
+    kelan:  [0.18, 0.22, 0.15, 0.22, 0.15, 0.08],      // kls 同套权重
+    czly:   [0.20, 0.20, 0.18, 0.17, 0.13, 0.12],
+    bych:   [0.20, 0.20, 0.18, 0.17, 0.13, 0.12],      // 默认权重
+};
+const DEFAULT_WEIGHTS = [0.20, 0.20, 0.18, 0.17, 0.13, 0.12];
+
+// ═══════════════════════════════════════════════════
 // 六边形评价体系
 // ═══════════════════════════════════════════════════
 const DIMS = [
@@ -18886,7 +18906,8 @@ const BUS_DATA = {
 
 function calcTotal(buId) {
     const scores = calcScores(buId);
-    return DIMS.reduce((s, d) => s + scores.dims[d.id] * d.weight, 0);
+    const wts = BU_WEIGHTS[buId] || DEFAULT_WEIGHTS;
+    return DIMS.reduce((s, d, i) => s + scores.dims[d.id] * (wts[i] || 0.20), 0);
 }
 function getGrade(score) {
     if (score >= 90) return {label:'S+卓越', color:'#1a7a6e', bg:'rgba(26,122,110,0.15)'};
@@ -19366,7 +19387,7 @@ async function openPanel(buId) {
                     <div class="hexa-leg-item"><div class="hexa-leg-dot" style="background:#1e3c72;opacity:0.6"></div>集团基准线</div>
                 </div>
                 ${histBarHtml}
-                <div class="hexa-rank-note">权重：D1-20% D2-20% D3-18% D4-17% D5-13% D6-12%</div>
+                <div class="hexa-rank-note" id="hexaRankNote">权重：加载中...</div>
             </div>
             <div class="hexa-dims-col" id="dimsCol"></div>
         </div>
@@ -19384,6 +19405,13 @@ async function openPanel(buId) {
         </div>
     `;
     renderDims(buId);
+
+    // 动态显示 BU 实际权重
+    const wts = BU_WEIGHTS[buId] || DEFAULT_WEIGHTS;
+    const noteEl = document.getElementById('hexaRankNote');
+    if (noteEl) {
+        noteEl.textContent = '权重：' + wts.map((w, i) => 'D' + (i+1) + '-' + Math.round(w*100) + '%').join(' ');
+    }
 
     // 设置"查看详情"按钮跳转链接（跳转到对应雷达看板页）
     const detailBtn = document.getElementById('drawerDetailBtn');
@@ -19427,7 +19455,9 @@ function buildHistoricalCards(buId, histMonths) {
     const cards = histMonths.map((m, i) => {
         const hist = RADAR_HISTORY[buId] && RADAR_HISTORY[buId][m];
         if (!hist) return '';
-        const avg = Math.round(Object.values(hist.dims).reduce((a,b)=>a+b,0)/6);
+        const wts = BU_WEIGHTS[buId] || DEFAULT_WEIGHTS;
+        const vals = DIMS.map((d, i) => (hist.dims[d.id] || 0) * (wts[i] || 0.20));
+        const avg = Math.round(vals.reduce((a, b) => a + b, 0));
         const monthLabel = m.slice(5) + '月';
         const ov = overlayColors[i % overlayColors.length];
         const isCurrent = hist._isCurrent || false;
