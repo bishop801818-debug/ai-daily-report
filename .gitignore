@@ -200,3 +200,8 @@ output/
 .env
 .env.*
 dist/assets/dragon_4combined_anim_original_backup.gif
+
+# ------------------------------------------
+# 16. 自动备份文件夹（不提交到Git）
+# ------------------------------------------
+archive/backups/
