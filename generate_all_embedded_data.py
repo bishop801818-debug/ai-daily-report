@@ -476,6 +476,117 @@ def generate_db(db_config):
         print(f'[ERROR] {name}: JS write failed - {e}')
         return False
 
+def sync_html_table_names():
+    """生成后联动：扫描 HTML 页面，将 allData['已失效表名'] 替换为嵌入数据实际的表名。
+
+    触发条件：HTML 中引用的表名在当前 *embedded_data.js 中不存在，
+    且恰好有一个嵌入表名是它的前缀变体（差一个"数据"或"（xxx）"等常见后缀）。
+    """
+    import re, os
+    project = os.path.dirname(os.path.abspath(__file__))
+
+    # 1. 收集每个 JS 文件中实际的表名集合
+    js_actual_names = {}  # js_file -> Set[table_name]
+    for cfg in DB_CONFIGS:
+        js_path = cfg['output_js']
+        if not os.path.exists(js_path):
+            continue
+        try:
+            with open(js_path, 'r', encoding='utf-8') as f:
+                content = f.read()
+            start = content.find('{')
+            data = json.loads(content[start:].rstrip().rstrip(';'))
+            names = {t['table_name'] for t in data.get('tables', [])}
+            js_actual_names[js_path] = names
+        except Exception:
+            pass
+
+    # 2. 找出每个 JS 对应的 HTML 文件
+    html_files = []
+    for js_path, actual_names in js_actual_names.items():
+        base = os.path.basename(js_path).replace('_embedded_data.js', '')
+        for suffix in ('_data_v2.html', '_charts.html'):
+            html_path = os.path.join(project, base + suffix)
+            if os.path.exists(html_path):
+                html_files.append((html_path, actual_names, base))
+
+    # 3. 扫描并修复每个 HTML
+    total_fixes = 0
+    for html_path, actual_names, base in html_files:
+        with open(html_path, 'r', encoding='utf-8') as f:
+            content = f.read()
+
+        # 找出所有 allData['xxx'] 引用
+        refs = re.findall(r"allData\['([^']+)'\]", content)
+        refs = list(dict.fromkeys(refs))  # 去重保持顺序
+
+        missing = [r for r in refs if r not in actual_names]
+        if not missing:
+            continue
+
+        # 找最佳匹配：差一个常见后缀的表名
+        #   '磷酸盐价格数据' → '磷酸盐价格'
+        #   'LFP竞对销量（客户采购量）' → 'LFP竞对销量'
+        #   '现货市场价（分压实密度）' → 'LFP现货市场价-分压实密度'
+        fixes = []
+        for bad_name in missing:
+            # 去掉常见后缀后匹配
+            candidates = []
+            for actual in actual_names:
+                # actual 是 bad_name 去掉某些后缀的版本
+                if bad_name.startswith(actual) and bad_name[len(actual):]:
+                    suffix = bad_name[len(actual):]
+                    # 后缀是这些常见词时才接受
+                    if suffix in ('数据', '（客户采购量）', '（分压实密度）',
+                                  '(客户采购量)', '(分压实密度)',
+                                  '（万元吨）', '(万元吨)', '-分压实密度'):
+                        candidates.append(actual)
+                # 或者 actual 是 bad_name 去掉某些后缀的版本（反向）
+                if actual.startswith(bad_name) and actual[len(bad_name):]:
+                    suffix = actual[len(bad_name):]
+                    if suffix in ('-分压实密度',):
+                        candidates.append(actual)
+                # 完全包含匹配（actual 含 bad_name 或 bad_name 含 actual）
+                if actual in bad_name or bad_name in actual:
+                    # 长度差大于0且合理
+                    if len(actual) != len(bad_name):
+                        candidates.append(actual)
+            # 选择最佳候选：长度最接近且不为空
+            if candidates:
+                # 优先选长度最接近的
+                best = min(candidates, key=lambda c: abs(len(c) - len(bad_name)))
+                fixes.append((bad_name, best))
+
+        if not fixes:
+            print(f'  [WARN] {html_path}: 以下表名无匹配 → {missing}')
+            continue
+
+        # 替换 content 中的表名
+        modified = False
+        for bad_name, correct_name in fixes:
+            if bad_name in content:
+                # 精确替换 allData['xxx'] 中的表名
+                pattern = r"(allData\[')" + re.escape(bad_name) + r"('\])"
+                new_pattern = r"\g<1>" + correct_name + r"\g<2>"
+                new_content = re.sub(pattern, new_pattern, content)
+                if new_content != content:
+                    content = new_content
+                    modified = True
+                    print(f'  [SYNC] {html_path}:')
+                    print(f'         {bad_name} → {correct_name}')
+
+        if modified:
+            with open(html_path, 'w', encoding='utf-8') as f:
+                f.write(content)
+            total_fixes += len(fixes)
+
+    if total_fixes > 0:
+        print(f'\n  [SYNC] 共修复 {total_fixes} 处 HTML 表名引用')
+    else:
+        print('\n  [SYNC] 所有 HTML 表名引用均正确，无需修复')
+    return total_fixes
+
+
 def post_generate_validation():
     """生成后一致性检查：防止 JS 变量名与 HTML 引用不匹配"""
     import re, os
@@ -555,6 +666,13 @@ if __name__ == '__main__':
         print('[ERROR] 数据一致性检查失败！请修复后再重新生成。')
         import sys
         sys.exit(1)
+
+    # ── C方案：HTML 表名联动 ───────────────────────────────────────────
+    print()
+    print('=' * 60)
+    print('  HTML 表名联动检查')
+    print('=' * 60)
+    sync_html_table_names()
 
     # ── B方案：自动同步 JS → JSON（看板数据）────────────────────────────
     print()
