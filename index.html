@@ -83,7 +83,7 @@
     (function() {
         var DATA_BASE = (location.hostname.includes('aiforce.cloud') || location.hostname.includes('miaoda'))
           ? 'https://bishop801818-debug.github.io/ai-daily-report'
-          : '';
+          : '.';
         
         function showLoading() {
             var div = document.getElementById('loading-mask');
@@ -108,7 +108,7 @@
             // 先获取 index.json 得到 latest_date
             var indexXhr = new XMLHttpRequest();
             indexXhr.open('GET', DATA_BASE + '/reports/index.json?t=' + new Date().getTime(), true);
-            
+
             indexXhr.onload = function() {
                 if (indexXhr.status === 200) {
                     try {
