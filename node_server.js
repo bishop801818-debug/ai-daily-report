@@ -19,24 +19,54 @@ const MIME_TYPES = {
     '.md':   'text/plain; charset=utf-8',
 };
 
+// Cache-Control policy by file type
+// HTML/JSON: no cache (data changes daily)
+// JS/CSS: cache with version param (reload on version change)
+// Images: cache for 1 day
+const CACHE_POLICY = {
+    '.html': 'no-cache, no-store, must-revalidate',
+    '.json': 'no-cache, no-store, must-revalidate',
+    '.js':   'public, max-age=31536000',  // 1 year, use ?v=xxx to force reload
+    '.css':  'public, max-age=31536000',  // 1 year, use ?v=xxx to force reload
+    '.png':  'public, max-age=86400',     // 1 day
+    '.jpg':  'public, max-age=86400',
+    '.gif':  'public, max-age=86400',
+    '.svg':  'public, max-age=86400',
+    '.ico':  'public, max-age=86400',
+    '.txt':  'no-cache, no-store, must-revalidate',
+    '.md':   'no-cache, no-store, must-revalidate',
+};
+
 function serveFile(req, res) {
     // Strip query string so ?v=xxx doesn't cause 404 on disk
     let pathname = req.url.split('?')[0];
     let filePath = path.join(ROOT, pathname === '/' ? 'index.html' : pathname);
     const ext = path.extname(filePath);
     const contentType = MIME_TYPES[ext] || 'application/octet-stream';
+    const cachePolicy = CACHE_POLICY[ext] || 'no-cache, no-store, must-revalidate';
 
     fs.readFile(filePath, (err, content) => {
         if (err) {
             if (err.code === 'ENOENT') {
-                res.writeHead(404, { 'Content-Type': 'text/plain' });
+                res.writeHead(404, {
+                    'Content-Type': 'text/plain',
+                    'Cache-Control': 'no-cache, no-store, must-revalidate'
+                });
                 res.end('404 Not Found');
             } else {
-                res.writeHead(500, { 'Content-Type': 'text/plain' });
+                res.writeHead(500, {
+                    'Content-Type': 'text/plain',
+                    'Cache-Control': 'no-cache, no-store, must-revalidate'
+                });
                 res.end('500 Internal Server Error');
             }
         } else {
-            res.writeHead(200, { 'Content-Type': contentType });
+            res.writeHead(200, {
+                'Content-Type': contentType,
+                'Cache-Control': cachePolicy,
+                'Pragma': ext === '.html' || ext === '.json' ? 'no-cache' : '',
+                'Expires': ext === '.html' || ext === '.json' ? '0' : ''
+            });
             res.end(content);
         }
     });

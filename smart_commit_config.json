@@ -1,0 +1,24 @@
+{
+  "compare_rules": {
+    "*.html": {
+      "method": "hash",
+      "quick_check": "size"
+    },
+    "data/*.json": {
+      "method": "hash",
+      "quick_check": "size",
+      "json_fields": ["update_time"]
+    }
+  },
+  "exclude_patterns": [
+    "data/*_temp.json",
+    "data/*_bak.json",
+    "data/*_old.json",
+    "data/*_backup.json",
+    "*_temp.html",
+    "*_bak.html",
+    "*_old.html"
+  ],
+  "debug_mode": false,
+  "commit_message_template": "智能存档: {date} {count}个文件有变化"
+}

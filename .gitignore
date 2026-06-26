@@ -56,7 +56,11 @@ temp/
 # ------------------------------------------
 # 4. 大型数据文件（可从Excel重新生成）
 # ------------------------------------------
-data/*.json
+# 排除临时文件
+data/*_temp.json
+data/*_bak.json
+data/*_old.json
+data/*_backup.json
 data/*.csv
 !data/README.md
 
@@ -72,6 +76,7 @@ data/*.csv
 !data/market_cumulative.json
 !data/market_cumulative_metals.json
 !data/market_cumulative_chemical.json
+!data/*_all_data.json
 
 # ------------------------------------------
 # 5.早报历史存档（按日期自动生成）

@@ -9678,7 +9678,7 @@ window.addEventListener('DOMContentLoaded', function() {
             try {
                 // 1. 加载产业链配置文件
                 console.log('[初始化] 加载产业链配置...');
-                const chainResp = await fetch('data/industry_chain.json');
+                const chainResp = await fetch('data/industry_chain.json?v=' + HTML_VERSION);
                 if (!chainResp.ok) {
                     throw new Error('无法加载产业链配置文件');
                 }
