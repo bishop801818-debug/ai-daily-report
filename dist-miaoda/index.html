@@ -12,7 +12,7 @@
     <script defer src="chemical_data.js?v=20260625"></script>
     <script defer src="recycling_gantt.js?v=20260625"></script>
     <script>
-      window.HTML_VERSION = "20260626_004"; // 版本号
+      window.HTML_VERSION = "20260626_005"; // 版本号
 
       /* ---------- 彻底防止图表旧内容闪屏（bfcache + 渲染残留）----------
        * 问题：浏览器前进后退缓存(bfcache)会保存完整页面状态，
@@ -107,7 +107,7 @@
             
             // 先获取 index.json 得到 latest_date
             var indexXhr = new XMLHttpRequest();
-            indexXhr.open('GET', DATA_BASE + '/reports/index.json?t=' + new Date().getTime(), true);
+            indexXhr.open('GET', DATA_BASE + '/reports/index.json?v=' + (window.HTML_VERSION || new Date().getTime()), true);
             
             indexXhr.onload = function() {
                 if (indexXhr.status === 200) {
@@ -120,7 +120,7 @@
                         
                         // 加载最新的报告文件
                         var dataXhr = new XMLHttpRequest();
-                        dataXhr.open('GET', dataFile + '?t=' + new Date().getTime(), true);
+                        dataXhr.open('GET', dataFile + '?v=' + (window.HTML_VERSION || new Date().getTime()), true);
                         
                         dataXhr.onload = function() {
                             if (dataXhr.status === 200) {
@@ -187,7 +187,7 @@
       // Coze API配置现在在后端代理服务器中
       // 前端通过 http://localhost:5000/api/... 调用
     </script>
-    <title>晨会指挥中心 - 每日早报 v20260624</title>
+    <title>晨会指挥中心 - 每日早报 v20260626_005</title>
     <style>
         /* 防止图表旧内容闪屏：SVG默认隐藏，JS渲染完成后由JS设为visible */
         /* 使用 !important 防止被 inline style 覆盖 */
