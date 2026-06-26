@@ -1180,7 +1180,7 @@
         
         // LFP竞对销量
         function renderLFPCompetitor() {
-            const data = allData['LFP竞对销量（客户采购量）'] || [];
+            const data = allData['LFP竞对销量'] || [];
             tableData['lfp-competitor'] = data;
             const sorted = [...data].sort((a, b) => String(b['月份']||'').localeCompare(String(a['月份']||'')));
 
@@ -1350,7 +1350,7 @@
         
         // 现货价(分压实密度)
         function renderPriceDensity() {
-            const data = allData['现货市场价（分压实密度）'] || [];
+            const data = allData['LFP现货市场价-分压实密度'] || [];
             tableData['price-density'] = data;
             if (!data.length) {
                 document.getElementById('price-density-body').innerHTML = '<tr><td colspan="6" class="loading">暂无数据</td></tr>';
@@ -1433,7 +1433,7 @@
         
         // 磷酸盐价格数据
         function renderPhosphate() {
-            const data = allData['磷酸盐价格数据'] || [];
+            const data = allData['磷酸盐价格'] || [];
             tableData['phosphate'] = data;
             if (!data.length) {
                 document.getElementById('phosphate-body').innerHTML = '<tr><td colspan="5" class="loading">暂无数据</td></tr>';
@@ -1468,7 +1468,7 @@
 
         // 非磷原料价格数据
         function renderRawMaterial() {
-            const data = allData['非磷原料价格数据'] || [];
+            const data = allData['非磷原料价格'] || [];
             tableData['raw-material'] = data;
             if (!data.length) {
                 document.getElementById('raw-material-body').innerHTML = '<tr><td colspan="5" class="loading">暂无数据</td></tr>';
