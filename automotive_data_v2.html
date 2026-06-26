@@ -649,10 +649,10 @@
         if (!tbody || !tableName) return;
 
         var rawTable = null;
-        if (window.EMBEDDED_DATA && window.EMBEDDED_DATA.tables) {
-            for (var i = 0; i < window.EMBEDDED_DATA.tables.length; i++) {
-                if (window.EMBEDDED_DATA.tables[i].table_name === tableName) {
-                    rawTable = window.EMBEDDED_DATA.tables[i];
+        if (typeof EMBEDDED_DATA !== 'undefined' && EMBEDDED_DATA.tables) {
+            for (var i = 0; i < EMBEDDED_DATA.tables.length; i++) {
+                if (EMBEDDED_DATA.tables[i].table_name === tableName) {
+                    rawTable = EMBEDDED_DATA.tables[i];
                     break;
                 }
             }
@@ -733,9 +733,9 @@
     }
 
     window.addEventListener('DOMContentLoaded', function() {
-        if (window.EMBEDDED_DATA) {
+        if (typeof EMBEDDED_DATA !== 'undefined') {
             var ut = document.getElementById('updateTime');
-            if (ut) ut.textContent = window.EMBEDDED_DATA.update_time || '未知';
+            if (ut) ut.textContent = EMBEDDED_DATA.update_time || '未知';
         }
         for (var navId in NAV_TABLE_MAP) {
             renderSection(navId);
