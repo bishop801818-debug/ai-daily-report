@@ -12,67 +12,7 @@
     <script defer src="chemical_data.js?v=20260625"></script>
     <script defer src="recycling_gantt.js?v=20260625"></script>
     <script>
-      window.HTML_VERSION = "20260625_1900"; // 版本号，用于fetch缓存刷新（2026-06-25 强制刷新市场行情数据）
-
-        // ═══════════════════════════════════════════════════
-        // 事业部权限控制
-        // ═══════════════════════════════════════════════════
-        const BU_PERMISSIONS = {
-            'all': { name: '全部（集团领导）', allowed: ['czly','sdmd','sjld','lpsd','fnlt','lube','kls','dkhx','bych'] },
-            'czly': { name: '常州锂源（磷酸铁锂正极材料）', allowed: ['czly'] },
-            'sdmd': { name: '山东美多（磷酸铁锂正极材料）', allowed: ['sdmd'] },
-            'sjld': { name: '三金锂电（磷酸铁锂正极材料）', allowed: ['sjld'] },
-            'lpsd': { name: '龙蟠时代（锂电池）', allowed: ['lpsd'] },
-            'fnlt': { name: '法恩莱特（电解液）', allowed: ['fnlt'] },
-            'dkhx': { name: '迪克化学（电解液）', allowed: ['dkhx'] },
-            'lube': { name: '润滑油', allowed: ['lube'] },
-            'kls': { name: '可兰素（车用尿素）', allowed: ['kls'] },
-            'bych': { name: '铂源催化', allowed: ['bych'] }
-        };
-
-        // 获取当前用户允许的事业部列表
-        function getAllowedBUs() {
-            // 优先检查飞书认证
-            const feishuUserInfoStr = localStorage.getItem('feishu_user_info');
-            if (feishuUserInfoStr) {
-                try {
-                    const feishuUserInfo = JSON.parse(feishuUserInfoStr);
-                    if (feishuUserInfo && feishuUserInfo.matched_bu) {
-                        console.log('[权限] 使用飞书认证，事业部:', feishuUserInfo.matched_dept_name || feishuUserInfo.matched_bu);
-                        return [feishuUserInfo.matched_bu];
-                    }
-                } catch (e) {
-                    console.error('[权限] 解析飞书用户信息失败:', e);
-                }
-            }
-            
-            // 否则使用手动选择
-            const saved = localStorage.getItem('user_bu_permission');
-            if (saved && BU_PERMISSIONS[saved]) {
-                return BU_PERMISSIONS[saved].allowed;
-            }
-            return BU_PERMISSIONS['all'].allowed; // 默认显示全部
-        }
-
-        // 检查是否有权限
-        function hasPermission(buId) {
-            return getAllowedBUs().includes(buId);
-        }
-
-        // 显示事业部选择弹窗
-        function showBUSelectModal() {
-            const modal = document.getElementById('bu-select-modal');
-            if (modal) modal.style.display = 'flex';
-        }
-
-        // 隐藏选择弹窗并保存选择
-        function saveBUSelection(buKey) {
-            localStorage.setItem('user_bu_permission', buKey);
-            const modal = document.getElementById('bu-select-modal');
-            if (modal) modal.style.display = 'none';
-            // 刷新页面以应用权限
-            location.reload();
-        }
+      window.HTML_VERSION = "20260626_004"; // 版本号
 
       /* ---------- 彻底防止图表旧内容闪屏（bfcache + 渲染残留）----------
        * 问题：浏览器前进后退缓存(bfcache)会保存完整页面状态，
@@ -139,12 +79,11 @@
         }
     </script>
     <script>
-    <script>
     // 异步加载报告数据（动态获取最新报告）
     (function() {
         var DATA_BASE = (location.hostname.includes('aiforce.cloud') || location.hostname.includes('miaoda'))
           ? 'https://bishop801818-debug.github.io/ai-daily-report'
-          : '';
+          : '.';
         
         function showLoading() {
             var div = document.getElementById('loading-mask');
@@ -3692,149 +3631,6 @@
             background: linear-gradient(135deg, var(--text-secondary) 0%, var(--text-main) 100%);
             box-shadow: 0 6px 18px rgba(30, 60, 114, 0.35);
         }
-
-/* ===== 事业部选择弹窗 ===== */
-.bu-select-modal {
-    position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
-    z-index: 100000;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-.bu-select-overlay {
-    position: absolute;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(0,0,0,0.5);
-    backdrop-filter: blur(4px);
-}
-.bu-select-dialog {
-    position: relative;
-    background: #fff;
-    border-radius: 16px;
-    padding: 24px;
-    max-width: 400px;
-    width: 90%;
-    max-height: 80vh;
-    overflow-y: auto;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-}
-.bu-select-title {
-    font-size: 20px;
-    font-weight: 700;
-    color: #1a1a1a;
-    text-align: center;
-    margin-bottom: 8px;
-}
-.bu-select-subtitle {
-    font-size: 14px;
-    color: #666;
-    text-align: center;
-    margin-bottom: 20px;
-}
-.bu-select-feishu {
-    margin-bottom: 20px;
-    text-align: center;
-    padding: 16px;
-    background: linear-gradient(135deg, #f8f9ff 0%, #e8edff 100%);
-    border-radius: 12px;
-    border: 1px solid #d0d7f0;
-}
-.bu-select-feishu-btn {
-    background: linear-gradient(135deg, #2d5de5 0%, #1e3a8a 100%);
-    color: white;
-    border: none;
-    padding: 12px 24px;
-    border-radius: 8px;
-    font-size: 15px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-}
-.bu-select-feishu-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 18px rgba(45, 93, 229, 0.35);
-}
-.bu-select-feishu-hint {
-    font-size: 12px;
-    color: #666;
-    margin-top: 8px;
-    line-height: 1.4;
-}
-.bu-select-divider {
-    display: flex;
-    align-items: center;
-    margin: 20px 0;
-    color: #999;
-    font-size: 14px;
-}
-.bu-select-divider::before,
-.bu-select-divider::after {
-    content: '';
-    flex: 1;
-    height: 1px;
-    background: #ddd;
-}
-.bu-select-divider span {
-    padding: 0 12px;
-}
-.bu-select-list {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
-.bu-select-item {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 12px 16px;
-    background: #f8f9fa;
-    border-radius: 10px;
-    cursor: pointer;
-    transition: all 0.2s;
-}
-.bu-select-item:hover {
-    background: #e8f5e9;
-    transform: translateX(4px);
-}
-.bu-select-icon {
-    font-size: 20px;
-}
-.bu-select-name {
-    font-size: 15px;
-    font-weight: 600;
-    color: #1a1a1a;
-}
-.bu-select-tag {
-    font-size: 12px;
-    color: #888;
-    margin-left: auto;
-}
-
-/* 切换事业部按钮 */
-.bu-switch-btn {
-    position: fixed;
-    top: 16px;
-    right: 16px;
-    z-index: 9999;
-    padding: 8px 16px;
-    background: linear-gradient(135deg, #007D4E, #007D4E);
-    color: #fff;
-    border: none;
-    border-radius: 20px;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    box-shadow: 0 4px 12px rgba(0,125,78,0.3);
-    transition: all 0.2s;
-}
-.bu-switch-btn:hover {
-    transform: scale(1.05);
-    box-shadow: 0 6px 16px rgba(0,125,78,0.4);
-}
 
 /* ===== 3D AI 龙蟠悬浮按钮 ===== */
 .ai-float-wrap {
@@ -9882,7 +9678,7 @@ window.addEventListener('DOMContentLoaded', function() {
             try {
                 // 1. 加载产业链配置文件
                 console.log('[初始化] 加载产业链配置...');
-                const chainResp = await fetch('data/industry_chain.json');
+                const chainResp = await fetch('data/industry_chain.json?v=' + HTML_VERSION);
                 if (!chainResp.ok) {
                     throw new Error('无法加载产业链配置文件');
                 }
@@ -16079,32 +15875,7 @@ function buildCard(buId) {
 }
 
 async function init() {
-    // 检查权限 - 优先使用飞书认证
-    const feishuUserInfoStr = localStorage.getItem('feishu_user_info');
-    let useFeishuAuth = false;
-    
-    if (feishuUserInfoStr) {
-        try {
-            const feishuUserInfo = JSON.parse(feishuUserInfoStr);
-            if (feishuUserInfo && feishuUserInfo.matched_bu) {
-                useFeishuAuth = true;
-                // 设置 user_bu_permission 以便现有逻辑工作
-                localStorage.setItem('user_bu_permission', feishuUserInfo.matched_bu);
-                console.log('[init] 使用飞书认证，事业部:', feishuUserInfo.matched_dept_name || feishuUserInfo.matched_bu);
-            }
-        } catch (e) {
-            console.error('[init] 解析飞书用户信息失败:', e);
-        }
-    }
-    
-    // 如果没有飞书认证，检查手动选择
-    if (!useFeishuAuth) {
-        const savedPermission = localStorage.getItem('user_bu_permission');
-        if (!savedPermission) {
-            showBUSelectModal();
-        }
-    }
-    
+    // 权限检查已禁用，直接加载所有数据
     // 加载logo
     try {
         const res = await fetch('bu_logos.json');
@@ -16116,52 +15887,31 @@ async function init() {
         }
     } catch(e) {}
 
-    // 新能源：五边形布局（只显示有权限的）
+    // 新能源：五边形布局
     const pentagon = document.getElementById('pentagon-wrap');
     if (pentagon) {
         LI_BUIS.forEach(buId => {
-            if (!hasPermission(buId)) return; // 权限过滤
             const posClass = PENTAGON_POS[buId] || '';
             const wrap = document.createElement('div');
             wrap.className = posClass;
             wrap.innerHTML = buildCard(buId);
             pentagon.appendChild(wrap);
         });
-    } else {
-        console.warn('[init] pentagon-wrap 不存在，跳过新能源五边形布局');
     }
 
-    // 化学品：三卡片（只显示有权限的）
+    // 化学品：三卡片
     const chemContainer = document.getElementById('chemical-cards');
     if (chemContainer) {
-        CHEM_BUIS.forEach(id => { 
-            if (hasPermission(id)) chemContainer.innerHTML += buildCard(id); 
-        });
-    } else {
-        console.warn('[init] chemical-cards 不存在，跳过化学品卡片');
+        CHEM_BUIS.forEach(id => { chemContainer.innerHTML += buildCard(id); });
     }
 
-    // 氢能：单卡片（只显示有权限的）
+    // 氢能：单卡片
     const hydroContainer = document.getElementById('hydrogen-cards');
     if (hydroContainer) {
-        HYDROGEN_BUIS.forEach(id => { 
-            if (hasPermission(id)) hydroContainer.innerHTML += buildCard(id); 
-        });
-    } else {
-        console.warn('[init] hydrogen-cards 不存在，跳过氢能卡片');
+        HYDROGEN_BUIS.forEach(id => { hydroContainer.innerHTML += buildCard(id); });
     }
 
     bindEvents();
-
-    // 集团矩阵：根据权限显示/隐藏事业部卡片
-    const allowedBUs = getAllowedBUs();
-    document.querySelectorAll('.matrix-card').forEach(card => {
-        const buId = card.getAttribute('onclick')?.match(/openPanel\('(\w+)'\)/)?.[1];
-        if (buId && !allowedBUs.includes(buId)) {
-            card.style.display = 'none';
-        }
-    });
-
     // startCarousel() 已禁用 - 矩阵网格为静态展示，无需轮播
 }
 
@@ -17861,7 +17611,7 @@ window.addEventListener('hashchange', function() {
 </html>
 <div id="aiChatDialog">
     <div class="ai-dialog-header">
-        <img class="ai-dialog-avatar" src="data/images/embedded_img_011.png" alt="龙蟠AI">
+        <img class="ai-dialog-avatar" src="images/embedded_img_011.png" alt="龙蟠AI">
         <div class="ai-dialog-info">
             <div class="ai-dialog-name">AI龙小蟠</div>
             <div class="ai-dialog-status">随时为您解答 · 摘要页面内容</div>
@@ -18903,22 +18653,23 @@ document.addEventListener('DOMContentLoaded', function() {
             isBar: false},
         {
             id: 'recycling_market_share',
-            tag: '回收·企业份额',
-            title: '锂电池回收企业市场份额',
+            tag: '回收·处理量',
+            title: '黑粉处理量走势（三元 vs 铁锂）',
             link: 'recycling_charts.html',
             dataFile: 'recycling_all_data.json',
-            tableName: '黑粉整体处理量-分企业',
+            tableName: '黑粉处理量-三元+钴酸锂',
             unit: '吨',
             scale: 1,
-            insight: '数据不足，无法生成分析。',
+            insight: function(data) {
+                if (!data || !data.length) return '数据不足，无法生成分析。';
+                var latest = data[data.length - 1];
+                return '最新值' + latest[1].toFixed(0) + '吨，环比变化待计算。';
+            },
             division: 'sdmd',
-            chartType: 'pie',
+            valueKey: '总计',
+            timeKey: '当前日期',
             isBar: false,
-            pieMode: 'filtered_rows',
-            pieExcludeColumns: [],
-            pieDateKey: '时间',
-            pieNameKey: '企业',
-            pieValueKey: '当月总计'},
+            chartType: 'line'},
         {
             id: 'lh_price',
             tag: '氢氧化锂·现货价格',
@@ -19072,11 +18823,13 @@ document.addEventListener('DOMContentLoaded', function() {
             // ===== 优先使用后端生成的洞察（含早报内容）=====
             // 后端在 rotate_homepage_charts.py 中已生成含早报内容的 insight
             // 若 db.insight 有效（不含"不足"/"暂不可用"），直接返回
-            if (db.insight && db.insight.trim() &&
-                db.insight.indexOf('不足') < 0 &&
-                db.insight.indexOf('暂不可用') < 0 &&
-                db.insight.indexOf('数据加载中') < 0) {
-                return db.insight;
+            // 修复：先确保 insight 是字符串类型
+            var insightStr = db.insight ? String(db.insight) : '';
+            if (insightStr.trim() &&
+                insightStr.indexOf('不足') < 0 &&
+                insightStr.indexOf('暂不可用') < 0 &&
+                insightStr.indexOf('数据加载中') < 0) {
+                return insightStr;
             }
 
             if (!data || !data.length) return '数据不足，无法生成分析。';
@@ -19098,8 +18851,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
                 text += '。';
                 // 如果后端已生成洞察，优先使用
-                if (db.insight && db.insight.indexOf('不足') < 0) {
-                    return db.insight;
+                // 修复：先转换为字符串
+                var insightStr2 = db.insight ? String(db.insight) : '';
+                if (insightStr2 && insightStr2.indexOf('不足') < 0) {
+                    return insightStr2;
                 }
                 return text;
             }
@@ -20177,77 +19932,6 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 
 
-
-    <!-- 事业部选择弹窗 -->
-    <div id="bu-select-modal" class="bu-select-modal" style="display:none">
-        <div class="bu-select-overlay" onclick="showBUSelectModal()"></div>
-        <div class="bu-select-dialog">
-            <div class="bu-select-title">请选择您所属的事业部</div>
-            <div class="bu-select-subtitle">方式一：使用飞书账号自动登录（推荐）</div>
-            <div class="bu-select-feishu">
-                <button class="bu-select-feishu-btn" onclick="startFeishuSilentLogin()">
-                    <span>🔐</span> 飞书自动登录（自动识别事业部）
-                </button>
-                <div class="bu-select-feishu-hint">在飞书客户端内打开时，可自动识别您的部门和事业部</div>
-            </div>
-            <div class="bu-select-divider">
-                <span>或</span>
-            </div>
-            <div class="bu-select-subtitle">方式二：手动选择事业部</div>
-            <div class="bu-select-list">
-                <div class="bu-select-item" onclick="saveBUSelection('all')">
-                    <span class="bu-select-icon">🏢</span>
-                    <span class="bu-select-name">全部（集团领导）</span>
-                </div>
-                <div class="bu-select-item" onclick="saveBUSelection('czly')">
-                    <span class="bu-select-icon">⚡</span>
-                    <span class="bu-select-name">常州锂源</span>
-                    <span class="bu-select-tag">磷酸铁锂正极材料</span>
-                </div>
-                <div class="bu-select-item" onclick="saveBUSelection('sdmd')">
-                    <span class="bu-select-icon">⚡</span>
-                    <span class="bu-select-name">山东美多</span>
-                    <span class="bu-select-tag">磷酸铁锂正极材料</span>
-                </div>
-                <div class="bu-select-item" onclick="saveBUSelection('sjld')">
-                    <span class="bu-select-icon">⚡</span>
-                    <span class="bu-select-name">三金锂电</span>
-                    <span class="bu-select-tag">磷酸铁锂正极材料</span>
-                </div>
-                <div class="bu-select-item" onclick="saveBUSelection('lpsd')">
-                    <span class="bu-select-icon">🔋</span>
-                    <span class="bu-select-name">龙蟠时代</span>
-                    <span class="bu-select-tag">锂电池</span>
-                </div>
-                <div class="bu-select-item" onclick="saveBUSelection('fnlt')">
-                    <span class="bu-select-icon">🧪</span>
-                    <span class="bu-select-name">法恩莱特</span>
-                    <span class="bu-select-tag">电解液</span>
-                </div>
-                <div class="bu-select-item" onclick="saveBUSelection('dkhx')">
-                    <span class="bu-select-icon">🧪</span>
-                    <span class="bu-select-name">迪克化学</span>
-                    <span class="bu-select-tag">电解液</span>
-                </div>
-                <div class="bu-select-item" onclick="saveBUSelection('lube')">
-                    <span class="bu-select-icon">🛢️</span>
-                    <span class="bu-select-name">润滑油</span>
-                </div>
-                <div class="bu-select-item" onclick="saveBUSelection('kls')">
-                    <span class="bu-select-icon">🚗</span>
-                    <span class="bu-select-name">可兰素</span>
-                    <span class="bu-select-tag">车用尿素</span>
-                </div>
-                <div class="bu-select-item" onclick="saveBUSelection('bych')">
-                    <span class="bu-select-icon">🔩</span>
-                    <span class="bu-select-name">铂源催化</span>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- 切换事业部按钮 -->
-    <button id="bu-switch-btn" class="bu-switch-btn" onclick="showBUSelectModal()" title="切换事业部">🏢 切换</button>
 
     <script src="assets/ai_fab_inject.js?v=20260619"></script>
     <script src="feishu-jsapi.js?v=20260622"></script>
