@@ -1,0 +1,1122 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta name="html-version" content="20260604_1540">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>战略洞察仪表盘</title>
+<script>
+  // 每次修改此文件后，content 值自动更新为今天日期（如 20260601 2249）
+  // 浏览器遇到新的 html-version 会强制重新加载，永久告别缓存问题
+  window.HTML_VERSION = '20260604_1715';
+</script>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,'Microsoft YaHei',sans-serif;background:#f4f6fa;color:#1a1a2e}
+.topbar{display:flex;justify-content:space-between;align-items:center;padding:0 16px;height:38px;background:linear-gradient(135deg,#1e3c72,#2a5298);color:#fff;font-size:13px}
+.topbar-left{display:flex;align-items:center;gap:12px}
+.topbar-logo{font-size:16px;font-weight:bold;display:flex;align-items:center;gap:6px}
+.topbar-nav{display:flex;gap:4px}
+.topbar-nav a{color:rgba(255,255,255,0.8);text-decoration:none;padding:4px 12px;border-radius:16px;font-size:12px;transition:all .2s}
+.topbar-nav a:hover{background:rgba(255,255,255,0.2);color:#fff}
+.topbar a{color:rgba(255,255,255,0.85);text-decoration:none;font-size:13px}
+.topbar a:hover{color:#fff}
+.topbar-center{font-size:12px;font-weight:600;opacity:0.7}
+.btn-export{background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.35);color:#fff;padding:5px 16px;border-radius:20px;cursor:pointer;font-size:13px;font-family:inherit;transition:all .2s}
+.btn-export:hover{background:rgba(255,255,255,0.25)}
+.hero{background:linear-gradient(135deg,#1e3c72,#2a5298);color:#fff;padding:10px 24px 8px}
+.hero h1{font-size:22px;font-weight:700;margin-bottom:4px}
+.hero p{font-size:13px;color:rgba(255,255,255,0.75);margin-bottom:2px}
+.dashboard-body{padding:16px 20px 32px}
+.dashboard-row{display:flex;gap:16px;margin-bottom:16px}
+.dashboard-left{flex:0 0 62%}
+.dashboard-right{flex:1;display:flex;flex-direction:column;gap:10px}
+.card{background:#fff;border-radius:12px;padding:16px;box-shadow:0 1px 4px rgba(0,0,0,0.06)}
+.card h3{font-size:12px;color:#888;margin-bottom:10px;font-weight:600;text-transform:uppercase;letter-spacing:.5px}
+.signal-card{background:#fff;border-radius:10px;padding:12px 14px;box-shadow:0 1px 4px rgba(0,0,0,0.06);cursor:pointer;transition:all .2s;border-left:4px solid transparent}
+.signal-card:hover{box-shadow:0 4px 12px rgba(0,0,0,0.1);transform:translateY(-1px)}
+.signal-card.green{border-left-color:#27ae60}
+.signal-card.yellow{border-left-color:#f39c12}
+.signal-card.red{border-left-color:#e74c3c}
+.signal-title{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;font-size:13px;font-weight:600}
+.signal-title .dot{width:9px;height:9px;border-radius:50%;display:inline-block;margin-right:5px}
+.signal-title .dot.green{background:#27ae60}
+.signal-title .dot.yellow{background:#f39c12}
+.signal-title .dot.red{background:#e74c3c}
+.signal-score{font-size:18px;font-weight:700;color:#1e3c72}
+.signal-bar-wrap{background:#f0f0f0;border-radius:4px;height:6px;margin:5px 0;overflow:hidden}
+.signal-bar{height:100%;border-radius:4px;transition:width .5s}
+.signal-bar.green{background:linear-gradient(90deg,#27ae60,#2ecc71)}
+.signal-bar.yellow{background:linear-gradient(90deg,#f39c12,#f1c40f)}
+.signal-bar.red{background:linear-gradient(90deg,#e74c3c,#ec7063)}
+.signal-meta{font-size:10px;color:#aaa;display:flex;justify-content:space-between}
+.detail-section{background:#fff;border-radius:12px;padding:20px;box-shadow:0 1px 4px rgba(0,0,0,0.06);margin-top:4px}
+.detail-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.table-title{font-size:15px;font-weight:700;color:#1e3c72;margin-bottom:12px}
+.dim-selector{display:flex;gap:6px;flex-wrap:wrap}
+.dim-chip{padding:5px 14px;border-radius:20px;border:1px solid #e0e0e0;background:#fff;cursor:pointer;font-size:12px;transition:all .2s;font-family:inherit}
+.dim-chip.active{background:#1e3c72;color:#fff;border-color:#1e3c72}
+.dim-chip:hover:not(.active){border-color:#1e3c72;color:#1e3c72}
+.detail-table{border-collapse:collapse;width:100%;min-width:500px;font-size:13px}
+.detail-table th{background:#f4f6fa;padding:8px 12px;text-align:left;font-weight:600;color:#555;border-bottom:2px solid #e0e0e0}
+.detail-table td{padding:8px 12px;border-bottom:1px solid #f0f0f0}
+.detail-table .total-row td{background:#fafafa;font-weight:700;border-top:2px solid #e0e0e0}
+.detail-table tr:last-child td{border-bottom:none}
+#quarter-select{appearance:none;-webkit-appearance:none;padding:5px 28px 5px 12px;border:1px solid rgba(255,255,255,0.4);border-radius:6px;background:rgba(255,255,255,0.1) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 6 5-6' fill='none' stroke='%23fff' stroke-width='1.5'/%3E%3C/svg%3E") no-repeat right 10px center/12px 8px;color:#fff;font-size:13px;font-family:inherit;cursor:pointer}
+#quarter-select option{background:#1e3c72;color:#fff}
+@media(max-width:900px){
+  .topbar{padding:0 12px;font-size:13px}
+  .topbar-center{font-size:14px}
+  .hero{padding:20px 16px 16px}
+  .hero h1{font-size:18px}
+  .dashboard-body{padding:12px 12px 24px}
+  .dashboard-row{flex-direction:column}
+  .dashboard-left,.dashboard-right{flex:1;width:100%}
+}
+@media(max-width:600px){
+  .topbar-center{display:none}
+  .hero{padding:16px 12px 12px}
+  .hero h1{font-size:16px}
+  .hero p{font-size:12px}
+  .dashboard-body{padding:8px 8px 16px}
+  .card{padding:12px}
+  #detail-table{font-size:12px}
+  #detail-table th,#detail-table td{padding:6px 8px}
+  .signal-card{padding:10px 12px}
+}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="topbar-left">
+    <div class="topbar-logo">📊 战略洞察</div>
+    <div class="topbar-nav">
+      <a href="index_v3.html">首页</a>
+    </div>
+  </div>
+  <div style="position:relative">
+    <button class="btn-export" onclick="toggleExportPop()">导出报告 ▾</button>
+    <div id="export-pop" style="display:none;position:absolute;top:100%;right:0;margin-top:6px;background:#1e3c72;border:1px solid rgba(255,255,255,0.25);border-radius:8px;padding:6px 0;min-width:150px;box-shadow:0 8px 24px rgba(0,0,0,0.35);z-index:200;">
+      <div onclick="exportExcel()" style="padding:8px 18px;cursor:pointer;font-size:13px;color:rgba(255,255,255,0.9);display:flex;align-items:center;gap:8px;" onmouseover="this.style.background='rgba(255,255,255,0.12)'" onmouseout="this.style.background='transparent'">📊 导出 Excel</div>
+      <div onclick="exportPDF()" style="padding:8px 18px;cursor:pointer;font-size:13px;color:rgba(255,255,255,0.9);display:flex;align-items:center;gap:8px;" onmouseover="this.style.background='rgba(255,255,255,0.12)'" onmouseout="this.style.background='transparent'">📄 导出 PDF</div>
+    </div>
+  </div>
+</div>
+<div class="hero">
+  <p id="update-time" style="color:rgba(255,255,255,0.8);font-size:12px;">数据更新：2026-05-28 &nbsp;|&nbsp; Q3-2024（最新）</p>
+      <div id="time-selector-wrap" style="margin-top:6px;display:flex;gap:8px;align-items:center;position:relative;">
+        <button id="quarter-btn" onclick="toggleQuarterPop()" style="padding:4px 10px;border:1px solid rgba(255,255,255,0.35);border-radius:6px;background:rgba(255,255,255,0.08);color:#fff;font-size:12px;font-family:inherit;cursor:pointer;display:flex;align-items:center;gap:4px;">
+          <span id="quarter-btn-text">Q3-2024（最新）</span>
+          <span style="font-size:10px;">▸</span>
+        </button>
+        <div id="quarter-pop" style="display:none;position:absolute;top:0;left:100%;margin-left:8px;background:#1e3c72;border:1px solid rgba(255,255,255,0.2);border-radius:8px;padding:4px 0;min-width:140px;box-shadow:0 4px 16px rgba(0,0,0,0.3);z-index:100;"></div>
+      </div>
+    </div>
+<div class="dashboard-body" id="dashboard-page">
+  <div class="dashboard-row">
+    <div class="dashboard-left">
+      <div class="card">
+        <h3>综合竞争力雷达图</h3>
+        <div id="radar-chart" style="width:100%;height:360px"></div>
+      </div>
+    </div>
+    <div class="dashboard-right">
+      <div id="signal-board"></div>
+    </div>
+  </div>
+  <div class="detail-section">
+    <div class="detail-header">
+      <div class="dim-selector">
+        <button class="dim-chip active" data-dim="scale" onclick="switchDim('scale')">规模与市场地位</button>
+        <button class="dim-chip" data-dim="profit" onclick="switchDim('profit')">盈利质量</button>
+        <button class="dim-chip" data-dim="cost_eff" onclick="switchDim('cost_eff')">成本与效率</button>
+        <button class="dim-chip" data-dim="finance" onclick="switchDim('finance')">运营与财务健康</button>
+        <button class="dim-chip" data-dim="growth" onclick="switchDim('growth')">成长潜力</button>
+      </div>
+    </div>
+    <div id="detail-table"></div>
+  </div>
+  <div class="detail-section" id="compare-section">
+    <h3>一对一对比分析</h3>
+    <div style="display:flex;gap:16px;align-items:center;margin-bottom:16px;flex-wrap:wrap;">
+      <select id="compare-a" onchange="renderCompare()" style="padding:6px 12px;border:1px solid #d0d0d0;border-radius:6px;font-size:13px;">
+        <option value="czly">常州锂源</option>
+        <option value="hnyn">湖南裕能</option>
+        <option value="wrxn">万润新能</option>
+        <option value="fljg">富临精工</option>
+        <option value="dfnm">德方纳米</option>
+        <option value="avg">行业均值</option>
+      </select>
+      <span style="font-size:18px;color:#999;">vs</span>
+      <select id="compare-b" onchange="renderCompare()" style="padding:6px 12px;border:1px solid #d0d0d0;border-radius:6px;font-size:13px;">
+        <option value="hnyn">湖南裕能</option>
+        <option value="czly">常州锂源</option>
+        <option value="wrxn">万润新能</option>
+        <option value="fljg">富临精工</option>
+        <option value="dfnm">德方纳米</option>
+        <option value="avg">行业均值</option>
+      </select>
+    </div>
+    <div id="compare-chart" style="width:100%;height:300px;"></div>
+  </div>
+</div>
+<script>
+var BU_STRATEGY_DATA = {
+    update_time: '2026-06-03',
+    quarters: ['Q1-2026'],
+    scores: {
+        czly: { scale:[2.0], profit:[4.5], cost_eff:[2.0], finance:[1.5], growth:[4.0] },
+        hnyn: { scale:[10.0], profit:[9.5], cost_eff:[9.5], finance:[9.5], growth:[9.5] },
+        wrxn: { scale:[6.0], profit:[7.5], cost_eff:[7.5], finance:[5.5], growth:[7.5] },
+        fljg: { scale:[7.0], profit:[4.0], cost_eff:[5.0], finance:[5.5], growth:[8.0] },
+        dfnm: { scale:[7.0], profit:[7.0], cost_eff:[5.0], finance:[5.0], growth:[7.0] },
+        avg:  { scale:[6.4], profit:[6.5], cost_eff:[5.8], finance:[5.4], growth:[7.2] }
+    },
+    current: {
+        scale:    { val: 2.0, target: 5.0, mom: 0.0 },
+        profit:   { val: 4.5, target: 5.0, mom: 0.0 },
+        cost_eff: { val: 2.0, target: 5.0, mom: 0.0 },
+        finance:  { val: 1.5, target: 5.0, mom: 0.0 },
+        growth:   { val: 4.0, target: 7.0, mom: 0.0 }
+    }
+};
+
+
+</script>
+<script>
+var currentDim = 'scale';
+var selectedQuarterIdx = null;  // null=最新季度
+
+function initRouter() {
+    var params = new URLSearchParams(location.search);
+    var buId = params.get('id') || 'czly';
+    renderDashboard(buId);
+}
+
+function renderDashboard(buId) {
+    var data = BU_STRATEGY_DATA;
+    // 无效BU ID强制回退到czly，防止data.scores[buId]为undefined导致崩溃
+    if (!data.scores[buId]) buId = 'czly';
+    window.currentData = data;
+    selectedQuarterIdx = data.quarters.length - 1; // 默认最新季度
+    var meta = {
+        czly: { name: '常州锂源', sub: '磷酸铁锂事业部' },
+        hnyn: { name: '湖南裕能', sub: '磷酸铁锂事业部' },
+        wrxn: { name: '万润新能', sub: '磷酸铁锂事业部' },
+        fljg: { name: '富临精工', sub: '磷酸铁锂事业部' },
+        dfnm: { name: '德方纳米', sub: '磷酸铁锂事业部' }
+    };
+    var m = meta[buId] || meta['czly'];
+    // bu-title removed from layout, no DOM element needed
+    document.getElementById('update-time').textContent = '数据更新：' + data.update_time;
+    window._curBuId = buId;
+    renderQuarterSelect(data);
+    renderRadar(data);
+    renderSignalBoard(data);
+    renderDetailTable(data, currentDim);
+    renderCompare(data);
+}
+
+// ════════════════════════════════════════════════════════
+// 安全图表初始化（防止重复初始化导致echarts崩溃）
+// ════════════════════════════════════════════════════════
+function safeInitChart(id) {
+    var el = document.getElementById(id);
+    if (!el) { console.warn('safeInitChart: element not found', id); return null; }
+    var old = echarts.getInstanceByDom(el);
+    if (old) old.dispose();
+    return echarts.init(el);
+}
+
+function renderRadar(data) {
+    var chart = echarts.init(document.getElementById('radar-chart'));
+    var dimKeys = ['scale','profit','cost_eff','finance','growth'];
+    var dimNames = ['规模与市场地位','盈利质量','成本与效率','运营与财务健康','成长潜力'];
+    var qIdx = selectedQuarterIdx !== null ? selectedQuarterIdx : data.quarters.length - 1;
+    var option = {
+        backgroundColor: '#fff',
+        legend: { data: ['常州锂源','湖南裕能','万润新能','富临精工','德方纳米','行业均值'], bottom: 0, textStyle: { fontSize: 12 } },
+        tooltip: {
+            trigger: 'item',
+            formatter: function(params) {
+                var dimIdx = params.dataIndex !== undefined ? params.dataIndex : 0;
+                var dimName = dimNames[dimIdx];
+                var html = '<strong style="font-size:13px">' + dimName + '</strong><br/>';
+                var keys = ['czly','hnyn','wrxn','fljg','dfnm','avg'];
+                var names = ['常州锂源','湖南裕能','万润新能','富临精工','德方纳米','行业均值'];
+                keys.forEach(function(k, ki) {
+                    var val = data.scores[k][dimKeys[dimIdx]][qIdx];
+                    var diffStr = '';
+                    if (ki !== 3) {
+                        var avgVal = data.scores.avg[dimKeys[dimIdx]][qIdx];
+                        var diff = (val - avgVal).toFixed(1);
+                        diffStr = ' <span style="color:' + (diff >= 0 ? '#1e3c72' : '#a8c8e8') + '">(' + (diff >= 0 ? '+' : '') + diff + ')</span>';
+                    }
+                    html += '<span style="display:inline-block;margin-right:8px">' + names[ki] + ':</span>' + val.toFixed(1) + '/10' + diffStr + '<br/>';
+                });
+                return html;
+            }
+        },
+        radar: {
+            indicator: dimKeys.map(function(k,i){ return { name: dimNames[i], max: 10 }; }),
+            shape: 'polygon', splitNumber: 5,
+            axisName: { color: '#333', fontSize: 12 },
+            splitLine: { lineStyle: { color: '#e0e0e0' } },
+            splitArea: { areaStyle: { color: ['#fafafa','#f5f5f5','#f0f0f0','#ebebeb','#e5e5e5'] } },
+            axisLine: { lineStyle: { color: '#ccc' } }
+        },
+        series: [{
+            type: 'radar',
+            data: [
+                { value: dimKeys.map(function(k){ return data.scores.czly[k][qIdx]; }), name: '常州锂源',
+                  areaStyle: { color: 'rgba(30,60,114,0.25)' }, lineStyle: { color: '#1e3c72', width: 2 }, itemStyle: { color: '#1e3c72' } },
+                { value: dimKeys.map(function(k){ return data.scores.hnyn[k][qIdx]; }), name: '湖南裕能',
+                  lineStyle: { color: '#6a9fd8', width: 1.5, type: 'dashed' }, itemStyle: { color: '#6a9fd8' } },
+                { value: dimKeys.map(function(k){ return data.scores.wrxn[k][qIdx]; }), name: '万润新能',
+                  lineStyle: { color: '#7f8c8d', width: 1.5, type: 'dashed' }, itemStyle: { color: '#7f8c8d' } },
+                { value: dimKeys.map(function(k){ return data.scores.fljg[k][qIdx]; }), name: '富临精工',
+                  lineStyle: { color: '#e67e22', width: 1.5, type: 'dashed' }, itemStyle: { color: '#e67e22' } },
+                { value: dimKeys.map(function(k){ return data.scores.dfnm[k][qIdx]; }), name: '德方纳米',
+                  lineStyle: { color: '#f56c6c', width: 1.5, type: 'dashed' }, itemStyle: { color: '#f56c6c' } },
+                { value: dimKeys.map(function(k){ return data.scores.avg[k][qIdx]; }), name: '行业均值',
+                  lineStyle: { color: '#b0c4de', width: 1, type: 'dotted' }, itemStyle: { color: '#b0c4de' } }
+            ]
+        }]
+    };
+    chart.setOption(option);
+    chart.on('click', function(params) {
+        if (params.componentType === 'series' && params.dataIndex !== undefined && params.dataIndex < dimKeys.length) {
+            var dimKey = dimKeys[params.dataIndex];
+            switchDim(dimKey);
+            setTimeout(function() {
+                var el = document.getElementById('detail-table');
+                if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 100);
+        }
+    });
+    window.addEventListener('resize', function(){ chart.resize(); });
+}
+
+function renderTrendMini(data) {
+    var chart = echarts.init(document.getElementById('trend-mini-chart'));
+    var quarters = data.quarters;
+    var buId = window._curBuId || 'czly';
+    var buName = (data.meta && data.meta[buId] && data.meta[buId].name) ? data.meta[buId].name : buId;
+    // 计算当前BU综合得分（5维度均值）
+    var buScores = quarters.map(function(q, i){
+        var s = data.scores[buId];
+        if (!s) return 0;
+        return ((s.scale[i]+s.profit[i]+s.cost_eff[i]+s.finance[i]+s.growth[i])/5).toFixed(1)*1;
+    });
+    // 行业均值
+    var avgScores = quarters.map(function(q, i){
+        var s = data.scores.avg;
+        return ((s.scale[i]+s.profit[i]+s.cost_eff[i]+s.finance[i]+s.growth[i])/5).toFixed(1)*1;
+    });
+    // 环比delta（显示在数据点上方）
+    var deltaLabels = buScores.map(function(v, i){
+        if (i === 0) return '';
+        var d = (v - buScores[i-1]).toFixed(1);
+        var sign = d > 0 ? '+' : '';
+        return sign + d;
+    });
+    // 整体趋势：最后一季 vs 第一季
+    var trendDir = buScores[buScores.length-1] - buScores[0];
+    var trendColor = trendDir > 0 ? '#27ae60' : (trendDir < 0 ? '#e74c3c' : '#888');
+    var trendArrow = trendDir > 0 ? '↑' : (trendDir < 0 ? '↓' : '→');
+    var trendText = trendDir > 0 ? '整体上升' : (trendDir < 0 ? '整体下降' : '持平');
+    // 最新环比
+    var lastDelta = buScores.length > 1 ? (buScores[buScores.length-1] - buScores[buScores.length-2]).toFixed(1) : '0.0';
+    var lastDeltaColor = lastDelta > 0 ? '#27ae60' : (lastDelta < 0 ? '#e74c3c' : '#888');
+    var lastDeltaSign = lastDelta > 0 ? '+' : '';
+    // 最大/最小
+    var maxIdx = buScores.indexOf(Math.max.apply(null, buScores));
+    var minIdx = buScores.indexOf(Math.min.apply(null, buScores));
+
+    var option = {
+        backgroundColor: 'transparent',
+        grid: { top: 42, bottom: 28, left: 48, right: 18 },
+        xAxis: {
+            type: 'category', data: quarters,
+            axisLabel: { fontSize: 10, color: '#888', margin: 6 },
+            axisLine: { lineStyle: { color: '#ddd' } },
+            axisTick: { show: false }
+        },
+        yAxis: {
+            type: 'value', min: 0, max: 10,
+            axisLabel: { fontSize: 10, color: '#888' },
+            splitLine: { lineStyle: { color: '#f2f2f2', type: 'dashed' } },
+            name: '综合得分', nameTextStyle: { fontSize: 10, color: '#999', padding: [0,0,0,40] }
+        },
+        tooltip: {
+            trigger: 'axis',
+            backgroundColor: 'rgba(30,60,114,0.92)',
+            borderColor: 'transparent',
+            textStyle: { color: '#fff', fontSize: 12 },
+            formatter: function(params) {
+                var qi = params[0].dataIndex;
+                var v = params[0].value;
+                var d = qi === 0 ? '' : '（环比' + (v - buScores[qi-1] > 0 ? '+' : '') + (v - buScores[qi-1]).toFixed(1) + '）';
+                var html = '<strong>' + quarters[qi] + '</strong><br/>';
+                html += '<span style="display:inline-block;width:10px;height:10px;background:' + params[0].color + ';border-radius:50%;margin-right:6px;"></span>';
+                html += buName + '：<b>' + v.toFixed(1) + '</b> ' + d + '<br/>';
+                if (params[1]) {
+                    html += '<span style="display:inline-block;width:10px;height:10px;background:' + params[1].color + ';border-radius:50%;margin-right:6px;opacity:0.5;"></span>';
+                    html += '行业均值：' + params[1].value.toFixed(1) + '<br/>';
+                }
+                return html;
+            }
+        },
+        series: [
+            // 当前BU主线
+            {
+                name: buName, type: 'line', data: buScores, smooth: true,
+                lineStyle: { color: '#1e3c72', width: 3 },
+                itemStyle: { color: '#1e3c72' },
+                symbol: 'circle',
+                symbolSize: function(val, params) {
+                    return params.dataIndex === 0 || params.dataIndex === buScores.length-1 ? 9 : 6;
+                },
+                label: {
+                    show: true,
+                    position: 'top',
+                    fontSize: 11,
+                    fontWeight: 'bold',
+                    color: function(params) {
+                        var i = params.dataIndex;
+                        if (i === 0) return '#1e3c72';
+                        var d = buScores[i] - buScores[i-1];
+                        return d > 0 ? '#27ae60' : (d < 0 ? '#e74c3c' : '#888');
+                    },
+                    formatter: function(params) {
+                        var i = params.dataIndex;
+                        if (i === 0) return buScores[0].toFixed(1);
+                        return buScores[i].toFixed(1) + '（' + (deltaLabels[i].indexOf('+') === 0 ? '' : '') + deltaLabels[i] + '）';
+                    }
+                },
+                areaStyle: {
+                    color: {
+                        type: 'linear', x: 0, y: 0, x2: 0, y2: 1,
+                        colorStops: [
+                            { offset: 0, color: 'rgba(30,60,114,0.35)' },
+                            { offset: 1, color: 'rgba(30,60,114,0.02)' }
+                        ]
+                    }
+                },
+                markPoint: {
+                    symbol: 'pin',
+                    symbolSize: 46,
+                    label: { fontSize: 11, fontWeight: 'bold', color: '#fff', offset: [0, -8] },
+                    itemStyle: { shadowBlur: 4, shadowColor: 'rgba(30,60,114,0.3)' },
+                    data: [
+                        { type: 'max', name: '最高', itemStyle: { color: '#1e3c72' } },
+                        { type: 'min', name: '最低', itemStyle: { color: '#a8c8e8', color0: '#e74c3c' } }
+                    ],
+                    animation: false
+                },
+                markLine: {
+                    silent: true,
+                    symbol: 'none',
+                    lineStyle: { type: 'dashed', color: '#ccc', width: 1 },
+                    data: [
+                        { yAxis: 5.0, label: { show: false } }
+                    ],
+                    animation: false
+                }
+            },
+            // 行业均值参考线
+            {
+                name: '行业均值', type: 'line', data: avgScores, smooth: true,
+                lineStyle: { color: '#b0c4de', width: 1.5, type: 'dotted' },
+                itemStyle: { color: '#b0c4de' },
+                symbol: 'none',
+                tooltip: { show: true }
+            }
+        ],
+        graphic: [
+            {
+                type: 'group',
+                left: 12, top: 8,
+                children: [
+                    {
+                        type: 'text',
+                        style: {
+                            text: buName + ' 综合得分趋势',
+                            fontSize: 12,
+                            fontWeight: 'bold',
+                            fill: '#1e3c72'
+                        }
+                    },
+                    {
+                        type: 'text',
+                        top: 17,
+                        style: {
+                            text: trendArrow + ' ' + trendText + '  |  最新季度：' + buScores[buScores.length-1].toFixed(1) + '（' + lastDeltaSign + lastDelta + '）',
+                            fontSize: 11,
+                            fill: lastDeltaColor
+                        }
+                    }
+                ]
+            }
+        ]
+    };
+    chart.setOption(option);
+    chart.on('click', function(params) {
+        if (params.componentType === 'series' && params.dataIndex !== undefined) {
+            selectedQuarterIdx = params.dataIndex;
+            renderQuarterSelect(data);
+            renderRadar(data);
+        }
+    });
+    window.addEventListener('resize', function(){ chart.resize(); });
+}
+
+function renderSignalBoard(data) {
+    var board = document.getElementById('signal-board');
+    var dims = [
+        { key: 'scale',    name: '规模与市场地位' },
+        { key: 'profit',   name: '盈利质量' },
+        { key: 'cost_eff', name: '成本与效率' },
+        { key: 'finance',  name: '运营与财务健康' },
+        { key: 'growth',   name: '成长潜力' }
+    ];
+    var html = '';
+    var last = data.quarters.length - 1;
+    // 动态修复data.current（原本硬编码为常州锂源，现改为当前BU）
+    var _buId = window._curBuId || 'czly';
+    ['scale','profit','cost_eff','finance','growth'].forEach(function(_dk) {
+        data.current[_dk] = {
+            val: data.scores[_buId][_dk][last],
+            target: _dk==='growth'?7.0:5.0,
+            mom: last>0 ? data.scores[_buId][_dk][last] - data.scores[_buId][_dk][last-1] : 0
+        };
+    });
+    dims.forEach(function(d) {
+        var cur = data.current[d.key];
+        var pct = Math.round(cur.val / cur.target * 100);
+        var avgVal = data.scores.avg[d.key][last];
+        var diff = cur.val - avgVal;
+        var cls = diff >= 0.5 ? 'green' : (diff >= -0.5 ? 'yellow' : 'red');
+        var arrow = cur.mom >= 0 ? '↑' : '↓';
+        html += '<div class="signal-card ' + cls + '" onclick="switchDim(\' + d.key + \')">';
+        html += '<div class="signal-title">';
+        html += '<span><span class="dot ' + cls + '"></span>' + d.name + '</span>';
+        html += '<span class="signal-score">' + cur.val + '</span>';
+        html += '</div>';
+        html += '<div class="signal-bar-wrap"><div class="signal-bar ' + cls + '" style="width:' + Math.min(pct,100) + '%"></div></div>';
+        html += '<div class="signal-meta">';
+        html += '<span>目标 ' + cur.target + '</span>';
+        html += '<span>行业均值 ' + avgVal.toFixed(1) + '</span>';
+        html += '<span style="color:' + (cur.mom>=0?'#27ae60':'#e74c3c') + '">' + arrow + ' ' + Math.abs(cur.mom) + ' 较上季</span>';
+        html += '</div></div>';
+    });
+    board.innerHTML = html;
+}
+
+function renderQuarterSelect(data) {
+    // 更新按钮文字
+    var isLatest = selectedQuarterIdx === null || selectedQuarterIdx === data.quarters.length - 1;
+    var displayIdx = selectedQuarterIdx !== null ? selectedQuarterIdx : data.quarters.length - 1;
+    document.getElementById('quarter-btn-text').textContent = data.quarters[displayIdx] + (isLatest ? '（最新）' : '');
+    // 渲染popover选项
+    var pop = document.getElementById('quarter-pop');
+    var html = '';
+    data.quarters.forEach(function(q, idx) {
+        var isLast = idx === data.quarters.length - 1;
+        var isActive = idx === displayIdx;
+        html += '<div onclick="selectQuarterFromPop(' + idx + ')" style="padding:6px 16px;cursor:pointer;font-size:13px;color:' + (isActive ? '#fff' : 'rgba(255,255,255,0.7)') + ';background:' + (isActive ? 'rgba(255,255,255,0.15)' : 'transparent') + ';white-space:nowrap;" onmouseover="this.style.background=\'rgba(255,255,255,0.1)\'" onmouseout="this.style.background=\'' + (isActive ? 'rgba(255,255,255,0.15)' : 'transparent') + '\'">' + q + (isLast ? ' ✓' : '') + '</div>';
+    });
+    pop.innerHTML = html;
+}
+
+function toggleQuarterPop() {
+    var pop = document.getElementById('quarter-pop');
+    if (pop.style.display === 'block') {
+        pop.style.display = 'none';
+    } else {
+        pop.style.display = 'block';
+        // 点击外部关闭
+        setTimeout(function() {
+            var closeFn = function(e) {
+                if (!document.getElementById('time-selector-wrap').contains(e.target)) {
+                    pop.style.display = 'none';
+                    document.removeEventListener('click', closeFn);
+                }
+            };
+            document.addEventListener('click', closeFn);
+        }, 10);
+    }
+}
+
+function selectQuarterFromPop(idx) {
+    selectedQuarterIdx = idx;
+    var data = window.currentData;
+    renderQuarterSelect(data);
+    renderRadar(data);
+    document.getElementById('quarter-pop').style.display = 'none';
+}
+
+function switchDim(dim) {
+    currentDim = dim;
+    document.querySelectorAll('.dim-chip').forEach(function(c){ c.classList.remove('active'); });
+    document.querySelector('.dim-chip[data-dim="'+dim+'"]').classList.add('active');
+    var data = BU_STRATEGY_DATA;
+    renderDetailTable(data, dim);
+}
+
+function renderDetailTable(data, dim) {
+    var tableEl = document.getElementById('detail-table');
+    // 定义每个子指标的方向：1=正向（越高越好），-1=反向（越低越好，展示时取反）
+    var dirMap = {
+        '营业收入': 1, '总资产': 1,
+        '毛利率': 1, '净利率': 1,
+        '营业成本率': -1, '存货周转天数': -1,
+        '资产负债率': -1, '经营现金流/营收': -1,
+        '营收同比增长率': 1, '研发费用率': 1
+    };
+    var dimMap = {
+        scale: {
+            name: '规模与市场地位',
+            sub: [
+                { label:'营业收入', unit:'亿元', w:50, czly:10.13, hnyn:149.65, wrxn:53.80, fljg:50.54, dfnm:43.36, avg:61.50 },
+                { label:'总资产', unit:'亿元', w:50, czly:146.17, hnyn:492.71, wrxn:234.75, fljg:140.09, dfnm:185.97, avg:239.94 }
+            ]
+        },
+        profit: {
+            name: '盈利质量',
+            sub: [
+                { label:'毛利率', unit:'%', w:50, czly:9.54, hnyn:16.16, wrxn:14.35, fljg:9.34, dfnm:13.59, avg:12.60 },
+                { label:'净利率', unit:'%', w:50, czly:5.30, hnyn:9.08, wrxn:7.84, fljg:4.61, dfnm:6.11, avg:6.59 }
+            ]
+        },
+        cost_eff: {
+            name: '成本与效率',
+            sub: [
+                { label:'营业成本率', unit:'%', w:50, czly:90.46, hnyn:83.84, wrxn:85.65, fljg:90.66, dfnm:86.41, avg:87.40 },
+                { label:'存货周转天数', unit:'天', w:50, czly:70.28, hnyn:36.67, wrxn:37.72, fljg:29.23, dfnm:158.1, avg:66.40 }
+            ]
+        },
+        finance: {
+            name: '运营与财务健康',
+            sub: [
+                { label:'资产负债率', unit:'%', w:50, czly:87.70, hnyn:61.23, wrxn:76.62, fljg:62.16, dfnm:65.97, avg:70.74 },
+                { label:'经营现金流/营收', unit:'%', w:50, czly:-32.50, hnyn:-6.98, wrxn:-20.45, fljg:-7.56, dfnm:-18.56, avg:-17.21 }
+            ]
+        },
+        growth: {
+            name: '成长潜力',
+            sub: [
+                { label:'营收同比增长率', unit:'%', w:50, czly:0, hnyn:160.0, wrxn:136.2, fljg:87.4, dfnm:116.43, avg:100.01 },
+                { label:'研发费用率', unit:'%', w:50, czly:2.53, hnyn:1.20, wrxn:0.85, fljg:1.43, dfnm:0.80, avg:1.36 }
+            ]
+        }
+    };
+    var cfg = dimMap[dim];
+    var last = data.quarters.length - 1;
+    var scoreVals = {
+        czly: data.scores.czly[dim][last],
+        hnyn: data.scores.hnyn[dim][last],
+        wrxn: data.scores.wrxn[dim][last],
+        fljg: data.scores.fljg[dim][last],
+        dfnm: data.scores.dfnm[dim][last],
+        avg:  data.scores.avg[dim][last]
+    };
+    // 计算排名：正向指标降序，反向指标升序
+    function getRank(val, arr, dir) {
+        if (dir === 1) {
+            arr.sort(function(a,b){ return b-a; });
+        } else {
+            arr.sort(function(a,b){ return a-b; });
+        }
+        return arr.indexOf(val) + 1;
+    }
+    // 颜色辅助：排名颜色、数值颜色
+    function rankColor(r) { return r<=2?'#1e3c72':(r<=4?'#3a6bc5':'#a8c8e8'); }
+    function valColor(v, avgV, dir) {
+        if (dir===1) return v>=avgV ? '#1e3c72' : '#a8c8e8';
+        else return v<=avgV ? '#1e3c72' : '#a8c8e8';
+    }
+    var html = '<h3 class="table-title">' + cfg.name + ' 维度分析</h3>';
+    html += '<div style="display:flex;gap:20px;align-items:flex-start;min-width:0;flex-wrap:nowrap">';
+    html += '<table class="detail-table"><thead><tr><th>子指标</th><th>常州锂源</th><th>湖南裕能</th><th>万润新能</th><th>富临精工</th><th>德方纳米</th><th>行业均值</th><th>权重</th><th>排名</th></tr></thead><tbody>';
+    cfg.sub.forEach(function(s) {
+        var dir = dirMap[s.label];
+        var vals = [s.czly, s.hnyn, s.wrxn, s.fljg, s.dfnm];
+        var r = getRank(s.czly, vals.slice(), dir);
+        var vc = valColor(s.czly, s.avg, dir);
+        html += '<tr>';
+        html += '<td>' + s.label + (dir===-1?' <span style="color:#a8c8e8;font-size:11px">↓反</span>':'') + '</td>';
+        html += '<td style="color:' + vc + ';font-weight:600">' + s.czly + ' ' + s.unit + '</td>';
+        html += '<td>' + s.hnyn + ' ' + s.unit + '</td>';
+        html += '<td>' + s.wrxn + ' ' + s.unit + '</td>';
+        html += '<td>' + s.fljg + ' ' + s.unit + '</td>';
+        html += '<td>' + s.dfnm + ' ' + s.unit + '</td>';
+        html += '<td>' + s.avg + ' ' + s.unit + '</td>';
+        html += '<td>' + s.w + '%</td>';
+        html += '<td style="color:' + rankColor(r) + ';font-weight:700">' + (r<=3?r+'名':'垫底') + '</td>';
+        html += '</tr>';
+    });
+    html += '<tr class="total-row"><td>维度综合得分</td>';
+    html += '<td><b style="color:' + (scoreVals.czly>=scoreVals.avg?'#1e3c72':'#a8c8e8') + '">' + scoreVals.czly.toFixed(1) + '</b></td>';
+    html += '<td><b>' + scoreVals.hnyn.toFixed(1) + '</b></td>';
+    html += '<td><b>' + scoreVals.wrxn.toFixed(1) + '</b></td>';
+    html += '<td><b>' + scoreVals.fljg.toFixed(1) + '</b></td>';
+    html += '<td><b>' + scoreVals.dfnm.toFixed(1) + '</b></td>';
+    html += '<td><b>' + scoreVals.avg.toFixed(1) + '</b></td><td></td><td></td></tr></tbody></table>';
+    tableEl.innerHTML = html;
+
+    // ═══════════════════════════════════════════════════════
+    // 图表区——固定3张：综合维度得分 + 2个子指标图表
+    // ═══════════════════════════════════════════════════════
+    var C_DEEP  = '#1e3c72';
+    var C_LIGHT = '#6a9fd8';
+    var buKeys  = ['czly','hnyn','wrxn','fljg','dfnm','avg'];
+    var buNames = ['常州锂源','湖南裕能','万润新能','富临精工','德方纳米','行业均值'];
+    // 计算综合得分排名数据（5家公司降序，排除行业均值）
+    var scoreRows = buKeys.filter(function(k){ return k !== 'avg'; }).map(function(k) {
+        return { n: buNames[buKeys.indexOf(k)], v: scoreVals[k] };
+    }).sort(function(a,b){ return b.v - a.v; });
+    // 子指标排序数据（按当前维度方向）
+    function getSubRows(idx, dir) {
+        var sub = cfg.sub[idx];
+        var rows = buKeys.filter(function(k){ return k !== 'avg'; }).map(function(k) {
+            return { n: buNames[buKeys.indexOf(k)], v: sub[k] };
+        }).sort(function(a,b){ return dir===1 ? b.v-a.v : a.v-b.v; });
+        return rows;
+    }
+    var dir0 = dirMap[cfg.sub[0] ? cfg.sub[0].label : ''] || 1;
+    var dir1 = dirMap[cfg.sub[1] ? cfg.sub[1].label : ''] || 1;
+    var subRows0 = getSubRows(0, dir0);
+    var subRows1 = getSubRows(1, dir1);
+    // 图表标题（根据维度）
+    var scoreTitleMap = { scale:'规模维度得分', profit:'盈利维度得分', cost_eff:'成本效率维度', finance:'财务健康维度', growth:'成长潜力维度' };
+    html = '<div style="display:flex;gap:12px;margin-top:16px;flex-wrap:nowrap">';
+    html += '<div id="dim-chart-score" style="flex:1;min-width:0;height:380px;"></div>';
+    html += '<div id="dim-chart-0" style="flex:1;min-width:0;height:380px;"></div>';
+    html += '<div id="dim-chart-1" style="flex:1;min-width:0;height:380px;"></div>';
+    html += '</div>';
+    tableEl.innerHTML = tableEl.innerHTML.replace('</tbody></table>', '</tbody></table>') + html;
+
+    function makeHorBarOpt(data, names, title, unit, avgLine, currentIdx, maxVal) {
+        var markLine = avgLine != null ? {
+            silent: true, symbol: 'none',
+            data: [{ xAxis: avgLine, lineStyle: { color: '#b0c4de', type: 'dashed', width: 1.5 },
+                    label: { show: true, position: 'end', formatter: '均值 ' + avgLine + (unit||''), fontSize: 9, color: '#888' } }]
+        } : null;
+        return {
+            backgroundColor: '#fff',
+            title: { text: title, textStyle: { fontSize: 12, fontWeight: 'bold', color: '#1e3c72' }, left: 'center', top: 4 },
+            tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' },
+                formatter: function(params) {
+                    return '<strong>' + params[0].name + '</strong><br/>' + params[0].marker + ' ' + params[0].value + (unit||'');
+                }
+            },
+            grid: { top: 36, bottom: 28, left: 70, right: 50, containLabel: false },
+            xAxis: { type: 'value', max: maxVal || undefined, min: 0, axisLabel: { fontSize: 9 }, splitLine: { lineStyle: { color: '#f2f2f2', type: 'dashed' } } },
+            yAxis: { type: 'category', data: names, axisLabel: { fontSize: 10 }, axisTick: { show: false } },
+            series: [{
+                type: 'bar', barWidth: '55%',
+                data: data.map(function(v, i) {
+                    var isAvg = names[i] === '行业均值';
+                    return { value: v, itemStyle: { color: isAvg ? '#b0c4de' : (i === currentIdx ? C_DEEP : C_LIGHT), opacity: isAvg ? 0.6 : (i === currentIdx ? 1 : 0.75) } };
+                }),
+                label: { show: true, position: 'right', fontSize: 10, formatter: function(p) { return p.value + (unit||''); } },
+                markLine: markLine
+            }]
+        };
+    }
+
+    function makeVertBarOpt(data, names, title, unit, avgLine, currentIdx, dir, allowNeg, extraMarkLines) {
+        var currentName = names[currentIdx];
+        var sorted = data.map(function(v,i){ return {v:v,i:i,n:names[i]}; })
+            .filter(function(d){ return d.n !== '行业均值'; })
+            .sort(function(a,b){ return dir===1 ? b.v-a.v : a.v-b.v; });
+        var avgEntry = {v: data[names.indexOf('行业均值')], n:'行业均值', i: names.indexOf('行业均值')};
+        var ordered = sorted.concat(avgEntry.v != null ? [avgEntry] : []);
+        var oData = ordered.map(function(d){ return d.v; });
+        var oNames = ordered.map(function(d){ return d.n; });
+        var oCurrentIdx = oNames.indexOf(currentName);
+
+        var markLines = [];
+        if (avgLine != null) {
+            markLines.push({ yAxis: avgLine, lineStyle: { color: '#b0c4de', type: 'dashed', width: 1.5 },
+                label: { show: true, position: 'insideEndTop', fontSize: 10, color: '#fff', backgroundColor: 'rgba(106,159,216,0.85)', padding: [2,5,2,5], borderRadius: 3,
+                    formatter: '均值 ' + avgLine + (unit||'') } });
+        }
+        if (allowNeg) {
+            markLines.push({ yAxis: 0, lineStyle: { color: '#e74c3c', type: 'solid', width: 1.5 },
+                label: { show: true, position: 'insideEndTop', fontSize: 10, color: '#fff', backgroundColor: 'rgba(231,76,60,0.85)', padding: [2,5,2,5], borderRadius: 3, formatter: '0' } });
+        }
+        if (extraMarkLines) extraMarkLines.forEach(function(m){ markLines.push(m); });
+
+        return {
+            backgroundColor: '#fff',
+            title: { text: title, textStyle: { fontSize: 12, fontWeight: 'bold', color: '#1e3c72' }, left: 'center', top: 4 },
+            tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' },
+                formatter: function(params) {
+                    return '<strong>' + params[0].name + '</strong><br/>' + params[0].marker + ' ' + params[0].value + (unit||'');
+                }
+            },
+            grid: { top: 36, bottom: 28, left: 50, right: 20, containLabel: true },
+            xAxis: { type: 'category', data: oNames, axisLabel: { fontSize: 9, rotate: 20 }, axisTick: { show: false } },
+            yAxis: {
+                type: 'value',
+                min: allowNeg ? null : 0,
+                axisLabel: { fontSize: 9 },
+                splitLine: { lineStyle: { color: '#f2f2f2', type: 'dashed' } }
+            },
+            series: [{
+                type: 'bar', barWidth: '55%',
+                data: oData.map(function(v, i) {
+                    var name = oNames[i];
+                    var isAvg = name === '行业均值';
+                    var isNeg = v < 0;
+                    var baseColor;
+                    if (isAvg) {
+                        baseColor = '#b0c4de';
+                    } else if (i === oCurrentIdx) {
+                        baseColor = C_DEEP;
+                    } else if (isNeg) {
+                        baseColor = '#e74c3c';
+                    } else {
+                        baseColor = C_LIGHT;
+                    }
+                    return { value: v, itemStyle: { color: baseColor, opacity: isAvg ? 0.6 : (i === oCurrentIdx ? 1 : 0.75) } };
+                }),
+                label: {
+                    show: true, position: 'top', fontSize: 9,
+                    formatter: function(p) { return (p.value < 0 ? '(' : '') + p.value + (unit||'') + (p.value < 0 ? ')' : ''); }
+                },
+                markLine: markLines.length ? { silent: true, symbol: 'none', data: markLines } : null
+            }]
+        };
+    }
+
+    // ── SCALE：综合得分排名 + 营业收入 + 总资产 ──
+    if (dim === 'scale') {
+        var cScore = safeInitChart('dim-chart-score'); if (!cScore) return;
+        cScore.setOption(makeHorBarOpt(
+            scoreRows.map(function(r){ return r.v; }),
+            scoreRows.map(function(r){ return r.n; }),
+            '规模维度得分排名', '分', scoreVals.avg, 0,
+            Math.ceil(Math.max.apply(null, scoreRows.map(function(r){ return r.v; })) / 2) * 2 + 2
+        ));
+        window.addEventListener('resize', function(){ cScore.resize(); });
+
+        var rev = cfg.sub[0];
+        var revRows = buKeys.map(function(k,i){ return {v:rev[k], n:buNames[i]}; })
+            .filter(function(d){ return d.n !== '行业均值'; })
+            .sort(function(a,b){ return b.v - a.v; });
+        var c0 = safeInitChart('dim-chart-0'); if (!c0) return;
+        c0.setOption(makeHorBarOpt(
+            revRows.map(function(r){ return r.v; }),
+            revRows.map(function(r){ return r.n; }),
+            '营业收入排名（亿元）', '亿', rev.avg, 0,
+            Math.ceil(revRows[0].v / 50) * 50 + 30
+        ));
+        window.addEventListener('resize', function(){ c0.resize(); });
+
+        var ast = cfg.sub[1];
+        var astRows = buKeys.map(function(k,i){ return {v:ast[k], n:buNames[i]}; })
+            .filter(function(d){ return d.n !== '行业均值'; })
+            .sort(function(a,b){ return b.v - a.v; });
+        var c1 = safeInitChart('dim-chart-1'); if (!c1) return;
+        c1.setOption(makeHorBarOpt(
+            astRows.map(function(r){ return r.v; }),
+            astRows.map(function(r){ return r.n; }),
+            '总资产排名（亿元）', '亿', ast.avg, 0,
+            Math.ceil(astRows[0].v / 100) * 100 + 50
+        ));
+        window.addEventListener('resize', function(){ c1.resize(); });
+    }
+
+    // ── PROFIT：综合得分 + 哑铃图 + 净利率排名 ──
+    else if (dim === 'profit') {
+        var cScore = safeInitChart('dim-chart-score'); if (!cScore) return;
+        cScore.setOption(makeHorBarOpt(
+            scoreRows.map(function(r){ return r.v; }),
+            scoreRows.map(function(r){ return r.n; }),
+            '盈利维度得分排名', '分', scoreVals.avg, 0,
+            Math.ceil(Math.max.apply(null, scoreRows.map(function(r){ return r.v; })) / 2) * 2 + 2
+        ));
+        window.addEventListener('resize', function(){ cScore.resize(); });
+
+        var grossData = dimMap.profit.sub[0];
+        var netData   = dimMap.profit.sub[1];
+        var rawRows = buKeys.map(function(k, i) {
+            return { name: buNames[i], gross: grossData[k], net: netData[k] };
+        });
+        rawRows.sort(function(a, b) {
+            if (a.name === '行业均值') return 1;
+            if (b.name === '行业均值') return -1;
+            return b.gross - a.gross;
+        });
+        var orderedNames = rawRows.map(function(r){ return r.name; });
+        var orderedGross = rawRows.map(function(r){ return r.gross; });
+        var orderedNet   = rawRows.map(function(r){ return r.net; });
+        var diffLabels   = rawRows.map(function(r) {
+            var d = r.gross - r.net;
+            return (d >= 0 ? '+' : '') + d.toFixed(2) + 'pct';
+        });
+        var c0 = safeInitChart('dim-chart-0'); if (!c0) return;
+        c0.setOption({
+            backgroundColor: '#fff',
+            title: { text: '毛利 → 净利差值（盈利能力结构）', textStyle: { fontSize: 12, fontWeight: 'bold', color: '#1e3c72' }, left: 'center', top: 4 },
+            tooltip: {
+                trigger: 'axis',
+                formatter: function(params) {
+                    var idx = params[0].dataIndex;
+                    var r = rawRows[idx];
+                    return '<strong>' + r.name + '</strong><br/>毛利率：<b>' + r.gross + '%</b><br/>净利率：<b>' + r.net + '%</b><br/>差值：<b>' + diffLabels[idx] + '</b>';
+                }
+            },
+            grid: { top: 36, bottom: 28, left: 60, right: 60, containLabel: false },
+            xAxis: { type: 'value', min: 0, max: 20, axisLabel: { fontSize: 9, formatter: '{value}%' }, splitLine: { lineStyle: { color: '#f2f2f2', type: 'dashed' } } },
+            yAxis: { type: 'category', data: orderedNames, axisLabel: { fontSize: 10 }, axisTick: { show: false } },
+            series: [
+                { type: 'line', data: orderedGross.map(function(v,i){ return [[v, orderedNames[i]], [orderedNet[i], orderedNames[i]]]; }), lineStyle: { color: '#1e3c72', width: 2 }, itemStyle: { opacity: 0 }, symbol: 'none', tooltip: { show: false }, z: 1 },
+                { type: 'scatter', name: '毛利率', data: orderedGross, symbolSize: 10, itemStyle: { color: '#1e3c72' }, label: { show: true, position: 'left', offset: [-4,0], fontSize: 9, color: '#1e3c72', formatter: function(p){ return p.value+'%'; } }, tooltip: { show: false }, z: 2 },
+                { type: 'scatter', name: '净利率', data: orderedNet, symbolSize: 10, itemStyle: { color: '#6a9fd8' }, label: { show: true, position: 'right', offset: [4,0], fontSize: 9, color: '#6a9fd8', formatter: function(p){ return p.value+'%'; } }, tooltip: { show: false }, z: 2 },
+                { type: 'scatter', name: '差值', data: orderedGross.map(function(v,i){ return (v+orderedNet[i])/2; }), symbolSize: 0, label: { show: true, position: 'right', fontSize: 9, color: '#888', formatter: function(p){ return diffLabels[p.dataIndex]; } }, tooltip: { show: false }, z: 3 }
+            ]
+        });
+        window.addEventListener('resize', function(){ c0.resize(); });
+
+        var net = dimMap.profit.sub[1];
+        var netRows = buKeys.map(function(k,i){ return {v:net[k], n:buNames[i]}; })
+            .filter(function(d){ return d.n !== '行业均值'; })
+            .sort(function(a,b){ return b.v - a.v; });
+        var c1 = safeInitChart('dim-chart-1'); if (!c1) return;
+        c1.setOption(makeHorBarOpt(
+            netRows.map(function(r){ return r.v; }),
+            netRows.map(function(r){ return r.n; }),
+            '净利率排名', '%', net.avg, 0,
+            Math.ceil(netRows[0].v / 2) * 2 + 2
+        ));
+        window.addEventListener('resize', function(){ c1.resize(); });
+    }
+
+    // ── COST_EFF：综合得分 + 营业成本率 + 存货周转天数 ──
+    else if (dim === 'cost_eff') {
+        var ceScore = safeInitChart('dim-chart-score'); if (!ceScore) return;
+        ceScore.setOption(makeHorBarOpt(
+            scoreRows.map(function(r){ return r.v; }),
+            scoreRows.map(function(r){ return r.n; }),
+            '成本效率维度得分排名', '分', scoreVals.avg, 0,
+            Math.ceil(Math.max.apply(null, scoreRows.map(function(r){ return r.v; })) / 2) * 2 + 2
+        ));
+        window.addEventListener('resize', function(){ ceScore.resize(); });
+
+        var cost = dimMap.cost_eff.sub[0];
+        var inv  = dimMap.cost_eff.sub[1];
+        var c0 = safeInitChart('dim-chart-0'); if (!c0) return;
+        c0.setOption(makeVertBarOpt(
+            [cost.czly, cost.hnyn, cost.wrxn, cost.fljg, cost.dfnm, cost.avg],
+            buNames, '营业成本率（%，越低越好）', '%', cost.avg, 0, -1, false
+        ));
+        window.addEventListener('resize', function(){ c0.resize(); });
+
+        var c1 = safeInitChart('dim-chart-1'); if (!c1) return;
+        c1.setOption(makeVertBarOpt(
+            [inv.czly, inv.hnyn, inv.wrxn, inv.fljg, inv.dfnm, inv.avg],
+            buNames, '存货周转天数（天，越短越好）', '天', inv.avg, 0, -1, false
+        ));
+        window.addEventListener('resize', function(){ c1.resize(); });
+    }
+
+    // ── FINANCE：综合得分 + 资产负债率 + 经营现金流/营收 ──
+    else if (dim === 'finance') {
+        var finScore = safeInitChart('dim-chart-score'); if (!finScore) return;
+        finScore.setOption(makeHorBarOpt(
+            scoreRows.map(function(r){ return r.v; }),
+            scoreRows.map(function(r){ return r.n; }),
+            '财务健康维度得分排名', '分', scoreVals.avg, 0,
+            Math.ceil(Math.max.apply(null, scoreRows.map(function(r){ return r.v; })) / 2) * 2 + 2
+        ));
+        window.addEventListener('resize', function(){ finScore.resize(); });
+
+        var debt = dimMap.finance.sub[0];
+        var cash = dimMap.finance.sub[1];
+        var c0 = safeInitChart('dim-chart-0'); if (!c0) return;
+        c0.setOption(makeVertBarOpt(
+            [debt.czly, debt.hnyn, debt.wrxn, debt.fljg, debt.dfnm, debt.avg],
+            buNames, '资产负债率（%，越低越好）', '%', debt.avg, 0, -1, false,
+            [{ yAxis: 70, lineStyle: { color: '#e74c3c', type: 'solid', width: 2 },
+              label: { show: true, position: 'insideEndTop', formatter: '▶ 警戒70%', fontSize: 11, color: '#fff', backgroundColor: 'rgba(231,76,60,0.85)', padding: [2,6,2,6], borderRadius: 3 } }]
+        ));
+        window.addEventListener('resize', function(){ c0.resize(); });
+
+        var c1 = safeInitChart('dim-chart-1'); if (!c1) return;
+        c1.setOption(makeVertBarOpt(
+            [cash.czly, cash.hnyn, cash.wrxn, cash.fljg, cash.dfnm, cash.avg],
+            buNames, '经营现金流/营收（%，越高越好，负值=失血）', '%', cash.avg, 0, 1, true
+        ));
+        window.addEventListener('resize', function(){ c1.resize(); });
+    }
+
+    // ── GROWTH：综合得分 + 营收同比增长率 + 研发费用率 ──
+    else if (dim === 'growth') {
+        var grScore = safeInitChart('dim-chart-score'); if (!grScore) return;
+        grScore.setOption(makeHorBarOpt(
+            scoreRows.map(function(r){ return r.v; }),
+            scoreRows.map(function(r){ return r.n; }),
+            '成长潜力维度得分排名', '分', scoreVals.avg, 0,
+            Math.ceil(Math.max.apply(null, scoreRows.map(function(r){ return r.v; })) / 2) * 2 + 2
+        ));
+        window.addEventListener('resize', function(){ grScore.resize(); });
+
+        var revg = dimMap.growth.sub[0];
+        var rd   = dimMap.growth.sub[1];
+        var c0 = safeInitChart('dim-chart-0'); if (!c0) return;
+        c0.setOption(makeVertBarOpt(
+            [revg.czly, revg.hnyn, revg.wrxn, revg.fljg, revg.dfnm, revg.avg],
+            buNames, '营收同比增长率（%，越高越好）', '%', revg.avg, 0, 1, false
+        ));
+        window.addEventListener('resize', function(){ c0.resize(); });
+
+        var c1 = safeInitChart('dim-chart-1'); if (!c1) return;
+        c1.setOption(makeVertBarOpt(
+            [rd.czly, rd.hnyn, rd.wrxn, rd.fljg, rd.dfnm, rd.avg],
+            buNames, '研发费用率（%，越高越好）', '%', rd.avg, 0, 1, false
+        ));
+        window.addEventListener('resize', function(){ c1.resize(); });
+    }
+}
+
+function renderCompare() {
+    var data = window.currentData;
+    if (!data) return;
+    var a = document.getElementById('compare-a').value;
+    var b = document.getElementById('compare-b').value;
+    var dimKeys = ['scale','profit','cost_eff','finance','growth'];
+    var dimNames = ['规模与市场地位','盈利质量','成本与效率','运营与财务健康','成长潜力'];
+    var last = data.quarters.length - 1;
+    var aScores = dimKeys.map(function(dk){ return data.scores[a][dk][last]; });
+    var bScores = dimKeys.map(function(dk){ return data.scores[b][dk][last]; });
+    var compareEl = document.getElementById('compare-chart');
+    if (!compareEl) return;
+    var chart = safeInitChart('compare-chart'); if (!chart) return;
+    var opt = {
+        backgroundColor:'#fff',
+        tooltip:{trigger:'axis',axisPointer:{type:'shadow'}},
+        legend:{bottom:0,textStyle:{fontSize:11}},
+        grid:{top:10,bottom:30,left:100,right:80},
+        yAxis:{type:'category',data:dimNames,axisLabel:{fontSize:11}},
+        xAxis:{type:'value',max:10,min:0,axisLabel:{fontSize:10}},
+        series:[
+            {name:document.getElementById('compare-a').options[document.getElementById('compare-a').selectedIndex].text,type:'bar',data:aScores,barWidth:'35%',
+             itemStyle:{color:'#1e3c72'},
+             label:{show:true,position:'right',fontSize:11,formatter:'{c}'}},
+            {name:document.getElementById('compare-b').options[document.getElementById('compare-b').selectedIndex].text,type:'bar',data:bScores,barWidth:'35%',
+             itemStyle:{color:'#6a9fd8'},
+             label:{show:true,position:'right',fontSize:11,formatter:'{c}'}}
+        ]
+    };
+    chart.setOption(opt);
+    window.addEventListener('resize',function(){chart.resize();});
+}
+
+function toggleExportPop() {
+    var pop = document.getElementById('export-pop');
+    if (pop.style.display === 'block') {
+        pop.style.display = 'none';
+    } else {
+        pop.style.display = 'block';
+        setTimeout(function() {
+            var closeFn = function(e) {
+                if (!e.target.closest('#export-pop') && !e.target.closest('.btn-export')) {
+                    pop.style.display = 'none';
+                    document.removeEventListener('click', closeFn);
+                }
+            };
+            document.addEventListener('click', closeFn);
+        }, 10);
+    }
+}
+
+function exportExcel() {
+    document.getElementById('export-pop').style.display = 'none';
+    var data = window.currentData;
+    if (!data) return;
+    var buId = new URLSearchParams(location.search).get('id') || 'czly';
+    var wb = XLSX.utils.book_new();
+
+    // Sheet1: 战略维度得分
+    var dimKeys = ['scale','profit','cost_eff','finance','growth'];
+    var dimNames = ['规模与市场地位','盈利质量','成本与效率','运营与财务健康','成长潜力'];
+    var qIdx = selectedQuarterIdx !== null ? selectedQuarterIdx : data.quarters.length - 1;
+    var ws1Data = [['维度','常州锂源','湖南裕能','万润新能','富临精工','德方纳米','行业均值']];
+    dimKeys.forEach(function(k, i) {
+        ws1Data.push([dimNames[i], data.scores.czly[k][qIdx], data.scores.hnyn[k][qIdx], data.scores.wrxn[k][qIdx], data.scores.fljg[k][qIdx], data.scores.dfnm[k][qIdx], data.scores.avg[k][qIdx]]);
+    });
+    var ws1 = XLSX.utils.aoa_to_sheet(ws1Data);
+    XLSX.utils.book_append_sheet(wb, ws1, '战略维度得分');
+
+    // Sheet2: 详细指标（从当前表格提取）
+    var tableEl = document.getElementById('detail-table');
+    if (tableEl) {
+        var ws2 = XLSX.utils.table_to_sheet(tableEl);
+        XLSX.utils.book_append_sheet(wb, ws2, '详细指标');
+    }
+
+    var wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+    var blob = new Blob([wbout], { type: 'application/octet-stream' });
+    var link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    var d = new Date();
+    link.download = '战略洞察_' + buId + '_' + d.getFullYear() + (d.getMonth()+1) + d.getDate() + '.xlsx';
+    link.click();
+    URL.revokeObjectURL(link.href);
+}
+
+function exportPDF() {
+    document.getElementById('export-pop').style.display = 'none';
+    var el = document.getElementById('dashboard-page');
+    var btn = document.querySelector('.btn-export');
+    var origText = btn.textContent;
+    btn.textContent = '正在生成PDF...';
+    html2canvas(el, { scale: 1.5, useCORS: true, logging: false, backgroundColor: '#f4f6fa' }).then(function(canvas) {
+        var imgData = canvas.toDataURL('image/jpeg', 0.85);
+        var pdf = new window.jspdf.jsPDF('l', 'mm', 'a4');
+        var pdfW = pdf.internal.pageSize.getWidth() - 20;
+        var imgH = canvas.height * pdfW / canvas.width;
+        var maxH = pdf.internal.pageSize.getHeight() - 20;
+        if (imgH > maxH) imgH = maxH;
+        pdf.addImage(imgData, 'JPEG', 10, 10, pdfW, imgH);
+        pdf.save('战略洞察报告.pdf');
+        btn.textContent = origText;
+    }).catch(function() {
+        btn.textContent = origText;
+        alert('PDF生成失败，请重试');
+    });
+}
+
+
+
+document.addEventListener('DOMContentLoaded', initRouter);
+
+function highlightRadarDim(dimKey) {
+    // 高亮雷达图中对应维度
+    var chart = echarts.getInstanceByDom(document.getElementById('radar-chart'));
+    if (chart) {
+        var dimIdx = ['scale','profit','cost_eff','finance','growth'].indexOf(dimKey);
+        chart.dispatchAction({
+            type: 'highlight',
+            dataIndex: dimIdx
+        });
+    }
+}
+function resetRadarHighlight() {
+    var chart = echarts.getInstanceByDom(document.getElementById('radar-chart'));
+    if (chart) {
+        chart.dispatchAction({ type: 'downplay' });
+    }
+}
+</script>
+    <script src="assets/ai_fab_inject.js"></script>
+</body>
+</html>
