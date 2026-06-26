@@ -186,6 +186,9 @@ sidebar_screenshot.png
 # ========== 例外：data/images 目录中的 logo 图片需要部署 ==========
 !data/images/*.png
 
+# ========== 例外：images/embedded_img 图片需要部署 ==========
+!images/embedded_img_*.png
+
 # ------------------------------------------
 # 14. 输出目录
 # ------------------------------------------
