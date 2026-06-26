@@ -19452,25 +19452,6 @@ async function openPanel(buId) {
     document.getElementById('drawerTag').style.color = bd.accent;
     document.getElementById('panelDrawer').style.setProperty('--panel-accent', bd.accent);
 
-    // bych 无雷达数据，仅展示早报和操作按钮
-    if (buId === 'bych') {
-        const reportData = await getLatestReportForBU(buId);
-        document.getElementById('drawerBody').innerHTML = `
-            <div style="padding:16px 0;">
-                ${buildBriefSection(buId, reportData)}
-                ${buildTipsSection(buId, reportData)}
-            </div>
-            <div class="hexa-actions">
-                <button class="hexa-action-btn hexa-action-pri" onclick="openReport('${buId}')">早报详情</button>
-                <a class="hexa-action-btn hexa-action-sec" href="archive_v3.html?bu=${buId}">历史数据</a>
-                <a class="hexa-action-btn hexa-action-sec" href="strategy_hub.html">战略洞察</a>
-            </div>
-        `;
-        document.getElementById('panelOverlay').classList.add('active');
-        document.body.classList.add('panel-open');
-        return;
-    }
-
     const reportData = await getLatestReportForBU(buId);
     const histMonths = getHistoryMonths(buId);
     const histCardsHtml = buildHistoricalCards(buId, histMonths);

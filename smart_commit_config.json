@@ -20,5 +20,6 @@
     "*_old.html"
   ],
   "debug_mode": false,
-  "commit_message_template": "智能存档: {date} {count}个文件有变化"
+  "commit_message_template": "智能存档: {date} {count}个文件有变化",
+  "max_backups": 3
 }
