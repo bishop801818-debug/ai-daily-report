@@ -479,7 +479,7 @@ def generate_pie_insight(chart, data_json, latest_report, division):
     part1 = f"TOP1「{top_name}」占{top_pct:.0f}%（{top_str}"
     unit = chart.get('unit', '')
     if unit:
-        part1 += f"{unit})"
+        part1 += f"{unit}）"  # 使用全角右括号
     else:
         part1 += "）"
 
@@ -555,10 +555,10 @@ def generate_pie_insight(chart, data_json, latest_report, division):
                     news_part = text
                     break
     
-    # 压缩 news_part 到合理长度（目标：总长度 ≤100 字，完整句子不截断）
-    # part1 ~40字，留给 news_part ~58字
+    # 压缩 news_part 到合理长度（目标：总长度 ≤200 字，完整句子不截断）
+    # part1 ~40字，留给 news_part ~158字
     if news_part:
-        max_news_pie = 100 - len(part1) - 3
+        max_news_pie = 200 - len(part1) - 3
         if max_news_pie > 15 and len(news_part) > max_news_pie:
             # 智能截断：优先在标点处截断，保证句子完整
             truncated = news_part[:max_news_pie + 10]  # 多取10字找标点
@@ -588,17 +588,20 @@ def generate_pie_insight(chart, data_json, latest_report, division):
         news_part = news_part.rstrip('。')
     
     # 组合文案
-    full_text = part1 + "。"
+    full_text = part1
     if news_part:
         news_part = news_part.replace('\n', '，').replace('  ', ' ').strip()
+        # 修复标点：如果news_part已经有结尾标点，不再添加
         if not news_part.endswith(('。', '！', '？')):
             news_part += '。'
-        full_text += news_part
+        full_text += "。" + news_part
+    else:
+        full_text += "。"
     
-    # 上限100字（完整展示，句号处截断，不添加省略号）
-    if len(full_text) > 100:
+    # 上限200字（完整展示，句号处截断，不添加省略号）
+    if len(full_text) > 200:
         base_len = len(part1) + 1  # part1 + "。"
-        max_news = 100 - base_len - 3
+        max_news = 200 - base_len - 3
         if max_news > 10:
             # 在句号处截断，不添加省略号
             truncated = news_part[:max_news]
@@ -608,7 +611,7 @@ def generate_pie_insight(chart, data_json, latest_report, division):
             # 若找不到句号，直接截断，不加省略号
             full_text = part1 + "。" + truncated
         else:
-            full_text = full_text[:100]
+            full_text = full_text[:200]
     
     return full_text
 
@@ -620,50 +623,29 @@ def generate_insight_with_news(chart, metrics, report, division):
     """
     chart_id = chart.get('id', '')
     chart_title = chart.get('title', '')
-    
-    # 1. 尝试从早报提取当日价格和分析
-    price_data = extract_price_from_report(chart_id, report)
+    chart_unit = chart.get('unit', '')
     
     insight_parts = []
     
-    if price_data and price_data.get('price_text'):
-        # 有价格数据：格式 "XX价格：YY，[分析]"
-        product_name = chart_title.replace('走势', '').replace('价格', '').strip()
-        price_text = price_data['price_text']
-        analysis = price_data.get('analysis', '')
-        
-        # 组合：产品名 + 价格 + 分析
-        part1 = f"{product_name}{price_text}"
-        insight_parts.append(part1)
-        
-        if analysis and len(analysis) > 10:
-            insight_parts.append(analysis)
-    else:
-        # 无价格数据：从早报提取事件分析
-        if report and isinstance(report, dict):
-            sections = report.get('sections', {})
-            
-            # 优先级1：专属提示→机会（最专业的分析）
-            tips = sections.get('tips', sections.get('专属提示', {}))
-            if isinstance(tips, dict):
-                for cat in ['机会', '风险']:
-                    items = tips.get(cat, [])
-                    if items and len(items) > 0:
-                        content = items[0].get('content', items[0].get('summary', ''))
-                        if content and len(content) > 20:
-                            insight_parts.append(content[:60])
-                            break
-            
-            # 如果专属提示不够，补充政策/企业动态
-            if not insight_parts:
-                policy = sections.get('policy', sections.get('政策_行业', []))
-                if isinstance(policy, list) and len(policy) > 0:
-                    item = policy[0]
-                    content = item.get('content', item.get('summary', ''))
-                    if content:
-                        insight_parts.append(content[:50])
+    # 1. 尝试从早报提取价格信息（仅适用于价格图表）
+    if '万元/吨' in chart_unit or '美元/吨' in chart_unit or '元/吨' in chart_unit:
+        price_data = extract_price_from_report(chart_id, report, division)
+        if price_data and price_data.get('price_text'):
+            product_name = chart_title.replace('走势', '').replace('价格', '').strip()
+            price_text = price_data['price_text']
+            insight_parts.append(f"{product_name}{price_text}")
     
-    # 2. 如果早报没有足够内容，使用数据库metrics生成简化版
+    # 2. 尝试从早报提取分析内容（适用于所有图表）
+    analysis = extract_analysis_from_report(chart_id, report, division)
+    
+    if analysis and len(analysis) > 10:
+        # 如果已经有价格信息，追加分析；否则直接用分析作为文案
+        if insight_parts:
+            insight_parts.append(analysis)
+        else:
+            insight_parts.append(analysis)
+    
+    # 3. 如果早报没有足够内容，使用数据库metrics生成简化版
     if not insight_parts and metrics:
         latest = metrics['latest']
         change = metrics['change']
@@ -679,20 +661,42 @@ def generate_insight_with_news(chart, metrics, report, division):
         data_part = f"最新{latest_str}{unit}，环比{trend}{abs(change):.1f}%"
         insight_parts.append(data_part)
     
-    # 3. 组合最终文案（总长度≤100字）
+    # 4. 组合最终文案（总长度≤200字，在完整句子处截断）
     full_text = '。'.join(insight_parts)
     full_text = full_text.replace('\\n', '，').replace('  ', ' ').strip()
     
     if full_text and not full_text.endswith(('。', '！', '？')):
         full_text += '。'
     
-    if len(full_text) > 100:
-        truncated = full_text[:100]
+    # 智能截断：优先在标点符号处截断，保证句子完整
+    MAX_LENGTH = 200
+    if len(full_text) > MAX_LENGTH:
+        # 在MAX_LENGTH范围内找最后一个完整句子/分句
+        truncated = full_text[:MAX_LENGTH]
+        
+        # 定义截断优先级（从强到弱）
+        # 优先级1：句号（完整句子结束）
         last_period = truncated.rfind('。')
-        if last_period > 50:
+        if last_period > 100:  # 至少保留100字
             full_text = truncated[:last_period + 1]
         else:
-            full_text = truncated
+            # 优先级2：分号（分句结束）
+            last_semi = truncated.rfind('；')
+            if last_semi > 100:
+                full_text = truncated[:last_semi + 1]
+            else:
+                # 优先级3：逗号（句子中间，但至少是完整子句）
+                last_comma = truncated.rfind('，')
+                if last_comma > 100:
+                    full_text = truncated[:last_comma] + '。'
+                else:
+                    # 优先级4：顿号（并列成分之间）
+                    last_enum = truncated.rfind('、')
+                    if last_enum > 100:
+                        full_text = truncated[:last_enum] + '。'
+                    else:
+                        # 都不行，在MAX_LENGTH处硬截断（加省略号表示未完成）
+                        full_text = truncated + '…'
     
     return full_text if full_text else "数据更新，请关注市场动态。"
 
@@ -871,7 +875,7 @@ def update_index_html(html_path, new_dashboards_js):
 # ============================================================
 # 主流程
 # ============================================================
-BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
+BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 
 
 def main():
@@ -942,7 +946,7 @@ def main():
             # 折线图/柱状图用原有逻辑
             insight = generate_insight_with_news(c, metrics, latest_report, division)
         c['_insight'] = insight
-        print(f"  文案: {insight[:60]}...")
+        print(f"  文案 (长度={len(insight)}): {insight}")
 
     # 4. 更新 index_v3.html
     print("\n[4/5] 更新 index_v3.html...")
@@ -978,43 +982,45 @@ def main():
 CHART_TO_PRODUCT_MAP = {
     # 碳酸锂数据库
     "carbonate_price": ["碳酸锂", "锂", "LC"],
+    "lh_price": ["氢氧化锂", "LH"],
+    "lsp_price": ["锂辉石", "精矿"],
+    "lym_price": ["锂云母"],
     "carbonate_prod": ["碳酸锂", "产量"],
     "carbonate_import": ["锂", "进口"],
     
     # 电解液数据库
-    "electrolyte_price": ["电解液", "六氟磷酸锂", "6F", "LiPF6"],
-    "electrolyte_profit": ["电解液", "毛利", "利润"],
-    "vc_price": ["VC", "碳酸亚乙烯酯", "添加剂"],
-    "solvent_price": ["溶剂", "DMC", "EC", "DEC", "EMC"],
+    "lipf6_price": ["六氟磷酸锂", "6F", "LiPF6"],
+    "electrolyte_prod": ["电解液", "产量"],
+    "electrolyte_price_lfp": ["电解液", "LFP", "磷酸铁锂", "动力型"],
+    "lfp_price_ternary": ["电解液", "三元", "NCM", "动力型"],
     
     # 磷酸铁锂数据库
-    "lfp_price": ["磷酸铁锂", "LFP", "正极材料"],
-    "lfp_demand": ["磷酸铁锂", "需求", "动力电池"],
+    "lfp_prod": ["磷酸铁锂", "LFP", "产量"],
+    "lfp_export": ["磷酸铁锂", "LFP", "出口"],
     
     # 三元材料数据库
-    "ternary_price": ["三元", "NCM", "高镍", "正极材料"],
-    "ternary_split": ["三元", "型号", "NCM523", "NCM811"],
+    "ternary_prod": ["三元", "NCM", "产量"],
+    "ternary_ncm_split": ["三元", "NCM", "型号"],
     
     # 锂电池回收数据库
-    "recycling_price": ["回收", "拆解", "废料"],
-    "recycling_share": ["回收", "市场份额", "CR5"],
+    "recycling_blackmass": ["回收", "黑粉", "处理量"],
+    "recycling_market_share": ["回收", "市场份额"],
     
     # 锂电池行业数据库
     "lib_battery_prod": ["锂电池", "产量", "动力电池"],
-    "lib_battery_export": ["锂电池", "出口", "海外"],
     
     # 汽车行业数据库
-    "auto_nev_sales": ["新能源汽车", "NEV", "销量"],
-    "auto_ev_models": ["新能源", "车型", "比亚迪", "特斯拉"],
+    "automotive_ev_sales": ["新能源汽车", "NEV", "销量"],
+    "automotive_nev_brand_share": ["新能源汽车", "品牌", "份额"],
 }
 
 
-def extract_price_from_report(chart_id, report):
+def extract_price_from_report(chart_id, report, division=None):
     """
-    从早报中提取对应品种的价格和分析
-    返回: {"price_text": "XX万元/吨", "analysis": "分析内容"} 或 None
+    从早报的 market 栏目中提取对应品种的价格信息
+    返回: {"price_text": "XX万元/吨", "title": "标题"} 或 None
     """
-    if not report or 'sections' not in report:
+    if not report:
         return None
     
     # 获取品种关键词
@@ -1022,14 +1028,51 @@ def extract_price_from_report(chart_id, report):
     if not keywords:
         return None
     
-    sections = report.get('sections', {})
-    market_items = sections.get('market', [])  # 市场/价格栏目
+    # 早报JSON结构：report['departments'][division]['sections'] (list)
+    departments = report.get('departments', {})
+    
+    # 如果没有指定division，尝试从所有事业部中查找
+    target_sections = None
+    
+    if departments:
+        # 新格式：sections 在 departments[division]['sections'] 下（是list）
+        if division and division in departments:
+            target_sections = departments[division].get('sections', [])
+        else:
+            # 尝试从所有事业部中查找
+            for div_id, div_data in departments.items():
+                secs = div_data.get('sections', [])
+                if secs:
+                    target_sections = secs
+                    break
+    else:
+        # 旧格式：sections 在顶层（可能是list或dict）
+        sections = report.get('sections', [])
+        if isinstance(sections, list):
+            target_sections = sections
+        elif isinstance(sections, dict):
+            # 如果是dict，转换为list格式
+            target_sections = [{'dim': k, 'title': k, 'items': v if isinstance(v, list) else []} for k, v in sections.items()]
+    
+    if not target_sections:
+        return None
+    
+    # 从 sections list 中查找 dim == 'market' 的元素
+    market_section = None
+    for sec in target_sections:
+        if isinstance(sec, dict) and sec.get('dim') == 'market':
+            market_section = sec
+            break
+    
+    if not market_section:
+        return None
+    
+    market_items = market_section.get('items', [])
     
     if not market_items:
         return None
     
     # 遍历市场/价格栏目，查找匹配的品种
-    best_match = None
     for item in market_items:
         title = item.get('title', '')
         content = item.get('content', '')
@@ -1037,27 +1080,175 @@ def extract_price_from_report(chart_id, report):
         # 检查标题或内容是否包含关键词
         for keyword in keywords:
             if keyword in title or keyword in content:
-                # 提取价格信息
+                # 提取价格信息 - 改进正则，支持更多格式
                 price_text = ""
-                price_match = re.search(r'价格[：:]\s*([\d.\-~]+\s*[万千]?元/[吨斤gGWh]{1,3})', content)
+                # 匹配 "价格：28500元/吨" 或 "价格：约22970美元/吨" 等格式
+                price_match = re.search(r'价格[：:]\s*([^\n]+?)(?:\n|$)', content)
                 if price_match:
                     price_text = price_match.group(1).strip()
                 
-                # 提取分析（去除价格行，取剩余内容的前80字）
-                analysis = content
-                if '价格' in analysis:
-                    # 去掉"价格：XX"这一行
-                    lines = analysis.split('\n')
-                    analysis_lines = [l for l in lines if not l.strip().startswith('价格')]
-                    analysis = ' '.join(analysis_lines)
+                # 提取涨跌信息
+                change_text = ""
+                change_match = re.search(r'涨跌[：:]\s*([^\n]+?)(?:\n|$)', content)
+                if change_match:
+                    change_text = change_match.group(1).strip()
                 
-                analysis = analysis.replace('\n', '，').strip()[:80]
+                # 组合价格和涨跌
+                full_price_text = ""
+                if price_text:
+                    full_price_text = f"价格：{price_text}"
+                    if change_text:
+                        full_price_text += f"，涨跌：{change_text}"
                 
                 return {
-                    'price_text': price_text,
-                    'analysis': analysis,
+                    'price_text': full_price_text,
                     'title': title
                 }
+    
+    return None
+
+
+def extract_analysis_from_report(chart_id, report, division=None):
+    """
+    从早报的 tips/policy/enterprise 栏目中提取对应品种的分析内容
+    返回: 分析文案字符串 或 None
+    优先返回完整、高质量的分析内容
+    """
+    if not report:
+        return None
+    
+    # 获取品种关键词
+    keywords = CHART_TO_PRODUCT_MAP.get(chart_id, [])
+    if not keywords:
+        return None
+    
+    # 早报JSON结构：report['departments'][division]['sections'] (list)
+    departments = report.get('departments', {})
+    
+    # 获取对应事业部的 sections
+    target_sections = None
+    if departments:
+        if division and division in departments:
+            target_sections = departments[division].get('sections', [])
+        else:
+            # 尝试从所有事业部中查找
+            for div_id, div_data in departments.items():
+                secs = div_data.get('sections', [])
+                if secs:
+                    target_sections = secs
+                    break
+    
+    if not target_sections:
+        return None
+    
+    # 从 sections list 中查找相关元素
+    tips_section = None
+    policy_section = None
+    enterprise_section = None
+    tech_section = None
+    topnews_section = None
+    
+    for sec in target_sections:
+        if isinstance(sec, dict):
+            dim = sec.get('dim', '')
+            if dim == 'tips':
+                tips_section = sec
+            elif dim == 'policy':
+                policy_section = sec
+            elif dim == 'enterprise':
+                enterprise_section = sec
+            elif dim == 'tech':
+                tech_section = sec
+            elif dim == 'topnews':
+                topnews_section = sec
+    
+    # 收集所有匹配的分析内容，按优先级排序
+    candidates = []
+    
+    # 优先级1：从 tips 栏目中查找匹配关键词的分析
+    if tips_section:
+        tips_items = tips_section.get('items', [])
+        for item in tips_items:
+            title = item.get('title', '')
+            content = item.get('content', '')
+            summary = item.get('summary', '')
+            
+            # 检查是否匹配关键词
+            matched = False
+            for keyword in keywords:
+                if keyword in title or keyword in content or keyword in summary:
+                    matched = True
+                    break
+            
+            if matched:
+                # 优先使用 content，如果没有则使用 summary
+                analysis = content if content else summary
+                if analysis and len(analysis) > 30:
+                    # 优先选择以句号结尾的完整分析
+                    is_complete = analysis.rstrip().endswith(('。', '！', '？'))
+                    candidates.append(('tips', analysis, is_complete))
+    
+    # 优先级2：从 policy 栏目中查找
+    if policy_section:
+        policy_items = policy_section.get('items', [])
+        for item in policy_items:
+            title = item.get('title', '')
+            content = item.get('content', '')
+            
+            matched = False
+            for keyword in keywords:
+                if keyword in title or keyword in content:
+                    matched = True
+                    break
+            
+            if matched and content and len(content) > 30:
+                is_complete = content.rstrip().endswith(('。', '！', '？'))
+                candidates.append(('policy', content, is_complete))
+    
+    # 优先级3：从 enterprise 栏目中查找
+    if enterprise_section:
+        enterprise_items = enterprise_section.get('items', [])
+        for item in enterprise_items:
+            title = item.get('title', '')
+            content = item.get('content', '')
+            
+            matched = False
+            for keyword in keywords:
+                if keyword in title or keyword in content:
+                    matched = True
+                    break
+            
+            if matched and content and len(content) > 30:
+                is_complete = content.rstrip().endswith(('。', '！', '？'))
+                candidates.append(('enterprise', content, is_complete))
+    
+    # 优先级4：从 tech 栏目中查找
+    if tech_section:
+        tech_items = tech_section.get('items', [])
+        for item in tech_items:
+            title = item.get('title', '')
+            content = item.get('content', '')
+            
+            matched = False
+            for keyword in keywords:
+                if keyword in title or keyword in content:
+                    matched = True
+                    break
+            
+            if matched and content and len(content) > 30:
+                is_complete = content.rstrip().endswith(('。', '！', '？'))
+                candidates.append(('tech', content, is_complete))
+    
+    # 选择最佳候选：优先选择完整的分析，其次选择最长的分析
+    if candidates:
+        # 先找完整的分析
+        complete_candidates = [c for c in candidates if c[2]]
+        if complete_candidates:
+            # 返回第一个完整分析（按优先级）
+            return complete_candidates[0][1]
+        else:
+            # 如果没有完整的，返回第一个候选（按优先级）
+            return candidates[0][1]
     
     return None
 
