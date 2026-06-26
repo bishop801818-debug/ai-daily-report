@@ -19112,13 +19112,27 @@ async function getLatestReportForBU(buId) {
             return { ...dept, _reportDate: window.__EMBEDDED__.today };
         }
     }
-    // 网络模式：尝试今天、昨天、前天
-    const dates = [0,-1,-2].map(offset => {
-        const d = new Date(); d.setDate(d.getDate()+offset);
-        return d.toISOString().slice(0,10);
-    });
-    // 尝试从 reports/ 目录加载特定日期的报告
-    for (const date of dates) {
+    // 优先从 reports/index.json 获取 available_dates，只请求有报告的日期
+    console.log('[getLatestReportForBU] 开始加载, buId=' + buId);
+    let availableDates = [];
+    try {
+        const idxRes = await fetch(`reports/index.json?v=${HTML_VERSION}&_cb=${Date.now()}`);
+        if (idxRes.ok) {
+            const idxData = await idxRes.json();
+            availableDates = idxData.available_dates || [];
+        }
+    } catch (e) {
+        console.log('[getLatestReportForBU] 无法加载 index.json, 使用最近3天');
+    }
+    // 如果 available_dates 为空，fallback 到最近3天（兼容旧版 index.json）
+    if (availableDates.length === 0) {
+        availableDates = [0,-1,-2].map(offset => {
+            const d = new Date(); d.setDate(d.getDate()+offset);
+            return d.toISOString().slice(0,10);
+        });
+    }
+    // 尝试加载每个可用日期的报告
+    for (const date of availableDates) {
         try {
             const res = await fetch(`reports/${date}.json?v=${HTML_VERSION}&_cb=${Date.now()}`);
             if (res.ok) {
@@ -19129,43 +19143,13 @@ async function getLatestReportForBU(buId) {
                     return {...dept, _reportDate: date};
                 }
             } else {
-                console.log('[getLatestReportForBU] 报告不存在: reports/' + date + '.json, status=' + res.status);
+                console.log('[getLatestReportForBU] 跳过（无报告）: ' + date + ', status=' + res.status);
             }
         } catch (e) {
-            console.log('[getLatestReportForBU] 加载失败: reports/' + date + '.json, error=' + e.message);
+            console.log('[getLatestReportForBU] 跳过（加载失败）: ' + date + ', error=' + e.message);
         }
     }
-    // Fallback: 从 reports/index.json 获取所有可用日期，然后尝试加载每个日期的报告
-    console.log('[getLatestReportForBU] 开始 fallback 到 reports/index.json, buId=' + buId);
-    try {
-        const idxRes = await fetch(`reports/index.json?v=${HTML_VERSION}&_cb=${Date.now()}`);
-        if (idxRes.ok) {
-            const idxData = await idxRes.json();
-            const availableDates = idxData.available_dates || [];
-            console.log('[getLatestReportForBU] available_dates:', availableDates);
-            if (availableDates.length > 0) {
-                // 从最新日期开始尝试，直到找到事业部的数据
-                for (const date of availableDates) {
-                    console.log('[getLatestReportForBU] 尝试日期:', date);
-                    try {
-                        const reportRes = await fetch(`reports/${date}.json?v=${HTML_VERSION}&_cb=${Date.now()}`);
-                        if (reportRes.ok) {
-                            const reportData = await reportRes.json();
-                            const dept = reportData.departments?.[buId];
-                            if (dept) {
-                                console.log('[getLatestReportForBU] fallback 成功, buId=' + buId + ', date=' + date);
-                                return {...dept, _reportDate: date};
-                            }
-                        }
-                    } catch (e2) {
-                        console.log('[getLatestReportForBU] 加载失败: reports/' + date + '.json');
-                    }
-                }
-            }
-        }
-    } catch (e) {
-        console.log('[getLatestReportForBU] fallback 失败: reports/index.json, error=' + e.message);
-    }
+    console.log('[getLatestReportForBU] 无可用数据, buId=' + buId);
     console.log('[getLatestReportForBU] 无可用数据, buId=' + buId);
     return window.__EMBEDDED__?.report?.departments?.[buId] || null;
 }
