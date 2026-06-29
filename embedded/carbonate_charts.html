@@ -72,36 +72,36 @@
         <!-- ===== 概览 ===== -->
         <div class="tab-content active" id="tab-overview">
             <div class="stats-row">
-                <div class="stat-card">
+                <div class="stat-card" id="stat0">
                     <div class="stat-icon blue">📊</div>
                     <div class="stat-info">
-                        <div class="label">碳酸锂月产量（2026-05）</div>
-                        <div class="value">10.53<span class="unit">万吨</span></div>
-                        <div class="sub">产能利用率 92%</div>
+                        <div class="label">碳酸锂月产量（…）</div>
+                        <div class="value">—<span class="unit">万吨</span></div>
+                        <div class="sub">…</div>
                     </div>
                 </div>
-                <div class="stat-card">
+                <div class="stat-card" id="stat1">
                     <div class="stat-icon green">⚡</div>
                     <div class="stat-info">
-                        <div class="label">氢氧化锂月产量（2026-05）</div>
-                        <div class="value">3.10<span class="unit">万吨</span></div>
-                        <div class="sub">近12月高点</div>
+                        <div class="label">氢氧化锂月产量（…）</div>
+                        <div class="value">—<span class="unit">万吨</span></div>
+                        <div class="sub">…</div>
                     </div>
                 </div>
-                <div class="stat-card">
+                <div class="stat-card" id="stat2">
                     <div class="stat-icon orange">🚢</div>
                     <div class="stat-info">
-                        <div class="label">碳酸锂月出口量（2026-05）</div>
-                        <div class="value">201<span class="unit">吨</span></div>
-                        <div class="sub">2026-05出口量</div>
+                        <div class="label">碳酸锂月出口量（…）</div>
+                        <div class="value">—<span class="unit">吨</span></div>
+                        <div class="sub">…</div>
                     </div>
                 </div>
-                <div class="stat-card">
+                <div class="stat-card" id="stat3">
                     <div class="stat-icon purple">💵</div>
                     <div class="stat-info">
                         <div class="label">碳酸锂现货均价（最新）</div>
-                        <div class="value">16.75<span class="unit">万元/吨</span></div>
-                        <div class="sub">电池级99.5%矿石 · 2026-06-17</div>
+                        <div class="value">—<span class="unit">万元/吨</span></div>
+                        <div class="sub">…</div>
                     </div>
                 </div>
             </div>
@@ -215,36 +215,36 @@
         <!-- ===== 原料价格 ===== -->
         <div class="tab-content" id="tab-raw">
             <div class="stats-row">
-                <div class="stat-card">
+                <div class="stat-card" id="stat3b">
                     <div class="stat-icon blue">📊</div>
                     <div class="stat-info">
                         <div class="label">碳酸锂现货价（最新）</div>
-                        <div class="value">16.75<span class="unit">万元/吨</span></div>
-                        <div class="sub">电池级99.5%矿石 · 2026-06-17</div>
+                        <div class="value">—<span class="unit">万元/吨</span></div>
+                        <div class="sub">加载中…</div>
                     </div>
                 </div>
-                <div class="stat-card">
+                <div class="stat-card" id="raw0">
                     <div class="stat-icon orange">💎</div>
                     <div class="stat-info">
                         <div class="label">锂辉石精矿均价（最新）</div>
-                        <div class="value">2500<span class="unit">美元/吨</span></div>
-                        <div class="sub">澳洲6% CIF · 2026-06-17</div>
+                        <div class="value">—<span class="unit">美元/吨</span></div>
+                        <div class="sub">加载中…</div>
                     </div>
                 </div>
-                <div class="stat-card">
+                <div class="stat-card" id="raw1">
                     <div class="stat-icon purple">🪨</div>
                     <div class="stat-info">
                         <div class="label">锂云母均价（最新）</div>
-                        <div class="value">0.53<span class="unit">万元/吨</span></div>
-                        <div class="sub">锂云母1.8% · 2026-06-17</div>
+                        <div class="value">—<span class="unit">万元/吨</span></div>
+                        <div class="sub">加载中…</div>
                     </div>
                 </div>
-                <div class="stat-card">
+                <div class="stat-card" id="raw2">
                     <div class="stat-icon green">⚡</div>
                     <div class="stat-info">
                         <div class="label">氢氧化锂现货价（最新）</div>
-                        <div class="value">16.45<span class="unit">万元/吨</span></div>
-                        <div class="sub">56.5%粗颗粒 · 2026-06-17</div>
+                        <div class="value">—<span class="unit">万元/吨</span></div>
+                        <div class="sub">加载中…</div>
                     </div>
                 </div>
             </div>
@@ -282,54 +282,141 @@
 
     </div>
 
+<script src="carbonate_embedded_data.js"></script>
 <script>
 var COLORS = ['#1e3c72','#4a6fa5','#4facfe','#667eea','#764ba2','#f59e0b','#10b981','#ef4444','#3b82f6','#8b5cf6'];
 var C = { primary: '#1e3c72', secondary: '#4a6fa5', accent: '#4facfe', border: '#e0e0e0', text: '#333', textLight: '#666' };
 
-// ============ 数据 ============
-// 碳酸锂行业产量（25-05 至 26-05）
-var lcMonths = ["25-05", "25-06", "25-07", "25-08", "25-09", "25-10", "25-11", "25-12", "26-01", "26-02", "26-03", "26-04", "26-05"];
-var lcOutput = [73490, 77300, 81040, 84827, 87127, 89700, 92872, 97444, 99100, 86710, 103100, 107000, 105310];
-var lcUtil = [74.64, 78.51, 75.89, 77.62, 76.79, 79.06, 81.26, 85.26, 86.39, 75.59, 89.88, 93.28, 91.81];
+// ── 工具函数 ──────────────────────────────────────────────────────────────────
+function getTable(name) {
+    var t = EMBEDDED_DATA.tables.find(function(t){ return t.table_name === name; });
+    return t ? t.data : [];
+}
+function toYY(v) {
+    if (!v) return '';
+    var s = String(v).slice(0,10);
+    var m = s.match(/^(\d{4})-(\d{2})-/);
+    return m ? (String(+m[1]).slice(-2) + '-' + m[2]) : '';
+}
+function toYYMMDD(v) {
+    if (!v) return '';
+    var s = String(v).slice(0,10);
+    var m = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
+    return m ? (String(+m[1]).slice(-2) + '-' + m[2] + '-' + m[3]) : '';
+}
+function num(v) { var n = parseFloat(String(v).replace(/,/g,'')); return isNaN(n) ? null : n; }
 
-// 氢氧化锂产量（25-05 至 26-05）
-var lhOutput = [28600, 28450, 26300, 26950, 28400, 28150, 26650, 28600, 28150, 25940, 30350, 30810, 31030];
+// ── 动态数据提取（从 embedded JS） ─────────────────────────────────────────────
+(function loadData() {
+    // 碳酸锂行业总产量（最新12月，升序）
+    var lcRows = getTable('碳酸锂-行业总产量').slice(0,12).reverse();
+    window.lcMonths = lcRows.map(function(r){ return toYY(r['月份']); });
+    window.lcOutput = lcRows.map(function(r){ return num(r['产量（吨）']); });
+    window.lcUtil   = lcRows.map(function(r){
+        var p = num(r['产量（吨）']), c = num(r['产能（吨）']);
+        return (c > 0 ? (p/c*100) : null);
+    });
 
-// 碳酸锂出口月度（25-05 至 26-05）
-var lcExpVol = [286.7, 429.7, 366.3, 368.9, 150.8, 245.9, 759.2, 911.9, 471.6, 596.1, 448.5, 370.2, 201.3];
-var lcExpPrice = [7.5, 6.9, 6.9, 7.1, 8.1, 6.8, 7.5, 8.3, 10.3, 10.6, 13.9, 14.3, 16.4];
+    // 氢氧化锂行业总产量（最新12月，升序）
+    var lhRows = getTable('氢氧化锂-行业总产量').slice(0,12).reverse();
+    window.lhOutput = lhRows.map(function(r){ return num(r['产量（吨）']); });
 
-// 碳酸锂日度均价（电池级99.5%矿石，近30天 05-08 至 06-17）
-var lcDailyDates = ["05-08", "05-09", "05-11", "05-12", "05-13", "05-14", "05-15", "05-18", "05-19", "05-20", "05-21", "05-22", "05-25", "05-26", "05-27", "05-28", "05-29", "06-01", "06-02", "06-03", "06-04", "06-05", "06-08", "06-09", "06-10", "06-11", "06-12", "06-15", "06-16", "06-17"];
-var lcDailyAvg = [19.0, 19.0, 19.5, 20.0, 19.7, 19.4, 19.1, 19.1, 18.6, 18.1, 18.1, 18.0, 18.1, 17.9, 17.7, 17.8, 17.95, 17.95, 17.4, 16.95, 16.85, 16.85, 16.85, 16.85, 16.85, 17.15, 17.45, 17.45, 17.15, 17.25];
+    // 碳酸锂月度出口（最新12月，升序）
+    var lcExpRows = getTable('碳酸锂-出口量').slice(0,12).reverse();
+    window.lcExpVol   = lcExpRows.map(function(r){ return num(r['出口量（吨）']); });
+    window.lcExpPrice = lcExpRows.map(function(r){ return num(r['出口均价（万元/吨）']); });
 
-// 锂辉石精矿日度均价（澳洲6% CIF中国，近30天 05-08 至 06-17）
-var lspDates = ["05-08", "05-09", "05-11", "05-12", "05-13", "05-14", "05-15", "05-18", "05-19", "05-20", "05-21", "05-22", "05-25", "05-26", "05-27", "05-28", "05-29", "06-01", "06-02", "06-03", "06-04", "06-05", "06-08", "06-09", "06-10", "06-11", "06-12", "06-15", "06-16", "06-17"];
-var lspAvg = [2745.0, 2745.0, 2910.0, 2960.0, 2990.0, 2940.0, 2920.0, 2920.0, 2870.0, 2770.0, 2750.0, 2730.0, 2730.0, 2660.0, 2600.0, 2600.0, 2600.0, 2600.0, 2540.0, 2520.0, 2490.0, 2490.0, 2490.0, 2490.0, 2460.0, 2460.0, 2480.0, 2480.0, 2480.0, 2500.0];
+    // 碳酸锂日度价格（电池级99.5%矿石，最新30天，降序取）
+    var lcDailyRows = getTable('碳酸锂-价格').filter(function(r){ return r['规格'] && r['规格'].indexOf('99.5')>-1; }).slice(0,30).reverse();
+    window.lcDailyDates = lcDailyRows.map(function(r){ return toYYMMDD(r['日期']); });
+    window.lcDailyAvg   = lcDailyRows.map(function(r){ return num(r['均价（万元/吨）']); });
 
-// 锂云母日度均价（1.8%品位，近30天 05-08 至 06-17）
-var lymDates = ["05-08", "05-09", "05-11", "05-12", "05-13", "05-14", "05-15", "05-18", "05-19", "05-20", "05-21", "05-22", "05-25", "05-26", "05-27", "05-28", "05-29", "06-01", "06-02", "06-03", "06-04", "06-05", "06-08", "06-09", "06-10", "06-11", "06-12", "06-15", "06-16", "06-17"];
-var lymAvg = [0.65, 0.65, 0.67, 0.67, 0.68, 0.67, 0.66, 0.66, 0.65, 0.64, 0.63, 0.63, 0.63, 0.61, 0.58, 0.58, 0.58, 0.58, 0.56, 0.55, 0.53, 0.53, 0.53, 0.53, 0.52, 0.52, 0.53, 0.53, 0.53, 0.53];
+    // 锂辉石精矿价格（澳洲6% CIF）
+    var lspRows = getTable('锂辉石精矿-价格').filter(function(r){ return r['产地'] && r['产地'].indexOf('澳')>-1; }).slice(0,30).reverse();
+    window.lspDates = lspRows.map(function(r){ return toYYMMDD(r['日期']); });
+    window.lspAvg   = lspRows.map(function(r){ return num(r['均价（美元/吨）']); });
 
-// 氢氧化锂日度均价（56.5%粗颗粒，近30天 05-08 至 06-17）
-var lhDailyDates = ["05-08", "05-09", "05-11", "05-12", "05-13", "05-14", "05-15", "05-18", "05-19", "05-20", "05-21", "05-22", "05-25", "05-26", "05-27", "05-28", "05-29", "06-01", "06-02", "06-03", "06-04", "06-05", "06-08", "06-09", "06-10", "06-11", "06-12", "06-15", "06-16", "06-17"];
-var lhDailyAvg = [16.8, 16.8, 17.3, 17.8, 17.5, 17.0, 17.0, 17.0, 17.0, 16.6, 16.6, 16.5, 16.6, 16.45, 16.45, 16.45, 16.45, 16.45, 16.35, 16.2, 16.0, 16.0, 16.0, 16.0, 16.0, 16.1, 16.4, 16.4, 16.4, 16.45];
+    // 锂云母价格（1.8%品位）
+    var lymRows = getTable('锂云母-价格').filter(function(r){ return r['规格'] && r['规格'].indexOf('1.8')>-1; }).slice(0,30).reverse();
+    window.lymDates = lymRows.map(function(r){ return toYYMMDD(r['日期']); });
+    window.lymAvg   = lymRows.map(function(r){ return num(r['均价（万元/吨）']); });
 
-// 氢氧化锂月度出口（25-05 至 26-05）
-var lhExpVol = [5585.0, 6260.0, 1248.0, 5673.0, 6526.0, 2876.0, 3357.0, 6318.0, 1870.8, 2622.7, 3142.9, 5535.0, 3549.3];
-var lhExpPrice = [8.72, 7.81, 7.13, 7.59, 7.71, 8.34, 7.19, 6.61, 8.18, 8.91, 10.32, 10.29, 13.65];
+    // 氢氧化锂日度价格（最新30天，降序取）
+    var lhDailyRows = getTable('氢氧化锂-价格').slice(0,30).reverse();
+    window.lhDailyDates = lhDailyRows.map(function(r){ return toYYMMDD(r['日期']); });
+    window.lhDailyAvg   = lhDailyRows.map(function(r){ return num(r['均价（万元/吨）']); });
 
-// 碳酸锂企业产量TOP12（2026-05）
-var lcCompNames = ["其它", "九岭锂业", "蓝科锂业", "四川雅化", "新疆西海锂业", "赣锋锂业", "盛新锂能", "广西华友", "天齐锂业", "中信国安", "中矿资源", "龙蟠时代"];
-var lcCompOutput = [22100, 7500, 6650, 4600, 4500, 4500, 4400, 4300, 4300, 3250, 2500, 2302];
+    // 氢氧化锂月度出口（最新12月，升序）
+    var lhExpRows = getTable('氢氧化锂-出口量').slice(0,12).reverse();
+    window.lhExpVol   = lhExpRows.map(function(r){ return num(r['出口量（吨）']); });
+    window.lhExpPrice = lhExpRows.map(function(r){ return num(r['出口均价（万元/吨）']); });
 
-// 氢氧化锂企业产量TOP12（2026-05）
-var lhCompNames = ["天宜锂业", "赣锋锂业", "江西雅保", "四川雅化", "四川国润", "天齐锂业", "海南矿业", "中矿资源", "衢州永正", "盛新锂能", "FMC/Livent", "广西天源"];
-var lhCompOutput = [4100, 3800, 3700, 3500, 2800, 2000, 1780, 1500, 1300, 1300, 1200, 1000];
+    // 碳酸锂分企业产量TOP（最新月份）
+    var lcComp = getTable('碳酸锂-分企业产量').slice(0, 12);
+    window.lcCompNames  = lcComp.map(function(r){ return r['企业名称'] || ''; });
+    window.lcCompOutput = lcComp.map(function(r){ return num(r['产量（吨）']); });
 
-// 碳酸锂出口贸易伙伴TOP10（2026-05）
-var lcExportPartners = ["韩国", "波兰", "日本", "加拿大", "澳大利亚", "中国台湾", "乌拉圭", "埃及", "越南", "秘鲁"];
-var lcExportVols = [102.0, 40.6, 23.0, 12.0, 10.0, 6.0, 4.3, 1.5, 1.1, 0.7];
+    // 氢氧化锂分企业产量TOP（最新月份）
+    var lhComp = getTable('氢氧化锂-分企业产量').slice(0, 12);
+    window.lhCompNames  = lhComp.map(function(r){ return r['企业名称'] || ''; });
+    window.lhCompOutput = lhComp.map(function(r){ return num(r['产量（吨）']); });
+
+    // 碳酸锂出口贸易伙伴（最新月份）
+    var lcPt = getTable('碳酸锂-出口贸易伙伴').slice(0, 10);
+    window.lcExportPartners = lcPt.map(function(r){ return r['贸易伙伴名称'] || ''; });
+    window.lcExportVols     = lcPt.map(function(r){ return num(r['出口量（吨）']); });
+
+    // 动态更新 stat card
+    var lc0 = (getTable('碳酸锂-行业总产量'))[0] || {};
+    var lh0 = (getTable('氢氧化锂-行业总产量'))[0] || {};
+    var lcExp0 = (getTable('碳酸锂-出口量'))[0] || {};
+    var lcD0 = lcDailyRows[0] || {};
+
+    var setStat = function(id, label, val, unit, extra) {
+        var el = document.getElementById(id);
+        if (!el) return;
+        el.querySelector('.stat-info').innerHTML =
+            '<div class="label">' + label + '</div><div class="value">' + val + '<span class="unit">' + unit + '</span></div>' +
+            (extra ? '<div class="sub">' + extra + '</div>' : '');
+    };
+    if (lc0) {
+        var lcTon = num(lc0['产量（吨）']) || 0;
+        var lcCap = num(lc0['产能（吨）']) || 1;
+        setStat('stat0', '碳酸锂月产量', (lcTon/10000).toFixed(2), '万吨',
+            '产能利用率 ' + (lcTon/lcCap*100).toFixed(0) + '%');
+    }
+    if (lh0) {
+        setStat('stat1', '氢氧化锂月产量', ((num(lh0['产量（吨）'])||0)/10000).toFixed(2), '万吨',
+            '近12月参考');
+    }
+    if (lcExp0) {
+        setStat('stat2', '碳酸锂月出口量', num(lcExp0['出口量（吨）']) || '—', '吨',
+            toYY(lcExp0['月份'] || lcExp0['日期']) + '出口量');
+    }
+    if (lcD0) {
+        setStat('stat3', '碳酸锂现货均价（最新）', num(lcD0['均价（万元/吨）']) || '—', '万元/吨',
+            (lcD0['规格'] || '电池级99.5%矿石') + ' · ' + toYYMMDD(lcD0['日期']));
+        setStat('stat3b', '碳酸锂现货价（最新）', num(lcD0['均价（万元/吨）']) || '—', '万元/吨',
+            (lcD0['规格'] || '电池级99.5%矿石') + ' · ' + toYYMMDD(lcD0['日期']));
+    }
+
+    // 原料Tab stat cards
+    var lsp0 = lspRows[0] || {};
+    var lym0 = lymRows[0] || {};
+    var lhD0 = lhDailyRows[0] || {};
+    if (lsp0) {
+        setStat('raw0', '锂辉石精矿均价（最新）', num(lsp0['均价（美元/吨）']) || '—', '美元/吨',
+            (lsp0['产地']||'澳洲6% CIF') + ' · ' + toYYMMDD(lsp0['日期']));
+    }
+    if (lym0) {
+        setStat('raw1', '锂云母均价（最新）', num(lym0['均价（万元/吨）']) || '—', '万元/吨',
+            (lym0['规格']||'锂云母1.8%') + ' · ' + toYYMMDD(lym0['日期']));
+    }
+    if (lhD0) {
+        setStat('raw2', '氢氧化锂现货价（最新）', num(lhD0['均价（万元/吨）']) || '—', '万元/吨',
+            '56.5%粗颗粒 · ' + toYYMMDD(lhD0['日期']));
+    }
+})();
 
 
 
