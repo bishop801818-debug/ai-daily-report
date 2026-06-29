@@ -1,10 +1,16 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
+  <meta name="html-version" content="20260601_2249">
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>数据库 - 铁锂行业数据</title>
-    <meta name="html-version" content="20260629_120303">
+    <title>数据
+  // 每次修改此文件后，content 值自动更新为今天日期（如 20260601 2249）
+  // 浏览器遇到新的 html-version 会强制重新加载，永久告别缓存问题
+  window.HTML_VERSION = '20260601_2249';
+
+库 - 铁锂行业数据</title>
     <script src="lfp_embedded_data.js"></script>
     <style>
         /* 滚动条样式 */
@@ -678,7 +684,7 @@
                 <button class="toolbar-btn toolbar-btn-secondary" onclick="window.location.href='database_hub.html'">
                     ← 返回数据库
                 </button>
-                <button class="toolbar-btn toolbar-btn-secondary" onclick="window.location.href='lfp_charts.html?v=20260629'">
+                <button class="toolbar-btn toolbar-btn-secondary" onclick="window.location.href='lfp_charts.html'">
                     📈 可视化看板
                 </button>
                 <div class="toolbar-title">📊 磷酸铁锂数据库</div>
@@ -1055,16 +1061,16 @@
             const badgeMap = {
                 'LFP-行业整体产量': 'badge-lfp-industry',
                 'LFP-分企业产量': 'badge-lfp-company',
-                'LFP竞对销量（客户采购量）': 'badge-lfp-competitor',
+                'LFP竞对销量': 'badge-lfp-competitor',
                 'LFP-出口量': 'badge-lfp-export',
                 'LFP-出口贸易伙伴': 'badge-lfp-export-partner',
                 'LFP现货市场价': 'badge-lfp-price',
                 'FP-行业整体产量': 'badge-fp-industry',
                 'FP-分企业产量': 'badge-fp-company',
                 'FP现货市场价': 'badge-fp-price',
-                '现货市场价（分压实密度）': 'badge-price-density',
-                '磷酸盐价格数据': 'badge-phosphate',
-                '非磷原料价格数据': 'badge-raw-material'
+                'LFP现货市场价-分压实密度': 'badge-price-density',
+                '磷酸盐价格': 'badge-phosphate',
+                '非磷原料价格': 'badge-raw-material'
             };
             
             const badgeId = badgeMap[tableName];
@@ -1357,21 +1363,73 @@
                 return;
             }
 
-            // 数据已标准化：日期 / 规格 / 类型 / 最低价 / 最高价 / 均价
-            let html = data.slice(0, 100).map(r => {
-                const mkCell = v => {
-                    const n = parseFloat(v);
-                    return (isNaN(n) ? '-' : n.toFixed(2));
-                };
-                return `<tr>
-                    <td>${(r['日期']||'-').split(' ')[0]}</td>
-                    <td>${r['类型']||'-'}</td>
-                    <td>${r['规格']||'-'}</td>
-                    <td>${mkCell(r['最低价（万元/吨）'])}</td>
-                    <td>${mkCell(r['最高价（万元/吨）'])}</td>
-                    <td>${mkCell(r['均价（万元/吨）'])}</td>
-                </tr>`;
-            }).join('');
+            const typeRow = data[0];
+            const headerRow = data[1];
+            const priceData = data.slice(2);
+            
+            // 建立列映射表：密度列 -> 价格列
+            const colMap = {};
+            const allCols = Object.keys(headerRow);
+            allCols.forEach((col, idx) => {
+                const val = headerRow[col];
+                if (val && val.includes('g/mAh')) {
+                    // 这个是密度列，找它后面的最低价、最高价、均价列
+                    colMap[col] = {
+                        type: typeRow[col] || '-',
+                        density: val,
+                        min: null, max: null, avg: null
+                    };
+                }
+            });
+            
+            // 重新遍历列，找最低价/最高价/均价的位置
+            allCols.forEach(col => {
+                const val = headerRow[col];
+                if (val === '最低价' || val === '最高价' || val === '均价') {
+                    // 找这个价格列对应的密度列（往前找）
+                    const colNum = parseInt(col.match(/（(\d+)）/)?.[1] || 0);
+                    for (const dCol in colMap) {
+                        const dNum = parseInt(dCol.match(/（(\d+)）/)?.[1] || 0);
+                        if (Math.abs(colNum - dNum) <= 2) {
+                            if (val === '最低价') colMap[dCol].minCol = col;
+                            if (val === '最高价') colMap[dCol].maxCol = col;
+                            if (val === '均价') colMap[dCol].avgCol = col;
+                        }
+                    }
+                }
+            });
+            
+            const result = [];
+            priceData.forEach(row => {
+                for (const col in colMap) {
+                    const info = colMap[col];
+                    if (!info.minCol || !info.maxCol || !info.avgCol) continue;
+                    const dateVal = row[col];
+                    if (dateVal && dateVal.includes('/')) {
+                        result.push({
+                            date: dateVal,
+                            type: info.type,
+                            density: info.density,
+                            min: row[info.minCol] || '-',
+                            max: row[info.maxCol] || '-',
+                            avg: row[info.avgCol] || '-'
+                        });
+                    }
+                }
+            });
+
+            result.sort((a, b) => (b.date||'').localeCompare(a.date||''));
+
+            let html = result.slice(0, 100).map(r => `
+                <tr>
+                    <td>${r.date}</td>
+                    <td>${r.type}</td>
+                    <td>${r.density}</td>
+                    <td>${r.min}</td>
+                    <td>${r.max}</td>
+                    <td>${r.avg}</td>
+                </tr>
+            `).join('');
 
             document.getElementById('price-density-table').querySelector('thead tr').innerHTML =
                 '<th>日期</th><th>类型</th><th>压实密度</th><th>最低价</th><th>最高价</th><th>均价</th>';
@@ -1465,6 +1523,5 @@
         // 启动
         loadAllData();
     </script>
-    <script src="assets/ai_fab_inject.js"></script>
 </body>
 </html>
