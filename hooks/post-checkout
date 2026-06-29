@@ -1,0 +1,69 @@
+#!/bin/sh
+# post-checkout hook: 数据库回滚检测 — 检测 *_embedded_data.js 是否被回退到旧版本
+# ========== 龙蟠数据保护钩子 ==========
+
+PREV_HEAD="$1"
+NEW_HEAD="$2"
+IS_BRANCH="$3"   # 1=分支/提交切换，0=git checkout -- <file>
+
+RED_COLOR='\033[0;31m'
+YELLOW_COLOR='\033[1;33m'
+GREEN_COLOR='\033[0;32m'
+NC='\033[0m'
+
+# 仅在分支/提交切换时检测（排除 git checkout -- file 这种单文件恢复）
+if [ "$IS_BRANCH" != "1" ]; then
+    exit 0
+fi
+
+# 检测 7 个数据库 embedded JS 是否与新 HEAD 不一致
+DB_FILES="recycling_embedded_data.js lib_battery_embedded_data.js lfp_embedded_data.js \
+electrolyte_embedded_data.js carbonate_embedded_data.js ternary_embedded_data.js automotive_embedded_data.js"
+
+ROLLBACK_FILES=""
+for F in $DB_FILES; do
+    # 比较 working tree 版本 vs HEAD 版本（取 update_time 字段）
+    WORKING_TIME=$(python3 -c "
+import re, sys
+try:
+    with open('$GIT_WORK_TREE/$F', 'r', encoding='utf-8', errors='replace') as f:
+        m = re.search(r'\"update_time\":\s*\"([^\"]+)\"', f.read())
+        print(m.group(1) if m else '')
+except: print('')
+" 2>/dev/null)
+    HEAD_TIME=$(git show HEAD:"$F" 2>/dev/null | python3 -c "
+import re, sys
+m = re.search(r'\"update_time\":\s*\"([^\"]+)\"', sys.stdin.read())
+print(m.group(1) if m else '')
+" 2>/dev/null)
+
+    if [ -n "$WORKING_TIME" ] && [ -n "$HEAD_TIME" ] && [ "$WORKING_TIME" != "$HEAD_TIME" ]; then
+        # 时间戳不同，说明本地版本和 HEAD 版本数据不同
+        ROLLBACK_FILES="${ROLLBACK_FILES}\n  - ${F}"
+        ROLLBACK_FILES="${ROLLBACK_FILES}\n    本地: ${WORKING_TIME}  vs  HEAD: ${HEAD_TIME}"
+    fi
+done
+
+if [ -n "$ROLLBACK_FILES" ]; then
+    echo ""
+    echo "${YELLOW_COLOR}═══════════════════════════════════════════════════════${NC}"
+    echo "${RED_COLOR}  [POST-CHECKOUT] ⚠️  数据库文件与当前 HEAD 不一致！${NC}"
+    echo "${YELLOW_COLOR}═══════════════════════════════════════════════════════${NC}"
+    echo ""
+    echo "  以下 *_embedded_data.js 文件的工作区版本与 Git HEAD 不同："
+    echo "$ROLLBACK_FILES"
+    echo ""
+    echo "  原因：git checkout 切换到了不含最新数据的旧提交。"
+    echo ""
+    echo "  解决方法："
+    echo "    1. 如需最新数据：重新 checkout 到最新分支/提交"
+    echo "       git checkout main  (或对应的分支名)"
+    echo ""
+    echo "    2. 如需回滚到旧版本（确认无误）：忽略此提示即可"
+    echo ""
+    echo "${YELLOW_COLOR}  提示：本地浏览器缓存可能导致旧数据仍然显示，请 Ctrl+Shift+R 刷新${NC}"
+    echo "${YELLOW_COLOR}═══════════════════════════════════════════════════════${NC}"
+    echo ""
+fi
+
+exit 0
