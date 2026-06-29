@@ -196,48 +196,104 @@
         数据来源: 汽车行业数据库 | automotive_embedded_data.js | <span id="dataMonth2">加载中...</span>
     </div>
 
+    <script src="automotive_embedded_data.js"></script>
     <script>
     var COLORS = ['#1e3c72','#4a6fa5','#4facfe','#f59e0b','#10b981','#ef4444','#3b82f6','#8b5cf6','#ec4899','#06b6d4'];
     var C = { primary: '#1e3c72', secondary: '#4a6fa5', accent: '#4facfe', border: '#e0e0e0', text: '#333', textLight: '#666' };
-    
-    // ===== 数据 =====
-    var CHINA_MONTHS = ["24-01", "24-02", "24-03", "24-04", "24-05", "24-06", "24-07", "24-08", "24-09", "24-10", "24-11", "24-12", "25-01", "25-02", "25-03", "25-04", "25-05", "25-06", "25-07", "25-08", "25-09", "25-10", "25-11", "25-12", "26-01", "26-02", "26-03", "26-04"];
-    var CHINA_SALES = [244, 158, 269, 236, 242, 255, 226, 245, 281, 305, 332, 349, 242, 213, 292, 259, 269, 290, 259, 286, 323, 332, 343, 327, 235, 181, 290, 253];
-    var NEV_MONTHS = ["24-01", "24-02", "24-03", "24-04", "24-05", "24-06", "24-07", "24-08", "24-09", "24-10", "24-11", "24-12", "25-01", "25-02", "25-03", "25-04", "25-05", "25-06", "25-07", "25-08", "25-09", "25-10", "25-11", "25-12", "26-01", "26-02", "26-03", "26-04"];
-    var NEV_SALES = [72.9, 47.7, 88.3, 85, 95.5, 104.9, 99.1, 110, 128.7, 143, 151.2, 159.6, 72.9, 89.2, 123.7, 122.6, 130.7, 132.9, 126.2, 139.5, 160.4, 171.5, 182.3, 171, 94.5, 76.5, 125.2, 134.4];
-    var RETAIL_MONTHS = ["24-01", "24-02", "24-03", "24-04", "24-05", "24-06", "24-07", "24-08", "24-09", "24-10", "24-11", "24-12", "25-01", "25-02", "25-03", "25-04", "25-05", "25-06", "25-07", "25-08", "25-09", "25-10", "25-11", "25-12", "26-01", "26-02", "26-03", "26-04"];
-    var RETAIL_SALES = [66.8, 38.8, 71.2, 67.4, 80.4, 85.7, 87.8, 102.5, 112.3, 119.6, 127, 130.2, 74, 69, 99.1, 91.1, 102.1, 111.1, 98.7, 111.5, 129.9, 128.1, 132.1, 133.7, 59.6, 46.4, 84.8, 84.9];
-    var TYPE_MONTHS = ["24-01", "24-02", "24-03", "24-04", "24-05", "24-06", "24-07", "24-08", "24-09", "24-10", "24-11", "24-12", "25-01", "25-02", "25-03", "25-04", "25-05", "25-06", "25-07", "25-08", "25-09", "25-10", "25-11", "25-12", "26-01", "26-02", "26-03", "26-04"];
-    var BEV_HIST = [37.6, 22, 43.2, 40.5, 49.5, 49, 48.2, 58.1, 64.2, 67.3, 75.8, 76.2, 43, 42.7, 64.6, 55.9, 61.3, 66, 60.7, 69, 83.2, 81.2, 82.7, 78.2, 34.8, 27.8, 56.8, 57.9];
-    var PHEV_HIST = [29.1, 16.8, 28.2, 27.2, 30.9, 36.3, 39.6, 44.4, 36.4, 40.5, 39.1, 41.9, 25, 19.9, 26.8, 26, 29.8, 33.1, 27.8, 32, 36, 36, 37.8, 41, 17.2, 13.4, 20.4, 19.2];
-    var BRAND_NAMES = ["比亚迪汽车", "吉利汽车", "长安汽车", "上汽通用五菱", "特斯拉中国", "理想汽车", "赛力斯汽车", "长城汽车", "广汽埃安", "东风汽车"];
-    var BRAND_SALES = [20.7, 6.4, 5.1, 4.1, 4.0, 3.1, 3.1, 2.4, 2.2, 1.3];
-    var CV_NAMES = ["北汽福田", "东风商用车", "中国重汽", "长安汽车", "一汽解放", "上汽通用五菱", "陕汽集团", "江铃汽车", "上汽大通", "长城汽车"];
-    var CV_SALES = [8.7, 5.3, 5.0, 4.0, 3.5, 3.3, 2.3, 2.3, 2.3, 2.0];
-    var EXP_MONTHS = ["24-01", "24-02", "24-03", "24-04", "24-05", "24-06", "24-07", "24-08", "24-09", "24-10", "24-11", "24-12", "25-01", "25-02", "25-03", "25-04", "25-05", "25-06", "25-07", "25-08", "25-09", "25-10", "25-11", "25-12", "26-01", "26-02", "26-03", "26-04"];
-    var EXP_SALES = [10.1, 8.2, 12.4, 11.4, 9.9, 8.6, 10.3, 11, 11.1, 12.8, 8.3, 13.4, 15, 13.1, 15.8, 20, 21.2, 20.5, 22.5, 22.4, 22.2, 25.6, 30, 30, 30.2, 28.2, 37.1, 43];
-    var EXP_OEM_NAMES = ["比亚迪汽车", "吉利集团", "奇瑞集团", "特斯拉", "上汽集团", "东风汽车", "零跑汽车", "长安汽车", "广汽集团", "光束汽车"];
-    var EXP_OEM_SALES = [11.7, 6.0, 4.1, 3.0, 2.2, 1.7, 1.7, 1.5, 1.2, 0.7];
-    var ZC_NAMES = ["保险总量", "一汽解放", "中国重汽", "东风汽车", "北汽福田"];
-    var ZC_VOL = [8.8, 2.0, 1.7, 1.2, 1.1];
-    var ZC_PCT = ["20.0%", "11.0%", "14.0%", "7.0%", "15.0%"];
-    var QC_NAMES = ["保险总量", "北汽福田", "上汽通用五菱", "江淮汽车", "中国重汽"];
-    var QC_VOL = [11.6, 2.8, 1.7, 1.2, 1.1];
-    var QC_PCT = ["21.0%", "11.0%", "4.0%", "23.0%", "15.0%"];
-    var STAT_MONTH = "26-04";
-    var STAT_CHINA = 244;
-    var STAT_NEV = 72.9;
-    var STAT_PEN = 29.9;
-    var STAT_BEV = 37.6;
-    var STAT_PHEV = 29.1;
-    var STAT_EXP = 10.1;
-    var BEV_YOY = "76.53%";
-    var PHEV_YOY = "146.61%";
-    var LATEST_BRAND_MONTH = "26-04";
-    var LATEST_CV_MONTH = "26-03";
-    var LATEST_EXP_MONTH = "26-03";
-    var LATEST_ZC_MONTH = "26-03";
-    var LATEST_QC_MONTH = "26-03";
+
+    // ── 工具函数 ──────────────────────────────────────────────────────────────────
+    function getTable(name) {
+        var t = EMBEDDED_DATA.tables.find(function(t){ return t.table_name === name; });
+        return t ? t.data : [];
+    }
+    function toYY(v) {
+        if (!v) return '';
+        var s = String(v).slice(0,10);
+        var m = s.match(/^(\d{4})-(\d{2})-/);
+        return m ? (String(+m[1]).slice(-2) + '-' + m[2]) : '';
+    }
+    function num(v) { var n = parseFloat(String(v).replace(/,/g,'')); return isNaN(n) ? null : n; }
+
+    // ── 数据提取（从 embedded JS） ──────────────────────────────────────────────
+    (function loadData() {
+        // 中国汽车整体销量（最新24个月，升序）
+        var chinaRows = getTable('汽车销量-中国市场').slice(0, 24).reverse();
+        window.CHINA_MONTHS = chinaRows.map(function(r){ return toYY(r['日期']); });
+        window.CHINA_SALES  = chinaRows.map(function(r){ return num(r['本期销量（万辆）']); });
+
+        // 新能源汽车销量-中国市场（最新24个月，升序）
+        var nevRows = getTable('新能源汽车销量-中国市场').slice(0, 24).reverse();
+        window.NEV_MONTHS = nevRows.map(function(r){ return toYY(r['日期']); });
+        window.NEV_SALES   = nevRows.map(function(r){ return num(r['本期销量（万辆）']); });
+
+        // 乘用车零售（最新24个月，升序）
+        var retRows = getTable('新能源汽车销量-国内乘用车零售').slice(0, 24).reverse();
+        window.RETAIL_MONTHS = retRows.map(function(r){ return toYY(r['日期']); });
+        window.RETAIL_SALES  = retRows.map(function(r){ return num(r['本期销量（万辆）']); });
+
+        // BEV/PHEV 走势
+        var bevRows = getTable('新能源汽车销量-乘用车零售分类型').filter(function(r){ return r['车辆类型']==='BEV'; }).slice(0,24).reverse();
+        var pheRows = getTable('新能源汽车销量-乘用车零售分类型').filter(function(r){ return r['车辆类型']==='PHEV'; }).slice(0,24).reverse();
+        window.TYPE_MONTHS = bevRows.map(function(r){ return toYY(r['日期']); });
+        window.BEV_HIST    = bevRows.map(function(r){ return num(r['本期销量（万辆）']); });
+        window.PHEV_HIST   = pheRows.map(function(r){ return num(r['本期销量（万辆）']); });
+
+        // 乘用车零售品牌TOP10（最新月份）
+        var retLatest = retRows[0] || {};
+        var retLatestMonth = toYY(retLatest['日期']) || '—';
+        var brandRows = getTable('新能源汽车销量-乘用车零售分品牌').slice(0, 10);
+        window.BRAND_NAMES = brandRows.map(function(r){ return r['品牌'] || ''; });
+        window.BRAND_SALES = brandRows.map(function(r){ return num(r['本期销量（万辆）']); });
+        window.LATEST_BRAND_MONTH = retLatestMonth;
+
+        // 商用车分整车厂TOP10
+        var cvRows = getTable('汽车销量-中国商用车分整车厂').slice(0, 10);
+        window.CV_NAMES = cvRows.map(function(r){ return r['企业名称'] || ''; });
+        window.CV_SALES = cvRows.map(function(r){ return num(r['本期销量（万辆）']); });
+        window.LATEST_CV_MONTH = toYY((getTable('汽车销量-中国商用车'))[0] && getTable('汽车销量-中国商用车')[0]['日期']) || '—';
+
+        // 新能源出口（最新24个月，升序）
+        var expRows = getTable('新能源汽车销量-出口').slice(0, 24).reverse();
+        window.EXP_MONTHS = expRows.map(function(r){ return toYY(r['日期']); });
+        window.EXP_SALES  = expRows.map(function(r){ return num(r['本期销量（万辆）']); });
+        window.LATEST_EXP_MONTH = toYY(expRows[0] && expRows[0]['日期']) || '—';
+
+        // 乘用车出口车企TOP10
+        var expOemRows = getTable('新能源汽车销量-乘用车出口分车企').slice(0, 10);
+        window.EXP_OEM_NAMES = expOemRows.map(function(r){ return r['企业名称'] || ''; });
+        window.EXP_OEM_SALES = expOemRows.map(function(r){ return num(r['本期销量（万辆）']); });
+
+        // 中重卡/轻卡（交强险）
+        var zcRows = getTable('汽车销量-中国商用车中重卡').slice(0, 5);
+        window.ZC_NAMES = zcRows.map(function(r){ return r['企业名称'] || ''; });
+        window.ZC_VOL   = zcRows.map(function(r){ return num(r['本期销量（万辆）']); });
+        window.ZC_PCT   = zcRows.map(function(r){ return r['同比'] || ''; });
+        window.LATEST_ZC_MONTH = toYY((getTable('汽车销量-中国商用车中重卡'))[0] && getTable('汽车销量-中国商用车中重卡')[0]['日期']) || '—';
+
+        var qcRows = getTable('汽车销量-中国商用车轻卡').slice(0, 5);
+        window.QC_NAMES = qcRows.map(function(r){ return r['企业名称'] || ''; });
+        window.QC_VOL   = qcRows.map(function(r){ return num(r['本期销量（万辆）']); });
+        window.QC_PCT   = qcRows.map(function(r){ return r['同比'] || ''; });
+        window.LATEST_QC_MONTH = toYY((getTable('汽车销量-中国商用车轻卡'))[0] && getTable('汽车销量-中国商用车轻卡')[0]['日期']) || '—';
+
+        // 统计数字
+        var c0 = (getTable('汽车销量-中国市场'))[0] || {};
+        var n0 = (getTable('新能源汽车销量-中国市场'))[0] || {};
+        window.STAT_MONTH = toYY(c0['日期']) || '—';
+        window.STAT_CHINA = num(c0['本期销量（万辆）']) || 0;
+        window.STAT_NEV   = num(n0['本期销量（万辆）']) || 0;
+        window.STAT_PEN   = c0['本期销量（万辆）'] && n0['本期销量（万辆）']
+            ? ((num(n0['本期销量（万辆）']) / num(c0['本期销量（万辆）'])) * 100).toFixed(1) : '—';
+        window.STAT_EXP   = num((getTable('新能源汽车销量-出口'))[0] && (getTable('新能源汽车销量-出口'))[0]['本期销量（万辆）']) || 0;
+        window.BEV_YOY    = n0['同比'] || '—';
+        window.PHEV_YOY   = n0['同比'] || '—';
+
+        // BEV/PHEV latest
+        var bev0 = (getTable('新能源汽车销量-乘用车零售分类型')).filter(function(r){ return r['车辆类型']==='BEV'; })[0] || {};
+        var phe0 = (getTable('新能源汽车销量-乘用车零售分类型')).filter(function(r){ return r['车辆类型']==='PHEV'; })[0] || {};
+        window.STAT_BEV  = num(bev0['本期销量（万辆）']) || 0;
+        window.STAT_PHEV = num(phe0['本期销量（万辆）']) || 0;
+    })();
 
     // 更新统计卡片
     document.getElementById('statChina').textContent = STAT_CHINA;
