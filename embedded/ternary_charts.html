@@ -6,7 +6,7 @@
     <title>可视化看板 - 三元材料数据库</title>
     <meta name="html-version" content="20260530a">
     <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
-    <script src="ternary_embedded_data.js"></script>
+    <script src="ternary_embedded_data.js?v=20260629"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Microsoft YaHei', sans-serif; background: #f5f5f5; }
@@ -466,7 +466,7 @@ document.getElementById('data-time').textContent = EMBEDDED_DATA.update_time || 
         }
     }
     // Cobalt price
-    var rawPrice = getTable('硫酸钴镍-现货市场价');
+    var rawPrice = getTable('关键原料-现货市场价');
     if (rawPrice.length) {
         var last = rawPrice[rawPrice.length-1];
         var dk = Object.keys(last)[0];
@@ -965,5 +965,6 @@ window.addEventListener('resize', function() {
     allCharts.forEach(function(c) { try { c.resize(); } catch(e) {} });
 });
 </script>
+    <script src="assets/ai_fab_inject.js"></script>
 </body>
 </html>

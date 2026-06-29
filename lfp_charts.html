@@ -128,7 +128,7 @@
         </div>
     </div>
     
-    <script src="lfp_embedded_data.js"></script>
+    <script src="lfp_embedded_data.js?v=20260629"></script>
     <script>
     var COLORS = ['#1e3c72', '#4a6fa5', '#4facfe', '#667eea', '#764ba2', '#f59e0b', '#10b981', '#ef4444', '#3b82f6', '#8b5cf6'];
     var C = { primary: '#1e3c72', secondary: '#4a6fa5', accent: '#4facfe', border: '#e0e0e0', text: '#333', textLight: '#666' };
@@ -170,6 +170,87 @@
         var expRows = getTable('LFP-出口量').slice(0,12).reverse();
         window.EXP_VOL   = expRows.map(function(r){ return num(r['出口量（吨）']); });
         window.EXP_PRICE = expRows.map(function(r){ return num(r['出口均价（万元/吨）']); });
+
+        // ── 价格Tab动态数据 ──────────────────────────────────────────
+
+        // x1: LFP现货市场价 → 按ISO周聚合，取最新14周
+        var lfpPriceRaw = getTable('LFP现货市场价') || [];
+        var byWeek = {};
+        lfpPriceRaw.forEach(function(r){
+            var dStr = String(r['日期']||'').slice(0,10);
+            var avg = parseFloat(r['均价（万元/吨）']);
+            if (!dStr || isNaN(avg)) return;
+            var dt = new Date(dStr.replace(/-/g,'/'));
+            if (isNaN(dt)) return;
+            var iso = dt.getISOWeek ? dt.getISOWeek() : getISOWeek(dt);
+            var y = dt.getFullYear();
+            var key = y + '-W' + String(iso).padStart(2,'0');
+            if (!byWeek[key]) byWeek[key] = [];
+            byWeek[key].push(avg);
+        });
+        function getISOWeek(d) {
+            var d2 = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+            var dayNum = d2.getUTCDay() || 7;
+            d2.setUTCDate(d2.getUTCDate() + 4 - dayNum);
+            var yearStart = new Date(Date.UTC(d2.getUTCFullYear(), 0, 1));
+            return Math.ceil((((d2 - yearStart) / 86400000) + 1) / 7);
+        }
+        var weekKeys = Object.keys(byWeek).sort().slice(-14);
+        window.X1_AVG   = weekKeys.map(function(k){ var v=byWeek[k]; return Math.round((v.reduce(function(a,b){return a+b;},0)/v.length)*100)/100; });
+        // 横轴显示每周的周一（MM-DD格式，如 "06-22"）
+        window.X1_DATES = weekKeys.map(function(k){
+            var parts = k.split('-W');
+            if (parts.length < 2) return k;
+            var y = parseInt(parts[0]) + 2000, w = parseInt(parts[1]);
+            // ISO week first Monday
+            var jan4 = new Date(y, 0, 4); // Jan 4 is always in ISO week 1
+            var monday = new Date(jan4);
+            monday.setDate(monday.getDate() - (jan4.getDay() + 6) % 7 + (w - 1) * 7);
+            var mo = String(monday.getMonth()+1).padStart(2,'0');
+            var da = String(monday.getDate()).padStart(2,'0');
+            return mo + '-' + da;
+        });
+
+        // x2: 磷矿石30%品位 → 月度均价，最新12月
+        var phosphateRaw = getTable('磷酸盐价格') || [];
+        var byMonthPhos = {};
+        phosphateRaw.forEach(function(r){
+            if (String(r['规格']||'') !== '磷矿石30%品位') return;
+            var dStr = String(r['日期']||'').slice(0,7);
+            var avg = parseFloat(r['今日均价（万元/吨）']);
+            if (!dStr || isNaN(avg)) return;
+            byMonthPhos[dStr] = avg;
+        });
+        var phosKeys = Object.keys(byMonthPhos).sort().slice(-12);
+        window.X2_DATES = phosKeys.map(function(m){ return m.replace(/^(\d{4})-(\d{2})$/,function(_,y,mo){ return (y-2000)+'-'+mo; }); });
+        window.X2_AVG   = phosKeys.map(function(m){ return byMonthPhos[m]; });
+
+        // x3: 非磷原料最新价格 → 取最新日期各规格均价
+        var nonPhosRaw = getTable('非磷原料价格') || [];
+        var byDateNP = {};
+        nonPhosRaw.forEach(function(r){
+            var dStr = String(r['日期']||'').slice(0,10);
+            var spec = String(r['规格']||'');
+            var avg = parseFloat(r['今日均价']);
+            if (!dStr || !spec || isNaN(avg)) return;
+            if (!byDateNP[dStr]) byDateNP[dStr] = {};
+            byDateNP[dStr][spec] = avg;
+        });
+        var latestDateNP = Object.keys(byDateNP).sort().reverse()[0];
+        var npLatest = byDateNP[latestDateNP] || {};
+        // 取前5个有代表性的规格
+        var npSpecs = Object.keys(npLatest);
+        // 选择：硫酸98%、硫酸铵、硫酸亚铁、铁粉电池用、液氨优等品
+        var priority = ['硫酸98%','硫酸铵','硫酸亚铁FeSO\u2084\u00b77H\u2082O\u226590%','铁粉电池用','液氨优等品','双氧水27.5%','硝酸68%','液碱32%','氢氧化钡98%','铁块纯铁','氧化铁红电极铁'];
+        var chosen = [];
+        priority.forEach(function(p){ if (npLatest[p] !== undefined) chosen.push({spec:p, val:npLatest[p]}); });
+        npSpecs.slice(0,3).forEach(function(s){ if (!chosen.find(function(c){return c.spec===s;})) chosen.push({spec:s,val:npLatest[s]}); });
+        window.X3_SPECS = chosen.map(function(c){ return c.spec; });
+        // 转换为万元/吨（除以10000），铁粉等大数值需要，小数值直接用
+        window.X3_VALS = chosen.map(function(c){
+            var v = c.val;
+            return (v >= 100 ? Math.round(v/100)/100 : Math.round(v*100)/100);
+        });
 
         // 动态更新 stat cards
         var l0 = lfpRows[0] || {};
@@ -272,26 +353,26 @@
     // 价格Tab图表
     initChart('x1', {
         tooltip: { trigger: 'axis' }, grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
-        xAxis: { type: 'category', data: ['01-08','01-15','01-22','01-29','02-05','02-12','02-19','02-26','03-05','03-12','03-19','03-26','04-02','04-09'], axisLabel: { color: C.textLight } },
+        xAxis: { type: 'category', data: (window.X1_DATES||[]), axisLabel: { color: C.textLight, rotate: 0 } },
         yAxis: { type: 'value', name: '万元/吨', axisLabel: { color: C.textLight }, splitLine: { lineStyle: { color: C.border } } },
-        series: [{ type: 'line', data: [5.68,5.66,5.38,5.36,5.21,3.92,5.70,5.65,5.52,5.38,5.25,5.18,5.10,4.95], smooth: true, lineStyle: { color: C.primary, width: 3 },
+        series: [{ type: 'line', data: (window.X1_AVG||[]), smooth: true, lineStyle: { color: C.primary, width: 3 },
             areaStyle: { color: { type: 'linear', x: 0, y: 0, x2: 0, y2: 1, colorStops: [{ offset: 0, color: 'rgba(30,60,114,0.2)' }, { offset: 1, color: 'rgba(30,60,114,0.02)' }] } },
             label: { show: true, position: 'top', formatter: '{c}万', fontSize: 9, color: C.primary, fontWeight: 'bold' } }]
     });
 
     initChart('x2', {
         tooltip: { trigger: 'axis' }, grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
-        xAxis: { type: 'category', data: ['25-07','25-08','25-09','25-10','25-11','25-12','26-01','26-02','26-03','26-04'], axisLabel: { color: C.textLight } },
+        xAxis: { type: 'category', data: (window.X2_DATES||[]), axisLabel: { color: C.textLight } },
         yAxis: { type: 'value', name: '万元/吨', axisLabel: { color: C.textLight }, splitLine: { lineStyle: { color: C.border } } },
-        series: [{ type: 'line', data: [0.92,0.95,0.98,1.02,1.05,1.08,1.12,1.15,1.18,1.10], smooth: true, lineStyle: { color: C.secondary, width: 3 },
+        series: [{ type: 'line', data: (window.X2_AVG||[]), smooth: true, lineStyle: { color: C.secondary, width: 3 },
             label: { show: true, position: 'top', formatter: '{c}万', fontSize: 9, color: C.secondary, fontWeight: 'bold' } }]
     });
 
     initChart('x3', {
         tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } }, grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
-        xAxis: { type: 'category', data: ['磷矿石','磷酸一铵','黄磷','硫酸铵','铁粉'], axisLabel: { color: C.textLight } },
+        xAxis: { type: 'category', data: (window.X3_SPECS||[]), axisLabel: { color: C.textLight } },
         yAxis: { type: 'value', name: '万元/吨', axisLabel: { color: C.textLight }, splitLine: { lineStyle: { color: C.border } } },
-        series: [{ type: 'bar', data: [1.10,2.8,3.5,0.8,1.2], itemStyle: { color: C.accent, borderRadius: [4,4,0,0] },
+        series: [{ type: 'bar', data: (window.X3_VALS||[]), itemStyle: { color: C.accent, borderRadius: [4,4,0,0] },
             label: { show: true, position: 'top', formatter: '{c}万', fontSize: 10, color: C.textLight } }]
     });
 
