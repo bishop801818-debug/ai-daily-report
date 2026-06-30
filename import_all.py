@@ -8,7 +8,7 @@ import_all.py — 7个数据库统一导入：Excel → *_embedded_data.js
   python import_all.py automotive      # 只运行指定库
   python import_all.py list            # 显示支持列表
 """
-import openpyxl, json, re, os, sys, shutil, datetime, subprocess
+import openpyxl, json, re, os, sys, shutil, datetime, subprocess, hashlib
 from datetime import datetime as dt
 
 sys.stdout.reconfigure(encoding='utf-8')
@@ -149,7 +149,7 @@ def read_density_sheet(ws):
 
     return sort_records(records)
 
-def xlsx_to_js(excel_path, sheets_cfg, output_js, source_name):
+def xlsx_to_js(excel_path, sheets_cfg, output_js, source_name, key=None):
     wb = openpyxl.load_workbook(excel_path, data_only=True)
     tables = []
     for cfg in sheets_cfg:
@@ -185,6 +185,14 @@ window.EMBEDDED_DATA = EMBEDDED_DATA;
     with open(output_js, "w", encoding="utf-8") as f:
         f.write(js)
     print(f"  → {os.path.basename(output_js)}  ({os.path.getsize(output_js):,} bytes)")
+
+    # 成功后记录指纹
+    md5, rows = _get_excel_fingerprint(excel_path, sheets_cfg)
+    fp = _load_fingerprint()
+    fp[key] = {"md5": md5, "rows": rows, "ts": dt.now().strftime("%Y-%m-%d %H:%M:%S")}
+    _save_fingerprint(fp)
+    print(f"  ✓ 指纹已记录: MD5={md5[:8]}")
+
     return True
 
 # ── 7个数据库配置 ────────────────────────────────────────────────────────────
@@ -310,6 +318,78 @@ CONFIGS = {
     },
 }
 
+# ── Excel 变更指纹追踪 ────────────────────────────────────────────────────────
+# 记录每个 Excel 的 MD5 + 关键 sheet 行数，运行前对比，有异常变化时告警
+FINGERPRINT_FILE = os.path.join(BASE, "_excel_fingerprint.json")
+
+def _load_fingerprint():
+    if os.path.exists(FINGERPRINT_FILE):
+        try:
+            with open(FINGERPRINT_FILE, 'r', encoding='utf-8') as f:
+                return json.load(f)
+        except:
+            return {}
+    return {}
+
+def _save_fingerprint(fp):
+    with open(FINGERPRINT_FILE, 'w', encoding='utf-8') as f:
+        json.dump(fp, f, ensure_ascii=False, indent=2)
+
+def _get_excel_fingerprint(excel_path, sheets_cfg):
+    """计算 Excel 的 MD5 + 每个 sheet 的行数（作为指纹）"""
+    md5 = hashlib.md5(open(excel_path, 'rb').read()).hexdigest()
+    row_counts = []
+    try:
+        wb = openpyxl.load_workbook(excel_path, data_only=True, read_only=True)
+        for cfg in (sheets_cfg or []):
+            idx = cfg["idx"]
+            if idx < len(wb.worksheets):
+                ws = wb.worksheets[idx]
+                count = sum(1 for _ in ws.iter_rows())
+                row_counts.append(count)
+            else:
+                row_counts.append(-1)
+        wb.close()
+    except Exception:
+        pass
+    return md5, row_counts
+
+def _check_and_warn(key, excel_path, sheets_cfg):
+    """运行前检测 Excel 是否有异常变化，返回 (是否变化, 旧指纹)"""
+    fp = _load_fingerprint()
+    prev = fp.get(key, {})
+    old_md5 = prev.get("md5")
+    old_rows = prev.get("rows", [])
+    new_md5, new_rows = _get_excel_fingerprint(excel_path, sheets_cfg)
+
+    changed = (old_md5 != new_md5)
+
+    # 对比每个 sheet 行数（只对比前几个，避免空 sheet 误报）
+    rows_changed = False
+    if old_md5 == new_md5 and old_rows and new_rows:
+        # MD5 没变则不需要检查行数
+        pass
+    elif old_md5 != new_md5 and old_rows and new_rows:
+        # MD5 变了，检查主 sheet（第0个）行数是否大幅下降
+        if old_rows and new_rows and len(old_rows) > 0 and len(new_rows) > 0:
+            delta = old_rows[0] - new_rows[0]
+            if delta > 5:  # 主 sheet 行数突然少了5行以上 → 可能被覆盖
+                rows_changed = True
+
+    if changed or rows_changed:
+        old_ts = prev.get("ts", "?")
+        print(f"\n  ⚠️  【Excel 变更检测】")
+        if changed:
+            print(f"     文件 MD5 变化: {old_md5[:8] if old_md5 else '无'} → {new_md5[:8]}")
+        if rows_changed:
+            print(f"     主 sheet 行数下降: {old_rows[0]} → {new_rows[0]} （少了 {delta} 行）")
+            print(f"     上次记录时间: {old_ts}")
+            print(f"     ⚠️  Excel 可能被覆盖为旧版本，数据可能不完整！")
+        else:
+            print(f"     上次记录时间: {old_ts}")
+
+    return changed or rows_changed, fp
+
 # ── 运行 ─────────────────────────────────────────────────────────────────────
 
 def run_db(key):
@@ -322,6 +402,10 @@ def run_db(key):
         print(f"  [SKIP] Excel 不存在:\n    {cfg['excel']}")
         return False
 
+    # 运行前检测 Excel 变更
+    sheets_cfg = cfg.get("sheets") if not (cfg.get("use_existing") and cfg.get("existing_script")) else None
+    _check_and_warn(key, cfg["excel"], sheets_cfg)
+
     # 已有专用脚本 → 直接调用
     if cfg.get("use_existing") and cfg.get("existing_script"):
         script = cfg["existing_script"]
@@ -332,6 +416,12 @@ def run_db(key):
                              encoding="utf-8", errors="replace")
             print(r.stdout)
             if r.returncode == 0:
+                # 成功后记录指纹（专用脚本也用同一份 Excel）
+                md5, _ = _get_excel_fingerprint(cfg["excel"], None)
+                fp = _load_fingerprint()
+                fp[key] = {"md5": md5, "rows": [], "ts": dt.now().strftime("%Y-%m-%d %H:%M:%S")}
+                _save_fingerprint(fp)
+                print(f"  ✓ 指纹已记录: MD5={md5[:8]}")
                 print(f"  [OK]")
                 return True
             else:
@@ -343,7 +433,7 @@ def run_db(key):
     print(f"  Excel: {os.path.basename(cfg['excel'])}")
     print(f"  Sheets:")
     try:
-        xlsx_to_js(cfg["excel"], cfg["sheets"], cfg["output"], cfg["source"])
+        xlsx_to_js(cfg["excel"], cfg["sheets"], cfg["output"], cfg["source"], key=key)
         return True
     except Exception as e:
         print(f"  [ERROR] {e}")
