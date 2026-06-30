@@ -176972,3 +176972,4 @@ const EMBEDDED_DATA = {
   }
 ]
 };
+window.EMBEDDED_DATA = EMBEDDED_DATA;
