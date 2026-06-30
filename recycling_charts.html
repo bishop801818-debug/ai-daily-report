@@ -179,10 +179,7 @@ body{font-family:"Microsoft YaHei","PingFang SC",Arial,sans-serif;background:#f0
       }
 
       function extractPrice(sheetName, valKey) {
-        var rows = getTable(sheetName);
-        if (sheetName.indexOf('铁锂电池粉加工费') >= 0 || sheetName.indexOf('铁锂极片粉') >= 0) {
-          console.log('[extractPrice DEBUG]', sheetName, 'rows:', rows.length, 'fields:', rows.length > 0 ? Object.keys(rows[0]) : 'N/A');
-        }
+        var rows = getTable(sheetName), byDate = {};
         for (var i = 0; i < rows.length; i++) {
           var r = rows[i], dd = parseDM(r['当前日期']);
           if (!dd) continue;
@@ -280,6 +277,25 @@ body{font-family:"Microsoft YaHei","PingFang SC",Arial,sans-serif;background:#f0
         window.T23_DATES ? window.T23_DATES.length : 0,
         window.T25_DATES ? window.T25_DATES.length : 0
       );
+
+      // DEBUG: verify T24 raw
+      (function(){
+        var rows = getTable('黑粉价格-铁锂电池粉加工费');
+        console.log('[DEBUG T24] getTable rows:', rows.length);
+        if (rows.length > 0) {
+          console.log('[DEBUG T24] first row keys:', Object.keys(rows[0]));
+          console.log('[DEBUG T24] first row sample:', JSON.stringify(rows[0]).slice(0,200));
+          var byDate = {};
+          for (var i = 0; i < rows.length; i++) {
+            var r = rows[i], dd = parseDM(r['当前日期']);
+            if (!dd) continue;
+            var v = fl(r['今日均价']); if (v === null) continue;
+            if (!byDate[dd]) byDate[dd] = v;
+          }
+          var dates = Object.keys(byDate).sort();
+          console.log('[DEBUG T24] byDate keys count:', dates.length, 'first:', dates[0]);
+        }
+      })();
 
       // update stat cards
       function setStat(id, label, val, unit, extra) {
@@ -626,10 +642,6 @@ body{font-family:"Microsoft YaHei","PingFang SC",Arial,sans-serif;background:#f0
       var c = document.getElementById('tab-'+tab); if(c) c.classList.add('active');
 
       setTimeout(function() {
-        if (tab === 'black') {
-          console.log('[switchTab black] _lazyOpts keys:', Object.keys(_lazyOpts));
-          console.log('[T24] DATES:', window.T24_DATES && window.T24_DATES.length, 'AVG:', window.T24_AVG && window.T24_AVG.slice(0,3));
-        }
         var ids = _tabChartIds[tab] || [];
         ids.forEach(function(id) {
           if (_lazyOpts[id]) {
