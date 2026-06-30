@@ -4,22 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>数据看板 - 锂电池回收行业数据库</title>
-<script>
-console.log('[INIT] checking EMBEDDED_DATA before echarts...');
-console.log('[INIT] typeof EMBEDDED_DATA:', typeof EMBEDDED_DATA);
-console.log('[INIT] EMBEDDED_DATA keys:', EMBEDDED_DATA ? Object.keys(EMBEDDED_DATA) : 'null');
-if (EMBEDDED_DATA && EMBEDDED_DATA.tables) {
-  console.log('[INIT] tables count:', EMBEDDED_DATA.tables.length);
-  for (var i = 0; i < Math.min(5, EMBEDDED_DATA.tables.length); i++) {
-    console.log('[INIT] table[' + i + '].table_name:', EMBEDDED_DATA.tables[i].table_name);
-    console.log('[INIT] table[' + i + '].data.length:', EMBEDDED_DATA.tables[i].data.length);
-  }
-} else {
-  console.log('[INIT] WARNING: EMBEDDED_DATA is missing or tables not loaded!');
-}
-</script>
 <script src="recycling_embedded_data.js?v=20260630" charset="UTF-8"></script>
-<script>console.log('[AFTER_JS] typeof EMBEDDED_DATA:', typeof EMBEDDED_DATA); console.log('[AFTER_JS] EMBEDDED_DATA:', typeof window.EMBEDDED_DATA, window.EMBEDDED_DATA ? 'loaded' : 'null');</script>
 <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
@@ -309,17 +294,6 @@ body{font-family:"Microsoft YaHei","PingFang SC",Arial,sans-serif;background:#f0
         if (chgEl && extra !== undefined) chgEl.innerHTML = extra;
       }
 
-      // DEBUG: check getTable results for the key tables
-      var tAll = getTable('黑粉处理量-总计');
-      var tNCM = getTable('黑粉处理量-三元+钴酸锂');
-      var tLFP = getTable('黑粉处理量-铁锂');
-      console.log('[recycling] tAll rows:', tAll.length, 'tNCM rows:', tNCM.length, 'tLFP rows:', tLFP.length);
-      if (tAll.length === 0 && window.EMBEDDED_DATA) {
-        // Try sheet_name fallback
-        for (var ti = 0; ti < window.EMBEDDED_DATA.tables.length; ti++) {
-          var tn = window.EMBEDDED_DATA.tables[ti].table_name;
-          console.log('[recycling] table[' + ti + ']:', tn, window.EMBEDDED_DATA.tables[ti].data.length + ' rows');
-          if (ti > 5) { console.log('[recycling] ...more tables'); break; }
         }
       }
 
