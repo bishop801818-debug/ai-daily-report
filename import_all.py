@@ -390,6 +390,25 @@ def _check_and_warn(key, excel_path, sheets_cfg):
 
     return changed or rows_changed, fp
 
+# ── Excel 自动存档 ────────────────────────────────────────────────────────────
+SOURCES_DIR = os.path.join(BASE, "_sources")
+
+def _archive_excel(excel_path, key, label):
+    """成功运行后将 Excel 复制到 _sources/ 目录并 git add"""
+    if not os.path.exists(excel_path):
+        return
+    name = os.path.basename(excel_path)
+    dst = os.path.join(SOURCES_DIR, name)
+    try:
+        shutil.copy2(excel_path, dst)
+        # git add
+        subprocess.run(["git", "add", f"_sources/{name}"],
+                       cwd=BASE, capture_output=True,
+                       encoding="utf-8", errors="replace")
+        print(f"  📦 Excel 已存档: _sources/{name}")
+    except Exception as e:
+        print(f"  [WARN] Excel 存档失败: {e}")
+
 # ── 运行 ─────────────────────────────────────────────────────────────────────
 
 def run_db(key):
@@ -422,6 +441,7 @@ def run_db(key):
                 fp[key] = {"md5": md5, "rows": [], "ts": dt.now().strftime("%Y-%m-%d %H:%M:%S")}
                 _save_fingerprint(fp)
                 print(f"  ✓ 指纹已记录: MD5={md5[:8]}")
+                _archive_excel(cfg["excel"], key, cfg["label"])
                 print(f"  [OK]")
                 return True
             else:
@@ -434,6 +454,7 @@ def run_db(key):
     print(f"  Sheets:")
     try:
         xlsx_to_js(cfg["excel"], cfg["sheets"], cfg["output"], cfg["source"], key=key)
+        _archive_excel(cfg["excel"], key, cfg["label"])
         return True
     except Exception as e:
         print(f"  [ERROR] {e}")
