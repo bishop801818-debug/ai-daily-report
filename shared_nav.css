@@ -91,57 +91,25 @@
     color: #fff;
 }
 
-/* 下拉箭头 */
-.sub-arrow {
-    font-size: 10px;
-    opacity: 0.7;
-    transition: transform 0.2s;
-}
-.sub-nav-item:hover .sub-arrow {
-    transform: rotate(180deg);
-}
-
-/* 下拉菜单 */
-.sub-dropdown {
-    display: none;
-    position: absolute;
-    top: calc(100% + 8px);
-    right: 0;
-    background: #fff;
-    border-radius: 12px;
-    box-shadow: 0 8px 30px rgba(7,82,54,0.18);
-    border: 1px solid rgba(7,82,54,0.1);
-    min-width: 180px;
-    overflow: hidden;
-    z-index: 9999;
-}
-.sub-nav-item:hover .sub-dropdown {
-    display: block;
-}
-
-/* 下拉菜单项 */
-.sub-dropdown-item {
+/* 导航项颜色 */
+.sub-nav-item {
+    position: relative;
     display: flex;
     align-items: center;
-    gap: 8px;
-    padding: 10px 16px;
-    font-size: 13px;
-    color: #07523;
+    gap: 4px;
+    padding: 6px 12px;
+    border-radius: 8px;
     cursor: pointer;
+    font-size: 14px;
+    color: rgba(255,255,255,0.85);
     transition: all 0.2s;
-    border-bottom: 1px solid rgba(7,82,54,0.06);
+    user-select: none;
 }
-.sub-dropdown-item:last-child { border-bottom: none; }
-.sub-dropdown-item:hover {
-    background: linear-gradient(135deg, #0AA66A 0%, #0d7a4a 100%);
+.sub-nav-item:hover {
+    background: rgba(255,255,255,0.18);
     color: #fff;
-    padding-left: 22px;
 }
-.sub-dropdown-item .nav-icon { font-size: 14px; }
-
-/* 下拉菜单分隔线 */
-.sub-dropdown-divider {
-    height: 1px;
-    background: rgba(7,82,54,0.1);
-    margin: 4px 0;
+.sub-nav-item.active {
+    background: rgba(255,255,255,0.22);
+    color: #fff;
 }

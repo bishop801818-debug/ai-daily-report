@@ -1,10 +1,11 @@
 <!DOCTYPE html>
+
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>工具箱 - 战略中心信息中台</title>
-    <style>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>工具箱 - 战略中心信息中台</title>
+<style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         :root {
@@ -450,198 +451,164 @@
     </style>
 </head>
 <body>
-
+<!--统一导航栏（shared_nav.css）-->
+<link href="shared_nav.css" rel="stylesheet"/>
 <!--统一导航栏（shared_nav.css）-->
 <link rel="stylesheet" href="shared_nav.css">
 <div class="sub-topbar">
     <a class="sub-topbar-home" href="index_v3.html">← 返回首页</a>
-    <div class="sub-topbar-title">工具箱</div>
-    <div id="headerDate" class="sub-topbar-date" style="flex-shrink:0;color:rgba(255,255,255,0.7);font-size:13px;margin-left:8px;"></div>
+    <div class="sub-topbar-title"> 工具箱</div>
     <div class="sub-topbar-nav">
-        <div class="sub-nav-item" onclick="window.location.href='policy_center_v4.html'">
-           <span>政策中心</span><span class="sub-arrow">▼</span>
-            <div class="sub-dropdown">
-                <div class="sub-dropdown-item" onclick="event.stopPropagation(); window.location.href='policy_center_v4.html?filter=central'"><span class="nav-icon"></span>国家政策</div>
-                <div class="sub-dropdown-item" onclick="event.stopPropagation(); window.location.href='policy_center_v4.html?filter=local'"><span class="nav-icon"></span>地方政策</div>
-                <div class="sub-dropdown-item" onclick="event.stopPropagation(); window.location.href='policy_center_v4.html?filter=overseas'"><span class="nav-icon"></span>国际政策</div>
-            </div>
-        </div>
-        <div class="sub-nav-item" onclick="window.location.href='industry_news_embedded.html'">
-          <span>行业新闻</span><span class="sub-arrow">▼</span>
-            <div class="sub-dropdown">
-                <div class="sub-dropdown-item" onclick="event.stopPropagation(); window.location.href='industry_news_embedded.html?filter=macro'"><span class="nav-icon"></span>宏观新闻</div>
-                <div class="sub-dropdown-item" onclick="event.stopPropagation(); window.location.href='industry_news_embedded.html?filter=industry'"><span class="nav-icon"></span>行业新闻</div>
-                <div class="sub-dropdown-item" onclick="event.stopPropagation(); window.location.href='industry_news_embedded.html?filter=company'"><span class="nav-icon"></span>企业动态</div>
-                <div class="sub-dropdown-item" onclick="event.stopPropagation(); window.location.href='industry_news_embedded.html?filter=tech'"><span class="nav-icon"></span>技术产品</div>
-            </div>
-        </div>
-        <div class="sub-nav-item" onclick="window.location.href='archive_v3.html'"><span>历史数据</span></div>
-        <div class="sub-nav-item" onclick="window.location.href='database_hub.html'">
-            <span>数据库</span><span class="sub-arrow">▼</span>
-            <div class="sub-dropdown">
-                <div class="sub-dropdown-item" onclick="event.stopPropagation(); window.location.href='lfp_data_v2.html'"><span class="nav-icon"></span>磷酸铁锂数据库</div>
-                <div class="sub-dropdown-item" onclick="event.stopPropagation(); window.location.href='ternary_data_v2.html'"><span class="nav-icon"></span>三元材料数据库</div>
-                <div class="sub-dropdown-item" onclick="event.stopPropagation(); window.location.href='electrolyte_data_v2.html'"><span class="nav-icon"></span>电解液数据库</div>
-                <div class="sub-dropdown-item" onclick="event.stopPropagation(); window.location.href='carbonate_data_v2.html'"><span class="nav-icon"></span>碳酸锂及原料数据库</div>
-                <div class="sub-dropdown-item" onclick="event.stopPropagation(); window.location.href='recycling_data_v2.html'"><span class="nav-icon"></span>锂电池回收数据库</div>
-                <div class="sub-dropdown-item" onclick="event.stopPropagation(); window.location.href='lib_battery_data_v2.html'"><span class="nav-icon"></span>锂电池行业数据库</div>
-                <div class="sub-dropdown-item" onclick="event.stopPropagation(); window.location.href='automotive_data_v2.html'"><span class="nav-icon"></span>汽车行业数据库</div>
-            </div>
-        </div>
-        <div class="sub-nav-item" onclick="window.location.href='analysis_hub.html'"><span>行业分析</span></div>
-        <div class="sub-nav-item" onclick="window.location.href='strategy_hub.html'"><span>竞品比对</span></div>
-        <div class="sub-nav-item" onclick="window.location.href='radar_hub.html'"><span>雷达看板</span></div>
+        <div class="sub-nav-item" onclick="window.location.href='policy_center_v4.html'"><span> 政策中心</span></div>
+        <div class="sub-nav-item" onclick="window.location.href='industry_news_embedded.html'"><span> 行业新闻</span></div>
+        <div class="sub-nav-item" onclick="window.location.href='archive_v3.html'"><span> 历史数据</span></div>
+        <div class="sub-nav-item" onclick="window.location.href='database_hub.html'"><span> 数据库</span></div>
+        <div class="sub-nav-item" onclick="window.location.href='analysis_hub.html'"><span> 行业分析</span></div>
+        <div class="sub-nav-item" onclick="window.location.href='strategy_hub.html'"><span> 竞品比对</span></div>
+        <div class="sub-nav-item" onclick="window.location.href='radar_hub.html'"><span> 雷达看板</span></div>
     </div>
 </div>
-
-    <div class="page-container">
-        <div class="page-title">工具箱</div>
-        <div class="page-subtitle">常用工具与数据管理</div>
-
-        <!-- Tab 切换 -->
-        <div class="tool-tabs">
-            <button class="tool-tab active" onclick="switchToolTab('tools', this)">🛠️ 工具集</button>
-            <button class="tool-tab" onclick="switchToolTab('collect', this)">🔖 我的收藏 <span id="collectCountBadge" style="background:rgba(255,255,255,0.25);padding:1px 7px;border-radius:10px;font-size:12px;margin-left:2px;">0</span></button>
-            <button class="tool-tab" onclick="switchToolTab('export', this)">📥 数据导出</button>
-        </div>
-
-        <!-- 工具集 -->
-        <div class="tool-panel active" id="panel-tools">
-            <div class="tool-grid">
-                <div class="tool-card" onclick="switchToolTab('collect', document.querySelectorAll('.tool-tab')[1])">
-                    <div class="tool-card-badge">常用</div>
-                    <div class="tool-card-icon">🔖</div>
-                    <div class="tool-card-title">我的收藏</div>
-                    <div class="tool-card-desc">收藏的政策、新闻和早报内容，随时查看和管理</div>
-                </div>
-                <div class="tool-card" onclick="switchToolTab('export', document.querySelectorAll('.tool-tab')[2])">
-                    <div class="tool-card-icon">📥</div>
-                    <div class="tool-card-title">数据导出</div>
-                    <div class="tool-card-desc">将早报、政策导出为 Excel 或 Word 格式</div>
-                </div>
-                <div class="tool-card" onclick="showToast('价格预警功能开发中')">
-                    <div class="tool-card-icon">🔔</div>
-                    <div class="tool-card-title">价格预警</div>
-                    <div class="tool-card-desc">设置碳酸锂、LFP 等关键品种的价格阈值，到价提醒</div>
-                </div>
-                <div class="tool-card" onclick="showToast('竞品追踪配置功能开发中')">
-                    <div class="tool-card-icon">⚔️</div>
-                    <div class="tool-card-title">竞品追踪</div>
-                    <div class="tool-card-desc">配置各 BU 核心竞品名单，精准追踪竞品动态</div>
-                </div>
-                <div class="tool-card" onclick="showToast('关键词订阅功能开发中')">
-                    <div class="tool-card-icon">🔍</div>
-                    <div class="tool-card-title">关键词订阅</div>
-                    <div class="tool-card-desc">订阅特定关键词，命中后自动推送到早报</div>
-                </div>
-                <div class="tool-card" onclick="showToast('数据对比功能开发中')">
-                    <div class="tool-card-icon">📐</div>
-                    <div class="tool-card-title">数据对比</div>
-                    <div class="tool-card-desc">多时间区间、多 BU 关键指标对比分析</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- 收藏 -->
-        <div class="tool-panel" id="panel-collect">
-            <div class="section-header">
-                <div class="section-title">🔖 我的收藏</div>
-                <button class="section-action" onclick="clearAllCollections()" id="clearAllBtn" style="display:none;">🗑 清空全部</button>
-            </div>
-            <div class="filter-bar" id="collectFilterBar">
-                <button class="filter-chip active" onclick="filterCollects('all', this)">全部</button>
-                <button class="filter-chip" onclick="filterCollects('policy', this)">📜 政策</button>
-                <button class="filter-chip" onclick="filterCollects('report', this)">📋 早报</button>
-                <button class="filter-chip" onclick="filterCollects('news', this)">📰 新闻</button>
-            </div>
-            <div class="collect-list" id="collectList">
-                <div class="collect-empty">
-                    <div class="collect-empty-icon">🔖</div>
-                    <div class="collect-empty-text">暂无收藏内容</div>
-                    <div class="collect-empty-sub">点击政策/新闻/早报中的「收藏」按钮即可添加</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- 数据导出 -->
-        <div class="tool-panel" id="panel-export">
-            <div class="section-header" style="margin-bottom:20px;">
-                <div class="section-title">📥 数据导出</div>
-            </div>
-            <div class="export-grid">
-                <!-- 早报导出 -->
-                <div class="export-card">
-                    <div class="export-card-icon">📋</div>
-                    <div class="export-card-title">早报导出</div>
-                    <div class="export-card-desc">将指定时间范围内的各事业部早报合并导出为一个文件，方便存档和传阅。</div>
-                    <div class="export-range">
-                        <label>时间范围</label>
-                        <select id="reportRange">
-                            <option value="today">今日</option>
-                            <option value="week">最近一周</option>
-                            <option value="month" selected>最近一月</option>
-                        </select>
-                    </div>
-                    <div class="export-card-options">
-                        <label class="export-option">
-                            <input type="checkbox" checked disabled> 全选（9个事业部）
+<div class="page-container">
+<div class="page-title">工具箱</div>
+<div class="page-subtitle">常用工具与数据管理</div>
+<!-- Tab 切换 -->
+<div class="tool-tabs">
+<button class="tool-tab active" onclick="switchToolTab('tools', this)">🛠️ 工具集</button>
+<button class="tool-tab" onclick="switchToolTab('collect', this)">🔖 我的收藏 <span id="collectCountBadge" style="background:rgba(255,255,255,0.25);padding:1px 7px;border-radius:10px;font-size:12px;margin-left:2px;">0</span></button>
+<button class="tool-tab" onclick="switchToolTab('export', this)">📥 数据导出</button>
+</div>
+<!-- 工具集 -->
+<div class="tool-panel active" id="panel-tools">
+<div class="tool-grid">
+<div class="tool-card" onclick="switchToolTab('collect', document.querySelectorAll('.tool-tab')[1])">
+<div class="tool-card-badge">常用</div>
+<div class="tool-card-icon">🔖</div>
+<div class="tool-card-title">我的收藏</div>
+<div class="tool-card-desc">收藏的政策、新闻和早报内容，随时查看和管理</div>
+</div>
+<div class="tool-card" onclick="switchToolTab('export', document.querySelectorAll('.tool-tab')[2])">
+<div class="tool-card-icon">📥</div>
+<div class="tool-card-title">数据导出</div>
+<div class="tool-card-desc">将早报、政策导出为 Excel 或 Word 格式</div>
+</div>
+<div class="tool-card" onclick="showToast('价格预警功能开发中')">
+<div class="tool-card-icon">🔔</div>
+<div class="tool-card-title">价格预警</div>
+<div class="tool-card-desc">设置碳酸锂、LFP 等关键品种的价格阈值，到价提醒</div>
+</div>
+<div class="tool-card" onclick="showToast('竞品追踪配置功能开发中')">
+<div class="tool-card-icon">⚔️</div>
+<div class="tool-card-title">竞品追踪</div>
+<div class="tool-card-desc">配置各 BU 核心竞品名单，精准追踪竞品动态</div>
+</div>
+<div class="tool-card" onclick="showToast('关键词订阅功能开发中')">
+<div class="tool-card-icon">🔍</div>
+<div class="tool-card-title">关键词订阅</div>
+<div class="tool-card-desc">订阅特定关键词，命中后自动推送到早报</div>
+</div>
+<div class="tool-card" onclick="showToast('数据对比功能开发中')">
+<div class="tool-card-icon">📐</div>
+<div class="tool-card-title">数据对比</div>
+<div class="tool-card-desc">多时间区间、多 BU 关键指标对比分析</div>
+</div>
+</div>
+</div>
+<!-- 收藏 -->
+<div class="tool-panel" id="panel-collect">
+<div class="section-header">
+<div class="section-title">🔖 我的收藏</div>
+<button class="section-action" id="clearAllBtn" onclick="clearAllCollections()" style="display:none;">🗑 清空全部</button>
+</div>
+<div class="filter-bar" id="collectFilterBar">
+<button class="filter-chip active" onclick="filterCollects('all', this)">全部</button>
+<button class="filter-chip" onclick="filterCollects('policy', this)">📜 政策</button>
+<button class="filter-chip" onclick="filterCollects('report', this)">📋 早报</button>
+<button class="filter-chip" onclick="filterCollects('news', this)">📰 新闻</button>
+</div>
+<div class="collect-list" id="collectList">
+<div class="collect-empty">
+<div class="collect-empty-icon">🔖</div>
+<div class="collect-empty-text">暂无收藏内容</div>
+<div class="collect-empty-sub">点击政策/新闻/早报中的「收藏」按钮即可添加</div>
+</div>
+</div>
+</div>
+<!-- 数据导出 -->
+<div class="tool-panel" id="panel-export">
+<div class="section-header" style="margin-bottom:20px;">
+<div class="section-title">📥 数据导出</div>
+</div>
+<div class="export-grid">
+<!-- 早报导出 -->
+<div class="export-card">
+<div class="export-card-icon">📋</div>
+<div class="export-card-title">早报导出</div>
+<div class="export-card-desc">将指定时间范围内的各事业部早报合并导出为一个文件，方便存档和传阅。</div>
+<div class="export-range">
+<label>时间范围</label>
+<select id="reportRange">
+<option value="today">今日</option>
+<option value="week">最近一周</option>
+<option selected="" value="month">最近一月</option>
+</select>
+</div>
+<div class="export-card-options">
+<label class="export-option">
+<input checked="" disabled="" type="checkbox"/> 全选（9个事业部）
                         </label>
-                        <label class="export-option">
-                            <input type="checkbox" checked onclick="toggleExportAll(this)"> 包含早报正文内容
+<label class="export-option">
+<input checked="" onclick="toggleExportAll(this)" type="checkbox"/> 包含早报正文内容
                         </label>
-                        <label class="export-option">
-                            <input type="checkbox" checked> 包含市场行情数据
+<label class="export-option">
+<input checked="" type="checkbox"/> 包含市场行情数据
                         </label>
-                    </div>
-                    <button class="export-btn export-btn-primary" onclick="exportReports()">
-                        <span>📥</span> 导出 Excel
+</div>
+<button class="export-btn export-btn-primary" onclick="exportReports()">
+<span>📥</span> 导出 Excel
                     </button>
-                </div>
-                <!-- 政策导出 -->
-                <div class="export-card">
-                    <div class="export-card-icon">📜</div>
-                    <div class="export-card-title">政策导出</div>
-                    <div class="export-card-desc">将政策中心收录的政策按类型、来源、时间范围筛选后导出。</div>
-                    <div class="export-range">
-                        <label>政策类型</label>
-                        <select id="policyType">
-                            <option value="all" selected>全部类型</option>
-                            <option value="中央政策">中央政策</option>
-                            <option value="地方政策">地方政策</option>
-                            <option value="海外政策">海外政策</option>
-                        </select>
-                    </div>
-                    <div class="export-range">
-                        <label>时间范围</label>
-                        <select id="policyRange">
-                            <option value="month" selected>最近一月</option>
-                            <option value="quarter">最近一季度</option>
-                            <option value="halfyear">最近半年</option>
-                        </select>
-                    </div>
-                    <button class="export-btn export-btn-secondary" onclick="exportPolicies()">
-                        <span>📄</span> 导出 Word
+</div>
+<!-- 政策导出 -->
+<div class="export-card">
+<div class="export-card-icon">📜</div>
+<div class="export-card-title">政策导出</div>
+<div class="export-card-desc">将政策中心收录的政策按类型、来源、时间范围筛选后导出。</div>
+<div class="export-range">
+<label>政策类型</label>
+<select id="policyType">
+<option selected="" value="all">全部类型</option>
+<option value="中央政策">中央政策</option>
+<option value="地方政策">地方政策</option>
+<option value="海外政策">海外政策</option>
+</select>
+</div>
+<div class="export-range">
+<label>时间范围</label>
+<select id="policyRange">
+<option selected="" value="month">最近一月</option>
+<option value="quarter">最近一季度</option>
+<option value="halfyear">最近半年</option>
+</select>
+</div>
+<button class="export-btn export-btn-secondary" onclick="exportPolicies()">
+<span>📄</span> 导出 Word
                     </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- 确认清空模态框 -->
-    <div class="modal-overlay" id="clearModal">
-        <div class="modal">
-            <div class="modal-title">确认清空收藏？</div>
-            <div class="modal-body">此操作将删除所有已收藏的内容，删除后不可恢复。</div>
-            <div class="modal-actions">
-                <button class="modal-btn modal-btn-cancel" onclick="closeModal()">取消</button>
-                <button class="modal-btn modal-btn-confirm" onclick="confirmClear()">确认清空</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Toast -->
-    <div class="toast" id="toast"></div>
-
+</div>
+</div>
+</div>
+</div>
+<!-- 确认清空模态框 -->
+<div class="modal-overlay" id="clearModal">
+<div class="modal">
+<div class="modal-title">确认清空收藏？</div>
+<div class="modal-body">此操作将删除所有已收藏的内容，删除后不可恢复。</div>
+<div class="modal-actions">
+<button class="modal-btn modal-btn-cancel" onclick="closeModal()">取消</button>
+<button class="modal-btn modal-btn-confirm" onclick="confirmClear()">确认清空</button>
+</div>
+</div>
+</div>
+<!-- Toast -->
+<div class="toast" id="toast"></div>
 <script>
     // 日期显示
     var weekDays = ['星期日','星期一','星期二','星期三','星期四','星期五','星期六'];
@@ -839,6 +806,6 @@
     updateCollectBadge();
     renderCollects();
 </script>
-    <script src="assets/ai_fab_inject.js"></script>
+<script src="assets/ai_fab_inject.js"></script>
 </body>
 </html>
