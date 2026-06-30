@@ -281,6 +281,29 @@ body{font-family:"Microsoft YaHei","PingFang SC",Arial,sans-serif;background:#f0
       // update stat cards
       function setStat(id, label, val, unit, extra) {
         var el = document.getElementById(id);
+
+      // DEBUG: log all price variables
+      console.log('[recycling] update_time:', window.UPDATE_TIME);
+      console.log('[recycling] T0_MONTHS:', window.T0_MONTHS ? window.T0_MONTHS.length + ' months' : 'EMPTY');
+      console.log('[recycling] T1_TOTALS:', (window.T1_TOTALS||[]).filter(function(v){return v!==null}).length + ' valid');
+      console.log('[recycling] T2_TOTALS:', (window.T2_TOTALS||[]).filter(function(v){return v!==null}).length + ' valid');
+      console.log('[recycling] TOP10:', window.TOP10_NAMES ? window.TOP10_NAMES.length + ' companies' : 'EMPTY');
+      console.log('[recycling] PIE_DATA:', window.PIE_DATA ? window.PIE_DATA.length + ' slices' : 'EMPTY');
+      console.log('[recycling] T6:', window.T6_AVG ? window.T6_AVG.length + ' rows' : 'EMPTY');
+      console.log('[recycling] T11:', window.T11_AVG ? window.T11_AVG.length + ' rows' : 'EMPTY');
+      console.log('[recycling] T16:', window.T16_AVG ? window.T16_AVG.length + ' rows' : 'EMPTY');
+      console.log('[recycling] T17:', window.T17_AVG ? window.T17_AVG.length + ' rows' : 'EMPTY');
+      console.log('[recycling] T18:', window.T18_AVG ? window.T18_AVG.length + ' rows' : 'EMPTY');
+      console.log('[recycling] T19:', window.T19_AVG ? window.T19_AVG.length + ' rows' : 'EMPTY');
+      console.log('[recycling] T20:', window.T20_AVG ? window.T20_AVG.length + ' rows' : 'EMPTY');
+      console.log('[recycling] T21:', window.T21_AVG ? window.T21_AVG.length + ' rows' : 'EMPTY');
+      console.log('[recycling] T23:', window.T23_AVG ? window.T23_AVG.length + ' rows' : 'EMPTY');
+      console.log('[recycling] MIN3:', window.MIN3);
+      for (var i = 0; i < priceSheets.length; i++) {
+        var key = priceSheets[i][0];
+        console.log('[recycling] ' + key + ':', window[key+'_AVG'] ? window[key+'_AVG'].length + ' rows' : 'EMPTY');
+      }
+
         if (!el) return;
         el.querySelector('.stat-label').textContent = label;
         var valEl = el.querySelector('.stat-value');
