@@ -281,22 +281,6 @@ body{font-family:"Microsoft YaHei","PingFang SC",Arial,sans-serif;background:#f0
       // update stat cards
       function setStat(id, label, val, unit, extra) {
         var el = document.getElementById(id);
-
-      // DEBUG: check EMBEDDED_DATA state
-      console.log('[recycling] EMBEDDED_DATA type:', typeof window.EMBEDDED_DATA);
-      console.log('[recycling] EMBEDDED_DATA keys:', window.EMBEDDED_DATA ? Object.keys(window.EMBEDDED_DATA) : 'null/undefined');
-      console.log('[recycling] tables length:', window.EMBEDDED_DATA ? window.EMBEDDED_DATA.tables.length : 'N/A');
-      if (window.EMBEDDED_DATA && window.EMBEDDED_DATA.tables) {
-        for (var ti = 0; ti < window.EMBEDDED_DATA.tables.length; ti++) {
-          var tn = window.EMBEDDED_DATA.tables[ti].table_name;
-          if (tn.indexOf('黑粉处理量') !== -1 || tn.indexOf('总计') !== -1) {
-            console.log('[recycling] found table:', ti, tn, window.EMBEDDED_DATA.tables[ti].data.length + ' rows');
-          }
-        }
-      }
-      console.log('[recycling] tables[0].table_name:', window.EMBEDDED_DATA && window.EMBEDDED_DATA.tables ? window.EMBEDDED_DATA.tables[0].table_name : 'N/A');
-      console.log('[recycling] getTable("黑粉处理量-总计") rows:', getTable('黑粉处理量-总计').length);
-
         if (!el) return;
         el.querySelector('.stat-label').textContent = label;
         var valEl = el.querySelector('.stat-value');
@@ -309,6 +293,21 @@ body{font-family:"Microsoft YaHei","PingFang SC",Arial,sans-serif;background:#f0
         var chgEl = el.querySelector('.stat-change');
         if (chgEl && extra !== undefined) chgEl.innerHTML = extra;
       }
+
+      // DEBUG: check getTable results for the key tables
+      var tAll = getTable('黑粉处理量-总计');
+      var tNCM = getTable('黑粉处理量-三元+钴酸锂');
+      var tLFP = getTable('黑粉处理量-铁锂');
+      console.log('[recycling] tAll rows:', tAll.length, 'tNCM rows:', tNCM.length, 'tLFP rows:', tLFP.length);
+      if (tAll.length === 0 && window.EMBEDDED_DATA) {
+        // Try sheet_name fallback
+        for (var ti = 0; ti < window.EMBEDDED_DATA.tables.length; ti++) {
+          var tn = window.EMBEDDED_DATA.tables[ti].table_name;
+          console.log('[recycling] table[' + ti + ']:', tn, window.EMBEDDED_DATA.tables[ti].data.length + ' rows');
+          if (ti > 5) { console.log('[recycling] ...more tables'); break; }
+        }
+      }
+
       var lm = window.LATEST_MONTH;
       var lmTotal = allBy[lm] ? allBy[lm].total : null;
       var lmYoy   = allBy[lm] ? allBy[lm].yoy : null;
