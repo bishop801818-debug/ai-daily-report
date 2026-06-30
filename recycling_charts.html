@@ -268,9 +268,6 @@ body{font-family:"Microsoft YaHei","PingFang SC",Arial,sans-serif;background:#f0
       for (var i = 0; i < priceSheets.length; i++) {
         var p = priceSheets[i];
         var r = extractPrice(p[1], p[2]);
-        if (p[0] === 'T24' || p[0] === 'T25' || p[0] === 'T26') {
-          console.log('[extractPrice]', p[0], p[1], '-> dates:', r.dates.length, 'first3vals:', r.vals.slice(0,3));
-        }
         window[p[0]+'_DATES'] = r.dates;
         window[p[0]+'_AVG']   = r.vals;
       }
@@ -325,7 +322,6 @@ body{font-family:"Microsoft YaHei","PingFang SC",Arial,sans-serif;background:#f0
 
     })();
 
-    var _lazyOpts = {};
     var C = { primary:'#1e3c72', secondary:'#4a6fa5', accent:'#4facfe', green:'#4caf50', orange:'#ff9800', gray:'#607d8b', copper:'#b87333', border:'#e0e0e0', text:'#333', textLight:'#888' };
     var COLORS = ['#1e3c72','#4facfe','#4caf50','#ff9800','#607d8b'];
 
@@ -345,10 +341,6 @@ body{font-family:"Microsoft YaHei","PingFang SC",Arial,sans-serif;background:#f0
     function mkArea(rgb, op) { return { type:'linear', x:0,y:0,x2:0,y2:1, colorStops:[{offset:0,color:rgb.replace(')',','+(op||0.18)+')').replace('rgb','rgba')},{offset:1,color:'rgba(255,255,255,0.02)'}] }; };
     function init(id, opt) {
       var d=document.getElementById(id); if(!d) return;
-      if (d.clientWidth === 0 || d.clientHeight === 0) {
-        _lazyOpts[id] = opt;
-        return null;
-      }
       var c=echarts.init(d); c.setOption(opt); return c;
     }
     
@@ -611,35 +603,15 @@ body{font-family:"Microsoft YaHei","PingFang SC",Arial,sans-serif;background:#f0
     });
     
     // ── tab switch ──
-    var _tabChartIds = {
-      processing: ['c-pr-total','c-pr-compare','c-pr-rank','c-pr-pie'],
-      battery:    ['c-bt-alu3','c-bt-523','c-bt-compare','c-bt-lfp-steel','c-bt-cobalt','c-bt-lfp'],
-      electrode:  ['c-el-neg-vs-lfp','c-el-lfp','c-el-ncm523','c-el-aux','c-el-aux2'],
-      black:      ['c-bk-compare','c-bk-cobalt','c-bk-graphite','c-bk-cobalt-el','c-bk-ncm-co','c-bk-lfp-pf','c-bk-lfp-el-pf'],
-    };
-
     function switchTab(tab) {
       document.querySelectorAll('.tab-btn').forEach(function(b){b.classList.remove('active');});
       document.querySelectorAll('.tab-content').forEach(function(t){t.classList.remove('active');});
       var btns = document.querySelectorAll('.tab-btn');
       for(var i=0;i<btns.length;i++){ if(btns[i].getAttribute('onclick').indexOf(tab)>=0) btns[i].classList.add('active'); }
       var c = document.getElementById('tab-'+tab); if(c) c.classList.add('active');
-
-      setTimeout(function() {
-        var ids = _tabChartIds[tab] || [];
-        ids.forEach(function(id) {
-          if (_lazyOpts[id]) {
-            var d = document.getElementById(id);
-            if (d) {
-              var inst = echarts.init(d);
-              inst.setOption(_lazyOpts[id]);
-              delete _lazyOpts[id];
-            }
-          }
-          var d2 = document.getElementById(id);
-          if (d2) { var inst2 = echarts.getInstanceByDom(d2); if(inst2) inst2.resize(); }
-        });
-      }, 100);
+      setTimeout(function(){
+        document.querySelectorAll('.chart-ctn').forEach(function(d){ var inst=echarts.getInstanceByDom(d); if(inst) inst.resize(); });
+      }, 120);
     }
     window.addEventListener('resize',function(){
       document.querySelectorAll('.chart-ctn').forEach(function(d){ var inst=echarts.getInstanceByDom(d); if(inst) inst.resize(); });
