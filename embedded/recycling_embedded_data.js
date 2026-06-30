@@ -1,5 +1,5 @@
 const EMBEDDED_DATA = {
-  "update_time": "2026-06-29 15:53:52",
+  "update_time": "2026-06-30 15:13:36",
   "source": "锂电池回收行业数据库.xlsx",
   "tables": [
   {
@@ -176972,3 +176972,4 @@ const EMBEDDED_DATA = {
   }
 ]
 };
+window.EMBEDDED_DATA = EMBEDDED_DATA;

@@ -1,5 +1,5 @@
 const EMBEDDED_DATA = {
-  "update_time": "2026-06-30 14:26:10",
+  "update_time": "2026-06-30 15:03:22",
   "source": "🔋 【常州锂源】磷酸铁锂产业链数据库.xlsx",
   "tables": [
   {

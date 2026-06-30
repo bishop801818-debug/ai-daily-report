@@ -1,5 +1,5 @@
 const EMBEDDED_DATA = {
-  "update_time": "2026-06-29 17:28:17",
+  "update_time": "2026-06-30 14:29:03",
   "source": "🔋 【三金锂电】三元前驱体产业链数据库.xlsx",
   "tables": [
   {
@@ -90817,3 +90817,4 @@ const EMBEDDED_DATA = {
   }
 ]
 };
+window.EMBEDDED_DATA = EMBEDDED_DATA;
