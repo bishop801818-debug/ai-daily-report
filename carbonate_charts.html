@@ -282,7 +282,7 @@
 
     </div>
 
-<script src="carbonate_embedded_data.js?v=20260629"></script>
+<script src="carbonate_embedded_data.js?v=20260630"></script>
 <script>
 var COLORS = ['#1e3c72','#4a6fa5','#4facfe','#667eea','#764ba2','#f59e0b','#10b981','#ef4444','#3b82f6','#8b5cf6'];
 var C = { primary: '#1e3c72', secondary: '#4a6fa5', accent: '#4facfe', border: '#e0e0e0', text: '#333', textLight: '#666' };
@@ -708,6 +708,55 @@ window.addEventListener('resize', function(){
         if(chart) chart.resize();
     });
 });
+</script>
+
+<!-- __AUTO_REFRESH__ -->
+<script>
+(function() {
+  var _js = "carbonate_embedded_data.js";
+  var _lastVer = null;
+
+  function _readVer() {
+    try { return (window[_js.replace('.js','').replace(/-/g,'_').replace(/ /g,'')] || {}).update_time || null; }
+    catch(e) { return null; }
+  }
+
+  function _fetchVer(cb) {
+    var s = document.createElement('script');
+    s.src = _js + '?t=' + Date.now();
+    s.onload = function() { cb(_readVer()); s.remove(); };
+    s.onerror = function() { cb(null); s.remove(); };
+    document.head.appendChild(s);
+  }
+
+  function _showBanner() {
+    if (document.getElementById('__ar_banner__')) return;
+    var b = document.createElement('div');
+    b.id = '__ar_banner__';
+    b.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:99999;background:#1a73e8;color:#fff;'
+      + 'text-align:center;padding:10px 20px;font-size:14px;font-family:sans-serif;'
+      + 'display:flex;align-items:center;justify-content:center;gap:16px;box-shadow:0 2px 8px rgba(0,0,0,0.2);';
+    b.innerHTML = '\uD83D\uDCCA 数据已更新至新版本 &nbsp;'
+      + '<button onclick="location.reload()" style="background:#fff;color:#1a73e8;border:none;'
+      + 'padding:5px 14px;border-radius:4px;cursor:pointer;font-size:13px;font-weight:bold;">刷新页面</button>'
+      + '<button onclick="this.parentElement.style.display=\'none\'" style="background:rgba(255,255,255,0.2);'
+      + 'color:#fff;border:1px solid rgba(255,255,255,0.6);padding:5px 12px;border-radius:4px;'
+      + 'cursor:pointer;font-size:13px;">稍后</button>';
+    document.body.appendChild(b);
+  }
+
+  _lastVer = _readVer();
+
+  // 每 60 秒检测一次
+  setInterval(function() {
+    _fetchVer(function(ver) {
+      if (ver && ver !== _lastVer) {
+        _lastVer = ver;
+        _showBanner();
+      }
+    });
+  }, 60000);
+})();
 </script>
 </body>
 </html>
