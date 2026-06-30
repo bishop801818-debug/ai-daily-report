@@ -179,7 +179,10 @@ body{font-family:"Microsoft YaHei","PingFang SC",Arial,sans-serif;background:#f0
       }
 
       function extractPrice(sheetName, valKey) {
-        var rows = getTable(sheetName), byDate = {};
+        var rows = getTable(sheetName);
+        if (sheetName.indexOf('铁锂电池粉加工费') >= 0 || sheetName.indexOf('铁锂极片粉') >= 0) {
+          console.log('[extractPrice DEBUG]', sheetName, 'rows:', rows.length, 'fields:', rows.length > 0 ? Object.keys(rows[0]) : 'N/A');
+        }
         for (var i = 0; i < rows.length; i++) {
           var r = rows[i], dd = parseDM(r['当前日期']);
           if (!dd) continue;
