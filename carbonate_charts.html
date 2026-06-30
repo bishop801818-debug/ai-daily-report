@@ -635,13 +635,13 @@ initChart('raw1', {
     tooltip: { trigger: 'axis' },
     legend: { data: ['碳酸锂均价','氢氧化锂均价'], top: 5 },
     grid: gridOpt(),
-    xAxis: Object.assign({}, xAxis(), { data: lcDailyDates }),
+    xAxis: Object.assign({}, xAxis(), { data: window.lcDailyDates }),
     yAxis: yAxis('万元/吨'),
     series: [
-        { name: '碳酸锂均价', type: 'line', data: lcDailyAvg, smooth: true,
+        { name: '碳酸锂均价', type: 'line', data: window.lcDailyAvg, smooth: true,
           lineStyle: { color: C.primary, width: 3 }, itemStyle: { color: C.primary },
           label: { show: true, position: 'top', formatter: '{c}', fontSize: 9, color: C.primary, fontWeight: 'bold' } },
-        { name: '氢氧化锂均价', type: 'line', data: lhDailyAvg, smooth: true,
+        { name: '氢氧化锂均价', type: 'line', data: window.lhDailyAvg, smooth: true,
           lineStyle: { color: C.secondary, width: 3 }, itemStyle: { color: C.secondary },
           label: { show: true, position: 'bottom', formatter: '{c}', fontSize: 9, color: C.secondary } }
     ]
@@ -651,10 +651,10 @@ initChart('raw1', {
 initChart('raw2', {
     tooltip: { trigger: 'axis' },
     grid: gridOpt(),
-    xAxis: Object.assign({}, xAxis(), { data: lspDates }),
+    xAxis: Object.assign({}, xAxis(), { data: window.lspDates }),
     yAxis: yAxis('美元/吨'),
     series: [{
-        type: 'line', data: lspAvg, smooth: true, lineStyle: { color: '#e67e22', width: 3 },
+        type: 'line', data: window.lspAvg, smooth: true, lineStyle: { color: '#e67e22', width: 3 },
         areaStyle: { color: { type: 'linear', x:0,y:0,x2:0,y2:1, colorStops: [{offset:0,color:'rgba(230,126,34,0.2)'},{offset:1,color:'rgba(230,126,34,0.02)'}] } },
         itemStyle: { color: '#e67e22' },
         label: { show: true, position: 'top', formatter: '{c}', fontSize: 9, color: '#e67e22', fontWeight: 'bold' }
@@ -665,10 +665,10 @@ initChart('raw2', {
 initChart('raw3', {
     tooltip: { trigger: 'axis' },
     grid: gridOpt(),
-    xAxis: Object.assign({}, xAxis(), { data: lymDates }),
+    xAxis: Object.assign({}, xAxis(), { data: window.lymDates }),
     yAxis: yAxis('万元/吨'),
     series: [{
-        type: 'line', data: lymAvg, smooth: true, lineStyle: { color: '#9b59b6', width: 3 },
+        type: 'line', data: window.lymAvg, smooth: true, lineStyle: { color: '#9b59b6', width: 3 },
         areaStyle: { color: { type: 'linear', x:0,y:0,x2:0,y2:1, colorStops: [{offset:0,color:'rgba(155,89,182,0.2)'},{offset:1,color:'rgba(155,89,182,0.02)'}] } },
         itemStyle: { color: '#9b59b6' },
         label: { show: true, position: 'top', formatter: '{c}', fontSize: 9, color: '#9b59b6', fontWeight: 'bold' }
@@ -680,7 +680,7 @@ initChart('raw4', {
     tooltip: { trigger: 'axis', axisPointer: { type: 'cross' } },
     legend: { data: ['碳酸锂（元/吨×10）','锂辉石（美元/吨）'], top: 5 },
     grid: gridOpt(),
-    xAxis: Object.assign({}, xAxis(), { data: lspDates }),
+    xAxis: Object.assign({}, xAxis(), { data: window.lspDates }),
     yAxis: [
         { type: 'value', name: '碳酸锂（元/吨）', position: 'left',
           axisLabel: { color: C.textLight, formatter: function(v){return v/10000+'万';} },
@@ -689,9 +689,9 @@ initChart('raw4', {
           axisLabel: { color: '#e67e22' }, splitLine: { show: false } }
     ],
     series: [
-        { name: '碳酸锂（元/吨×10）', type: 'line', data: lcDailyAvg.slice(-10).map(function(v){return v*10000;}),
+        { name: '碳酸锂（元/吨×10）', type: 'line', data: (window.lcDailyAvg||[]).slice(-10).map(function(v){return v*10000;}),
           smooth: true, lineStyle: { color: C.primary, width: 3 }, itemStyle: { color: C.primary } },
-        { name: '锂辉石（美元/吨）', type: 'line', yAxisIndex: 1, data: lspAvg,
+        { name: '锂辉石（美元/吨）', type: 'line', yAxisIndex: 1, data: window.lspAvg,
           smooth: true, lineStyle: { color: '#e67e22', width: 3 }, itemStyle: { color: '#e67e22' } }
     ]
 });
