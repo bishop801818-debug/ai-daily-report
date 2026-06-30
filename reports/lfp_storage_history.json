@@ -1,21 +1,21 @@
 {
   "symbol": "磷酸铁锂储能型",
   "contract": "LFP-储能",
-  "update_time": "2026-06-27 11:57:10",
+  "update_time": "2026-06-30 11:56:55",
   "source": "我的钢铁网(Mysteel)",
   "start_date": "2026-01-06",
-  "end_date": "2026-06-26",
-  "data_points": 98,
+  "end_date": "2026-06-29",
+  "data_points": 99,
   "min_price": 41950,
   "max_price": 66150,
   "latest": {
-    "date": "2026-06-26",
-    "close": 58200,
-    "high": 60400,
-    "low": 56000,
-    "open": 58100,
-    "change": 100,
-    "change_pct": 0.17
+    "date": "2026-06-29",
+    "close": 57300,
+    "high": 59400,
+    "low": 55200,
+    "open": 58200,
+    "change": -900,
+    "change_pct": -1.55
   },
   "history": [
     {
@@ -899,6 +899,15 @@
       "open": 58100,
       "change": 100,
       "change_pct": 0.17
+    },
+    {
+      "date": "2026-06-29",
+      "close": 57300,
+      "high": 59400,
+      "low": 55200,
+      "open": 58200,
+      "change": -900,
+      "change_pct": -1.55
     }
   ]
 }
