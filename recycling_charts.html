@@ -294,9 +294,6 @@ body{font-family:"Microsoft YaHei","PingFang SC",Arial,sans-serif;background:#f0
         if (chgEl && extra !== undefined) chgEl.innerHTML = extra;
       }
 
-        }
-      }
-
       var lm = window.LATEST_MONTH;
       var lmTotal = allBy[lm] ? allBy[lm].total : null;
       var lmYoy   = allBy[lm] ? allBy[lm].yoy : null;
@@ -414,8 +411,8 @@ body{font-family:"Microsoft YaHei","PingFang SC",Arial,sans-serif;background:#f0
     // ── proc rank ──
     init('c-pr-rank', {tooltip:mkTip('axis'),grid:{left:'3%',right:'18%',bottom:'3%',top:'10%',containLabel:true},
       xAxis:{type:'value',axisLabel:mkAx(),splitLine:mkSL()},
-      yAxis:{type:'category',data:TOP10_NAMES.reverse(),axisLabel:{color:C.text,fontSize:11}},
-      series:[{type:'bar',data:TOP10_VALS.reverse(),
+      yAxis:{type:'category',data:window.TOP10_NAMES.reverse(),axisLabel:{color:C.text,fontSize:11}},
+      series:[{type:'bar',data:window.TOP10_VALS.reverse(),
         itemStyle:{color:function(p){return COLORS[p.dataIndex%COLORS.length];},borderRadius:[0,4,4,0]},
         label:{show:true,position:'right',formatter:'{c}',fontSize:10,color:C.textLight}}]
     });
@@ -424,7 +421,7 @@ body{font-family:"Microsoft YaHei","PingFang SC",Arial,sans-serif;background:#f0
     init('c-pr-pie', {tooltip:{trigger:'item',formatter:'{b}: {c}吨 ({d}%)'},
       legend:{orient:'vertical',right:5,top:'center',textStyle:{fontSize:11}},
       series:[{type:'pie',radius:['30%','65%'],center:['40%','50%'],
-        data:PIE_DATA.map(function(d,i){return{name:d[0]+' '+d[1]+'吨',value:d[1],itemStyle:{color:COLORS[i%COLORS.length]}};}),
+        data:window.PIE_DATA.map(function(d,i){return{name:d[0]+' '+d[1]+'吨',value:d[1],itemStyle:{color:COLORS[i%COLORS.length]}};}),
         label:{show:true,formatter:'{b}',fontSize:10,color:'#333'}}]
     });
     
