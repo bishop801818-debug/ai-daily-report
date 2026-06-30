@@ -186,7 +186,7 @@ body{font-family:"Microsoft YaHei","PingFang SC",Arial,sans-serif;background:#f0
           var v = fl(r[valKey]); if (v === null) continue;
           if (!byDate[dd]) byDate[dd] = v;
         }
-        var dates = Object.keys(byDate).sort().reverse();
+        var dates = Object.keys(byDate).sort();
         return { dates: dates, vals: dates.map(function(d){ return byDate[d]; }) };
       }
 
@@ -435,13 +435,13 @@ body{font-family:"Microsoft YaHei","PingFang SC",Arial,sans-serif;background:#f0
     });
     
     // ── battery compare ──
-    var minBL = Math.min(T6_DATES.length, T11_DATES.length);
+    var minBL = Math.min(window.T6_DATES.length, window.T11_DATES.length);
     init('c-bt-compare', {tooltip:mkTip(),legend:{data:['大三元聚合物','铁锂铝壳'],top:5},grid:mkGrid(),
-      xAxis:{type:'category',data:T6_DATES.slice(0,minBL),axisLabel:{color:C.textLight,rotate:30}},
+      xAxis:{type:'category',data:window.T6_DATES.slice(0,minBL),axisLabel:{color:C.textLight,rotate:30}},
       yAxis:{type:'value',name:'万元/吨',axisLabel:mkAx(),splitLine:mkSL(),min:'dataMin'},
       series:[
-        {name:'大三元聚合物',type:'line',data:T6_AVG.slice(0,minBL),smooth:true,lineStyle:{color:C.primary,width:2.5}},
-        {name:'铁锂铝壳',type:'line',data:T11_AVG.slice(0,minBL),smooth:true,lineStyle:{color:C.green,width:2.5}}
+        {name:'大三元聚合物',type:'line',data:window.T6_AVG.slice(0,minBL),smooth:true,lineStyle:{color:C.primary,width:2.5}},
+        {name:'铁锂铝壳',type:'line',data:window.T11_AVG.slice(0,minBL),smooth:true,lineStyle:{color:C.green,width:2.5}}
       ]
     });
     
@@ -462,36 +462,36 @@ body{font-family:"Microsoft YaHei","PingFang SC",Arial,sans-serif;background:#f0
     });
     
     // ── elec aux line ──
-    var minA = Math.min(T17_DATES.length, T18_DATES.length);
+    var minA = Math.min(window.T17_DATES.length, window.T18_DATES.length);
     init('c-el-aux', {tooltip:mkTip(),legend:{data:['铝粉','铜粉'],top:5},grid:mkGrid(),
-      xAxis:{type:'category',data:T17_DATES.slice(0,minA),axisLabel:{color:C.textLight,rotate:30}},
+      xAxis:{type:'category',data:window.T17_DATES.slice(0,minA),axisLabel:{color:C.textLight,rotate:30}},
       yAxis:{type:'value',name:'万元/吨',axisLabel:mkAx(),splitLine:mkSL(),min:'dataMin'},
       series:[
-        {name:'铝粉',type:'line',data:T17_AVG.slice(0,minA),smooth:true,lineStyle:{color:'#78909c',width:2.5}},
-        {name:'铜粉',type:'line',data:T18_AVG.slice(0,minA),smooth:true,lineStyle:{color:'#b87333',width:2.5}}
+        {name:'铝粉',type:'line',data:window.T17_AVG.slice(0,minA),smooth:true,lineStyle:{color:'#78909c',width:2.5}},
+        {name:'铜粉',type:'line',data:window.T18_AVG.slice(0,minA),smooth:true,lineStyle:{color:'#b87333',width:2.5}}
       ]
     });
-    
+
     // ── elec aux bar ──
     init('c-el-aux2', {tooltip:mkTip(),legend:{data:['铝粉','铜粉'],top:5},grid:mkGrid(),
-      xAxis:{type:'category',data:T17_DATES.slice(0,minA),axisLabel:{color:C.textLight,rotate:30}},
+      xAxis:{type:'category',data:window.T17_DATES.slice(0,minA),axisLabel:{color:C.textLight,rotate:30}},
       yAxis:{type:'value',name:'万元/吨',axisLabel:mkAx(),splitLine:mkSL()},
       series:[
-        {name:'铝粉',type:'bar',data:T17_AVG.slice(0,minA),itemStyle:{color:'#78909c',borderRadius:[2,2,0,0]},
+        {name:'铝粉',type:'bar',data:window.T17_AVG.slice(0,minA),itemStyle:{color:'#78909c',borderRadius:[2,2,0,0]},
          label:{show:true,position:'top',formatter:'{c}',fontSize:9,color:C.textLight}},
-        {name:'铜粉',type:'bar',data:T18_AVG.slice(0,minA),itemStyle:{color:'#b87333',borderRadius:[2,2,0,0]},
+        {name:'铜粉',type:'bar',data:window.T18_AVG.slice(0,minA),itemStyle:{color:'#b87333',borderRadius:[2,2,0,0]},
          label:{show:true,position:'top',formatter:'{c}',fontSize:9,color:C.textLight}}
       ]
     });
-    
+
     // ── black compare ──
     init('c-bk-compare', {tooltip:mkTip(),legend:{data:['钴酸锂电池粉','石墨粉','铁锂极片粉'],top:5},grid:mkGrid(),
-      xAxis:{type:'category',data:T19_DATES.slice(0,window.MIN3),axisLabel:{color:C.textLight,rotate:30}},
+      xAxis:{type:'category',data:window.T19_DATES.slice(0,window.MIN3),axisLabel:{color:C.textLight,rotate:30}},
       yAxis:{type:'value',name:'万元/吨',axisLabel:mkAx(),splitLine:mkSL(),min:'dataMin'},
       series:[
-        {name:'钴酸锂电池粉',type:'line',data:T19_AVG.slice(0,window.MIN3),smooth:true,lineStyle:{color:C.primary,width:2.5}},
-        {name:'石墨粉',type:'line',data:T23_AVG.slice(0,window.MIN3),smooth:true,lineStyle:{color:'#607d8b',width:2}},
-        {name:'铁锂极片粉',type:'line',data:T25_AVG.slice(0,window.MIN3),smooth:true,lineStyle:{color:C.green,width:2.5}}
+        {name:'钴酸锂电池粉',type:'line',data:window.T19_AVG.slice(0,window.MIN3),smooth:true,lineStyle:{color:C.primary,width:2.5}},
+        {name:'石墨粉',type:'line',data:window.T23_AVG.slice(0,window.MIN3),smooth:true,lineStyle:{color:'#607d8b',width:2}},
+        {name:'铁锂极片粉',type:'line',data:window.T25_AVG.slice(0,window.MIN3),smooth:true,lineStyle:{color:C.green,width:2.5}}
       ]
     });
     
@@ -520,13 +520,13 @@ body{font-family:"Microsoft YaHei","PingFang SC",Arial,sans-serif;background:#f0
     });
     
     // ── bk NCM523 battery powder vs cobalt ──
-    var minBC = Math.min(T19_DATES.length, T21_DATES.length);
+    var minBC = Math.min(window.T19_DATES.length, window.T21_DATES.length);
     init('c-bk-ncm-co', {tooltip:mkTip(),legend:{data:['钴酸锂电池粉','三元523电池粉'],top:5},grid:mkGrid(),
-      xAxis:{type:'category',data:T19_DATES.slice(0,minBC),axisLabel:{color:C.textLight,rotate:30}},
+      xAxis:{type:'category',data:window.T19_DATES.slice(0,minBC),axisLabel:{color:C.textLight,rotate:30}},
       yAxis:{type:'value',name:'万元/吨',axisLabel:mkAx(),splitLine:mkSL(),min:'dataMin'},
       series:[
-        {name:'钴酸锂电池粉',type:'line',data:T19_AVG.slice(0,minBC),smooth:true,lineStyle:{color:C.primary,width:2.5}},
-        {name:'三元523电池粉',type:'line',data:T21_AVG.slice(0,minBC),smooth:true,lineStyle:{color:C.orange,width:2.5}}
+        {name:'钴酸锂电池粉',type:'line',data:window.T19_AVG.slice(0,minBC),smooth:true,lineStyle:{color:C.primary,width:2.5}},
+        {name:'三元523电池粉',type:'line',data:window.T21_AVG.slice(0,minBC),smooth:true,lineStyle:{color:C.orange,width:2.5}}
       ]
     });
     
@@ -547,14 +547,14 @@ body{font-family:"Microsoft YaHei","PingFang SC",Arial,sans-serif;background:#f0
     });
     
     // ── bt 三元铝壳 vs 聚合物 ──
-    var minB3 = Math.min(T6_DATES.length, T7_DATES.length);
+    var minB3 = Math.min(window.T6_DATES.length, window.T7_DATES.length);
     init('c-bt-alu3', {tooltip:mkTip(),legend:{data:['大三元聚合物','大三元铝壳'],top:5},grid:mkGrid(),
-      xAxis:{type:'category',data:T6_DATES.slice(0,minB3),axisLabel:{color:C.textLight,rotate:30}},
+      xAxis:{type:'category',data:window.T6_DATES.slice(0,minB3),axisLabel:{color:C.textLight,rotate:30}},
       yAxis:{type:'value',name:'万元/吨',axisLabel:mkAx(),splitLine:mkSL(),min:'dataMin'},
       series:[
-        {name:'大三元聚合物',type:'line',data:T6_AVG.slice(0,minB3),smooth:true,lineStyle:{color:C.primary,width:2.5},
+        {name:'大三元聚合物',type:'line',data:window.T6_AVG.slice(0,minB3),smooth:true,lineStyle:{color:C.primary,width:2.5},
          areaStyle:mkArea('rgb(30,60,114)')},
-        {name:'大三元铝壳',type:'line',data:T7_AVG.slice(0,minB3),smooth:true,lineStyle:{color:C.accent,width:2.5},
+        {name:'大三元铝壳',type:'line',data:window.T7_AVG.slice(0,minB3),smooth:true,lineStyle:{color:C.accent,width:2.5},
          areaStyle:mkArea('rgb(79,172,254)')}
       ]
     });
@@ -568,26 +568,26 @@ body{font-family:"Microsoft YaHei","PingFang SC",Arial,sans-serif;background:#f0
     });
     
     // ── bt 铁锂钢壳 vs 铝壳 ──
-    var minLFP = Math.min(T10_DATES.length, T11_DATES.length);
+    var minLFP = Math.min(window.T10_DATES.length, window.T11_DATES.length);
     init('c-bt-lfp-steel', {tooltip:mkTip(),legend:{data:['铁锂钢壳','铁锂铝壳'],top:5},grid:mkGrid(),
-      xAxis:{type:'category',data:T10_DATES.slice(0,minLFP),axisLabel:{color:C.textLight,rotate:30}},
+      xAxis:{type:'category',data:window.T10_DATES.slice(0,minLFP),axisLabel:{color:C.textLight,rotate:30}},
       yAxis:{type:'value',name:'万元/吨',axisLabel:mkAx(),splitLine:mkSL(),min:'dataMin'},
       series:[
-        {name:'铁锂钢壳',type:'line',data:T10_AVG.slice(0,minLFP),smooth:true,lineStyle:{color:C.secondary,width:2.5},
+        {name:'铁锂钢壳',type:'line',data:window.T10_AVG.slice(0,minLFP),smooth:true,lineStyle:{color:C.secondary,width:2.5},
          areaStyle:mkArea('rgb(74,111,165)')},
-        {name:'铁锂铝壳',type:'line',data:T11_AVG.slice(0,minLFP),smooth:true,lineStyle:{color:C.green,width:2.5},
+        {name:'铁锂铝壳',type:'line',data:window.T11_AVG.slice(0,minLFP),smooth:true,lineStyle:{color:C.green,width:2.5},
          areaStyle:mkArea('rgb(76,175,80)')}
       ]
     });
-    
+
     // ── el 负极片 vs 铁锂正极片 ──
-    var minElec = Math.min(T12_DATES.length, T16_DATES.length);
+    var minElec = Math.min(window.T12_DATES.length, window.T16_DATES.length);
     init('c-el-neg-vs-lfp', {tooltip:mkTip(),legend:{data:['负极片','铁锂正极片'],top:5},grid:mkGrid(),
-      xAxis:{type:'category',data:T12_DATES.slice(0,minElec),axisLabel:{color:C.textLight,rotate:30}},
+      xAxis:{type:'category',data:window.T12_DATES.slice(0,minElec),axisLabel:{color:C.textLight,rotate:30}},
       yAxis:{type:'value',name:'万元/吨',axisLabel:mkAx(),splitLine:mkSL(),min:'dataMin'},
       series:[
-        {name:'负极片',type:'line',data:T12_AVG.slice(0,minElec),smooth:true,lineStyle:{color:C.secondary,width:2.5}},
-        {name:'铁锂正极片',type:'line',data:T16_AVG.slice(0,minElec),smooth:true,lineStyle:{color:C.orange,width:2.5}}
+        {name:'负极片',type:'line',data:window.T12_AVG.slice(0,minElec),smooth:true,lineStyle:{color:C.secondary,width:2.5}},
+        {name:'铁锂正极片',type:'line',data:window.T16_AVG.slice(0,minElec),smooth:true,lineStyle:{color:C.orange,width:2.5}}
       ]
     });
     
