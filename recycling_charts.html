@@ -272,6 +272,14 @@ body{font-family:"Microsoft YaHei","PingFang SC",Arial,sans-serif;background:#f0
         window[p[0]+'_AVG']   = r.vals;
       }
 
+      // 确保T24数据正确（直连赋值，防止循环赋值异常）
+      var _r24 = extractPrice('黑粉价格-铁锂电池粉加工费', '今日均价');
+      window.T24_DATES = _r24.dates;
+      window.T24_AVG   = _r24.vals;
+      var _r26 = extractPrice('黑粉价格-铁锂极片粉加工费', '今日均价');
+      window.T26_DATES = _r26.dates;
+      window.T26_AVG   = _r26.vals;
+
       window.MIN3 = Math.min(
         window.T19_DATES ? window.T19_DATES.length : 0,
         window.T23_DATES ? window.T23_DATES.length : 0,
