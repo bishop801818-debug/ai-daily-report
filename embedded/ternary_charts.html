@@ -350,23 +350,24 @@ function fmtMonth(m) {
 }
 function fmtDate(d) {
     var s = d['日期'] || d['月份'] || d['当前日期'] || '';
-    if (s.length === 10) return s.slice(5);
+    if (s.length === 10) return s.slice(5);       // YYYY-MM-DD → MM-DD
+    if (s.length >= 10) return s.slice(5, 10);    // YYYY-MM-DD 00:00:00 → MM-DD
     return s;
 }
 function getLastNMonths(data, n) {
     var seen = {}, result = [];
-    for (var i = data.length-1; i>=0; i--) {
+    for (var i = 0; i < data.length && result.length < n; i++) {
         var key = data[i]['月份'] || data[i]['日期'];
-        if (!seen[key]) { seen[key]=true; result.unshift(data[i]); if (result.length>=n) break; }
+        if (!seen[key]) { seen[key]=true; result.push(data[i]); }
     }
     return result;
 }
 function getLastNDays(data, n) {
     var seen = {}, result = [];
     var dateKey = data[0] && data[0]['当前日期'] ? '当前日期' : (data[0] && data[0]['日期'] ? '日期' : '月份');
-    for (var i = data.length-1; i>=0; i--) {
+    for (var i = 0; i < data.length && result.length < n; i++) {
         var key = data[i][dateKey];
-        if (!seen[key]) { seen[key]=true; result.unshift(data[i]); if (result.length>=n) break; }
+        if (!seen[key]) { seen[key]=true; result.push(data[i]); }
     }
     return result;
 }
@@ -443,21 +444,21 @@ document.getElementById('data-time').textContent = EMBEDDED_DATA.update_time || 
     var ncmLast12 = getLastNMonths(ncmInd, 12);
     var preLast12 = getLastNMonths(preInd, 12);
 
-    // Stat cards
+    // Stat cards (数据倒序存储: index 0 = 最新)
     if (ncmInd.length) {
-        var last = ncmInd[ncmInd.length-1];
+        var last = ncmInd[0];
         document.getElementById('stat-ncm-output').innerHTML = (toNum(last['月度产量'])/10000).toFixed(2) + '<span class="unit">万吨</span>';
         document.getElementById('stat-ncm-date').textContent = last['月份'] + ' | 利用率 ' + (last['产能利用率']||'—');
     }
     if (preInd.length) {
-        var last = preInd[preInd.length-1];
+        var last = preInd[0];
         document.getElementById('stat-pre-output').innerHTML = (toNum(last['月度产量'])/10000).toFixed(2) + '<span class="unit">万吨</span>';
         document.getElementById('stat-pre-date').textContent = last['月份'] + ' | 利用率 ' + (last['产能利用率']||'—');
     }
     // NCM811 latest price
     var ncmPrice = getTable('NCM-现货市场价');
     if (ncmPrice.length) {
-        var last = ncmPrice[ncmPrice.length-1];
+        var last = ncmPrice[0];
         var dk = Object.keys(last)[0];
         var col811 = Object.keys(last).find(function(k){ return k.indexOf('811')>=0 && k.endsWith('均价'); });
         if (col811) {
@@ -468,7 +469,7 @@ document.getElementById('data-time').textContent = EMBEDDED_DATA.update_time || 
     // Cobalt price
     var rawPrice = getTable('关键原料-现货市场价');
     if (rawPrice.length) {
-        var last = rawPrice[rawPrice.length-1];
+        var last = rawPrice[0];
         var dk = Object.keys(last)[0];
         var colCo = Object.keys(last).find(function(k){ return k.endsWith('均价'); });
         if (colCo) {
@@ -477,10 +478,10 @@ document.getElementById('data-time').textContent = EMBEDDED_DATA.update_time || 
         }
     }
 
-    // ov1: NCM vs Precursor output bar chart
-    var months = ncmLast12.map(fmtMonth);
-    var ncmOut = ncmLast12.map(function(d){ return toNum(d['月度产量']); });
-    var preOut = preLast12.map(function(d){ return toNum(d['月度产量']); });
+    // ov1: NCM vs Precursor output bar chart (数据倒序: reverse→升序)
+    var months = ncmLast12.map(fmtMonth).reverse();
+    var ncmOut = ncmLast12.map(function(d){ return toNum(d['月度产量']); }).reverse();
+    var preOut = preLast12.map(function(d){ return toNum(d['月度产量']); }).reverse();
     initChart('ov1', {
         tooltip: { trigger: 'axis' },
         legend: { data: ['NCM正极','前驱体'], top: 5 },
@@ -494,7 +495,7 @@ document.getElementById('data-time').textContent = EMBEDDED_DATA.update_time || 
     });
 
     // ov2: NCM util rate
-    var ncmUtil = ncmLast12.map(function(d){ return parseFloat((d['产能利用率']||'0').replace('%','')); });
+    var ncmUtil = ncmLast12.map(function(d){ return parseFloat((d['产能利用率']||'0').replace('%','')); }).reverse();
     initChart('ov2', {
         tooltip: { trigger: 'axis', formatter: '{b}: {c}%' },
         grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
@@ -504,8 +505,8 @@ document.getElementById('data-time').textContent = EMBEDDED_DATA.update_time || 
     });
 
     // ov3: Precursor util rate
-    var preUtil = preLast12.map(function(d){ return parseFloat((d['产能利用率']||'0').replace('%','')); });
-    var preMonths = preLast12.map(fmtMonth);
+    var preUtil = preLast12.map(function(d){ return parseFloat((d['产能利用率']||'0').replace('%','')); }).reverse();
+    var preMonths = preLast12.map(fmtMonth).reverse();
     initChart('ov3', {
         tooltip: { trigger: 'axis', formatter: '{b}: {c}%' },
         grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
@@ -527,8 +528,8 @@ document.getElementById('data-time').textContent = EMBEDDED_DATA.update_time || 
     var ncmExpPartner = getTable('NCM-出口目的地');
 
     // ca1: NCM产量走势 (line + area, all data)
-    var allMonths = ncmInd.map(fmtMonth);
-    var allOut = ncmInd.map(function(d){ return toNum(d['月度产量']); });
+    var allMonths = ncmInd.map(fmtMonth).reverse();
+    var allOut = ncmInd.map(function(d){ return toNum(d['月度产量']); }).reverse();
     initChart('ca1', {
         tooltip: { trigger: 'axis' },
         grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
@@ -542,13 +543,13 @@ document.getElementById('data-time').textContent = EMBEDDED_DATA.update_time || 
         var modelHeaders = Object.keys(ncmModel[0]);
         var fixedCols = ['日期','月份'];
         var modelCols = modelHeaders.filter(function(h){ return fixedCols.indexOf(h)<0; });
-        var modelMonths = ncmModel.map(function(d){ return fmtMonth(d); });
+        var modelMonths = ncmModel.map(function(d){ return fmtMonth(d); }).reverse();
         var seriesData = modelCols.map(function(mc, i) {
             return {
                 name: mc.replace('NCM',''),
                 type: 'bar',
                 stack: 'total',
-                data: ncmModel.map(function(d){ return toNum(d[mc]); }),
+                data: ncmModel.map(function(d){ return toNum(d[mc]); }).reverse(),
                 itemStyle: { color: COLORS[i % COLORS.length] }
             };
         });
@@ -615,7 +616,7 @@ document.getElementById('data-time').textContent = EMBEDDED_DATA.update_time || 
         });
         if (selectedModels.length === 0 && priceModels.length > 0) selectedModels = priceModels.slice(0, 4);
 
-        var priceData = getLastNDays(ncmPrice, 90);
+        var priceData = getLastNDays(ncmPrice, 90).reverse();
         var priceLabels = makeDateLabels(priceData, 7, '当前日期');
         var priceSeries = selectedModels.map(function(m, i) {
             return {
@@ -639,8 +640,8 @@ document.getElementById('data-time').textContent = EMBEDDED_DATA.update_time || 
     // ca6: Export volume trend
     if (ncmExport.length) {
         var exp12 = getLastNMonths(ncmExport, 12);
-        var expMonths = exp12.map(fmtMonth);
-        var expVol = exp12.map(function(d){ return toNum(d['出口量（吨）']); });
+        var expMonths = exp12.map(fmtMonth).reverse();
+        var expVol = exp12.map(function(d){ return toNum(d['出口量（吨）']); }).reverse();
         initChart('ca6', {
             tooltip: { trigger: 'axis' },
             grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
@@ -683,8 +684,8 @@ document.getElementById('data-time').textContent = EMBEDDED_DATA.update_time || 
     var preExpPartner = getTable('NCMpre-出口目的地');
 
     // pr1: Precursor output line
-    var allMonths = preInd.map(fmtMonth);
-    var allOut = preInd.map(function(d){ return toNum(d['月度产量']); });
+    var allMonths = preInd.map(fmtMonth).reverse();
+    var allOut = preInd.map(function(d){ return toNum(d['月度产量']); }).reverse();
     initChart('pr1', {
         tooltip: { trigger: 'axis' },
         grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
@@ -698,12 +699,12 @@ document.getElementById('data-time').textContent = EMBEDDED_DATA.update_time || 
         var modelHeaders = Object.keys(preModel[0]);
         var fixedCols = ['日期','月份'];
         var modelCols = modelHeaders.filter(function(h){ return fixedCols.indexOf(h)<0; });
-        var modelMonths = preModel.map(function(d){ return fmtMonth(d); });
+        var modelMonths = preModel.map(function(d){ return fmtMonth(d); }).reverse();
         var seriesData = modelCols.map(function(mc, i) {
             return {
                 name: mc.replace('NCMpre','').replace('NCApre','NCA'),
                 type: 'bar', stack: 'total',
-                data: preModel.map(function(d){ return toNum(d[mc]); }),
+                data: preModel.map(function(d){ return toNum(d[mc]); }).reverse(),
                 itemStyle: { color: COLORS[i % COLORS.length] }
             };
         });
@@ -767,7 +768,7 @@ document.getElementById('data-time').textContent = EMBEDDED_DATA.update_time || 
         });
         if (selectedModels.length===0 && priceModels.length>0) selectedModels = priceModels.slice(0,3);
 
-        var priceData = getLastNDays(prePrice, 90);
+        var priceData = getLastNDays(prePrice, 90).reverse();
         var priceLabels = makeDateLabels(priceData, 7, '当前日期');
         var priceSeries = selectedModels.map(function(m, i) {
             return {
@@ -789,8 +790,8 @@ document.getElementById('data-time').textContent = EMBEDDED_DATA.update_time || 
     // pr6: Export trend
     if (preExport.length) {
         var exp12 = getLastNMonths(preExport, 12);
-        var expMonths = exp12.map(fmtMonth);
-        var expVol = exp12.map(function(d){ return toNum(d['出口量（吨）']); });
+        var expMonths = exp12.map(fmtMonth).reverse();
+        var expVol = exp12.map(function(d){ return toNum(d['出口量（吨）']); }).reverse();
         initChart('pr6', {
             tooltip: { trigger: 'axis' },
             grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
@@ -858,7 +859,7 @@ document.getElementById('data-time').textContent = EMBEDDED_DATA.update_time || 
     // rw1: Raw material prices multi-line
     if (rawPrice.length) {
         var rpModels = getPriceModels(rawPrice);
-        var rpData = getLastNDays(rawPrice, 90);
+        var rpData = getLastNDays(rawPrice, 90).reverse();
         var rpLabels = makeDateLabels(rpData, 7, '当前日期');
         var rpSeries = rpModels.map(function(m, i) {
             return {
@@ -879,7 +880,7 @@ document.getElementById('data-time').textContent = EMBEDDED_DATA.update_time || 
 
     // rw2: Cobalt sulfate price band
     if (rawPrice.length) {
-        var coData = getLastNDays(rawPrice, 90);
+        var coData = getLastNDays(rawPrice, 90).reverse();
         var coLabels = makeDateLabels(coData, 7, '当前日期');
         var coModel = getPriceModels(rawPrice).find(function(m){ return m.name.indexOf('钴')>=0; });
         if (coModel) {
@@ -901,7 +902,7 @@ document.getElementById('data-time').textContent = EMBEDDED_DATA.update_time || 
     if (rawPrice.length) {
         var niModel = getPriceModels(rawPrice).find(function(m){ return m.name.indexOf('镍')>=0; });
         if (niModel) {
-            var niData = getLastNDays(rawPrice, 90);
+            var niData = getLastNDays(rawPrice, 90).reverse();
             var niLabels = makeDateLabels(niData, 7, '当前日期');
             initChart('rw3', {
                 tooltip: { trigger: 'axis' },
@@ -919,9 +920,9 @@ document.getElementById('data-time').textContent = EMBEDDED_DATA.update_time || 
 
     // rw4: 四氧化三钴 output + util rate
     if (coInd.length) {
-        var coMonths = coInd.map(fmtMonth);
-        var coOutput = coInd.map(function(d){ return toNum(d['月度产量']); });
-        var coUtil = coInd.map(function(d){ return parseFloat((d['产能利用率']||'0').replace('%','')); });
+        var coMonths = coInd.map(fmtMonth).reverse();
+        var coOutput = coInd.map(function(d){ return toNum(d['月度产量']); }).reverse();
+        var coUtil = coInd.map(function(d){ return parseFloat((d['产能利用率']||'0').replace('%','')); }).reverse();
         initChart('rw4', {
             tooltip: { trigger: 'axis' },
             legend: { data: ['月度产量','产能利用率'], top: 5 },
@@ -943,7 +944,7 @@ document.getElementById('data-time').textContent = EMBEDDED_DATA.update_time || 
         var coPM = getPriceModels(coPrice);
         if (coPM.length) {
             var m = coPM[0];
-            var cpData = getLastNDays(coPrice, 90);
+            var cpData = getLastNDays(coPrice, 90).reverse();
             var cpLabels = makeDateLabels(cpData, 7, '当前日期');
             initChart('rw5', {
                 tooltip: { trigger: 'axis' },
@@ -966,5 +967,54 @@ window.addEventListener('resize', function() {
 });
 </script>
     <script src="assets/ai_fab_inject.js"></script>
+
+<!-- __AUTO_REFRESH__ -->
+<script>
+(function() {
+  var _js = "ternary_embedded_data.js";
+  var _lastVer = null;
+
+  function _readVer() {
+    try { return (window[_js.replace('.js','').replace(/-/g,'_').replace(/ /g,'')] || {}).update_time || null; }
+    catch(e) { return null; }
+  }
+
+  function _fetchVer(cb) {
+    var s = document.createElement('script');
+    s.src = _js + '?t=' + Date.now();
+    s.onload = function() { cb(_readVer()); s.remove(); };
+    s.onerror = function() { cb(null); s.remove(); };
+    document.head.appendChild(s);
+  }
+
+  function _showBanner() {
+    if (document.getElementById('__ar_banner__')) return;
+    var b = document.createElement('div');
+    b.id = '__ar_banner__';
+    b.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:99999;background:#1a73e8;color:#fff;'
+      + 'text-align:center;padding:10px 20px;font-size:14px;font-family:sans-serif;'
+      + 'display:flex;align-items:center;justify-content:center;gap:16px;box-shadow:0 2px 8px rgba(0,0,0,0.2);';
+    b.innerHTML = '\uD83D\uDCCA 数据已更新至新版本 &nbsp;'
+      + '<button onclick="location.reload()" style="background:#fff;color:#1a73e8;border:none;'
+      + 'padding:5px 14px;border-radius:4px;cursor:pointer;font-size:13px;font-weight:bold;">刷新页面</button>'
+      + '<button onclick="this.parentElement.style.display=\'none\'" style="background:rgba(255,255,255,0.2);'
+      + 'color:#fff;border:1px solid rgba(255,255,255,0.6);padding:5px 12px;border-radius:4px;'
+      + 'cursor:pointer;font-size:13px;">稍后</button>';
+    document.body.appendChild(b);
+  }
+
+  _lastVer = _readVer();
+
+  // 每 60 秒检测一次
+  setInterval(function() {
+    _fetchVer(function(ver) {
+      if (ver && ver !== _lastVer) {
+        _lastVer = ver;
+        _showBanner();
+      }
+    });
+  }, 60000);
+})();
+</script>
 </body>
 </html>

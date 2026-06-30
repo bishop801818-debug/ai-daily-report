@@ -73,6 +73,80 @@ def git_add_targeted(files):
         else:
             print(f"  [skip] {f_unix} (不存在)")
 
+# ══════════════════════════════════════════════════════════════
+# auto-refresh: 注入自动刷新逻辑到 charts.html
+# ══════════════════════════════════════════════════════════════
+AUTO_REFRESH_MARKER = "<!-- __AUTO_REFRESH__ -->"
+
+def build_auto_refresh(js_file):
+    """生成自动刷新代码片段"""
+    return f"""
+{AUTO_REFRESH_MARKER}
+<script>
+(function() {{
+  var _js = "{js_file}";
+  var _lastVer = null;
+
+  function _readVer() {{
+    try {{ return (window[_js.replace('.js','').replace(/-/g,'_').replace(/ /g,'')] || {{}}).update_time || null; }}
+    catch(e) {{ return null; }}
+  }}
+
+  function _fetchVer(cb) {{
+    var s = document.createElement('script');
+    s.src = _js + '?t=' + Date.now();
+    s.onload = function() {{ cb(_readVer()); s.remove(); }};
+    s.onerror = function() {{ cb(null); s.remove(); }};
+    document.head.appendChild(s);
+  }}
+
+  function _showBanner() {{
+    if (document.getElementById('__ar_banner__')) return;
+    var b = document.createElement('div');
+    b.id = '__ar_banner__';
+    b.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:99999;background:#1a73e8;color:#fff;'
+      + 'text-align:center;padding:10px 20px;font-size:14px;font-family:sans-serif;'
+      + 'display:flex;align-items:center;justify-content:center;gap:16px;box-shadow:0 2px 8px rgba(0,0,0,0.2);';
+    b.innerHTML = '\\uD83D\\uDCCA 数据已更新至新版本 &nbsp;'
+      + '<button onclick="location.reload()" style="background:#fff;color:#1a73e8;border:none;'
+      + 'padding:5px 14px;border-radius:4px;cursor:pointer;font-size:13px;font-weight:bold;">刷新页面</button>'
+      + '<button onclick="this.parentElement.style.display=\\'none\\'" style="background:rgba(255,255,255,0.2);'
+      + 'color:#fff;border:1px solid rgba(255,255,255,0.6);padding:5px 12px;border-radius:4px;'
+      + 'cursor:pointer;font-size:13px;">稍后</button>';
+    document.body.appendChild(b);
+  }}
+
+  _lastVer = _readVer();
+
+  // 每 60 秒检测一次
+  setInterval(function() {{
+    _fetchVer(function(ver) {{
+      if (ver && ver !== _lastVer) {{
+        _lastVer = ver;
+        _showBanner();
+      }}
+    }});
+  }}, 60000);
+}})();
+</script>"""
+
+def inject_auto_refresh(chart_path, js_file):
+    """给单个 charts.html 注入自动刷新逻辑（如未注入过）"""
+    if not os.path.exists(chart_path):
+        return False
+    with open(chart_path, 'r', encoding='utf-8') as f:
+        content = f.read()
+    if AUTO_REFRESH_MARKER in content:
+        return False
+    marker = build_auto_refresh(js_file)
+    if '</body>' in content:
+        content = content.replace('</body>', marker + '\n</body>')
+    elif '</html>' in content:
+        content = content.replace('</html>', marker + '\n</html>')
+    with open(chart_path, 'w', encoding='utf-8') as f:
+        f.write(content)
+    return True
+
 # ── Step 1: 更新数据库 (import_all.py) ──────────────────────
 if MODE in ("full", "data"):
     print("\n\n>>> Step 1: 运行 import_all.py 更新 7 个 embedded JS")
@@ -87,7 +161,7 @@ if MODE in ("full", "charts"):
     if not os.path.exists(embedded_dir):
         print(f"[WARN] embedded/ 目录不存在，跳过同步")
     else:
-        for _, chart in DB_FILES:
+        for js, chart in DB_FILES:
             src = os.path.join(BASE, chart)
             dst = os.path.join(embedded_dir, chart)
             if os.path.exists(src):
@@ -96,6 +170,10 @@ if MODE in ("full", "charts"):
                 with open(dst, 'w', encoding='utf-8') as f:
                     f.write(content)
                 print(f"  [sync] {chart} → embedded/")
+                # 注入 auto-refresh（如未注入）
+                inj = inject_auto_refresh(src, js)
+                if inj:
+                    print(f"  [auto-refresh] {chart} 已注入自动刷新逻辑")
             else:
                 print(f"  [skip] {chart} (源文件不存在)")
 else:
