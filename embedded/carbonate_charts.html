@@ -366,10 +366,13 @@ function num(v) { var n = parseFloat(String(v).replace(/,/g,'')); return isNaN(n
     window.lhCompNames  = lhComp.map(function(r){ return r['企业名称'] || ''; });
     window.lhCompOutput = lhComp.map(function(r){ return num(r['产量（吨）']); });
 
-    // 碳酸锂出口贸易伙伴（最新月份）
-    var lcPt = getTable('碳酸锂-出口贸易伙伴').slice(0, 10);
-    window.lcExportPartners = lcPt.map(function(r){ return r['贸易伙伴名称'] || ''; });
-    window.lcExportVols     = lcPt.map(function(r){ return num(r['出口量（吨）']); });
+    // 碳酸锂出口贸易伙伴（按国家聚合，取最新月份TOP10）
+    var raw = getTable('碳酸锂-出口贸易伙伴');
+    var byPartner = {};
+    raw.forEach(function(r){ var k = r['贸易伙伴名称']||''; if(k) byPartner[k] = (byPartner[k]||0) + num(r['出口量（吨）']); });
+    var sorted = Object.entries(byPartner).sort(function(a,b){ return b[1]-a[1]; }).slice(0,10);
+    window.lcExportPartners = sorted.map(function(p){ return p[0]; });
+    window.lcExportVols     = sorted.map(function(p){ return p[1]; });
 
     // 动态更新 stat card
     var lc0 = (getTable('碳酸锂-行业总产量'))[0] || {};
@@ -541,16 +544,16 @@ initChart('lc4', {
     }]
 });
 
-// LC5: 碳酸锂出口贸易伙伴（示例数据）
+// LC5: 碳酸锂出口贸易伙伴（最新月份TOP10）
 initChart('lc5', {
     tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
     grid: { left: '3%', right: '15%', bottom: '3%', containLabel: true },
     xAxis: { type: 'value', splitLine: { lineStyle: { color: C.border } } },
-    yAxis: { type: 'category', data: ['日本','韩国','印度','印尼','中国台湾','马来西亚','越南','泰国','美国'].reverse(), axisLabel: { color: C.text } },
+    yAxis: { type: 'category', data: (window.lcExportPartners||[]).reverse(), axisLabel: { color: C.text } },
     series: [{
-        type: 'bar', data: [5800,4200,2100,1200,980,650,540,320,210].reverse(),
+        type: 'bar', data: (window.lcExportVols||[]).reverse(),
         itemStyle: { color: function(p){ return p.dataIndex < 3 ? C.primary : C.secondary; }, borderRadius: [0,4,4,0] },
-        label: { show: true, position: 'right', formatter: '{c}吨', fontSize: 9, color: C.textLight }
+        label: { show: true, position: 'right', formatter: function(p){ return (p.value/10000).toFixed(1)+'万'; }, fontSize: 9, color: C.textLight }
     }]
 });
 
