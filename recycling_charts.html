@@ -261,7 +261,7 @@ body{font-family:"Microsoft YaHei","PingFang SC",Arial,sans-serif;background:#f0
         ['T20', '黑粉价格-钴酸锂极片粉',           '今日均价'],
         ['T21', '黑粉价格-三元523电池粉',          '今日均价'],
         ['T23', '黑粉价格-石墨粉',                 '今日均价'],
-        ['T24', '黑粉价格-铁锂电池粉加工费',      '今日均价'],
+        ['T24', '黑粉价格-磷酸铁锂电池粉加工费',   '今日均价'],
         ['T25', '黑粉价格-铁锂极片粉',             '今日均价'],
         ['T26', '黑粉价格-铁锂极片粉加工费',       '今日均价'],
       ];
@@ -342,14 +342,11 @@ body{font-family:"Microsoft YaHei","PingFang SC",Arial,sans-serif;background:#f0
     function mkArea(rgb, op) { return { type:'linear', x:0,y:0,x2:0,y2:1, colorStops:[{offset:0,color:rgb.replace(')',','+(op||0.18)+')').replace('rgb','rgba')},{offset:1,color:'rgba(255,255,255,0.02)'}] }; };
     function init(id, opt) {
       var d=document.getElementById(id); if(!d) return;
-      var c=echarts.init(d);
       if (d.clientWidth === 0 || d.clientHeight === 0) {
-        // Hidden tab: store opt, don't render yet
         _lazyOpts[id] = opt;
-      } else {
-        c.setOption(opt);
+        return null;
       }
-      return c;
+      var c=echarts.init(d); c.setOption(opt); return c;
     }
     
     document.getElementById('updateTime').textContent = window.UPDATE_TIME;
@@ -611,10 +608,11 @@ body{font-family:"Microsoft YaHei","PingFang SC",Arial,sans-serif;background:#f0
     });
     
     // ── tab switch ──
-    var _tabChartMap = {
-      battery:  ['c-bt-alu3','c-bt-523','c-bt-compare','c-bt-lfp-steel','c-bt-cobalt','c-bt-lfp'],
-      electrode:['c-el-neg-vs-lfp','c-el-lfp','c-el-ncm523','c-el-aux','c-el-aux2'],
-      black:    ['c-bk-compare','c-bk-cobalt','c-bk-graphite','c-bk-cobalt-el','c-bk-ncm-co','c-bk-lfp-pf','c-bk-lfp-el-pf'],
+    var _tabChartIds = {
+      processing: ['c-pr-total','c-pr-compare','c-pr-rank','c-pr-pie'],
+      battery:    ['c-bt-alu3','c-bt-523','c-bt-compare','c-bt-lfp-steel','c-bt-cobalt','c-bt-lfp'],
+      electrode:  ['c-el-neg-vs-lfp','c-el-lfp','c-el-ncm523','c-el-aux','c-el-aux2'],
+      black:      ['c-bk-compare','c-bk-cobalt','c-bk-graphite','c-bk-cobalt-el','c-bk-ncm-co','c-bk-lfp-pf','c-bk-lfp-el-pf'],
     };
 
     function switchTab(tab) {
@@ -624,21 +622,22 @@ body{font-family:"Microsoft YaHei","PingFang SC",Arial,sans-serif;background:#f0
       for(var i=0;i<btns.length;i++){ if(btns[i].getAttribute('onclick').indexOf(tab)>=0) btns[i].classList.add('active'); }
       var c = document.getElementById('tab-'+tab); if(c) c.classList.add('active');
 
-      var ids = _tabChartMap[tab] || [];
       setTimeout(function() {
+        var ids = _tabChartIds[tab] || [];
         ids.forEach(function(id) {
-          var d = document.getElementById(id);
-          if (!d) return;
-          var inst = echarts.getInstanceByDom(d);
-          if (!inst && _lazyOpts[id]) {
-            inst = echarts.init(d);
-            inst.setOption(_lazyOpts[id]);
+          if (_lazyOpts[id]) {
+            var d = document.getElementById(id);
+            if (d) {
+              var inst = echarts.init(d);
+              inst.setOption(_lazyOpts[id]);
+              delete _lazyOpts[id];
+            }
           }
-          if (inst) inst.resize();
+          var d2 = document.getElementById(id);
+          if (d2) { var inst2 = echarts.getInstanceByDom(d2); if(inst2) inst2.resize(); }
         });
-      }, 80);
+      }, 100);
     }
-
     window.addEventListener('resize',function(){
       document.querySelectorAll('.chart-ctn').forEach(function(d){ var inst=echarts.getInstanceByDom(d); if(inst) inst.resize(); });
     });
