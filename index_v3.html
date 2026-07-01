@@ -3332,7 +3332,6 @@
             position: relative;
             height: 300px;
             border-radius: 12px;
-            overflow: hidden;
             margin-bottom: 24px;
             box-shadow: 0 2px 16px rgba(7,82,54,0.06);
         }
@@ -3344,6 +3343,8 @@
             object-fit: cover;
             object-position: center top;
             z-index: 0;
+            border-radius: 12px;
+            overflow: hidden;
         }
 
         .hero-overlay {
@@ -3352,6 +3353,8 @@
             background: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0) 25%, rgba(0,0,0,0.06) 60%, rgba(0,0,0,0.16) 100%);
             z-index: 1;
             pointer-events: none;
+            border-radius: 12px;
+            overflow: hidden;
         }
 
         /* 导航菜单浮于图上顶部（完全透明，融入蓝天） */
@@ -13074,7 +13077,7 @@ window.addEventListener('DOMContentLoaded', function() {
                         const braceEnd = jsText.lastIndexOf('}');
                         const jsonStr = jsText.substring(braceStart, braceEnd + 1);
                         const autoData = JSON.parse(jsonStr);
-                        const autoTable = (autoData.tables || []).find(t => t.table_name === '新能源汽车销量—国内市场');
+                        const autoTable = (autoData.tables || []).find(t => t.table_name.includes('新能源汽车销量'));
                         if (autoTable && autoTable.data && autoTable.data.length > 0) {
                             const byMonth = {};
                             autoTable.data.forEach(r => {
