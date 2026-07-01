@@ -13,7 +13,7 @@
     <script defer src="chemical_data.js?v=20260625"></script>
     <script defer src="recycling_gantt.js?v=20260625"></script>
     <script>
-      window.HTML_VERSION = "20260630_001"; // 版本号
+      window.HTML_VERSION = "20260701_001"; // 版本号
 
       /* ---------- 彻底防止图表旧内容闪屏（bfcache + 渲染残留）----------
        * 问题：浏览器前进后退缓存(bfcache)会保存完整页面状态，
@@ -79,7 +79,7 @@
             }
         }
     </script>
-    <script src="latest_data.js?v=20260630_001"></script>
+    <script src="latest_data.js?v=20260701_001"></script>
 
         <script>
     // 异步加载报告数据（动态获取最新报告）
@@ -3391,25 +3391,6 @@
             color: rgba(7,82,54,0.50);
         }
 
-        /* 下拉菜单在图上时使用干净白底保证可读性 */
-        .hero-banner > .main-nav-menu .dropdown-menu {
-            background: rgba(255,255,255,0.95);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(200,220,235,0.5);
-            box-shadow: 0 8px 30px rgba(0,0,0,0.12);
-            top: 100%;
-        }
-
-        .hero-banner > .main-nav-menu .dropdown-item {
-            color: rgb(7,82,54);
-        }
-
-        .hero-banner > .main-nav-menu .dropdown-item:hover {
-            background: rgba(10,166,106,0.08);
-            color: rgb(7,82,54);
-        }
-
         /* 日期时间浮于图右下 */
         .hero-datetime {
             position: absolute;
@@ -3582,36 +3563,6 @@
             border: 1px solid var(--line-green);
         }
 
-        .main-nav-item:hover .dropdown-menu {
-            opacity: 1;
-            visibility: visible;
-            transform: translateX(-50%) translateY(15px);
-        }
-        
-        .dropdown-item {
-            padding: 10px 16px;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.3s;
-            color: #111;
-            font-size: 14px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .dropdown-item:hover {
-            background: linear-gradient(135deg, var(--text-main) 0%, var(--text-secondary) 100%);
-            color: white;
-            transform: translateX(5px);
-        }
-        
-        .dropdown-divider {
-            height: 1px;
-            background: var(--line-green);
-            margin: 6px 0;
-        }
-        
         /* 一键启动区域 */
         .quick-start-section {
             background: white;
@@ -9498,44 +9449,10 @@ window.addEventListener('DOMContentLoaded', function() {
             <div class="main-nav-item" onclick="window.location.href='policy_center_v4.html'">
                 <span class="nav-icon">📜</span>
                 <span>政策中心</span>
-                <span class="nav-arrow">▼</span>
-                <div class="dropdown-menu">
-                    <div class="dropdown-item" onclick="event.stopPropagation(); window.location.href='policy_center_v4.html?filter=central'">
-                        <span class="nav-icon">🏛️</span>
-                        <span>国家政策</span>
-                    </div>
-                    <div class="dropdown-item" onclick="event.stopPropagation(); window.location.href='policy_center_v4.html?filter=local'">
-                        <span class="nav-icon">📍</span>
-                        <span>地方政策</span>
-                    </div>
-                    <div class="dropdown-item" onclick="event.stopPropagation(); window.location.href='policy_center_v4.html?filter=overseas'">
-                        <span class="nav-icon">🌍</span>
-                        <span>国际政策</span>
-                    </div>
-                </div>
             </div>
             <div class="main-nav-item" onclick="window.location.href='industry_news_embedded.html'">
                 <span class="nav-icon">📰</span>
                 <span>行业新闻</span>
-                <span class="nav-arrow">▼</span>
-                <div class="dropdown-menu">
-                    <div class="dropdown-item" onclick="event.stopPropagation(); window.location.href='industry_news_embedded.html?filter=macro'">
-                        <span class="nav-icon">🌐</span>
-                        <span>宏观新闻</span>
-                    </div>
-                    <div class="dropdown-item" onclick="event.stopPropagation(); window.location.href='industry_news_embedded.html?filter=industry'">
-                        <span class="nav-icon">📰</span>
-                        <span>行业新闻</span>
-                    </div>
-                    <div class="dropdown-item" onclick="event.stopPropagation(); window.location.href='industry_news_embedded.html?filter=company'">
-                        <span class="nav-icon">🏢</span>
-                        <span>企业动态</span>
-                    </div>
-                    <div class="dropdown-item" onclick="event.stopPropagation(); window.location.href='industry_news_embedded.html?filter=tech'">
-                        <span class="nav-icon">🔬</span>
-                        <span>技术产品</span>
-                    </div>
-                </div>
             </div>
             <div class="main-nav-item" onclick="location.href='archive_v3.html'">
                 <span class="nav-icon">📁</span>
@@ -9544,37 +9461,6 @@ window.addEventListener('DOMContentLoaded', function() {
 <div class="main-nav-item" onclick="window.location.href='database_hub.html'">
                 <span class="nav-icon">📊</span>
                 <span>数据库</span>
-                <span class="nav-arrow">▼</span>
-                <div class="dropdown-menu">
-                    <div class="dropdown-item" onclick="event.stopPropagation(); window.location.href='lfp_data_v2.html'">
-                        <span class="nav-icon">🔋</span>
-                        <span>磷酸铁锂数据库</span>
-                    </div>
-                    <div class="dropdown-item" onclick="event.stopPropagation(); window.location.href='ternary_data_v2.html'">
-                        <span class="nav-icon">⚡</span>
-                        <span>三元材料数据库</span>
-                    </div>
-                    <div class="dropdown-item" onclick="event.stopPropagation(); window.location.href='electrolyte_data_v2.html'">
-                        <span class="nav-icon">🧪</span>
-                        <span>电解液数据库</span>
-                    </div>
-                    <div class="dropdown-item" onclick="event.stopPropagation(); window.location.href='carbonate_data_v2.html'">
-                        <span class="nav-icon">⛏️</span>
-                        <span>碳酸锂及原料数据库</span>
-                    </div>
-                    <div class="dropdown-item" onclick="event.stopPropagation(); window.location.href='recycling_data_v2.html'">
-                        <span class="nav-icon">♻️</span>
-                        <span>锂电池回收数据库</span>
-                    </div>
-                    <div class="dropdown-item" onclick="event.stopPropagation(); window.location.href='lib_battery_data_v2.html'">
-                        <span class="nav-icon">🔋</span>
-                        <span>锂电池行业数据库</span>
-                    </div>
-                    <div class="dropdown-item" onclick="event.stopPropagation(); window.location.href='automotive_data_v2.html'">
-                        <span class="nav-icon">🚗</span>
-                        <span>汽车行业数据库</span>
-                    </div>
-                </div>
             </div>
             <div class="main-nav-item" onclick="window.location.href='analysis_hub.html'">
                 <span class="nav-icon">📊</span>
@@ -9592,22 +9478,6 @@ window.addEventListener('DOMContentLoaded', function() {
             <div class="main-nav-item" onclick="location.href='#market'">
                 <span class="nav-icon">📈</span>
                 <span>市场行情</span>
-                <span class="nav-arrow">▼</span>
-                <div class="dropdown-menu">
-                    <div class="dropdown-item" onclick="event.stopPropagation(); switchCategory('lithium'); scrollToMarket();">
-                        <span class="nav-icon">🔋</span>
-                        <span>锂条线</span>
-                    </div>
-                    <div class="dropdown-item" onclick="event.stopPropagation(); switchCategory('energy'); scrollToMarket();">
-                        <span class="nav-icon">⚡</span>
-                        <span>有色线</span>
-                    </div>
-                    <div class="dropdown-divider"></div>
-                    <div class="dropdown-item" onclick="event.stopPropagation(); switchCategory('chemical'); scrollToMarket();">
-                        <span class="nav-icon">🧪</span>
-                        <span>化学品线</span>
-                    </div>
-                </div>
             </div>
             <div class="main-nav-item" onclick="window.location.href='toolbox.html'">
                 <span class="nav-icon">🛠️</span>
@@ -20964,85 +20834,6 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 
-<script>
-(function() {
-    // 下拉菜单修复：hover 时临时挂到 document.body，彻底绕过父级 stacking context
-    console.log('[dropdown-fix] 脚本已加载');
-
-    let currentOpen = null;   // 当前打开的 { dd, originalParent }
-    let showTimer   = null;   // 进入计时器
-    let hideTimer   = null;   // 关闭计时器
-
-    function closeCurrent() {
-        if (currentOpen && currentOpen.dd.parentElement === document.body) {
-            const dd = currentOpen.dd;
-            currentOpen.originalParent.appendChild(dd);
-            dd.style.position   = '';
-            dd.style.top        = '';
-            dd.style.left       = '';
-            dd.style.transform  = '';
-            dd.style.zIndex     = '';
-            dd.style.opacity    = '';
-            dd.style.visibility = '';
-            dd.style.display    = '';
-        }
-        currentOpen = null;
-    }
-
-    document.querySelectorAll('.main-nav-item').forEach(item => {
-        const dd = item.querySelector('.dropdown-menu');
-        if (!dd) return;
-
-        function showDropdown() {
-            closeCurrent();
-
-            const rect = item.getBoundingClientRect();
-            const scrollY = window.scrollY || window.pageYOffset || 0;
-            const scrollX = window.scrollX || window.pageXOffset || 0;
-
-            dd.style.position   = 'absolute';
-            dd.style.top        = (rect.bottom + scrollY) + 'px';
-            dd.style.left       = (rect.left + scrollX + rect.width / 2) + 'px';
-            dd.style.transform  = 'translateX(-50%)';
-            dd.style.zIndex     = '99999';
-            dd.style.opacity    = '1';
-            dd.style.visibility = 'visible';
-            dd.style.display    = 'block';
-
-            if (dd.parentElement !== document.body) {
-                document.body.appendChild(dd);
-            }
-            currentOpen = { dd: dd, originalParent: item };
-            console.log('[dropdown-fix] 已打开：' + item.textContent.trim().slice(0,8));
-        }
-
-        function scheduleHide() {
-            clearTimeout(hideTimer);
-            hideTimer = setTimeout(function() {
-                if (currentOpen && currentOpen.dd === dd && dd.parentElement === document.body) {
-                    closeCurrent();
-                    console.log('[dropdown-fix] 已关闭');
-                }
-            }, 300);
-        }
-
-        item.addEventListener('mouseenter', function() {
-            clearTimeout(hideTimer);
-            clearTimeout(showTimer);
-            showTimer = setTimeout(showDropdown, 30);
-        });
-        item.addEventListener('mouseleave', scheduleHide);
-
-        dd.addEventListener('mouseenter', function() {
-            console.log('[dropdown-fix] 鼠标进入下拉');
-            clearTimeout(hideTimer);
-            clearTimeout(showTimer);
-        });
-        dd.addEventListener('mouseleave', scheduleHide);
-    });
-})();
-</script>
-
     <script>
         // 初始化锂电板块产业链洞察Dashboard
         document.addEventListener("DOMContentLoaded", function() {
@@ -21913,7 +21704,7 @@ document.addEventListener('DOMContentLoaded', function() {
             id: 'ternary_ncm_split',
             tag: '三元材料·型号分布',
             title: '三元正极材料分型号产量占比',
-            link: 'ternary_charts.html',
+            link: 'ternary_charts.html?v=20260630',
             dataFile: 'ternary_all_data.json',
             tableName: 'NCM-分型号产量',
             unit: '吨',
@@ -21931,7 +21722,7 @@ document.addEventListener('DOMContentLoaded', function() {
             id: 'lsp_price',
             tag: '锂辉石·精矿价格',
             title: '锂辉石精矿价格走势',
-            link: 'carbonate_charts.html',
+            link: 'carbonate_charts.html?v=20260630',
             dataFile: 'carbonate_all_data.json',
             tableName: '锂辉石精矿-价格',
             unit: '美元/吨',
@@ -21945,7 +21736,7 @@ document.addEventListener('DOMContentLoaded', function() {
             id: 'electrolyte_price_lfp',
             tag: '电解液·LFP动力价格',
             title: '电解液（LFP动力型）价格走势',
-            link: 'electrolyte_charts.html',
+            link: 'electrolyte_charts.html?v=20260630',
             dataFile: 'electrolyte_all_data.json',
             tableName: '电解液价格-磷酸铁锂动力型',
             unit: '万元/吨',
@@ -21959,7 +21750,7 @@ document.addEventListener('DOMContentLoaded', function() {
             id: 'ternary_prod',
             tag: '三元正极·行业产量',
             title: '三元正极材料产量走势',
-            link: 'ternary_charts.html',
+            link: 'ternary_charts.html?v=20260630',
             dataFile: 'ternary_all_data.json',
             tableName: 'NCM-行业整体产量',
             unit: '吨',

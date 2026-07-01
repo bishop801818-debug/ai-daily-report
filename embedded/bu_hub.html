@@ -1,12 +1,13 @@
 <!DOCTYPE html>
+
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>晨会指挥中心 - 事业部矩阵</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=Noto+Sans+SC:wght@300;400;500;600&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
-    <style>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>晨会指挥中心 - 事业部矩阵</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&amp;family=Noto+Sans+SC:wght@300;400;500;600&amp;family=Playfair+Display:wght@700&amp;display=swap" rel="stylesheet"/>
+<style>
         :root {
             --navy: #0d1b2e;
             --navy-mid: #152339;
@@ -617,153 +618,117 @@
     </style>
 </head>
 <body>
-
 <!-- 科技感底层 -->
 <div class="tech-stage"></div>
 <div class="bg-atmo"></div>
 <div class="perspective-grid">
-    <div class="grid-plane"></div>
-    <div class="grid-fade"></div>
+<div class="grid-plane"></div>
+<div class="grid-fade"></div>
 </div>
 <canvas id="particleCanvas"></canvas>
-
 <!-- 数据核心 -->
 <div class="data-core-wrap">
-    <div class="data-core-label">◆ SYSTEM CORE ◆</div>
-    <svg class="data-core-svg" width="72" height="72" viewBox="0 0 72 72">
-        <defs>
-            <filter id="glow1">
-                <feGaussianBlur stdDeviation="1.8" result="blur"/>
-                <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
-            </filter>
-            <linearGradient id="cg1" x1="0" y1="0" x2="1" y2="1">
-                <stop offset="0%" stop-color="#064e3b"/>
-                <stop offset="50%" stop-color="#8a2be2"/>
-                <stop offset="100%" stop-color="#064e3b"/>
-            </linearGradient>
-        </defs>
-        <polygon points="36,5 60,16 60,44 36,55 12,44 12,16"
-            fill="none" stroke="url(#cg1)" stroke-width="1.2" opacity="0.55" filter="url(#glow1)"/>
-        <polygon points="36,14 52,22 52,40 36,48 20,40 20,22"
-            fill="rgba(7,82,54,0.04)" stroke="#064e3b" stroke-width="0.8" opacity="0.75" filter="url(#glow1)"/>
-        <line x1="36" y1="5" x2="12" y2="44" stroke="#8a2be2" stroke-width="0.5" opacity="0.3" stroke-dasharray="2,2"/>
-        <line x1="60" y1="16" x2="36" y2="55" stroke="#8a2be2" stroke-width="0.5" opacity="0.3" stroke-dasharray="2,2"/>
-        <line x1="36" y1="5" x2="60" y2="44" stroke="#064e3b" stroke-width="0.4" opacity="0.2"/>
-        <line x1="12" y1="16" x2="36" y2="55" stroke="#064e3b" stroke-width="0.4" opacity="0.2"/>
-        <circle cx="36" cy="30" r="3.5" fill="#064e3b" opacity="0.7" filter="url(#glow1)"/>
-        <circle cx="36" cy="30" r="1.5" fill="rgba(255,255,255,0.85)" opacity="0.9"/>
-    </svg>
+<div class="data-core-label">◆ SYSTEM CORE ◆</div>
+<svg class="data-core-svg" height="72" viewbox="0 0 72 72" width="72">
+<defs>
+<filter id="glow1">
+<fegaussianblur result="blur" stddeviation="1.8"></fegaussianblur>
+<femerge><femergenode in="blur"></femergenode><femergenode in="SourceGraphic"></femergenode></femerge>
+</filter>
+<lineargradient id="cg1" x1="0" x2="1" y1="0" y2="1">
+<stop offset="0%" stop-color="#064e3b"></stop>
+<stop offset="50%" stop-color="#8a2be2"></stop>
+<stop offset="100%" stop-color="#064e3b"></stop>
+</lineargradient>
+</defs>
+<polygon fill="none" filter="url(#glow1)" opacity="0.55" points="36,5 60,16 60,44 36,55 12,44 12,16" stroke="url(#cg1)" stroke-width="1.2"></polygon>
+<polygon fill="rgba(7,82,54,0.04)" filter="url(#glow1)" opacity="0.75" points="36,14 52,22 52,40 36,48 20,40 20,22" stroke="#064e3b" stroke-width="0.8"></polygon>
+<line opacity="0.3" stroke="#8a2be2" stroke-dasharray="2,2" stroke-width="0.5" x1="36" x2="12" y1="5" y2="44"></line>
+<line opacity="0.3" stroke="#8a2be2" stroke-dasharray="2,2" stroke-width="0.5" x1="60" x2="36" y1="16" y2="55"></line>
+<line opacity="0.2" stroke="#064e3b" stroke-width="0.4" x1="36" x2="60" y1="5" y2="44"></line>
+<line opacity="0.2" stroke="#064e3b" stroke-width="0.4" x1="12" x2="36" y1="16" y2="55"></line>
+<circle cx="36" cy="30" fill="#064e3b" filter="url(#glow1)" opacity="0.7" r="3.5"></circle>
+<circle cx="36" cy="30" fill="rgba(255,255,255,0.85)" opacity="0.9" r="1.5"></circle>
+</svg>
 </div>
-
-
 <!-- 页面内容 -->
 <div class="page-content">
-    <!--统一导航栏（shared_nav.css）-->
+<!--统一导航栏（shared_nav.css）-->
+<link href="shared_nav.css" rel="stylesheet"/>
+<!--统一导航栏（shared_nav.css）-->
 <link rel="stylesheet" href="shared_nav.css">
 <div class="sub-topbar">
     <a class="sub-topbar-home" href="index_v3.html">← 返回首页</a>
     <div class="sub-topbar-title"> 事业部矩阵</div>
     <div class="sub-topbar-nav">
-        <div class="sub-nav-item" onclick="window.location.href='policy_center_v4.html'">
-           <span> 政策中心</span><span class="sub-arrow">▼</span>
-            <div class="sub-dropdown">
-                <div class="sub-dropdown-item" onclick="event.stopPropagation(); window.location.href='policy_center_v4.html?filter=central'"><span class="nav-icon"></span>国家政策</div>
-                <div class="sub-dropdown-item" onclick="event.stopPropagation(); window.location.href='policy_center_v4.html?filter=local'"><span class="nav-icon"></span>地方政策</div>
-                <div class="sub-dropdown-item" onclick="event.stopPropagation(); window.location.href='policy_center_v4.html?filter=overseas'"><span class="nav-icon"></span>国际政策</div>
-            </div>
-        </div>
-        <div class="sub-nav-item" onclick="window.location.href='industry_news_embedded.html'">
-          <span> 行业新闻</span><span class="sub-arrow">▼</span>
-            <div class="sub-dropdown">
-                <div class="sub-dropdown-item" onclick="event.stopPropagation(); window.location.href='industry_news_embedded.html?filter=macro'"><span class="nav-icon"></span>宏观新闻</div>
-                <div class="sub-dropdown-item" onclick="event.stopPropagation(); window.location.href='industry_news_embedded.html?filter=industry'"><span class="nav-icon"></span>行业新闻</div>
-                <div class="sub-dropdown-item" onclick="event.stopPropagation(); window.location.href='industry_news_embedded.html?filter=company'"><span class="nav-icon"></span>企业动态</div>
-                <div class="sub-dropdown-item" onclick="event.stopPropagation(); window.location.href='industry_news_embedded.html?filter=tech'"><span class="nav-icon"></span>技术产品</div>
-            </div>
-        </div>
+        <div class="sub-nav-item" onclick="window.location.href='policy_center_v4.html'"><span> 政策中心</span></div>
+        <div class="sub-nav-item" onclick="window.location.href='industry_news_embedded.html'"><span> 行业新闻</span></div>
         <div class="sub-nav-item" onclick="window.location.href='archive_v3.html'"><span> 历史数据</span></div>
-        <div class="sub-nav-item" onclick="window.location.href='database_hub.html'">
-            <span> 数据库</span><span class="sub-arrow">▼</span>
-            <div class="sub-dropdown">
-                <div class="sub-dropdown-item" onclick="event.stopPropagation(); window.location.href='lfp_data_v2.html'"><span class="nav-icon"></span>磷酸铁锂数据库</div>
-                <div class="sub-dropdown-item" onclick="event.stopPropagation(); window.location.href='ternary_data_v2.html'"><span class="nav-icon"></span>三元材料数据库</div>
-                <div class="sub-dropdown-item" onclick="event.stopPropagation(); window.location.href='electrolyte_data_v2.html'"><span class="nav-icon"></span>电解液数据库</div>
-                <div class="sub-dropdown-item" onclick="event.stopPropagation(); window.location.href='carbonate_data_v2.html'"><span class="nav-icon"></span>碳酸锂及原料数据库</div>
-                <div class="sub-dropdown-item" onclick="event.stopPropagation(); window.location.href='recycling_data_v2.html'"><span class="nav-icon"></span>锂电池回收数据库</div>
-                <div class="sub-dropdown-item" onclick="event.stopPropagation(); window.location.href='lib_battery_data_v2.html'"><span class="nav-icon"></span>锂电池行业数据库</div>
-                <div class="sub-dropdown-item" onclick="event.stopPropagation(); window.location.href='automotive_data_v2.html'"><span class="nav-icon"></span>汽车行业数据库</div>
-            </div>
-        </div>
+        <div class="sub-nav-item" onclick="window.location.href='database_hub.html'"><span> 数据库</span></div>
         <div class="sub-nav-item" onclick="window.location.href='analysis_hub.html'"><span> 行业分析</span></div>
         <div class="sub-nav-item" onclick="window.location.href='strategy_hub.html'"><span> 竞品比对</span></div>
         <div class="sub-nav-item" onclick="window.location.href='radar_hub.html'"><span> 雷达看板</span></div>
     </div>
 </div>
-
-    <div class="bu-hub-body">
-        <!-- 锂电矩阵：五边形星座 -->
-        <div class="li-matrix-wrap">
-            <div class="matrix-label">
-                <span class="matrix-pill matrix-pill-li"> 锂电矩阵</span>
-                <span class="matrix-tagline">5家事业部</span>
-            </div>
-            <div class="pentagon-wrap">
-                <!-- 中央六边形呼吸核心 -->
-                <div class="constellation-core">
-                    <div class="core-hex">
-                        <svg viewBox="0 0 40 40">
-                            <polygon points="20,3 37,11 37,29 20,37 3,29 3,11"
-                                fill="none" stroke="rgba(7,82,54,0.5)" stroke-width="1.5"/>
-                            <polygon points="20,9 32,15 32,25 20,31 8,25 8,15"
-                                fill="rgba(7,82,54,0.04)" stroke="rgba(10,166,106,0.3)" stroke-width="1"/>
-                            <circle cx="20" cy="20" r="2.5" fill="rgba(10,166,106,0.7)"/>
-                        </svg>
-                    </div>
-                </div>
-                <!-- 5张卡片按五边形顶点定位 -->
-                <div class="pent-wrap" id="pent-wrap">
-                    <svg class="pent-lines" id="pent-lines" viewBox="0 0 500 480"></svg>
-                </div>
-            </div>
-        </div>
-
-        <!-- 化学品矩阵：菱形 -->
-        <div class="chem-matrix-wrap">
-            <div class="matrix-label">
-                <span class="matrix-pill matrix-pill-chem"> 化学品矩阵</span>
-                <span class="matrix-tagline">4家事业部</span>
-            </div>
-            <div class="diamond-wrap">
-                <div class="diamond-inner" id="diamond-inner">
-                    <svg class="diamond-lines" id="diamond-lines" viewBox="0 0 420 490"></svg>
-                </div>
-            </div>
-        </div>
-    </div>
+<div class="bu-hub-body">
+<!-- 锂电矩阵：五边形星座 -->
+<div class="li-matrix-wrap">
+<div class="matrix-label">
+<span class="matrix-pill matrix-pill-li"> 锂电矩阵</span>
+<span class="matrix-tagline">5家事业部</span>
+</div>
+<div class="pentagon-wrap">
+<!-- 中央六边形呼吸核心 -->
+<div class="constellation-core">
+<div class="core-hex">
+<svg viewbox="0 0 40 40">
+<polygon fill="none" points="20,3 37,11 37,29 20,37 3,29 3,11" stroke="rgba(7,82,54,0.5)" stroke-width="1.5"></polygon>
+<polygon fill="rgba(7,82,54,0.04)" points="20,9 32,15 32,25 20,31 8,25 8,15" stroke="rgba(10,166,106,0.3)" stroke-width="1"></polygon>
+<circle cx="20" cy="20" fill="rgba(10,166,106,0.7)" r="2.5"></circle>
+</svg>
+</div>
+</div>
+<!-- 5张卡片按五边形顶点定位 -->
+<div class="pent-wrap" id="pent-wrap">
+<svg class="pent-lines" id="pent-lines" viewbox="0 0 500 480"></svg>
+</div>
+</div>
+</div>
+<!-- 化学品矩阵：菱形 -->
+<div class="chem-matrix-wrap">
+<div class="matrix-label">
+<span class="matrix-pill matrix-pill-chem"> 化学品矩阵</span>
+<span class="matrix-tagline">4家事业部</span>
+</div>
+<div class="diamond-wrap">
+<div class="diamond-inner" id="diamond-inner">
+<svg class="diamond-lines" id="diamond-lines" viewbox="0 0 420 490"></svg>
+</div>
+</div>
+</div>
+</div>
 </div>
 <div class="page-bottom"></div>
-
 <!-- 右侧滑入面板 -->
 <div class="panel-overlay" id="panelOverlay">
-    <div class="panel-backdrop" onclick="closePanel()"></div>
-    <div class="panel-drawer" id="panelDrawer">
-        <div class="drawer-topbar">
-            <div class="drawer-bu-info">
-                <div id="drawerLogoWrap">
-                    <img class="drawer-logo-img" id="drawerLogoImg" src="" alt="" style="display:none">
-                    <div class="drawer-logo-placeholder" id="drawerLogoPlaceholder"></div>
-                </div>
-                <div>
-                    <div class="drawer-name" id="drawerName"></div>
-                    <span class="drawer-tag" id="drawerTag"></span>
-                </div>
-            </div>
-            <button type="button" class="drawer-close" onclick="closePanel()">✕</button>
-        </div>
-        <div class="drawer-body" id="drawerBody"></div>
-    </div>
+<div class="panel-backdrop" onclick="closePanel()"></div>
+<div class="panel-drawer" id="panelDrawer">
+<div class="drawer-topbar">
+<div class="drawer-bu-info">
+<div id="drawerLogoWrap">
+<img alt="" class="drawer-logo-img" id="drawerLogoImg" src="" style="display:none"/>
+<div class="drawer-logo-placeholder" id="drawerLogoPlaceholder"></div>
 </div>
-
+<div>
+<div class="drawer-name" id="drawerName"></div>
+<span class="drawer-tag" id="drawerTag"></span>
+</div>
+</div>
+<button class="drawer-close" onclick="closePanel()" type="button">✕</button>
+</div>
+<div class="drawer-body" id="drawerBody"></div>
+</div>
+</div>
 <script>
 // ═══════════════════════════════════════════════════════════
 //  六边形评价体系 · 模拟数据
@@ -1315,6 +1280,6 @@ function closePanel() {
 
 document.addEventListener('DOMContentLoaded', init);
 </script>
-    <script src="assets/ai_fab_inject.js"></script>
+<script src="assets/ai_fab_inject.js"></script>
 </body>
 </html>

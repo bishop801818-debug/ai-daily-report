@@ -65,7 +65,7 @@
 <body>
     <div class="topbar">
         <h1>📊 锂电池可视化看板</h1>
-        <div><a href="index_v3.html">🏠 首页</a><a href="database_hub.html">📂 数据库</a><a href="lib_battery_data_v2.html">📋 数据表格</a><a href="lib_battery_charts.html?v=20260630">📊 可视化看板</a></div>
+        <div><a href="index_v3.html">🏠 首页</a><a href="database_hub.html">📂 数据库</a><a href="lib_battery_data_v2.html">📋 数据表格</a><a href="lib_battery_charts.html">📊 可视化看板</a></div>
     </div>
 
     <!-- 分类Tab导航 -->
@@ -499,11 +499,13 @@
   }
 
   function _fetchVer(cb) {
-    var s = document.createElement('script');
-    s.src = _js + '?t=' + Date.now();
-    s.onload = function() { cb(_readVer()); s.remove(); };
-    s.onerror = function() { cb(null); s.remove(); };
-    document.head.appendChild(s);
+    fetch(_js + '?t=' + Date.now())
+      .then(function(r) { return r.text(); })
+      .then(function(txt) {
+        var m = txt.match(/update_time\s*=\s*['"]([^'"]+)['"]/);
+        cb(m ? m[1] : null);
+      })
+      .catch(function() { cb(null); });
   }
 
   function _showBanner() {
