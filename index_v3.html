@@ -3371,6 +3371,7 @@
         }
 
         .hero-banner > .main-nav-menu .main-nav-item {
+            position: relative;
             color: rgb(7,82,54);
             text-shadow: 0 1px 3px rgba(255,255,255,0.35);
             padding: 7px 14px;
@@ -3498,6 +3499,7 @@
         }
 
         .main-nav-item {
+            position: relative;
             padding: 10px 16px;
             border-radius: 10px;
             cursor: pointer;
@@ -3561,6 +3563,36 @@
             transition: all 0.3s;
             z-index: 9999;
             border: 1px solid var(--line-green);
+        }
+
+        .main-nav-item:hover .dropdown-menu {
+            opacity: 1;
+            visibility: visible;
+            transform: translateX(-50%) translateY(15px);
+        }
+        
+        .dropdown-item {
+            padding: 10px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: #111;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .dropdown-item:hover {
+            background: linear-gradient(135deg, var(--text-main) 0%, var(--text-secondary) 100%);
+            color: white;
+            transform: translateX(5px);
+        }
+        
+        .dropdown-divider {
+            height: 1px;
+            background: var(--line-green);
+            margin: 6px 0;
         }
 
         /* 一键启动区域 */
@@ -9449,10 +9481,44 @@ window.addEventListener('DOMContentLoaded', function() {
             <div class="main-nav-item" onclick="window.location.href='policy_center_v4.html'">
                 <span class="nav-icon">📜</span>
                 <span>政策中心</span>
+                <span class="nav-arrow">▼</span>
+                <div class="dropdown-menu">
+                    <div class="dropdown-item" onclick="event.stopPropagation(); window.location.href='policy_center_v4.html?filter=central'">
+                        <span class="nav-icon">🏛️</span>
+                        <span>国家政策</span>
+                    </div>
+                    <div class="dropdown-item" onclick="event.stopPropagation(); window.location.href='policy_center_v4.html?filter=local'">
+                        <span class="nav-icon">📍</span>
+                        <span>地方政策</span>
+                    </div>
+                    <div class="dropdown-item" onclick="event.stopPropagation(); window.location.href='policy_center_v4.html?filter=overseas'">
+                        <span class="nav-icon">🌍</span>
+                        <span>国际政策</span>
+                    </div>
+                </div>
             </div>
             <div class="main-nav-item" onclick="window.location.href='industry_news_embedded.html'">
                 <span class="nav-icon">📰</span>
                 <span>行业新闻</span>
+                <span class="nav-arrow">▼</span>
+                <div class="dropdown-menu">
+                    <div class="dropdown-item" onclick="event.stopPropagation(); window.location.href='industry_news_embedded.html?filter=macro'">
+                        <span class="nav-icon">🌐</span>
+                        <span>宏观新闻</span>
+                    </div>
+                    <div class="dropdown-item" onclick="event.stopPropagation(); window.location.href='industry_news_embedded.html?filter=industry'">
+                        <span class="nav-icon">📰</span>
+                        <span>行业新闻</span>
+                    </div>
+                    <div class="dropdown-item" onclick="event.stopPropagation(); window.location.href='industry_news_embedded.html?filter=company'">
+                        <span class="nav-icon">🏢</span>
+                        <span>企业动态</span>
+                    </div>
+                    <div class="dropdown-item" onclick="event.stopPropagation(); window.location.href='industry_news_embedded.html?filter=tech'">
+                        <span class="nav-icon">🔬</span>
+                        <span>技术产品</span>
+                    </div>
+                </div>
             </div>
             <div class="main-nav-item" onclick="location.href='archive_v3.html'">
                 <span class="nav-icon">📁</span>
@@ -9461,6 +9527,37 @@ window.addEventListener('DOMContentLoaded', function() {
 <div class="main-nav-item" onclick="window.location.href='database_hub.html'">
                 <span class="nav-icon">📊</span>
                 <span>数据库</span>
+                <span class="nav-arrow">▼</span>
+                <div class="dropdown-menu">
+                    <div class="dropdown-item" onclick="event.stopPropagation(); window.location.href='lfp_data_v2.html'">
+                        <span class="nav-icon">🔋</span>
+                        <span>磷酸铁锂数据库</span>
+                    </div>
+                    <div class="dropdown-item" onclick="event.stopPropagation(); window.location.href='ternary_data_v2.html'">
+                        <span class="nav-icon">⚡</span>
+                        <span>三元材料数据库</span>
+                    </div>
+                    <div class="dropdown-item" onclick="event.stopPropagation(); window.location.href='electrolyte_data_v2.html'">
+                        <span class="nav-icon">🧪</span>
+                        <span>电解液数据库</span>
+                    </div>
+                    <div class="dropdown-item" onclick="event.stopPropagation(); window.location.href='carbonate_data_v2.html'">
+                        <span class="nav-icon">⛏️</span>
+                        <span>碳酸锂及原料数据库</span>
+                    </div>
+                    <div class="dropdown-item" onclick="event.stopPropagation(); window.location.href='recycling_data_v2.html'">
+                        <span class="nav-icon">♻️</span>
+                        <span>锂电池回收数据库</span>
+                    </div>
+                    <div class="dropdown-item" onclick="event.stopPropagation(); window.location.href='lib_battery_data_v2.html'">
+                        <span class="nav-icon">🔋</span>
+                        <span>锂电池行业数据库</span>
+                    </div>
+                    <div class="dropdown-item" onclick="event.stopPropagation(); window.location.href='automotive_data_v2.html'">
+                        <span class="nav-icon">🚗</span>
+                        <span>汽车行业数据库</span>
+                    </div>
+                </div>
             </div>
             <div class="main-nav-item" onclick="window.location.href='analysis_hub.html'">
                 <span class="nav-icon">📊</span>
@@ -9478,6 +9575,22 @@ window.addEventListener('DOMContentLoaded', function() {
             <div class="main-nav-item" onclick="location.href='#market'">
                 <span class="nav-icon">📈</span>
                 <span>市场行情</span>
+                <span class="nav-arrow">▼</span>
+                <div class="dropdown-menu">
+                    <div class="dropdown-item" onclick="event.stopPropagation(); switchCategory('lithium'); scrollToMarket();">
+                        <span class="nav-icon">🔋</span>
+                        <span>锂条线</span>
+                    </div>
+                    <div class="dropdown-item" onclick="event.stopPropagation(); switchCategory('energy'); scrollToMarket();">
+                        <span class="nav-icon">⚡</span>
+                        <span>有色线</span>
+                    </div>
+                    <div class="dropdown-divider"></div>
+                    <div class="dropdown-item" onclick="event.stopPropagation(); switchCategory('chemical'); scrollToMarket();">
+                        <span class="nav-icon">🧪</span>
+                        <span>化学品线</span>
+                    </div>
+                </div>
             </div>
             <div class="main-nav-item" onclick="window.location.href='toolbox.html'">
                 <span class="nav-icon">🛠️</span>

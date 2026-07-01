@@ -308,7 +308,12 @@
 
     
     // 图表初始化
-    function initChart(id, opt) { echarts.init(document.getElementById(id)).setOption(opt); }
+    window._chartOpts = window._chartOpts || {};
+    function initChart(id, opt) {
+        var el = document.getElementById(id);
+        window._chartOpts[id] = opt;
+        echarts.init(el).setOption(opt);
+    }
 
     // Tab1-1: 中国汽车整体销量走势
     initChart('c1', {
@@ -522,10 +527,17 @@
         if (btn) btn.classList.add('active');
         var content = document.getElementById('tab-' + tab);
         if (content) content.classList.add('active');
-        // Resize all echarts after tab switch
+        // Reinit zero-width charts (display:none had 0 offsetWidth) then resize all
         setTimeout(function() {
             document.querySelectorAll('.chart-container[id]').forEach(function(el) {
-                try { echarts.getInstanceByDom(el) && echarts.getInstanceByDom(el).resize(); } catch(e) {}
+                try {
+                    if (el.offsetWidth === 0 && window._chartOpts[el.id]) {
+                        echarts.init(el).setOption(window._chartOpts[el.id]);
+                    } else {
+                        var inst = echarts.getInstanceByDom(el);
+                        if (inst) inst.resize();
+                    }
+                } catch(e) {}
             });
         }, 50);
     }
@@ -533,35 +545,13 @@
     document.getElementById('dataMonth').textContent = '数据截至 ' + STAT_MONTH;
     document.getElementById('dataMonth2').textContent = '数据截至 ' + STAT_MONTH;
 
-    // 调试：打印所有数据变量状态
-    console.log('=== 汽车看板数据诊断 ===');
-    console.log('EMBEDDED_DATA defined:', typeof EMBEDDED_DATA !== 'undefined');
-    console.log('BRAND_NAMES:', BRAND_NAMES);
-    console.log('BRAND_SALES:', BRAND_SALES);
-    console.log('CV_NAMES:', CV_NAMES);
-    console.log('CV_SALES:', CV_SALES);
-    console.log('ZC_NAMES:', ZC_NAMES);
-    console.log('ZC_VOL:', ZC_VOL);
-    console.log('QC_NAMES:', QC_NAMES);
-    console.log('QC_VOL:', QC_VOL);
-    console.log('EXP_OEM_NAMES:', EXP_OEM_NAMES);
-    console.log('EXP_OEM_SALES:', EXP_OEM_SALES);
-    console.log('BEV_HIST:', BEV_HIST);
-    console.log('PHEV_HIST:', PHEV_HIST);
-    console.log('CHINA_SALES:', CHINA_SALES);
-    console.log('STAT_CHINA:', STAT_CHINA, 'STAT_NEV:', STAT_NEV, 'STAT_PEN:', STAT_PEN);
-    // 检查图表DOM
-    ['c1','c2','c3','c4','c5','c6','c7','c8','c9','c10','c11','c12'].forEach(function(id){
-        var el = document.getElementById(id);
-        console.log(id + ' DOM:', el ? '存在, offsetWidth=' + el.offsetWidth : '不存在');
-    });
-    </script>
+        </script>
     <script src="assets/ai_fab_inject.js"></script>
 
 <!-- __AUTO_REFRESH__ -->
 <script>
 (function() {
-  var _js = "automotive_embedded_data.js";
+  var _js = "automotive_embedded_data.js?v=20260701b";
   var _lastVer = null;
 
   function _readVer() {
