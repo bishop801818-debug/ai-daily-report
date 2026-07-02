@@ -1,21 +1,21 @@
 {
   "symbol": "磷酸铁(无水)",
   "contract": "FP-无水",
-  "update_time": "2026-07-01 11:57:51",
+  "update_time": "2026-07-02 11:59:16",
   "source": "铁锂行业数据库(飞书)",
   "start_date": "2024-01-02",
-  "end_date": "2026-06-30",
-  "data_points": 612,
+  "end_date": "2026-07-01",
+  "data_points": 613,
   "min_price": 10400,
-  "max_price": 14800,
+  "max_price": 15100,
   "latest": {
-    "date": "2026-06-30",
-    "close": 14800,
-    "high": 15200,
-    "low": 14400,
+    "date": "2026-07-01",
+    "close": 15100,
+    "high": 15500,
+    "low": 14700,
     "open": 14800,
-    "change": 0,
-    "change_pct": 0.0
+    "change": 300,
+    "change_pct": 2.03
   },
   "history": [
     {
@@ -5525,6 +5525,15 @@
       "open": 14800,
       "change": 0,
       "change_pct": 0.0
+    },
+    {
+      "date": "2026-07-01",
+      "close": 15100,
+      "high": 15500,
+      "low": 14700,
+      "open": 14800,
+      "change": 300,
+      "change_pct": 2.03
     }
   ]
 }

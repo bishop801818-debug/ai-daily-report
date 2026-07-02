@@ -1,19 +1,28 @@
 /**
  * Service Worker for AI Daily Report
- * 版本：v1.1 (2026-07-02)
+ * 版本：v1.2 (2026-07-02)
  * 功能：离线缓存静态资源和数据文件，提升二次访问速度
- * 更新：只缓存确实存在的文件
+ * 更新：修复重复缓存问题（忽略 ?t= 时间戳参数）
  */
 
-const CACHE_NAME = 'ai-daily-v2';
-const CACHE_VERSION = '20260702';
+const CACHE_NAME = 'ai-daily-v3';
+const CACHE_VERSION = '20260702v3';
 
-// 需要缓存的文件列表（只列确实存在的）
-// 注意：实际缓存会在 fetch 事件中动态添加
+// 需要缓存的文件列表（预缓存）
 const STATIC_CACHE_URLS = [
-  './',                    // index_v3.html
   './index_v3.html',
+  './index.html',
 ];
+
+// 规范化 URL：移除缓存破坏参数（如 ?t=xxx&v=xxx）
+function normalizeUrl(url) {
+  const urlObj = new URL(url);
+  const pathname = urlObj.pathname;
+  
+  // 只保留有意义的查询参数（如果有 API 需要特定参数，在此白名单中保留）
+  // 目前：移除所有查询参数，因为数据文件不需要参数来区分
+  return pathname;
+}
 
 // 安装事件：预缓存静态资源
 self.addEventListener('install', function(event) {
@@ -25,7 +34,7 @@ self.addEventListener('install', function(event) {
       return cache.addAll(STATIC_CACHE_URLS);
     }).then(function() {
       console.log('[SW] 安装完成，跳过等待');
-      return self.skipWaiting();  // 立即激活
+      return self.skipWaiting(); // 立即激活
     })
   );
 });
@@ -46,7 +55,7 @@ self.addEventListener('activate', function(event) {
       );
     }).then(function() {
       console.log('[SW] 激活完成，接管所有页面');
-      return self.clients.claim();  // 立即接管
+      return self.clients.claim(); // 立即接管
     })
   );
 });
@@ -54,40 +63,55 @@ self.addEventListener('activate', function(event) {
 // 请求拦截：缓存策略
 self.addEventListener('fetch', function(event) {
   const requestUrl = event.request.url;
-  const requestPath = new URL(requestUrl).pathname;
+  const urlObj = new URL(requestUrl);
+  const pathname = urlObj.pathname;
+  const normalizedUrl = normalizeUrl(requestUrl);
   
   // 策略1：HTML文件 - 网络优先，缓存兜底
-  if (requestPath.endsWith('.html') || requestPath.endsWith('/')) {
+  if (pathname.endsWith('.html') || pathname === '/') {
     event.respondWith(
       fetch(event.request)
         .then(function(response) {
-          // 网络成功：更新缓存
+          // 网络成功：更新缓存（使用规范化 URL）
           if (response && response.status === 200) {
             const responseClone = response.clone();
             caches.open(CACHE_NAME).then(function(cache) {
-              cache.put(event.request, responseClone);
+              // 缓存时去掉时间戳参数
+              const cacheKey = new Request(normalizedUrl);
+              cache.put(cacheKey, responseClone);
             });
           }
           return response;
         })
         .catch(function() {
-          // 网络失败：返回缓存
-          console.log('[SW] HTML网络失败，使用缓存:', requestPath);
-          return caches.match(event.request);
+          // 网络失败：返回缓存（使用规范化 URL 查找）
+          console.log('[SW] HTML网络失败，使用缓存:', pathname);
+          const cacheKey = new Request(normalizedUrl);
+          return caches.match(cacheKey).then(function(response) {
+            if (response) return response;
+            // 如果规范化 URL 没找到，尝试原始请求
+            return caches.match(event.request);
+          });
         })
     );
     return;
   }
   
   // 策略2：JSON数据文件 - 缓存优先（stale-while-revalidate）
-  if (requestPath.includes('/reports/') || requestPath.includes('/data/')) {
+  if (pathname.includes('/reports/') || 
+      pathname.includes('/data/') || 
+      pathname.endsWith('.json') ||
+      pathname.endsWith('_data.js') ||
+      pathname.endsWith('_data.json')) {
     event.respondWith(
-      caches.match(event.request).then(function(cachedResponse) {
+      caches.match(new Request(normalizedUrl)).then(function(cachedResponse) {
         // 后台异步更新缓存
         const fetchPromise = fetch(event.request).then(function(response) {
           if (response && response.status === 200) {
             caches.open(CACHE_NAME).then(function(cache) {
-              cache.put(event.request, response.clone());
+              // 缓存时使用规范化 URL（去掉时间戳）
+              const cacheKey = new Request(normalizedUrl);
+              cache.put(cacheKey, response.clone());
             });
           }
           return response;
@@ -97,7 +121,7 @@ self.addEventListener('fetch', function(event) {
         
         // 如果有缓存，先返回缓存
         if (cachedResponse) {
-          console.log('[SW] 数据文件缓存命中:', requestPath);
+          console.log('[SW] 数据文件缓存命中:', pathname);
           return cachedResponse;
         }
         
@@ -110,16 +134,27 @@ self.addEventListener('fetch', function(event) {
   
   // 策略3：其他资源（JS/CSS/图片）- 缓存优先
   event.respondWith(
-    caches.match(event.request).then(function(response) {
+    caches.match(new Request(normalizedUrl)).then(function(response) {
       if (response) {
+        // 后台更新缓存
+        fetch(event.request).then(function(networkResponse) {
+          if (networkResponse && networkResponse.status === 200) {
+            caches.open(CACHE_NAME).then(function(cache) {
+              cache.put(new Request(normalizedUrl), networkResponse.clone());
+            });
+          }
+        }).catch(function() {
+          // 忽略更新失败
+        });
         return response;
       }
       
+      // 无缓存：走网络并缓存
       return fetch(event.request).then(function(response) {
         if (response && response.status === 200) {
           const responseClone = response.clone();
           caches.open(CACHE_NAME).then(function(cache) {
-            cache.put(event.request, responseClone);
+            cache.put(new Request(normalizedUrl), responseClone);
           });
         }
         return response;
