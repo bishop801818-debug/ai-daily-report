@@ -13,7 +13,7 @@
     <script defer src="chemical_data.js?v=20260625"></script>
     <script defer src="recycling_gantt.js?v=20260625"></script>
     <script>
-      window.HTML_VERSION = "20260702_003"; // 版本号
+      window.HTML_VERSION = "20260702_004"; // 版本号
       
       /* ---------- Service Worker 注册（离线缓存）---------- */
       if ('serviceWorker' in navigator) {
@@ -3229,17 +3229,6 @@
                         
                         dataXhr.send();
                         
-                    } catch(e) {
-                        console.error('[数据加载] 解析 index.json 失败:', e);
-                        // 使用嵌入数据（如果可用）
-                        if (window.__EMBEDDED__) {
-                            console.log('[数据加载] 使用嵌入数据（index.json 解析失败）');
-                            renderPage();
-                        } else {
-                            hideLoading();
-                            alert('数据索引加载失败: ' + e.message);
-                        }
-                    }
                 } else {
                     console.warn('[数据加载] index.json 加载失败: ' + indexXhr.status);
                     // 使用嵌入数据（如果可用）
