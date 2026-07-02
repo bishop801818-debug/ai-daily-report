@@ -45,14 +45,14 @@ UNSPLASH_API_URL = "https://api.unsplash.com/search/photos"
 # 事业部简称到文件名前缀的映射（用于动态查找文件）
 # 格式：事业部简称 -> 文件名前缀
 BU_PREFIX_MAP = {
-    "润滑油事业部": "lube",
-    "可兰素事业部": "kls",
+    "润滑油事业部": "lubricant",
+    "可兰素事业部": "kelan",
     "常州锂源事业部": "czly",
     "龙蟠时代事业部": "lpsd",
     "山东美多事业部": "sdmd",
-    "三金锂电事业部": "sjld",
+    "三金锂电事业部": "sjl",
     "铂源催化事业部": "bych",
-    "法恩莱特事业部": "fnlt",
+    "法恩莱特事业部": "felt",
     "迪克化学事业部": "dkhx"
 }
 
