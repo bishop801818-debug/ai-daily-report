@@ -212,3 +212,6 @@ dist/assets/dragon_4combined_anim_original_backup.gif
 # ------------------------------------------
 archive/backups/
 _archive/reports_auto_backup/
+
+# ======== 例外：logos/ 目录中的 BU Logo 图片需要部署 ========
+!logos/*.png

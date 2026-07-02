@@ -5,8 +5,8 @@
  * 更新：修复 response clone 时序错误，简化缓存逻辑
  */
 
-const CACHE_NAME = 'ai-daily-v4';
-const CACHE_VERSION = '20260702v4';
+const CACHE_NAME = 'ai-daily-v5';
+const CACHE_VERSION = '20260702v5';
 
 // 规范化 URL：移除缓存破坏参数（如 ?t=xxx）
 function normalizeUrl(url) {
