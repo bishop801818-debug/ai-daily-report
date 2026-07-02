@@ -13,7 +13,7 @@
     <script defer src="chemical_data.js?v=20260625"></script>
     <script defer src="recycling_gantt.js?v=20260625"></script>
     <script>
-      window.HTML_VERSION = "20260702_005"; // 版本号
+      window.HTML_VERSION = "20260702_004"; // 版本号
       
       /* ---------- Service Worker 注册（离线缓存）---------- */
       if ('serviceWorker' in navigator) {
@@ -197,26 +197,20 @@
                                 try {
                                     var data = JSON.parse(dataXhr.responseText);
                                     console.log('[数据加载] 成功（动态），耗时: ' + (Date.now() - startTime) + 'ms');
-                                    if (data && data.today) {
-                                        window.__EMBEDDED__ = data;
-                                        console.log('[数据加载] 数据已缓存到 window.__EMBEDDED__');
-                                    }
-                                } catch(e) {
-                                    console.warn('[数据加载] JSON解析失败:', e.message);
-                                }
-                                
-                                renderPage(); // 渲染页面
-                            } else {
-                                console.warn('[数据加载] 报告文件状态码: ' + dataXhr.status);
-                                // 使用嵌入数据（如果可用）
-                                if (window.__EMBEDDED__) {
-                                    console.log('[数据加载] 使用嵌入数据（报告文件状态码异常）');
-                                    renderPage();
-                                } else {
-                                    hideLoading();
-                                    alert('数据加载失败: ' + dataXhr.status);
-                                }
-                            }
+                                    if (data && data.today) { // 防止 undefined 覆盖
+                                    if(data && data.today) // 加载嵌入数据（从外部文件）
+                    fetch('./embedded_data.json?v=' + (window.HTML_VERSION || Date.now()))
+                        .then(function(r) { return r.json(); })
+                        .then(function(data) {
+                            window.__EMBEDDED__ = data;
+                            console.log('[初始化] 嵌入数据加载成功');
+                            renderPage(); // 继续渲染页面
+                        })
+                        .catch(function(e) {
+                            console.warn('[初始化] 嵌入数据加载失败:', e);
+                            // 继续使用网络数据
+                            renderPage();
+                        });
                         
                         dataXhr.onerror = function() {
                             clearTimeout(dataTimeout);
