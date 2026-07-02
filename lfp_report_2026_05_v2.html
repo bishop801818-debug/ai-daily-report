@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>磷酸铁锂市场月报 · 2026年05月</title>
+<script src="echarts.min.js"></script>
 <style>
 :root {
   --primary: #1565c0;
@@ -60,6 +61,10 @@ a { color: inherit; text-decoration: none; }
 .section-card ul li { padding: 6px 0 6px 20px; position: relative; color: var(--text-secondary); }
 .section-card ul li::before { content: ''; position: absolute; left: 0; top: 14px; width: 6px; height: 6px; background: var(--primary); border-radius: 50%; }
 
+.chart-card { background: #fff; border-radius: 10px; padding: 20px; margin: 16px 0; box-shadow: 0 1px 4px rgba(0,0,0,0.05); }
+.chart-card h4 { font-size: 14px; color: var(--text-secondary); margin-bottom: 12px; font-weight: 600; }
+.chart-container { width: 100%; height: 300px; }
+
 .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px; }
 .kpi-card { background: linear-gradient(135deg, #e3f2fd, #bbdefb); border-radius: 12px; padding: 20px; text-align: center; border: 1px solid #90caf9; }
 .kpi-card .kpi-value { font-size: 28px; font-weight: 900; color: var(--primary-dark); }
@@ -76,6 +81,8 @@ a { color: inherit; text-decoration: none; }
 .data-table tr:hover td { background: var(--blue-light); }
 .data-table .highlight { background: #fff3e0 !important; font-weight: 600; color: var(--orange); }
 .data-table .sub { background: #e8f5e9 !important; }
+.up { color: #2e7d32 !important; }
+.down { color: #c62828 !important; }
 
 .tag { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 600; margin-left: 6px; }
 .tag-green { background: #e8f5e9; color: #2e7d32; }
@@ -108,14 +115,9 @@ a { color: inherit; text-decoration: none; }
 .summary-box ul li::before { content: '▸'; position: absolute; left: 0; color: #90caf9; }
 .summary-box .summary-tag { font-size: 11px; padding: 1px 8px; border-radius: 10px; background: rgba(255,255,255,0.2); margin-right: 6px; }
 
-.page-break { page-break-after: always; }
-
 footer { text-align: center; padding: 24px; color: var(--text-light); font-size: 12px; }
 
-@media print {
-  .topbar, .toc-sidebar { display: none; }
-  .section-card { box-shadow: none; border: 1px solid #ccc; }
-}
+@media print { .topbar, .toc-sidebar { display: none; } }
 </style>
 </head>
 <body>
@@ -134,11 +136,11 @@ footer { text-align: center; padding: 24px; color: var(--text-light); font-size:
     <ul class="toc-list">
       <li><a href="#p1" class="toc-part">Part 1 · 磷酸铁锂市场分析</a></li>
       <li><a href="#p1-1" class="toc-sub">1.1 行业动态</a></li>
-      <li><a href="#p1-2" class="toc-sub">1.2 产量分析</a></li>
+      <li><a href="#p1-2" class="toc-sub">1.2 产量趋势图</a></li>
       <li><a href="#p1-3" class="toc-sub">1.3 分企业产量</a></li>
       <li><a href="#p1-4" class="toc-sub">1.4 竞品销量</a></li>
       <li><a href="#p1-5" class="toc-sub">1.5 出口分析</a></li>
-      <li><a href="#p1-6" class="toc-sub">1.6 价格分析</a></li>
+      <li><a href="#p1-6" class="toc-sub">1.6 价格走势</a></li>
       <li><a href="#p2" class="toc-part">Part 2 · 磷酸铁市场分析</a></li>
       <li><a href="#p3" class="toc-part">Part 3 · 碳酸锂市场分析</a></li>
       <li><a href="#p4" class="toc-part">Part 4 · 三元材料市场</a></li>
@@ -162,7 +164,7 @@ footer { text-align: center; padding: 24px; color: var(--text-light); font-size:
       </div>
     </div>
 
-    <!-- ===================== PART 1: 磷酸铁锂市场分析 ===================== -->
+    <!-- ===================== PART 1 ===================== -->
     <div class="section-card" id="p1">
       <h2><span class="part-label">Part 1</span> 磷酸铁锂市场分析</h2>
 
@@ -170,7 +172,6 @@ footer { text-align: center; padding: 24px; color: var(--text-light); font-size:
       <div id="p1-1">
         <h3>1.1 行业动态</h3>
         <p>2026年5月，磷酸铁锂行业延续高景气态势，产业链上下游呈现供需两旺格局。储能需求持续爆发、动力电池装车量以铁锂为主导，叠加出口市场爆发式增长，共同推动LFP产量再创历史新高。</p>
-
         <div class="kpi-grid">
           <div class="kpi-card">
             <div class="kpi-value">48.64<span class="kpi-unit">万吨</span></div>
@@ -190,60 +191,32 @@ footer { text-align: center; padding: 24px; color: var(--text-light); font-size:
           <div class="kpi-card">
             <div class="kpi-value">5.9<span class="kpi-unit">万/吨</span></div>
             <div class="kpi-label">出口均价</div>
-            <div class="kpi-change up">同比较高水平</div>
+            <div class="kpi-change up">处历史高位</div>
           </div>
         </div>
-
         <div class="alert-box blue">
           <p><strong>行业核心动态：</strong>5月锂电产业链高景气确认，储能安全新国标落地，央企大规模布局储能；全球锂需求达202.4万吨LCE（同比+32.5%），锂电新技术密集催化期临近；湖南裕能Q1归母净利润13.56亿元（同比+1338%），德方纳米Q1归母净利润2.65亿元（同比扭亏），行业盈利持续修复。</p>
         </div>
-
         <ul class="news-list">
-          <li>
-            <span class="news-tag policy">政策</span>
-            <span class="news-date">2026-05</span>
-            <span class="news-title">储能安全新国标落地，行业规范化加速</span>
-          </li>
-          <li>
-            <span class="news-tag policy">政策</span>
-            <span class="news-date">2026-05</span>
-            <span class="news-title">高层首提"能源资源安全保障"，锂矿战略地位凸显</span>
-          </li>
-          <li>
-            <span class="news-tag industry">行业</span>
-            <span class="news-date">2026-05</span>
-            <span class="news-title">2026年全球锂需求达202.4万吨LCE，同比增32.5%</span>
-          </li>
-          <li>
-            <span class="news-tag industry">行业</span>
-            <span class="news-date">2026-05</span>
-            <span class="news-title">央企大规模布局储能，铁锂路线持续受益</span>
-          </li>
-          <li>
-            <span class="news-tag comp">竞品</span>
-            <span class="news-date">2026-05</span>
-            <span class="news-title">锂电"五巨头"图谱：湖南裕能领跑正极材料，德方纳米入榜</span>
-          </li>
-          <li>
-            <span class="news-tag comp">竞品</span>
-            <span class="news-date">2026-05</span>
-            <span class="news-title">天齐锂业Q1归母净利润18.76亿元（同比+1730%），赣锋锂业Q1归母净利润18.37亿元（同比+60%）</span>
-          </li>
-          <li>
-            <span class="news-tag industry">行业</span>
-            <span class="news-date">2026-05</span>
-            <span class="news-title">行业自律信号持续，铁锂企业挺价意愿强烈</span>
-          </li>
+          <li><span class="news-tag policy">政策</span><span class="news-date">2026-05</span><span class="news-title">储能安全新国标落地，行业规范化加速</span></li>
+          <li><span class="news-tag policy">政策</span><span class="news-date">2026-05</span><span class="news-title">高层首提"能源资源安全保障"，锂矿战略地位凸显</span></li>
+          <li><span class="news-tag industry">行业</span><span class="news-date">2026-05</span><span class="news-title">2026年全球锂需求达202.4万吨LCE，同比增32.5%</span></li>
+          <li><span class="news-tag industry">行业</span><span class="news-date">2026-05</span><span class="news-title">央企大规模布局储能，铁锂路线持续受益</span></li>
+          <li><span class="news-tag comp">竞品</span><span class="news-date">2026-05</span><span class="news-title">天齐锂业Q1归母净利润18.76亿元（同比+1730%），赣锋锂业Q1归母净利润18.37亿元（同比+60%）</span></li>
+          <li><span class="news-tag industry">行业</span><span class="news-date">2026-05</span><span class="news-title">行业自律信号持续，铁锂企业挺价意愿强烈</span></li>
         </ul>
       </div>
 
-      <!-- 1.2 产量分析 -->
+      <!-- 1.2 产量趋势图 -->
       <div id="p1-2">
         <h3>1.2 产量分析</h3>
-        <p>5月，磷酸铁锂行业整体发展态势向好，产量再创历史新高。LFP总产量达48.64万吨，产能约60.28万吨，行业平均开工率81%，环比提高1个百分点。</p>
-        <p>多重利好叠加推动产量持续增长：磷酸铁锂产品价格上涨激发行业生产积极性；动力电池装车量年内单月再创新高且以铁锂系列为主导；可再生能源装机规模快速扩张推动储能市场需求爆发式增长；全球"双碳"战略下储能与新能源汽车领域的刚性需求持续强劲，共同推动LFP产量稳步攀升。</p>
-        <div class="alert-box">
-          <p>5月，LFP产量达48.64万吨，开工率81%，行业延续高景气态势，预计6月产销将继续攀升。</p>
+        <p>5月磷酸铁锂总产量达48.64万吨，产能约60.28万吨，行业平均开工率81%，再创历史新高。环比提高1个百分点，多重利好叠加推动产量持续增长：磷酸铁锂价格上涨激发行业生产积极性；动力电池装车量以铁锂系列为主导；储能市场需求爆发式增长；全球"双碳"战略下刚性需求持续强劲。</p>
+
+        <!-- 图表1: LFP月度产量趋势 -->
+        <div class="chart-card">
+          <h4>📊 LFP月度产量趋势（2024-01 ~ 2026-05）</h4>
+          <div id="chart-lfp-output" class="chart-container"></div>
+          <div class="data-source" style="font-size:12px;color:#888;margin-top:8px"><span>📈 数据来源：鑫椤数据</span><span style="margin-left:16px">📊 常州锂源5月：28,745吨（第5名）</span></div>
         </div>
       </div>
 
@@ -251,122 +224,56 @@ footer { text-align: center; padding: 24px; color: var(--text-light); font-size:
       <div id="p1-3">
         <h3>1.3 分企业产量</h3>
         <p>5月磷酸铁锂TOP15企业产量排名如下，CR3集中度约42.6%，湖南裕能产量断层领跑：</p>
+
+        <!-- 图表2: 分企业产量TOP10 -->
+        <div class="chart-card">
+          <h4>📊 LFP分企业产量TOP10（2026年5月）</h4>
+          <div id="chart-company-output" class="chart-container"></div>
+          <div class="data-source" style="font-size:12px;color:#888;margin-top:8px"><span>📈 数据来源：鑫椤数据</span><span style="margin-left:16px">橙色=常州锂源</span></div>
+        </div>
+
         <table class="data-table">
           <thead>
-            <tr>
-              <th>排名</th><th>企业</th><th>产量(吨)</th><th>环比</th><th>同比</th><th>开工率</th>
-            </tr>
+            <tr><th>排名</th><th>企业</th><th>产量(吨)</th><th>环比</th><th>同比</th><th>开工率</th></tr>
           </thead>
           <tbody>
-            <tr class="highlight">
-              <td>1</td><td><strong>湖南裕能</strong></td><td>125,000</td><td class="up">+4%</td><td class="up">+39%</td><td class="up">111%</td>
-            </tr>
-            <tr>
-              <td>2</td><td>万润新能</td><td>42,000</td><td class="up">+5%</td><td class="up">+62%</td><td>95%</td>
-            </tr>
-            <tr>
-              <td>3</td><td>德方纳米</td><td>37,000</td><td class="up">+12%</td><td class="up">+90%</td><td>98%</td>
-            </tr>
-            <tr>
-              <td>4</td><td>江西升华</td><td>33,000</td><td class="up">+10%</td><td class="up">+57%</td><td>61%</td>
-            </tr>
-            <tr class="sub">
-              <td>5</td><td><strong>常州锂源</strong></td><td>28,745</td><td class="up">+13%</td><td class="up">+105%</td><td>87%</td>
-            </tr>
-            <tr>
-              <td>6</td><td>友山科技</td><td>25,500</td><td class="up">+2%</td><td class="up">+9%</td><td>63%</td>
-            </tr>
-            <tr>
-              <td>7</td><td>国轩高科</td><td>19,000</td><td class="up">+6%</td><td class="up">+4%</td><td>95%</td>
-            </tr>
-            <tr>
-              <td>8</td><td>邦普循环</td><td>16,000</td><td class="down">-20%</td><td class="up">+540%</td><td>52%</td>
-            </tr>
-            <tr>
-              <td>9</td><td>万华化学</td><td>15,000</td><td class="up">+7%</td><td class="up">+200%</td><td>51%</td>
-            </tr>
-            <tr>
-              <td>10</td><td>融通高科</td><td>13,000</td><td class="up">+8%</td><td class="up">+62%</td><td>51%</td>
-            </tr>
-            <tr>
-              <td>11</td><td>天原锂电</td><td>12,500</td><td class="up">+4%</td><td>—</td><td>100%</td>
-            </tr>
-            <tr>
-              <td>12</td><td>协鑫锂电</td><td>12,500</td><td class="up">+4%</td><td class="up">+32%</td><td>100%</td>
-            </tr>
-            <tr>
-              <td>13</td><td>当升科技</td><td>12,000</td><td>0%</td><td class="up">+67%</td><td class="up">120%</td>
-            </tr>
-            <tr>
-              <td>14</td><td>泰丰先行</td><td>10,000</td><td>0%</td><td class="up">+5%</td><td>69%</td>
-            </tr>
-            <tr>
-              <td>15</td><td>安达科技</td><td>9,000</td><td class="down">-25%</td><td class="down">-25%</td><td>72%</td>
-            </tr>
+            <tr><td>1</td><td><strong>湖南裕能</strong></td><td>125,000</td><td class="up">+4%</td><td class="up">+39%</td><td class="up">111%</td></tr>
+            <tr><td>2</td><td>万润新能</td><td>42,000</td><td class="up">+5%</td><td class="up">+62%</td><td>95%</td></tr>
+            <tr><td>3</td><td>德方纳米</td><td>37,000</td><td class="up">+12%</td><td class="up">+90%</td><td>98%</td></tr>
+            <tr><td>4</td><td>江西升华</td><td>33,000</td><td class="up">+10%</td><td class="up">+57%</td><td>61%</td></tr>
+            <tr class="sub"><td>5</td><td><strong>常州锂源</strong></td><td>28,745</td><td class="up">+13%</td><td class="up">+105%</td><td>87%</td></tr>
+            <tr><td>6</td><td>友山科技</td><td>25,500</td><td class="up">+2%</td><td class="up">+9%</td><td>63%</td></tr>
+            <tr><td>7</td><td>国轩高科</td><td>19,000</td><td class="up">+6%</td><td class="up">+4%</td><td>95%</td></tr>
+            <tr><td>8</td><td>邦普循环</td><td>16,000</td><td class="down">-20%</td><td class="up">+540%</td><td>52%</td></tr>
+            <tr><td>9</td><td>万华化学</td><td>15,000</td><td class="up">+7%</td><td class="up">+200%</td><td>51%</td></tr>
+            <tr><td>10</td><td>融通高科</td><td>13,000</td><td class="up">+8%</td><td class="up">+62%</td><td>51%</td></tr>
+            <tr><td>11</td><td>天原锂电</td><td>12,500</td><td class="up">+4%</td><td>—</td><td>100%</td></tr>
+            <tr><td>12</td><td>协鑫锂电</td><td>12,500</td><td class="up">+4%</td><td class="up">+32%</td><td>100%</td></tr>
+            <tr><td>13</td><td>当升科技</td><td>12,000</td><td>0%</td><td class="up">+67%</td><td class="up">120%</td></tr>
+            <tr><td>14</td><td>泰丰先行</td><td>10,000</td><td>0%</td><td class="up">+5%</td><td>69%</td></tr>
+            <tr><td>15</td><td>安达科技</td><td>9,000</td><td class="down">-25%</td><td class="down">-25%</td><td>72%</td></tr>
           </tbody>
         </table>
-        <p style="margin-top:8px;font-size:12px;color:#888">注：<span style="background:#fff3e0;padding:1px 6px;border-radius:4px">橙色行</span>为常州锂源；开工率>100%表示超产运行。数据来源：鑫椤数据；常州锂源数据来源于常州锂源运营监控部。</p>
+        <p style="font-size:12px;color:#888">注：<span style="background:#e8f5e9;padding:1px 6px;border-radius:4px">绿色行</span>为常州锂源；开工率>100%表示超产运行。</p>
       </div>
 
       <!-- 1.4 竞品销量 -->
       <div id="p1-4">
         <h3>1.4 竞品销量分析</h3>
-        <p>5月各主要企业出货量（竞对视角）如下：</p>
         <table class="data-table">
           <thead>
             <tr><th>企业</th><th>核心客户流向</th><th>关键信息</th></tr>
           </thead>
           <tbody>
-            <tr>
-              <td><strong>湖南裕能</strong></td>
-              <td>C(49,000) / 亿纬(13,000) / 国轩(8,000) / 远景(7,000) / 海辰(12,000)</td>
-              <td>宁德国轩海辰增量；供给中航CN5-B产品；特斯拉项目Y5老产品月供七八千稳定</td>
-            </tr>
-            <tr>
-              <td><strong>常州锂源</strong></td>
-              <td>—</td>
-              <td>5月产量28,745吨，环比+13%，同比+105%，开工率87%；详见Part 5专题</td>
-            </tr>
-            <tr>
-              <td>德方纳米</td>
-              <td>C(20,000) / 亿纬(9,000) / 蜂巢(3,500) / 欣旺达(2,000)</td>
-              <td>有成本优势，蜂巢低价订单也做；B中标；中航想用粗细颗粒混搭，德方不让价</td>
-            </tr>
-            <tr>
-              <td>富临升华</td>
-              <td>C(32,000) / 蜂巢(500) / 吉利(500)</td>
-              <td>在C、吉利谈价压力大，提价难，动力传导不下去，终端车压力大</td>
-            </tr>
-            <tr>
-              <td>万润新能</td>
-              <td>C(10,000) / B(7,500) / 楚能(10,500) / 海辰(3,500) / 远景(2,000)</td>
-              <td>C后面会持续增量（四代品赚的多）；海辰已全部停掉转给赣锋（赣锋价格高）</td>
-            </tr>
-            <tr>
-              <td>邦普循环</td>
-              <td>C(22,000)</td>
-              <td>5月有中修，出了一些库存；挖到协鑫技术人员，但铁红路线暂无上产线计划</td>
-            </tr>
-            <tr>
-              <td>当升科技</td>
-              <td>中航(7,000) / 瑞浦(1,000) / 赣锋(2,000) / 吉利(500) / 力神(600)</td>
-              <td>中航武汉基地铜颗粒问题赔偿1.2亿尚未谈妥；6月想提加工费，中航认为太高；新租江西格派2万吨产线</td>
-            </tr>
-            <tr>
-              <td>国轩高科</td>
-              <td>国轩(19,000)</td>
-              <td>庐江10万吨扩产项目7月调试，8月正式出料</td>
-            </tr>
-            <tr>
-              <td>天原锂电</td>
-              <td>C(10,000) / 亿纬(2,000)</td>
-              <td>扩产8万吨年底投产，含3万吨锂电新材+5万吨天程（铁红工艺）</td>
-            </tr>
-            <tr>
-              <td>融通高科</td>
-              <td>B(12,000) / 派能(200) / 宝丰(200)</td>
-              <td>印度项目暂缓重启未定；5月比亚迪一家1.2-1.3万吨；报价高竞争优势不大</td>
-            </tr>
+            <tr><td><strong>湖南裕能</strong></td><td>C(49,000) / 亿纬(13,000) / 国轩(8,000) / 远景(7,000) / 海辰(12,000)</td><td>宁德国轩海辰增量；供给中航CN5-B产品；特斯拉项目Y5老产品月供七八千</td></tr>
+            <tr class="sub"><td><strong>常州锂源</strong></td><td>—</td><td>5月产量28,745吨，环比+13%，同比+105%，开工率87%；详见Part 5专题</td></tr>
+            <tr><td>德方纳米</td><td>C(20,000) / 亿纬(9,000) / 蜂巢(3,500) / 欣旺达(2,000)</td><td>有成本优势，蜂巢低价订单也做；B中标；中航想用粗细颗粒混搭，德方不让价</td></tr>
+            <tr><td>富临升华</td><td>C(32,000) / 蜂巢(500) / 吉利(500)</td><td>在C、吉利谈价压力大，提价难，终端车压力大</td></tr>
+            <tr><td>万润新能</td><td>C(10,000) / B(7,500) / 楚能(10,500) / 海辰(3,500)</td><td>海辰已全部停掉转给赣锋（赣锋价格高）</td></tr>
+            <tr><td>邦普循环</td><td>C(22,000)</td><td>5月有中修，出了一些库存</td></tr>
+            <tr><td>当升科技</td><td>中航(7,000) / 瑞浦(1,000) / 赣锋(2,000) / 吉利(500)</td><td>中航铜颗粒问题赔偿1.2亿尚未谈妥；新租江西格派2万吨产线</td></tr>
+            <tr><td>国轩高科</td><td>国轩(19,000)</td><td>庐江10万吨扩产项目7月调试，8月正式出料</td></tr>
+            <tr><td>融通高科</td><td>B(12,000) / 派能(200) / 宝丰(200)</td><td>印度项目暂缓重启未定；报价高竞争优势不大</td></tr>
           </tbody>
         </table>
       </div>
@@ -374,129 +281,102 @@ footer { text-align: center; padding: 24px; color: var(--text-light); font-size:
       <!-- 1.5 出口分析 -->
       <div id="p1-5">
         <h3>1.5 出口分析</h3>
-        <p>5月磷酸铁锂总出口量为7,625吨，环比增加29%，同比暴增710%，出口均价5.9万元/吨，创历史高位。出口爆发式增长的核心原因，是全球新能源产业对磷酸铁锂材料的旺盛需求——因其成本、安全优势在储能、动力电池等领域持续渗透，推动国际采购需求攀升。我国磷酸铁锂产业链的技术成熟度、产能规模、成本控制力等优势，为出口增长提供了坚实支撑。</p>
-        <div class="kpi-grid" style="margin-top:16px">
-          <div class="kpi-card">
-            <div class="kpi-value">7,625<span class="kpi-unit">吨</span></div>
-            <div class="kpi-label">5月LFP出口量</div>
-            <div class="kpi-change up">环比+29% | 同比+710%</div>
-          </div>
-          <div class="kpi-card">
-            <div class="kpi-value">5.9<span class="kpi-unit">万/吨</span></div>
-            <div class="kpi-label">出口均价</div>
-            <div class="kpi-change up">处历史高位</div>
-          </div>
-          <div class="kpi-card">
-            <div class="kpi-value">3,015<span class="kpi-unit">吨</span></div>
-            <div class="kpi-label">对美出口量</div>
-            <div class="kpi-change up">均价5.4万/吨</div>
-          </div>
+        <p>5月磷酸铁锂总出口量为7,625吨，环比增加29%，同比暴增710%，出口均价5.9万元/吨，创历史高位。全球新能源产业对磷酸铁锂旺盛需求，中国产业链技术成熟度、产能规模、成本控制力优势为出口增长提供坚实支撑。</p>
+
+        <!-- 图表3: LFP出口量趋势 -->
+        <div class="chart-card">
+          <h4>📈 LFP月度出口量趋势（2024-01 ~ 2026-05）</h4>
+          <div id="chart-lfp-export" class="chart-container"></div>
+          <div class="data-source" style="font-size:12px;color:#888;margin-top:8px"><span>📈 数据来源：海关总署</span><span style="margin-left:16px">5月出口7,625吨，环比+29%，同比+710%</span></div>
         </div>
-        <p style="margin-top:12px">5月出口量前三位为美国（3,015吨，均价5.4万/吨）、泰国及日韩等亚洲市场为主。东南亚市场因正加速布局电动汽车与储能市场，叠加中国电池产业链企业入驻，催生海量需求，推动对亚洲区域出口稳步增长。</p>
+
+        <!-- 图表4: 出口目的地 -->
+        <div class="chart-card">
+          <h4>🌍 LFP出口目的地分布（2026年5月）</h4>
+          <div id="chart-export-dest" class="chart-container"></div>
+          <div class="data-source" style="font-size:12px;color:#888;margin-top:8px"><span>📈 数据来源：海关总署</span><span style="margin-left:16px">美国为最大出口市场（3,015吨，均价5.4万/吨）</span></div>
+        </div>
       </div>
 
       <!-- 1.6 价格分析 -->
       <div id="p1-6">
         <h3>1.6 价格分析</h3>
-        <p>5月磷酸铁锂现货市场价格整体处于高位区间，分压实密度价格如下：</p>
+        <p>5月磷酸铁锂现货市场价格整体处于高位区间，动力型均价6.28~6.64万元/吨，储能型6.13~6.53万元/吨。行业长期亏损后扩产节奏放缓，供需改善态势明确，合理价格修复有望延续。</p>
+
+        <!-- 图表5: LFP价格走势 -->
+        <div class="chart-card">
+          <h4>📈 LFP现货市场价格走势（2024-01 ~ 2026-05）</h4>
+          <div id="chart-lfp-price" class="chart-container"></div>
+          <div class="data-source" style="font-size:12px;color:#888;margin-top:8px"><span>📈 数据来源：鑫椤锂电-现货市场均价</span><span style="margin-left:16px">5月动力型均价6.32万元/吨，储能型6.31万元/吨</span></div>
+        </div>
+
         <table class="data-table">
           <thead>
             <tr><th>类型</th><th>压实密度</th><th>均价（万元/吨）</th><th>备注</th></tr>
           </thead>
           <tbody>
-            <tr>
-              <td>储能型</td><td>2.3-2.4 g/mAh</td><td>6.13~6.20</td><td>基础储能规格</td>
-            </tr>
-            <tr>
-              <td>储能型</td><td>2.4-2.5 g/mAh</td><td>6.24~6.31</td><td>主流储能规格</td>
-            </tr>
-            <tr>
-              <td>储能型</td><td>2.5-2.55 g/mAh</td><td>6.27~6.35</td><td>高密度储能</td>
-            </tr>
-            <tr>
-              <td>储能型</td><td>2.55-2.6 g/mAh</td><td>6.43~6.53</td><td>高端储能</td>
-            </tr>
-            <tr class="highlight">
-              <td>动力型</td><td>2.4-2.5 g/mAh</td><td>6.28~6.35</td><td>基础动力规格</td>
-            </tr>
-            <tr>
-              <td>动力型</td><td>2.5-2.55 g/mAh</td><td>6.31~6.47</td><td>主流动力规格</td>
-            </tr>
-            <tr>
-              <td>动力型</td><td>2.55-2.6 g/mAh</td><td>6.44~6.63</td><td>高密度动力</td>
-            </tr>
-            <tr>
-              <td>动力型</td><td>2.6-2.65 g/mAh</td><td>6.57~6.76</td><td>高端动力旗舰</td>
-            </tr>
-            <tr>
-              <td>回收修复型</td><td>—</td><td>4.55~4.64</td><td>回收废料再利用</td>
-            </tr>
+            <tr><td>储能型</td><td>2.3-2.4 g/mAh</td><td>6.13~6.20</td><td>基础储能规格</td></tr>
+            <tr><td>储能型</td><td>2.4-2.5 g/mAh</td><td>6.24~6.31</td><td>主流储能规格</td></tr>
+            <tr><td>储能型</td><td>2.55-2.6 g/mAh</td><td>6.43~6.53</td><td>高端储能</td></tr>
+            <tr class="highlight"><td>动力型</td><td>2.4-2.5 g/mAh</td><td>6.28~6.35</td><td>基础动力规格</td></tr>
+            <tr><td>动力型</td><td>2.5-2.55 g/mAh</td><td>6.31~6.47</td><td>主流动力规格</td></tr>
+            <tr><td>动力型</td><td>2.6-2.65 g/mAh</td><td>6.57~6.76</td><td>高端动力旗舰</td></tr>
+            <tr><td>回收修复型</td><td>—</td><td>4.55~4.64</td><td>回收废料再利用</td></tr>
           </tbody>
         </table>
-        <p style="margin-top:8px;font-size:12px;color:#888">注：数据来源鑫椤锂电-现货市场均价（截至2026-05-29）。</p>
-        <div class="alert-box">
-          <p>5月磷酸铁锂价格高位持稳，成本与需求双重支撑下，企业挺价意愿强烈。行业长期亏损后扩产节奏放缓，供需改善态势明确，合理价格修复有望延续。</p>
-        </div>
       </div>
     </div>
 
-    <!-- ===================== PART 2: 磷酸铁市场分析 ===================== -->
+    <!-- ===================== PART 2: 磷酸铁 ===================== -->
     <div class="section-card" id="p2">
       <h2><span class="part-label">Part 2</span> 磷酸铁市场分析</h2>
 
-      <h3>2.1 磷酸铁产量分析</h3>
-      <p>5月，受磷酸铁锂市场需求旺盛影响，磷酸铁产量延续增长态势。磷酸铁总产量约41.04万吨，产能约45.60万吨，行业平均开工率90%，整体供需两旺。</p>
-
-      <div class="kpi-grid">
-        <div class="kpi-card">
-          <div class="kpi-value">41.04<span class="kpi-unit">万吨</span></div>
-          <div class="kpi-label">FP 5月产量</div>
-          <div class="kpi-change up">行业高景气</div>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-value">90<span class="kpi-unit">%</span></div>
-          <div class="kpi-label">行业开工率</div>
-          <div class="kpi-change up">处高位</div>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-value">1.45<span class="kpi-unit">万/吨</span></div>
-          <div class="kpi-label">FP现货均价</div>
-          <div class="kpi-change up">高位持稳</div>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-value">1.38~1.52<span class="kpi-unit">万/吨</span></div>
-          <div class="kpi-label">FP价格区间</div>
-          <div class="kpi-change up">低端~高端</div>
-        </div>
+      <!-- 图表6: FP产量趋势 -->
+      <div class="chart-card">
+        <h4>📊 磷酸铁月度产量趋势（2024-01 ~ 2026-05）</h4>
+        <div id="chart-fp-output" class="chart-container"></div>
+        <div class="data-source" style="font-size:12px;color:#888;margin-top:8px"><span>📈 数据来源：鑫椤数据</span><span style="margin-left:16px">5月FP产量41.04万吨，开工率90%</span></div>
       </div>
 
-      <h3>2.2 磷酸铁价格分析</h3>
-      <p>5月磷酸铁现货均价1.45万元/吨，价格区间1.38-1.52万元/吨，环比基本持平。磷酸铁市场挺价氛围持续，上游厂家在原料成本高位支撑下报价坚挺，新单商谈价格普遍有所提升。下游磷酸铁锂行业需求表现稳健，对原料采购需求维持刚性。</p>
+      <!-- 图表7: FP价格走势 -->
+      <div class="chart-card">
+        <h4>📈 磷酸铁现货价格走势（2024-01 ~ 2026-05）</h4>
+        <div id="chart-fp-price" class="chart-container"></div>
+        <div class="data-source" style="font-size:12px;color:#888;margin-top:8px"><span>📈 数据来源：鑫椤锂电-现货市场均价</span><span style="margin-left:16px">5月FP均价1.45万元/吨，区间1.38-1.52万/吨</span></div>
+      </div>
 
-      <h3>2.3 磷酸盐价格</h3>
-      <p>5月磷酸盐产业链价格整体高位运行：</p>
-      <table class="data-table">
-        <thead>
-          <tr><th>品种</th><th>均价（万元/吨）</th><th>备注</th></tr>
-        </thead>
-        <tbody>
-          <tr><td>黄磷</td><td>3.24</td><td>区间3.20-3.28万/吨，成本支撑坚挺</td></tr>
-          <tr><td>磷酸（热法）</td><td>0.74</td><td>原料黄磷高位，成本支撑强</td></tr>
-          <tr><td>磷酸（湿法）</td><td>0.73</td><td>硫磺价格高位，企业盈利承压</td></tr>
-          <tr><td>磷酸一铵（工业级）</td><td>0.67</td><td>湿法工艺主要产品，下游需求稳定</td></tr>
-          <tr><td>磷矿石（30%品位）</td><td>0.105</td><td>供应端年末收缩，价格坚挺</td></tr>
-        </tbody>
-      </table>
+      <!-- 图表8: 磷酸盐价格 -->
+      <div class="chart-card">
+        <h4>📊 磷酸盐产业链价格对比（2026年5月）</h4>
+        <div id="chart-phosphate" class="chart-container"></div>
+        <div class="data-source" style="font-size:12px;color:#888;margin-top:8px"><span>📈 数据来源：鑫椤数据</span><span style="margin-left:16px">黄磷均价3.24万/吨，领涨磷酸盐产业链</span></div>
+      </div>
     </div>
 
-    <!-- ===================== PART 3: 碳酸锂市场分析 ===================== -->
+    <!-- ===================== PART 3: 碳酸锂 ===================== -->
     <div class="section-card" id="p3">
       <h2><span class="part-label">Part 3</span> 碳酸锂市场分析</h2>
 
-      <h3>3.1 碳酸锂产量分析</h3>
-      <p>5月，国内碳酸锂总产量为105,310吨，产能约114,708吨，产能利用率91.81%，处历史高位。需求端延续强劲增长态势，国内碳酸锂单月需求量再创历史新高，市场去库态势延续。</p>
+      <!-- 图表9: 碳酸锂价格走势 -->
+      <div class="chart-card">
+        <h4>📈 碳酸锂现货价格走势（2024-01 ~ 2026-06）</h4>
+        <div id="chart-carbonate-price" class="chart-container"></div>
+        <div class="data-source" style="font-size:12px;color:#888;margin-top:8px"><span>📈 数据来源：鑫椤数据-现货市场价</span><span style="margin-left:16px">5月工业级98.5%均价17.49万/吨，处历史高位</span></div>
+      </div>
+
+      <!-- 图表10: 碳酸锂产量 -->
+      <div class="chart-card">
+        <h4>📊 碳酸锂月度产量趋势（2025-01 ~ 2026-05）</h4>
+        <div id="chart-carbonate-output" class="chart-container"></div>
+        <div class="data-source" style="font-size:12px;color:#888;margin-top:8px"><span>📈 数据来源：鑫椤数据（含电池级与工业级）</span><span style="margin-left:16px">5月产量10.53万吨，产能利用率91.81%</span></div>
+      </div>
 
       <div class="kpi-grid">
+        <div class="kpi-card">
+          <div class="kpi-value">17.49<span class="kpi-unit">万/吨</span></div>
+          <div class="kpi-label">工业级98.5%均价</div>
+          <div class="kpi-change up">处历史高价区间</div>
+        </div>
         <div class="kpi-card">
           <div class="kpi-value">10.53<span class="kpi-unit">万吨</span></div>
           <div class="kpi-label">碳酸锂5月产量</div>
@@ -508,51 +388,39 @@ footer { text-align: center; padding: 24px; color: var(--text-light); font-size:
           <div class="kpi-change up">高位运行</div>
         </div>
         <div class="kpi-card">
-          <div class="kpi-value">16.25<span class="kpi-unit">万/吨</span></div>
-          <div class="kpi-label">工业级98.5%均价</div>
-          <div class="kpi-change up">处高价区间</div>
-        </div>
-        <div class="kpi-card">
           <div class="kpi-value">37,555<span class="kpi-unit">吨</span></div>
           <div class="kpi-label">5月进口量</div>
           <div class="kpi-change up">环比+15% | 同比+78%</div>
         </div>
       </div>
 
-      <h3>3.2 碳酸锂价格分析</h3>
-      <p>截至5月29日，电池级99.5%碳酸锂价格区间在16.15-16.35万元/吨，现货市场均价为16.25万元/吨，处历史高价区间。价格中枢明显抬升，储能侧的大幅拉动是核心驱动因素，下游材料厂开工率达到全年历史高位，月度供给端缺口不断放大，碳酸锂市场维持强势格局。</p>
-
-      <h3>3.3 碳酸锂进出口</h3>
-      <p>5月碳酸锂进口量37,555吨，环比+15%，同比+78%，进口均价13.1万元/吨，智利为主要进口来源地（24,522吨，均价13.59万元/吨）；碳酸锂出口量201吨，环比-46%，同比-30%。</p>
-
-      <h3>3.4 氢氧化锂及锂矿</h3>
-      <p>5月氢氧化锂产量31,030吨，产能利用率55%，均价16.45万元/吨（粗颗粒56.5%）。锂辉石精矿（澳洲1.8%）均价2,500美元/吨，进口量68万吨，澳大利亚为最大来源国。</p>
+      <p>截至5月29日，电池级99.5%碳酸锂价格区间在16.15-16.35万元/吨，现货均价17.49万元/吨，处历史高价区间。储能侧大幅拉动是核心驱动，下游材料厂开工率达到全年历史高位，市场维持强势格局。5月进口量37,555吨，环比+15%，智利为主要来源地（24,522吨，均价13.59万/吨）。</p>
     </div>
 
-    <!-- ===================== PART 4: 三元材料市场 ===================== -->
+    <!-- ===================== PART 4: 三元材料 ===================== -->
     <div class="section-card" id="p4">
       <h2><span class="part-label">Part 4</span> 三元材料市场</h2>
 
-      <h3>4.1 NCM产量</h3>
-      <p>5月国内NCM产量85,820吨，产能132,708吨，产能利用率64.67%，远低于LFP的81%，铁锂路线优势显著。</p>
+      <!-- 图表11: LFP vs NCM产量对比 -->
+      <div class="chart-card">
+        <h4>📊 LFP vs NCM产量走势对比（2025-01 ~ 2026-05）</h4>
+        <div id="chart-lfp-vs-ncm" class="chart-container"></div>
+        <div class="data-source" style="font-size:12px;color:#888;margin-top:8px"><span>📈 数据来源：鑫椤数据</span><span style="margin-left:16px">5月LFP产量是NCM的5.7倍，铁锂路线主导地位持续强化</span></div>
+      </div>
+
+      <h3>分型号产量结构（2026年5月）</h3>
       <table class="data-table">
         <thead>
           <tr><th>型号</th><th>产量(吨)</th><th>占比</th></tr>
         </thead>
         <tbody>
           <tr><td>NCM622</td><td>40,700</td><td>47.4%</td></tr>
-          <tr><td>NCM9系</td><td>16,150</td><td>18.8%</td></tr>
           <tr><td>NCM811</td><td>17,650</td><td>20.6%</td></tr>
+          <tr><td>NCM9系</td><td>16,150</td><td>18.8%</td></tr>
           <tr><td>NCM523</td><td>8,370</td><td>9.8%</td></tr>
           <tr><td>NCA</td><td>2,950</td><td>3.4%</td></tr>
         </tbody>
       </table>
-
-      <h3>4.2 NCM出口</h3>
-      <p>5月NCM出口量13,987吨，环比+42%，同比+59%，出口均价18.8万元/吨（高位），韩国为主要出口目的地（7,442吨）。</p>
-
-      <h3>4.3 三元前驱体（NCMpre）</h3>
-      <p>5月NCMpre产量92,350吨，产能188,417吨，产能利用率49.01%，中伟科技居首（21,000吨，环比+8%）。</p>
 
       <div class="alert-box blue">
         <p><strong>LFP vs NCM结构性分化：</strong>5月LFP产量48.64万吨（开工率81%），NCM产量8.58万吨（开工率64.67%），LFP产量是NCM的5.7倍，开工率高出16个百分点，铁锂路线在储能+低端动力市场的主导地位持续强化。</p>
@@ -563,7 +431,14 @@ footer { text-align: center; padding: 24px; color: var(--text-light); font-size:
     <div class="section-card" id="p5">
       <h2><span class="part-label">Part 5</span> 常州锂源专题诊断</h2>
 
-      <h3>5.1 核心经营数据</h3>
+      <!-- 图表12: 常州锂源月度产量趋势 -->
+      <div class="chart-card">
+        <h4>📊 常州锂源月度产量趋势（2025-01 ~ 2026-05）</h4>
+        <div id="chart-czly-output" class="chart-container"></div>
+        <div class="data-source" style="font-size:12px;color:#888;margin-top:8px"><span>📈 数据来源：鑫椤数据 / 常州锂源运营监控部</span><span style="margin-left:16px">5月产量28,745吨，环比+13%，同比+105%</span></div>
+      </div>
+
+      <h3>核心经营数据</h3>
       <div class="kpi-grid">
         <div class="kpi-card">
           <div class="kpi-value">28,745<span class="kpi-unit">吨</span></div>
@@ -583,29 +458,28 @@ footer { text-align: center; padding: 24px; color: var(--text-light); font-size:
         <div class="kpi-card">
           <div class="kpi-value">5.9<span class="kpi-unit">万/吨</span></div>
           <div class="kpi-label">LFP出口均价</div>
-          <div class="kpi-change up">公司充分受益出口</div>
+          <div class="kpi-change up">公司充分受益出口爆发</div>
         </div>
       </div>
 
-      <h3>5.2 竞争态势分析</h3>
+      <h3>竞争态势分析</h3>
       <ul>
-        <li><strong>产量增速领先：</strong>5月产量同比+105%，远高于行业平均增速，在TOP15企业中增速排名靠前；环比+13%，增幅高于湖南裕能（+4%）和万润新能（+5%）</li>
+        <li><strong>产量增速领先：</strong>5月产量同比+105%，远高于行业平均增速；环比+13%，增幅高于湖南裕能（+4%）和万润新能（+5%）</li>
         <li><strong>开工率高于行业：</strong>87% vs 行业81%，满产超产运行，订单充足</li>
-        <li><strong>出口受益：</strong>5月LFP出口7,625吨（同比+710%），出口均价5.9万/吨，公司作为出口主力供应商之一直接受益</li>
-        <li><strong>竞争压力：</strong>湖南裕能（125,000吨，开工率111%）、德方纳米（37,000吨，开工率98%）持续压制；邦普循环因中修环比-20%，短期给锂源留出追赶空间</li>
-        <li><strong>客户结构：</strong>5月早报数据显示核心客户稳定，重点关注宁德、亿纬、远景、海辰等头部客户增量动态</li>
+        <li><strong>出口受益：</strong>5月LFP出口7,625吨（同比+710%），出口均价5.9万/吨，公司作为出口主力供应商直接受益</li>
+        <li><strong>竞争压力：</strong>湖南裕能（125,000吨，开工率111%）、德方纳米（37,000吨，开工率98%）持续压制；邦普循环因中修环比-20%，给锂源留出追赶空间</li>
       </ul>
 
-      <h3>5.3 战略建议</h3>
+      <h3>战略建议</h3>
       <ul>
         <li>聚焦高储能客户与项目，紧跟储能大电芯技术迭代趋势，攻坚高价值储能订单</li>
-        <li>动力领域集中资源推进3.5代产品量产与4代产品合作导入，聚焦核心客户与优质项目</li>
-        <li>充分利用出口爆发机遇，提升高价值产品出口占比</li>
-        <li>密切跟踪上游碳酸锂价格走势，优化采购策略，合理签订长单锁定成本</li>
+        <li>动力领域集中资源推进3.5代产品量产与4代产品合作导入，聚焦核心客户</li>
+        <li>充分利用出口爆发机遇，提升高端产品出口占比</li>
+        <li>密切跟踪碳酸锂价格走势，优化采购策略，合理签订长单锁定成本</li>
       </ul>
     </div>
 
-    <!-- ===================== PART 6: 总结及建议 ===================== -->
+    <!-- ===================== PART 6: 总结 ===================== -->
     <div class="section-card" id="p6">
       <h2><span class="part-label">Part 6</span> 总结及建议</h2>
 
@@ -615,7 +489,7 @@ footer { text-align: center; padding: 24px; color: var(--text-light); font-size:
           <li><span class="summary-tag">LFP产量</span>48.64万吨，开工率81%，历史高位</li>
           <li><span class="summary-tag">LFP出口</span>7,625吨，环比+29%，同比+710%，爆发式增长</li>
           <li><span class="summary-tag">LFP价格</span>动力型6.28~6.64万元/吨，储能型6.13~6.53万元/吨，高位持稳</li>
-          <li><span class="summary-tag">碳酸锂</span>均价16.25万/吨，产量10.53万吨，处历史高价区间</li>
+          <li><span class="summary-tag">碳酸锂</span>均价17.49万/吨，产量10.53万吨，处历史高价区间</li>
           <li><span class="summary-tag">常州锂源</span>产量28,745吨，环比+13%，同比+105%，开工率87%超行业均值</li>
           <li><span class="summary-tag">行业格局</span>LFP产量是NCM的5.7倍，铁锂路线主导地位持续强化</li>
         </ul>
@@ -623,15 +497,15 @@ footer { text-align: center; padding: 24px; color: var(--text-light); font-size:
 
       <h3>战略建议</h3>
       <ul>
-        <li><strong>强化成本管控：</strong>优化核心原料采购体系，合理调整合作折扣，降低成本波动风险；推进碳酸锂长单签订与账期优化，将碳酸锂、磷酸铁列为一级风险原料，优先与头部供应商签订"量价绑定"长约</li>
+        <li><strong>强化成本管控：</strong>优化核心原料采购体系，合理调整合作折扣；推进碳酸锂长单签订，将碳酸锂、磷酸铁列为一级风险原料，优先签订"量价绑定"长约</li>
         <li><strong>聚焦高潜领域：</strong>紧跟储能大电芯技术迭代与市场扩张趋势，攻坚高价值储能客户与项目</li>
-        <li><strong>动力升级：</strong>集中资源推进3.5代产品量产供应与4代产品合作导入，聚焦核心客户与优质项目，提升高价值订单占比</li>
-        <li><strong>差异化定价：</strong>对战略客户采用"小幅提价+长期订单折扣"方式，平衡利润与合作粘性；对零散订单执行市场高价，匹配当前行业挺价氛围</li>
-        <li><strong>出口机遇：</strong>充分利用LFP出口爆发机遇（5月同比+710%），提升高端产品出口占比，优化客户结构</li>
+        <li><strong>动力升级：</strong>集中资源推进3.5代产品量产供应与4代产品合作导入，聚焦核心客户与优质项目</li>
+        <li><strong>差异化定价：</strong>对战略客户采用"小幅提价+长期订单折扣"方式，平衡利润与合作粘性</li>
+        <li><strong>出口机遇：</strong>充分利用LFP出口爆发机遇（5月同比+710%），提升高端产品出口占比</li>
       </ul>
 
       <div class="alert-box green">
-        <p><strong>6月展望：</strong>预计6月LFP产销将继续攀升。成本端碳酸锂价格维持高位形成支撑；需求端储能招标持续超预期，动力电池装车量以铁锂为主导格局不变；供给端头部企业订单饱和度高，部分企业超产运行。行业供需改善态势明确，价格有望维持偏强运行。</p>
+        <p><strong>6月展望：</strong>预计6月LFP产销将继续攀升。成本端碳酸锂价格维持高位形成支撑；需求端储能招标持续超预期，动力电池装车量以铁锂为主导格局不变；行业供需改善态势明确，价格有望维持偏强运行。</p>
       </div>
     </div>
 
@@ -644,26 +518,211 @@ footer { text-align: center; padding: 24px; color: var(--text-light); font-size:
 </div>
 
 <script>
-// TOC active state
-const tocLinks = document.querySelectorAll('.toc-list a');
-const sections = document.querySelectorAll('[id]');
-window.addEventListener('scroll', () => {
-  let current = '';
-  sections.forEach(s => {
-    if (s.getBoundingClientRect().top < 120) current = s.id;
+(function() {
+  var C = {
+    primary: '#1565c0', primaryLight: '#1976d2', primaryDark: '#0d47a1',
+    green: '#2e7d32', orange: '#ef6c00', red: '#c62828',
+    palette: ['#1565c0','#1976d2','#0d47a1','#2e7d32','#ef6c00','#c62828','#6a1b9a','#00838f']
+  };
+  function baseOpt() {
+    return {
+      color: C.palette,
+      tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
+      grid: { left: '3%', right: '4%', bottom: '3%', top: '10%', containLabel: true },
+      legend: { top: 0 }
+    };
+  }
+  function makeChart(id, opt) {
+    var dom = document.getElementById(id);
+    if (!dom) return;
+    var c = echarts.init(dom);
+    c.setOption(Object.assign({}, baseOpt(), opt));
+    window.addEventListener('resize', function() { c.resize(); });
+  }
+
+  // ========== Chart 1: LFP月度产量趋势 ==========
+  var lfpOutput = {
+    xAxis: { type: 'category', data: ['24-01','02','03','04','05','06','07','08','09','10','11','12','25-01','02','03','04','05','06','07','08','09','10','11','12','26-01','02','03','04','05'], axisLabel: { fontSize: 11 }, name: '月份', nameLocation: 'end', nameGap: 5 },
+    yAxis: [
+      { type: 'value', name: '产量（万吨）', axisLabel: { fontSize: 11, formatter: function(v) { return (v/10000).toFixed(1)+'万'; } } },
+      { type: 'value', name: '开工率%', axisLabel: { fontSize: 11, formatter: function(v) { return v+'%'; } }, max: 100, splitLine: { lineStyle: { type: 'dashed' } } }
+    ],
+    series: [
+      { name: 'LFP产量', type: 'bar', data: [11.7,10.1,17.5,19.8,20.5,18.4,19.2,21.2,23.7,25.6,27.3,27.4,25.0,22.6,27.2,28.7,30.2,31.0,31.4,35.4,36.7,40.1,42.4,41.6,41.2,38.0,45.1,47.0,48.6], itemStyle: { color: '#1565c0', borderRadius: [3,3,0,0] } },
+      { name: '开工率', type: 'line', yAxisIndex: 1, data: [34,29,48,53,53,47,48,52,59,59,60,59,60,56,69,72,74,74,74,82,85,86,89,85,80,74,78,80,81], lineStyle: { color: '#ef6c00', width: 2 }, itemStyle: { color: '#ef6c00' }, smooth: true },
+      { name: '常州锂源', type: 'line', yAxisIndex: 0, data: [null,null,null,null,null,null,null,null,null,null,null,null,1.15,1.05,1.00,1.41,1.40,1.80,1.80,1.85,1.88,2.15,2.42,2.20,2.10,1.73,2.33,2.55,2.87], lineStyle: { color: '#2e7d32', width: 2, type: 'dashed' }, itemStyle: { color: '#2e7d32' }, smooth: true }
+    ]
+  };
+  makeChart('chart-lfp-output', lfpOutput);
+
+  // ========== Chart 2: 分企业产量TOP10 ==========
+  var companyData = [
+    { name: '湖南裕能', val: 125000 }, { name: '万润新能', val: 42000 },
+    { name: '德方纳米', val: 37000 }, { name: '江西升华', val: 33000 },
+    { name: '常州锂源', val: 28745 }, { name: '友山科技', val: 25500 },
+    { name: '国轩高科', val: 19000 }, { name: '邦普循环', val: 16000 },
+    { name: '万华化学', val: 15000 }, { name: '融通高科', val: 13000 }
+  ];
+  makeChart('chart-company-output', {
+    xAxis: { type: 'value', name: '产量（吨）', axisLabel: { fontSize: 11, formatter: function(v) { return (v/1000).toFixed(0)+'k'; } } },
+    yAxis: { type: 'category', data: companyData.map(function(d) { return d.name; }).reverse(), axisLabel: { fontSize: 11 } },
+    series: [{
+      name: '5月产量',
+      type: 'bar',
+      data: companyData.map(function(d) { return d.val; }).reverse(),
+      itemStyle: {
+        color: function(params) {
+          return params.dataIndex === 5 ? '#ef6c00' : '#1565c0';
+        },
+        borderRadius: [0, 4, 4, 0]
+      },
+      label: { show: true, position: 'right', fontSize: 11, formatter: function(p) { return (p.value/1000).toFixed(0)+'k吨'; } }
+    }]
   });
-  tocLinks.forEach(a => {
-    a.classList.toggle('active', a.getAttribute('href') === '#' + current);
+
+  // ========== Chart 3: LFP出口量趋势 ==========
+  makeChart('chart-lfp-export', {
+    xAxis: { type: 'category', data: ['24-01','02','03','04','05','06','07','08','09','10','11','12','25-01','02','03','04','05','06','07','08','09','10','11','12','26-01','02','03','04','05'], axisLabel: { fontSize: 11 } },
+    yAxis: [
+      { type: 'value', name: '出口量（吨）', axisLabel: { fontSize: 11 } },
+      { type: 'value', name: '均价（万元/吨）', axisLabel: { fontSize: 11 } }
+    ],
+    series: [
+      { name: '出口量', type: 'bar', data: [133,102,143,64,177,147,164,262,538,311,334,911,1221,596,1368,1152,942,2032,2741,2000,3092,5477,7721,4029,5687,6530,7533,5898,7625], itemStyle: { color: '#1565c0', borderRadius: [3,3,0,0] } },
+      { name: '出口均价', type: 'line', yAxisIndex: 1, data: [7.4,6.0,7.0,5.8,5.9,5.2,7.2,5.0,4.7,4.6,4.3,4.4,4.4,4.0,4.2,4.5,3.9,3.9,3.8,3.8,3.7,3.7,3.6,3.5,4.3,5.0,5.7,5.3,5.9], lineStyle: { color: '#ef6c00', width: 2 }, itemStyle: { color: '#ef6c00' }, smooth: true }
+    ]
   });
-});
-// Smooth scroll
-tocLinks.forEach(a => {
-  a.addEventListener('click', e => {
-    e.preventDefault();
-    const target = document.querySelector(a.getAttribute('href'));
-    if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+  // ========== Chart 4: 出口目的地 ==========
+  var exportDest = [
+    { name: '美国', val: 3014.7 }, { name: '泰国', val: 2030.6 },
+    { name: '马来西亚', val: 886.0 }, { name: '日本', val: 620.6 },
+    { name: '越南', val: 420.0 }, { name: '印尼', val: 366.0 },
+    { name: '韩国', val: 120.2 }, { name: '加拿大', val: 85.2 },
+    { name: '台湾', val: 33.9 }, { name: '波兰', val: 32.0 }
+  ];
+  makeChart('chart-export-dest', {
+    xAxis: { type: 'category', data: exportDest.map(function(d) { return d.name; }) },
+    yAxis: { type: 'value', name: '出口量（吨）', axisLabel: { fontSize: 11 } },
+    series: [{
+      name: '5月出口量',
+      type: 'bar',
+      data: exportDest.map(function(d) { return d.val; }),
+      itemStyle: { color: function(p) { return p.dataIndex === 0 ? '#ef6c00' : '#1565c0'; }, borderRadius: [4,4,0,0] },
+      label: { show: true, position: 'top', fontSize: 10, formatter: function(p) { return p.value.toFixed(0); } }
+    }]
   });
-});
+
+  // ========== Chart 5: LFP价格走势 ==========
+  makeChart('chart-lfp-price', {
+    xAxis: { type: 'category', data: ['24-01','02','03','04','05','06','07','08','09','10','11','12','25-01','02','03','04','05','06','07','08','09','10','11','12','26-01','02','03','04','05'], axisLabel: { fontSize: 11 } },
+    yAxis: { type: 'value', name: '万元/吨', axisLabel: { fontSize: 11 }, min: 2 },
+    series: [
+      { name: '动力型(2.4-2.5)', type: 'line', data: [4.35,4.37,4.44,4.39,4.23,3.96,3.75,3.40,3.29,3.29,3.42,3.37,3.37,3.37,3.37,3.33,3.15,3.03,3.27,3.43,3.43,3.58,3.91,4.51,5.36,5.60,5.43,5.93,6.32], smooth: true, lineStyle: { width: 2 }, itemStyle: { color: '#1565c0' } },
+      { name: '储能型(2.4-2.5)', type: 'line', data: [3.95,3.97,4.04,3.99,4.05,3.84,3.61,3.30,3.24,3.22,3.37,3.31,3.31,3.31,3.31,3.25,3.00,2.88,3.12,3.29,3.29,3.45,3.76,4.36,5.34,5.58,5.41,5.91,6.31], smooth: true, lineStyle: { width: 2 }, itemStyle: { color: '#2e7d32' } }
+    ]
+  });
+
+  // ========== Chart 6: FP产量趋势 ==========
+  makeChart('chart-fp-output', {
+    xAxis: { type: 'category', data: ['24-01','02','03','04','05','06','07','08','09','10','11','12','25-01','02','03','04','05','06','07','08','09','10','11','12','26-01','02','03','04','05'], axisLabel: { fontSize: 11 } },
+    yAxis: [
+      { type: 'value', name: '产量（万吨）', axisLabel: { fontSize: 11, formatter: function(v) { return (v/10000).toFixed(1)+'万'; } } },
+      { type: 'value', name: '开工率%', axisLabel: { fontSize: 11, formatter: function(v) { return v+'%'; } }, max: 100, splitLine: { lineStyle: { type: 'dashed' } } }
+    ],
+    series: [
+      { name: 'FP产量', type: 'bar', data: [9.3,7.8,13.8,16.6,17.1,15.9,15.6,17.3,20.8,21.9,23.6,23.5,23.1,21.2,25.1,26.0,25.6,25.6,26.7,29.5,30.7,33.7,34.9,35.2,33.2,32.3,38.5,39.7,41.0], itemStyle: { color: '#00838f', borderRadius: [3,3,0,0] } },
+      { name: '开工率', type: 'line', yAxisIndex: 1, data: [36,32,50,57,58,54,53,59,65,66,72,70,67,61,69,71,71,71,74,80,86,89,90,88,76,75,85,87,90], lineStyle: { color: '#ef6c00', width: 2 }, itemStyle: { color: '#ef6c00' }, smooth: true }
+    ]
+  });
+
+  // ========== Chart 7: FP价格走势 ==========
+  makeChart('chart-fp-price', {
+    xAxis: { type: 'category', data: ['24-01','02','03','04','05','06','07','08','09','10','11','12','25-01','02','03','04','05','06','07','08','09','10','11','12','26-01','02','03','04','05'], axisLabel: { fontSize: 11 } },
+    yAxis: { type: 'value', name: '万元/吨', axisLabel: { fontSize: 11, formatter: function(v) { return v.toFixed(2); } } },
+    series: [
+      { name: 'FP均价', type: 'line', data: [1.07,1.04,1.06,1.06,1.06,1.06,1.05,1.04,1.04,1.04,1.04,1.07,1.07,1.07,1.07,1.08,1.08,1.07,1.07,1.07,1.07,1.07,1.11,1.16,1.17,1.17,1.22,1.31,1.45], smooth: true, areaStyle: { color: { type: 'linear', x:0,y:0,x2:0,y2:1, colorStops: [{ offset:0, color:'rgba(0,131,143,0.3)' },{ offset:1, color:'rgba(0,131,143,0.02)' }] } }, lineStyle: { width: 2, color: '#00838f' }, itemStyle: { color: '#00838f' } }
+    ]
+  });
+
+  // ========== Chart 8: 磷酸盐价格 ==========
+  makeChart('chart-phosphate', {
+    xAxis: { type: 'category', data: ['黄磷','磷矿石\n(30%品位)','磷酸\n(热法)','磷酸\n(湿法)','磷酸一铵\n(工业级)'] },
+    yAxis: { type: 'value', name: '万元/吨', axisLabel: { fontSize: 11 } },
+    series: [{
+      name: '5月价格',
+      type: 'bar',
+      data: [3.24, 0.105, 0.92, 0.91, 0.73],
+      itemStyle: { color: function(p) { return ['#1565c0','#1976d2','#00838f','#00838f','#2e7d32'][p.dataIndex]; }, borderRadius: [4,4,0,0] },
+      label: { show: true, position: 'top', fontSize: 12, formatter: function(p) { return p.value.toFixed(2); } }
+    }]
+  });
+
+  // ========== Chart 9: 碳酸锂价格 ==========
+  makeChart('chart-carbonate-price', {
+    xAxis: { type: 'category', data: ['24-01','02','03','04','05','06','07','08','09','10','11','12','25-01','02','03','04','05','06','07','08','09','10','11','12','26-01','02','03','04','05','06'], axisLabel: { fontSize: 11 } },
+    yAxis: { type: 'value', name: '万元/吨', axisLabel: { fontSize: 11 }, min: 4 },
+    series: [
+      { name: '碳酸锂均价', type: 'line', data: [8.73,8.70,9.78,10.13,10.20,9.34,8.46,7.36,7.17,7.12,7.37,7.31,7.33,7.28,7.21,6.98,6.30,5.83,6.40,7.50,7.18,7.35,8.36,9.82,14.10,14.05,14.59,15.35,17.49,16.44], smooth: true, lineStyle: { width: 2, color: '#c62828' }, itemStyle: { color: '#c62828' }, areaStyle: { color: { type: 'linear', x:0,y:0,x2:0,y2:1, colorStops: [{ offset:0, color:'rgba(198,40,40,0.25)' },{ offset:1, color:'rgba(198,40,40,0.02)' }] } } }
+    ]
+  });
+
+  // ========== Chart 10: 碳酸锂产量 ==========
+  makeChart('chart-carbonate-output', {
+    xAxis: { type: 'category', data: ['25-01','02','03','04','05','06','07','08','09','10','11','12','26-01','02','03','04','05'], axisLabel: { fontSize: 11 } },
+    yAxis: [
+      { type: 'value', name: '产量（吨）', axisLabel: { fontSize: 11, formatter: function(v) { return (v/10000).toFixed(1)+'万'; } } },
+      { type: 'value', name: '开工率%', axisLabel: { fontSize: 11, formatter: function(v) { return v+'%'; } }, max: 100, splitLine: { lineStyle: { type: 'dashed' } } }
+    ],
+    series: [
+      { name: '碳酸锂产量', type: 'bar', data: [65415,66920,74830,74520,73490,77300,81040,84827,87127,89700,92872,97444,99100,86710,103100,107000,105310], itemStyle: { color: '#c62828', borderRadius: [3,3,0,0] } },
+      { name: '开工率', type: 'line', yAxisIndex: 1, data: [66.4,68.0,76.0,75.7,74.6,78.5,75.9,77.6,76.8,79.1,81.3,85.3,86.4,75.6,89.9,93.3,91.8], lineStyle: { color: '#ef6c00', width: 2 }, itemStyle: { color: '#ef6c00' }, smooth: true }
+    ]
+  });
+
+  // ========== Chart 11: LFP vs NCM ==========
+  makeChart('chart-lfp-vs-ncm', {
+    xAxis: { type: 'category', data: ['25-01','02','03','04','05','06','07','08','09','10','11','12','26-01','02','03','04','05'], axisLabel: { fontSize: 11 } },
+    yAxis: { type: 'value', name: '产量（万吨）', axisLabel: { fontSize: 11, formatter: function(v) { return (v/10000).toFixed(1)+'万'; } } },
+    series: [
+      { name: 'LFP', type: 'bar', data: [25.0,22.6,27.2,28.7,30.2,31.0,31.4,35.4,36.7,40.1,42.4,41.6,41.2,38.0,45.1,47.0,48.6], itemStyle: { color: '#1565c0', borderRadius: [3,3,0,0] } },
+      { name: 'NCM', type: 'bar', data: [4.5,4.3,5.5,5.7,5.7,6.4,6.5,7.3,7.4,7.4,7.6,7.6,7.6,6.2,8.1,7.7,8.6], itemStyle: { color: '#ef6c00', borderRadius: [3,3,0,0] } }
+    ]
+  });
+
+  // ========== Chart 12: 常州锂源月度产量 ==========
+  makeChart('chart-czly-output', {
+    xAxis: { type: 'category', data: ['25-01','02','03','04','05','06','07','08','09','10','11','12','26-01','02','03','04','05'], axisLabel: { fontSize: 11 } },
+    yAxis: { type: 'value', name: '产量（吨）', axisLabel: { fontSize: 11, formatter: function(v) { return (v/1000).toFixed(1)+'k'; } } },
+    series: [{
+      name: '常州锂源产量',
+      type: 'bar',
+      data: [11537,10500,10000,14056,14000,18000,18000,18500,18800,21500,24200,22000,21000,17303,23343,25525,28745],
+      itemStyle: { color: '#ef6c00', borderRadius: [4,4,0,0] },
+      label: { show: true, position: 'top', fontSize: 11, formatter: function(p) { return (p.value/1000).toFixed(1)+'k'; } }
+    }]
+  });
+
+  // TOC scroll spy
+  var tocLinks = document.querySelectorAll('.toc-list a');
+  var sections = document.querySelectorAll('[id]');
+  window.addEventListener('scroll', function() {
+    var current = '';
+    sections.forEach(function(s) {
+      if (s.getBoundingClientRect().top < 120) current = s.id;
+    });
+    tocLinks.forEach(function(a) {
+      a.classList.toggle('active', a.getAttribute('href') === '#' + current);
+    });
+  });
+  tocLinks.forEach(function(a) {
+    a.addEventListener('click', function(e) {
+      e.preventDefault();
+      var target = document.querySelector(a.getAttribute('href'));
+      if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  });
+})();
 </script>
 
 </body>
