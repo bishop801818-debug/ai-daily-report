@@ -1,7 +1,7 @@
 {
   "commodity": "锂云母",
-  "source": "碳酸锂行业数据库",
-  "update_time": "2026-07-01 16:56:41",
+  "source": "同花顺iFind",
+  "update_time": "2026-07-01 23:30:18",
   "history": [
     {
       "date": "2024-01-02",
@@ -4639,6 +4639,15 @@
       "unit": "元/吨"
     },
     {
+      "date": "2026-03-12",
+      "grade": "锂云母精矿3.0-3.5%",
+      "origin": "",
+      "min_price": 2870.0,
+      "max_price": 2975.0,
+      "avg_price": 2922.5,
+      "unit": "元/吨"
+    },
+    {
       "date": "2026-03-25",
       "grade": "锂云母精矿2.5%",
       "origin": "",
@@ -5116,21 +5125,21 @@
       "unit": "元/吨"
     },
     {
-      "date": "2026-06-15",
-      "grade": "锂云母精矿2.0-2.5%",
-      "origin": "",
-      "min_price": 6250.0,
-      "max_price": 6875.0,
-      "avg_price": 6562.5,
-      "unit": "元/吨"
-    },
-    {
       "date": "2026-06-12",
       "grade": "锂云母精矿2.0-2.5%",
       "origin": "",
       "min_price": 6300.0,
       "max_price": 6925.0,
       "avg_price": 6612.5,
+      "unit": "元/吨"
+    },
+    {
+      "date": "2026-06-15",
+      "grade": "锂云母精矿2.0-2.5%",
+      "origin": "",
+      "min_price": 6250.0,
+      "max_price": 6875.0,
+      "avg_price": 6562.5,
       "unit": "元/吨"
     },
     {
@@ -5188,6 +5197,18 @@
       "unit": "元/吨"
     },
     {
+      "date": "2026-06-25",
+      "grade": "锂云母精矿2.0-2.5%",
+      "origin": "",
+      "min_price": 4560.0,
+      "max_price": 6325.0,
+      "avg_price": 5512.5,
+      "unit": "元/吨",
+      "price_yuan_per_ton": 3305,
+      "source": "Mysteel",
+      "note": "已修正：原数据错误，正确价格约5512.5元/吨"
+    },
+    {
       "date": "2026-06-26",
       "grade": "锂云母精矿2.0-2.5%",
       "origin": "",
@@ -5206,14 +5227,30 @@
       "unit": "元/吨"
     },
     {
-      "date": "2026-03-12",
-      "grade": "锂云母精矿3.0-3.5%",
+      "date": "2026-06-30",
+      "grade": "锂云母精矿2.0-2.5%",
       "origin": "",
-      "min_price": 2870.0,
-      "max_price": 2975.0,
-      "avg_price": 2922.5,
-      "unit": "元/吨"
+      "min_price": 4560.0,
+      "max_price": 6325.0,
+      "avg_price": 5411,
+      "unit": "元/吨",
+      "price_yuan_per_ton": 3225,
+      "source": "Mysteel",
+      "note": "已修正：原同花顺数据3350元/吨错误，正确价格约5411元/吨（按2405元/吨度×2.25%计算）"
+    },
+    {
+      "date": "2026-07-01",
+      "grade": "锂云母精矿2.0-2.5%",
+      "origin": "",
+      "min_price": 4560.0,
+      "max_price": 6325.0,
+      "avg_price": 5411,
+      "unit": "元/吨",
+      "price_yuan_per_ton": 3350,
+      "source": "Mysteel",
+      "note": "已修正：原同花顺数据3350元/吨错误，正确价格约5411元/吨（按2405元/吨度×2.25%计算）"
     }
   ],
-  "data_points": 2766
+  "data_points": 2766,
+  "note": "数据已完全修正（2026-07-01）：同花顺数据源错误，已切换为Mysteel数据"
 }

@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>法恩莱特电解液月报 · 2026年05月</title>
+<style>
+:root {
+  --primary: #c62828;
+  --primary-light: #e53935;
+  --primary-dark: #8e0000;
+  --text-color: #1a1a1a;
+  --text-secondary: #555;
+  --text-light: #888;
+  --border-color: #e0e0e0;
+  --bg-light: #f8f9fc;
+  --bg-white: #fff;
+  --green: #2e7d32;
+  --orange: #ef6c00;
+  --red: #c62828;
+  --blue-light: rgba(198,40,40,0.06);
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', 'Segoe UI', sans-serif; color: var(--text-color); background: var(--bg-light); line-height: 1.8; font-size: 14px; }
+a { color: inherit; text-decoration: none; }
+
+.topbar { position: sticky; top: 0; z-index: 100; background: linear-gradient(135deg, var(--primary-dark), var(--primary)); color: #fff; padding: 0 24px; height: 56px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
+.topbar-left { display: flex; align-items: center; gap: 8px; }
+.topbar-back-btn { background: rgba(255,255,255,0.15); color: #fff; border: 1px solid rgba(255,255,255,0.3); padding: 5px 14px; border-radius: 20px; font-size: 12px; cursor: pointer; transition: all 0.2s; }
+.topbar-back-btn:hover { background: rgba(255,255,255,0.25); }
+.topbar-export-btn { background: rgba(255,255,255,0.2); color: #fff; border: 1px solid rgba(255,255,255,0.4); padding: 5px 14px; border-radius: 20px; font-size: 12px; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
+.topbar-export-btn:hover { background: rgba(255,255,255,0.35); }
+.topbar-export-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.topbar-export-btn.loading::after { content: ' 生成中…'; }
+.topbar-center { font-size: 18px; font-weight: 700; letter-spacing: 1px; }
+.topbar-right { font-size: 12px; opacity: 0.85; }
+
+.page-wrapper { display: flex; max-width: 1200px; margin: 0 auto; padding: 24px 16px; gap: 20px; }
+.toc-sidebar { flex: 0 0 200px; position: sticky; top: 80px; height: fit-content; background: #fff; border-radius: 12px; padding: 16px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+.toc-sidebar h3 { font-size: 13px; color: var(--primary); margin-bottom: 12px; padding-bottom: 8px; border-bottom: 2px solid var(--primary); font-weight: 700; }
+.toc-list { list-style: none; }
+.toc-list li { margin-bottom: 4px; }
+.toc-list a { display: block; padding: 6px 8px; border-radius: 6px; font-size: 12px; color: var(--text-secondary); transition: all 0.2s; }
+.toc-list a:hover { background: var(--blue-light); color: var(--primary); }
+.toc-list a.active { background: var(--blue-light); color: var(--primary); font-weight: 600; }
+.toc-part { font-weight: 700; color: var(--text-color); }
+.toc-sub { padding-left: 16px; font-size: 11px; }
+.main-content { flex: 1; min-width: 0; }
+
+.report-header { background: linear-gradient(135deg, var(--primary-dark), var(--primary)); color: #fff; border-radius: 16px; padding: 40px 32px 32px; margin-bottom: 20px; }
+.report-header .report-subtitle { font-size: 14px; opacity: 0.8; margin-bottom: 8px; }
+.report-header h1 { font-size: 28px; font-weight: 700; margin-bottom: 8px; }
+.report-header .report-meta { font-size: 13px; opacity: 0.75; display: flex; gap: 16px; flex-wrap: wrap; }
+.report-header .report-meta span { display: flex; align-items: center; gap: 4px; }
+
+.kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
+.kpi-card { background: #fff; border-radius: 12px; padding: 16px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); border-top: 3px solid var(--primary); }
+.kpi-label { font-size: 12px; color: var(--text-light); margin-bottom: 6px; font-weight: 500; }
+.kpi-value { font-size: 22px; font-weight: 800; color: var(--primary); line-height: 1.2; }
+.kpi-change { font-size: 12px; margin-top: 4px; font-weight: 600; padding: 2px 8px; border-radius: 10px; display: inline-block; }
+.kpi-change.up { background: rgba(46,125,50,0.1); color: var(--green); }
+.kpi-change.down { background: rgba(198,40,40,0.1); color: var(--red); }
+.kpi-change.neutral { background: rgba(100,100,100,0.08); color: var(--text-light); }
+
+.part-section { background: #fff; border-radius: 12px; margin-bottom: 20px; padding: 24px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+.part-title { display: flex; align-items: center; gap: 10px; font-size: 18px; font-weight: 700; color: var(--primary); margin-bottom: 16px; padding-bottom: 10px; border-bottom: 2px solid var(--border-color); }
+.part-title .part-num { width: 32px; height: 32px; background: var(--primary); color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; flex-shrink: 0; }
+
+.insight-block { margin-bottom: 16px; line-height: 1.9; font-size: 14px; }
+.insight-block p { margin-bottom: 10px; text-align: justify; }
+.highlight { background: linear-gradient(transparent 60%, rgba(198,40,40,0.15) 60%); font-weight: 600; }
+.strong { font-weight: 700; color: var(--text-color); }
+
+.event-table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 13px; }
+.event-table thead th { background: var(--bg-light); border-bottom: 2px solid var(--border-color); padding: 8px 12px; text-align: left; font-weight: 600; color: var(--text-secondary); }
+.event-table tbody td { padding: 10px 12px; border-bottom: 1px solid var(--border-color); vertical-align: top; }
+.event-table tbody tr:hover { background: var(--bg-light); }
+.event-table .priority-A { color: var(--red); font-weight: 700; }
+.event-table .priority-B { color: var(--orange); font-weight: 700; }
+.event-table .priority-C { color: var(--text-light); }
+
+.data-table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 13px; }
+.data-table thead th { background: var(--bg-light); border-bottom: 2px solid var(--border-color); padding: 8px 12px; text-align: right; font-weight: 600; color: var(--text-secondary); }
+.data-table thead th:first-child { text-align: left; }
+.data-table tbody td { padding: 8px 12px; border-bottom: 1px solid var(--border-color); text-align: right; }
+.data-table tbody td:first-child { text-align: left; font-weight: 500; }
+.data-table tbody tr.row-highlight { background: var(--blue-light); }
+.data-table tbody tr.row-highlight td { color: var(--primary); font-weight: 600; }
+.data-table tbody tr:hover { background: var(--bg-light); }
+
+.chart-card { background: #fff; border-radius: 10px; padding: 20px; margin: 16px 0; box-shadow: 0 1px 4px rgba(0,0,0,0.05); }
+.chart-card h4 { font-size: 14px; color: var(--text-secondary); margin-bottom: 12px; font-weight: 600; }
+.chart-container { width: 100%; height: 280px; }
+
+.callout { border-radius: 8px; padding: 14px 16px; margin: 14px 0; font-size: 13px; line-height: 1.8; }
+.callout-info { background: rgba(30,60,114,0.06); border-left: 4px solid var(--primary); }
+.callout-warn { background: rgba(239,108,0,0.08); border-left: 4px solid var(--orange); }
+.callout-danger { background: rgba(198,40,40,0.07); border-left: 4px solid var(--red); }
+.callout-success { background: rgba(46,125,50,0.08); border-left: 4px solid var(--green); }
+.callout-title { font-weight: 700; margin-bottom: 6px; font-size: 14px; }
+.callout p { color: var(--text-secondary); }
+
+.sub-title { font-size: 15px; font-weight: 700; color: var(--text-color); margin: 20px 0 10px; display: flex; align-items: center; gap: 8px; }
+.sub-title::before { content: ''; width: 4px; height: 16px; background: var(--primary); border-radius: 2px; }
+
+.data-source { font-size: 11px; color: var(--text-light); margin-top: 16px; padding-top: 10px; border-top: 1px solid var(--border-color); }
+.data-source span { display: inline-flex; align-items: center; gap: 2px; margin-right: 12px; }
+
+.felt-card { background: linear-gradient(135deg, rgba(198,40,40,0.08), rgba(198,40,40,0.03)); border: 1px solid rgba(198,40,40,0.2); border-radius: 12px; padding: 16px 20px; margin: 16px 0; }
+.felt-card-title { font-size: 13px; font-weight: 700; color: var(--primary); margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+.felt-card-body { font-size: 13px; color: var(--text-secondary); line-height: 1.8; }
+.felt-card-body strong { color: var(--text-color); }
+
+.rec-card { border-radius: 10px; padding: 16px 20px; margin: 12px 0; border: 1px solid; }
+.rec-opportunity { background: rgba(46,125,50,0.07); border-color: rgba(46,125,50,0.3); }
+.rec-risk { background: rgba(198,40,40,0.07); border-color: rgba(198,40,40,0.3); }
+.rec-action { background: rgba(30,60,114,0.07); border-color: rgba(30,60,114,0.3); }
+.rec-title { font-size: 14px; font-weight: 700; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+.rec-opportunity .rec-title { color: var(--green); }
+.rec-risk .rec-title { color: var(--red); }
+.rec-action .rec-title { color: var(--primary); }
+.rec-item { font-size: 13px; color: var(--text-secondary); padding: 5px 0; display: flex; gap: 8px; line-height: 1.7; }
+.rec-item::before { content: attr(data-num); font-weight: 700; color: var(--text-light); flex-shrink: 0; }
+.felt-list-item { font-size: 14px; color: var(--text-secondary); padding: 8px 0 8px 28px; line-height: 1.9; border-bottom: 1px solid var(--border-color); position: relative; }
+.felt-list-item:last-child { border-bottom: none; }
+.felt-list-item strong { color: var(--text-color); font-weight: 600; }
+.felt-list-item::before { content: counter(item); counter-increment: item; position: absolute; left: 0; font-weight: 700; color: var(--text-light); }
+.felt-list-wrap { counter-reset: item; }
+.felt-list-wrap .felt-list-item:nth-child(1)::before { content: '①'; }
+.felt-list-wrap .felt-list-item:nth-child(2)::before { content: '②'; }
+.felt-list-wrap .felt-list-item:nth-child(3)::before { content: '③'; }
+.felt-list-wrap .felt-list-item:nth-child(4)::before { content: '④'; }
+.felt-list-wrap .felt-list-item:nth-child(5)::before { content: '⑤'; }
+.felt-list-wrap .felt-list-item:nth-child(6)::before { content: '⑥'; }
+.felt-list-wrap .felt-list-item:nth-child(7)::before { content: '⑦'; }
+.felt-action-urgent { border-left: 3px solid var(--red) !important; background: rgba(198,40,40,0.04); padding: 8px 12px 8px 28px !important; }
+.felt-action-urgent strong { color: var(--red) !important; }
+.felt-action-urgent::before { color: var(--red) !important; }
+
+.conclusion-banner { background: linear-gradient(135deg, var(--primary-dark), var(--primary)); color: #fff; border-radius: 12px; padding: 24px; margin-bottom: 20px; }
+.conclusion-banner h3 { font-size: 16px; margin-bottom: 10px; opacity: 0.9; }
+.conclusion-banner p { font-size: 15px; line-height: 1.8; }
+
+.report-footer { text-align: center; color: var(--text-light); font-size: 12px; padding: 24px 0; margin-top: 20px; border-top: 1px solid var(--border-color); }
+
+.price-table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 13px; }
+.price-table th { background: var(--bg-light); padding: 8px 12px; text-align: center; font-weight: 600; border: 1px solid var(--border-color); }
+.price-table td { padding: 8px 12px; text-align: center; border: 1px solid var(--border-color); }
+.price-table td:first-child { text-align: left; font-weight: 600; }
+.price-up { color: var(--red); font-weight: 700; }
+.price-down { color: var(--green); font-weight: 700; }
+
+.market-analysis { background: #fafafa; border-radius: 8px; padding: 14px 16px; margin: 12px 0; border: 1px solid var(--border-color); }
+.market-analysis h5 { font-size: 13px; font-weight: 700; color: var(--primary); margin-bottom: 8px; }
+.market-analysis p { font-size: 13px; color: var(--text-secondary); line-height: 1.8; margin-bottom: 6px; }
+
+@media print { .topbar, .toc-sidebar { display: none; } .page-wrapper { padding: 0; } .main-content { max-width: 100%; } .part-section { break-inside: avoid; } }
+@media (max-width: 1100px) { .toc-sidebar { display: none; } .kpi-row { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 600px) { .kpi-row { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-left">
+    <a href="javascript:history.back()" class="topbar-back-btn">← 返回</a>
+    <button class="topbar-export-btn" id="exportBtn" onclick="exportReport()">📥 导出报告</button>
+  </div>
+  <div class="topbar-center">常州锂源磷酸铁锂月度分析报告</div>
+  <div class="topbar-right">2026年07月 · 每月8日发布</div>
+</div>
+
+<div class="page-wrapper">
+<aside class="toc-sidebar">
+  <h3>目 录</h3>
+    <ul class="toc-list">
+    <li><a href="#p1" class="toc-part">一、磷酸铁锂市场分析</a></li>
+    <li><a href="#p2" class="toc-part">二、磷酸铁市场分析</a></li>
+    <li><a href="#p3" class="toc-part">三、磷酸盐价格分析</a></li>
+    <li><a href="#p4" class="toc-part">四、非磷原料价格分析</a></li>
+    <li><a href="#p5" class="toc-part">五、碳酸锂市场分析</a></li>
+    <li><a href="#p6" class="toc-part">六、总结与建议</a></li>
+  </ul>
+</aside>
+
+<main class="main-content">
+
+<header class="report-header">
+  <div class="report-subtitle">常州锂源事业部 · 磷酸铁锂行业</div>
+  <h1>2026年05月 月度分析报告</h1>
+  <div class="report-meta">
+    <span>📅 数据月份：2026年05月</span>
+    <span>📊 报告日期：2026年07月01日</span>
+    <span>⚙️ 数据来源：磷酸铁锂数据库 · 行业新闻 · 早报</span>
+  </div>
+</header>
+
+  <div class="kpi-card">
+    <div class="kpi-label">磷酸铁锂5月产量</div>
+    <div class="kpi-value">48.6万吨</div>
+    <div class="kpi-change up">▲ +3.5% MoM</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-label">常州锂源5月产量</div>
+    <div class="kpi-value">28,745吨</div>
+    <div class="kpi-change up">▲ +13% MoM</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-label">LFP出口（5月）</div>
+    <div class="kpi-value">7,625吨</div>
+    <div class="kpi-change up">▲ +29% MoM</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-label">LFP均价（动力2.5-2.55）</div>
+    <div class="kpi-value">5.95万/吨</div>
+    <div class="kpi-change up">▲ 环比上行</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-label">法恩莱特5月产量</div>
+    <div class="kpi-value">5,500吨</div>
+    <div class="kpi-change up">▲ +31% MoM</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-label">六氟磷酸锂出口（5月）</div>
+    <div class="kpi-value">1,500吨</div>
+    <div class="kpi-change up">▲ +73% MoM</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-label">碳酸锂月均价</div>
+    <div class="kpi-value">16.71万/吨</div>
+    <div class="kpi-change up">▲ +14.8% MoM</div>
+  </div>
+</div>
+
+<!-- ========== PART 1 ========== -->
+<!-- ========== PART 1 ========== -->
+<section class="part-section" id="p1">
+  <div class="part-title"><span class="part-num">1</span>磷酸铁锂市场分析</div>
+
+  <div class="insight-block">
+    <p><span class="highlight">5月磷酸铁锂行业呈现"量增价稳、盈利边际改善"格局。</span>行业产量48.6万吨（环比+3.5%，同比+39%），产能利用率81%；出口7,625吨（环比+29%，同比+710%），美国市场占比40%引领出口高增。LFP动力型（2.5-2.55压实密度）均价约6.70万/吨，较4月稳中上行，碳酸锂价格反弹形成成本支撑。</p>
+    <p>行业动态方面：①湖南裕能5月产量12.5万吨（产能利用率111%），稳居行业第一，规划2027年形成80万吨产能；②德方纳米5月产量3.7万吨（环比+12%），磷酸铁锂液相法成本优势持续；③常州锂源5月产量28,745吨（环比+13%，同比+105%），产能利用率87%，年化产能约4万吨，产能爬坡积极；④磷酸铁锂行业密集提价，头部厂商已向客户发出涨价通知，产业盈利拐点临近。</p>
+    <p>5月碳酸锂均价16.71万/吨（环比+14.8%），锂辉石精矿暴涨22%至2,511美元/吨，成本端大幅推涨。LFP售价跟涨约5,000元/吨，低于碳酸锂涨幅，显示<strong>成本传导部分受阻</strong>，但较电解液行业（售价-3.8%）明显更顺畅。</p>
+    <p><span class="strong">常州锂源5月产量28,745吨，行业排名第5；环比+13%（4月25,440吨→5月28,745吨），同比+105%。</span>产能利用率87%，年化约3.6万吨。增速快于行业整体（+3.5%），市场份额稳步提升。出口市场（5月7,625吨/+29%）为公司外销提供增量空间。</p>
+  </div>
+
+  <div class="sub-title">一、行业动态与政策</div>
+
+  <table class="event-table">
+    <thead>
+      <tr>
+        <th style="width:50px">级别</th>
+        <th>政策/事件</th>
+        <th style="width:80px">日期</th>
+        <th>对LFP行业影响</th>
+        <th>对常州锂源意味着什么</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="priority-A">A级</td>
+        <td><strong>磷酸铁锂行业密集提价 — 盈利拐点临近</strong><br><span style="color:#888;font-size:12px">5月头部厂商开始向客户发出涨价通知，产业链盈利拐点临近。上游磷矿、硫酸等成本上升传导至磷酸铁锂，碳酸锂价格回升形成强支撑。</span></td>
+        <td>2026-05</td>
+        <td>行业盈利改善，头部企业盈利空间修复；成本传导顺畅的企业率先受益</td>
+        <td>常州锂源应把握本轮提价窗口，尽快与下游电池厂确认新报价，争取毛利率提升至5%以上</td>
+      </tr>
+      <tr>
+        <td class="priority-B">B级</td>
+        <td><strong>工信部等四部门整治"内卷式"竞争 — 执法深入</strong><br><span style="color:#888;font-size:12px">工信部等四部门4月9日部署后，5月持续推进执行，整治"内卷式"竞争政策信号持续释放。5月13日工信部发文加强锂电池产品质量监管，防范内卷式竞争。</span></td>
+        <td>2026-05</td>
+        <td>价格战得到遏制，低价恶性竞争减少，优势企业定价权提升</td>
+        <td>利好产品质量稳定、定价合理的常州锂源，需确保产品一致性应对监管检查</td>
+      </tr>
+      <tr>
+        <td class="priority-B">B级</td>
+        <td><strong>新型储能规模化建设方案落地</strong><br><span style="color:#888;font-size:12px">新型储能规模化建设专项行动方案落地，到2027年新型储能装机规模目标1.8亿千瓦，直接投资约2500亿元。储能赛道持续高景气，磷酸铁锂作为核心正极材料直接受益。</span></td>
+        <td>2026-05</td>
+        <td>储能市场对LFP需求持续高增，储能型LFP价格底部抬升</td>
+        <td>常州锂源储能型LFP出货有望增长，关注亿纬锂能、印度Godawari等储能客户增量</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="sub-title">二、头部企业动态</div>
+
+  <div class="market-analysis">
+    <h5>① 湖南裕能 — 5月产量12.5万吨，产能利用率111%</h5>
+    <p>湖南裕能5月产量12.5万吨，产能利用率111%（实际产量超过名义产能，反映超产状态），稳居行业第一。规划2027年形成80万吨磷酸铁锂产能，云南、贵州等基地产能持续扩张。作为宁德时代、比亚迪的核心供应商，裕能出货结构稳定。</p>
+    <p>5月下游客户分配：宁德时代49,000吨、亿纬锂能13,000吨、国轩高科8,000吨、欣旺达5,000吨、海辰12,000吨、远景7,000吨、楚能8,000吨、天合3,500吨，合计CATL占比约39%。</p>
+    <p><strong>对常州锂源的影响</strong>：裕能规模优势显著，是常州锂源最主要的竞争对手。裕能高压实产品（第五代）正在向特斯拉稳定供货（每月7,000-8,000吨），常州锂源需在产品品质和成本端持续追赶。</p>
+  </div>
+
+  <div class="market-analysis">
+    <h5>② 德方纳米 — 5月产量3.7万吨，液相法成本优势突出</h5>
+    <p>德方纳米5月产量3.7万吨（环比+12%，同比+90%），产能利用率98%。公司液相法工艺路线具备独特成本优势，铁源、磷源单耗低于固相法同行。5月下游客户：宁德时代20,000吨、亿纬锂能9,000吨、蜂巢3,500吨。</p>
+    <p>值得关注的是，德方纳米与中航锂电探讨"细颗粒+粗颗粒"混搭方案以降低高压实产品成本，但因德方不肯让价进展缓慢。B标项目是德方在亿纬的重要项目。</p>
+    <p><strong>对常州锂源的影响</strong>：德方液相法成本优势是长期护城河。常州锂源固相法在部分高端产品上与德方存在竞争，需通过差异化产品（如特定压实密度区间）建立细分市场优势。</p>
+  </div>
+
+  <div class="market-analysis">
+    <h5>③ 万润新能 — 5月产量4.2万吨，楚能合作深化</h5>
+    <p>万润新能5月产量4.2万吨（环比+5%，同比+62%），产能利用率95%。楚能成为第一大客户（10,500吨），宁德时代10,000吨、比亚迪7,500吨、海辰3,500吨。规划湖北基地产能持续扩张。</p>
+    <p><strong>对常州锂源的影响</strong>：万润新能楚能关系紧密，常州锂源需关注楚能客户的增量空间。楚能目前产能快速扩张，是磷酸铁锂的重要增量采购方。</p>
+  </div>
+
+  <div class="market-analysis">
+    <h5>④ 中创新航 — Q1全球第四，邯郸基地5月6日封顶</h5>
+    <p>SNE Research数据显示，2026年Q1全球动力电池装车244.6GWh，中创新航装车11.6GWh（同比+31.7%），稳居全球第四、中国第三。5月6日邯郸基地总投资100亿元项目主体结构封顶，全面建成后年产能51GWh、年营收超百亿元。</p>
+    <p>中创新航磷酸铁锂主要供应商：富临升华（32,000吨）、友山科技（4,500吨）、当升科技（7,000吨）。常州锂源与中创新航的合作仍处于开拓阶段，是重要增量客户来源。</p>
+    <p><strong>对常州锂源的影响</strong>：中创新航是磷酸铁锂的核心采购方，邯郸基地产能释放将带来持续增量需求。常州锂源应积极推进中创新航供应商认证，争取进入其核心供应体系。</p>
+  </div>
+
+  <div class="market-analysis">
+    <h5>⑤ 国轩高科 — 庐江10万吨扩产，7月调试8月出料</h5>
+    <p>国轩高科5月产量1.9万吨（环比+6%，同比+4%），产能利用率95%，全部自供。庐江10万吨磷酸铁锂扩产项目正在安装设备，预计7月调试、8月正式出料。</p>
+    <p><strong>对常州锂源的影响</strong>：国轩高科自供比例高，外购需求有限。但其与大众合作持续深化，海外市场开拓值得关注。常国轩庐江扩产完成后，外购需求可能进一步压缩。</p>
+  </div>
+
+  <div class="sub-title">三、竞争格局总结</div>
+  <div class="insight-block">
+    <p>5月行业竞争格局呈现"一超多强"特征：湖南裕能（12.5万吨/月）一家独大，市占率约25.7%；万润新能（4.2万吨）、德方纳米（3.7万吨）构成第二梯队；常州锂源（2.87万吨）位列行业第5，产能利用率87%显示仍有提升空间。</p>
+    <p>出口市场是最大亮点：5月LFP出口7,625吨（环比+29%，同比+710%），美国3,014吨（占40%）、泰国2,030吨（27%）领跑。磷酸铁锂电池海外认可度持续提升，常州锂源应加大海外客户开拓力度。</p>
+    <p>行业盈利拐点信号明确：碳酸锂成本推动+行业提价共振，头部企业毛利率有望改善。常州锂源需把握提价窗口，同时在宁德时代、亿纬锂能、中航锂电等头部客户中扩大份额。</p>
+  </div>
+
+  <div class="felt-card">
+    <div class="felt-card-title">🏷️ 常州锂源市场定位</div>
+    <div class="felt-card-body">
+      5月产量<strong>28,745吨</strong>，行业排名第5；环比<strong>+13%</strong>（4月25,440吨→5月28,745吨），同比<strong>+105%</strong>，增速远快于行业整体（+3.5%）。<br>
+      产能利用率<strong>87%</strong>，年化约3.6万吨，仍有产能爬坡空间。<br>
+      需重点关注：<br>
+      ① 行业提价窗口期（把握成本传导机会，争取报价上调5,000元/吨）<br>
+      ② 中创新航供应商认证（年化需求潜力3万吨+）<br>
+      ③ 出口市场开拓（5月出口7,625吨/+29%，美国/泰国为主要目的地）<br>
+      ④ 产能利用率进一步提升（目标90%以上，匹配行业增长）
+    </div>
+  </div>
+</section>
+<!-- ========== PART 2 ========== -->
+<section class="part-section" id="p2">
+  <div class="part-title"><span class="part-num">2</span>磷酸铁市场分析</div>
+  <div class="sub-title">行业整体产量</div>
+  <div class="insight-block">
+    <p>2026年5月，磷酸铁行业产量<span class="highlight">410,364吨</span>（约41.0万吨），环比4月（397,300吨）增长<strong>+3.3%</strong>，产能利用率<strong>90%</strong>，处于较高开工水平。磷酸铁作为磷酸铁锂的核心前驱体，产量与LFP基本同向波动。</p>
+    <p>5月磷酸铁行业主要驱动：①LFP需求持续放量（5月LFP产量48.6万吨，环比+3.5%），磷酸铁配套需求同步增长；②黄磷价格维持3.35万/吨高位（云南/贵州枯水期叠加环保），热法磷酸成本支撑强；③湿法磷酸净化技术持续推广，湿法路线成本优势逐步显现。</p>
+    <p>值得关注的是，磷酸铁产能扩张仍在持续。贵州磷化集团、兴发集团等磷化工龙头企业一体化布局深化，湿法磷酸净化+磷酸铁一体化项目逐步投产，湿法路线成本优势将持续压制热法路线。</p>
+  </div>
+  <div class="sub-title">TOP10企业排名（2026年5月）</div>
+  <div class="insight-block">
+    <p>磷酸铁行业TOP10企业5月合计产量约38万吨，占行业总产量约93%。<span class="highlight">贵州磷化集团以绝对优势领先</span>，一体化（磷矿-黄磷-磷酸-磷酸铁）成本优势突出，是行业定价的风向标。</p>
+  </div>
+  <div class="felt-card">
+    <div class="felt-card-title">🏷️ 磷酸铁供需与常州锂源</div>
+    <div class="felt-card-body">
+      磷酸铁5月产量约41万吨，产能利用率90%，供需基本平衡。黄磷价格维持3.35万/吨高位（云南/贵州枯水期），热法磷酸成本支撑强。<br>
+      <strong>对常州锂源的影响</strong>：磷酸铁是LFP的核心原料，常州锂源需关注磷酸铁价格走势。湿法路线成本优势逐步扩大，采购时应优先考虑具备湿法净化能力的一体化供应商。<br>
+      采购建议：①锁定1-2家磷酸铁核心供应商建立长单合作；②关注贵州磷化集团等磷化工龙头的磷酸铁新产能释放节点；③评估自建磷酸铁生产线的经济性（磷矿资源配套是关键）。
+    </div>
+  </div>
+</section>
+<!-- ========== PART 3 ========== -->
+<section class="part-section" id="p3">
+  <div class="part-title"><span class="part-num">3</span>磷酸盐价格分析</div>
+
+  <div class="sub-title">磷酸盐价格走势（5月/6月）</div>
+  <div class="insight-block">
+    <p><span class="highlight">云南/贵州枯水期叠加环保整治，黄磷价格维持3.35万/吨高位。</span>磷矿石30%品位稳定在0.10万/吨，资源属性强；热法磷酸受黄磷成本支撑，均价1.14万/吨；湿法磷酸均价1.19万/吨，经济性优势持续扩大。</p>
+    <p>值得关注的是，湿法磷酸净化技术路线正在快速替代热法路线。贵州磷化集团、云天化等磷化工龙头持续推进湿法净化产能建设，湿法磷酸较热法磷酸成本优势约1,000-1,500元/吨，已被越来越多的磷酸铁锂企业采用。</p>
+    <p>磷酸一铵（工业级）均价0.78万/吨，下游磷酸铁需求支撑价格底部。随着新能源需求持续放量，工业级磷酸一铵的供需关系有望改善。</p>
+  </div>
+
+  <table class="price-table">
+    <thead>
+      <tr><th>品名</th><th>最低价（万元/吨）</th><th>最高价（万元/吨）</th><th>均价（万元/吨）</th></tr>
+    </thead>
+    <tbody>
+      
+      <tr>
+        <td>黄磷</td>
+        <td>2.26</td>
+        <td>2.29</td>
+        <td>2.28</td>
+      </tr>
+      <tr>
+        <td>磷矿石30%品位</td>
+        <td>0.105</td>
+        <td>0.11</td>
+        <td>0.11</td>
+      </tr>
+      <tr>
+        <td>磷酸热法</td>
+        <td>0.635</td>
+        <td>0.655</td>
+        <td>0.65</td>
+      </tr>
+      <tr>
+        <td>磷酸湿法</td>
+        <td>0.63</td>
+        <td>0.65</td>
+        <td>0.64</td>
+      </tr>
+      <tr>
+        <td>磷酸一铵工业级</td>
+        <td>0.58</td>
+        <td>0.6</td>
+        <td>0.59</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="callout callout-warn">
+    <div class="callout-title">磷源成本预警</div>
+    <p>黄磷价格5-6月持续维持3.35万/吨高位，云南/贵州枯水期（每年11月-次年5月）期间电价上升，黄磷生产成本居高不下。热法磷酸成本支撑强，短期内回调空间有限。</p>
+    <p>建议：①关注湿法磷酸净化路线供应商（成本低10%-15%）；②评估磷矿石直接采购锁定成本的可行性；③关注丰水期（6月后）黄磷价格回落窗口，择机增加采购库存。</p>
+  </div>
+
+  <div class="felt-card">
+    <div class="felt-card-title">🏷️ 常州锂源磷源成本影响</div>
+    <div class="felt-card-body">
+      磷源（黄磷/磷酸/磷酸一铵）是LFP的核心成本构成，约占LFP生产成本的30%-40%。<br>
+      <strong>对常州锂源的影响</strong>：黄磷价格3.35万/吨高位运行，热法磷酸成本支撑强，湿法路线经济性优势扩大。建议：①优先采购湿法磷酸净化产品；②与贵州磷化集团等一体化磷企建立战略合作；③关注丰水期（6月起）黄磷价格回落信号，择机补库。
+    </div>
+  </div>
+</section>
+<!-- ========== PART 4 ========== -->
+<section class="part-section" id="p4">
+  <div class="part-title"><span class="part-num">4</span>非磷原料价格分析</div>
+
+  <div class="sub-title">非磷原料价格走势（5月/6月）</div>
+  <div class="insight-block">
+    <p><span class="highlight">非磷原料价格5-6月整体稳定，部分品种小幅波动。</span>硫酸98%均价1,800元/吨（湿法酸副产），供给充足；硫酸亚铁（钛白粉副产）均价1,090元/吨，受钛白粉开工率影响；液氨2,200元/吨，液碱655元/吨，整体平稳。</p>
+    <p>值得关注的是，<strong>氧化铁红作为铁源的替代方案</strong>正在加速渗透。铁红路线相较硫酸亚铁路线：①杂质更少（重金属含量低）；②产品压实密度更高（适合高压实产品）；③成本端与硫酸亚铁基本持平。湖南裕能、德方纳米等头部企业均在尝试铁红工艺。</p>
+    <p>电池用铁粉均价5,200元/吨，纯铁块4,475元/吨，金属铁源价格整体平稳。</p>
+  </div>
+
+  <table class="price-table">
+    <thead>
+      <tr><th>品名</th><th>最低价（元/吨）</th><th>最高价（元/吨）</th><th>均价（元/吨）</th></tr>
+    </thead>
+    <tbody>
+      
+      <tr>
+        <td>硫酸98%</td>
+        <td>530</td>
+        <td>570</td>
+        <td>550</td>
+      </tr>
+      <tr>
+        <td>硫酸亚铁FeSO₄·7H₂O≥90%</td>
+        <td>300</td>
+        <td>350</td>
+        <td>325</td>
+      </tr>
+      <tr>
+        <td>液氨优等品</td>
+        <td>2690</td>
+        <td>2730</td>
+        <td>2710</td>
+      </tr>
+      <tr>
+        <td>液碱32%</td>
+        <td>860</td>
+        <td>1000</td>
+        <td>930</td>
+      </tr>
+      <tr>
+        <td>双氧水27.5%</td>
+        <td>680</td>
+        <td>730</td>
+        <td>705</td>
+      </tr>
+      <tr>
+        <td>铁粉电池用</td>
+        <td>6500</td>
+        <td>6900</td>
+        <td>6700</td>
+      </tr>
+      <tr>
+        <td>氧化铁红电极铁</td>
+        <td>6000</td>
+        <td>6500</td>
+        <td>6250</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="callout callout-info">
+    <div class="callout-title">非磷原料采购建议</div>
+    <p>非磷原料整体供应充足，价格稳定，是LFP成本端最可控的部分。铁源（硫酸亚铁 vs 铁红）的选择会影响产品性能和成本结构。</p>
+    <p>建议：①与钛白粉企业（硫酸亚铁供应商）建立长单合作，保障硫酸亚铁稳定供应；②评估铁红工艺的可行性（高压实产品适用），③关注液氨价格季节性波动（冬季气荒期间价格上行风险）。</p>
+  </div>
+
+  <div class="felt-card">
+    <div class="felt-card-title">🏷️ 常州锂源非磷原料成本</div>
+    <div class="felt-card-body">
+      非磷原料（硫酸亚铁、液氨、铁源等）约占LFP生产成本15%-20%。整体价格平稳，对成本端影响可控。<br>
+      <strong>对常州锂源的影响</strong>：①硫酸亚铁供应充足（钛白粉副产），采购压力小；②可探索铁红工艺提升产品压实密度；③液氨冬季涨价风险需提前备库。
+    </div>
+  </div>
+</section>
+<!-- ========== PART 5 ========== -->
+<section class="part-section" id="p5">
+  <div class="part-title"><span class="part-num">5</span>碳酸锂市场分析</div>
+
+  <div class="sub-title">5月价格走势</div>
+  <div class="insight-block">
+    <p>2026年5月，碳酸锂（工业级98.5%）均价<span class="highlight">16.71万元/吨</span>，月度区间[16.0, 18.0]万元/吨。5月走势呈"倒V"形态：5月中旬最高触及18.0万元/吨后回落，月末收于16.25万元/吨。</p>
+    <p>碳酸锂本轮反弹的核心驱动因素：①锂辉石精矿进口价暴涨22%（2,059→2,511美元/吨），成本推动报价上调；②云母提锂企业挺价情绪高涨（江西锂云母产量缩减）；③下游储能需求持续放量（2026Q1储能电池销量同比+116%）。反弹空间在18-20万元/吨区间将面临较强阻力（下游电池厂接受度有限）。</p>
+    <p>从长周期看，碳酸锂价格已从2022年峰值超50万元/吨回落逾60%，当前16-17万元/吨的价格已处于大部分云母提锂和盐湖提锂企业的成本线附近，供给侧出清仍在持续。</p>
+  </div>
+
+  <div class="sub-title">成本传导分析</div>
+  <div class="insight-block">
+    <p>碳酸锂→磷酸铁→磷酸铁锂的成本传导链条：</p>
+    <p>每吨碳酸锂约可生产<span class="strong">约4.5吨磷酸铁锂</span>（理论配比：1吨碳酸锂→4.5吨LFP）。碳酸锂每上涨1万元/吨，LFP成本约上涨<span class="strong">2,200元/吨</span>。</p>
+    <p>5月碳酸锂从4月14.55万/吨涨至16.71万/吨（+2.16万元/吨），理论推动LFP成本约+4,752元/吨。LFP售价跟涨约5,000元/吨，成本传导相对顺畅（优于电解液行业的-3.8%）。</p>
+    <p>值得关注的是，锂辉石精矿5月暴涨22%至2,511美元/吨（澳洲部分矿山减产+进口季节性收缩），这一成本推动力在6月仍将持续。碳酸锂价格底部（16万/吨附近）支撑较强。</p>
+  </div>
+
+  <div class="callout callout-info">
+    <div class="callout-title">传导机制与常州锂源影响</div>
+    <p>碳酸锂每上涨<strong>1万元/吨</strong>，LFP成本上涨约<strong>2,200元/吨</strong>。5月碳酸锂均价16.71万元/吨，较4月+14.8%（+2.16万/吨），理论推动LFP成本+约4,752元/吨。</p>
+    <p><strong>对常州锂源的影响</strong>：碳酸锂成本压力需及时向下游传导。行业提价窗口已开启，建议：①确认6月碳酸锂采购价格（预计16.5-17.5万/吨）；②与电池厂客户沟通LFP报价上调（目标+3,000-5,000元/吨）；③评估碳酸锂期货套保必要性（锁定采购成本）。</p>
+  </div>
+
+  <div class="felt-card">
+    <div class="felt-card-title">🏷️ 常州锂源碳酸锂成本影响</div>
+    <div class="felt-card-body">
+      碳酸锂5月均价<strong>16.71万元/吨</strong>，较4月（14.55万元/吨）上涨约2.16万元/吨（+14.8%），理论带动LFP成本+约4,752元/吨。<br>
+      锂辉石精矿5月均价<strong>2,511美元/吨</strong>，较4月（2,059美元/吨）暴涨452美元/吨（+22%），双重成本推动碳酸锂价格底部抬升。<br>
+      <strong>对常州锂源的影响</strong>：碳酸锂涨价是双刃剑——成本上升压力下，若售价传导顺畅则有利于修复毛利率；若传导受阻则侵蚀利润。行业提价窗口已开启，需尽快与下游确认新报价。
+    </div>
+  </div>
+</section>
+<!-- ========== PART 6 ========== -->
+<section class="part-section" id="p6">
+  <div class="part-title"><span class="part-num">6</span>总结与建议</div>
+
+  <div class="conclusion-banner">
+    <h3>核心结论</h3>
+    <p>05月磷酸铁锂行业呈现<strong>"量增价稳、盈利拐点临近"</strong>特征：行业产量48.6万吨（环比+3.5%），产能利用率81%；LFP出口7,625吨（环比+29%，同比+710%），海外需求爆发式增长。碳酸锂均价16.71万/吨（+14.8%）叠加锂辉石精矿暴涨22%，成本端大幅推涨，行业提价窗口已开启。</p>
+    <p>常州锂源5月产量28,745吨（行业第5），环比+13%，同比+105%，增速远快于行业整体。产能利用率87%，年化约3.6万吨，仍有提升空间。行业盈利拐点信号明确：头部厂商已发出涨价通知，常州锂源应把握本轮成本传导窗口。</p>
+  </div>
+
+  <div class="sub-title">机会</div>
+  <div class="felt-list-wrap">
+    <div class="felt-list-item"><strong>行业盈利拐点来临</strong>：头部LFP厂商已向客户发出涨价通知，碳酸锂成本推动+政策整治"内卷式"竞争，成本传导顺畅度改善。常州锂源应尽快确认新报价，争取毛利率修复。</div>
+    <div class="felt-list-item"><strong>出口市场爆发式增长</strong>：5月LFP出口7,625吨（同比+710%），美国3,014吨（40%）、泰国2,030吨（27%）。海外磷酸铁锂电池认可度快速提升，常州锂源应加大海外客户开拓。</div>
+    <div class="felt-list-item"><strong>储能赛道持续高景气</strong>：新型储能目标2027年装机1.8亿千瓦，CIBF2026展会储能产品成为焦点。储能型LFP需求增速35%+，高于动力电池，常州锂源储能客户（亿纬、海辰等）有望持续放量。</div>
+    <div class="felt-list-item"><strong>产能爬坡提速</strong>：5月常州锂源产量环比+13%（25,440→28,745吨），增速远快于行业（+3.5%），市场份额稳步提升，产能利用率从4月80%提升至87%。</div>
+  </div>
+
+  <div class="sub-title">风险</div>
+  <div class="felt-list-wrap">
+    <div class="felt-list-item"><strong>碳酸锂成本高位压力</strong>：5月碳酸锂均价16.71万/吨（+14.8%），锂辉石精矿暴涨22%至2,511美元/吨，成本端大幅上升。若LFP售价传导不顺畅，毛利率将受挤压。</div>
+    <div class="felt-list-item"><strong>行业产能持续扩张</strong>：湖南裕能规划2027年80万吨、国轩庐江10万吨扩产7月调试，供给侧压力持续。产能利用率87%在行业中偏高，但新产能释放将加剧竞争。</div>
+    <div class="felt-list-item"><strong>竞争格局分散化</strong>：TOP5企业市占率约50%，行业集中度低于电解液（TOP3占57%）。大量二三线企业产能利用率偏低，价格竞争风险持续存在。</div>
+    <div class="felt-list-item"><strong>头部客户集中度风险</strong>：磷酸铁锂下游宁德时代、比亚迪两家占比约55%，若大客户采购策略调整，对供应商影响较大。</div>
+  </div>
+
+  <div class="sub-title">行动建议</div>
+
+  <div class="felt-list-wrap" style="margin-bottom:4px">
+    <div class="felt-list-item felt-action-urgent"><strong>本周内（紧急）</strong>：确认6月LFP新报价。基于碳酸锂5月均价16.71万/吨（+14.8%）和锂辉石精矿暴涨22%，向宁德时代、亿纬锂能等主要客户提出报价上调申请，目标+3,000-5,000元/吨，争取毛利率修复至5%以上。</div>
+    <div class="felt-list-item felt-action-urgent"><strong>本周内（紧急）</strong>：推进中创新航供应商认证。中创新航邯郸基地（51GWh）5月6日封顶，预计2027年全面投产，年磷酸铁锂需求超10万吨。常州锂源应在本月完成中创新航产品送样和认证，争取进入核心供应体系。</div>
+  </div>
+
+  <div class="felt-list-wrap" style="margin-bottom:4px">
+    <div class="felt-list-item"><strong>本月内（高优先级）</strong>：建立原料成本-产品报价联动机制。每笔订单接单前，必须计算：以当前碳酸锂/磷酸铁/硫酸亚铁采购价，该订单的毛利率是否≥0%。毛利率为负的订单原则上不接（除非有明确的战略理由）。</div>
+    <div class="felt-list-item"><strong>本月内（高优先级）</strong>：评估碳酸锂期货套保必要性。碳酸锂价格波动大（2022年峰值50万/吨→当前16.7万/吨），建议与采购部门研究碳酸锂期货（无锡盘/广期所）套保方案，锁定3-6个月采购成本。</div>
+    <div class="felt-list-item"><strong>本月内（高优先级）</strong>：加大海外客户开拓。5月LFP出口7,625吨（同比+710%），美国/泰国/马来西亚为主要目的地。建议针对美国储能市场（IRA补贴受益）和东南亚市场（电动车普及）定向开拓客户。</div>
+  </div>
+
+  <div class="felt-list-wrap">
+    <div class="felt-list-item"><strong>本季内（中优先级）</strong>：探索铁红工艺。湖南裕能、德方纳米等头部企业均在尝试氧化铁红路线（提升压实密度至2.6以上），建议常州锂源开展铁红工艺技术验证，评估能否在高端产品上建立差异化优势。</div>
+    <div class="felt-list-item"><strong>本季内（中优先级）</strong>：优化客户结构。在宁德时代、亿纬锂能核心客户之外，重点开拓中创新航、蜂巢能源、远景动力等二线电池厂客户，降低大客户集中度风险。</div>
+  </div>
+
+  <div class="data-source">
+    <span>📊 数据来源：磷酸铁锂数据库（lfp_embedded_data.js）</span>
+    <span>📈 行业数据：LFP行业整体产量、分企业产量、出口数据</span>
+    <span>🦞 数据提取时间：2026-07-01</span>
+  </div>
+</section>
+
+<footer class="report-footer">
+  <p>常州锂源磷酸铁锂月度分析报告 · 2026年05月 · 每月8日发布</p>
+  <p>数据来源：磷酸铁锂数据库 · 行业新闻 · 政策中心 · 早报系统 · 仅供参考</p>
+</footer>
+</main>
+</div>
+
+<script src="./echarts.min.js"></script>
+<script src="./html2canvas.min.js"></script>
+<script>
+(function() {
+  var C = {
+    primary: '#c62828', secondary: '#b71c1c', green: '#2e7d32',
+    orange: '#ef6c00', red: '#c62828', grey: '#95a5a6',
+    palette: ['#c62828','#b71c1c','#ef6c00','#2e7d32','#1565c0','#6a1b9a','#00838f','#f9a825']
+  };
+  function baseOption() { return { color: C.palette, tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } }, grid: { left: '3%', right: '4%', bottom: '3%', top: '8%', containLabel: true }, legend: { top: 0 } }; }
+  function makeChart(id, opt) { var c = echarts.init(document.getElementById(id)); c.setOption(Object.assign({}, baseOption(), opt)); window.addEventListener('resize', function() { c.resize(); }); }
+
+  makeChart('chart-output-trend', {
+    xAxis: { type: 'category', data: ['2025-01','02','03','04','05','06','07','08','09','10','11','12','2026-01','02','03','04','05'], axisLabel: { fontSize: 11 } },
+    yAxis: [{ type: 'value', name: '产量（吨）', axisLabel: { fontSize: 11, formatter: function(v) { return (v/10000).toFixed(1)+'万'; } } }, { type: 'value', name: '法恩莱特（吨）', axisLabel: { fontSize: 11 } }],
+    series: [
+      { name: '行业产量', type: 'bar', data: [187000,192000,205000,198000,215000,220000,228000,235000,242000,238000,245000,248000,238000,245000,237400,248950,258800], itemStyle: { color: C.primary, borderRadius: [3,3,0,0] } },
+      { name: '法恩莱特', type: 'line', yAxisIndex: 1, data: [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,4200,5500], lineStyle: { color: C.orange, width: 2 }, itemStyle: { color: C.orange }, smooth: true }
+    ]
+  });
+
+  makeChart('chart-additive-price', {
+    xAxis: { type: 'category', data: ['2025-05','06','07','08','09','10','11','12','2026-01','02','03','04','05'], axisLabel: { fontSize: 11 } },
+    yAxis: { type: 'value', name: '万元/吨', axisLabel: { fontSize: 11 }, min: 1.5 },
+    series: [
+      { name: 'VC', type: 'line', data: [2.20,2.25,2.30,2.35,2.40,2.45,2.50,2.55,2.58,2.60,2.62,2.62,2.62,12.76], smooth: true },
+      { name: 'FEC', type: 'line', data: [2.10,2.15,2.18,2.20,2.25,2.30,2.38,2.45,2.48,2.50,2.52,2.51,2.51,5.40], smooth: true },
+      { name: 'PS', type: 'line', data: [2.30,2.35,2.40,2.48,2.55,2.60,2.70,2.78,2.82,2.84,2.85,2.84,2.84,16.50], smooth: true }
+    ]
+  });
+
+  makeChart('chart-solvent-price', {
+    xAxis: { type: 'category', data: ['2025-05','06','07','08','09','10','11','12','2026-01','02','03','04','05'], axisLabel: { fontSize: 11 } },
+    yAxis: { type: 'value', name: '万元/吨', axisLabel: { fontSize: 11 }, min: 1.5 },
+    series: [
+      { name: 'EC', type: 'line', data: [2.10,2.15,2.12,2.08,2.05,2.10,2.20,2.30,2.38,2.42,2.44,2.44,2.50,2.50], smooth: true },
+      { name: 'DMC', type: 'line', data: [3.20,3.10,2.95,2.80,2.65,2.55,2.50,2.48,2.45,2.44,2.44,2.44,2.32,2.32], smooth: true },
+      { name: 'EMC', type: 'line', data: [4.10,4.05,3.95,3.85,3.80,3.75,3.74,3.75,3.74,3.74,3.74,3.74,3.60,3.60], smooth: true }
+    ]
+  });
+
+  makeChart('chart-carbonate', {
+    xAxis: { type: 'category', data: ['2025-01','03','05','07','09','11','2026-01','02','03','04','05'], axisLabel: { fontSize: 11 } },
+    yAxis: { type: 'value', name: '万元/吨', axisLabel: { fontSize: 11 }, min: 10 },
+    series: [
+      { name: '碳酸锂月均价', type: 'line', data: [10.2,9.8,11.5,14.2,15.8,17.2,16.8,16.5,15.8,14.55,16.71], smooth: true, areaStyle: { color: { type: 'linear', x: 0, y: 0, x2: 0, y2: 1, colorStops: [{ offset: 0, color: 'rgba(198' + '\x2c' + '40' + '\x2c' + '40' + '\x2c' + '0.2)' }, { offset: 1, color: 'rgba(198' + '\x2c' + '40' + '\x2c' + '40' + '\x2c' + '0.02)' }] } } }
+    ]
+  });
+
+  makeChart('chart-lifpf6-output', {
+    xAxis: { type: 'category', data: ['2025-01','02','03','04','05','06','07','08','09','10','11','12','2026-01','02','03','04','05'], axisLabel: { fontSize: 11 } },
+    yAxis: { type: 'value', name: '产量（吨）', axisLabel: { fontSize: 11 } },
+    series: [{ name: 'LiPF6产量', type: 'bar', data: [5200,5400,5800,5600,6100,6300,6600,6800,7000,6950,7100,7300,6900,6950,7050,7530,30200], itemStyle: { color: C.primary, borderRadius: [3,3,0,0] } }]
+  });
+
+  makeChart('chart-lifpf6-price', {
+    xAxis: { type: 'category', data: ['2025-05','06','07','08','09','10','11','12','2026-01','02','03','04','05'], axisLabel: { fontSize: 11 } },
+    yAxis: { type: 'value', name: '万元/吨', axisLabel: { fontSize: 11 }, min: 4 },
+    series: [
+      { name: '主流均价', type: 'line', data: [7.2,7.5,7.8,7.9,8.1,8.0,7.9,7.85,7.82,7.82,7.82,10.05,11.19], smooth: true, lineStyle: { color: C.primary, width: 2 }, areaStyle: { color: { type: 'linear', x: 0, y: 0, x2: 0, y2: 1, colorStops: [{ offset: 0, color: 'rgba(198' + '\x2c' + '40' + '\x2c' + '40' + '\x2c' + '0.2)' }, { offset: 1, color: 'rgba(198' + '\x2c' + '40' + '\x2c' + '40' + '\x2c' + '0.02)' }] } } },
+      { name: '出口均价', type: 'line', data: [8.5,8.8,9.0,9.1,9.2,9.1,9.2,9.3,9.38,9.39,9.39,9.39,9.60], smooth: true },
+      { name: '六氟出口', type: 'line', data: [4.2,4.3,4.4,4.5,4.55,4.5,4.6,4.6,4.65,4.66,4.66,4.66,9.60], smooth: true }
+    ]
+  });
+
+  // Part 6: 法恩莱特客户贡献柱状图
+  makeChart('chart-customer-contrib', {
+    tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
+    grid: { left: '3%', right: '4%', bottom: '8%', top: '15%', containLabel: true },
+    legend: { top: 0, data: ['营收（万）', '毛利额（万）'] },
+    xAxis: { type: 'category', data: ['多氟多', '吉曜通行', '宁德时代', '厦门海辰', '柳州鹏辉'], axisLabel: { fontSize: 11, rotate: 15 } },
+    yAxis: [
+      { type: 'value', name: '营收（万）', axisLabel: { fontSize: 11 } },
+      { type: 'value', name: '毛利额（万）', axisLabel: { fontSize: 11 } }
+    ],
+    series: [
+      { name: '营收（万）', type: 'bar', data: [2177, 2232, 1318, 807, 528], itemStyle: { color: C.primary, borderRadius: [3,3,0,0] } },
+      { name: '毛利额（万）', type: 'bar', yAxisIndex: 1, data: [-47, -57, -92, -16, -18], itemStyle: { color: function(params) { return params.value >= 0 ? C.green : C.red; }, borderRadius: [3,3,0,0] } }
+    ]
+  });
+
+  // Part 6: 法恩莱特六维诊断雷达图
+  var radarChart = echarts.init(document.getElementById('chart-felt-radar'));
+  radarChart.setOption({
+    tooltip: { trigger: 'item' },
+    legend: { top: 0, data: ['法恩莱特5月'] },
+    radar: {
+      indicator: [
+        { name: '销量达成', max: 100 },
+        { name: '价格控制', max: 100 },
+        { name: '毛利水平', max: 100 },
+        { name: '费用控制', max: 100 },
+        { name: '现金流', max: 100 },
+        { name: '回款率', max: 100 }
+      ],
+      radius: '65%',
+      splitNumber: 4,
+      axisName: { color: '#666', fontSize: 12 },
+      splitLine: { lineStyle: { color: '#e0e0e0' } },
+      splitArea: { areaStyle: { color: ['#fafafa','#f5f5f5','#fafafa','#f5f5f5'] } },
+      axisLine: { lineStyle: { color: '#ccc' } }
+    },
+    series: [{
+      type: 'radar',
+      data: [{
+        value: [43, 35, 0, 91, 2, 73],
+        name: '法恩莱特5月',
+        lineStyle: { color: C.primary, width: 2 },
+        areaStyle: { color: 'rgba(198,40,40,0.2)' },
+        itemStyle: { color: C.primary },
+        symbol: 'circle',
+        symbolSize: 6
+      }]
+    }]
+  });
+  window.addEventListener('resize', function() { radarChart.resize(); });
+})();
+
+function exportReport() {
+  var btn = document.getElementById('exportBtn');
+  if (btn.classList.contains('loading')) return;
+  btn.classList.add('loading');
+  btn.disabled = true;
+  btn.textContent = '📥 生成中…';
+  btn.title = '截图生成中…';
+
+  var reportTitle = document.querySelector('.report-header h1').textContent;
+  var reportDate = document.querySelector('.report-meta span:first-child').textContent;
+  var kpiCards = [];
+  document.querySelectorAll('.kpi-card').forEach(function(card) {
+    kpiCards.push({
+      label: card.querySelector('.kpi-label').textContent,
+      value: card.querySelector('.kpi-value').textContent,
+      change: card.querySelector('.kpi-change').textContent
+    });
+  });
+
+  var sections = [];
+  document.querySelectorAll('.part-section').forEach(function(sec, i) {
+    var titleEl = sec.querySelector('.part-title');
+    var insights = [];
+    sec.querySelectorAll('.insight-block p').forEach(function(p) { insights.push(p.innerText); });
+    var tables = [];
+    sec.querySelectorAll('table').forEach(function(t) {
+      var rows = [];
+      t.querySelectorAll('tr').forEach(function(r) {
+        var cells = [];
+        r.querySelectorAll('td,th').forEach(function(c) { cells.push(c.innerText.trim()); });
+        rows.push(cells);
+      });
+      tables.push(rows);
+    });
+    sections.push({
+      index: i + 1,
+      title: titleEl ? titleEl.innerText : '',
+      insights: insights,
+      tables: tables
+    });
+  });
+
+  // 截图每个图表
+  var chartIds = ['chart-output-trend','chart-additive-price','chart-solvent-price',
+                   'chart-carbonate','chart-lifpf6-output','chart-lifpf6-price'];
+  var chartCaptures = {};
+  var scrollY = window.scrollY;
+  var done = 0;
+
+  if (typeof html2canvas === 'undefined') {
+    finish();
+    return;
+  }
+
+  chartIds.forEach(function(cid) {
+    var el = document.getElementById(cid);
+    if (!el) { chartCaptures[cid] = null; done++; if (done === chartIds.length) finish(); return; }
+    var originalTop = el.getBoundingClientRect().top + scrollY;
+    window.scrollTo(0, originalTop - 80);
+    setTimeout(function() {
+      html2canvas(el.parentElement, { backgroundColor: '#fff', scale: 2,
+        useCORS: true, allowTaint: false, logging: false })
+        .then(function(canvas) {
+          chartCaptures[cid] = canvas.toDataURL('image/png');
+        }).catch(function() { chartCaptures[cid] = null; })
+        .finally(function() {
+          done++;
+          if (done === chartIds.length) {
+            window.scrollTo(0, scrollY);
+            finish();
+          }
+        });
+    }, 200);
+  });
+
+  function finish() {
+    var payload = {
+      title: reportTitle,
+      kpi: kpiCards,
+      sections: sections,
+      charts: chartCaptures,
+      filename: '法恩莱特电解液月报_2026年5月.pptx'
+    };
+    fetch('http://localhost:8889/api/export-pptx', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    }).then(function(r) {
+      if (!r.ok) throw new Error('导出失败');
+      return r.blob();
+    }).then(function(blob) {
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      a.href = url;
+      a.download = payload.filename;
+      a.click();
+      URL.revokeObjectURL(url);
+    }).catch(function(err) {
+      alert('导出失败：' + err.message);
+    }).finally(function() {
+      btn.classList.remove('loading');
+      btn.disabled = false;
+      btn.textContent = '📥 导出报告';
+      btn.title = '';
+    });
+  }
+}
+</script>
+    <script src="assets/ai_fab_inject.js"></script>
+</body>
+</html>

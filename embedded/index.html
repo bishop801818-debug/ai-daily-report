@@ -13,7 +13,7 @@
     <script defer src="chemical_data.js?v=20260625"></script>
     <script defer src="recycling_gantt.js?v=20260625"></script>
     <script>
-      window.HTML_VERSION = "20260701_001"; // 版本号
+      window.HTML_VERSION = "20260702_001"; // 版本号
 
       /* ---------- 彻底防止图表旧内容闪屏（bfcache + 渲染残留）----------
        * 问题：浏览器前进后退缓存(bfcache)会保存完整页面状态，
@@ -79,7 +79,7 @@
             }
         }
     </script>
-    <script src="latest_data.js?v=20260701_001"></script>
+    <script src="latest_data.js?v=20260702_001"></script>
 
         <script>
     // 异步加载报告数据（动态获取最新报告）
@@ -189,7 +189,7 @@
   "report": {
     "departments": {
       "bych": {
-        "bu_name": "铂源催化事业部",
+        "bu_name": "bych",
         "sections": [
           {
             "dim": "topnews",
@@ -525,7 +525,7 @@
         "updated_at": "2026-06-30"
       },
       "czly": {
-        "bu_name": "常州锂源事业部",
+        "bu_name": "czly",
         "sections": [
           {
             "dim": "topnews",
@@ -845,7 +845,7 @@
         "updated_at": "2026-06-30"
       },
       "dkhx": {
-        "bu_name": "迪克化学事业部",
+        "bu_name": "dkhx",
         "sections": [
           {
             "dim": "topnews",
@@ -1172,8 +1172,8 @@
         ],
         "updated_at": "2026-06-30"
       },
-      "felt": {
-        "bu_name": "法恩莱特事业部",
+      "fnlt": {
+        "bu_name": "fnlt",
         "sections": [
           {
             "dim": "topnews",
@@ -1532,8 +1532,8 @@
         ],
         "updated_at": "2026-06-30"
       },
-      "kelan": {
-        "bu_name": "可兰素事业部",
+      "kls": {
+        "bu_name": "kls",
         "sections": [
           {
             "dim": "topnews",
@@ -1837,7 +1837,7 @@
         "updated_at": "2026-06-30"
       },
       "lpsd": {
-        "bu_name": "龙蟠时代事业部",
+        "bu_name": "lpsd",
         "sections": [
           {
             "dim": "topnews",
@@ -2156,8 +2156,8 @@
         ],
         "updated_at": "2026-06-30"
       },
-      "lubricant": {
-        "bu_name": "润滑油事业部",
+      "lube": {
+        "bu_name": "lube",
         "sections": [
           {
             "dim": "topnews",
@@ -2485,7 +2485,7 @@
         "updated_at": "2026-06-30"
       },
       "sdmd": {
-        "bu_name": "山东美多事业部",
+        "bu_name": "sdmd",
         "sections": [
           {
             "dim": "topnews",
@@ -2860,8 +2860,8 @@
         ],
         "updated_at": "2026-06-30"
       },
-      "sjl": {
-        "bu_name": "三金锂电事业部",
+      "sjld": {
+        "bu_name": "sjld",
         "sections": [
           {
             "dim": "topnews",
@@ -3332,7 +3332,6 @@
             position: relative;
             height: 300px;
             border-radius: 12px;
-            overflow: hidden;
             margin-bottom: 24px;
             box-shadow: 0 2px 16px rgba(7,82,54,0.06);
         }
@@ -3344,6 +3343,8 @@
             object-fit: cover;
             object-position: center top;
             z-index: 0;
+            border-radius: 12px;
+            overflow: hidden;
         }
 
         .hero-overlay {
@@ -3352,6 +3353,8 @@
             background: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0) 25%, rgba(0,0,0,0.06) 60%, rgba(0,0,0,0.16) 100%);
             z-index: 1;
             pointer-events: none;
+            border-radius: 12px;
+            overflow: hidden;
         }
 
         /* 导航菜单浮于图上顶部（完全透明，融入蓝天） */
@@ -3371,6 +3374,7 @@
         }
 
         .hero-banner > .main-nav-menu .main-nav-item {
+            position: relative;
             color: rgb(7,82,54);
             text-shadow: 0 1px 3px rgba(255,255,255,0.35);
             padding: 7px 14px;
@@ -3389,25 +3393,6 @@
 
         .hero-banner > .main-nav-menu .nav-arrow {
             color: rgba(7,82,54,0.50);
-        }
-
-        /* 下拉菜单在图上时使用干净白底保证可读性 */
-        .hero-banner > .main-nav-menu .dropdown-menu {
-            background: rgba(255,255,255,0.95);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(200,220,235,0.5);
-            box-shadow: 0 8px 30px rgba(0,0,0,0.12);
-            top: 100%;
-        }
-
-        .hero-banner > .main-nav-menu .dropdown-item {
-            color: rgb(7,82,54);
-        }
-
-        .hero-banner > .main-nav-menu .dropdown-item:hover {
-            background: rgba(10,166,106,0.08);
-            color: rgb(7,82,54);
         }
 
         /* 日期时间浮于图右下 */
@@ -3517,6 +3502,7 @@
         }
 
         .main-nav-item {
+            position: relative;
             padding: 10px 16px;
             border-radius: 10px;
             cursor: pointer;
@@ -3611,7 +3597,7 @@
             background: var(--line-green);
             margin: 6px 0;
         }
-        
+
         /* 一键启动区域 */
         .quick-start-section {
             background: white;
@@ -9260,7 +9246,7 @@ window.addEventListener('DOMContentLoaded', function() {
 
         /* ── 悬停时GIF暂停（切换为静态抬头表情）── */
         var GIF_SRC = "assets/dragon_anim.gif";
-        var STATIC_SRC = "assets/dragon_4combined_hover_static.png";
+        var STATIC_SRC = "assets/dragon_4combined_hover_static.webp";
         var wrap = document.getElementById("aiFloatWrap");
         if (!wrap) return;
 
@@ -9375,7 +9361,7 @@ window.addEventListener('DOMContentLoaded', function() {
         div.className = 'ai-msg ' + role;
         var av = avatar || botAvatar;
         div.innerHTML =
-            '<img class="ai-msg-avatar" src="' + av + '" alt=""/>' +
+            '<img loading="lazy" class="ai-msg-avatar" src="' + av + '" alt=""/>' +
             '<div class="ai-msg-bubble"></div>';
         div.querySelector('.ai-msg-bubble').textContent = text;
         m.appendChild(div);
@@ -9387,7 +9373,7 @@ window.addEventListener('DOMContentLoaded', function() {
         div.className = 'ai-msg ai-msg-typing';
         div.id = 'aiTypingMsg';
         div.innerHTML =
-            '<img class="ai-msg-avatar" src="' + botAvatar + '" alt=""/>' +
+            '<img loading="lazy" class="ai-msg-avatar" src="' + botAvatar + '" alt=""/>' +
             '<div class="ai-msg-bubble">正在思考...</div>';
         m.appendChild(div);
         scrollBottom();
@@ -9490,7 +9476,7 @@ window.addEventListener('DOMContentLoaded', function() {
     <div class="container">
         <!-- Hero Banner（图片横幅） -->
         <div class="hero-banner" id="heroBanner">
-            <img class="hero-bg" src="assets/hero-banner.png?v=202606181430" alt="龙蟠科技">
+            <img loading="lazy" class="hero-bg" src="assets/hero-banner.webp?v=202606181430" alt="龙蟠科技">
             <div class="hero-overlay"></div>
             <!-- 主导航菜单（浮于图上，毛玻璃半透明白底） -->
             <div class="main-nav-menu" id="mainNavMenu" style="background:transparent !important; backdrop-filter:none !important; -webkit-backdrop-filter:none !important; border:none !important; box-shadow:none !important;">
@@ -9622,7 +9608,7 @@ window.addEventListener('DOMContentLoaded', function() {
             <!-- Hero 文字内容（浮于图左下） -->
             <div class="hero-content">
                 <div class="hero-brand-line">
-                    <img class="hero-logo-img" src="assets/lopal-logo.png" alt="Lopal" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-flex';">
+                    <img loading="lazy" class="hero-logo-img" src="assets/lopal-logo.png" alt="Lopal" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-flex';">
                     <span class="hero-logo-icon-fallback" style="display:none;">L</span>
                     <span>Lopal 龙蟠科技</span>
                 </div>
@@ -9788,39 +9774,39 @@ window.addEventListener('DOMContentLoaded', function() {
             <div class="section-title" style="text-align: center;">🏢 集团矩阵</div>
                                     <div id="matrix-grid" class="matrix-grid">
                 <div class="matrix-card" onclick="openPanel('czly')">
-                    <img class="matrix-card-logo" src="data/images/czly_logo.png" alt="常州锂源" />
+                    <img loading="lazy" class="matrix-card-logo" src="data/images/czly_logo.png" alt="常州锂源" />
                     <div class="matrix-card-name">常州锂源</div>
                 </div>
                 <div class="matrix-card" onclick="openPanel('sdmd')">
-                    <img class="matrix-card-logo" src="data/images/sdmd_logo.png" alt="锂源动力" />
+                    <img loading="lazy" class="matrix-card-logo" src="data/images/sdmd_logo.png" alt="锂源动力" />
                     <div class="matrix-card-name">山东美多</div>
                 </div>
                 <div class="matrix-card" onclick="openPanel('sjl')">
-                    <img class="matrix-card-logo" src="data/images/sjl_logo.png" alt="三金锂电" />
+                    <img loading="lazy" class="matrix-card-logo" src="data/images/sjl_logo.png" alt="三金锂电" />
                     <div class="matrix-card-name">三金锂电</div>
                 </div>
                 <div class="matrix-card" onclick="openPanel('lpsd')">
-                    <img class="matrix-card-logo" src="data/images/lpsd_logo.png" alt="龙蟠时代" />
+                    <img loading="lazy" class="matrix-card-logo" src="data/images/lpsd_logo.png" alt="龙蟠时代" />
                     <div class="matrix-card-name">龙蟠时代</div>
                 </div>
                 <div class="matrix-card" onclick="openPanel('felt')">
-                    <img class="matrix-card-logo" src="data/images/felt_logo.png" alt="法恩莱特" />
+                    <img loading="lazy" class="matrix-card-logo" src="data/images/felt_logo.png" alt="法恩莱特" />
                     <div class="matrix-card-name">法恩莱特</div>
                 </div>
                 <div class="matrix-card" onclick="openPanel('lubricant')">
-                    <img class="matrix-card-logo" src="data/images/lubricant_logo.png" alt="润滑油" />
+                    <img loading="lazy" class="matrix-card-logo" src="data/images/lubricant_logo.png" alt="润滑油" />
                     <div class="matrix-card-name">润滑油</div>
                 </div>
                 <div class="matrix-card" onclick="openPanel('kelan')">
-                    <img class="matrix-card-logo" src="data/images/kelan_logo.png" alt="可兰素" />
+                    <img loading="lazy" class="matrix-card-logo" src="data/images/kelan_logo.png" alt="可兰素" />
                     <div class="matrix-card-name">可兰素</div>
                 </div>
                 <div class="matrix-card" onclick="openPanel('dkhx')">
-                    <img class="matrix-card-logo" src="data/images/dkhx_logo.png" alt="迪克化学" />
+                    <img loading="lazy" class="matrix-card-logo" src="data/images/dkhx_logo.png" alt="迪克化学" />
                     <div class="matrix-card-name">迪克化学</div>
                 </div>
                 <div class="matrix-card" onclick="openPanel('bych')">
-                    <img class="matrix-card-logo" src="data/images/bych_logo.png" alt="铂源催化" />
+                    <img loading="lazy" class="matrix-card-logo" src="data/images/bych_logo.png" alt="铂源催化" />
                     <div class="matrix-card-name">铂源催化</div>
                 </div>
             </div></section>
@@ -9832,7 +9818,7 @@ window.addEventListener('DOMContentLoaded', function() {
         <div class="drawer-topbar">
             <div class="drawer-bu-info">
                 <div id="drawerLogoWrap">
-                    <img class="drawer-logo-img" id="drawerLogoImg" src="" alt="" style="display:none">
+                    <img loading="lazy" class="drawer-logo-img" id="drawerLogoImg" src="" alt="" style="display:none">
                     <div class="drawer-logo-placeholder" id="drawerLogoPlaceholder"></div>
                 </div>
                 <div>
@@ -13091,7 +13077,7 @@ window.addEventListener('DOMContentLoaded', function() {
                         const braceEnd = jsText.lastIndexOf('}');
                         const jsonStr = jsText.substring(braceStart, braceEnd + 1);
                         const autoData = JSON.parse(jsonStr);
-                        const autoTable = (autoData.tables || []).find(t => t.table_name === '新能源汽车销量—国内市场');
+                        const autoTable = (autoData.tables || []).find(t => t.table_name.includes('新能源汽车销量'));
                         if (autoTable && autoTable.data && autoTable.data.length > 0) {
                             const byMonth = {};
                             autoTable.data.forEach(r => {
@@ -14308,7 +14294,7 @@ const BU_LOGOS = {
                     console.log('[_doRenderAllBu] Missing data for:', id);
                     html += `<div class="allbu-card ${id}" onclick="enterDeptFromAllBu('${id}')">
                         <div class="allbu-card-top">
-                            <img class="allbu-card-logo" src="${BU_LOGOS[id] || ''}" alt="${buNames[id] || id}" />
+                            <img loading="lazy" class="allbu-card-logo" src="${BU_LOGOS[id] || ''}" alt="${buNames[id] || id}" />
                             <div class="allbu-card-title-wrap">
                                 <div class="allbu-card-name">${buNames[id] || id}</div>
                             </div>
@@ -14357,7 +14343,7 @@ const BU_LOGOS = {
 
                 html += `<div class="allbu-card ${id}" onclick="enterDeptFromAllBu('${id}')">` +
                     `<div class="allbu-card-top">` +
-                        `<img class="allbu-card-logo" src="${BU_LOGOS[id] || ''}" alt="${buNames[id] || id}" />` +
+                        `<img loading="lazy" class="allbu-card-logo" src="${BU_LOGOS[id] || ''}" alt="${buNames[id] || id}" />` +
                         `<div class="allbu-card-title-wrap">` +
                             `<div class="allbu-card-name">${buNames[id] || id}</div>` +
                         `</div>` +
@@ -19108,7 +19094,7 @@ function buildCard(buId) {
     const bd = BUS_DATA[buId];
     let logoHtml;
     if (bd.logo) {
-        logoHtml = '<img class="card-logo-img" src="' + bd.logo + '" alt="' + bd.name + '" onerror="this.style.display=\'none\'">';
+        logoHtml = '<img loading="lazy" class="card-logo-img" src="' + bd.logo + '" alt="' + bd.name + '" onerror="this.style.display=\'none\'">';
     } else {
         logoHtml = '<div class="card-logo-placeholder" style="background:' + bd.accent + '22;border:1.5px solid ' + bd.accent + '44;color:' + bd.accent + '">' + bd.name.slice(0,2) + '</div>';
     }
@@ -20812,12 +20798,12 @@ window.addEventListener('hashchange', function() {
 <!-- ===== 3D AI 龙蟠悬浮按钮 ===== -->
 <div class="ai-float-wrap" id="aiFloatWrap" style="display:none !important;">
     <div class="ai-sphere" id="aiSphere">
-        <img class="ai-sphere-img" id="aiSphereImg"
+        <img loading="lazy" class="ai-sphere-img" id="aiSphereImg"
              src="data/images/embedded_img_010.png"
              alt="AI助手"
              style="border-radius:50%;pointer-events:none">
         <div class="media-layer" id="gifLayer" style="position:absolute;top:0;left:0;width:80px;height:80px;border-radius:50%;overflow:hidden;opacity:0;pointer-events:none;transition:opacity 0.3s ease;z-index:2;">
-            <img id="gifImg" src="" alt="动画" style="width:100%;height:100%;object-fit:cover;display:block;">
+            <img loading="lazy" id="gifImg" src="" alt="动画" style="width:100%;height:100%;object-fit:cover;display:block;">
         </div>
     </div>
     <div class="ai-sphere-shadow"></div>
@@ -20883,7 +20869,7 @@ window.addEventListener('hashchange', function() {
 </html>
 <div id="aiChatDialog">
     <div class="ai-dialog-header">
-        <img class="ai-dialog-avatar" src="images/embedded_img_011.png" alt="龙蟠AI">
+        <img loading="lazy" class="ai-dialog-avatar" src="images/embedded_img_011.png" alt="龙蟠AI">
         <div class="ai-dialog-info">
             <div class="ai-dialog-name">AI龙小蟠</div>
             <div class="ai-dialog-status">随时为您解答 · 摘要页面内容</div>
@@ -20962,85 +20948,6 @@ document.addEventListener('DOMContentLoaded', function() {
     if (items[0]) movePill(items[0]);
   })();
 });
-</script>
-
-<script>
-(function() {
-    // 下拉菜单修复：hover 时临时挂到 document.body，彻底绕过父级 stacking context
-    console.log('[dropdown-fix] 脚本已加载');
-
-    let currentOpen = null;   // 当前打开的 { dd, originalParent }
-    let showTimer   = null;   // 进入计时器
-    let hideTimer   = null;   // 关闭计时器
-
-    function closeCurrent() {
-        if (currentOpen && currentOpen.dd.parentElement === document.body) {
-            const dd = currentOpen.dd;
-            currentOpen.originalParent.appendChild(dd);
-            dd.style.position   = '';
-            dd.style.top        = '';
-            dd.style.left       = '';
-            dd.style.transform  = '';
-            dd.style.zIndex     = '';
-            dd.style.opacity    = '';
-            dd.style.visibility = '';
-            dd.style.display    = '';
-        }
-        currentOpen = null;
-    }
-
-    document.querySelectorAll('.main-nav-item').forEach(item => {
-        const dd = item.querySelector('.dropdown-menu');
-        if (!dd) return;
-
-        function showDropdown() {
-            closeCurrent();
-
-            const rect = item.getBoundingClientRect();
-            const scrollY = window.scrollY || window.pageYOffset || 0;
-            const scrollX = window.scrollX || window.pageXOffset || 0;
-
-            dd.style.position   = 'absolute';
-            dd.style.top        = (rect.bottom + scrollY) + 'px';
-            dd.style.left       = (rect.left + scrollX + rect.width / 2) + 'px';
-            dd.style.transform  = 'translateX(-50%)';
-            dd.style.zIndex     = '99999';
-            dd.style.opacity    = '1';
-            dd.style.visibility = 'visible';
-            dd.style.display    = 'block';
-
-            if (dd.parentElement !== document.body) {
-                document.body.appendChild(dd);
-            }
-            currentOpen = { dd: dd, originalParent: item };
-            console.log('[dropdown-fix] 已打开：' + item.textContent.trim().slice(0,8));
-        }
-
-        function scheduleHide() {
-            clearTimeout(hideTimer);
-            hideTimer = setTimeout(function() {
-                if (currentOpen && currentOpen.dd === dd && dd.parentElement === document.body) {
-                    closeCurrent();
-                    console.log('[dropdown-fix] 已关闭');
-                }
-            }, 300);
-        }
-
-        item.addEventListener('mouseenter', function() {
-            clearTimeout(hideTimer);
-            clearTimeout(showTimer);
-            showTimer = setTimeout(showDropdown, 30);
-        });
-        item.addEventListener('mouseleave', scheduleHide);
-
-        dd.addEventListener('mouseenter', function() {
-            console.log('[dropdown-fix] 鼠标进入下拉');
-            clearTimeout(hideTimer);
-            clearTimeout(showTimer);
-        });
-        dd.addEventListener('mouseleave', scheduleHide);
-    });
-})();
 </script>
 
     <script>
@@ -21908,68 +21815,69 @@ document.addEventListener('DOMContentLoaded', function() {
         };
 
         // 所有可用的数据库看板配置（已根据实际数据文件校准）
-                                                                                                                                                                                                                                                                                                var DASHBOARDS = [
+                                                                                                                                                                                                                                                                                                        var DASHBOARDS = [
         {
-            id: 'carbonate_prod',
-            tag: '碳酸锂·行业产量',
-            title: '碳酸锂行业总产量走势',
-            link: 'carbonate_charts.html?v=20260628',
-            dataFile: 'carbonate_all_data.json',
-            tableName: '碳酸锂-行业总产量',
+            id: 'ternary_ncm_split',
+            tag: '三元材料·型号分布',
+            title: '三元正极材料分型号产量占比',
+            link: 'ternary_charts.html?v=20260630',
+            dataFile: 'ternary_all_data.json',
+            tableName: 'NCM-分型号产量',
             unit: '吨',
             scale: 1,
-            insight: '碳酸锂期货主力单日跌超4%至15.3万元/吨，电池级碳酸锂高价格抑制下游采购意愿；硫磺、磷酸铁价格高位虽提供成本托底但MMLC联动下挫风险仍在；行业1764万吨规划产能若兑现度超70%将于2027年末集中释放，远期供给压力凸显。',
+            insight: 'TOP1「NCM811」占45%（1.8万吨），NCM52328%。国家发改委、能源局6月25日联合印发，明确到2030年新型储能装机达到300GW，配套支持储能/锂电/光伏/钠电/钙钛矿/固态电池等关键技术与产业化落地。',
             division: 'czly',
-            valueKey: '产量（吨）',
-            timeKey: '月份',
-            isBar: true},
+            chartType: 'pie',
+            isBar: false,
+            pieMode: 'row_columns',
+            pieExcludeColumns: ["月份"],
+            pieDateKey: '',
+            pieNameKey: '',
+            pieValueKey: ''},
+        {
+            id: 'lsp_price',
+            tag: '锂辉石·精矿价格',
+            title: '锂辉石精矿价格走势',
+            link: 'carbonate_charts.html?v=20260630',
+            dataFile: 'carbonate_all_data.json',
+            tableName: '锂辉石精矿-价格',
+            unit: '美元/吨',
+            scale: 1,
+            insight: '最新2010.00美元/吨，环比下跌19.6%。',
+            division: 'czly',
+            valueKey: '均价（美元/吨）',
+            timeKey: '日期',
+            isBar: false},
         {
             id: 'electrolyte_price_lfp',
             tag: '电解液·LFP动力价格',
             title: '电解液（LFP动力型）价格走势',
-            link: 'electrolyte_charts.html?v=20260628',
+            link: 'electrolyte_charts.html?v=20260630',
             dataFile: 'electrolyte_all_data.json',
             tableName: '电解液价格-磷酸铁锂动力型',
             unit: '万元/吨',
             scale: 1,
-            insight: '电解液（LFP动力型）价格：28500元/吨，涨跌：周持平，月涨3.64%。电解液赛道一年长单累计超400万吨，VC单日再涨8000元/吨至15.5万元/吨、三季度电池排产走高供需缺口持续扩大；磷酸铁锂电解液月涨3.64%、高电压(>4.4V)月涨2.60%，适配快充/4.4V+体系的高附加值电解液溢价能力突出。',
+            insight: '电解液（LFP动力型）价格：2.95万元/吨，涨跌：周内持平。电解液行业累计锁单超400万吨，永太科技再获宁德VC三年9万吨长单叠加天赐/新宙邦一体化扩能，头部企业份额持续抬升；VC因个别企业出货受阻价格周内+14.3%创新高、FEC同步走强，添加剂细分赛道盈利弹性打开。',
             division: 'felt',
             valueKey: '均价',
             timeKey: '日期',
             isBar: false},
         {
-            id: 'lfp_price_ternary',
-            tag: '电解液·三元动力价格',
-            title: '电解液（三元动力型）价格走势',
-            link: 'electrolyte_charts.html?v=20260628',
-            dataFile: 'electrolyte_all_data.json',
-            tableName: '电解液价格-三元动力型',
-            unit: '万元/吨',
+            id: 'ternary_prod',
+            tag: '三元正极·行业产量',
+            title: '三元正极材料产量走势',
+            link: 'ternary_charts.html?v=20260630',
+            dataFile: 'ternary_all_data.json',
+            tableName: 'NCM-行业整体产量',
+            unit: '吨',
             scale: 1,
-            insight: '电解液（三元动力型）价格：28500元/吨，涨跌：周持平，月涨3.64%。电解液赛道一年长单累计超400万吨，VC单日再涨8000元/吨至15.5万元/吨、三季度电池排产走高供需缺口持续扩大；磷酸铁锂电解液月涨3.64%、高电压(>4.4V)月涨2.60%，适配快充/4.4V+体系的高附加值电解液溢价能力突出。',
-            division: 'felt',
-            valueKey: '均价',
-            timeKey: '日期',
-            isBar: false},
-        {
-            id: 'automotive_nev_brand_share',
-            tag: '汽车·NEV品牌份额',
-            title: '新能源汽车品牌销量份额',
-            link: 'automotive_charts.html?v=20260628',
-            dataFile: 'automotive_all_data.json',
-            tableName: '新能源汽车销量-乘用车零售分品牌',
-            unit: '万辆',
-            scale: 1,
-            insight: 'TOP1「比亚迪汽车」占30%（20.7万辆），吉利汽车16%。国家发改委、国家能源局6月25日印发《新型能源体系建设"十五五"规划》，提出2030年新能源发电量占比达30%、可再生能源制氢规模200万吨；大力发展新型储能、加力发展长时储能，鼓励多元化储能技术路线，拓展储能在电源协同、电网支撑、虚拟电厂等领域应用。',
+            insight: '新型能源体系"十五五"规划明确2030年新型储能装机300GW，叠加LFP装车占比突破81.5%与1-6月LFP产量+77%的高速增长，行业进入产能扩张+高端紧缺双轮驱动期，钠电储能/四代高压实/磷酸锰铁锂差异化产能成新增长极。',
             division: 'czly',
-            chartType: 'pie',
-            isBar: false,
-            pieMode: 'filtered_rows',
-            pieExcludeColumns: [],
-            pieDateKey: '日期',
-            pieNameKey: 'NEV厂商',
-            pieValueKey: '销量（万辆）'}
+            valueKey: '产量（吨）',
+            timeKey: '月份',
+            isBar: true}
         ];
+        
         
         
         
