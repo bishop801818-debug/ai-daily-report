@@ -1,29 +1,18 @@
 /**
  * Service Worker for AI Daily Report
- * 版本：v1.0 (2026-07-02)
+ * 版本：v1.1 (2026-07-02)
  * 功能：离线缓存静态资源和数据文件，提升二次访问速度
+ * 更新：只缓存确实存在的文件
  */
 
-const CACHE_NAME = 'ai-daily-v1';
+const CACHE_NAME = 'ai-daily-v2';
 const CACHE_VERSION = '20260702';
 
-// 需要缓存的文件列表（核心资源）
+// 需要缓存的文件列表（只列确实存在的）
+// 注意：实际缓存会在 fetch 事件中动态添加
 const STATIC_CACHE_URLS = [
   './',                    // index_v3.html
   './index_v3.html',
-  './css/style.css',       // 如果有外部CSS
-  './js/core.js',
-  './js/charts.js',
-  './js/radar.js',
-  './js/news.js',
-];
-
-// 数据文件的缓存策略：网络优先，缓存兜底
-const DATA_CACHE_URLS = [
-  './reports/index.json',
-  './data/carbonate_spot_price_merged.json',
-  './data/lithium_ore_price_history.json',
-  './data/lepidolite_price_history.json',
 ];
 
 // 安装事件：预缓存静态资源
@@ -90,38 +79,30 @@ self.addEventListener('fetch', function(event) {
     return;
   }
   
-  // 策略2：JSON数据文件 - 缓存优先（长期缓存）
+  // 策略2：JSON数据文件 - 缓存优先（stale-while-revalidate）
   if (requestPath.includes('/reports/') || requestPath.includes('/data/')) {
     event.respondWith(
       caches.match(event.request).then(function(cachedResponse) {
+        // 后台异步更新缓存
+        const fetchPromise = fetch(event.request).then(function(response) {
+          if (response && response.status === 200) {
+            caches.open(CACHE_NAME).then(function(cache) {
+              cache.put(event.request, response.clone());
+            });
+          }
+          return response;
+        }).catch(function() {
+          // 忽略更新失败
+        });
+        
         // 如果有缓存，先返回缓存
         if (cachedResponse) {
           console.log('[SW] 数据文件缓存命中:', requestPath);
-          
-          // 后台异步更新缓存（ stale-while-revalidate ）
-          fetch(event.request).then(function(response) {
-            if (response && response.status === 200) {
-              caches.open(CACHE_NAME).then(function(cache) {
-                cache.put(event.request, response);
-              });
-            }
-          }).catch(function() {
-            // 忽略更新失败
-          });
-          
           return cachedResponse;
         }
         
         // 无缓存：走网络
-        return fetch(event.request).then(function(response) {
-          if (response && response.status === 200) {
-            const responseClone = response.clone();
-            caches.open(CACHE_NAME).then(function(cache) {
-              cache.put(event.request, responseClone);
-            });
-          }
-          return response;
-        });
+        return fetchPromise;
       })
     );
     return;
@@ -153,7 +134,9 @@ self.addEventListener('message', function(event) {
     console.log('[SW] 收到清理缓存指令');
     caches.delete(CACHE_NAME).then(function() {
       console.log('[SW] 缓存已清理');
-      event.ports[0].postMessage({ success: true });
+      if (event.ports && event.ports[0]) {
+        event.ports[0].postMessage({ success: true });
+      }
     });
   }
 });
