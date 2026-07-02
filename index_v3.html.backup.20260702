@@ -14,20 +14,6 @@
     <script defer src="recycling_gantt.js?v=20260625"></script>
     <script>
       window.HTML_VERSION = "20260702_001"; // 版本号
-      
-      /* ---------- Service Worker 注册（离线缓存）---------- */
-      if ('serviceWorker' in navigator) {
-        window.addEventListener('load', function() {
-          navigator.serviceWorker.register('./sw.js?v=' + window.HTML_VERSION)
-            .then(function(registration) {
-              console.log('[SW] 注册成功:', registration.scope);
-            })
-            .catch(function(error) {
-              console.log('[SW] 注册失败:', error);
-            });
-        });
-      }
-
 
       /* ---------- 彻底防止图表旧内容闪屏（bfcache + 渲染残留）----------
        * 问题：浏览器前进后退缓存(bfcache)会保存完整页面状态，
