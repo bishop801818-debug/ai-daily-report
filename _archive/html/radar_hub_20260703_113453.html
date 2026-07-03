@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>雷达看板 - 龙蟠科技</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: "Microsoft YaHei", "PingFang SC", sans-serif; background: #f0f2f5; min-height: 100vh; }
+
+        .page-header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 24px 40px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 12px rgba(30,60,114,0.3);
+        }
+        .page-header .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: rgba(255,255,255,0.85);
+            text-decoration: none;
+            font-size: 14px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        .page-header .back-btn:hover { color: white; }
+        .page-header h1 { font-size: 22px; font-weight: bold; margin-bottom: 4px; }
+        .page-header .subtitle { font-size: 13px; opacity: 0.85; }
+
+        .container { max-width: 1100px; margin: 30px auto; padding: 0 20px; }
+
+        .section-label {
+            font-size: 13px;
+            color: #888;
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .section-label::after { content: ""; flex: 1; height: 1px; background: #ddd; }
+
+        .dept-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 16px;
+            margin-bottom: 36px;
+        }
+
+        .dept-card {
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            border-left: 4px solid #1e3c72;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+            text-decoration: none;
+            color: inherit;
+            display: flex;
+            flex-direction: column;
+        }
+        .dept-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(30,60,114,0.15);
+        }
+        .dept-card.lithium { border-left-color: #1e3c72; }
+        .dept-card.longpan { border-left-color: #2e75b6; }
+        .dept-card.other { border-left-color: #7030a0; }
+
+        .dept-card-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 6px;
+        }
+        .dept-logo {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            object-fit: contain;
+            background: #fff;
+            border: 2px solid rgba(0,0,0,0.08);
+            flex-shrink: 0;
+        }
+        .dept-info { flex: 1; min-width: 0; }
+        .dept-name { font-size: 14px; font-weight: bold; color: #1e3c72; margin-bottom: 2px; }
+        .dept-subtitle { font-size: 11px; color: #888; }
+
+        /* ECharts 雷达图容器 */
+        .dept-radar-preview {
+            height: 130px;
+            margin: 6px 0 4px;
+            flex-shrink: 0;
+        }
+        .dept-radar-preview canvas { border-radius: 8px; }
+
+        /* 月份切换按钮 */
+        .dept-month-toggle {
+            display: flex;
+            gap: 4px;
+            margin: 4px 0 2px;
+            justify-content: center;
+        }
+        .month-btn {
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 500;
+            background: #f0f0f0;
+            color: #555;
+            border: none;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+        .month-btn:hover { opacity: 0.8; }
+        .month-btn.active { font-weight: 600; }
+
+        .dept-score {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 8px;
+            padding-top: 10px;
+            border-top: 1px solid #f0f0f0;
+        }
+        .dept-score-label { font-size: 12px; color: #888; }
+        .dept-score-val { font-size: 18px; font-weight: bold; color: #1e3c72; }
+        .dept-score-dims { font-size: 11px; color: #aaa; margin-left: 6px; }
+
+        .dept-dims-row {
+            display: flex;
+            gap: 4px;
+            margin-top: 6px;
+            flex-wrap: wrap;
+        }
+        .dim-chip {
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            background: #f0f0f0;
+            color: #666;
+        }
+        .dim-chip .chip-val { font-weight: bold; margin-right: 2px; }
+
+        .dept-current-badge {
+            display: inline-block;
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            background: #fff3e0;
+            color: #e67e22;
+            font-weight: bold;
+            margin-left: 6px;
+        }
+
+        .footer-note {
+            text-align: center;
+            color: #bbb;
+            font-size: 12px;
+            padding: 24px;
+            border-top: 1px solid #eee;
+            margin-top: 20px;
+        }
+        .footer-note a { color: #1e3c72; text-decoration: none; font-weight: 600; }
+        .footer-note a:hover { text-decoration: underline; }
+
+        @media (max-width: 768px) {
+            .dept-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+<!--══统一导航栏（shared_nav.css）═════════════════ -->
+<link rel="stylesheet" href="shared_nav.css">
+<div class="sub-topbar">
+    <a class="sub-topbar-home" href="index_v3.html">← 返回首页</a>
+    <div class="sub-topbar-title"> 雷达看板</div>
+    <div class="sub-topbar-nav">
+        <!-- 政策中心 -->
+        <div class="sub-nav-item" onclick="window.location.href='policy_center_v4.html'">
+            <span> 政策中心</span><span class="sub-arrow">▼</span>
+            <div class="sub-dropdown">
+                <div class="sub-dropdown-item" onclick="event.stopPropagation(); window.location.href='policy_center_v4.html?filter=central'">
+                    <span class="nav-icon"></span>国家政策
+                </div>
+                <div class="sub-dropdown-item" onclick="event.stopPropagation(); window.location.href='policy_center_v4.html?filter=local'">
+                    <span class="nav-icon"></span>地方政策
+                </div>
+                <div class="sub-dropdown-item" onclick="event.stopPropagation(); window.location.href='policy_center_v4.html?filter=overseas'">
+                    <span class="nav-icon"></span>国际政策
+                </div>
+            </div>
+        </div>
+        <!-- 行业新闻 -->
+        <div class="sub-nav-item" onclick="window.location.href='industry_news_embedded.html'">
+           <span> 行业新闻</span><span class="sub-arrow">▼</span>
+            <div class="sub-dropdown">
+                <div class="sub-dropdown-item" onclick="event.stopPropagation(); window.location.href='industry_news_embedded.html?filter=macro'">
+                    <span class="nav-icon"></span>宏观新闻
+                </div>
+                <div class="sub-dropdown-item" onclick="event.stopPropagation(); window.location.href='industry_news_embedded.html?filter=industry'">
+                    <span class="nav-icon"></span>行业新闻
+                </div>
+                <div class="sub-dropdown-item" onclick="event.stopPropagation(); window.location.href='industry_news_embedded.html?filter=company'">
+                    <span class="nav-icon"></span>企业动态
+                </div>
+                <div class="sub-dropdown-item" onclick="event.stopPropagation(); window.location.href='industry_news_embedded.html?filter=tech'">
+                    <span class="nav-icon"></span>技术产品
+                </div>
+            </div>
+        </div>
+        <!-- 历史数据 -->
+        <div class="sub-nav-item" onclick="window.location.href='archive_v3.html'">
+            <span> 历史数据</span>
+        </div>
+        <!-- 数据库 -->
+        <div class="sub-nav-item" onclick="window.location.href='database_hub.html'">
+            <span> 数据库</span><span class="sub-arrow">▼</span>
+            <div class="sub-dropdown">
+                <div class="sub-dropdown-item" onclick="event.stopPropagation(); window.location.href='lfp_data_v2.html'">
+                    <span class="nav-icon"></span>磷酸铁锂数据库
+                </div>
+                <div class="sub-dropdown-item" onclick="event.stopPropagation(); window.location.href='ternary_data_v2.html'">
+                    <span class="nav-icon"></span>三元材料数据库
+                </div>
+                <div class="sub-dropdown-item" onclick="event.stopPropagation(); window.location.href='electrolyte_data_v2.html'">
+                    <span class="nav-icon"></span>电解液数据库
+                </div>
+                <div class="sub-dropdown-item" onclick="event.stopPropagation(); window.location.href='carbonate_data_v2.html'">
+                    <span class="nav-icon"></span>碳酸锂及原料数据库
+                </div>
+                <div class="sub-dropdown-item" onclick="event.stopPropagation(); window.location.href='recycling_data_v2.html'">
+                    <span class="nav-icon"></span>锂电池回收数据库
+                </div>
+                <div class="sub-dropdown-item" onclick="event.stopPropagation(); window.location.href='lib_battery_data_v2.html'">
+                    <span class="nav-icon"></span>锂电池行业数据库
+                </div>
+                <div class="sub-dropdown-item" onclick="event.stopPropagation(); window.location.href='automotive_data_v2.html'">
+                    <span class="nav-icon"></span>汽车行业数据库
+                </div>
+            </div>
+        </div>
+        <!-- 行业分析 -->
+        <div class="sub-nav-item" onclick="window.location.href='analysis_hub.html'">
+            <span> 行业分析</span>
+        </div>
+        <!-- 竞品比对 -->
+        <div class="sub-nav-item" onclick="window.location.href='strategy_hub.html'">
+            <span> 竞品比对</span>
+        </div>
+        <!-- 雷达看板 -->
+        <div class="sub-nav-item" onclick="window.location.href='radar_hub.html'">
+            <span> 雷达看板</span>
+        </div>
+    </div>
+</div>
+
+</div>
+
+<div class="container">
+    <div class="section-label">锂电系事业部</div>
+    <div class="dept-grid" id="grid-lithium"></div>
+
+    <div class="section-label">非锂电事业部</div>
+    <div class="dept-grid" id="grid-other"></div>
+</div>
+
+<div class="footer-note">
+    数据仅供参考 · <a href="index_v3.html">返回首页</a>
+</div>
+
+<script src="./echarts.min.js"></script>
+<script src="inline_00.js"></script>
+</body>
+</html>

@@ -1,13 +1,3 @@
-// == 页面守卫：hub 子页面跳过 DOM 初始化 ==
-var __isMainPage = !!document.getElementById('loadingOverlay') || window.location.pathname.endsWith('index_v3.html') || window.location.pathname === '/' || window.location.pathname === '';
-
-// 重写 addEventListener 对 DOMContentLoaded 的调用（仅主页面执行）
-var __origAddEventListener = EventTarget.prototype.addEventListener;
-var __domContentLoadedCallbacks = [];
-// 不直接重写，改用 wrapper 模式：
-// 搜索所有 window.addEventListener('DOMContentLoaded', fn) 并在 fn 外包 guard
-// 由下方正则替换自动处理
-
 
         // 事业部列表
         const deptList = ['lubricant', 'kelan', 'czly', 'lpsd', 'sdmd', 'sjl', 'bych', 'felt', 'dkhx'];
@@ -2626,43 +2616,15 @@ var __domContentLoadedCallbacks = [];
                 
                 console.log('[初始化] ✅ 全部完成！');
                 
-                // 显示市场行情监控区域（初始隐藏以避免闪烁）
-                const marketDashboard = document.querySelector('.market-dashboard');
-                if (marketDashboard) {
-                    marketDashboard.classList.add('loaded');
-                    console.log('[初始化] ✅ 市场行情监控区域已显示');
-                }
-                
                 // 渲染有色金属甘特图（数据已在上面计算完成）
                 renderSectorGantt('metals', 'gantt-chart-container-metals', cumulativeDataMetals);
                 
                 // 将局部累积涨跌幅数据赋值给全局变量，供 renderLithiumGantt 函数使用
                 window.cumulativeData = cumulativeData;
                 
-                console.log('[初始化] ✅ 全部完成！');
-                
-                // 移除 loading 提示
-                const loadingEl = document.querySelector('#gantt-chart-container .market-loading');
-                if (loadingEl) {
-                    loadingEl.remove();
-                    console.log('[初始化] ✅ 已移除 loading 提示');
-                }
             } catch (error) {
                 console.log('[初始化] ❌ 错误: ' + error.message);
                 console.error('[初始化] 错误:', error);
-                
-                // 即使失败，也尝试显示市场行情区域（避免永远空白）
-                const marketDashboard = document.querySelector('.market-dashboard');
-                if (marketDashboard) {
-                    marketDashboard.classList.add('loaded');
-                    console.log('[初始化] ⚠️ 市场行情监控区域已强制显示（错误处理）');
-                }
-                
-                // 显示折线图作为后备（如果甘特图渲染失败）
-                document.querySelectorAll('#panel-lithium .mk-chart-grid').forEach(grid => {
-                    grid.style.display = 'grid';
-                });
-                console.log('[初始化] ⚠️ 已显示折线图作为后备');
             }
         }
 
@@ -3686,15 +3648,15 @@ function updatePageData(chainConfig, marketData) {
         }
 
 const BU_LOGOS = {
-            'lubricant': 'img/inline_img_44670402.png',
-            'kelan': 'img/inline_img_74665931.png',
-            'czly': 'img/inline_img_90174708.png',
-            'lpsd': 'img/inline_img_16107537.png',
-            'sdmd': 'img/inline_img_54202343.png',
-            'sjl': 'img/inline_img_19524085.png',
-            'bych': 'img/inline_img_90897435.png',
-            'felt': 'img/inline_img_88504164.png',
-            'dkhx': 'img/inline_img_83224104.png'
+            'lubricant': 'img/inline_img_50285763.png',
+            'kelan': 'img/inline_img_50713531.png',
+            'czly': 'img/inline_img_57429920.png',
+            'lpsd': 'img/inline_img_81714348.png',
+            'sdmd': 'img/inline_img_44593543.png',
+            'sjl': 'img/inline_img_36614897.png',
+            'bych': 'img/inline_img_43778022.png',
+            'felt': 'img/inline_img_10279810.png',
+            'dkhx': 'img/inline_img_68335221.png'
         };
 
         function _doRenderAllBu() {
@@ -5678,14 +5640,11 @@ const BU_LOGOS = {
         }
         
         // 点击历史弹窗外部关闭
-        const historyModal = document.getElementById('historyModal');
-        if (historyModal) {
-        historyModal.addEventListener('click', function(e) {
+        document.getElementById('historyModal').addEventListener('click', function(e) {
             if (e.target === this) {
                 closeHistory();
             }
         });
-        }
         
         // ESC 键关闭历史弹窗
         document.addEventListener('keydown', function(e) {
@@ -5695,14 +5654,11 @@ const BU_LOGOS = {
         });
         
         // 点击弹窗外部关闭
-        const reportModal = document.getElementById('reportModal');
-        if (reportModal) {
-        reportModal.addEventListener('click', function(e) {
+        document.getElementById('reportModal').addEventListener('click', function(e) {
             if (e.target === this) {
                 closeReport();
             }
         });
-        }
         
         // ESC 键关闭弹窗（优先关闭报告弹窗）
         document.addEventListener('keydown', function(e) {
@@ -7884,7 +7840,7 @@ const RADAR_HISTORY = {
     },
     czly:{
         '2026-03':{
-            dims:{d1:62,d2:82,d3:86,d4:52,d5:90,d6:52},
+            dims:{d1:62,d2:44,d3:75,d4:55,d5:98,d6:50},
             kpis:{
                 d1:[47,78,0,104],
                 d2:[42,50,85,90],
@@ -7953,7 +7909,7 @@ const RADAR_HISTORY = {
         // ── 2026年5月（当月）──
         '2026-05':{
             dims:{d1:82,d2:80,d3:75,d4:76,d5:80,d6:72},
-            kpis:{d1:[62, 88, 65, 90], d2:[77, 98, 98, 85], d3:[105, 100, 96, 75], d4:[58, 67, 60, 58], d5:[100, 100, 100, 100], d6:[65, 25, 60, 88]},
+            kpis:{d1:[82,82,82,82],d2:[80,80,80,80],d3:[75,75,75,75],d4:[76,76,76,76],d5:[80,80,80,80],d6:[72,72,72,72]},
             _isCurrent:true,
         },
     },
@@ -7961,7 +7917,7 @@ const RADAR_HISTORY = {
         // ── 2026年3月 ──
         '2026-03':{
             dims:{d1:86,d2:78,d3:82,d4:80,d5:80,d6:78},
-            kpis:{d1:[62, 88, 65, 90], d2:[77, 98, 98, 85], d3:[105, 100, 96, 75], d4:[58, 67, 60, 58], d5:[100, 100, 100, 100], d6:[65, 25, 60, 88]},
+            kpis:{d1:[86,86,86,86],d2:[78,78,78,78],d3:[82,82,82,82],d4:[80,80,80,80],d5:[80,80,80,80],d6:[78,78,78,78]},
         },
         // ── 2026年4月 ──
         '2026-04':{
@@ -8151,8 +8107,8 @@ const DIMS = [
 
 const BUS_DATA = {
     czly:{ name:'常州锂源', logo:'', tag:'新能源材料', accent:'#00d4ff', detailPage:'radar_detail_czly.html',
-        dims:{d1:62,d2:82,d3:86,d4:52,d5:90,d6:52},
-        kpis:{d1:[62,88,65,90],d2:[77,98,98,85],d3:[105,100,96,75],d4:[58,67,60,58],d5:[100,100,100,100],d6:[65,25,60,88]}},
+        dims:{d1:86,d2:95,d3:88,d4:47,d5:95,d6:45},
+        kpis:{d1:[86,111,80,97],d2:[100,90,100,95],d3:[103,100,95,120],d4:[50,60,17,100],d5:[99,100,100,100],d6:[50,60,60,50]}},
     lpsd:{ name:'龙蟠时代', logo:'', tag:'电芯智造', accent:'#4caf50', detailPage:'radar_detail_lpsd.html',
         // 数据来源：radar_hub.html BU_HISTORY lpsd 2026-05
         dims:{d1:58,d2:88,d3:75,d4:85,d5:85,d6:75},
