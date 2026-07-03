@@ -359,6 +359,12 @@ function exportTable(tableId) {
 
 // === DATA LOADING ===
 async function loadAllData() {
+    // ═ 去重逻辑：防止并发重复请求同一数据
+    if (loadAllData._pending) {
+        console.log('[embedded/inline_00] 复用进行中的请求');
+        try { await loadAllData._pending; } catch(e) {}
+        return;
+    }
     if (typeof EMBEDDED_DATA !== 'undefined' && EMBEDDED_DATA.tables) {
         EMBEDDED_DATA.tables.forEach(t => {
             allData[t.table_name] = t.data;
@@ -380,29 +386,37 @@ async function loadAllData() {
     }
     // Fallback: try fetch JSON
     try {
-        const res = await fetch('ternary_all_data.json?_t=' + Date.now());
-        if (!res.ok) throw new Error(res.status);
-        const d = await res.json();
-        document.getElementById('updateTime').textContent = d.update_time || '-';
-        d.tables.forEach(t => {
-            allData[t.table_name] = t.data;
-            const cfg = TAB_CONFIG.find(c => c.table === t.table_name);
-            if (cfg) {
-                const badge = document.getElementById('badge-' + cfg.id);
-                if (badge) badge.textContent = t.data.length;
-            }
-        });
-        const total = d.tables.reduce((s,t) => s + (t.row_count || t.data.length), 0);
-        document.getElementById('totalRecords').textContent = (total/10000).toFixed(1) + '万';
-        const first = TAB_CONFIG[0];
-        renderConfigTable(first);
-        activeTabId = first.id;
-        restoreTabFromHash();
+        // ═ 去重：缓存进行中的请求，防止重复 fetch
+        if (!loadAllData._pendingFetch) {
+            loadAllData._pendingFetch = (async () => {
+                const res = await fetch('ternary_all_data.json?_t=' + Date.now());
+                if (!res.ok) throw new Error(res.status);
+                const d = await res.json();
+                document.getElementById('updateTime').textContent = d.update_time || '-';
+                d.tables.forEach(t => {
+                    allData[t.table_name] = t.data;
+                    const cfg = TAB_CONFIG.find(c => c.table === t.table_name);
+                    if (cfg) {
+                        const badge = document.getElementById('badge-' + cfg.id);
+                        if (badge) badge.textContent = t.data.length;
+                    }
+                });
+                const total = d.tables.reduce((s,t) => s + (t.row_count || t.data.length), 0);
+                document.getElementById('totalRecords').textContent = (total/10000).toFixed(1) + '万';
+                const first = TAB_CONFIG[0];
+                renderConfigTable(first);
+                activeTabId = first.id;
+                restoreTabFromHash();
+            })();
+        }
+        await loadAllData._pendingFetch;
     } catch(e) {
         console.error(e);
         document.querySelectorAll('[id$="-body"]').forEach(el => {
             el.innerHTML = '<tr><td class="loading">数据加载失败，请确保使用本地服务器访问</td></tr>';
         });
+    } finally {
+        delete loadAllData._pendingFetch;
     }
 }
 
