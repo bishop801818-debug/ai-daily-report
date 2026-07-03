@@ -1,5 +1,55 @@
 
       window.HTML_VERSION = "20260702_010"; // 版本号（修复市场行情监控闪烁问题）
+
+      /* ========== 全局 fetch 去重（防止并发重复请求同一资源）========== */
+      (function() {
+        var _origFetch = window.fetch.bind(window);
+        var _cache = {};
+
+        // 规范化 URL：去掉缓存破坏参数（?t= & _t= & v= & _cb=）
+        function _normUrl(url) {
+          if (typeof url !== 'string') return url;
+          // 只保留 pathname，query 中的 t/_t/v/_cb 都是缓存破坏，对并发去重无意义
+          var bare = url.split('#')[0].split('?')[0];
+          return bare;
+        }
+
+        window.fetch = function(url, options) {
+          var opts = options || {};
+          var method = (opts.method || 'GET').toUpperCase();
+          // 只去重 GET 请求
+          if (method !== 'GET') return _origFetch(url, opts);
+
+          var key = _normUrl(url);
+          if (_cache[key]) {
+            // 复用进行中的请求，返回独立 clone
+            console.log('[fetch去重] ' + url + ' → 复用进行中的请求');
+            return _cache[key].then(function(resp) {
+              return resp.clone();
+            });
+          }
+
+          // 发起新请求，缓存 promise
+          var p = _origFetch(url, opts).then(function(resp) {
+            // 请求成功：缓存克隆后的响应（供后续复用）
+            return resp.clone();
+          });
+          _cache[key] = p;
+
+          // 请求结束后清除缓存（允许下次重新请求）
+          p.finally(function() {
+            delete _cache[key];
+          });
+
+          // 返回独立 clone 给当前调用者
+          return p.then(function(resp) {
+            return resp.clone();
+          });
+        };
+
+        console.log('[fetch去重] ✅ 全局 fetch() 已重载，支持并发去重');
+      })();
+
       
       /* ---------- Service Worker 注册（离线缓存）---------- */
       if ('serviceWorker' in navigator) {
