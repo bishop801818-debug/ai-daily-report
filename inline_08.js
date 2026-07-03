@@ -1,8 +1,6 @@
 
     // ========== 热点资讯横向轮播 ==========
     (function() {
-        // Request 去重缓存（防止同一 dataFile 被并发请求多次）
-        var pendingFetches = {};
         
         // Unsplash API 配置
         const UNSPLASH_ACCESS_KEY = 'HTe905tIiFT-g7D2MH77LYB9-0SE65IWCpwHIrq0aM0';
@@ -864,13 +862,7 @@
         function loadChartData(idx) {
             var db = DASHBOARDS[idx];
 
-            // ═ 去重逻辑：同一 dataFile 并发只请求一次
-            if (pendingFetches[db.dataFile]) {
-                console.log('[去重] 复用进行中的请求：' + db.dataFile);
-                return pendingFetches[db.dataFile];
-            }
-
-            var fetchPromise = fetch(db.dataFile + '?t=' + Date.now())
+            fetch(db.dataFile + '?t=' + Date.now())
                 .then(function(r) {
                     if (!r.ok) throw new Error('HTTP ' + r.status);
                     return r.json();
@@ -976,16 +968,6 @@
                     console.error('数据库看板数据加载失败:', err);
                     updateChartInfo(null, '数据加载失败：' + (err.message || '未知错误'));
                 });
-            
-            // ⚠️ 去重：缓存 promise，解决后自动清除
-            fetchPromise.then(function() {
-                delete pendingFetches[db.dataFile];
-                console.log('[去重] 清除缓存（成功）：' + db.dataFile);
-            }).catch(function() {
-                delete pendingFetches[db.dataFile];
-                console.log('[去重] 清除缓存（失败）：' + db.dataFile);
-            });
-            pendingFetches[db.dataFile] = fetchPromise;
         }
 
         function moveChartCarousel(dir) {
