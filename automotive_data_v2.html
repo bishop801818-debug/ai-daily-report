@@ -547,7 +547,228 @@
     </div>
 </div>
 
-<script src="inline_00.js"></script>
+<script>
+(function() {
+    var NAV_TABLE_MAP = {
+        '汽车-全球分区域':    '汽车销量-全球分区域',
+        '汽车-全球分国家':    '汽车销量-全球分国家',
+        '汽车-中国整体':      '汽车销量-中国市场',
+        '汽车-中国乘用车':    '汽车销量-中国乘用车',
+        '汽车-中国乘用车出口':'汽车销量-中国乘用车出口',
+        '汽车-乘用车分整车厂':'汽车销量-中国乘用车-国内-分整车厂',
+        '汽车-中国商用车':    '汽车销量-中国商用车',
+        '汽车-商用车分整车厂':'汽车销量-中国商用车-国内-分整车厂',
+        '汽车-中重卡分整车厂':'汽车销量-中国商用车中重卡',
+        '汽车-轻卡分整车厂':  '汽车销量-中国商用车轻卡',
+        '新能源-全球整体':    '新能源汽车销量-全球整体',
+        '新能源-全球分地区':  '新能源汽车销量-全球分地区',
+        '新能源-中国整体':    '新能源汽车销量—国内市场',
+        '新能源-出口整体':    '新能源汽车销量-出口',
+        '新能源-乘用车零售':  '新能源汽车销量-国内乘用车零售',
+        '新能源-商用车零售':  '新能源汽车销量-国内商用车零售',
+        '新能源-乘用车分类型':'新能源汽车销量-乘用车零售分类型',
+        '新能源-乘用车分级别':'新能源汽车销量-乘用车零售分级别',
+        '新能源-乘用车分品牌':'新能源汽车销量-乘用车零售分品牌',
+        '新能源-乘用车出口分市场':'新能源汽车销量-乘用车出口分市场',
+        '新能源-乘用车出口分类型':'新能源汽车销量-乘用车出口分类型',
+        '新能源-乘用车出口分车企':'新能源汽车销量-乘用车出口分车企',
+    };
+
+    function fmt(v, type) {
+        if (v === null || v === undefined || v === '') return '-';
+        if (type === 'pct') {
+            if (typeof v === 'number') return (v >= 0 ? '+' : '') + (v * 100).toFixed(1) + '%';
+            return String(v);
+        }
+        if (type === 'wan0') {
+            if (typeof v === 'number') return v.toFixed(1);
+            return String(v);
+        }
+        if (type === 'num') {
+            if (typeof v === 'number') return v.toLocaleString();
+            return String(v);
+        }
+        if (type === 'share') {
+            if (typeof v === 'number') return (v * 100).toFixed(1) + '%';
+            return String(v);
+        }
+        return String(v);
+    }
+
+    function getCell(row, f) {
+        var v = row[f];
+        if (v === null || v === undefined || v === '') return '-';
+        if (f === '同比' || f === '环比') return fmt(v, 'pct');
+        var pct_fields = ['新能源渗透率','BEV份额','PHEV份额','合计份额','当月占比','占比','份额','渗透率'];
+        if (pct_fields.indexOf(f) >= 0) return fmt(v, 'share');
+        var wan_fields = ['本期销量（万辆）','本期出口量（万辆）','出口量（万辆）','交强险（万台）','新能源交强险量','新能源交强险（万台）'];
+        if (wan_fields.indexOf(f) >= 0) return fmt(v, 'wan0');
+        if (/销量|量/.test(f) && !/类型|路线|级别|车型|国家|企业|厂商|品牌|整车厂|区域|技术/.test(f)) return fmt(v, 'num');
+        return String(v);
+    }
+
+    function renderTbody(tbody, rows, fields) {
+        tbody.innerHTML = '';
+        for (var i = 0; i < rows.length; i++) {
+            var tr = document.createElement('tr');
+            for (var j = 0; j < fields.length; j++) {
+                var td = document.createElement('td');
+                td.textContent = getCell(rows[i], fields[j]);
+                tr.appendChild(td);
+            }
+            tbody.appendChild(tr);
+        }
+    }
+
+    function renderRankTbody(tbody, rows, fields) {
+        tbody.innerHTML = '';
+        var byMonth = {};
+        for (var i = 0; i < rows.length; i++) {
+            var month = rows[i]['月份'] || '';
+            if (!byMonth[month]) byMonth[month] = [];
+            byMonth[month].push(rows[i]);
+        }
+        var months = Object.keys(byMonth).sort().reverse();
+        for (var m = 0; m < months.length; m++) {
+            var monthRows = byMonth[months[m]].slice(0, 10);
+            for (var r = 0; r < monthRows.length; r++) {
+                var tr = document.createElement('tr');
+                for (var j = 0; j < fields.length; j++) {
+                    var td = document.createElement('td');
+                    td.textContent = getCell(monthRows[r], fields[j]);
+                    tr.appendChild(td);
+                }
+                tbody.appendChild(tr);
+            }
+        }
+    }
+
+    function renderSection(navId) {
+        var tableName = NAV_TABLE_MAP[navId];
+        var tbody = document.getElementById('tbody-' + navId);
+        if (!tbody || !tableName) return;
+
+        var rawTable = null;
+        if (typeof EMBEDDED_DATA !== 'undefined' && EMBEDDED_DATA.tables) {
+            for (var i = 0; i < EMBEDDED_DATA.tables.length; i++) {
+                if (EMBEDDED_DATA.tables[i].table_name === tableName) {
+                    rawTable = EMBEDDED_DATA.tables[i];
+                    break;
+                }
+            }
+        }
+        var rows = rawTable ? rawTable.data : [];
+
+        // 更新 badge
+        var section = document.getElementById('content-' + navId);
+        if (section) {
+            var badge = section.querySelector('.data-card-header span:last-child');
+            if (badge) badge.textContent = rows.length + '条';
+        }
+
+        switch(navId) {
+            case '汽车-全球分区域':
+                renderTbody(tbody, rows, ['月份','区域','本期销量(万辆）','去年同期销量（辆）','同比','本年YTD','上一年YTD','累计同比']);
+                break;
+            case '汽车-全球分国家':
+                renderTbody(tbody, rows, ['月份','国家','本期销量（辆）','去年同期销量（辆）','同比','本年YTD','上一年YTD','累计同比']);
+                break;
+            case '汽车-中国整体':
+            case '汽车-中国乘用车':
+            case '汽车-中国商用车':
+                renderTbody(tbody, rows, ['月份','本期销量（万辆）','环比','同比','本年YTD','上一年YTD','累计同比']);
+                break;
+            case '汽车-中国乘用车出口':
+                renderTbody(tbody, rows, ['月份','出口量（万辆）','环比','同比','本年YTD','上一年YTD','累计同比']);
+                break;
+            case '汽车-乘用车分整车厂':
+                renderRankTbody(tbody, rows, ['月份','企业名称','销量（万辆）','同期值','同比','环比','份额']);
+                break;
+            case '汽车-商用车分整车厂':
+                renderRankTbody(tbody, rows, ['月份','整车厂','销量（万辆）','同期值','同比','环比','份额']);
+                break;
+            case '汽车-中重卡分整车厂':
+                renderTbody(tbody, rows, ['月份','整车厂','交强险（万台）','新能源渗透率','新能源交强险量']);
+                break;
+            case '汽车-轻卡分整车厂':
+                renderTbody(tbody, rows, ['月份','整车厂','交强险（万台）','新能源渗透率','新能源交强险（万台）']);
+                break;
+            case '新能源-全球整体':
+                renderTbody(tbody, rows, ['月份','本期销量（万辆）','环比','同比','本年YTD','渗透率']);
+                break;
+            case '新能源-全球分地区':
+                renderTbody(tbody, rows, ['月份','地区','本期销量（万辆）','同比','环比','渗透率']);
+                break;
+            case '新能源-中国整体':
+                renderTbody(tbody, rows, ['月份','本期销量（万辆）','环比','同比','本年YTD','累计同比']);
+                break;
+            case '新能源-出口整体':
+                renderTbody(tbody, rows, ['月份','本期出口量（万辆）','环比','同比','本年YTD','累计同比']);
+                break;
+            case '新能源-乘用车零售':
+                renderTbody(tbody, rows, ['月份','本期销量（万辆）','环比','同比','渗透率','本年YTD','累计同比']);
+                break;
+            case '新能源-商用车零售':
+                renderTbody(tbody, rows, ['月份','本期销量（万辆）','环比','同比','渗透率','本年YTD']);
+                break;
+            case '新能源-乘用车分类型':
+                renderTbody(tbody, rows, ['月份','技术类型','本期销量（万辆）','同期销量','同比','本年YTD','累计同比']);
+                break;
+            case '新能源-乘用车分级别':
+                renderTbody(tbody, rows, ['月份','车型','BEV份额','PHEV份额','合计份额']);
+                break;
+            case '新能源-乘用车分品牌':
+                renderRankTbody(tbody, rows, ['月份','排名','NEV厂商','销量（万辆）','份额','环比','同比']);
+                break;
+            case '新能源-乘用车出口分市场':
+                renderRankTbody(tbody, rows, ['月份','技术路线','排名','国家','本期销量（辆）','同比']);
+                break;
+            case '新能源-乘用车出口分类型':
+                renderTbody(tbody, rows, ['月份','类型','本期销量（万辆）','同比','当月占比']);
+                break;
+            case '新能源-乘用车出口分车企':
+                renderRankTbody(tbody, rows, ['月份','整车厂','销量（万辆）','同期值','同比','占比']);
+                break;
+        }
+    }
+
+    window.addEventListener('DOMContentLoaded', function() {
+        if (typeof EMBEDDED_DATA !== 'undefined') {
+            var ut = document.getElementById('updateTime');
+            if (ut) ut.textContent = EMBEDDED_DATA.update_time || '未知';
+        }
+        for (var navId in NAV_TABLE_MAP) {
+            renderSection(navId);
+        }
+    });
+})();
+
+function switchNav(id, el) {
+    document.querySelectorAll('.nav-item').forEach(function(ni) { ni.classList.remove('active'); });
+    document.querySelectorAll('.content-section').forEach(function(cs) { cs.classList.remove('active'); });
+    if (el) el.classList.add('active');
+    var section = document.getElementById('content-' + id);
+    if (section) section.classList.add('active');
+}
+
+function toggleSidebar() {
+    var sidebar = document.getElementById('sidebar');
+    sidebar.classList.toggle('collapsed');
+    var main = document.querySelector('.main-content');
+    if (main) {
+        main.style.marginLeft = sidebar.classList.contains('collapsed')
+            ? 'var(--sidebar-collapsed)' : 'var(--sidebar-width)';
+    }
+}
+
+// 页面加载时默认激活第一个 tab（全球分区域销量）
+window.addEventListener('DOMContentLoaded', function() {
+    var firstNav = document.querySelector('.nav-item');
+    if (firstNav) firstNav.classList.add('active');
+    var firstContent = document.querySelector('.content-section');
+    if (firstContent) firstContent.classList.add('active');
+});
+</script>
     <script src="assets/ai_fab_inject.js"></script>
 </body>
 </html>

@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>可视化看板 - 碳酸锂及原料数据库</title>
     <meta name="html-version" content="20260423a">
-    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <script src="./echarts.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Microsoft YaHei', sans-serif; background: #f5f5f5; }
@@ -283,9 +283,492 @@
     </div>
 
 <script src="carbonate_embedded_data.js?v=20260630"></script>
-<script src="inline_00.js"></script>
+<script>
+var COLORS = ['#1e3c72','#4a6fa5','#4facfe','#667eea','#764ba2','#f59e0b','#10b981','#ef4444','#3b82f6','#8b5cf6'];
+var C = { primary: '#1e3c72', secondary: '#4a6fa5', accent: '#4facfe', border: '#e0e0e0', text: '#333', textLight: '#666' };
+
+// ── 工具函数 ──────────────────────────────────────────────────────────────────
+function getTable(name) {
+    var t = EMBEDDED_DATA.tables.find(function(t){ return t.table_name === name; });
+    return t ? t.data : [];
+}
+function toYY(v) {
+    if (!v) return '';
+    var s = String(v).slice(0,10);
+    // YYYY-MM-DD → 25-06
+    var m = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if (m) return String(+m[1]).slice(-2) + '-' + m[2];
+    // YYYY-MM (无日期) → 25-06
+    var m2 = s.match(/^(\d{4})-(\d{2})$/);
+    if (m2) return String(+m2[1]).slice(-2) + '-' + m2[2];
+    return '';
+}
+function toYYMMDD(v) {
+    if (!v) return '';
+    var s = String(v).slice(0,10);
+    var m = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
+    return m ? (String(+m[1]).slice(-2) + '-' + m[2] + '-' + m[3]) : '';
+}
+function num(v) { var n = parseFloat(String(v).replace(/,/g,'')); return isNaN(n) ? null : n; }
+
+// ── 动态数据提取（从 embedded JS） ─────────────────────────────────────────────
+(function loadData() {
+    // 碳酸锂行业总产量（最新12月，升序）
+    var lcRows = getTable('碳酸锂-行业总产量').slice(0,12).reverse();
+    window.lcMonths = lcRows.map(function(r){ return toYY(r['月份']); });
+    window.lcOutput = lcRows.map(function(r){ return num(r['产量（吨）']); });
+    window.lcUtil   = lcRows.map(function(r){
+        var p = num(r['产量（吨）']), c = num(r['产能（吨）']);
+        return (c > 0 ? (p/c*100) : null);
+    });
+
+    // 氢氧化锂行业总产量（最新12月，升序）
+    var lhRows = getTable('氢氧化锂-行业总产量').slice(0,12).reverse();
+    window.lhOutput = lhRows.map(function(r){ return num(r['产量（吨）']); });
+
+    // 碳酸锂月度出口（最新12月，升序）
+    var lcExpRows = getTable('碳酸锂-出口量').slice(0,12).reverse();
+    window.lcExpVol   = lcExpRows.map(function(r){ return num(r['出口量（吨）']); });
+    window.lcExpPrice = lcExpRows.map(function(r){ return num(r['出口均价（万元/吨）']); });
+
+    // 碳酸锂日度价格（电池级99.5%矿石，最新30天，降序取）
+    var lcDailyRows = getTable('碳酸锂-价格').filter(function(r){ return r['规格'] && r['规格'].indexOf('电池级99.5%')>-1; }).slice(0,30).reverse();
+    window.lcDailyDates = lcDailyRows.map(function(r){ return toYYMMDD(r['日期']); });
+    window.lcDailyAvg   = lcDailyRows.map(function(r){ return num(r['均价（万元/吨）']); });
+
+    // 锂辉石精矿价格（澳洲6% CIF）
+    var lspRows = getTable('锂辉石精矿-价格').filter(function(r){ return r['产地'] && r['产地'].indexOf('澳')>-1; }).slice(0,30).reverse();
+    window.lspDates = lspRows.map(function(r){ return toYYMMDD(r['日期']); });
+    window.lspAvg   = lspRows.map(function(r){ return num(r['均价（美元/吨）']); });
+
+    // 锂云母价格（1.8%品位）
+    var lymRows = getTable('锂云母-价格').filter(function(r){ return r['规格'] && r['规格'].indexOf('1.8')>-1; }).slice(0,30).reverse();
+    window.lymDates = lymRows.map(function(r){ return toYYMMDD(r['日期']); });
+    window.lymAvg   = lymRows.map(function(r){ return num(r['均价（万元/吨）']); });
+
+    // 氢氧化锂日度价格（最新30天，降序取）
+    var lhDailyRows = getTable('氢氧化锂-价格').slice(0,30).reverse();
+    window.lhDailyDates = lhDailyRows.map(function(r){ return toYYMMDD(r['日期']); });
+    window.lhDailyAvg   = lhDailyRows.map(function(r){ return num(r['均价（万元/吨）']); });
+
+    // 氢氧化锂月度出口（最新12月，升序）
+    var lhExpRows = getTable('氢氧化锂-出口量').slice(0,12).reverse();
+    window.lhExpVol   = lhExpRows.map(function(r){ return num(r['出口量（吨）']); });
+    window.lhExpPrice = lhExpRows.map(function(r){ return num(r['出口均价（万元/吨）']); });
+
+    // 碳酸锂分企业产量TOP（最新月份）
+    var lcComp = getTable('碳酸锂-分企业产量').slice(0, 12);
+    window.lcCompNames  = lcComp.map(function(r){ return r['企业名称'] || ''; });
+    window.lcCompOutput = lcComp.map(function(r){ return num(r['产量（吨）']); });
+
+    // 氢氧化锂分企业产量TOP（最新月份）
+    var lhComp = getTable('氢氧化锂-分企业产量').slice(0, 12);
+    window.lhCompNames  = lhComp.map(function(r){ return r['企业名称'] || ''; });
+    window.lhCompOutput = lhComp.map(function(r){ return num(r['产量（吨）']); });
+
+    // 碳酸锂出口贸易伙伴（按国家聚合，取最新月份TOP10）
+    var raw = getTable('碳酸锂-出口贸易伙伴');
+    var byPartner = {};
+    raw.forEach(function(r){ var k = r['贸易伙伴名称']||''; if(k) byPartner[k] = (byPartner[k]||0) + num(r['出口量（吨）']); });
+    var sorted = Object.entries(byPartner).sort(function(a,b){ return b[1]-a[1]; }).slice(0,10);
+    window.lcExportPartners = sorted.map(function(p){ return p[0]; });
+    window.lcExportVols     = sorted.map(function(p){ return p[1]; });
+
+    // 动态更新 stat card
+    var lc0 = (getTable('碳酸锂-行业总产量'))[0] || {};
+    var lh0 = (getTable('氢氧化锂-行业总产量'))[0] || {};
+    var lcExp0 = (getTable('碳酸锂-出口量'))[0] || {};
+    var lcD0 = lcDailyRows[0] || {};
+
+    var setStat = function(id, label, val, unit, extra) {
+        var el = document.getElementById(id);
+        if (!el) return;
+        el.querySelector('.stat-info').innerHTML =
+            '<div class="label">' + label + '</div><div class="value">' + val + '<span class="unit">' + unit + '</span></div>' +
+            (extra ? '<div class="sub">' + extra + '</div>' : '');
+    };
+    if (lc0) {
+        var lcTon = num(lc0['产量（吨）']) || 0;
+        var lcCap = num(lc0['产能（吨）']) || 1;
+        setStat('stat0', '碳酸锂月产量', (lcTon/10000).toFixed(2), '万吨',
+            '产能利用率 ' + (lcTon/lcCap*100).toFixed(0) + '%');
+    }
+    if (lh0) {
+        setStat('stat1', '氢氧化锂月产量', ((num(lh0['产量（吨）'])||0)/10000).toFixed(2), '万吨',
+            '近12月参考');
+    }
+    if (lcExp0) {
+        setStat('stat2', '碳酸锂月出口量', num(lcExp0['出口量（吨）']) || '—', '吨',
+            toYY(lcExp0['月份'] || lcExp0['日期']) + '出口量');
+    }
+    if (lcD0) {
+        setStat('stat3', '碳酸锂现货均价（最新）', num(lcD0['均价（万元/吨）']) || '—', '万元/吨',
+            (lcD0['规格'] || '电池级99.5%矿石') + ' · ' + toYYMMDD(lcD0['日期']));
+        setStat('stat3b', '碳酸锂现货价（最新）', num(lcD0['均价（万元/吨）']) || '—', '万元/吨',
+            (lcD0['规格'] || '电池级99.5%矿石') + ' · ' + toYYMMDD(lcD0['日期']));
+    }
+
+    // 原料Tab stat cards
+    var lsp0 = lspRows[0] || {};
+    var lym0 = lymRows[0] || {};
+    var lhD0 = lhDailyRows[0] || {};
+    if (lsp0) {
+        setStat('stat-raw0', '锂辉石精矿均价（最新）', num(lsp0['均价（美元/吨）']) || '—', '美元/吨',
+            (lsp0['产地']||'澳洲6% CIF') + ' · ' + toYYMMDD(lsp0['日期']));
+    }
+    if (lym0) {
+        setStat('stat-raw1', '锂云母均价（最新）', num(lym0['均价（万元/吨）']) || '—', '万元/吨',
+            (lym0['规格']||'锂云母1.8%') + ' · ' + toYYMMDD(lym0['日期']));
+    }
+    if (lhD0) {
+        setStat('stat-raw2', '氢氧化锂现货价（最新）', num(lhD0['均价（万元/吨）']) || '—', '万元/吨',
+            '56.5%粗颗粒 · ' + toYYMMDD(lhD0['日期']));
+    }
+})();
+
+
+
+
+
+
+
+// ============ 工具函数 ============
+function initChart(id, opt) { echarts.init(document.getElementById(id)).setOption(opt); }
+function gridOpt() { return { left: '3%', right: '4%', bottom: '3%', containLabel: true }; }
+function xAxis() { return { type: 'category', axisLabel: { color: C.textLight }, axisLine: { lineStyle: { color: C.border } } }; }
+function yAxis(name, formatter) { return { type: 'value', name: name, axisLabel: { color: C.textLight, formatter: formatter || '{value}' }, splitLine: { lineStyle: { color: C.border } } }; }
+function colorFn(idx) { return function(p){ return COLORS[(p.dataIndex + idx) % COLORS.length]; }; }
+
+// ============ 概览Tab ============
+// C1: 碳酸锂 vs 氢氧化锂产量
+initChart('c1', {
+    tooltip: { trigger: 'axis' },
+    legend: { data: ['碳酸锂','氢氧化锂'], top: 5 },
+    grid: gridOpt(),
+    xAxis: Object.assign({}, xAxis(), { data: lcMonths }),
+    yAxis: [yAxis('产量（吨）'), yAxis('氢氧化锂（吨）')],
+    series: [
+        { name: '碳酸锂', type: 'bar', data: lcOutput,
+          itemStyle: { color: C.primary, borderRadius: [4,4,0,0] },
+          label: { show: true, position: 'top', formatter: function(p){return (p.value/10000).toFixed(1)+'万';}, fontSize: 9, color: C.textLight } },
+        { name: '氢氧化锂', type: 'bar', data: lhOutput,
+          itemStyle: { color: C.secondary, borderRadius: [4,4,0,0] },
+          label: { show: false } }
+    ]
+});
+
+// C2: 产能利用率
+initChart('c2', {
+    tooltip: { trigger: 'axis', formatter: '{b}: {c}%' },
+    grid: gridOpt(),
+    xAxis: Object.assign({}, xAxis(), { data: lcMonths }),
+    yAxis: yAxis('%', '{value}%'),
+    series: [{
+        type: 'line', data: lcUtil, smooth: true, lineStyle: { color: C.primary, width: 3 },
+        areaStyle: { color: { type: 'linear', x:0,y:0,x2:0,y2:1, colorStops: [{offset:0,color:'rgba(30,60,114,0.2)'},{offset:1,color:'rgba(30,60,114,0.02)'}] } },
+        label: { show: true, position: 'top', formatter: '{c}%', fontSize: 9, color: C.primary, fontWeight: 'bold' },
+        itemStyle: { color: C.primary }
+    }]
+});
+
+// C3: 碳酸锂出口
+initChart('c3', {
+    tooltip: { trigger: 'axis', axisPointer: { type: 'cross' } },
+    legend: { data: ['出口量','均价'], top: 5 },
+    grid: gridOpt(),
+    xAxis: Object.assign({}, xAxis(), { data: lcMonths }),
+    yAxis: [
+        yAxis('出口量（吨）'),
+        { type: 'value', name: '万元/吨', min: 5, max: 16, position: 'right', axisLabel: { color: C.textLight }, splitLine: { show: false } }
+    ],
+    series: [
+        { name: '出口量', type: 'bar', data: lcExpVol,
+          itemStyle: { color: C.secondary, borderRadius: [4,4,0,0] },
+          label: { show: true, position: 'top', formatter: '{c}', fontSize: 9, color: C.textLight } },
+        { name: '均价', type: 'line', yAxisIndex: 1, smooth: true, lineStyle: { color: C.accent, width: 3 },
+          itemStyle: { color: C.accent },
+          label: { show: true, position: 'bottom', formatter: '{c}万', fontSize: 9, color: C.accent, fontWeight: 'bold' } }
+    ]
+});
+
+// ============ 碳酸锂Tab ============
+// LC1: 碳酸锂月度产量
+initChart('lc1', {
+    tooltip: { trigger: 'axis' },
+    grid: gridOpt(),
+    xAxis: Object.assign({}, xAxis(), { data: lcMonths }),
+    yAxis: yAxis('产量（吨）'),
+    series: [{
+        type: 'bar', data: lcOutput,
+        itemStyle: { color: C.primary, borderRadius: [4,4,0,0] },
+        label: { show: true, position: 'top', formatter: function(p){return (p.value/10000).toFixed(1)+'万';}, fontSize: 9, color: C.textLight }
+    }]
+});
+
+// LC2: 碳酸锂企业TOP10
+initChart('lc2', {
+    tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' }, formatter: '{b}: {c}吨' },
+    grid: { left: '3%', right: '15%', bottom: '3%', containLabel: true },
+    xAxis: { type: 'value', axisLabel: { formatter: function(v){return (v/10000).toFixed(0)+'万';} }, splitLine: { lineStyle: { color: C.border } } },
+    yAxis: { type: 'category', data: lcCompNames.slice(1).reverse(), axisLabel: { color: C.text, fontSize: 11 } },
+    series: [{
+        type: 'bar', data: lcCompOutput.slice(1).reverse(),
+        itemStyle: { color: function(p){ return p.dataIndex < 3 ? C.primary : C.secondary; }, borderRadius: [0,4,4,0] },
+        label: { show: true, position: 'right', formatter: function(p){return (p.value/10000).toFixed(1)+'万';}, fontSize: 10, color: C.textLight }
+    }]
+});
+
+// LC3: 碳酸锂企业饼图
+initChart('lc3', {
+    tooltip: { trigger: 'item', formatter: '{b}: {c}吨 ({d}%)' },
+    legend: { orient: 'vertical', right: 10, top: 'center', textStyle: { fontSize: 10 } },
+    series: [{
+        type: 'pie', radius: ['30%', '65%'], center: ['40%', '50%'],
+        data: lcCompNames.map(function(n,i){ return {name: n+' '+lcCompOutput[i]+'吨', value: lcCompOutput[i]}; }),
+        label: { show: true, formatter: '{b}', fontSize: 9, color: '#333' },
+        itemStyle: { color: colorFn(0) }
+    }]
+});
+
+// LC4: 碳酸锂现货价走势
+initChart('lc4', {
+    tooltip: { trigger: 'axis' },
+    grid: gridOpt(),
+    xAxis: Object.assign({}, xAxis(), { data: lcDailyDates }),
+    yAxis: yAxis('万元/吨'),
+    series: [{
+        type: 'line', data: lcDailyAvg, smooth: true, lineStyle: { color: C.primary, width: 3 },
+        areaStyle: { color: { type: 'linear', x:0,y:0,x2:0,y2:1, colorStops: [{offset:0,color:'rgba(30,60,114,0.2)'},{offset:1,color:'rgba(30,60,114,0.02)'}] } },
+        itemStyle: { color: C.primary },
+        label: { show: true, position: 'top', formatter: '{c}', fontSize: 9, color: C.primary, fontWeight: 'bold' }
+    }]
+});
+
+// LC5: 碳酸锂出口贸易伙伴（最新月份TOP10）
+initChart('lc5', {
+    tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
+    grid: { left: '3%', right: '15%', bottom: '3%', containLabel: true },
+    xAxis: { type: 'value', splitLine: { lineStyle: { color: C.border } } },
+    yAxis: { type: 'category', data: (window.lcExportPartners||[]).reverse(), axisLabel: { color: C.text } },
+    series: [{
+        type: 'bar', data: (window.lcExportVols||[]).reverse(),
+        itemStyle: { color: function(p){ return p.dataIndex < 3 ? C.primary : C.secondary; }, borderRadius: [0,4,4,0] },
+        label: { show: true, position: 'right', formatter: function(p){ return (p.value/10000).toFixed(1)+'万'; }, fontSize: 9, color: C.textLight }
+    }]
+});
+
+// LC6: 碳酸锂出口量柱状图
+initChart('lc6', {
+    tooltip: { trigger: 'axis' },
+    grid: gridOpt(),
+    xAxis: Object.assign({}, xAxis(), { data: lcMonths }),
+    yAxis: yAxis('出口量（吨）'),
+    series: [{
+        type: 'bar', data: lcExpVol,
+        itemStyle: { color: C.secondary, borderRadius: [4,4,0,0] },
+        label: { show: true, position: 'top', formatter: '{c}', fontSize: 9, color: C.textLight }
+    }]
+});
+
+// ============ 氢氧化锂Tab ============
+// LH1: 氢氧化锂月度产量
+initChart('lh1', {
+    tooltip: { trigger: 'axis' },
+    grid: gridOpt(),
+    xAxis: Object.assign({}, xAxis(), { data: lcMonths }),
+    yAxis: yAxis('产量（吨）'),
+    series: [{
+        type: 'bar', data: lhOutput,
+        itemStyle: { color: C.secondary, borderRadius: [4,4,0,0] },
+        label: { show: true, position: 'top', formatter: function(p){return (p.value/10000).toFixed(1)+'万';}, fontSize: 9, color: C.textLight }
+    }]
+});
+
+// LH2: 氢氧化锂企业TOP10
+initChart('lh2', {
+    tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
+    grid: { left: '3%', right: '15%', bottom: '3%', containLabel: true },
+    xAxis: { type: 'value', axisLabel: { formatter: function(v){return (v/10000).toFixed(0)+'万';} }, splitLine: { lineStyle: { color: C.border } } },
+    yAxis: { type: 'category', data: lhCompNames.reverse(), axisLabel: { color: C.text, fontSize: 11 } },
+    series: [{
+        type: 'bar', data: lhCompOutput.reverse(),
+        itemStyle: { color: function(p){ return p.dataIndex < 3 ? C.primary : C.secondary; }, borderRadius: [0,4,4,0] },
+        label: { show: true, position: 'right', formatter: function(p){return (p.value/10000).toFixed(1)+'万';}, fontSize: 10, color: C.textLight }
+    }]
+});
+
+// LH3: 氢氧化锂企业饼图
+initChart('lh3', {
+    tooltip: { trigger: 'item', formatter: '{b}: {c}吨 ({d}%)' },
+    legend: { orient: 'vertical', right: 10, top: 'center', textStyle: { fontSize: 10 } },
+    series: [{
+        type: 'pie', radius: ['30%', '65%'], center: ['40%', '50%'],
+        data: lhCompNames.map(function(n,i){ return {name: n+' '+lhCompOutput[i]+'吨', value: lhCompOutput[i]}; }),
+        label: { show: true, formatter: '{b}', fontSize: 9, color: '#333' },
+        itemStyle: { color: colorFn(0) }
+    }]
+});
+
+// LH4: 氢氧化锂出口（近12月，取年份月份）
+initChart('lh4', {
+    tooltip: { trigger: 'axis', axisPointer: { type: 'cross' } },
+    legend: { data: ['出口量（吨）','出口均价（万元/吨）'], top: 5 },
+    grid: gridOpt(),
+    xAxis: Object.assign({}, xAxis(), { data: lcMonths }),
+    yAxis: [
+        yAxis('吨'),
+        { type: 'value', name: '万元/吨', position: 'right', axisLabel: { color: C.textLight }, splitLine: { show: false } }
+    ],
+    series: [
+        { name: '出口量（吨）', type: 'bar', data: lhExpVol,
+          itemStyle: { color: C.secondary, borderRadius: [4,4,0,0] },
+          label: { show: true, position: 'top', formatter: function(p){return (p.value/10000).toFixed(2)+'万';}, fontSize: 9, color: C.textLight } },
+        { name: '出口均价（万元/吨）', type: 'line', yAxisIndex: 1, smooth: true, lineStyle: { color: C.accent, width: 3 },
+          itemStyle: { color: C.accent },
+          label: { show: true, position: 'bottom', formatter: '{c}', fontSize: 9, color: C.accent, fontWeight: 'bold' } }
+    ]
+});
+
+// ============ Tab切换 ============
+function switchTab(tab, btn) {
+    document.querySelectorAll('.tab-btn').forEach(function(b){ b.classList.remove('active'); });
+    document.querySelectorAll('.tab-content').forEach(function(t){ t.classList.remove('active'); });
+    btn.classList.add('active');
+    document.getElementById('tab-' + tab).classList.add('active');
+
+    // Tab4（原料价格）延迟初始化：切到该 Tab 时才初始化，避免 display:none 时宽高为0
+    if (tab === 'raw') {
+        setTimeout(function() {
+            // Raw1: 碳酸锂 vs 氢氧化锂现货价对比
+            initChart('raw1', {
+                tooltip: { trigger: 'axis' },
+                legend: { data: ['碳酸锂均价','氢氧化锂均价'], top: 5 },
+                grid: gridOpt(),
+                xAxis: Object.assign({}, xAxis(), { data: window.lcDailyDates }),
+                yAxis: yAxis('万元/吨'),
+                series: [
+                    { name: '碳酸锂均价', type: 'line', data: window.lcDailyAvg, smooth: true,
+                      lineStyle: { color: C.primary, width: 3 }, itemStyle: { color: C.primary },
+                      label: { show: true, position: 'top', formatter: '{c}', fontSize: 9, color: C.primary, fontWeight: 'bold' } },
+                    { name: '氢氧化锂均价', type: 'line', data: window.lhDailyAvg, smooth: true,
+                      lineStyle: { color: C.secondary, width: 3 }, itemStyle: { color: C.secondary },
+                      label: { show: true, position: 'bottom', formatter: '{c}', fontSize: 9, color: C.secondary } }
+                ]
+            });
+            // Raw2: 锂辉石精矿价格
+            initChart('raw2', {
+                tooltip: { trigger: 'axis' },
+                grid: gridOpt(),
+                xAxis: Object.assign({}, xAxis(), { data: window.lspDates }),
+                yAxis: yAxis('美元/吨'),
+                series: [{
+                    type: 'line', data: window.lspAvg, smooth: true, lineStyle: { color: '#e67e22', width: 3 },
+                    areaStyle: { color: { type: 'linear', x:0,y:0,x2:0,y2:1, colorStops: [{offset:0,color:'rgba(230,126,34,0.2)'},{offset:1,color:'rgba(230,126,34,0.02)'}] } },
+                    itemStyle: { color: '#e67e22' },
+                    label: { show: true, position: 'top', formatter: '{c}', fontSize: 9, color: '#e67e22', fontWeight: 'bold' }
+                }]
+            });
+            // Raw3: 锂云母价格
+            initChart('raw3', {
+                tooltip: { trigger: 'axis' },
+                grid: gridOpt(),
+                xAxis: Object.assign({}, xAxis(), { data: window.lymDates }),
+                yAxis: yAxis('万元/吨'),
+                series: [{
+                    type: 'line', data: window.lymAvg, smooth: true, lineStyle: { color: '#9b59b6', width: 3 },
+                    areaStyle: { color: { type: 'linear', x:0,y:0,x2:0,y2:1, colorStops: [{offset:0,color:'rgba(155,89,182,0.2)'},{offset:1,color:'rgba(155,89,182,0.02)'}] } },
+                    itemStyle: { color: '#9b59b6' },
+                    label: { show: true, position: 'top', formatter: '{c}', fontSize: 9, color: '#9b59b6', fontWeight: 'bold' }
+                }]
+            });
+            // Raw4: 碳酸锂 vs 锂辉石双轴
+            initChart('raw4', {
+                tooltip: { trigger: 'axis', axisPointer: { type: 'cross' } },
+                legend: { data: ['碳酸锂（元/吨×10）','锂辉石（美元/吨）'], top: 5 },
+                grid: gridOpt(),
+                xAxis: Object.assign({}, xAxis(), { data: window.lspDates }),
+                yAxis: [
+                    { type: 'value', name: '碳酸锂（元/吨）', position: 'left',
+                      axisLabel: { color: C.textLight, formatter: function(v){return v/10000+'万';} },
+                      splitLine: { lineStyle: { color: C.border } } },
+                    { type: 'value', name: '锂辉石（美元）', position: 'right',
+                      axisLabel: { color: '#e67e22' }, splitLine: { show: false } }
+                ],
+                series: [
+                    { name: '碳酸锂（元/吨×10）', type: 'line', data: (window.lcDailyAvg||[]).slice(-10).map(function(v){return v*10000;}),
+                      smooth: true, lineStyle: { color: C.primary, width: 3 }, itemStyle: { color: C.primary } },
+                    { name: '锂辉石（美元/吨）', type: 'line', yAxisIndex: 1, data: window.lspAvg,
+                      smooth: true, lineStyle: { color: '#e67e22', width: 3 }, itemStyle: { color: '#e67e22' } }
+                ]
+            });
+        }, 50);
+    }
+
+    setTimeout(function(){
+        document.querySelectorAll('.chart-container').forEach(function(c){
+            var chart = echarts.getInstanceByDom(c);
+            if(chart) chart.resize();
+        });
+    }, 100);
+}
+
+window.addEventListener('resize', function(){
+    document.querySelectorAll('.chart-container').forEach(function(c){
+        var chart = echarts.getInstanceByDom(c);
+        if(chart) chart.resize();
+    });
+});
+</script>
 
 <!-- __AUTO_REFRESH__ -->
-<script src="inline_01.js"></script>
+<script>
+(function() {
+  var _js = "carbonate_embedded_data.js";
+  var _lastVer = null;
+
+  function _readVer() {
+    try { return (window[_js.replace('.js','').replace(/-/g,'_').replace(/ /g,'')] || {}).update_time || null; }
+    catch(e) { return null; }
+  }
+
+  function _fetchVer(cb) {
+    fetch(_js + '?t=' + Date.now())
+      .then(function(r) { return r.text(); })
+      .then(function(txt) {
+        var m = txt.match(/update_time\s*=\s*['"]([^'"]+)['"]/);
+        cb(m ? m[1] : null);
+      })
+      .catch(function() { cb(null); });
+  }
+
+  function _showBanner() {
+    if (document.getElementById('__ar_banner__')) return;
+    var b = document.createElement('div');
+    b.id = '__ar_banner__';
+    b.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:99999;background:#1a73e8;color:#fff;'
+      + 'text-align:center;padding:10px 20px;font-size:14px;font-family:sans-serif;'
+      + 'display:flex;align-items:center;justify-content:center;gap:16px;box-shadow:0 2px 8px rgba(0,0,0,0.2);';
+    b.innerHTML = '\uD83D\uDCCA 数据已更新至新版本 &nbsp;'
+      + '<button onclick="location.reload()" style="background:#fff;color:#1a73e8;border:none;'
+      + 'padding:5px 14px;border-radius:4px;cursor:pointer;font-size:13px;font-weight:bold;">刷新页面</button>'
+      + '<button onclick="this.parentElement.style.display=\'none\'" style="background:rgba(255,255,255,0.2);'
+      + 'color:#fff;border:1px solid rgba(255,255,255,0.6);padding:5px 12px;border-radius:4px;'
+      + 'cursor:pointer;font-size:13px;">稍后</button>';
+    document.body.appendChild(b);
+  }
+
+  _lastVer = _readVer();
+
+  // 每 60 秒检测一次
+  setInterval(function() {
+    _fetchVer(function(ver) {
+      if (ver && ver !== _lastVer) {
+        _lastVer = ver;
+        _showBanner();
+      }
+    });
+  }, 60000);
+})();
+</script>
 </body>
 </html>

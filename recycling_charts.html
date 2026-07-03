@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>数据看板 - 锂电池回收行业数据库</title>
 <script src="recycling_embedded_data.js?v=20260630" charset="UTF-8"></script>
-<script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+<script src="./echarts.min.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:"Microsoft YaHei","PingFang SC",Arial,sans-serif;background:#f0f2f5;min-height:100vh}
@@ -132,10 +132,548 @@ body{font-family:"Microsoft YaHei","PingFang SC",Arial,sans-serif;background:#f0
     </div>
   </div>
 </div>
-<script src="inline_00.js"></script>
+<script>
+            
+    // ── dynamic data loader (reads EMBEDDED_DATA at runtime) ──────────────────
+    (function() {
+      var tables = window.EMBEDDED_DATA ? window.EMBEDDED_DATA.tables : [];
+      var tblMap = {};
+      tables.forEach(function(t){ tblMap[t.table_name] = t.data; });
+
+      function getTable(name) {
+        for (var i = 0; i < tables.length; i++) {
+          if (tables[i].sheet_name === name) return tables[i].data;
+        }
+        for (var k in tblMap) { if (k.indexOf(name) !== -1) return tblMap[k]; }
+        return [];
+      }
+
+      function parseDM(v) {
+        if (!v) return null;
+        var s = String(v).trim();
+        var m = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
+        if (m) return String(parseInt(m[1]) % 100).padStart(2,'0') + '-' + m[2] + '-' + m[3];
+        m = s.match(/^(\d{2})-(\d{2})-/); if (m) return s.slice(0,8);
+        m = s.match(/^(\d{2})-(\d{2})$/); if (m) return s;
+        return null;
+      }
+      function parseYM(v) { var d = parseDM(v); return d ? d.slice(0,7) : null; }
+
+      function fl(v) {
+        if (v === null || v === undefined) return null;
+        var s = String(v).replace(/%/g,'').replace(/\+/g,'').trim();
+        if (!s || s === '——' || s === '—' || s === 'nan') return null;
+        var f = parseFloat(s); return isNaN(f) ? null : f;
+      }
+
+      function aggMonthly(rows, dateCol, valCol, yoyCol, momCol) {
+        var by = {};
+        for (var i = 0; i < rows.length; i++) {
+          var r = rows[i], ym = parseYM(r[dateCol]);
+          if (!ym) continue;
+          var v = fl(r[valCol]);
+          if (!by[ym]) by[ym] = { total: v, yoy: yoyCol ? fl(r[yoyCol]) : null, mom: momCol ? fl(r[momCol]) : null };
+          else if (v !== null) by[ym].total = v;
+        }
+        return by;
+      }
+
+      function extractPrice(sheetName, valKey) {
+        var rows = getTable(sheetName), byDate = {};
+        for (var i = 0; i < rows.length; i++) {
+          var r = rows[i], dd = parseDM(r['当前日期']);
+          if (!dd) continue;
+          var v = fl(r[valKey]); if (v === null) continue;
+          if (!byDate[dd]) byDate[dd] = v;
+        }
+        var dates = Object.keys(byDate).sort();
+        return { dates: dates, vals: dates.map(function(d){ return byDate[d]; }) };
+      }
+
+      var tAll = getTable('黑粉处理量-总计');
+      var tNCM = getTable('黑粉处理量-三元+钴酸锂');
+      var tLFP = getTable('黑粉处理量-铁锂');
+
+      var allBy  = aggMonthly(tAll, '当前日期', '总计', '同比', '环比');
+      var ncmBy  = aggMonthly(tNCM, '当前日期', '总计');
+      var lfpBy  = aggMonthly(tLFP, '当前日期', '总计');
+
+      var allMonths = Object.keys(allBy).sort().reverse().slice(0,28).reverse();
+
+      window.T0_MONTHS = allMonths;
+      window.T0_TOTALS  = allMonths.map(function(m){ return allBy[m].total; });
+      window.T0_YOY     = allMonths.map(function(m){ return allBy[m].yoy; });
+      window.T0_MOM     = allMonths.map(function(m){ return allBy[m].mom; });
+      window.T1_TOTALS  = allMonths.map(function(m){ return ncmBy[m] ? ncmBy[m].total : null; });
+      window.T2_TOTALS  = allMonths.map(function(m){ return lfpBy[m] ? lfpBy[m].total : null; });
+
+      // TOP10
+      var tEnt = getTable('黑粉整体处理量-分企业');
+      var latestEntYM = null;
+      for (var i = 0; i < tEnt.length; i++) {
+        var ym = parseYM(tEnt[i]['时间']);
+        if (ym && (!latestEntYM || ym > latestEntYM)) latestEntYM = ym;
+      }
+      var entLatest = [];
+      for (var i = 0; i < tEnt.length; i++) {
+        if (parseYM(tEnt[i]['时间']) === latestEntYM) entLatest.push(tEnt[i]);
+      }
+      entLatest.sort(function(a,b){
+        return (fl(b['三元+钴酸锂（吨）'])||0) - (fl(a['三元+钴酸锂（吨）'])||0);
+      });
+      var top10 = entLatest.slice(0,10);
+      window.TOP10_NAMES = top10.map(function(r){ return r['企业']||''; });
+      window.TOP10_VALS  = top10.map(function(r){ return fl(r['三元+钴酸锂（吨）'])||0; });
+
+      // window.PIE_DATA
+      var entByTotal = entLatest.slice().sort(function(a,b){
+        return (fl(b['当月总计'])||0) - (fl(a['当月总计'])||0);
+      });
+      var totalVol = 0;
+      for (var i = 0; i < entByTotal.length; i++) totalVol += fl(entByTotal[i]['当月总计'])||0;
+      var pie = [];
+      for (var i = 0; i < entByTotal.length && i < 10; i++) {
+        var v = fl(entByTotal[i]['当月总计'])||0;
+        pie.push([entByTotal[i]['企业']||'', Math.round(v/totalVol*1000)/10]);
+      }
+      var rem = 100;
+      for (var i = 0; i < pie.length; i++) rem -= pie[i][1];
+      pie.push(['其他', Math.round(rem*10)/10]);
+      window.PIE_DATA = pie;
+
+      window.LATEST_MONTH = latestEntYM;
+      window.UPDATE_TIME  = window.EMBEDDED_DATA ? window.EMBEDDED_DATA.update_time : '';
+      window.N_COMPANIES  = entLatest.length;
+
+      // price series
+      var priceSheets = [
+        ['T6',  '锂电池价格-大三元聚合物电池包',   '今日均价'],
+        ['T7',  '锂电池价格-大三元铝壳电池包',     '今日均价'],
+        ['T8',  '锂电池价格-钴酸锂铝壳电池包',     '今日均价'],
+        ['T10', '锂电池价格-加工费电池包',         '今日均价'],
+        ['T11', '锂电池价格-铁锂铝壳电池包',       '今日均价'],
+        ['T12', '极片价格-负极片',                 '今日均价'],
+        ['T15', '极片价格-三元523正极片',          '今日均价'],
+        ['T16', '极片价格-铁锂正极片',             '今日均价'],
+        ['T17', '辅料价格-铝粉',                   '今日均价'],
+        ['T18', '辅料价格-铜粉',                   '今日均价'],
+        ['T19', '黑粉价格-钴酸锂电池粉',           '今日均价'],
+        ['T20', '黑粉价格-钴酸锂极片粉',           '今日均价'],
+        ['T21', '黑粉价格-三元523电池粉',          '今日均价'],
+        ['T23', '黑粉价格-石墨粉',                 '今日均价'],
+        ['T24', '黑粉价格-磷酸铁锂电池粉加工费',   '今日均价'],
+        ['T25', '黑粉价格-铁锂极片粉',             '今日均价'],
+        ['T26', '黑粉价格-铁锂极片粉加工费',       '今日均价'],
+      ];
+      for (var i = 0; i < priceSheets.length; i++) {
+        var p = priceSheets[i];
+        var r = extractPrice(p[1], p[2]);
+        window[p[0]+'_DATES'] = r.dates;
+        window[p[0]+'_AVG']   = r.vals;
+      }
+
+      // 确保T24数据正确（直连赋值，防止循环赋值异常）
+      var _r24 = extractPrice('黑粉价格-铁锂电池粉加工费', '今日均价');
+      window.T24_DATES = _r24.dates;
+      window.T24_AVG   = _r24.vals;
+      var _r26 = extractPrice('黑粉价格-铁锂极片粉加工费', '今日均价');
+      window.T26_DATES = _r26.dates;
+      window.T26_AVG   = _r26.vals;
+
+      window.MIN3 = Math.min(
+        window.T19_DATES ? window.T19_DATES.length : 0,
+        window.T23_DATES ? window.T23_DATES.length : 0,
+        window.T25_DATES ? window.T25_DATES.length : 0
+      );
+
+      // update stat cards
+      function setStat(id, label, val, unit, extra) {
+        var el = document.getElementById(id);
+        if (!el) return;
+        el.querySelector('.stat-label').textContent = label;
+        var valEl = el.querySelector('.stat-value');
+        if (valEl) {
+          if (typeof val === 'number')
+            valEl.innerHTML = val.toLocaleString() + '<span class="stat-unit">' + (unit||'') + '</span>';
+          else
+            valEl.innerHTML = (val==null?'-':val) + '<span class="stat-unit">' + (unit||'') + '</span>';
+        }
+        var chgEl = el.querySelector('.stat-change');
+        if (chgEl && extra !== undefined) chgEl.innerHTML = extra;
+      }
+
+      var lm = window.LATEST_MONTH;
+      var lmTotal = allBy[lm] ? allBy[lm].total : null;
+      var lmYoy   = allBy[lm] ? allBy[lm].yoy : null;
+      var yoyStr  = lmYoy !== null ? (lmYoy >= 0 ? '+' : '') + lmYoy.toFixed(1) + '% 同比' : '';
+      setStat('s0', '黑粉当月处理量', lmTotal, '吨',
+              '<span class="' + (lmYoy>=0?'up':'down') + '">' + yoyStr + '</span>');
+
+      var t6a = window.T6_AVG || [];
+      if (t6a.length >= 1) {
+        var t6v = t6a[t6a.length-1], t6p = t6a.length>=2 ? t6a[t6a.length-2] : null;
+        var t6d = t6p !== null ? t6v - t6p : null;
+        setStat('s1', '最新电池包均价', t6v, '万元/吨',
+                t6d !== null ? '<span class="' + (t6d>=0?'up':'down') + '">' + (t6d>=0?'+':'') + t6d.toFixed(2) + ' 万元/吨</span>' : '');
+      }
+
+      var t19a = window.T19_AVG || [];
+      if (t19a.length >= 1) {
+        var t19v = t19a[t19a.length-1], t19p = t19a.length>=2 ? t19a[t19a.length-2] : null;
+        var t19d = t19p !== null ? t19v - t19p : null;
+        setStat('s2', '钴酸锂电池粉均价', t19v, '万元/吨',
+                t19d !== null ? '<span class="' + (t19d>=0?'up':'down') + '">' + (t19d>=0?'+':'') + t19d.toFixed(2) + ' 万元/吨</span>' : '');
+      }
+
+      setStat('s3', '覆盖企业数', window.N_COMPANIES, '家',
+              '<span class="down">行业处理量统计</span>');
+
+    })();
+
+    var C = { primary:'#1e3c72', secondary:'#4a6fa5', accent:'#4facfe', green:'#4caf50', orange:'#ff9800', gray:'#607d8b', copper:'#b87333', border:'#e0e0e0', text:'#333', textLight:'#888' };
+    var COLORS = ['#1e3c72','#4facfe','#4caf50','#ff9800','#607d8b'];
+
+    function mkGrid() { return { left:'3%', right:'4%', bottom:'8%', top:'15%', containLabel:true }; }
+
+    function mkAx() { return { color: C.textLight }; }
+    function mkSL() { return { lineStyle: { color: C.border } }; }
+    function mkTip(axis) {
+      return { trigger: axis||'axis', backgroundColor:'rgba(255,255,255,0.95)', borderColor:'#eee', borderWidth:1, textStyle:{color:C.text},
+        formatter: function(params) {
+          var rows = Array.isArray(params) ? params : [params];
+          var s = '<b>' + (rows[0].axisValue||'') + '</b><br/>';
+          rows.forEach(function(p){ s += p.marker + ' ' + p.seriesName + ': ' + (p.value != null ? p.value : '-') + '<br/>'; });
+          return s;
+      }};
+    }
+    function mkArea(rgb, op) { return { type:'linear', x:0,y:0,x2:0,y2:1, colorStops:[{offset:0,color:rgb.replace(')',','+(op||0.18)+')').replace('rgb','rgba')},{offset:1,color:'rgba(255,255,255,0.02)'}] }; };
+    function init(id, opt) {
+      var d=document.getElementById(id); if(!d) return;
+      var c=echarts.init(d); c.setOption(opt); return c;
+    }
+    
+    document.getElementById('updateTime').textContent = window.UPDATE_TIME;
+    if(window.T6_AVG && window.T6_AVG.length>=2){var d6=window.T6_AVG[window.T6_AVG.length-1]-window.T6_AVG[window.T6_AVG.length-2]; document.getElementById('sb').innerHTML='<span class="'+(d6>=0?'up':'down')+'">'+(d6>=0?'+':'')+d6.toFixed(2)+' 万元/吨</span>';}
+    if(window.T19_AVG && window.T19_AVG.length>=2){var d19=window.T19_AVG[window.T19_AVG.length-1]-window.T19_AVG[window.T19_AVG.length-2]; document.getElementById('sbl').innerHTML='<span class="'+(d19>=0?'up':'down')+'">'+(d19>=0?'+':'')+d19.toFixed(2)+' 万元/吨</span>';}
+
+    // ── overview total line ──
+    init('c-ov-total', {tooltip:mkTip(),legend:{data:['三元+钴酸锂','磷酸铁锂'],top:5},grid:mkGrid(),
+      xAxis:{type:'category',data:window.T0_MONTHS,axisLabel:mkAx(),axisLine:{lineStyle:{color:C.textLight}}},
+      yAxis:{type:'value',name:'吨',axisLabel:mkAx(),splitLine:mkSL()},
+      series:[
+        {name:'三元+钴酸锂',type:'line',data:window.T1_TOTALS,smooth:true,lineStyle:{color:C.primary,width:2.5},
+         areaStyle:mkArea('rgb(30,60,114)'),
+         label:{show:true,position:'top',formatter:'{c}',fontSize:9,color:C.primary,fontWeight:'bold'}},
+        {name:'磷酸铁锂',type:'line',data:window.T2_TOTALS,smooth:true,lineStyle:{color:C.accent,width:2.5},
+         areaStyle:mkArea('rgb(79,172,254)'),
+         label:{show:true,position:'bottom',formatter:'{c}',fontSize:9,color:C.accent,fontWeight:'bold'}}
+      ]
+    });
+
+    // ── overview stack ──
+    init('c-ov-stack', {tooltip:mkTip(),legend:{data:['三元+钴酸锂','磷酸铁锂'],top:5},grid:mkGrid(),
+      xAxis:{type:'category',data:window.T0_MONTHS,axisLabel:mkAx()},
+      yAxis:{type:'value',name:'吨',axisLabel:mkAx(),splitLine:mkSL()},
+      series:[
+        {name:'三元+钴酸锂',type:'line',stack:'V',data:window.T1_TOTALS,smooth:true,lineStyle:{color:C.primary,width:2},
+         areaStyle:mkArea('rgb(30,60,114)',0.28)},
+        {name:'磷酸铁锂',type:'line',stack:'V',data:window.T2_TOTALS,smooth:true,lineStyle:{color:C.accent,width:2},
+         areaStyle:mkArea('rgb(79,172,254)',0.28)}
+      ]
+    });
+
+    // ── overview top10 ──
+    init('c-ov-top10', {tooltip:mkTip('axis'),grid:{left:'3%',right:'18%',bottom:'3%',top:'10%',containLabel:true},
+      xAxis:{type:'value',axisLabel:mkAx(),splitLine:mkSL()},
+      yAxis:{type:'category',data:window.TOP10_NAMES.reverse(),axisLabel:{color:C.text,fontSize:11}},
+      series:[{type:'bar',data:window.TOP10_VALS.reverse(),
+        itemStyle:{color:function(p){return COLORS[p.dataIndex%COLORS.length];},borderRadius:[0,4,4,0]},
+        label:{show:true,position:'right',formatter:'{c}',fontSize:10,color:C.textLight}}]
+    });
+    
+    // ── proc total with YoY ──
+    init('c-pr-total', {tooltip:mkTip(),legend:{data:['处理量','同比','环比'],top:5},grid:mkGrid(),
+      xAxis:{type:'category',data:window.T0_MONTHS,axisLabel:mkAx(),axisLine:{lineStyle:{color:C.textLight}}},
+      yAxis:{type:'value',name:'吨',axisLabel:mkAx(),splitLine:mkSL()},
+      series:[
+        {name:'处理量',type:'bar',data:window.T0_TOTALS,itemStyle:{color:C.primary,borderRadius:[4,4,0,0]},
+         label:{show:true,position:'top',formatter:'{c}',fontSize:9,color:C.textLight}},
+        {name:'同比',type:'line',yAxisIndex:0,data:window.T0_YOY,smooth:true,lineStyle:{color:C.orange,width:2},
+         itemStyle:{color:C.orange},label:{show:true,position:'bottom',formatter:'{c}%',fontSize:9,color:C.orange}},
+        {name:'环比',type:'line',yAxisIndex:0,data:window.T0_MOM,smooth:true,lineStyle:{color:C.green,width:2,type:'dashed'},
+         itemStyle:{color:C.green}}
+      ]
+    });
+    
+    // ── proc compare ──
+    init('c-pr-compare', {tooltip:mkTip(),legend:{data:['三元+钴酸锂','磷酸铁锂'],top:5},grid:mkGrid(),
+      xAxis:{type:'category',data:window.T0_MONTHS,axisLabel:mkAx()},
+      yAxis:{type:'value',name:'吨',axisLabel:mkAx(),splitLine:mkSL()},
+      series:[
+        {name:'三元+钴酸锂',type:'bar',data:window.T1_TOTALS,itemStyle:{color:C.primary,borderRadius:[4,4,0,0]},
+         label:{show:true,position:'top',formatter:'{c}',fontSize:9,color:C.textLight}},
+        {name:'磷酸铁锂',type:'bar',data:window.T2_TOTALS,itemStyle:{color:C.accent,borderRadius:[4,4,0,0]},
+         label:{show:true,position:'top',formatter:'{c}',fontSize:9,color:C.textLight}}
+      ]
+    });
+    
+    // ── proc rank ──
+    init('c-pr-rank', {tooltip:mkTip('axis'),grid:{left:'3%',right:'18%',bottom:'3%',top:'10%',containLabel:true},
+      xAxis:{type:'value',axisLabel:mkAx(),splitLine:mkSL()},
+      yAxis:{type:'category',data:window.TOP10_NAMES.reverse(),axisLabel:{color:C.text,fontSize:11}},
+      series:[{type:'bar',data:window.TOP10_VALS.reverse(),
+        itemStyle:{color:function(p){return COLORS[p.dataIndex%COLORS.length];},borderRadius:[0,4,4,0]},
+        label:{show:true,position:'right',formatter:'{c}',fontSize:10,color:C.textLight}}]
+    });
+    
+    // ── proc pie ──
+    init('c-pr-pie', {tooltip:{trigger:'item',formatter:'{b}: {c}吨 ({d}%)'},
+      legend:{orient:'vertical',right:5,top:'center',textStyle:{fontSize:11}},
+      series:[{type:'pie',radius:['30%','65%'],center:['40%','50%'],
+        data:window.PIE_DATA.map(function(d,i){return{name:d[0]+' '+d[1]+'吨',value:d[1],itemStyle:{color:COLORS[i%COLORS.length]}};}),
+        label:{show:true,formatter:'{b}',fontSize:10,color:'#333'}}]
+    });
+    
+    // ── battery 523 ──
+    init('c-bt-523', {tooltip:mkTip(),grid:mkGrid(),
+      xAxis:{type:'category',data:window.T6_DATES,axisLabel:{color:C.textLight,rotate:30}},
+      yAxis:{type:'value',name:'万元/吨',axisLabel:mkAx(),splitLine:mkSL(),min:'dataMin'},
+      series:[{name:'均价',type:'line',data:window.T6_AVG,smooth:true,lineStyle:{color:C.primary,width:2.5},
+        areaStyle:mkArea('rgb(30,60,114)'),
+        label:{show:true,position:'top',formatter:'{c}',fontSize:9,color:C.primary,fontWeight:'bold'}}]
+    });
+    
+    // ── battery compare ──
+    var minBL = Math.min(window.T6_DATES.length, window.T11_DATES.length);
+    init('c-bt-compare', {tooltip:mkTip(),legend:{data:['大三元聚合物','铁锂铝壳'],top:5},grid:mkGrid(),
+      xAxis:{type:'category',data:window.T6_DATES.slice(0,minBL),axisLabel:{color:C.textLight,rotate:30}},
+      yAxis:{type:'value',name:'万元/吨',axisLabel:mkAx(),splitLine:mkSL(),min:'dataMin'},
+      series:[
+        {name:'大三元聚合物',type:'line',data:window.T6_AVG.slice(0,minBL),smooth:true,lineStyle:{color:C.primary,width:2.5}},
+        {name:'铁锂铝壳',type:'line',data:window.T11_AVG.slice(0,minBL),smooth:true,lineStyle:{color:C.green,width:2.5}}
+      ]
+    });
+    
+    // ── battery lfp ──
+    init('c-bt-lfp', {tooltip:mkTip(),grid:mkGrid(),
+      xAxis:{type:'category',data:window.T11_DATES,axisLabel:{color:C.textLight,rotate:30}},
+      yAxis:{type:'value',name:'万元/吨',axisLabel:mkAx(),splitLine:mkSL(),min:'dataMin'},
+      series:[{name:'铁锂铝壳',type:'line',data:window.T11_AVG,smooth:true,lineStyle:{color:C.green,width:2.5},
+        areaStyle:mkArea('rgb(76,175,80)')}]
+    });
+    
+    // ── elec lfp ──
+    init('c-el-lfp', {tooltip:mkTip(),grid:mkGrid(),
+      xAxis:{type:'category',data:window.T16_DATES,axisLabel:{color:C.textLight,rotate:30}},
+      yAxis:{type:'value',name:'万元/吨',axisLabel:mkAx(),splitLine:mkSL(),min:'dataMin'},
+      series:[{name:'正极片均价',type:'line',data:window.T16_AVG,smooth:true,lineStyle:{color:C.orange,width:2.5},
+        areaStyle:mkArea('rgb(255,152,0)')}]
+    });
+    
+    // ── elec aux line ──
+    var minA = Math.min(window.T17_DATES.length, window.T18_DATES.length);
+    init('c-el-aux', {tooltip:mkTip(),legend:{data:['铝粉','铜粉'],top:5},grid:mkGrid(),
+      xAxis:{type:'category',data:window.T17_DATES.slice(0,minA),axisLabel:{color:C.textLight,rotate:30}},
+      yAxis:{type:'value',name:'万元/吨',axisLabel:mkAx(),splitLine:mkSL(),min:'dataMin'},
+      series:[
+        {name:'铝粉',type:'line',data:window.T17_AVG.slice(0,minA),smooth:true,lineStyle:{color:'#78909c',width:2.5}},
+        {name:'铜粉',type:'line',data:window.T18_AVG.slice(0,minA),smooth:true,lineStyle:{color:'#b87333',width:2.5}}
+      ]
+    });
+
+    // ── elec aux bar ──
+    init('c-el-aux2', {tooltip:mkTip(),legend:{data:['铝粉','铜粉'],top:5},grid:mkGrid(),
+      xAxis:{type:'category',data:window.T17_DATES.slice(0,minA),axisLabel:{color:C.textLight,rotate:30}},
+      yAxis:{type:'value',name:'万元/吨',axisLabel:mkAx(),splitLine:mkSL()},
+      series:[
+        {name:'铝粉',type:'bar',data:window.T17_AVG.slice(0,minA),itemStyle:{color:'#78909c',borderRadius:[2,2,0,0]},
+         label:{show:true,position:'top',formatter:'{c}',fontSize:9,color:C.textLight}},
+        {name:'铜粉',type:'bar',data:window.T18_AVG.slice(0,minA),itemStyle:{color:'#b87333',borderRadius:[2,2,0,0]},
+         label:{show:true,position:'top',formatter:'{c}',fontSize:9,color:C.textLight}}
+      ]
+    });
+
+    // ── black compare ──
+    init('c-bk-compare', {tooltip:mkTip(),legend:{data:['钴酸锂电池粉','石墨粉','铁锂极片粉'],top:5},grid:mkGrid(),
+      xAxis:{type:'category',data:window.T19_DATES.slice(0,window.MIN3),axisLabel:{color:C.textLight,rotate:30}},
+      yAxis:{type:'value',name:'万元/吨',axisLabel:mkAx(),splitLine:mkSL(),min:'dataMin'},
+      series:[
+        {name:'钴酸锂电池粉',type:'line',data:window.T19_AVG.slice(0,window.MIN3),smooth:true,lineStyle:{color:C.primary,width:2.5}},
+        {name:'石墨粉',type:'line',data:window.T23_AVG.slice(0,window.MIN3),smooth:true,lineStyle:{color:'#607d8b',width:2}},
+        {name:'铁锂极片粉',type:'line',data:window.T25_AVG.slice(0,window.MIN3),smooth:true,lineStyle:{color:C.green,width:2.5}}
+      ]
+    });
+    
+    // ── black cobalt ──
+    init('c-bk-cobalt', {tooltip:mkTip(),grid:mkGrid(),
+      xAxis:{type:'category',data:window.T19_DATES,axisLabel:{color:C.textLight,rotate:30}},
+      yAxis:{type:'value',name:'万元/吨',axisLabel:mkAx(),splitLine:mkSL(),min:'dataMin'},
+      series:[{name:'钴酸锂电池粉',type:'line',data:window.T19_AVG,smooth:true,lineStyle:{color:C.primary,width:2.5},
+        areaStyle:mkArea('rgb(30,60,114)')}]
+    });
+    
+    // ── black graphite ──
+    init('c-bk-graphite', {tooltip:mkTip(),grid:mkGrid(),
+      xAxis:{type:'category',data:window.T23_DATES,axisLabel:{color:C.textLight,rotate:30}},
+      yAxis:{type:'value',name:'万元/吨',axisLabel:mkAx(),splitLine:mkSL(),min:'dataMin'},
+      series:[{name:'石墨粉',type:'line',data:window.T23_AVG,smooth:true,lineStyle:{color:'#607d8b',width:2.5},
+        areaStyle:mkArea('rgb(96,125,139)')}]
+    });
+    
+    // ── bk cobalt electrode powder ──
+    init('c-bk-cobalt-el', {tooltip:mkTip(),grid:mkGrid(),
+      xAxis:{type:'category',data:window.T20_DATES,axisLabel:{color:C.textLight,rotate:30}},
+      yAxis:{type:'value',name:'万元/吨',axisLabel:mkAx(),splitLine:mkSL(),min:'dataMin'},
+      series:[{name:'钴酸锂极片粉',type:'line',data:window.T20_AVG,smooth:true,lineStyle:{color:C.orange,width:2.5},
+        areaStyle:mkArea('rgb(255,152,0)')}]
+    });
+    
+    // ── bk NCM523 battery powder vs cobalt ──
+    var minBC = Math.min(window.T19_DATES.length, window.T21_DATES.length);
+    init('c-bk-ncm-co', {tooltip:mkTip(),legend:{data:['钴酸锂电池粉','三元523电池粉'],top:5},grid:mkGrid(),
+      xAxis:{type:'category',data:window.T19_DATES.slice(0,minBC),axisLabel:{color:C.textLight,rotate:30}},
+      yAxis:{type:'value',name:'万元/吨',axisLabel:mkAx(),splitLine:mkSL(),min:'dataMin'},
+      series:[
+        {name:'钴酸锂电池粉',type:'line',data:window.T19_AVG.slice(0,minBC),smooth:true,lineStyle:{color:C.primary,width:2.5}},
+        {name:'三元523电池粉',type:'line',data:window.T21_AVG.slice(0,minBC),smooth:true,lineStyle:{color:C.orange,width:2.5}}
+      ]
+    });
+    
+    // ── bk lfp processing fee ──
+    init('c-bk-lfp-pf', {tooltip:mkTip(),grid:mkGrid(),
+      xAxis:{type:'category',data:window.T24_DATES,axisLabel:{color:C.textLight,rotate:30}},
+      yAxis:{type:'value',name:'万元/吨',axisLabel:mkAx(),splitLine:mkSL(),min:'dataMin'},
+      series:[{name:'铁锂电池粉加工费',type:'line',data:window.T24_AVG,smooth:true,lineStyle:{color:C.green,width:2.5},
+        areaStyle:mkArea('rgb(76,175,80)')}]
+    });
+    
+    // ── bk lfp electrode powder pf ──
+    init('c-bk-lfp-el-pf', {tooltip:mkTip(),grid:mkGrid(),
+      xAxis:{type:'category',data:window.T26_DATES,axisLabel:{color:C.textLight,rotate:30}},
+      yAxis:{type:'value',name:'万元/吨',axisLabel:mkAx(),splitLine:mkSL(),min:'dataMin'},
+      series:[{name:'铁锂极片粉加工费',type:'line',data:window.T26_AVG,smooth:true,lineStyle:{color:C.green,width:2.5},
+        areaStyle:mkArea('rgb(76,175,80)')}]
+    });
+    
+    // ── bt 三元铝壳 vs 聚合物 ──
+    var minB3 = Math.min(window.T6_DATES.length, window.T7_DATES.length);
+    init('c-bt-alu3', {tooltip:mkTip(),legend:{data:['大三元聚合物','大三元铝壳'],top:5},grid:mkGrid(),
+      xAxis:{type:'category',data:window.T6_DATES.slice(0,minB3),axisLabel:{color:C.textLight,rotate:30}},
+      yAxis:{type:'value',name:'万元/吨',axisLabel:mkAx(),splitLine:mkSL(),min:'dataMin'},
+      series:[
+        {name:'大三元聚合物',type:'line',data:window.T6_AVG.slice(0,minB3),smooth:true,lineStyle:{color:C.primary,width:2.5},
+         areaStyle:mkArea('rgb(30,60,114)')},
+        {name:'大三元铝壳',type:'line',data:window.T7_AVG.slice(0,minB3),smooth:true,lineStyle:{color:C.accent,width:2.5},
+         areaStyle:mkArea('rgb(79,172,254)')}
+      ]
+    });
+    
+    // ── bt 钴酸锂铝壳 ──
+    init('c-bt-cobalt', {tooltip:mkTip(),grid:mkGrid(),
+      xAxis:{type:'category',data:window.T8_DATES,axisLabel:{color:C.textLight,rotate:30}},
+      yAxis:{type:'value',name:'万元/吨',axisLabel:mkAx(),splitLine:mkSL(),min:'dataMin'},
+      series:[{name:'钴酸锂铝壳',type:'line',data:window.T8_AVG,smooth:true,lineStyle:{color:C.orange,width:2.5},
+        areaStyle:mkArea('rgb(255,152,0)')}]
+    });
+    
+    // ── bt 铁锂钢壳 vs 铝壳 ──
+    var minLFP = Math.min(window.T10_DATES.length, window.T11_DATES.length);
+    init('c-bt-lfp-steel', {tooltip:mkTip(),legend:{data:['铁锂钢壳','铁锂铝壳'],top:5},grid:mkGrid(),
+      xAxis:{type:'category',data:window.T10_DATES.slice(0,minLFP),axisLabel:{color:C.textLight,rotate:30}},
+      yAxis:{type:'value',name:'万元/吨',axisLabel:mkAx(),splitLine:mkSL(),min:'dataMin'},
+      series:[
+        {name:'铁锂钢壳',type:'line',data:window.T10_AVG.slice(0,minLFP),smooth:true,lineStyle:{color:C.secondary,width:2.5},
+         areaStyle:mkArea('rgb(74,111,165)')},
+        {name:'铁锂铝壳',type:'line',data:window.T11_AVG.slice(0,minLFP),smooth:true,lineStyle:{color:C.green,width:2.5},
+         areaStyle:mkArea('rgb(76,175,80)')}
+      ]
+    });
+
+    // ── el 负极片 vs 铁锂正极片 ──
+    var minElec = Math.min(window.T12_DATES.length, window.T16_DATES.length);
+    init('c-el-neg-vs-lfp', {tooltip:mkTip(),legend:{data:['负极片','铁锂正极片'],top:5},grid:mkGrid(),
+      xAxis:{type:'category',data:window.T12_DATES.slice(0,minElec),axisLabel:{color:C.textLight,rotate:30}},
+      yAxis:{type:'value',name:'万元/吨',axisLabel:mkAx(),splitLine:mkSL(),min:'dataMin'},
+      series:[
+        {name:'负极片',type:'line',data:window.T12_AVG.slice(0,minElec),smooth:true,lineStyle:{color:C.secondary,width:2.5}},
+        {name:'铁锂正极片',type:'line',data:window.T16_AVG.slice(0,minElec),smooth:true,lineStyle:{color:C.orange,width:2.5}}
+      ]
+    });
+    
+    // ── el 三元523正极片 ──
+    init('c-el-ncm523', {tooltip:mkTip(),grid:mkGrid(),
+      xAxis:{type:'category',data:window.T15_DATES,axisLabel:{color:C.textLight,rotate:30}},
+      yAxis:{type:'value',name:'万元/吨',axisLabel:mkAx(),splitLine:mkSL(),min:'dataMin'},
+      series:[{name:'三元523正极片',type:'line',data:window.T15_AVG,smooth:true,lineStyle:{color:C.accent,width:2.5},
+        areaStyle:mkArea('rgb(79,172,254)')}]
+    });
+    
+    // ── tab switch ──
+    function switchTab(tab) {
+      document.querySelectorAll('.tab-btn').forEach(function(b){b.classList.remove('active');});
+      document.querySelectorAll('.tab-content').forEach(function(t){t.classList.remove('active');});
+      var btns = document.querySelectorAll('.tab-btn');
+      for(var i=0;i<btns.length;i++){ if(btns[i].getAttribute('onclick').indexOf(tab)>=0) btns[i].classList.add('active'); }
+      var c = document.getElementById('tab-'+tab); if(c) c.classList.add('active');
+      setTimeout(function(){
+        document.querySelectorAll('.chart-ctn').forEach(function(d){ var inst=echarts.getInstanceByDom(d); if(inst) inst.resize(); });
+      }, 120);
+    }
+    window.addEventListener('resize',function(){
+      document.querySelectorAll('.chart-ctn').forEach(function(d){ var inst=echarts.getInstanceByDom(d); if(inst) inst.resize(); });
+    });
+</script>
     <script src="assets/ai_fab_inject.js"></script>
 
 <!-- __AUTO_REFRESH__ -->
-<script src="inline_01.js"></script>
+<script>
+(function() {
+  var _js = "recycling_embedded_data.js";
+  var _lastVer = null;
+
+  function _readVer() {
+    try { return (window[_js.replace('.js','').replace(/-/g,'_').replace(/ /g,'')] || {}).update_time || null; }
+    catch(e) { return null; }
+  }
+
+  function _fetchVer(cb) {
+    fetch(_js + '?t=' + Date.now())
+      .then(function(r) { return r.text(); })
+      .then(function(txt) {
+        var m = txt.match(/update_time\s*=\s*['"]([^'"]+)['"]/);
+        cb(m ? m[1] : null);
+      })
+      .catch(function() { cb(null); });
+  }
+
+  function _showBanner() {
+    if (document.getElementById('__ar_banner__')) return;
+    var b = document.createElement('div');
+    b.id = '__ar_banner__';
+    b.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:99999;background:#1a73e8;color:#fff;'
+      + 'text-align:center;padding:10px 20px;font-size:14px;font-family:sans-serif;'
+      + 'display:flex;align-items:center;justify-content:center;gap:16px;box-shadow:0 2px 8px rgba(0,0,0,0.2);';
+    b.innerHTML = '\uD83D\uDCCA 数据已更新至新版本 &nbsp;'
+      + '<button onclick="location.reload()" style="background:#fff;color:#1a73e8;border:none;'
+      + 'padding:5px 14px;border-radius:4px;cursor:pointer;font-size:13px;font-weight:bold;">刷新页面</button>'
+      + '<button onclick="this.parentElement.style.display=\'none\'" style="background:rgba(255,255,255,0.2);'
+      + 'color:#fff;border:1px solid rgba(255,255,255,0.6);padding:5px 12px;border-radius:4px;'
+      + 'cursor:pointer;font-size:13px;">稍后</button>';
+    document.body.appendChild(b);
+  }
+
+  _lastVer = _readVer();
+
+  // 每 60 秒检测一次
+  setInterval(function() {
+    _fetchVer(function(ver) {
+      if (ver && ver !== _lastVer) {
+        _lastVer = ver;
+        _showBanner();
+      }
+    });
+  }, 60000);
+})();
+</script>
 </body>
 </html>

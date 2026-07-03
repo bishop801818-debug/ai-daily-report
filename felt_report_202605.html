@@ -841,7 +841,230 @@ a { color: inherit; text-decoration: none; }
 
 <script src="./echarts.min.js"></script>
 <script src="./html2canvas.min.js"></script>
-<script src="inline_00.js"></script>
+<script>
+(function() {
+  var C = {
+    primary: '#c62828', secondary: '#b71c1c', green: '#2e7d32',
+    orange: '#ef6c00', red: '#c62828', grey: '#95a5a6',
+    palette: ['#c62828','#b71c1c','#ef6c00','#2e7d32','#1565c0','#6a1b9a','#00838f','#f9a825']
+  };
+  function baseOption() { return { color: C.palette, tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } }, grid: { left: '3%', right: '4%', bottom: '3%', top: '8%', containLabel: true }, legend: { top: 0 } }; }
+  function makeChart(id, opt) { var c = echarts.init(document.getElementById(id)); c.setOption(Object.assign({}, baseOption(), opt)); window.addEventListener('resize', function() { c.resize(); }); }
+
+  makeChart('chart-output-trend', {
+    xAxis: { type: 'category', data: ['2025-01','02','03','04','05','06','07','08','09','10','11','12','2026-01','02','03','04','05'], axisLabel: { fontSize: 11 } },
+    yAxis: [{ type: 'value', name: '产量（吨）', axisLabel: { fontSize: 11, formatter: function(v) { return (v/10000).toFixed(1)+'万'; } } }, { type: 'value', name: '法恩莱特（吨）', axisLabel: { fontSize: 11 } }],
+    series: [
+      { name: '行业产量', type: 'bar', data: [187000,192000,205000,198000,215000,220000,228000,235000,242000,238000,245000,248000,238000,245000,237400,248950,258800], itemStyle: { color: C.primary, borderRadius: [3,3,0,0] } },
+      { name: '法恩莱特', type: 'line', yAxisIndex: 1, data: [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,4200,5500], lineStyle: { color: C.orange, width: 2 }, itemStyle: { color: C.orange }, smooth: true }
+    ]
+  });
+
+  makeChart('chart-additive-price', {
+    xAxis: { type: 'category', data: ['2025-05','06','07','08','09','10','11','12','2026-01','02','03','04','05'], axisLabel: { fontSize: 11 } },
+    yAxis: { type: 'value', name: '万元/吨', axisLabel: { fontSize: 11 }, min: 1.5 },
+    series: [
+      { name: 'VC', type: 'line', data: [2.20,2.25,2.30,2.35,2.40,2.45,2.50,2.55,2.58,2.60,2.62,2.62,2.62,12.76], smooth: true },
+      { name: 'FEC', type: 'line', data: [2.10,2.15,2.18,2.20,2.25,2.30,2.38,2.45,2.48,2.50,2.52,2.51,2.51,5.40], smooth: true },
+      { name: 'PS', type: 'line', data: [2.30,2.35,2.40,2.48,2.55,2.60,2.70,2.78,2.82,2.84,2.85,2.84,2.84,16.50], smooth: true }
+    ]
+  });
+
+  makeChart('chart-solvent-price', {
+    xAxis: { type: 'category', data: ['2025-05','06','07','08','09','10','11','12','2026-01','02','03','04','05'], axisLabel: { fontSize: 11 } },
+    yAxis: { type: 'value', name: '万元/吨', axisLabel: { fontSize: 11 }, min: 1.5 },
+    series: [
+      { name: 'EC', type: 'line', data: [2.10,2.15,2.12,2.08,2.05,2.10,2.20,2.30,2.38,2.42,2.44,2.44,2.50,2.50], smooth: true },
+      { name: 'DMC', type: 'line', data: [3.20,3.10,2.95,2.80,2.65,2.55,2.50,2.48,2.45,2.44,2.44,2.44,2.32,2.32], smooth: true },
+      { name: 'EMC', type: 'line', data: [4.10,4.05,3.95,3.85,3.80,3.75,3.74,3.75,3.74,3.74,3.74,3.74,3.60,3.60], smooth: true }
+    ]
+  });
+
+  makeChart('chart-carbonate', {
+    xAxis: { type: 'category', data: ['2025-01','03','05','07','09','11','2026-01','02','03','04','05'], axisLabel: { fontSize: 11 } },
+    yAxis: { type: 'value', name: '万元/吨', axisLabel: { fontSize: 11 }, min: 10 },
+    series: [
+      { name: '碳酸锂月均价', type: 'line', data: [10.2,9.8,11.5,14.2,15.8,17.2,16.8,16.5,15.8,14.55,16.71], smooth: true, areaStyle: { color: { type: 'linear', x: 0, y: 0, x2: 0, y2: 1, colorStops: [{ offset: 0, color: 'rgba(198' + '\x2c' + '40' + '\x2c' + '40' + '\x2c' + '0.2)' }, { offset: 1, color: 'rgba(198' + '\x2c' + '40' + '\x2c' + '40' + '\x2c' + '0.02)' }] } } }
+    ]
+  });
+
+  makeChart('chart-lifpf6-output', {
+    xAxis: { type: 'category', data: ['2025-01','02','03','04','05','06','07','08','09','10','11','12','2026-01','02','03','04','05'], axisLabel: { fontSize: 11 } },
+    yAxis: { type: 'value', name: '产量（吨）', axisLabel: { fontSize: 11 } },
+    series: [{ name: 'LiPF6产量', type: 'bar', data: [5200,5400,5800,5600,6100,6300,6600,6800,7000,6950,7100,7300,6900,6950,7050,7530,30200], itemStyle: { color: C.primary, borderRadius: [3,3,0,0] } }]
+  });
+
+  makeChart('chart-lifpf6-price', {
+    xAxis: { type: 'category', data: ['2025-05','06','07','08','09','10','11','12','2026-01','02','03','04','05'], axisLabel: { fontSize: 11 } },
+    yAxis: { type: 'value', name: '万元/吨', axisLabel: { fontSize: 11 }, min: 4 },
+    series: [
+      { name: '主流均价', type: 'line', data: [7.2,7.5,7.8,7.9,8.1,8.0,7.9,7.85,7.82,7.82,7.82,10.05,11.19], smooth: true, lineStyle: { color: C.primary, width: 2 }, areaStyle: { color: { type: 'linear', x: 0, y: 0, x2: 0, y2: 1, colorStops: [{ offset: 0, color: 'rgba(198' + '\x2c' + '40' + '\x2c' + '40' + '\x2c' + '0.2)' }, { offset: 1, color: 'rgba(198' + '\x2c' + '40' + '\x2c' + '40' + '\x2c' + '0.02)' }] } } },
+      { name: '出口均价', type: 'line', data: [8.5,8.8,9.0,9.1,9.2,9.1,9.2,9.3,9.38,9.39,9.39,9.39,9.60], smooth: true },
+      { name: '六氟出口', type: 'line', data: [4.2,4.3,4.4,4.5,4.55,4.5,4.6,4.6,4.65,4.66,4.66,4.66,9.60], smooth: true }
+    ]
+  });
+
+  // Part 6: 法恩莱特客户贡献柱状图
+  makeChart('chart-customer-contrib', {
+    tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
+    grid: { left: '3%', right: '4%', bottom: '8%', top: '15%', containLabel: true },
+    legend: { top: 0, data: ['营收（万）', '毛利额（万）'] },
+    xAxis: { type: 'category', data: ['多氟多', '吉曜通行', '宁德时代', '厦门海辰', '柳州鹏辉'], axisLabel: { fontSize: 11, rotate: 15 } },
+    yAxis: [
+      { type: 'value', name: '营收（万）', axisLabel: { fontSize: 11 } },
+      { type: 'value', name: '毛利额（万）', axisLabel: { fontSize: 11 } }
+    ],
+    series: [
+      { name: '营收（万）', type: 'bar', data: [2177, 2232, 1318, 807, 528], itemStyle: { color: C.primary, borderRadius: [3,3,0,0] } },
+      { name: '毛利额（万）', type: 'bar', yAxisIndex: 1, data: [-47, -57, -92, -16, -18], itemStyle: { color: function(params) { return params.value >= 0 ? C.green : C.red; }, borderRadius: [3,3,0,0] } }
+    ]
+  });
+
+  // Part 6: 法恩莱特六维诊断雷达图
+  var radarChart = echarts.init(document.getElementById('chart-felt-radar'));
+  radarChart.setOption({
+    tooltip: { trigger: 'item' },
+    legend: { top: 0, data: ['法恩莱特5月'] },
+    radar: {
+      indicator: [
+        { name: '销量达成', max: 100 },
+        { name: '价格控制', max: 100 },
+        { name: '毛利水平', max: 100 },
+        { name: '费用控制', max: 100 },
+        { name: '现金流', max: 100 },
+        { name: '回款率', max: 100 }
+      ],
+      radius: '65%',
+      splitNumber: 4,
+      axisName: { color: '#666', fontSize: 12 },
+      splitLine: { lineStyle: { color: '#e0e0e0' } },
+      splitArea: { areaStyle: { color: ['#fafafa','#f5f5f5','#fafafa','#f5f5f5'] } },
+      axisLine: { lineStyle: { color: '#ccc' } }
+    },
+    series: [{
+      type: 'radar',
+      data: [{
+        value: [43, 35, 0, 91, 2, 73],
+        name: '法恩莱特5月',
+        lineStyle: { color: C.primary, width: 2 },
+        areaStyle: { color: 'rgba(198,40,40,0.2)' },
+        itemStyle: { color: C.primary },
+        symbol: 'circle',
+        symbolSize: 6
+      }]
+    }]
+  });
+  window.addEventListener('resize', function() { radarChart.resize(); });
+})();
+
+function exportReport() {
+  var btn = document.getElementById('exportBtn');
+  if (btn.classList.contains('loading')) return;
+  btn.classList.add('loading');
+  btn.disabled = true;
+  btn.textContent = '📥 生成中…';
+  btn.title = '截图生成中…';
+
+  var reportTitle = document.querySelector('.report-header h1').textContent;
+  var reportDate = document.querySelector('.report-meta span:first-child').textContent;
+  var kpiCards = [];
+  document.querySelectorAll('.kpi-card').forEach(function(card) {
+    kpiCards.push({
+      label: card.querySelector('.kpi-label').textContent,
+      value: card.querySelector('.kpi-value').textContent,
+      change: card.querySelector('.kpi-change').textContent
+    });
+  });
+
+  var sections = [];
+  document.querySelectorAll('.part-section').forEach(function(sec, i) {
+    var titleEl = sec.querySelector('.part-title');
+    var insights = [];
+    sec.querySelectorAll('.insight-block p').forEach(function(p) { insights.push(p.innerText); });
+    var tables = [];
+    sec.querySelectorAll('table').forEach(function(t) {
+      var rows = [];
+      t.querySelectorAll('tr').forEach(function(r) {
+        var cells = [];
+        r.querySelectorAll('td,th').forEach(function(c) { cells.push(c.innerText.trim()); });
+        rows.push(cells);
+      });
+      tables.push(rows);
+    });
+    sections.push({
+      index: i + 1,
+      title: titleEl ? titleEl.innerText : '',
+      insights: insights,
+      tables: tables
+    });
+  });
+
+  // 截图每个图表
+  var chartIds = ['chart-output-trend','chart-additive-price','chart-solvent-price',
+                   'chart-carbonate','chart-lifpf6-output','chart-lifpf6-price'];
+  var chartCaptures = {};
+  var scrollY = window.scrollY;
+  var done = 0;
+
+  if (typeof html2canvas === 'undefined') {
+    finish();
+    return;
+  }
+
+  chartIds.forEach(function(cid) {
+    var el = document.getElementById(cid);
+    if (!el) { chartCaptures[cid] = null; done++; if (done === chartIds.length) finish(); return; }
+    var originalTop = el.getBoundingClientRect().top + scrollY;
+    window.scrollTo(0, originalTop - 80);
+    setTimeout(function() {
+      html2canvas(el.parentElement, { backgroundColor: '#fff', scale: 2,
+        useCORS: true, allowTaint: false, logging: false })
+        .then(function(canvas) {
+          chartCaptures[cid] = canvas.toDataURL('image/png');
+        }).catch(function() { chartCaptures[cid] = null; })
+        .finally(function() {
+          done++;
+          if (done === chartIds.length) {
+            window.scrollTo(0, scrollY);
+            finish();
+          }
+        });
+    }, 200);
+  });
+
+  function finish() {
+    var payload = {
+      title: reportTitle,
+      kpi: kpiCards,
+      sections: sections,
+      charts: chartCaptures,
+      filename: '法恩莱特电解液月报_2026年5月.pptx'
+    };
+    fetch('http://localhost:8889/api/export-pptx', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    }).then(function(r) {
+      if (!r.ok) throw new Error('导出失败');
+      return r.blob();
+    }).then(function(blob) {
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      a.href = url;
+      a.download = payload.filename;
+      a.click();
+      URL.revokeObjectURL(url);
+    }).catch(function(err) {
+      alert('导出失败：' + err.message);
+    }).finally(function() {
+      btn.classList.remove('loading');
+      btn.disabled = false;
+      btn.textContent = '📥 导出报告';
+      btn.title = '';
+    });
+  }
+}
+</script>
     <script src="assets/ai_fab_inject.js"></script>
 </body>
 </html>

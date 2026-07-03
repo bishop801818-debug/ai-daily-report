@@ -254,7 +254,162 @@
     <div class="db-grid" id="report-grid"></div>
 </div>
 
-<script src="inline_00.js"></script>
+<script>
+const REPORT_LIST = [
+    {
+        id: 'lfp',
+        name: '磷酸铁锂数据库',
+        icon: '🔋',
+        desc: '磷酸铁锂正极材料供需格局、竞争格局、价格体系、出口贸易及战略展望',
+        done: true,
+        reportBase: 'lfp_report',
+        availableMonths: ['2026-05', '2026-04'],
+        dataHref: 'lfp_data_v2.html',
+        chartHref: 'lfp_charts.html',
+        tabs: '6个Tab',
+        charts: '14个图表',
+    },
+    {
+        id: 'carbonate',
+        name: '碳酸锂及原料数据库',
+        icon: '⛏️',
+        desc: '碳酸锂·氢氧化锂·锂云母·锂辉石精矿，四位一体产业链全景分析',
+        done: true,
+        reportHref: 'carbonate_report_202605.html',
+        dataHref: 'carbonate_data_v2.html',
+        chartHref: 'carbonate_charts.html',
+        tabs: '6个Tab',
+        charts: '10个图表',
+    },
+    {
+        id: 'ternary',
+        name: '三元材料数据库',
+        icon: '⚡',
+        desc: '三元正极材料（NCM/NCA）供需格局、竞争格局、价格体系、出口贸易及战略展望',
+        done: false,
+        tabs: '6个Tab（规划中）',
+        charts: '图表（规划中）',
+    },
+    {
+        id: 'electrolyte',
+        name: '电解液数据库',
+        icon: '🧪',
+        desc: '电解液及六氟磷酸锂供需格局、成本结构、竞争格局与战略展望',
+        done: true,
+        reportBase: 'felt_report',
+        availableMonths: ['2026-05', '2026-04'],
+        dataHref: 'electrolyte_data_v2.html',
+        chartHref: 'electrolyte_charts.html',
+        tabs: '1个Tab（7部分）',
+        charts: '6个图表',
+    },
+    {
+        id: 'recycling',
+        name: '锂电池回收数据库',
+        icon: '♻️',
+        desc: '动力电池回收规模、梯次利用、再生利用、白名单企业与战略展望',
+        done: false,
+        tabs: '6个Tab（规划中）',
+        charts: '图表（规划中）',
+    },
+    {
+        id: 'lithiumbat',
+        name: '锂电池数据库',
+        icon: '🔋',
+        desc: '锂电池产量、产能利用率、分企业竞争格局与排产预测，五表全景分析',
+        done: true,
+        reportHref: 'lib_battery_analysis.html',
+        dataHref: 'lib_battery_data_v2.html',
+        chartHref: 'lib_battery_charts.html',
+        tabs: '5个Tab',
+        charts: '5个图表',
+    },
+    {
+        id: 'automotive',
+        name: '汽车行业数据库',
+        icon: '🚗',
+        desc: '新能源汽车销量、动力电池装车、渗透率、政策汇总与出口数据分析',
+        done: false,
+        tabs: '6个Tab（规划中）',
+        charts: '图表（规划中）',
+    },
+];
+
+function buildReportCard(db) {
+    const badge = db.done
+        ? '<span class="card-badge done">✅ 已完成</span>'
+        : '<span class="card-badge building">🚧 建设中</span>';
+
+    const overlay = db.done ? '' : '<div class="building-overlay">🚧 报告编写中</div>';
+
+    // Build report button(s)
+    let reportBtns = '';
+    if (db.done) {
+        if (db.availableMonths && db.availableMonths.length > 0) {
+            // Multi-month: show split button with month selector
+            const latest = db.availableMonths[0]; // sorted newest first
+            const monthLabel = latest.replace('-', '年') + '月';
+            // 电解液用 felt_report_202605 格式（无下划线），其他数据库用 lfp_report_2026_04 格式（有下划线）
+            const buildHref = (m) => db.reportBase + '_' + (db.id === 'electrolyte' ? m.replace('-', '') : m.replace('-', '_')) + '.html';
+            const latestHref = buildHref(latest);
+
+            // Build month options
+            const monthOptions = db.availableMonths.map(m => {
+                const label = m.replace('-', '年') + '月';
+                const href = buildHref(m);
+                const selected = m === latest ? ' selected' : '';
+                return `<option value="${href}"${selected}>${label}</option>`;
+            }).join('');
+
+            reportBtns = `
+                <a href="${latestHref}" class="btn-report" id="btn-report-${db.id}"> 查看报告（${monthLabel}）</a>
+                <select class="btn-month" id="sel-month-${db.id}"
+                    onchange="var b=document.getElementById('btn-report-${db.id}');b.href=this.value;b.innerHTML=' 查看报告（'+this.options[this.selectedIndex].text+'）';"
+                    title="选择报告月份">
+                    ${monthOptions}
+                </select>`;
+        } else if (db.reportHref) {
+            // Single report: simple button
+            reportBtns = `<a href="${db.reportHref}" class="btn-report" style="border-radius:8px;"> 查看报告</a>`;
+        }
+    } else {
+        reportBtns = `<a href="#" class="btn-report disabled" onclick="return false;" style="border-radius:8px;"> 查看报告</a>`;
+    }
+
+    return `
+    <div class="db-card" data-db="${db.id}">
+        ${overlay}
+        <div class="card-top">
+            <div class="card-icon-wrap">${db.icon}</div>
+            ${badge}
+        </div>
+        <div class="card-name">${db.name}</div>
+        <div class="card-desc">${db.desc}</div>
+        <div class="card-meta">
+            <div class="meta-item">
+                <div class="meta-val">${db.tabs}</div>
+                <div class="meta-label">报告结构</div>
+            </div>
+            <div class="meta-item">
+                <div class="meta-val">${db.charts}</div>
+                <div class="meta-label">数据图表</div>
+            </div>
+        </div>
+        <div class="card-actions">
+            ${reportBtns}
+        </div>
+    </div>`;
+}
+
+document.getElementById('report-grid').innerHTML = REPORT_LIST.map(buildReportCard).join('');
+
+// 更新时间
+const topbarRight = document.querySelector('.topbar-right');
+if (topbarRight) {
+    const now = new Date();
+    topbarRight.textContent = `龙蟠行业数据库 · ${now.toLocaleDateString('zh-CN')}`;
+}
+</script>
     <script src="assets/ai_fab_inject.js"></script>
 </body>
 </html>

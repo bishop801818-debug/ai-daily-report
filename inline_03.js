@@ -1,3 +1,13 @@
+// == 页面守卫：hub 子页面跳过 DOM 初始化 ==
+var __isMainPage = !!document.getElementById('loadingOverlay') || window.location.pathname.endsWith('index_v3.html') || window.location.pathname === '/' || window.location.pathname === '';
+
+// 重写 addEventListener 对 DOMContentLoaded 的调用（仅主页面执行）
+var __origAddEventListener = EventTarget.prototype.addEventListener;
+var __domContentLoadedCallbacks = [];
+// 不直接重写，改用 wrapper 模式：
+// 搜索所有 window.addEventListener('DOMContentLoaded', fn) 并在 fn 外包 guard
+// 由下方正则替换自动处理
+
 
         // 事业部列表
         const deptList = ['lubricant', 'kelan', 'czly', 'lpsd', 'sdmd', 'sjl', 'bych', 'felt', 'dkhx'];
@@ -5668,11 +5678,14 @@ const BU_LOGOS = {
         }
         
         // 点击历史弹窗外部关闭
-        document.getElementById('historyModal').addEventListener('click', function(e) {
+        const historyModal = document.getElementById('historyModal');
+        if (historyModal) {
+        historyModal.addEventListener('click', function(e) {
             if (e.target === this) {
                 closeHistory();
             }
         });
+        }
         
         // ESC 键关闭历史弹窗
         document.addEventListener('keydown', function(e) {
@@ -5682,11 +5695,14 @@ const BU_LOGOS = {
         });
         
         // 点击弹窗外部关闭
-        document.getElementById('reportModal').addEventListener('click', function(e) {
+        const reportModal = document.getElementById('reportModal');
+        if (reportModal) {
+        reportModal.addEventListener('click', function(e) {
             if (e.target === this) {
                 closeReport();
             }
         });
+        }
         
         // ESC 键关闭弹窗（优先关闭报告弹窗）
         document.addEventListener('keydown', function(e) {
@@ -7868,7 +7884,7 @@ const RADAR_HISTORY = {
     },
     czly:{
         '2026-03':{
-            dims:{d1:62,d2:44,d3:75,d4:55,d5:98,d6:50},
+            dims:{d1:62,d2:82,d3:86,d4:52,d5:90,d6:52},
             kpis:{
                 d1:[47,78,0,104],
                 d2:[42,50,85,90],
@@ -7937,7 +7953,7 @@ const RADAR_HISTORY = {
         // ── 2026年5月（当月）──
         '2026-05':{
             dims:{d1:82,d2:80,d3:75,d4:76,d5:80,d6:72},
-            kpis:{d1:[82,82,82,82],d2:[80,80,80,80],d3:[75,75,75,75],d4:[76,76,76,76],d5:[80,80,80,80],d6:[72,72,72,72]},
+            kpis:{d1:[62, 88, 65, 90], d2:[77, 98, 98, 85], d3:[105, 100, 96, 75], d4:[58, 67, 60, 58], d5:[100, 100, 100, 100], d6:[65, 25, 60, 88]},
             _isCurrent:true,
         },
     },
@@ -8135,8 +8151,8 @@ const DIMS = [
 
 const BUS_DATA = {
     czly:{ name:'常州锂源', logo:'', tag:'新能源材料', accent:'#00d4ff', detailPage:'radar_detail_czly.html',
-        dims:{d1:86,d2:95,d3:88,d4:47,d5:95,d6:45},
-        kpis:{d1:[86,111,80,97],d2:[100,90,100,95],d3:[103,100,95,120],d4:[50,60,17,100],d5:[99,100,100,100],d6:[50,60,60,50]}},
+        dims:{d1:62,d2:82,d3:86,d4:52,d5:90,d6:52},
+        kpis:{d1:[62,88,65,90],d2:[77,98,98,85],d3:[105,100,96,75],d4:[58,67,60,58],d5:[100,100,100,100],d6:[65,25,60,88]}},
     lpsd:{ name:'龙蟠时代', logo:'', tag:'电芯智造', accent:'#4caf50', detailPage:'radar_detail_lpsd.html',
         // 数据来源：radar_hub.html BU_HISTORY lpsd 2026-05
         dims:{d1:58,d2:88,d3:75,d4:85,d5:85,d6:75},

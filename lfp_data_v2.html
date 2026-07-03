@@ -935,7 +935,536 @@
         </div>
     </main>
 
-    <script src="inline_00.js"></script>
+    <script>
+        let allData = {};
+        let tableData = {}; // 存储每个表格的原始数据用于搜索
+
+        // 切换侧边栏折叠
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('collapsed');
+        }
+
+        // 显示指定标签页
+        function showTab(tabId, element) {
+            // 隐藏所有内容区
+            document.querySelectorAll('.content-section').forEach(el => el.classList.remove('active'));
+            // 取消所有导航项的激活状态
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            
+            // 显示选中的内容区
+            document.getElementById(tabId).classList.add('active');
+            // 激活导航项
+            if (element) {
+                element.classList.add('active');
+            }
+
+            // 更新URL hash
+            window.location.hash = tabId;
+        }
+
+        // 从hash恢复标签页
+        function restoreTabFromHash() {
+            const hash = window.location.hash.slice(1);
+            if (hash) {
+                const navItem = document.querySelector(`[data-tab="${hash}"]`);
+                if (navItem) {
+                    showTab(hash, navItem);
+                }
+            }
+        }
+
+        // 加载所有数据
+        async function loadAllData() {
+            // 优先使用内嵌数据（直接双击打开时使用）
+            if (typeof EMBEDDED_DATA !== 'undefined' && EMBEDDED_DATA.tables) {
+                console.log('使用内嵌数据...');
+                EMBEDDED_DATA.tables.forEach(t => {
+                    allData[t.table_name] = t.data;
+                    updateBadge(t.table_name, t.data.length);
+                });
+                document.getElementById('updateTime').textContent = EMBEDDED_DATA.update_time;
+                const totalRecords = EMBEDDED_DATA.tables.reduce((sum, t) => sum + t.data.length, 0);
+                document.getElementById('totalRecords').textContent = (totalRecords / 10000).toFixed(1) + '万';
+                renderLFPIndustry();
+                renderLFPCompany();
+                renderLFPCompetitor();
+                renderLFPExport();
+                renderLFPExportPartner();
+                renderLFPPrice();
+                renderFPIndustry();
+                renderFPCompany();
+                renderFPPrice();
+                renderPriceDensity();
+                renderPhosphate();
+                renderRawMaterial();
+                restoreTabFromHash();
+                return;
+            }
+            
+            // 备用：通过网络加载
+            try {
+                const timestamp = Date.now();
+                const response = await fetch('lfp_all_data.json?_t=' + timestamp);
+                
+                if (!response.ok) {
+                    throw new Error('HTTP ' + response.status + ': ' + response.statusText);
+                }
+                
+                const data = await response.json();
+                
+                document.getElementById('updateTime').textContent = data.update_time;
+                
+                // 整理数据到allData
+                data.tables.forEach(t => {
+                    allData[t.table_name] = t.data;
+                    // 更新侧边栏徽章
+                    updateBadge(t.table_name, t.data.length);
+                });
+                
+                // 更新统计信息
+                const totalRecords = data.tables.reduce((sum, t) => sum + t.data.length, 0);
+                document.getElementById('totalRecords').textContent = (totalRecords / 10000).toFixed(1) + '万';
+
+                // 渲染所有表格
+                renderLFPIndustry();
+                renderLFPCompany();
+                renderLFPCompetitor();
+                renderLFPExport();
+                renderLFPExportPartner();
+                renderLFPPrice();
+                renderFPIndustry();
+                renderFPCompany();
+                renderFPPrice();
+                renderPriceDensity();
+                renderPhosphate();
+                renderRawMaterial();
+                
+                // 恢复标签页状态
+                restoreTabFromHash();
+
+            } catch (e) {
+                console.error('数据加载失败:', e);
+                document.querySelectorAll('[id$="-body"]').forEach(el => {
+                    el.innerHTML = '<tr><td colspan="10" class="loading">数据加载失败，请确保在正确目录使用本地服务器打开</td></tr>';
+                });
+            }
+        }
+
+        // 更新徽章
+        function updateBadge(tableName, count) {
+            const badgeMap = {
+                'LFP-行业整体产量': 'badge-lfp-industry',
+                'LFP-分企业产量': 'badge-lfp-company',
+                'LFP竞对销量（客户采购量）': 'badge-lfp-competitor',
+                'LFP-出口量': 'badge-lfp-export',
+                'LFP-出口贸易伙伴': 'badge-lfp-export-partner',
+                'LFP现货市场价': 'badge-lfp-price',
+                'FP-行业整体产量': 'badge-fp-industry',
+                'FP-分企业产量': 'badge-fp-company',
+                'FP现货市场价': 'badge-fp-price',
+                '现货市场价（分压实密度）': 'badge-price-density',
+                '磷酸盐价格数据': 'badge-phosphate',
+                '非磷原料价格数据': 'badge-raw-material'
+            };
+            
+            const badgeId = badgeMap[tableName];
+            if (badgeId) {
+                const badge = document.getElementById(badgeId);
+                if (badge) {
+                    badge.textContent = count > 999 ? Math.floor(count/10)*10 + '+' : count;
+                }
+            }
+        }
+
+        // 搜索过滤
+        function filterTable() {
+            const searchText = document.getElementById('searchInput').value.toLowerCase();
+            const activeSection = document.querySelector('.content-section.active');
+            
+            if (!activeSection) return;
+            
+            const tbody = activeSection.querySelector('tbody');
+            if (!tbody) return;
+            
+            const rows = tbody.querySelectorAll('tr');
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(searchText) ? '' : 'none';
+            });
+        }
+
+        // 导出表格
+        function exportTable(tableId) {
+            const table = document.getElementById(tableId);
+            if (!table) return;
+            
+            const rows = table.querySelectorAll('tr');
+            let csv = '';
+            
+            rows.forEach(row => {
+                const cells = row.querySelectorAll('th, td');
+                const rowData = Array.from(cells).map(cell => {
+                    let text = cell.textContent.replace(/"/g, '""');
+                    return '"' + text + '"';
+                }).join(',');
+                csv += rowData + '\n';
+            });
+            
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = tableId + '_' + new Date().toISOString().slice(0,10) + '.csv';
+            link.click();
+        }
+
+        // LFP行业产量
+        function renderLFPIndustry() {
+            const data = allData['LFP-行业整体产量'] || [];
+            const sorted = [...data].sort((a, b) => (b['月份'] || '').localeCompare(a['月份'] || ''));
+            tableData['lfp-industry'] = sorted;
+            
+            const latest = sorted[0] || {};
+            const fpLatest = (allData['FP-行业整体产量']||[])[0] || {};
+            const lfpProd = parseFloat(latest['月度产量']) || 0;
+            const fpProd = parseFloat(fpLatest['月度产量']) || 0;
+            
+            document.getElementById('lfp-metrics').innerHTML = `
+                <div class="metric-card">
+                    <div class="metric-label">LFP月度产量（${latest['月份'] || '-'}）</div>
+                    <div class="metric-value">${(lfpProd/10000).toFixed(2)}<span class="metric-unit">万吨</span></div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">LFP产能利用率</div>
+                    <div class="metric-value">${latest['产能利用率'] || '-'}</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">FP月度产量（${fpLatest['月份']||'-'}）</div>
+                    <div class="metric-value">${(fpProd/10000).toFixed(2)}<span class="metric-unit">万吨</span></div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">FP产能利用率</div>
+                    <div class="metric-value">${fpLatest['产能利用率'] || '-'}</div>
+                </div>
+            `;
+            
+            let html = sorted.slice(0, 24).map(d => `
+                <tr>
+                    <td>${d['月份'] || '-'}</td>
+                    <td>${(parseFloat(d['月度产量'])||0).toLocaleString()}</td>
+                    <td>${(parseFloat(d['月度产能'])||0).toLocaleString()}</td>
+                    <td>${d['产能利用率'] || '-'}</td>
+                </tr>
+            `).join('');
+            document.getElementById('lfp-industry-body').innerHTML = html;
+        }
+        
+        // LFP分企业产量
+        function renderLFPCompany() {
+            const data = allData['LFP-分企业产量'] || [];
+            tableData['lfp-company'] = data;
+            // 按月份倒序展示全部数据（不再硬编码月份）
+            const sorted = [...data].sort((a, b) => String(b['月份']||'').localeCompare(String(a['月份']||'')));
+
+            let html = sorted.map((d, i) => `
+                <tr>
+                    <td>${d['月份'] || '-'}</td>
+                    <td>${d['企业名称'] || '-'}</td>
+                    <td>${(parseFloat(d['产能'])||0).toLocaleString()}</td>
+                    <td>${(parseFloat(d['产量'])||0).toLocaleString()}</td>
+                    <td>${d['产能利用率'] || '-'}</td>
+                    <td>${d['环比'] || '-'}</td>
+                </tr>
+            `).join('');
+            document.getElementById('lfp-company-body').innerHTML = html;
+        }
+        
+        // LFP竞对销量
+        function renderLFPCompetitor() {
+            const data = allData['LFP竞对销量'] || [];
+            tableData['lfp-competitor'] = data;
+            const sorted = [...data].sort((a, b) => String(b['月份']||'').localeCompare(String(a['月份']||'')));
+
+            let html = sorted.map(d => `
+                <tr>
+                    <td>${d['月份'] || '-'}</td>
+                    <td><strong>${d['企业名称']}</strong></td>
+                    <td>${d['CATL'] || '-'}</td>
+                    <td>${d['BYD'] || '-'}</td>
+                    <td>${d['中航'] || '-'}</td>
+                    <td>${d['亿纬'] || '-'}</td>
+                    <td>${d['国轩'] || '-'}</td>
+                    <td>${d['欣旺达'] || '-'}</td>
+                    <td>${d['蜂巢'] || '-'}</td>
+                    <td>${d['远景'] || '-'}</td>
+                    <td>${d['天合'] || '-'}</td>
+                </tr>
+            `).join('');
+            document.getElementById('lfp-competitor-body').innerHTML = html;
+        }
+        
+        // LFP出口量
+        function renderLFPExport() {
+            const data = allData['LFP-出口量'] || [];
+            tableData['lfp-export'] = data;
+            const sorted = [...data].sort((a, b) => (b['月度']||'').localeCompare(a['月度']||''));
+            
+            let html = sorted.map(d => `
+                <tr>
+                    <td>${d['月度'] || '-'}</td>
+                    <td>${(parseFloat(d['出口量（吨）'])||0).toLocaleString()}</td>
+                    <td>${d['出口均价（万元/吨）'] || '-'}</td>
+                    <td>${d['环比变化'] || '-'}</td>
+                    <td>${d['同比变化'] || '-'}</td>
+                </tr>
+            `).join('');
+            document.getElementById('lfp-export-body').innerHTML = html;
+        }
+        
+        // LFP出口贸易伙伴
+        function renderLFPExportPartner() {
+            const data = allData['LFP-出口贸易伙伴'] || [];
+            tableData['lfp-export-partner'] = data;
+            const sorted = [...data].sort((a, b) => (b['月份']||'').localeCompare(a['月份']||''));
+
+            let html = sorted.slice(0, 100).map(d => `
+                <tr>
+                    <td>${d['月份'] || '-'}</td>
+                    <td>${d['贸易伙伴名称'] || '-'}</td>
+                    <td>${d['出口量（吨）'] || '-'}</td>
+                    <td>${d['出口价格（万元）'] || '-'}</td>
+                    <td>${d['出口均价（万元/吨）'] || '-'}</td>
+                </tr>
+            `).join('');
+            document.getElementById('lfp-export-partner-body').innerHTML = html;
+        }
+        
+        // LFP现货市场价
+        function renderLFPPrice() {
+            const data = allData['LFP现货市场价'] || [];
+            tableData['lfp-price'] = data;
+            if (!data.length) {
+                document.getElementById('lfp-price-body').innerHTML = '<tr><td colspan="5" class="loading">暂无数据</td></tr>';
+                return;
+            }
+            const grouped = {};
+            data.forEach(d => {
+                const date = String(d['日期']||'').split(' ')[0];
+                if(!grouped[date]) grouped[date] = [];
+                grouped[date].push(d);
+            });
+            const dates = Object.keys(grouped).sort().reverse();
+            const recentDates = dates.slice(0, 10);
+
+            let html = '';
+            recentDates.forEach(date => {
+                const dayData = grouped[date];
+                dayData.slice(0, 5).forEach(d => {
+                    html += `
+                        <tr>
+                            <td>${date}</td>
+                            <td>${(d['规格']||'-').substring(0,25)}</td>
+                            <td>${(parseFloat(d['均价（万元/吨）'])||0).toFixed(2)}</td>
+                            <td>${(parseFloat(d['最低价（万元/吨）'])||0).toFixed(2)}</td>
+                            <td>${(parseFloat(d['最高价（万元/吨）'])||0).toFixed(2)}</td>
+                        </tr>
+                    `;
+                });
+            });
+            document.getElementById('lfp-price-body').innerHTML = html;
+        }
+        
+        // FP行业产量
+        function renderFPIndustry() {
+            const data = allData['FP-行业整体产量'] || [];
+            tableData['fp-industry'] = data;
+            if (!data.length) {
+                document.getElementById('fp-industry-body').innerHTML = '<tr><td colspan="4" class="loading">暂无数据</td></tr>';
+                return;
+            }
+            const sorted = [...data].sort((a, b) => (b['月份']||'').localeCompare(a['月份']||''));
+            
+            let html = sorted.slice(0, 24).map(d => `
+                <tr>
+                    <td>${d['月份'] || '-'}</td>
+                    <td>${(parseFloat(d['月度产量'])||0).toLocaleString()}</td>
+                    <td>${(parseFloat(d['月度产能'])||0).toLocaleString()}</td>
+                    <td>${d['产能利用率'] || '-'}</td>
+                </tr>
+            `).join('');
+            document.getElementById('fp-industry-body').innerHTML = html;
+        }
+        
+        // FP分企业产量
+        function renderFPCompany() {
+            const data = allData['FP-分企业产量'] || [];
+            tableData['fp-company'] = data;
+            // 按月份倒序展示全部数据
+            const sorted = [...data].sort((a, b) => String(b['月份']||'').localeCompare(String(a['月份']||'')));
+
+            let html = sorted.map(d => `
+                <tr>
+                    <td>${d['月份'] || '-'}</td>
+                    <td>${d['企业名称'] || '-'}</td>
+                    <td>${(parseFloat(d['产能'])||0).toLocaleString()}</td>
+                    <td>${(parseFloat(d['产量'])||0).toLocaleString()}</td>
+                    <td>${d['产能利用率'] || '-'}</td>
+                    <td>${d['环比'] || '-'}</td>
+                </tr>
+            `).join('');
+            document.getElementById('fp-company-body').innerHTML = html;
+        }
+        
+        // FP现货市场价
+        function renderFPPrice() {
+            const data = allData['FP现货市场价'] || [];
+            tableData['fp-price'] = data;
+            if (!data.length) {
+                document.getElementById('fp-price-body').innerHTML = '<tr><td colspan="4" class="loading">暂无数据</td></tr>';
+                return;
+            }
+            const grouped = {};
+            data.forEach(d => {
+                const date = String(d['日期']||'').split(' ')[0];
+                if(!grouped[date]) grouped[date] = [];
+                grouped[date].push(d);
+            });
+            const dates = Object.keys(grouped).sort().reverse();
+            const recentDates = dates.slice(0, 30);
+
+            let html = '';
+            recentDates.forEach(date => {
+                const dayData = grouped[date];
+                dayData.slice(0, 3).forEach(d => {
+                    html += `
+                        <tr>
+                            <td>${date}</td>
+                            <td>${d['今日最高价'] || '-'}</td>
+                            <td>${d['今日最低价'] || '-'}</td>
+                            <td>${d['今日均价'] || '-'}</td>
+                        </tr>
+                    `;
+                });
+            });
+            document.getElementById('fp-price-body').innerHTML = html;
+        }
+        
+        // 现货价(分压实密度)
+        function renderPriceDensity() {
+            const data = allData['LFP现货市场价-分压实密度'] || [];
+            tableData['price-density'] = data;
+            if (!data.length) {
+                document.getElementById('price-density-body').innerHTML = '<tr><td colspan="6" class="loading">暂无数据</td></tr>';
+                return;
+            }
+
+            // 数据已标准化：日期 / 规格 / 类型 / 最低价 / 最高价 / 均价
+            let html = data.slice(0, 100).map(r => {
+                const mkCell = v => {
+                    const n = parseFloat(v);
+                    return (isNaN(n) ? '-' : n.toFixed(2));
+                };
+                return `<tr>
+                    <td>${(r['日期']||'-').split(' ')[0]}</td>
+                    <td>${r['类型']||'-'}</td>
+                    <td>${r['规格']||'-'}</td>
+                    <td>${mkCell(r['最低价（万元/吨）'])}</td>
+                    <td>${mkCell(r['最高价（万元/吨）'])}</td>
+                    <td>${mkCell(r['均价（万元/吨）'])}</td>
+                </tr>`;
+            }).join('');
+
+            document.getElementById('price-density-table').querySelector('thead tr').innerHTML =
+                '<th>日期</th><th>类型</th><th>压实密度</th><th>最低价</th><th>最高价</th><th>均价</th>';
+
+            document.getElementById('price-density-body').innerHTML = html;
+        }
+        
+        // 磷酸盐价格数据
+        function renderPhosphate() {
+            const data = allData['磷酸盐价格'] || [];
+            tableData['phosphate'] = data;
+            if (!data.length) {
+                document.getElementById('phosphate-body').innerHTML = '<tr><td colspan="5" class="loading">暂无数据</td></tr>';
+                return;
+            }
+            const grouped = {};
+            data.forEach(d => {
+                const date = String(d['日期']||'').split(' ')[0];
+                if(!grouped[date]) grouped[date] = [];
+                grouped[date].push(d);
+            });
+            const dates = Object.keys(grouped).sort().reverse();
+            const recentDates = dates.slice(0, 20);
+
+            let html = '';
+            recentDates.forEach(date => {
+                const dayData = grouped[date];
+                dayData.slice(0, 5).forEach(d => {
+                    html += `
+                        <tr>
+                            <td>${date}</td>
+                            <td>${d['规格'] || '-'}</td>
+                            <td>${(parseFloat(d['今日最低价格（万元/吨）'])||0).toFixed(3)}</td>
+                            <td>${(parseFloat(d['今日最高价格（万元/吨）'])||0).toFixed(3)}</td>
+                            <td>${(parseFloat(d['今日均价（万元/吨）'])||0).toFixed(3)}</td>
+                        </tr>
+                    `;
+                });
+            });
+            document.getElementById('phosphate-body').innerHTML = html;
+        }
+
+        // 非磷原料价格数据
+        function renderRawMaterial() {
+            const data = allData['非磷原料价格'] || [];
+            tableData['raw-material'] = data;
+            if (!data.length) {
+                document.getElementById('raw-material-body').innerHTML = '<tr><td colspan="5" class="loading">暂无数据</td></tr>';
+                return;
+            }
+            const grouped = {};
+            data.forEach(d => {
+                const date = String(d['日期']||'').split(' ')[0];
+                if(!grouped[date]) grouped[date] = [];
+                grouped[date].push(d);
+            });
+            const dates = Object.keys(grouped).sort().reverse();
+            const recentDates = dates.slice(0, 20);
+
+            let html = '';
+            recentDates.forEach(date => {
+                const dayData = grouped[date];
+                dayData.slice(0, 5).forEach(d => {
+                    html += `
+                        <tr>
+                            <td>${date}</td>
+                            <td>${d['规格'] || '-'}</td>
+                            <td>${(parseFloat(d['今日最低价格'])||0).toLocaleString()}</td>
+                            <td>${(parseFloat(d['今日最高价格'])||0).toLocaleString()}</td>
+                            <td>${(parseFloat(d['今日均价'])||0).toLocaleString()}</td>
+                        </tr>
+                    `;
+                });
+            });
+            document.getElementById('raw-material-body').innerHTML = html;
+        }
+
+        // 键盘快捷键
+        document.addEventListener('keydown', (e) => {
+            // ESC 折叠/展开侧边栏
+            if (e.key === 'Escape') {
+                toggleSidebar();
+            }
+            // Ctrl+F 聚焦搜索
+            if (e.ctrlKey && e.key === 'f') {
+                e.preventDefault();
+                document.getElementById('searchInput').focus();
+            }
+        });
+
+        // 启动
+        loadAllData();
+    </script>
     <script src="assets/ai_fab_inject.js"></script>
 </body>
 </html>

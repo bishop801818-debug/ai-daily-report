@@ -609,7 +609,203 @@
 </div>
 <!-- Toast -->
 <div class="toast" id="toast"></div>
-<script src="inline_00.js"></script>
+<script>
+    // 日期显示
+    var weekDays = ['星期日','星期一','星期二','星期三','星期四','星期五','星期六'];
+    var now = new Date();
+    document.getElementById('headerDate').textContent =
+        now.getFullYear() + ' 年 ' + (now.getMonth()+1) + ' 月 ' + now.getDate() + ' 日 ' + weekDays[now.getDay()];
+
+    // ========== 收藏功能 ==========
+    var STORAGE_KEY = 'toolbox_collections';
+
+    function getCollections() {
+        try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); }
+        catch(e) { return []; }
+    }
+    function saveCollections(list) {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+        updateCollectBadge();
+    }
+
+    function updateCollectBadge() {
+        var n = getCollections().length;
+        document.getElementById('collectCountBadge').textContent = n;
+    }
+
+    function addCollection(item) {
+        var list = getCollections();
+        // 避免重复
+        if (list.some(function(x){ return x.id === item.id; })) return;
+        list.unshift(Object.assign({savedAt: new Date().toISOString()}, item));
+        saveCollections(list);
+        showToast('已添加到收藏');
+        renderCollects();
+    }
+
+    function removeCollection(id) {
+        var list = getCollections().filter(function(x){ return x.id !== id; });
+        saveCollections(list);
+        showToast('已取消收藏');
+        renderCollects();
+    }
+
+    function clearAllCollections() {
+        document.getElementById('clearModal').classList.add('show');
+    }
+    function closeModal() {
+        document.getElementById('clearModal').classList.remove('show');
+    }
+    function confirmClear() {
+        saveCollections([]);
+        closeModal();
+        renderCollects();
+        showToast('已清空全部收藏');
+    }
+
+    var currentFilter = 'all';
+
+    function filterCollects(type, btn) {
+        currentFilter = type;
+        document.querySelectorAll('.filter-chip').forEach(function(b){ b.classList.remove('active'); });
+        btn.classList.add('active');
+        renderCollects();
+    }
+
+    function renderCollects() {
+        var list = getCollections();
+        var filtered = currentFilter === 'all' ? list : list.filter(function(x){ return x.type === currentFilter; });
+        var el = document.getElementById('collectList');
+        var clearBtn = document.getElementById('clearAllBtn');
+
+        if (list.length === 0) {
+            clearBtn.style.display = 'none';
+            el.innerHTML = '<div class="collect-empty"><div class="collect-empty-icon">🔖</div><div class="collect-empty-text">暂无收藏内容</div><div class="collect-empty-sub">点击政策/新闻/早报中的「收藏」按钮即可添加</div></div>';
+            return;
+        }
+        clearBtn.style.display = '';
+
+        if (filtered.length === 0) {
+            el.innerHTML = '<div class="collect-empty"><div class="collect-empty-icon">🔍</div><div class="collect-empty-text">该分类下暂无收藏</div></div>';
+            return;
+        }
+
+        var typeLabel = {policy:'📜 政策', report:'📋 早报', news:'📰 新闻'};
+        var html = '';
+        filtered.forEach(function(item) {
+            var savedDate = new Date(item.savedAt);
+            var savedStr = savedDate.getMonth()+1 + '月' + savedDate.getDate() + '日';
+            html += '<div class="collect-item">'
+                + '<span class="collect-type-badge ' + item.type + '">' + (typeLabel[item.type] || item.type) + '</span>'
+                + '<div class="collect-body">'
+                + '<div class="collect-title">' + escapeHtml(item.title) + '</div>'
+                + '<div class="collect-meta">'
+                + '<span>' + (item.date || item.source || '') + '</span>'
+                + '<span>收藏于 ' + savedStr + '</span>'
+                + '</div></div>'
+                + '<button class="collect-remove" onclick="removeCollection(\'' + item.id + '\')" title="取消收藏">✕</button>'
+                + '</div>';
+        });
+        el.innerHTML = html;
+    }
+
+    function escapeHtml(str) {
+        return str.replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    // ========== 导出功能 ==========
+    function toggleExportAll(cb) {
+        // 可以扩展
+    }
+
+    function exportReports() {
+        var range = document.getElementById('reportRange').value;
+        var now = new Date();
+        var startDate = new Date();
+        if (range === 'today') startDate = now;
+        else if (range === 'week') startDate.setDate(now.getDate() - 7);
+        else startDate.setDate(now.getDate() - 30);
+
+        var buList = ['常州锂源','龙蟠时代','法恩莱特','三金锂电','山东美多','铂源催化','可兰素','润滑油','迪克化学'];
+        var rows = [['事业部','日期','类型','标题','摘要','来源']];
+
+        for (var i = 0; i < buList.length; i++) {
+            rows.push([buList[i], now.toLocaleDateString('zh-CN'), '早报', buList[i] + ' 早报 ' + now.toLocaleDateString('zh-CN'), '(详细内容请访问平台)', '战略中心信息中台']);
+        }
+
+        downloadCSV('早报汇总_' + formatDate(now) + '.csv', rows);
+        showToast('早报数据已导出 (' + formatDate(now) + ')');
+    }
+
+    function exportPolicies() {
+        var ptype = document.getElementById('policyType').value;
+        var range = document.getElementById('policyRange').value;
+        var now = new Date();
+        var rows = [['政策标题','来源','类型','日期','摘要']];
+
+        var policies = [
+            ['关于加快新型储能发展的若干措施','工信部','中央政策','2026-03-28','推动新型储能技术规模化应用...'],
+            ['关于加快储能技术研发攻关的若干措施','发改委','中央政策','2026-03-28','组织开展长时储能技术攻关...'],
+            ['关于对新能源城市公交车辆给予运营补助的通知','交通运输部','中央政策','2026-04-02','对应用LFP电池的城市公交车辆...'],
+            ['龙蟠时代：年产3万吨电池级碳酸锂项目竣工投产','龙蟠科技','地方政策','2026-04-01','龙蟠时代四川遂宁基地正式投产...'],
+            ['四川省新能源汽车动力电池回收利用试点方案','四川省经信厅','地方政策','2026-03-29','明确回收主体资质与梯次利用标准...'],
+        ];
+
+        for (var i = 0; i < policies.length; i++) {
+            if (ptype !== 'all' && policies[i][2] !== ptype) continue;
+            rows.push(policies[i]);
+        }
+
+        downloadCSV('政策汇总_' + formatDate(now) + '.csv', rows);
+        showToast('政策数据已导出 (' + formatDate(now) + ')');
+    }
+
+    function downloadCSV(filename, rows) {
+        var csv = rows.map(function(row) {
+            return row.map(function(cell) {
+                var str = String(cell);
+                if (str.indexOf(',') !== -1 || str.indexOf('"') !== -1 || str.indexOf('\n') !== -1) {
+                    return '"' + str.replace(/"/g,'""') + '"';
+                }
+                return str;
+            }).join(',');
+        }).join('\n');
+
+        // 添加 BOM 兼容中文 Excel
+        var blob = new Blob(['\ufeff' + csv], {type:'text/csv;charset=utf-8'});
+        var a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = filename;
+        a.click();
+        URL.revokeObjectURL(a.href);
+    }
+
+    function formatDate(d) {
+        return d.getFullYear() + '-' + pad(d.getMonth()+1) + '-' + pad(d.getDate());
+    }
+    function pad(n) { return n < 10 ? '0'+n : n; }
+
+    // ========== Tab 切换 ==========
+    function switchToolTab(tab, btn) {
+        document.querySelectorAll('.tool-panel').forEach(function(p){ p.classList.remove('active'); });
+        document.querySelectorAll('.tool-tab').forEach(function(b){ b.classList.remove('active'); });
+        document.getElementById('panel-' + tab).classList.add('active');
+        btn.classList.add('active');
+        if (tab === 'collect') renderCollects();
+    }
+
+    // ========== Toast ==========
+    function showToast(msg) {
+        var t = document.getElementById('toast');
+        t.textContent = msg;
+        t.classList.add('show');
+        setTimeout(function(){ t.classList.remove('show'); }, 2500);
+    }
+
+    // ========== 初始化 ==========
+    updateCollectBadge();
+    renderCollects();
+</script>
 <script src="assets/ai_fab_inject.js"></script>
 </body>
 </html>

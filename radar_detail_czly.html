@@ -963,69 +963,6 @@
 
     </style>
 
-<!-- BU 自检: CZLY -->
-<script>
-//<![CDATA[
-document.addEventListener('DOMContentLoaded', function() {
-    var _errors = [];
-    try { eval('BU_WEIGHTS_CZLY'); } catch(e) { _errors.push('BU_WEIGHTS_CZLY 未定义 ← 模板复制不完整'); }
-    try { eval('RADAR_HISTORY_CZLY'); } catch(e) { _errors.push('RADAR_HISTORY_CZLY 未定义'); }
-    try { eval('DIMS_DEF_CZLY'); } catch(e) { _errors.push('DIMS_DEF_CZLY 未定义 ← 模板复制不完整'); }
-    if (_errors.length > 0) {
-        document.open();
-        document.write('<div style="padding:40px;font-family:Microsoft YaHei,sans-serif;background:#fee;border:3px solid #c00;border-radius:8px">'
- + '<h2 style="color:#c00">BU 数据校验失败</h2>'
-            + '<p>文件: <b>' + location.pathname + '</b></p>'
-            + '<p>预期BU: <b>czly</b></p>'
-            + '<p>发现问题：</p><ul style="color:#c00">'
-            + _errors.map(function(e){ return '<li>' + e + '</li>'; }).join('')
-            + '</ul><p style="color:#888">请从 _archive/ 恢复原始版本</p></div>');
-        document.close();
-        console.error('[BU ASSERTION FAILED]', _errors.join('; '));
-        throw new Error('BU ASSERTION: ' + _errors.join('; '));
-    }
-    console.log('[BU OK] czly assertion passed, data clean');
-});
-// ]]>
-</script>
-<!-- BU 自检: CZLY -->
-<script>
-//<![CDATA[
-document.addEventListener('DOMContentLoaded', function() {
-    var _errors = [];
-    try { eval('BU_WEIGHTS_CZLY'); } catch(e) { _errors.push('BU_WEIGHTS_CZLY 未定义 ← 模板复制不完整'); }
-    try { eval('RADAR_HISTORY_CZLY'); } catch(e) { _errors.push('RADAR_HISTORY_CZLY 未定义'); }
-    try { eval('DIMS_DEF_CZLY'); } catch(e) { _errors.push('DIMS_DEF_CZLY 未定义 ← 模板复制不完整'); }
-    try {
-        var _hist = eval('RADAR_HISTORY_CZLY');
-        var _months = Object.keys(_hist);
-        if (_months.length > 0) {
-            var _latest = _hist[_months[_months.length - 1]];
-            if (_latest && _latest.dims &&
-                _latest.dims.d1 === 90 &&
-                _latest.dims.d2 === 90 &&
-                _latest.dims.d3 === 82) {
-                _errors.push('RADAR_HISTORY_CZLY 被SDMD数据污染(d1=90/d2=90/d3=82)，请从 _archive/ 恢复');
-            }
-        }
-    } catch(e) {}
-    if (_errors.length > 0) {
-        document.open();
-        document.write('<div style="padding:40px;font-family:Microsoft YaHei,sans-serif;background:#fee;border:3px solid #c00;border-radius:8px">'
- + '<h2 style="color:#c00">BU 数据校验失败</h2>'
-            + '<p>文件: <b>' + location.pathname + '</b></p>'
-            + '<p>预期BU: <b>czly</b></p>'
-            + '<p>发现问题：</p><ul style="color:#c00">'
-            + _errors.map(function(e){ return '<li>' + e + '</li>'; }).join('')
-            + '</ul><p style="color:#888">请从 _archive/ 恢复原始版本</p></div>');
-        document.close();
-        console.error('[BU ASSERTION FAILED]', _errors.join('; '));
-        throw new Error('BU ASSERTION: ' + _errors.join('; '));
-    }
-    console.log('[BU OK] czly assertion passed, data clean');
-});
-// ]]>
-</script>
 </head>
 <body>
 <div class="page-header">
@@ -1232,7 +1169,7 @@ document.addEventListener('DOMContentLoaded', function() {
     数据来源：常州锂源2026年5月经营分析报告（锂源5月.pdf） <a href="radar_hub.html">返回雷达看板</a>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+<script src="./echarts.min.js"></script>
 <script>
 //------------------------------------------------------
 // 常州锂源 (CZLY) 雷达看板数据
@@ -2584,6 +2521,9 @@ function generateLocalInsights(data) {
         } else if (item.name.indexOf('成本') >= 0) {
             return '成本超标，可能原因：1）原材料价格上涨；2）生产效率低下；3）浪费严重；4）供应链成本上升';
         } else if (item.name.indexOf('利润') >= 0 || item.name.indexOf('毛利') >= 0) {
+            if (item.actual < 0) {
+                return '实际亏损' + fmtNum(Math.abs(item.actual)) + item.unit + '，需分析亏损根因（定价/成本/销量/产能利用率）';
+            }
             return '利润未达标，可能原因：1）营收未达标；2）成本超标；3）费用控制不力；4）产品结构不合理';
         } else if (item.name.indexOf('客户') >= 0) {
             return '客户指标未达标，可能原因：1）产品质量问题；2）服务不到位；3）客户流失；4）新客户获取不足';
@@ -3362,6 +3302,43 @@ function renderBaseTab() {
     initTimeline();
     renderAll();
 })();
+
+// BU 数据校验（文件末尾，同步执行，直接访问变量，避免 eval() 跨 script 块问题）
+(function buAssertion() {
+    var _errors = [];
+    if (typeof BU_WEIGHTS_CZLY === 'undefined') _errors.push('BU_WEIGHTS_CZLY 未定义 ← 模板复制不完整');
+    if (typeof RADAR_HISTORY_CZLY === 'undefined') _errors.push('RADAR_HISTORY_CZLY 未定义');
+    if (typeof DIMS_DEF_CZLY === 'undefined') _errors.push('DIMS_DEF_CZLY 未定义 ← 模板复制不完整');
+
+    // SDMD 污染指纹检测（d1=90, d2=90, d3=82）
+    if (typeof RADAR_HISTORY_CZLY !== 'undefined') {
+        var _hist = RADAR_HISTORY_CZLY;
+        var _months = Object.keys(_hist);
+        if (_months.length > 0) {
+            var _latest = _hist[_months[_months.length - 1]];
+            if (_latest && _latest.dims &&
+                _latest.dims.d1 === 90 && _latest.dims.d2 === 90 && _latest.dims.d3 === 82) {
+                _errors.push('RADAR_HISTORY_CZLY 被SDMD数据污染(d1=90/d2=90/d3=82)，请从 _archive/ 恢复');
+            }
+        }
+    }
+
+    if (_errors.length > 0) {
+        document.open();
+        document.write('<div style="padding:40px;font-family:Microsoft YaHei,sans-serif;background:#fee;border:3px solid #c00;border-radius:8px;max-width:600px;margin:40px auto">' +
+            '<h2 style="color:#c00;margin-top:0">BU 数据校验失败</h2>' +
+            '<p>文件: <b>' + location.pathname + '</b></p>' +
+            '<p>预期BU: <b>czly</b></p>' +
+            '<p>发现问题：</p><ul style="color:#c00">' +
+            _errors.map(function(e){ return '<li>' + e + '</li>'; }).join('') +
+            '</ul><p style="color:#888">请从 _archive/ 恢复原始版本</p></div>');
+        document.close();
+        console.error('[BU ASSERTION FAILED]', _errors.join('; '));
+        throw new Error('BU ASSERTION: ' + _errors.join('; '));
+    }
+    console.log('[BU OK] czly assertion passed, data clean');
+})();
 </script>
+    <script src="assets/ai_fab_inject.js"></script>
 </body>
 </html>

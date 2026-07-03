@@ -23,7 +23,31 @@
         <a href="radar_detail_kls.html">可兰素</a>
         <a href="radar_detail_czly.html">常州锂源</a>
     </div>
-    <script src="inline_00.js"></script>
+    <script>
+        (function() {
+            var params = new URLSearchParams(window.location.search);
+            var id = params.get('id') || '';
+            var dest = {
+                'sdmd': 'radar_detail_sdmd.html',
+                'felt':  'radar_detail_felt.html',
+                'lhy':   'radar_detail_lhy.html',
+                'lpsd':  'radar_detail_lpsd.html',
+                'sjld':  'radar_detail_sjld.html',
+                'kls':   'radar_detail_kls.html',
+                'czly':  'radar_detail_czly.html',
+                'dkhx':  'radar_detail_dkhx.html',
+            };
+            if (dest[id]) {
+                var target = dest[id];
+                document.getElementById('msg').textContent = '正在跳转到: ' + id.toUpperCase() + '...';
+                setTimeout(function() {
+                    window.location.replace(target);
+                }, 100);
+            } else {
+                document.getElementById('msg').textContent = '未知BU: "' + id + '"，请选择：';
+            }
+        })();
+    </script>
     <script src="assets/ai_fab_inject.js"></script>
 </body>
 </html>
