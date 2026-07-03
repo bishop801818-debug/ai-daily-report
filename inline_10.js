@@ -1,81 +1,183 @@
 
-      window.HTML_VERSION = "20260703_001"; // 版本号（2026-07-03早报更新）
-      
-      /* ---------- Service Worker 注册（离线缓存）---------- */
-      if ('serviceWorker' in navigator) {
-        window.addEventListener('load', function() {
-          navigator.serviceWorker.register('./sw.js?v=' + window.HTML_VERSION)
-            .then(function(registration) {
-              console.log('[SW] 注册成功:', registration.scope);
-            })
-            .catch(function(error) {
-              console.log('[SW] 注册失败:', error);
-            });
-        });
-      }
+(function() {
+  function dl(x, y, text, color, size, align) {
+    var ctx = this;
+    ctx.save();
+    ctx.font = 'bold ' + (size || 9) + 'px system-ui,sans-serif';
+    ctx.fillStyle = color;
+    if (align === 'right') {
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(text, x + 3, y);
+    } else {
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'bottom';
+      ctx.fillText(text, x, y - 2);
+    }
+    ctx.restore();
+  }
 
+  function fmtK(v) { return (v / 1000).toFixed(0) + 'k'; }
+  function fmt1(v) { return v.toFixed(1); }
+  function fmt0(v) { return v.toFixed(0); }
 
-      /* ---------- 彻底防止图表旧内容闪屏（bfcache + 渲染残留）----------
-       * 问题：浏览器前进后退缓存(bfcache)会保存完整页面状态，
-       *       刷新时先显示旧页面（含旧图表），约1秒后才加载新数据。
-       * 方案：
-       *   1. 页面解析时立即清空已存在的SVG图表内容
-       *   2. DOMContentLoaded后再次清空所有SVG（确保body中的也被处理）
-       *   3. 重置loading状态，确保显示"数据加载中..."
-       *   4. 监听pageshow事件，bfcache恢复时强制重新加载 */
-      (function() {
-        function clearAllCharts() {
-          document.querySelectorAll('svg[id*="Chart"] g').forEach(function(g) {
-            g.innerHTML = '';
-          });
-          document.querySelectorAll('svg[id*="Chart"]').forEach(function(svg) {
-            svg.style.visibility = 'hidden';
-          });
-          document.querySelectorAll('.chart-loading').forEach(function(el) {
-            el.style.display = 'flex';
-          });
-          document.querySelectorAll('.chart-no-data').forEach(function(el) {
-            el.style.display = 'none';
-          });
-        }
+  // ── helper: draw labels on bar chart ──────────────────────────────────────
+  function drawBars(chart, di, colorFn, fmtFn) {
+    var ctx = chart.ctx;
+    var yS = chart.scales.y;
+    var xS = chart.scales.x;
+    var meta = chart.getDatasetMeta(di);
+    meta.data.forEach(function(bar, i) {
+      var v = chart.data.datasets[di].data[i];
+      if (v === null || v === undefined) return;
+      var x = xS.getPixelForValue(i);
+      var y = yS.getPixelForValue(v);
+      dl.call(ctx, x, y, fmtFn(v), colorFn(v, i), 9, 'center');
+    });
+  }
 
-        // 1. 立即清空已解析的SVG（head中执行时可能只有部分）
-        clearAllCharts();
+  // ── helper: draw labels on line chart ────────────────────────────────────
+  function drawLine(chart, di, colorFn, fmtFn) {
+    var ctx = chart.ctx;
+    var yS = chart.scales.y;
+    var xS = chart.scales.x;
+    var meta = chart.getDatasetMeta(di);
+    meta.data.forEach(function(pt, i) {
+      var v = chart.data.datasets[di].data[i];
+      if (v === null || v === undefined) return;
+      var x = xS.getPixelForValue(i);
+      var y = yS.getPixelForValue(v);
+      dl.call(ctx, x, y, fmtFn(v), colorFn(v, i), 9, 'center');
+    });
+  }
 
-        // 2. DOMContentLoaded后再次清空所有SVG（确保完整）
-        if (document.readyState === 'loading') {
-          document.addEventListener('DOMContentLoaded', clearAllCharts);
-        } else {
-          clearAllCharts();
-        }
+  // ── helper: draw labels on horizontal bar chart ──────────────────────────
+  function drawHBar(chart, di, colorFn, fmtFn) {
+    var ctx = chart.ctx;
+    var xS = chart.scales.x;
+    var yS = chart.scales.y;
+    var meta = chart.getDatasetMeta(di);
+    meta.data.forEach(function(bar, i) {
+      var v = chart.data.datasets[di].data[i];
+      if (v === null || v === undefined) return;
+      var x = xS.getPixelForValue(v);
+      var y = yS.getPixelForValue(i);
+      dl.call(ctx, x, y, fmtFn(v), colorFn(v, i), 9, 'right');
+    });
+  }
 
-        // 3. 监听pageshow：若从bfcache恢复，强制重新加载页面
-        window.addEventListener('pageshow', function(e) {
-          if (e.persisted) {
-            console.log('[bfcache] 从缓存恢复，强制重新加载...');
-            location.reload();
-          }
-        });
-        // 4. 监听pagehide：页面进入bfcache前，清除SVG的inline visibility，
-        //    防止bfcache保存"SVG可见"状态（否则下次恢复时会先闪旧图）
-        window.addEventListener('pagehide', function(e) {
-          if (e.persisted) {
-            document.querySelectorAll('svg[id*="Chart"]').forEach(function(svg) {
-              svg.style.visibility = 'hidden';
-            });
-          }
-        });
-      })();
+  // ── Chart 1: 碳酸锂产量 bar+line ─────────────────────────────────────────
+  Chart.register({
+    id: 'dl_lc_prod',
+    afterDraw: function(chart) {
+      if (chart.canvas.id !== 'chart_lc_prod') return;
+      drawBars(chart, 0, function() { return '#0a6e3f'; }, fmtK);
+    }
+  });
 
-        /* ---------- Ticker 同步辅助函数 ---------- */
-        function updateTicker(priceId, priceText, changePct) {
-            var priceEl = document.getElementById(priceId);
-            var changeEl = document.getElementById(priceId + '-change');
-            if (priceEl) priceEl.textContent = priceText;
-            if (changeEl) {
-                var pctVal = typeof changePct === 'number' ? changePct : 0;
-                changeEl.textContent = (pctVal >= 0 ? '+' : '') + pctVal.toFixed(2) + '%';
-                changeEl.className = 'ticker-change ' + (pctVal >= 0 ? 'up' : 'down');
-            }
-        }
-    
+  // ── Chart 2: TOP15 horizontal bar ────────────────────────────────────────
+  Chart.register({
+    id: 'dl_top15',
+    afterDraw: function(chart) {
+      if (chart.canvas.id !== 'chart_top15') return;
+      drawHBar(chart, 0, function(v, i) { return i === 11 ? '#D5A858' : '#0a6e3f'; },
+        function(v) { return v >= 1000 ? (v / 1000).toFixed(1) + 'k' : v; });
+    }
+  });
+
+  // ── Chart 3: 碳酸锂YoY dual bar ──────────────────────────────────────────
+  Chart.register({
+    id: 'dl_lc_yoy',
+    afterDraw: function(chart) {
+      if (chart.canvas.id !== 'chart_lc_yoy') return;
+      var ctx = chart.ctx;
+      var yS = chart.scales.y;
+      var xS = chart.scales.x;
+      // 2025 bars (dataset 0) — dimmed
+      var meta0 = chart.getDatasetMeta(0);
+      meta0.data.forEach(function(bar, i) {
+        var v = chart.data.datasets[0].data[i];
+        if (v === null) return;
+        var x = xS.getPixelForValue(i);
+        var y = yS.getPixelForValue(v);
+        dl.call(ctx, x, y, fmtK(v), 'rgba(10,110,63,0.4)', 8, 'center');
+      });
+      // 2026 bars (dataset 1) — solid
+      var meta1 = chart.getDatasetMeta(1);
+      meta1.data.forEach(function(bar, i) {
+        var v = chart.data.datasets[1].data[i];
+        if (v === null) return;
+        var x = xS.getPixelForValue(i);
+        var y = yS.getPixelForValue(v);
+        dl.call(ctx, x, y, fmtK(v), '#0a6e3f', 9, 'center');
+      });
+    }
+  });
+
+  // ── Chart 4: 产能利用率 dual line ────────────────────────────────────────
+  Chart.register({
+    id: 'dl_capacity',
+    afterDraw: function(chart) {
+      if (chart.canvas.id !== 'chart_capacity') return;
+      [0, 1].forEach(function(di) {
+        var color = di === 0 ? '#0a6e3f' : '#35C8D4';
+        drawLine(chart, di, function() { return color; }, function(v) { return fmt0(v) + '%'; });
+      });
+    }
+  });
+
+  // ── Chart 5: 矿石价格单线 ─────────────────────────────────────────────────
+  Chart.register({
+    id: 'dl_lc_price_main',
+    afterDraw: function(chart) {
+      if (chart.canvas.id !== 'chart_lc_price_main') return;
+      drawLine(chart, 0, function() { return '#0a6e3f'; }, fmt1);
+    }
+  });
+
+  // ── Chart 6: 多规格价格多线（仅标注第1条） ────────────────────────────────
+  Chart.register({
+    id: 'dl_lc_price_all',
+    afterDraw: function(chart) {
+      if (chart.canvas.id !== 'chart_lc_price_all') return;
+      drawLine(chart, 0, function() { return '#0a6e3f'; }, fmt1);
+    }
+  });
+
+  // ── Chart 7: 碳酸锂进口 bar+line ─────────────────────────────────────────
+  Chart.register({
+    id: 'dl_lc_import',
+    afterDraw: function(chart) {
+      if (chart.canvas.id !== 'chart_lc_import') return;
+      drawBars(chart, 0, function(v, i) { return i >= 7 ? '#0a6e3f' : 'rgba(10,110,63,0.35)'; }, fmtK);
+    }
+  });
+
+  // ── Chart 8: 锂辉石进口 bar+line ──────────────────────────────────────────
+  Chart.register({
+    id: 'dl_lx_import',
+    afterDraw: function(chart) {
+      if (chart.canvas.id !== 'chart_lx_import') return;
+      drawBars(chart, 0, function() { return '#5B8DEF'; }, fmtK);
+    }
+  });
+
+  // ── Chart 9: 氢氧化锂产量 bar+line ───────────────────────────────────────
+  Chart.register({
+    id: 'dl_hl_prod',
+    afterDraw: function(chart) {
+      if (chart.canvas.id !== 'chart_hl_prod') return;
+      drawBars(chart, 0, function() { return '#35C8D4'; }, fmtK);
+    }
+  });
+
+  // ── Chart 10: 氢氧化锂价格双线（仅标注第1条） ──────────────────────────────
+  Chart.register({
+    id: 'dl_hl_price',
+    afterDraw: function(chart) {
+      if (chart.canvas.id !== 'chart_hl_price') return;
+      drawLine(chart, 0, function() { return '#0a6e3f'; }, fmt1);
+    }
+  });
+
+})();
