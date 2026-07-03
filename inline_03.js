@@ -1,27 +1,44 @@
 
-        // 初始化锂电板块产业链洞察Dashboard
-        document.addEventListener("DOMContentLoaded", function() {
-            console.log("[页面加载] 开始初始化锂电Dashboard...");
-            if (typeof initLithiumDashboard === "function") {
-                initLithiumDashboard();
-            } else {
-                console.warn("[页面加载] initLithiumDashboard函数未找到");
-            }
-            
-            // 初始化锂辉石和锂云母图表
-            setTimeout(function() {
-                if (typeof initLithiumOreChart === 'function') {
-                    console.log("[页面加载] 初始化锂辉石图表...");
-                    initLithiumOreChart();
-                } else {
-                    console.warn("[页面加载] initLithiumOreChart函数未找到");
-                }
-                if (typeof initLepidoliteChart === 'function') {
-                    console.log("[页面加载] 初始化锂云母图表...");
-                    initLepidoliteChart();
-                } else {
-                    console.warn("[页面加载] initLepidoliteChart函数未找到");
-                }
-            }, 100);
-        });
+// 返回顶部按钮逻辑
+(function() {
+    var btn = document.getElementById('backToTop');
+    if (!btn) return;
     
+    // 监听滚动事件
+    window.addEventListener('scroll', function() {
+        if (window.pageYOffset > 300) {
+            btn.style.display = 'flex';
+            setTimeout(function() {
+                btn.style.opacity = '1';
+                btn.style.pointerEvents = 'auto';
+            }, 10);
+        } else {
+            btn.style.opacity = '0';
+            btn.style.pointerEvents = 'none';
+            setTimeout(function() {
+                if (btn.style.opacity === '0') {
+                    btn.style.display = 'none';
+                }
+            }, 300);
+        }
+    });
+    
+    // 点击返回顶部
+    btn.addEventListener('click', function() {
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
+    });
+    
+    // 悬停效果
+    btn.addEventListener('mouseenter', function() {
+        btn.style.transform = 'scale(1.1)';
+        btn.style.boxShadow = '0 6px 20px rgba(0,125,78,0.6)';
+    });
+    
+    btn.addEventListener('mouseleave', function() {
+        btn.style.transform = 'scale(1)';
+        btn.style.boxShadow = '0 4px 12px rgba(0,125,78,0.4)';
+    });
+})();

@@ -1,372 +1,193 @@
 
-/* ========= 天气动画（全屏背景式 v3）========== */
-(function() {
-    var cvs = document.getElementById('weather-canvas');
-    if (!cvs) { console.log('[天气] 未找到canvas'); return; }
-    var ctx = cvs.getContext('2d');
-    var header = document.getElementById('tickerWrap');
-    var W = 0, H = 0;
-    var weatherType = 'cloudy';
-    var particles = [];
-    var animId = null;
-    var frameCount = 0;
-    var lightningTimer = 0;
-    var lightningFlash = 0;
-    var snowGround = {};
-    var particlesInited = false;
+// 锂辉石精矿价格走势图
+        // ============================================================
+        var _lithiumOreChartData = null;
+        var _lithiumOreChartW = 800, _lithiumOreChartH = 260;
+        var _lithiumOrePad = { top: 15, right: 15, bottom: 35, left: 75 };
 
-    function resizeCanvas() {
-        if (!header) return;
-        var rect = header.getBoundingClientRect();
-        W = Math.round(rect.width);
-        H = Math.round(rect.height);
-        if (cvs.width !== W) cvs.width = W;
-        if (cvs.height !== H) cvs.height = H;
-        snowGround = {};
-    }
+        async function initLithiumOreChart() {
+            var loading = document.getElementById('lithiumOreChartLoading');
+            var noData = document.getElementById('lithiumOreChartNoData');
+            var svg = document.getElementById('lithiumOreChart');
+            if (!svg) return;
 
-    function getWeatherType(code) {
-        if (code === 0 || code === 1) return 'sunny';
-        if (code === 2 || code === 3) return 'cloudy';
-        if (code === 45 || code === 48) return 'fog';
-        if ([51,53,55,61,63,65,80,81,82].includes(code)) return 'rain';
-        if ([95,96,99].includes(code)) return 'thunderstorm';
-        if ([71,73,75,77,85,86].includes(code)) return 'snow';
-        return 'cloudy';
-    }
+            try {
+                var resp = await fetch('data/lithium_ore_price_history.json?t=' + Date.now());
+                if (!resp.ok) throw new Error('HTTP error');
+                var data = await resp.json();
 
-    /* 根据天气类型动态调整行情条字体颜色 */
-    function updateTickerTheme(type) {
-        var wrap = document.getElementById('tickerWrap');
-        if (!wrap) return;
-        // 深色底（雨/雷暴）→ 白字；浅色底（晴/云/雪/雾）→ 深色字
-        var isDark = (type === 'rain' || type === 'thunderstorm');
-        if (isDark) {
-            wrap.style.setProperty('--ticker-fg', '#ffffff');
-            wrap.style.setProperty('--ticker-shadow', '0 1px 4px rgba(0,0,0,0.5)');
-            wrap.style.setProperty('--ticker-up', '#ff6b6b');
-            wrap.style.setProperty('--ticker-down', '#51cf66');
-        } else {
-            wrap.style.setProperty('--ticker-fg', '#1a1a2e');
-            wrap.style.setProperty('--ticker-shadow', '0 1px 3px rgba(255,255,255,0.4)');
-            wrap.style.setProperty('--ticker-up', '#e74c3c');
-            wrap.style.setProperty('--ticker-down', '#27ae60');
-        }
-        console.log('[天气] 行情条主题切换 → ' + type + (isDark ? ' (白字)' : ' (深色字)'));
-    }
+                // 过滤：只保留2026-01-01及之后的数据，并按日期升序排序
+                if (data.history) {
+                    data.history = data.history.filter(function(d) { return d.date >= '2026-01-01'; });
+                    // 只保留5%澳洲的数据用于图表显示
+                    data.history = data.history.filter(function(d) { return d.grade === '5%' && d.origin === '澳洲'; });
+                    data.history.sort(function(a, b) { return a.date.localeCompare(b.date); });
+                }
 
-    function fetchWeather() {
-        console.log('[天气] fetchWeather() 触发，当前天气类型=' + weatherType);
-        if (!navigator.geolocation) {
-            console.log('[天气] 浏览器不支持geolocation，使用默认天气');
-            if (!particlesInited) { initParticles(); particlesInited = true; }
-            updateTickerTheme(weatherType);
-            return;
-        }
-        navigator.geolocation.getCurrentPosition(function(pos) {
-            console.log('[天气] 获取位置成功 lat=' + pos.coords.latitude + ' lon=' + pos.coords.longitude);
-            fetch('https://api.open-meteo.com/v1/forecast?latitude=' + pos.coords.latitude + '&longitude=' + pos.coords.longitude + '&current=weather_code')
-                .then(function(r) { return r.json(); })
-                .then(function(data) {
-                    var oldType = weatherType;
-                    weatherType = getWeatherType(data.current.weather_code);
-                    console.log('[天气] API返回 weather_code=' + data.current.weather_code + ' → 天气类型=' + weatherType + ' (原类型=' + oldType + ')');
-                    if (oldType !== weatherType) {
-                        console.log('[天气] 天气类型变化，重新初始化粒子 old=' + oldType + ' new=' + weatherType);
-                    } else if (!particlesInited) {
-                        console.log('[天气] 首次初始化粒子，天气类型=' + weatherType);
+                if (!data.history || data.history.length === 0) {
+                    if (loading) loading.style.display = 'none';
+                    if (noData) noData.style.display = 'flex';
+                    return;
+                }
+
+                _lithiumOreChartData = data;
+
+                // 更新标题栏信息（显示5%澳洲的最新价）
+                var latest = data.history[data.history.length - 1];
+                var priceEl = document.getElementById('lithiumOreLatestPrice');
+                var changeEl = document.getElementById('lithiumOreLatestChange');
+                var updatedEl = document.getElementById('lithiumOreChartUpdated');
+
+                if (priceEl && latest) {
+                    priceEl.textContent = latest.avg_price.toFixed(0) + ' ' + (latest.unit || '美元/吨');
+                }
+                var pct = 0;
+                if (changeEl && data.history.length >= 2) {
+                    var prev = data.history[data.history.length - 2].avg_price;
+                    var curr = latest.avg_price;
+                    pct = prev > 0 ? ((curr - prev) / prev * 100) : 0;
+                    changeEl.textContent = (pct >= 0 ? '+' : '') + pct.toFixed(2) + '%';
+                    changeEl.className = 'chart-latest-change ' + (pct >= 0 ? 'up' : 'down');
+                }
+                updateTicker('ticker-spod', latest.avg_price.toFixed(0) + ' ' + (latest.unit || '美元/吨'), pct);
+                if (updatedEl) updatedEl.textContent = 'Update: ' + data.update_time;
+
+                drawLithiumOreChart(svg, data.history);
+                if (noData) noData.style.display = 'none';
+
+                function fitSvgToContainer() {
+                    var svg2 = document.getElementById('lithiumOreChart');
+                    var parent = svg2 && svg2.parentElement;
+                    if (parent) {
+                        var pw = parent.clientWidth || 800;
+                        svg2.setAttribute('width', pw);
+                        svg2.setAttribute('height', Math.round(pw * 260 / 800));
                     }
-                    if (oldType !== weatherType || !particlesInited) {
-                        snowGround = {};
-                        initParticles();
-                        particlesInited = true;
-                        updateTickerTheme(weatherType);
-                    } else {
-                        console.log('[天气] 天气类型未变化，保持当前动画');
-                    }
-                })
-                .catch(function(e) {
-                    console.log('[天气] API请求失败', e);
-                    if (!particlesInited) { initParticles(); particlesInited = true; }
-                    updateTickerTheme(weatherType);
-                });
-        }, function(err) {
-            console.log('[天气] 获取位置失败 code=' + err.code + ' msg=' + err.message);
-            if (!particlesInited) { initParticles(); particlesInited = true; }
-            updateTickerTheme(weatherType);
-        }, {timeout: 8000});
-    }
+                }
+                fitSvgToContainer();
+                window.addEventListener('resize', function() { fitSvgToContainer(); });
 
-    function initParticles() {
-        console.log('[天气] initParticles() 开始，天气类型=' + weatherType + ' W=' + W + ' H=' + H);
-        particles = [];
-        frameCount = 0;
-        lightningTimer = 0;
-        lightningFlash = 0;
-        if (weatherType === 'rain' || weatherType === 'thunderstorm') {
-            var density = Math.max(30, Math.floor(W * H / 8000));
-            for (var i = 0; i < density; i++) {
-                particles.push({
-                    x: Math.random() * W,
-                    y: Math.random() * H,
-                    vy: 10 + Math.random() * 15,
-                    vx: -1 - Math.random() * 1.5,
-                    len: 15 + Math.random() * 20,
-                    opacity: 0.3 + Math.random() * 0.4,
-                    splash: false
-                });
-            }
-        } else if (weatherType === 'sunny') {
-            for (var i = 0; i < 18; i++) {
-                particles.push({
-                    side: Math.floor(Math.random() * 4),
-                    pos: Math.random(),
-                    targetAngle: Math.random() * Math.PI * 2,
-                    speed: 0.003 + Math.random() * 0.004,
-                    opacity: 0.08 + Math.random() * 0.15,
-                    len: 30 + Math.random() * 60
-                });
-            }
-            for (var i = 0; i < 25; i++) {
-                particles.push({
-                    isGlow: true,
-                    x: Math.random() * W,
-                    y: Math.random() * H,
-                    vx: (Math.random() - 0.5) * 0.3,
-                    vy: (Math.random() - 0.5) * 0.2,
-                    r: 1 + Math.random() * 2,
-                    opacity: 0.2 + Math.random() * 0.5
-                });
-            }
-        } else if (weatherType === 'snow') {
-            var sdensity = Math.max(20, Math.floor(W * H / 6000));
-            for (var i = 0; i < sdensity; i++) {
-                particles.push({
-                    x: Math.random() * W,
-                    y: Math.random() * H,
-                    vy: 0.5 + Math.random() * 1.5,
-                    vxBase: (Math.random() - 0.5) * 0.8,
-                    r: 2 + Math.random() * 3,
-                    phase: Math.random() * Math.PI * 2,
-                    opacity: 0.6 + Math.random() * 0.4
-                });
-            }
-        } else if (weatherType === 'fog') {
-            var fdensity = Math.max(5, Math.floor(W * H / 40000));
-            for (var i = 0; i < fdensity; i++) {
-                particles.push({
-                    x: Math.random() * W,
-                    y: Math.random() * H,
-                    vx: (Math.random() - 0.5) * 0.15,
-                    vy: (Math.random() - 0.5) * 0.1,
-                    r: 50 + Math.random() * 100,
-                    opacity: 0.04 + Math.random() * 0.1
-                });
-            }
-        } else {
-            for (var i = 0; i < 5; i++) {
-                particles.push({
-                    x: (W / 5) * i + Math.random() * 60,
-                    y: 15 + Math.random() * (H - 30),
-                    vx: 0.15 + Math.random() * 0.25,
-                    opacity: 0.5 + Math.random() * 0.3,
-                    scale: 0.7 + Math.random() * 0.6
-                });
+                if (loading) loading.style.display = 'none';
+            } catch (e) {
+                console.warn('[LithiumOre Chart] load failed:', e);
+                if (loading) loading.style.display = 'none';
+                if (noData) noData.style.display = 'flex';
             }
         }
-    }
 
-    function drawCloud(cx, cy, opacity, scale) {
-        ctx.fillStyle = 'rgba(255,255,255,' + opacity + ')';
-        ctx.beginPath();
-        var circles = [
-            {x:0, y:0, r:18*scale},
-            {x:12*scale, y:-5*scale, r:14*scale},
-            {x:-10*scale, y:-3*scale, r:13*scale},
-            {x:6*scale, y:6*scale, r:12*scale},
-            {x:-5*scale, y:7*scale, r:10*scale},
-            {x:18*scale, y:3*scale, r:10*scale},
-            {x:-15*scale, y:4*scale, r:9*scale}
-        ];
-        for (var i = 0; i < circles.length; i++) {
-            ctx.moveTo(cx + circles[i].x + circles[i].r, cy + circles[i].y);
-            ctx.arc(cx + circles[i].x, cy + circles[i].y, circles[i].r, 0, Math.PI * 2);
-        }
-        ctx.fill();
-    }
+        function drawLithiumOreChart(svg, historyData) {
+            var W = _lithiumOreChartW, H = _lithiumOreChartH;
+            var PAD = _lithiumOrePad;
+            var chartW = W - PAD.left - PAD.right;
+            var chartH = H - PAD.top - PAD.bottom;
 
-    function draw() {
-        frameCount++;
-        if (W === 0 || H === 0) { animId = requestAnimationFrame(draw); return; }
+            // 过滤出5%澳洲的数据
+            var filtered = historyData.filter(function(d) {
+                return d.grade === '5%' && d.origin === '澳洲';
+            });
+            if (filtered.length === 0) filtered = historyData;
 
-        if (weatherType === 'sunny') {
-            var sg = ctx.createLinearGradient(0, 0, 0, H);
-            sg.addColorStop(0, '#4a90e2');
-            sg.addColorStop(1, '#ffcc80');
-            ctx.fillStyle = sg;
-            ctx.fillRect(0, 0, W, H);
-            var sunX = W * 0.5, sunY = H * 0.3, sunR = Math.min(W, H) * 0.22;
-            var sunG = ctx.createRadialGradient(sunX, sunY, 2, sunX, sunY, sunR);
-            sunG.addColorStop(0, 'rgba(255,255,200,0.95)');
-            sunG.addColorStop(0.5, 'rgba(255,230,100,0.5)');
-            sunG.addColorStop(1, 'rgba(255,200,50,0)');
-            ctx.fillStyle = sunG;
-            ctx.beginPath();
-            ctx.arc(sunX, sunY, sunR, 0, Math.PI * 2);
-            ctx.fill();
-            for (var i = 0; i < particles.length; i++) {
-                var p = particles[i];
-                if (p.isGlow) {
-                    ctx.fillStyle = 'rgba(255,240,180,' + p.opacity + ')';
-                    ctx.beginPath();
-                    ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-                    ctx.fill();
-                    p.x += p.vx; p.y += p.vy;
-                    if (p.x < -5 || p.x > W+5 || p.y < -5 || p.y > H+5) { p.x = Math.random()*W; p.y = Math.random()*H; }
-                } else {
-                    var startX, startY;
-                    if (p.side === 0) { startX = p.pos * W; startY = 0; }
-                    else if (p.side === 1) { startX = W; startY = p.pos * H; }
-                    else if (p.side === 2) { startX = p.pos * W; startY = H; }
-                    else { startX = 0; startY = p.pos * H; }
-                    var ex = sunX + Math.cos(p.targetAngle) * p.len;
-                    var ey = sunY + Math.sin(p.targetAngle) * p.len;
-                    ctx.strokeStyle = 'rgba(255,220,100,' + p.opacity + ')';
-                    ctx.lineWidth = 1.5;
-                    ctx.beginPath();
-                    ctx.moveTo(startX, startY);
-                    ctx.lineTo(ex, ey);
-                    ctx.stroke();
-                    p.targetAngle += p.speed;
-                }
-            }
-        } else if (weatherType === 'cloudy') {
-            var cg = ctx.createLinearGradient(0, 0, 0, H);
-            cg.addColorStop(0, '#7a8b99');
-            cg.addColorStop(1, '#cfd9e0');
-            ctx.fillStyle = cg;
-            ctx.fillRect(0, 0, W, H);
-            ctx.fillStyle = 'rgba(255,255,255,0.75)';
-            for (var i = 0; i < particles.length; i++) {
-                var p = particles[i];
-                drawCloud(p.x, p.y, p.opacity, p.scale);
-                p.x += p.vx;
-                if (p.x > W + 60) { p.x = -80; p.y = 15 + Math.random() * (H - 30); }
-            }
-        } else if (weatherType === 'rain' || weatherType === 'thunderstorm') {
-            var bgColor = weatherType === 'thunderstorm' ? '#0b0c10' : '#1c2833';
-            var rg = ctx.createLinearGradient(0, 0, 0, H);
-            rg.addColorStop(0, bgColor);
-            rg.addColorStop(1, weatherType === 'thunderstorm' ? '#15171f' : '#2c3e50');
-            ctx.fillStyle = rg;
-            ctx.fillRect(0, 0, W, H);
-            if (weatherType === 'thunderstorm') {
-                lightningTimer++;
-                if (lightningFlash > 0) {
-                    ctx.fillStyle = 'rgba(255,255,255,' + (lightningFlash * 0.15) + ')';
-                    ctx.fillRect(0, 0, W, H);
-                    lightningFlash -= 0.05;
-                    if (lightningFlash <= 0) lightningFlash = 0;
-                }
-                if (lightningTimer > 180 + Math.random() * 420) {
-                    lightningFlash = 1.0;
-                    lightningTimer = 0;
-                }
-                ctx.fillStyle = 'rgba(30,30,40,0.3)';
-                var t = frameCount * 0.3;
-                for (var L = 0; L < 3; L++) {
-                    ctx.beginPath();
-                    for (var x = 0; x <= W; x += 6) {
-                        var y = H * 0.1 + L * H * 0.12 + Math.sin((x + t + L * 80) * 0.02) * 12;
-                        if (x === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
-                    }
-                    ctx.lineTo(W, H * 0.35 + L * 10);
-                    ctx.lineTo(0, H * 0.35 + L * 10);
-                    ctx.closePath();
-                    ctx.fill();
-                }
-            }
-            ctx.fillStyle = 'rgba(0,0,0,0.06)';
-            ctx.fillRect(0, 0, W, H);
-            ctx.strokeStyle = 'rgba(174,194,224,0.55)';
-            ctx.lineWidth = 1.2;
-            for (var i = 0; i < particles.length; i++) {
-                var p = particles[i];
-                if (p.splash) {
-                    ctx.fillStyle = 'rgba(174,194,224,0.4)';
-                    for (var s = 0; s < 3; s++) {
-                        var sx = p.x + (Math.random()-0.5) * 6;
-                        var sy = H - 2 + Math.random() * 3;
-                        ctx.beginPath(); ctx.arc(sx, sy, 1, 0, Math.PI*2); ctx.fill();
-                    }
-                    p.splash = false;
-                }
-                ctx.strokeStyle = 'rgba(174,194,224,' + p.opacity + ')';
-                ctx.beginPath();
-                ctx.moveTo(p.x, p.y);
-                ctx.lineTo(p.x + p.vx, p.y + p.len);
-                ctx.stroke();
-                p.y += p.vy;
-                p.x += p.vx;
-                if (p.y > H) {
-                    p.y = -p.len - 5;
-                    p.x = Math.random() * W;
-                    if (Math.random() < 0.3) p.splash = true;
-                }
-            }
-        } else if (weatherType === 'snow') {
-            var sg2 = ctx.createLinearGradient(0, 0, 0, H);
-            sg2.addColorStop(0, '#bdd4e7');
-            sg2.addColorStop(1, '#e2e8f0');
-            ctx.fillStyle = sg2;
-            ctx.fillRect(0, 0, W, H);
-            ctx.fillStyle = '#ffffff';
-            for (var i = 0; i < particles.length; i++) {
-                var p = particles[i];
-                var sway = Math.sin(frameCount * 0.02 + p.phase) * p.vxBase * 2;
-                ctx.beginPath();
-                ctx.arc(p.x + sway, p.y, p.r, 0, Math.PI * 2);
-                ctx.fill();
-                p.y += p.vy;
-                p.x += sway * 0.3;
-                if (p.y > H - 3) {
-                    var gx = Math.round(p.x / 4) * 4;
-                    if (!snowGround[gx]) snowGround[gx] = 0;
-                    snowGround[gx] = Math.min(snowGround[gx] + 0.5, 8);
-                    p.y = -5; p.x = Math.random() * W;
-                }
-            }
-            ctx.fillStyle = 'rgba(255,255,255,0.7)';
-            var keys = Object.keys(snowGround);
-            for (var j = 0; j < keys.length; j++) {
-                var kx = parseInt(keys[j]);
-                ctx.beginPath();
-                ctx.ellipse(kx, H, 3, snowGround[keys[j]], 0, 0, Math.PI * 2);
-                ctx.fill();
-            }
-        } else if (weatherType === 'fog') {
-            ctx.fillStyle = '#b0b5b9';
-            ctx.fillRect(0, 0, W, H);
-            for (var i = 0; i < particles.length; i++) {
-                var p = particles[i];
-                ctx.fillStyle = 'rgba(220,225,230,' + p.opacity + ')';
-                ctx.beginPath();
-                ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-                ctx.fill();
-                p.x += p.vx; p.y += p.vy;
-                if (p.x < -p.r*2) p.x = W + p.r;
-                if (p.x > W + p.r*2) p.x = -p.r;
-                if (p.y < -p.r*2) p.y = H + p.r;
-                if (p.y > H + p.r*2) p.y = -p.r;
-            }
-        }
-        animId = requestAnimationFrame(draw);
-    }
+            var prices = filtered.map(function(d) { return d.avg_price; });
+            var minPrice = Math.min.apply(null, prices);
+            var maxPrice = Math.max.apply(null, prices);
+            var priceRange = maxPrice - minPrice || 1;
+            var padding = priceRange * 0.1;
+            minPrice -= padding; maxPrice += padding;
 
-    window.addEventListener('resize', resizeCanvas);
-    resizeCanvas();
-    fetchWeather();
-    setInterval(fetchWeather, 30 * 60 * 1000);
-    draw();
-})();
+            function xScale(i) { return PAD.left + (i / (filtered.length - 1)) * chartW; }
+            function yScale(p) { return PAD.top + (1 - (p - minPrice) / (maxPrice - minPrice)) * chartH; }
 
+            var gridG = svg.querySelector('#lithiumOreChartGrid');
+            var areaG = svg.querySelector('#lithiumOreChartArea');
+            var lineG = svg.querySelector('#lithiumOreChartLine');
+            var axisXG = svg.querySelector('#lithiumOreChartAxisX');
+            var axisYG = svg.querySelector('#lithiumOreChartAxisY');
+
+            if (gridG) gridG.innerHTML = '';
+            if (areaG) areaG.innerHTML = '';
+            if (lineG) lineG.innerHTML = '';
+            if (axisXG) axisXG.innerHTML = '';
+            if (axisYG) axisYG.innerHTML = '';
+
+            function mk(tag, attrs) {
+                var el = document.createElementNS('http://www.w3.org/2000/svg', tag);
+                for (var k in attrs) el.setAttribute(k, attrs[k]);
+                return el;
+            }
+
+            // 网格线
+            for (var i = 0; i <= 5; i++) {
+                var y = PAD.top + (i / 5) * chartH;
+                gridG.appendChild(mk('line', { x1: PAD.left, y1: y, x2: PAD.left + chartW, y2: y, stroke: '#eee', 'stroke-width': 1 }));
+            }
+
+            // Y轴标签
+            for (var i = 0; i <= 5; i++) {
+                var y = PAD.top + (i / 5) * chartH;
+                var val = maxPrice - (i / 5) * (maxPrice - minPrice);
+                axisYG.appendChild(mk('text', { x: PAD.left - 8, y: y + 4, 'text-anchor': 'end', 'font-size': 11, fill: '#999' }));
+                axisYG.lastChild.textContent = val.toFixed(0);
+            }
+
+            // X轴标签（显示部分日期）
+            var step = Math.max(1, Math.floor(filtered.length / 6));
+            for (var i = 0; i < filtered.length; i += step) {
+                var x = xScale(i);
+                var date = filtered[i].date;
+                if (date && date.length >= 10) date = date.substring(5, 10); // MM-DD
+                axisXG.appendChild(mk('text', { x: x, y: PAD.top + chartH + 20, 'text-anchor': 'middle', 'font-size': 10, fill: '#999' }));
+                axisXG.lastChild.textContent = date;
+                axisXG.appendChild(mk('line', { x1: x, y1: PAD.top + chartH, x2: x, y2: PAD.top + chartH + 5, stroke: '#ccc', 'stroke-width': 1 }));
+            }
+
+            // 面积图
+            var areaPath = 'M ' + xScale(0) + ' ' + yScale(minPrice);
+            for (var i = 0; i < filtered.length; i++) {
+                areaPath += ' L ' + xScale(i) + ' ' + yScale(filtered[i].avg_price);
+            }
+            areaPath += ' L ' + xScale(filtered.length - 1) + ' ' + yScale(minPrice) + ' Z';
+            areaG.appendChild(mk('path', { d: areaPath, fill: 'url(#lithiumOreChartGrad)', stroke: 'none' }));
+
+            // 折线图
+            var linePath = '';
+            for (var i = 0; i < filtered.length; i++) {
+                if (i === 0) linePath = 'M ' + xScale(i) + ' ' + yScale(filtered[i].avg_price);
+                else linePath += ' L ' + xScale(i) + ' ' + yScale(filtered[i].avg_price);
+            }
+            // 浅色线（底层，静态显示）
+            lineG.appendChild(mk('path', { d: linePath, fill: 'none', stroke: '#ef5350', 'stroke-width': 2, 'stroke-opacity': 0.25 }));
+            // 深色线（上层，初始不可见，等待动画揭幕）
+            lineG.appendChild(mk('path', { d: linePath, fill: 'none', stroke: '#ef5350', 'stroke-width': 2, 'class': 'data-line deep-line-anim', 'stroke-dasharray': '10000', 'stroke-dashoffset': '10000' }));
+
+            // 最新点标记
+            var lastIdx = filtered.length - 1;
+            lineG.appendChild(mk('circle', { cx: xScale(lastIdx), cy: yScale(filtered[lastIdx].avg_price), r: 4, fill: '#e91e63', stroke: '#fff', 'stroke-width': 2 }));
+            // ── Black crosshair lines ──────────────────────────────────
+            var chG = svg.querySelector('#lithiumOreChartCrosshair');
+            if (!chG) {
+                chG = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+                chG.id = 'lithiumOreChartCrosshair';
+                svg.appendChild(chG);
+            }
+            chG.innerHTML = '';
+            var chVert = mk('line', { x1: 0, y1: PAD.top, x2: 0, y2: PAD.top + chartH, stroke: '#555', 'stroke-width': 1, 'stroke-dasharray': '3,2', 'pointer-events': 'none' });
+            var chHorz = mk('line', { x1: PAD.left, y1: 0, x2: PAD.left + chartW, y2: 0, stroke: '#555', 'stroke-width': 1, 'stroke-dasharray': '3,2', 'pointer-events': 'none' });
+            chG.appendChild(chVert);
+            chG.appendChild(chHorz);
+
+            function getIdxOre(e) {
+                var rect = svg.getBoundingClientRect();
+                var svgX = ((e.clientX - rect.left) / rect.width) * W;
+                return Math.max(0, Math.min(filtered.length - 1, Math.round(((svgX - PAD.left) / chartW) * (filtered.length - 1))));
+            }
+
+            var hoverTip = null;
+            svg.addEventListener('mousemove', function(e) {
+                var idx = getIdxOre(e);
+                var cx = xScale(idx), cy = yScale(filtered[idx].avg_price);
+                // 更新黑色十字线
+                var chG2 = svg.querySelector('#lithiumOreChartCrosshair');
+                if (chG2) {
+                    var lines = chG2.querySelectorAll('line');
+                    if (lines.length >= 2) {
+                        lines[0].setAttribute('x1', cx); lin<script src="inline_01.js">
