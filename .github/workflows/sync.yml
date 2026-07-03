@@ -1,0 +1,15 @@
+name: Sync to MiaoDa
+
+on:
+  push:
+    branches: [main, master]
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger MiaoDa sync
+        run: |
+          curl -X POST "${{ secrets.MIAODA_API_URL }}/openapi/sync-ai-daily-report" \
+            -H "Content-Type: application/json" \
+            -d '{"repo":"${{ github.repository }}","branch":"${{ github.ref_name }}"}'
