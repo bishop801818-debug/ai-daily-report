@@ -323,6 +323,11 @@ var BU_HISTORY = {
 var urlParams = new URLSearchParams(window.location.search);
 var focusBuId = urlParams.get('id') || '';
 
+// DEBUG: 打印 CZLY 历史月份
+console.log('[CZLY DEBUG] BU_HISTORY.czly keys:', Object.keys(BU_HISTORY.czly || {}));
+console.log('[CZLY DEBUG] BU_HISTORY.czly data:', JSON.stringify(BU_HISTORY.czly));
+console.log('[CZLY DEBUG] BU_DIMS.czly:', JSON.stringify(BU_DIMS.czly));
+
 // 当前卡片选中的月份（默认最新月份）
 var currentCardMonth = {};
 
