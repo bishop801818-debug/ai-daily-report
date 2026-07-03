@@ -7159,5 +7159,14 @@
 
     <script src="assets/ai_fab_inject.js?v=20260619"></script>
     <script src="feishu-jsapi.js?v=20260622"></script>
+    <script>
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/ai-daily-report/sw.js')
+          .then(reg => console.log('[SW] 注册成功，scope:', reg.scope))
+          .catch(err => console.error('[SW] 注册失败:', err));
+      } else {
+        console.warn('[SW] 当前环境不支持 ServiceWorker，跳过注册');
+      }
+    </script>
 </body>
 </html>
