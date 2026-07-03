@@ -1,193 +1,212 @@
 
-// 锂辉石精矿价格走势图
-        // ============================================================
-        var _lithiumOreChartData = null;
-        var _lithiumOreChartW = 800, _lithiumOreChartH = 260;
-        var _lithiumOrePad = { top: 15, right: 15, bottom: 35, left: 75 };
+        const allData = {};
 
-        async function initLithiumOreChart() {
-            var loading = document.getElementById('lithiumOreChartLoading');
-            var noData = document.getElementById('lithiumOreChartNoData');
-            var svg = document.getElementById('lithiumOreChart');
-            if (!svg) return;
+        
+        function renderAllTables() {
+            const sectionMap = {
+                'content-电解液-行业整体产量': '电解液-行业整体产量',
+                'content-电解液-分企业产量横向': '电解液-分企业产量横向',
+                'content-电解液-top15排名': '电解液-top15排名',
+                'content-电解液年累-top15': '电解液年累-top15',
+                'content-电解液价格-磷酸铁锂动力型': '电解液价格-磷酸铁锂动力型',
+                'content-电解液价格-磷酸铁锂储能型': '电解液价格-磷酸铁锂储能型',
+                'content-电解液价格-三元动力型': '电解液价格-三元动力型',
+                'content-电解液价格-圆柱2600mAh': '电解液价格-圆柱2600mAh',
+                'content-电解液价格-圆柱2200mAh': '电解液价格-圆柱2200mAh',
+                'content-高压电解液价格-4.4V以上': '高压电解液价格-4.4V以上',
+                'content-高压电解液价格-4.4V': '高压电解液价格-4.4V',
+                'content-高压电解液价格-4.35V': '高压电解液价格-4.35V',
+                'content-电解液价格-分企业横向': '电解液价格-分企业横向',
+                'content-六氟磷酸锂-行业总产量': '六氟磷酸锂-行业总产量',
+                // 'content-六氟-分企业产量': '六氟-分企业产量', // 静态HTML tbody，无需JS渲染
+                'content-六氟-top15排名': '六氟-top15排名',
+                'content-六氟年累-top15': '六氟年累-top15',
+                'content-六氟磷酸锂价格-主流市场': '六氟磷酸锂价格-主流市场',
+                'content-六氟磷酸锂价格-出口': '六氟磷酸锂价格-出口',
+                'content-LiFSI价格-固态': 'LiFSI价格-固态',
+                'content-LiFSI价格-液态': 'LiFSI价格-液态',
+                'content-六氟磷酸锂出口-总量': '六氟磷酸锂出口-总量',
+                'content-六氟出口-分国别': '六氟出口-分国别',
+                'content-添加剂VC-产量': '添加剂VC-产量',
+                'content-添加剂FEC-产量': '添加剂FEC-产量',
+                'content-添加剂VC-价格': '添加剂VC-价格',
+                'content-添加剂PS-价格': '添加剂PS-价格',
+                'content-添加剂FEC-价格': '添加剂FEC-价格'
+            };
 
-            try {
-                var resp = await fetch('data/lithium_ore_price_history.json?t=' + Date.now());
-                if (!resp.ok) throw new Error('HTTP error');
-                var data = await resp.json();
+            // 字段名映射：HTML表头 → JSON字段名
+            const fieldMap = {
+                // '厂家/企业': '企业名称' // 移除错误映射：JSON key 就是'厂家/企业'
+                'YTD产量': '当期产量',   // 年累表HTML列名 → JSON字段名
+                'YTD产能': '当期产能',   // 年累表HTML列名 → JSON字段名
+            };
 
-                // 过滤：只保留2026-01-01及之后的数据，并按日期升序排序
-                if (data.history) {
-                    data.history = data.history.filter(function(d) { return d.date >= '2026-01-01'; });
-                    // 只保留5%澳洲的数据用于图表显示
-                    data.history = data.history.filter(function(d) { return d.grade === '5%' && d.origin === '澳洲'; });
-                    data.history.sort(function(a, b) { return a.date.localeCompare(b.date); });
+            // 日期格式化：兼容 YYYY-MM-DD、YYYY-MM、YYYYMM 三种格式
+            function fmtDate(val, isMonth) {
+                if (!val) return '-';
+                const s = String(val);
+                // YYYY-MM-DD HH:MM:SS → YYYY年M月 或 YYYY/M/D
+                const m1 = s.match(/(\d{4})-(\d{1,2})-(\d{1,2})/);
+                if (m1) {
+                    if (isMonth) return m1[1] + '年' + parseInt(m1[2]) + '月';
+                    return m1[1] + '/' + parseInt(m1[2]) + '/' + parseInt(m1[3]);
                 }
+                // 兼容 YYYY-MM 和 YYYYMM → YYYY年M月
+                const m = s.match(/(\d{4})[\-]?(\d{1,2})(?!\d)/);
+                if (m) return m[1] + '年' + parseInt(m[2]) + '月';
+                return s;
+            }
 
-                if (!data.history || data.history.length === 0) {
-                    if (loading) loading.style.display = 'none';
-                    if (noData) noData.style.display = 'flex';
-                    return;
+            // 按日期降序排序
+            function sortDesc(data) {
+                return [...data].sort((a, b) => {
+                    const da = a['日期'] || a['月份'] || a['数据年月'] || '';
+                    const db = b['日期'] || b['月份'] || b['数据年月'] || '';
+                    return db.localeCompare(da);
+                });
+            }
+
+            for (const [sectionId, tableName] of Object.entries(sectionMap)) {
+                const section = document.getElementById(sectionId);
+                if (!section) continue;
+
+                const table = section.querySelector('table.data-table');
+                if (!table) continue;
+
+                const tbody = table.querySelector('tbody');
+                if (!tbody) continue;
+
+                const rawData = allData[tableName];
+                if (!rawData || rawData.length === 0) continue;
+
+                if (tableName.includes('横向')) {
+                    renderHorizontalTable(table, tbody, rawData);
+                } else {
+                    renderVerticalTable(table, tbody, rawData, tableName, fieldMap, fmtDate, sortDesc);
                 }
-
-                _lithiumOreChartData = data;
-
-                // 更新标题栏信息（显示5%澳洲的最新价）
-                var latest = data.history[data.history.length - 1];
-                var priceEl = document.getElementById('lithiumOreLatestPrice');
-                var changeEl = document.getElementById('lithiumOreLatestChange');
-                var updatedEl = document.getElementById('lithiumOreChartUpdated');
-
-                if (priceEl && latest) {
-                    priceEl.textContent = latest.avg_price.toFixed(0) + ' ' + (latest.unit || '美元/吨');
-                }
-                var pct = 0;
-                if (changeEl && data.history.length >= 2) {
-                    var prev = data.history[data.history.length - 2].avg_price;
-                    var curr = latest.avg_price;
-                    pct = prev > 0 ? ((curr - prev) / prev * 100) : 0;
-                    changeEl.textContent = (pct >= 0 ? '+' : '') + pct.toFixed(2) + '%';
-                    changeEl.className = 'chart-latest-change ' + (pct >= 0 ? 'up' : 'down');
-                }
-                updateTicker('ticker-spod', latest.avg_price.toFixed(0) + ' ' + (latest.unit || '美元/吨'), pct);
-                if (updatedEl) updatedEl.textContent = 'Update: ' + data.update_time;
-
-                drawLithiumOreChart(svg, data.history);
-                if (noData) noData.style.display = 'none';
-
-                function fitSvgToContainer() {
-                    var svg2 = document.getElementById('lithiumOreChart');
-                    var parent = svg2 && svg2.parentElement;
-                    if (parent) {
-                        var pw = parent.clientWidth || 800;
-                        svg2.setAttribute('width', pw);
-                        svg2.setAttribute('height', Math.round(pw * 260 / 800));
-                    }
-                }
-                fitSvgToContainer();
-                window.addEventListener('resize', function() { fitSvgToContainer(); });
-
-                if (loading) loading.style.display = 'none';
-            } catch (e) {
-                console.warn('[LithiumOre Chart] load failed:', e);
-                if (loading) loading.style.display = 'none';
-                if (noData) noData.style.display = 'flex';
             }
         }
 
-        function drawLithiumOreChart(svg, historyData) {
-            var W = _lithiumOreChartW, H = _lithiumOreChartH;
-            var PAD = _lithiumOrePad;
-            var chartW = W - PAD.left - PAD.right;
-            var chartH = H - PAD.top - PAD.bottom;
-
-            // 过滤出5%澳洲的数据
-            var filtered = historyData.filter(function(d) {
-                return d.grade === '5%' && d.origin === '澳洲';
+        function renderHorizontalTable(table, tbody, data) {
+            const sorted = [...data].sort((a, b) => {
+                const da = a['日期'] || a['月份'] || '';
+                const db = b['日期'] || b['月份'] || '';
+                return db.localeCompare(da);
             });
-            if (filtered.length === 0) filtered = historyData;
 
-            var prices = filtered.map(function(d) { return d.avg_price; });
-            var minPrice = Math.min.apply(null, prices);
-            var maxPrice = Math.max.apply(null, prices);
-            var priceRange = maxPrice - minPrice || 1;
-            var padding = priceRange * 0.1;
-            minPrice -= padding; maxPrice += padding;
-
-            function xScale(i) { return PAD.left + (i / (filtered.length - 1)) * chartW; }
-            function yScale(p) { return PAD.top + (1 - (p - minPrice) / (maxPrice - minPrice)) * chartH; }
-
-            var gridG = svg.querySelector('#lithiumOreChartGrid');
-            var areaG = svg.querySelector('#lithiumOreChartArea');
-            var lineG = svg.querySelector('#lithiumOreChartLine');
-            var axisXG = svg.querySelector('#lithiumOreChartAxisX');
-            var axisYG = svg.querySelector('#lithiumOreChartAxisY');
-
-            if (gridG) gridG.innerHTML = '';
-            if (areaG) areaG.innerHTML = '';
-            if (lineG) lineG.innerHTML = '';
-            if (axisXG) axisXG.innerHTML = '';
-            if (axisYG) axisYG.innerHTML = '';
-
-            function mk(tag, attrs) {
-                var el = document.createElementNS('http://www.w3.org/2000/svg', tag);
-                for (var k in attrs) el.setAttribute(k, attrs[k]);
-                return el;
+            // 提取企业名
+            const firstRow = sorted[0] || {};
+            const companies = [];
+            for (const key of Object.keys(firstRow)) {
+                if (key !== '日期' && key !== '月份') companies.push(key);
             }
 
-            // 网格线
-            for (var i = 0; i <= 5; i++) {
-                var y = PAD.top + (i / 5) * chartH;
-                gridG.appendChild(mk('line', { x1: PAD.left, y1: y, x2: PAD.left + chartW, y2: y, stroke: '#eee', 'stroke-width': 1 }));
+            // 格式化月份列头
+            const monthLabels = sorted.map(row => {
+                const m = row['月份'] || row['日期'] || '';
+                const match = String(m).match(/(\d{4})-(\d{1,2})/);
+                if (match) return match[1] + '年' + parseInt(match[2]) + '月';
+                return m;
+            });
+
+            // 重新生成thead
+            const theadTr = table.querySelector('thead tr');
+            if (theadTr) {
+                let thHtml = '<th>企业</th>';
+                for (const m of monthLabels) thHtml += '<th>' + m + '</th>';
+                theadTr.innerHTML = thHtml;
             }
 
-            // Y轴标签
-            for (var i = 0; i <= 5; i++) {
-                var y = PAD.top + (i / 5) * chartH;
-                var val = maxPrice - (i / 5) * (maxPrice - minPrice);
-                axisYG.appendChild(mk('text', { x: PAD.left - 8, y: y + 4, 'text-anchor': 'end', 'font-size': 11, fill: '#999' }));
-                axisYG.lastChild.textContent = val.toFixed(0);
+            // 生成tbody
+            let html = '';
+            for (const company of companies) {
+                html += '<tr><td><strong>' + company + '</strong></td>';
+                for (const row of sorted) {
+                    let val = row[company];
+                    if (val === null || val === undefined) val = '-';
+                    html += '<td>' + val + '</td>';
+                }
+                html += '</tr>';
             }
+            tbody.innerHTML = html;
+        }
 
-            // X轴标签（显示部分日期）
-            var step = Math.max(1, Math.floor(filtered.length / 6));
-            for (var i = 0; i < filtered.length; i += step) {
-                var x = xScale(i);
-                var date = filtered[i].date;
-                if (date && date.length >= 10) date = date.substring(5, 10); // MM-DD
-                axisXG.appendChild(mk('text', { x: x, y: PAD.top + chartH + 20, 'text-anchor': 'middle', 'font-size': 10, fill: '#999' }));
-                axisXG.lastChild.textContent = date;
-                axisXG.appendChild(mk('line', { x1: x, y1: PAD.top + chartH, x2: x, y2: PAD.top + chartH + 5, stroke: '#ccc', 'stroke-width': 1 }));
+        function renderVerticalTable(table, tbody, data, tableName, fieldMap, fmtDate, sortDesc) {
+            const sorted = sortDesc(data);
+            const isMonthTable = tableName.includes('产量') || tableName.includes('出口');
+
+            const ths = table.querySelectorAll('thead th');
+            const headers = Array.from(ths).map(th => th.textContent.trim());
+
+            let html = '';
+            for (const row of sorted) {
+                html += '<tr>';
+
+                // FEC价格表特殊字段映射（每行只创建一次）
+                const localMap = Object.assign({}, fieldMap);
+                if (tableName.includes('FEC') && tableName.includes('价格')) {
+                    localMap['日期'] = '文本';
+                    localMap['最高价'] = '今日最高价格';
+                    localMap['均价'] = '今日均价';
+                }
+
+                for (let i = 0; i < headers.length; i++) {
+                    const h = headers[i];
+                    let jsonKey = localMap[h] || h;
+                    let val = row[jsonKey];
+                    // 空格变体 fallback（JSON 字段常有前后空格）
+                    if (val === null || val === undefined) {
+                        val = row[' ' + jsonKey + ' '] || row[' ' + jsonKey] || row[jsonKey + ' '];
+                    }
+
+                    if (h === '序号') {
+                        // 生成排名徽章
+                        const rank = val ? parseInt(val) : 0;
+                        const badgeClass = rank <= 3 ? 'top3' : (rank <= 5 ? 'top5' : '');
+                        html += '<td><span class="rank-badge ' + badgeClass + '">' + (rank || '-') + '</span></td>';
+                        continue;
+                    }
+
+                    if (val !== null && val !== undefined) {
+                        if (h === '日期' || h === '数据年月' || h === '文本') {
+                            val = fmtDate(val, isMonthTable && h !== '文本');
+                        }
+                    }
+
+                    if (val === null || val === undefined) val = '-';
+                    html += '<td>' + val + '</td>';
+                }
+                html += '</tr>';
             }
+            tbody.innerHTML = html;
+        }
 
-            // 面积图
-            var areaPath = 'M ' + xScale(0) + ' ' + yScale(minPrice);
-            for (var i = 0; i < filtered.length; i++) {
-                areaPath += ' L ' + xScale(i) + ' ' + yScale(filtered[i].avg_price);
+function init() {
+            if (typeof EMBEDDED_DATA !== 'undefined' && EMBEDDED_DATA.tables) {
+                EMBEDDED_DATA.tables.forEach(t => { allData[t.table_name] = t.data; });
+                document.getElementById('updateTime').textContent = EMBEDDED_DATA.update_time;
+                const totalRecords = EMBEDDED_DATA.tables.reduce((sum, t) => sum + t.data.length, 0);
+                document.getElementById('sidebar-table-count').textContent = EMBEDDED_DATA.tables.length;
+                document.getElementById('sidebar-record-count').textContent = totalRecords.toLocaleString();
+                // 动态渲染所有表格
+                renderAllTables();
+                // Show first section
+                document.getElementById('content-电解液-行业整体产量').classList.add('active');
+                document.querySelector('.nav-item').classList.add('active');
             }
-            areaPath += ' L ' + xScale(filtered.length - 1) + ' ' + yScale(minPrice) + ' Z';
-            areaG.appendChild(mk('path', { d: areaPath, fill: 'url(#lithiumOreChartGrad)', stroke: 'none' }));
+        }
 
-            // 折线图
-            var linePath = '';
-            for (var i = 0; i < filtered.length; i++) {
-                if (i === 0) linePath = 'M ' + xScale(i) + ' ' + yScale(filtered[i].avg_price);
-                else linePath += ' L ' + xScale(i) + ' ' + yScale(filtered[i].avg_price);
-            }
-            // 浅色线（底层，静态显示）
-            lineG.appendChild(mk('path', { d: linePath, fill: 'none', stroke: '#ef5350', 'stroke-width': 2, 'stroke-opacity': 0.25 }));
-            // 深色线（上层，初始不可见，等待动画揭幕）
-            lineG.appendChild(mk('path', { d: linePath, fill: 'none', stroke: '#ef5350', 'stroke-width': 2, 'class': 'data-line deep-line-anim', 'stroke-dasharray': '10000', 'stroke-dashoffset': '10000' }));
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('collapsed');
+        }
 
-            // 最新点标记
-            var lastIdx = filtered.length - 1;
-            lineG.appendChild(mk('circle', { cx: xScale(lastIdx), cy: yScale(filtered[lastIdx].avg_price), r: 4, fill: '#e91e63', stroke: '#fff', 'stroke-width': 2 }));
-            // ── Black crosshair lines ──────────────────────────────────
-            var chG = svg.querySelector('#lithiumOreChartCrosshair');
-            if (!chG) {
-                chG = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-                chG.id = 'lithiumOreChartCrosshair';
-                svg.appendChild(chG);
-            }
-            chG.innerHTML = '';
-            var chVert = mk('line', { x1: 0, y1: PAD.top, x2: 0, y2: PAD.top + chartH, stroke: '#555', 'stroke-width': 1, 'stroke-dasharray': '3,2', 'pointer-events': 'none' });
-            var chHorz = mk('line', { x1: PAD.left, y1: 0, x2: PAD.left + chartW, y2: 0, stroke: '#555', 'stroke-width': 1, 'stroke-dasharray': '3,2', 'pointer-events': 'none' });
-            chG.appendChild(chVert);
-            chG.appendChild(chHorz);
+        function switchNav(section, el) {
+            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+            document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
+            el.classList.add('active');
+            const target = document.getElementById('content-' + section);
+            if (target) target.classList.add('active');
+        }
 
-            function getIdxOre(e) {
-                var rect = svg.getBoundingClientRect();
-                var svgX = ((e.clientX - rect.left) / rect.width) * W;
-                return Math.max(0, Math.min(filtered.length - 1, Math.round(((svgX - PAD.left) / chartW) * (filtered.length - 1))));
-            }
-
-            var hoverTip = null;
-            svg.addEventListener('mousemove', function(e) {
-                var idx = getIdxOre(e);
-                var cx = xScale(idx), cy = yScale(filtered[idx].avg_price);
-                // 更新黑色十字线
-                var chG2 = svg.querySelector('#lithiumOreChartCrosshair');
-                if (chG2) {
-                    var lines = chG2.querySelectorAll('line');
-                    if (lines.length >= 2) {
-                        lines[0].setAttribute('x1', cx); lin<script src="inline_01.js">
+        window.onload = init;
+    

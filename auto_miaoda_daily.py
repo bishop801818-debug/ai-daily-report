@@ -67,6 +67,16 @@ def main():
         log(f"✅ {fname} (轻量化依赖)")
     if not inline_js_files:
         log("⚠️  未找到 inline_*.js 文件（HTML可能未轻量化）")
+    
+    # 3.2 复制 embedded/inline_*.js 文件（离线部署版本的依赖）
+    embedded_js_files = glob.glob(BASE + "/embedded/inline_*.js")
+    if embedded_js_files:
+        os.makedirs(DST + "/embedded", exist_ok=True)
+        for f in embedded_js_files:
+            fname = os.path.basename(f)
+            shutil.copy2(f, DST + "/embedded/" + fname)
+            log(f"✅ embedded/{fname} (离线版依赖)")
+        log(f"✅ 共复制 {len(embedded_js_files)} 个离线版 JS 依赖")
 
     # 4. 复制 assets/
     if os.path.exists(BASE + "/assets"):
