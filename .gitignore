@@ -32,6 +32,14 @@
 !protect_html.py
 !calibrate_html.py
 
+# 排除大文件（>5MB，妙搭限制）
+embedded/inline_02.js
+
+# 工具脚本（已使用，不需要跟踪）
+batch_optimize.py
+check_large_files.py
+compress_js.py
+
 # ------------------------------------------
 # 2. 调试/临时文件（覆盖下划线开头）
 # ------------------------------------------
