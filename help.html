@@ -642,44 +642,7 @@
 </div>
 </div>
 </div>
-<script>
-    // 目录高亮 + 滚动联动
-    var sections = ['guide','sources','faq','changelog','feedback'];
-    function scrollToSection(id, el) {
-        var target = document.getElementById('sec-' + id);
-        if (target) {
-            var top = target.getBoundingClientRect().top + window.scrollY - 90;
-            window.scrollTo({ top: top, behavior: 'smooth' });
-        }
-        document.querySelectorAll('.toc-item').forEach(function(b){ b.classList.remove('active'); });
-        el.classList.add('active');
-    }
-
-    // FAQ 折叠
-    function toggleFaq(el) {
-        var wasOpen = el.classList.contains('open');
-        document.querySelectorAll('.faq-q').forEach(function(b){ b.classList.remove('open'); });
-        document.querySelectorAll('.faq-a').forEach(function(a){ a.classList.remove('open'); });
-        if (!wasOpen) {
-            el.classList.add('open');
-            el.nextElementSibling.classList.add('open');
-        }
-    }
-
-    // 滚动时高亮对应目录
-    window.addEventListener('scroll', function() {
-        var scrollY = window.scrollY + 120;
-        for (var i = sections.length - 1; i >= 0; i--) {
-            var el = document.getElementById('sec-' + sections[i]);
-            if (el && el.offsetTop <= scrollY) {
-                document.querySelectorAll('.toc-item').forEach(function(b){ b.classList.remove('active'); });
-                var tocItems = document.querySelectorAll('.toc-item');
-                if (tocItems[i]) tocItems[i].classList.add('active');
-                break;
-            }
-        }
-    });
-</script>
+<script src="inline_00.js"></script>
 <script src="assets/ai_fab_inject.js"></script>
 </body>
 </html>

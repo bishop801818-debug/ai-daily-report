@@ -1,0 +1,81 @@
+{
+    "bu_id": "czly",
+    "bu_code": "CZLY",
+    "bu_name": "常州锂源",
+    "month": "2026-03",
+    "source": "锂源3月.pdf",
+    "source_pages": [4, 5, 6, 23],
+    "dims": { "d1": 62, "d2": 44, "d3": 75, "d4": 55, "d5": 98, "d6": 50 },
+    "_isCurrent": false,
+    "kpis": {
+        "d1": [47, 78, 0, 104],
+        "d2": [42, 50, 85, 90],
+        "d3": [42, 99, 81, 77],
+        "d4": [50, 60, 60, 50],
+        "d5": [99, 100, 100, 100],
+        "d6": [0, 50, 60, 50]
+    },
+    "_kpiComparison": {
+        "title": "3月核心KPI达成率",
+        "period": "2026年3月",
+        "items": [
+            { "name": "销量(吨)",     "budget": 25328, "target": 25328, "actual": 9404,  "unit": "吨"   },
+            { "name": "加工费(元/吨)","budget": 17900, "target": 17900, "actual": 17626, "unit": "元/吨" },
+            { "name": "净利润(万元)", "budget": 3184,  "target": 3184,  "actual": -2569, "unit": "万元" },
+            { "name": "回款率(%)",    "budget": 85,    "target": 85,    "actual": 71,   "unit": "%"   },
+            { "name": "一次合格率(%)","budget": 99.38, "target": 99.38, "actual": 98.61,"unit": "%"   },
+            { "name": "存货周转天数", "budget": 60,    "target": 60,    "actual": 77,   "unit": "天"   }
+        ]
+    },
+    "_dimComparison_d2": {
+        "title": "3月各基地产量概览",
+        "items": [
+            { "name": "江苏基地产量(吨)", "budget": 0, "target": 0, "actual": 2077, "unit": "吨" },
+            { "name": "四川基地产量(吨)", "budget": 0, "target": 0, "actual": 5206, "unit": "吨" },
+            { "name": "山东基地产量(吨)", "budget": 0, "target": 0, "actual": 1628, "unit": "吨" },
+            { "name": "湖北基地产量(吨)", "budget": 0, "target": 0, "actual": 1627, "unit": "吨" },
+            { "name": "印尼基地产量(吨)", "budget": 0, "target": 0, "actual": 962,  "unit": "吨" }
+        ]
+    },
+    "_dimComparison_d3": {
+        "title": "3月运营效率",
+        "format": "mom",
+        "items": [
+            { "name": "整体产能利用率",   "prev": null, "curr": 42,   "unit": "%" },
+            { "name": "一次合格率",       "prev": null, "curr": 98.61,"unit": "%" },
+            { "name": "产发比",           "prev": null, "curr": 81,   "unit": "%" },
+            { "name": "各基地库存周转(天)","prev": null,"curr": 77,   "unit": "天" }
+        ]
+    },
+    "_dimComparison_d4": {
+        "title": "3月技术创新力",
+        "format": "mom",
+        "items": [
+            { "name": "发明专利新增", "prev": null, "curr": 5, "unit": "件" },
+            { "name": "实用新型专利", "prev": null, "curr": 6, "unit": "件" },
+            { "name": "研发项目立项", "prev": null, "curr": 2, "unit": "项" },
+            { "name": "在研项目(项)", "prev": null, "curr": 6, "unit": "项" }
+        ]
+    },
+    "_dimComparison_d5": {
+        "title": "3月风险合规",
+        "format": "mom",
+        "items": [
+            { "name": "质量合格率",       "prev": null, "curr": 98.61,"unit": "%" },
+            { "name": "安全隐患整改率",   "prev": null, "curr": 100,  "unit": "%" },
+            { "name": "安全事故",         "prev": null, "curr": 0,    "unit": "起" },
+            { "name": "客户质量投诉",     "prev": null, "curr": 0,    "unit": "次" },
+            { "name": "廉洁举报",         "prev": null, "curr": 0,    "unit": "次" }
+        ]
+    },
+    "_dimComparison_d6": {
+        "title": "3月组织活力",
+        "format": "mom",
+        "items": [
+            { "name": "AI核心应用案例",   "prev": null, "curr": 0, "unit": "个" },
+            { "name": "运营智能看板",     "prev": null, "curr": 1, "unit": "套" },
+            { "name": "数字化项目立项",   "prev": null, "curr": 5, "unit": "项" },
+            { "name": "新客户开发",       "prev": null, "curr": 2, "unit": "家" }
+        ]
+    }
+}

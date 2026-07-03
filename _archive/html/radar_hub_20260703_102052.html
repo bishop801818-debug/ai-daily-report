@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>雷达看板 - 龙蟠科技</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: "Microsoft YaHei", "PingFang SC", sans-serif; background: #f0f2f5; min-height: 100vh; }
+
+        .page-header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 24px 40px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 12px rgba(30,60,114,0.3);
+        }
+        .page-header .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: rgba(255,255,255,0.85);
+            text-decoration: none;
+            font-size: 14px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        .page-header .back-btn:hover { color: white; }
+        .page-header h1 { font-size: 22px; font-weight: bold; margin-bottom: 4px; }
+        .page-header .subtitle { font-size: 13px; opacity: 0.85; }
+
+        .container { max-width: 1100px; margin: 30px auto; padding: 0 20px; }
+
+        .section-label {
+            font-size: 13px;
+            color: #888;
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .section-label::after { content: ""; flex: 1; height: 1px; background: #ddd; }
+
+        .dept-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 16px;
+            margin-bottom: 36px;
+        }
+
+        .dept-card {
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            border-left: 4px solid #1e3c72;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+            text-decoration: none;
+            color: inherit;
+            display: flex;
+            flex-direction: column;
+        }
+        .dept-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(30,60,114,0.15);
+        }
+        .dept-card.lithium { border-left-color: #1e3c72; }
+        .dept-card.longpan { border-left-color: #2e75b6; }
+        .dept-card.other { border-left-color: #7030a0; }
+
+        .dept-card-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 6px;
+        }
+        .dept-logo {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            object-fit: contain;
+            background: #fff;
+            border: 2px solid rgba(0,0,0,0.08);
+            flex-shrink: 0;
+        }
+        .dept-info { flex: 1; min-width: 0; }
+        .dept-name { font-size: 14px; font-weight: bold; color: #1e3c72; margin-bottom: 2px; }
+        .dept-subtitle { font-size: 11px; color: #888; }
+
+        /* ECharts 雷达图容器 */
+        .dept-radar-preview {
+            height: 130px;
+            margin: 6px 0 4px;
+            flex-shrink: 0;
+        }
+        .dept-radar-preview canvas { border-radius: 8px; }
+
+        /* 月份切换按钮 */
+        .dept-month-toggle {
+            display: flex;
+            gap: 4px;
+            margin: 4px 0 2px;
+            justify-content: center;
+        }
+        .month-btn {
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 500;
+            background: #f0f0f0;
+            color: #555;
+            border: none;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+        .month-btn:hover { opacity: 0.8; }
+        .month-btn.active { font-weight: 600; }
+
+        .dept-score {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 8px;
+            padding-top: 10px;
+            border-top: 1px solid #f0f0f0;
+        }
+        .dept-score-label { font-size: 12px; color: #888; }
+        .dept-score-val { font-size: 18px; font-weight: bold; color: #1e3c72; }
+        .dept-score-dims { font-size: 11px; color: #aaa; margin-left: 6px; }
+
+        .dept-dims-row {
+            display: flex;
+            gap: 4px;
+            margin-top: 6px;
+            flex-wrap: wrap;
+        }
+        .dim-chip {
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            background: #f0f0f0;
+            color: #666;
+        }
+        .dim-chip .chip-val { font-weight: bold; margin-right: 2px; }
+
+        .dept-current-badge {
+            display: inline-block;
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            background: #fff3e0;
+            color: #e67e22;
+            font-weight: bold;
+            margin-left: 6px;
+        }
+
+        .footer-note {
+            text-align: center;
+            color: #bbb;
+            font-size: 12px;
+            padding: 24px;
+            border-top: 1px solid #eee;
+            margin-top: 20px;
+        }
+        .footer-note a { color: #1e3c72; text-decoration: none; font-weight: 600; }
+        .footer-note a:hover { text-decoration: underline; }
+
+        @media (max-width: 768px) {
+            .dept-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+<!--══统一导航栏（shared_nav.css）═════════════════ -->
+<link rel="stylesheet" href="shared_nav.css">
+<div class="sub-topbar">
+    <a class="sub-topbar-home" href="index_v3.html">← 返回首页</a>
+    <div class="sub-topbar-title"> 雷达看板</div>
+    <div class="sub-topbar-nav">
+        <!-- 政策中心 -->
+        <div class="sub-nav-item" onclick="window.location.href='policy_center_v4.html'">
+            <span> 政策中心</span><span class="sub-arrow">▼</span>
+            <div class="sub-dropdown">
+                <div class="sub-dropdown-item" onclick="event.stopPropagation(); window.location.href='policy_center_v4.html?filter=central'">
+                    <span class="nav-icon"></span>国家政策
+                </div>
+                <div class="sub-dropdown-item" onclick="event.stopPropagation(); window.location.href='policy_center_v4.html?filter=local'">
+                    <span class="nav-icon"></span>地方政策
+                </div>
+                <div class="sub-dropdown-item" onclick="event.stopPropagation(); window.location.href='policy_center_v4.html?filter=overseas'">
+                    <span class="nav-icon"></span>国际政策
+                </div>
+            </div>
+        </div>
+        <!-- 行业新闻 -->
+        <div class="sub-nav-item" onclick="window.location.href='industry_news_embedded.html'">
+           <span> 行业新闻</span><span class="sub-arrow">▼</span>
+            <div class="sub-dropdown">
+                <div class="sub-dropdown-item" onclick="event.stopPropagation(); window.location.href='industry_news_embedded.html?filter=macro'">
+                    <span class="nav-icon"></span>宏观新闻
+                </div>
+                <div class="sub-dropdown-item" onclick="event.stopPropagation(); window.location.href='industry_news_embedded.html?filter=industry'">
+                    <span class="nav-icon"></span>行业新闻
+                </div>
+                <div class="sub-dropdown-item" onclick="event.stopPropagation(); window.location.href='industry_news_embedded.html?filter=company'">
+                    <span class="nav-icon"></span>企业动态
+                </div>
+                <div class="sub-dropdown-item" onclick="event.stopPropagation(); window.location.href='industry_news_embedded.html?filter=tech'">
+                    <span class="nav-icon"></span>技术产品
+                </div>
+            </div>
+        </div>
+        <!-- 历史数据 -->
+        <div class="sub-nav-item" onclick="window.location.href='archive_v3.html'">
+            <span> 历史数据</span>
+        </div>
+        <!-- 数据库 -->
+        <div class="sub-nav-item" onclick="window.location.href='database_hub.html'">
+            <span> 数据库</span><span class="sub-arrow">▼</span>
+            <div class="sub-dropdown">
+                <div class="sub-dropdown-item" onclick="event.stopPropagation(); window.location.href='lfp_data_v2.html'">
+                    <span class="nav-icon"></span>磷酸铁锂数据库
+                </div>
+                <div class="sub-dropdown-item" onclick="event.stopPropagation(); window.location.href='ternary_data_v2.html'">
+                    <span class="nav-icon"></span>三元材料数据库
+                </div>
+                <div class="sub-dropdown-item" onclick="event.stopPropagation(); window.location.href='electrolyte_data_v2.html'">
+                    <span class="nav-icon"></span>电解液数据库
+                </div>
+                <div class="sub-dropdown-item" onclick="event.stopPropagation(); window.location.href='carbonate_data_v2.html'">
+                    <span class="nav-icon"></span>碳酸锂及原料数据库
+                </div>
+                <div class="sub-dropdown-item" onclick="event.stopPropagation(); window.location.href='recycling_data_v2.html'">
+                    <span class="nav-icon"></span>锂电池回收数据库
+                </div>
+                <div class="sub-dropdown-item" onclick="event.stopPropagation(); window.location.href='lib_battery_data_v2.html'">
+                    <span class="nav-icon"></span>锂电池行业数据库
+                </div>
+                <div class="sub-dropdown-item" onclick="event.stopPropagation(); window.location.href='automotive_data_v2.html'">
+                    <span class="nav-icon"></span>汽车行业数据库
+                </div>
+            </div>
+        </div>
+        <!-- 行业分析 -->
+        <div class="sub-nav-item" onclick="window.location.href='analysis_hub.html'">
+            <span> 行业分析</span>
+        </div>
+        <!-- 竞品比对 -->
+        <div class="sub-nav-item" onclick="window.location.href='strategy_hub.html'">
+            <span> 竞品比对</span>
+        </div>
+        <!-- 雷达看板 -->
+        <div class="sub-nav-item" onclick="window.location.href='radar_hub.html'">
+            <span> 雷达看板</span>
+        </div>
+    </div>
+</div>
+
+</div>
+
+<div class="container">
+    <div class="section-label">锂电系事业部</div>
+    <div class="dept-grid" id="grid-lithium"></div>
+
+    <div class="section-label">非锂电事业部</div>
+    <div class="dept-grid" id="grid-other"></div>
+</div>
+
+<div class="footer-note">
+    数据仅供参考 · <a href="index_v3.html">返回首页</a>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+<script>
+// ─────────────────────────────────────────────
+// BU 元数据
+// ─────────────────────────────────────────────
+var BU_META = {
+    czly: { name: '常州锂源', subtitle: '磷酸铁锂正极材料', category: 'lithium', color: '#1e3c72' },
+    lpsd: { name: '龙蟠时代', subtitle: '碳酸锂', category: 'lithium', color: '#2e75b6' },
+    felt: { name: '法恩莱特', subtitle: '电解液', category: 'lithium', color: '#7b2d8b' },
+    sdmd: { name: '山东美多', subtitle: '动力电池回收', category: 'lithium', color: '#215732' },
+    sjld: { name: '三金锂电', subtitle: '三元前驱体', category: 'lithium', color: '#34495e' },
+    kls:  { name: '可兰素', subtitle: '车用尿素', category: 'other', color: '#d35400' },
+    lhy:  { name: '润滑油事业部', subtitle: '润滑油 · 冷却液 · 海外市场', category: 'other', color: '#c0392b' },
+    bych: { name: '铂源催化', subtitle: '氢能/催化', category: 'other', color: '#8e44ad' },
+    dhx:  { name: '迪克化学', subtitle: '汽车化学品 · 冷却液 · 制动液', category: 'other', color: '#7986cb' },
+};
+
+// 差异化权重配置（与 radar_detail 保持一致）
+var BU_WEIGHTS = {
+    sdmd: [18, 18, 20, 15, 18, 11],
+    felt: [15, 20, 22, 18, 15, 10],
+    lhy:  [18, 22, 15, 22, 15, 8],
+    sjld: [15, 18, 15, 17, 25, 10], // 基建期专属权重
+    dhx:  [20, 22, 18, 15, 15, 10], // 迪克化学权重（冷却液业务）
+    lpsd: [20, 20, 18, 17, 13, 12], // 龙蟠时代权重（统一默认权重）
+};
+var DEFAULT_WEIGHTS = [20, 20, 18, 17, 13, 12]; // 其他BU的统一权重
+
+// 六维 dims 数据（与 radar_detail 一致）
+var BU_DIMS = {
+    czly: { d1: 86, d2: 95, d3: 88, d4: 47, d5: 95, d6: 45 },
+    lpsd: { d1: 58, d2: 88, d3: 75, d4: 85, d5: 85, d6: 75 }, // 龙蟠时代5月.pdf真实数据
+    felt: { d1: 12, d2: 8, d3: 76, d4: 100, d5: 99, d6: 60 }, // 2026-05实际数据（法恩莱特5月.pdf，已脱污染）
+    sdmd: { d1: 100, d2: 88, d3: 90, d4: 100, d5: 78, d6: 75 }, // 已修正（2026-05实际数据）
+    sjld: { d1: 95, d2: 46, d3: 61, d4: 70, d5: 57, d6: 48 }, // 2026-05实际数据（基建期）
+    kls:  { d1: 82, d2: 80, d3: 75, d4: 76, d5: 80, d6: 72 },
+    lhy:  { d1: 98, d2: 98, d3: 83, d4: 85, d5: 80, d6: 65 }, // 2026-05实际数据（润滑油5月.pdf）, // 2026-05实际数据（润滑油5月.pdf）, // 2026-05实际数据（润滑油5月.pdf）
+    bych: { d1: 68, d2: 65, d3: 70, d4: 62, d5: 60, d6: 65 },
+    dhx:  { d1: 88, d2: 78, d3: 91, d4: 80, d5: 96, d6: 78 }, // 2026-05实际数据（PDF修正）
+};
+
+// 标记当前月份BU（★）
+var BU_IS_CURRENT = { sdmd: false, felt: true, lhy: true, sjld: true, dhx: true, lpsd: true, kls: true }; // 山东美多+法恩莱特+润滑油+三金锂电+迪克化学+龙蟠时代+可兰素有真实当前数据
+
+var BU_LOGOS = {};
+var buChartInstances = {}; // 缓存每个BU的 ECharts 实例
+
+var DIM_NAMES = ['核心考核', '经营效益', '运营效率', '技术创新', '风险合规', '组织活力'];
+var DIM_IDS = ['d1', 'd2', 'd3', 'd4', 'd5', 'd6'];
+
+// 多月份数据（用于可切换月份的BU）
+var BU_HISTORY = {
+    sdmd: {
+        '2026-03': { d1: 100, d2: 100, d3: 92, d4: 87, d5: 85, d6: 78 },
+        '2026-04': { d1: 100, d2: 88, d3: 90, d4: 100, d5: 78, d6: 75 },
+        '2026-05': { d1: 90,  d2: 90,  d3: 82, d4: 80,  d5: 90, d6: 78 },
+    },
+    felt: {
+        '2026-04': { d1: 20, d2: 15, d3: 47, d4: 100, d5: 71, d6: 50 },
+        '2026-05': { d1: 12, d2: 8, d3: 76, d4: 100, d5: 99, d6: 60 }, // 2026-05实际数据（FELT）
+    },
+    lhy: {
+        '2026-03': { d1: 100, d2: 100, d3: 100, d4: 100, d5: 100, d6: 100 }, // 2026-03实际数据（润滑油3月.pdf）
+        '2026-04': { d1: 96, d2: 100, d3: 100, d4: 94, d5: 75, d6: 100 }, // 2026-04实际数据（润滑油4月.pdf）
+        '2026-05': { d1: 98, d2: 98, d3: 83, d4: 85, d5: 80, d6: 65 }, // 2026-05实际数据（润滑油5月.pdf）
+    },
+    sjld: {
+        '2026-03': { d1: 85, d2: 1, d3: 15, d4: 56, d5: 1, d6: 32 }, // 2026-03实际数据（基建期）
+        '2026-04': { d1: 80, d2: 14, d3: 48, d4: 56, d5: 40, d6: 55 }, // 2026-04实际数据（基建期）
+        '2026-05': { d1: 95, d2: 46, d3: 61, d4: 70, d5: 57, d6: 48 }, // 2026-05实际数据（基建期）
+    },
+    dhx: {
+        '2026-03': { d1: 86, d2: 78, d3: 82, d4: 80, d5: 80, d6: 78 }, // 3月PDF数据（营收3211/3267(102%), 利润348(87%)）
+        '2026-04': { d1: 86, d2: 71, d3: 85, d4: 75, d5: 85, d6: 77 }, // 2026-04实际数据（4月PDF）
+        '2026-05': { d1: 88, d2: 78, d3: 91, d4: 80, d5: 96, d6: 78 }, // 2026-05实际数据（5月PDF修正）
+    },
+    lpsd: {
+        '2026-Q1': { d1: 100, d2: 98, d3: 80, d4: 80, d5: 80, d6: 70 }, // 龙蟠时代Q1季度报告(1-3月)
+        '2026-04': { d1: 97, d2: 79, d3: 90, d4: 85, d5: 80, d6: 75 }, // 龙蟠时代4月.pdf真实数据
+        '2026-05': { d1: 58, d2: 88, d3: 75, d4: 85, d5: 85, d6: 75 }, // 龙蟠时代5月.pdf真实数据
+    },
+    kls: {
+        '2026-03': { d1: 84, d2: 72, d3: 68, d4: 70, d5: 76, d6: 70 },
+        '2026-04': { d1: 89, d2: 75, d3: 70, d4: 72, d5: 78, d6: 68 },
+        '2026-05': { d1: 82, d2: 80, d3: 75, d4: 76, d5: 80, d6: 72 },
+    },
+};
+
+// 从 URL 参数读取 ?id=sjld 或 ?id=dkhx，自动滚动并高亮对应卡片
+var urlParams = new URLSearchParams(window.location.search);
+var focusBuId = urlParams.get('id') || '';
+
+// 当前卡片选中的月份（默认最新月份）
+var currentCardMonth = {};
+
+// ─────────────────────────────────────────────
+// 加载 logo
+// ─────────────────────────────────────────────
+(function loadLogos() {
+    fetch('bu_logos.json')
+        .then(function(r) { return r.json(); })
+        .then(function(logos) {
+            BU_LOGOS = logos;
+            renderCards();
+            if (focusBuId) {
+                var card = document.getElementById('card-' + focusBuId);
+                if (card) {
+                    card.style.boxShadow = '0 0 0 3px ' + (BU_META[focusBuId] && BU_META[focusBuId].color || '#3A6A9E');
+                    card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }
+        })
+        .catch(function() {
+            renderCards();
+            if (focusBuId) {
+                var card = document.getElementById('card-' + focusBuId);
+                if (card) {
+                    card.style.boxShadow = '0 0 0 3px ' + (BU_META[focusBuId] && BU_META[focusBuId].color || '#3A6A9E');
+                    card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }
+        });
+})();
+
+// ─────────────────────────────────────────────
+// 工具函数
+// ─────────────────────────────────────────────
+function getScore(buId, dims) {
+    var vals = DIM_IDS.map(function(d) { return dims[d] || 0; });
+    var wts = BU_WEIGHTS[buId] || DEFAULT_WEIGHTS;
+    return Math.round(vals.reduce(function(a, b, i) { return a + b * wts[i] / 100; }, 0));
+}
+
+// ─────────────────────────────────────────────
+// 渲染卡片 HTML（雷达图容器使用真实 ECharts div）
+// ─────────────────────────────────────────────
+function buildCard(buId, meta) {
+    // 多月份BU：取当前选中月份的数据；单月份BU：用BU_DIMS
+    var history = BU_HISTORY[buId];
+    if (history) {
+        var months = Object.keys(history).sort();
+        if (!currentCardMonth[buId]) currentCardMonth[buId] = months[months.length - 1];
+    }
+    var activeMonth = currentCardMonth[buId];
+    var dims = activeMonth && history ? (history[activeMonth] || BU_DIMS[buId]) : (BU_DIMS[buId] || { d1: 0, d2: 0, d3: 0, d4: 0, d5: 0, d6: 0 });
+    var score = getScore(buId, dims);
+    var logo = BU_LOGOS[buId] || '';
+    var logoHTML = logo
+        ? '<img class="dept-logo" src="' + logo + '" alt="' + meta.name + '" onerror="this.style.display=\'none\'">'
+        : '<div class="dept-logo" style="background:#f0f0f0;display:flex;align-items:center;justify-content:center;font-size:20px;"></div>';
+
+    var currentBadge = BU_IS_CURRENT[buId]
+        ? '<span class="dept-current-badge">★当月</span>'
+        : '';
+
+    // 多月份切换按钮
+    var monthToggle = '';
+    if (history) {
+        var months = Object.keys(history).sort();
+        monthToggle = '<div class="dept-month-toggle">' +
+            months.map(function(m) {
+                var label = m.replace('2026-', '');
+                var isActive = (m === activeMonth);
+                return '<span class="month-btn' + (isActive ? ' active' : '') + '" ' +
+                    'style="' + (isActive ? ('background:' + meta.color + ';color:#fff;') : 'background:#f0f0f0;color:#555;') + '" ' +
+                    'onclick="switchCardMonth(\'' + buId + '\',\'' + m + '\')">' + label + '</span>';
+            }).join('') +
+            '</div>';
+    }
+
+    var dimChips = DIM_IDS.map(function(d, i) {
+        var v = dims[d] || 0;
+        return '<span class="dim-chip"><span class="chip-val" style="color:' + meta.color + '">' + v + '</span>' + DIM_NAMES[i] + '</span>';
+    }).join('');
+
+    var detailUrl = (buId === 'sdmd') ? 'radar_detail_sdmd.html' : (buId === 'dhx') ? 'radar_detail_dkhx.html' : (buId === 'sjld') ? 'radar_detail_sjld.html' : ('radar_detail.html?id=' + buId);
+    return '<a id="card-' + buId + '" class="dept-card ' + meta.category + '" href="' + detailUrl + '" style="border-left-color:' + meta.color + '">' +
+        '<div class="dept-card-header">' +
+        logoHTML +
+        '<div class="dept-info">' +
+        '<div class="dept-name" style="color:' + meta.color + '">' + meta.name + currentBadge + '</div>' +
+        '<div class="dept-subtitle">' + meta.subtitle + '</div>' +
+        '</div></div>' +
+        monthToggle +
+        '<div class="dept-radar-preview" id="radar-' + buId + '"></div>' +
+        '<div class="dept-dims-row">' + dimChips + '</div>' +
+        '<div class="dept-score">' +
+        '<span class="dept-score-label">综合评分</span>' +
+        '<span><span class="dept-score-val" style="color:' + meta.color + '">' + score + '</span><span class="dept-score-dims">/100</span></span>' +
+        '</div></a>';
+}
+
+function renderCards() {
+    var gridLithium = document.getElementById('grid-lithium');
+    var gridOther = document.getElementById('grid-other');
+
+    Object.keys(BU_META).forEach(function(buId) {
+        var meta = BU_META[buId];
+        var card = buildCard(buId, meta);
+        if (meta.category === 'lithium') {
+            gridLithium.innerHTML += card;
+        } else {
+            gridOther.innerHTML += card;
+        }
+    });
+
+    // 渲染完卡片后，初始化所有 ECharts 雷达图
+    initAllRadars();
+}
+
+// ─────────────────────────────────────────────
+// ECharts 迷你雷达图初始化（IntersectionObserver 懒加载）
+// ─────────────────────────────────────────────
+function initAllRadars() {
+    Object.keys(BU_META).forEach(function(buId) {
+        renderMiniRadar(buId);
+    });
+}
+
+function renderMiniRadar(buId) {
+    var dom = document.getElementById('radar-' + buId);
+    if (!dom) return;
+
+    var meta = BU_META[buId];
+    var history = BU_HISTORY[buId];
+    var activeMonth = currentCardMonth[buId];
+    var dims = (activeMonth && history) ? (history[activeMonth] || BU_DIMS[buId]) : (BU_DIMS[buId] || { d1: 0, d2: 0, d3: 0, d4: 0, d5: 0, d6: 0 });
+    var vals = DIM_IDS.map(function(d) { return dims[d] || 0; });
+
+    var chart = echarts.init(dom, null, { renderer: 'canvas', width: dom.clientWidth || 280, height: 145 });
+    buChartInstances[buId] = chart;
+
+    // 颜色辅助：亮色版本（用于渐变）
+    var lightColor = meta.color + '99'; // 透明度60%
+    var darkColor = meta.color;
+
+    var option = {
+        backgroundColor: 'transparent',
+        animation: true,
+        animationDuration: 800,
+        animationEasing: 'cubicOut',
+        tooltip: {
+            trigger: 'item',
+            confine: true,
+            backgroundColor: 'rgba(255,255,255,0.97)',
+            borderColor: meta.color,
+            borderWidth: 1.5,
+            borderRadius: 8,
+            padding: [8, 12],
+            textStyle: { color: '#333', fontSize: 12 },
+            formatter: function(params) {
+                var idx = params.dimensionIndex;
+                var dimName = (idx != null && idx >= 0) ? (DIM_NAMES[idx] || ('维度' + (idx + 1))) : '综合评分';
+                return '<b style="color:' + meta.color + ';font-size:13px">' + meta.name + '</b><br/>' +
+                    '<span style="color:#888;font-size:11px">' + dimName + ':</span> ' +
+                    '<b style="color:' + meta.color + ';font-size:14px">' + params.value + '</b>' +
+                    '<span style="color:#888;font-size:11px"> / 100</span>';
+            }
+        },
+        radar: {
+            indicator: DIM_NAMES.map(function(n) { return { name: n, max: 100 }; }),
+            radius: '62%',
+            center: ['50%', '50%'],
+            splitNumber: 3,
+            axisName: {
+                color: '#aaa',
+                fontSize: 8,
+                fontWeight: 'normal',
+            },
+            //渐变网格线（从内到外颜色变浅）
+            splitLine: {
+                show: true,
+                lineStyle: {
+                    width: 1,
+                    color: {
+                        type: 'linear',
+                        x: 0, y: 0, x2: 0, y2: 1,
+                        colorStops: [
+                            { offset: 0, color: meta.color + '55' },
+                            { offset: 0.5, color: meta.color + '22' },
+                            { offset: 1, color: meta.color + '0a' }
+                        ]
+                    },
+                    type: 'solid'
+                }
+            },
+            // 渐变填充区域
+            splitArea: {
+                show: true,
+                areaStyle: {
+                    color: [
+                        meta.color + '06',
+                        meta.color + '0c',
+                        meta.color + '14'
+                    ]
+                }
+            },
+            axisLine: {
+                show: true,
+                lineStyle: { color: meta.color + '66', width: 1 }
+            },
+            shape: 'polygon',
+        },
+        series: [{
+            type: 'radar',
+            emphasis: {
+                lineStyle: { width: 3 },
+                areaStyle: { opacity: 0.35 }
+            },
+            data: [{
+                value: vals,
+                name: meta.name,
+                // 渐变线条
+                lineStyle: {
+                    color: {
+                        type: 'linear',
+                        x: 0, y: 0, x2: 1, y2: 1,
+                        colorStops: [
+                            { offset: 0, color: lightColor },
+                            { offset: 1, color: darkColor }
+                        ]
+                    },
+                    width: 2,
+                    type: 'solid'
+                },
+                // 发光数据点
+                itemStyle: {
+                    color: meta.color,
+                    shadowBlur: 10,
+                    shadowColor: meta.color + '88'
+                },
+                // 径向渐变填充
+                areaStyle: {
+                    color: {
+                        type: 'radial',
+                        x: 0.5, y: 0.5, r: 0.5,
+                        colorStops: [
+                            { offset: 0, color: meta.color + '40' },
+                            { offset: 1, color: meta.color + '0a' }
+                        ]
+                    }
+                },
+                label: { show: false },
+                symbol: 'circle',
+                symbolSize: 5,
+            }],
+        }],
+    };
+
+    chart.setOption(option);
+}
+
+//切换卡片月份并更新雷达图和维度分数
+function switchCardMonth(buId, month) {
+    currentCardMonth[buId] = month;
+
+    // 更新按钮样式
+    var card = document.getElementById('radar-' + buId);
+    if (card && card.closest) {
+        var btns = card.closest('.dept-card').querySelectorAll('.month-btn');
+        btns.forEach(function(btn) {
+            var isActive = (btn.textContent === month.replace('2026-', ''));
+            var color = BU_META[buId].color;
+            btn.style.background = isActive ? color : '#f0f0f0';
+            btn.style.color = isActive ? '#fff' : '#555';
+        });
+    }
+
+    // 重新渲染雷达图
+    renderMiniRadar(buId);
+
+    // 更新维度分数显示
+    var history = BU_HISTORY[buId];
+    var dims = history && history[month] ? history[month] : BU_DIMS[buId];
+    if (dims) {
+        var card2 = document.getElementById('radar-' + buId);
+        if (card2 && card2.closest) {
+            var chips = card2.closest('.dept-card').querySelectorAll('.dim-chip');
+            DIM_IDS.forEach(function(d, i) {
+                if (chips[i]) {
+                    var val = dims[d] || 0;
+                    chips[i].querySelector('.chip-val').textContent = val;
+                }
+            });
+            // 更新综合评分
+            var score = getScore(buId, dims);
+            var scoreEl = card2.closest('.dept-card').querySelector('.dept-score-val');
+            if (scoreEl) scoreEl.textContent = score;
+        }
+    }
+}
+
+//窗口 resize 时重绘所有图表
+window.addEventListener('resize', function() {
+    Object.keys(buChartInstances).forEach(function(buId) {
+        var chart = buChartInstances[buId];
+        var dom = document.getElementById('radar-' + buId);
+        if (chart && dom) {
+            chart.resize({ width: dom.clientWidth, height: 145 });
+        }
+    });
+});
+</script>
+</body>
+</html>

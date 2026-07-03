@@ -1,0 +1,213 @@
+{
+    "bu_id": "sjld",
+    "bu_code": "SJLD",
+    "bu_name": "三金锂电",
+    "month": "2026-04",
+    "source": "",
+    "dims": {
+        "d1": 80,
+        "d2": 14,
+        "d3": 48,
+        "d4": 56,
+        "d5": 40,
+        "d6": 55
+    },
+    "_isCurrent": false,
+    "kpis": {
+        "d1": [
+            80,
+            80,
+            80,
+            80
+        ],
+        "d2": [
+            14,
+            14,
+            14,
+            14
+        ],
+        "d3": [
+            48,
+            48,
+            48,
+            48
+        ],
+        "d4": [
+            56,
+            56,
+            56,
+            56
+        ],
+        "d5": [
+            40,
+            40,
+            40,
+            40
+        ],
+        "d6": [
+            55,
+            55,
+            55,
+            55
+        ]
+    },
+    "_kpiComparison": {
+        "title": "4月核心KPI达成率",
+        "period": "2026年4月",
+        "items": [
+            {
+                "name": "净利润达成率",
+                "budget": 80,
+                "target": 80,
+                "actual": 80,
+                "unit": "%"
+            },
+            {
+                "name": "管理费用控制率",
+                "budget": 80,
+                "target": 80,
+                "actual": 80,
+                "unit": "%"
+            },
+            {
+                "name": "主材降本达成率",
+                "budget": 80,
+                "target": 80,
+                "actual": 80,
+                "unit": "%"
+            },
+            {
+                "name": "回款率",
+                "budget": 80,
+                "target": 80,
+                "actual": 80,
+                "unit": "%"
+            }
+        ]
+    },
+    "_dimComparison_d2": {
+        "title": "4月基建进度",
+        "items": [
+            {
+                "name": "竣工验收进度",
+                "value": "14",
+                "unit": "%"
+            },
+            {
+                "name": "正常化项目",
+                "value": "14",
+                "unit": "项"
+            },
+            {
+                "name": "机电板块进度",
+                "value": "14",
+                "unit": "%"
+            },
+            {
+                "name": "土建板块进度",
+                "value": "14",
+                "unit": "%"
+            }
+        ]
+    },
+    "_dimComparison_d3": {
+        "title": "4月运营准备",
+        "items": [
+            {
+                "name": "元明粉出售",
+                "value": "48",
+                "unit": "万"
+            },
+            {
+                "name": "正常化施工",
+                "value": "48",
+                "unit": "%"
+            },
+            {
+                "name": "代工客户洽谈",
+                "value": "48",
+                "unit": "家"
+            },
+            {
+                "name": "成本测算",
+                "value": "48",
+                "unit": "%"
+            }
+        ]
+    },
+    "_dimComparison_d4": {
+        "title": "4月客户开发与技术",
+        "items": [
+            {
+                "name": "Ni93样品交付",
+                "value": "56",
+                "unit": "批"
+            },
+            {
+                "name": "BTR客户推进",
+                "value": "56",
+                "unit": "家"
+            },
+            {
+                "name": "GEM代工洽谈",
+                "value": "56",
+                "unit": "家"
+            },
+            {
+                "name": "LGES客户开发",
+                "value": "56",
+                "unit": "家"
+            }
+        ]
+    },
+    "_dimComparison_d5": {
+        "title": "4月竣工验收与合规",
+        "items": [
+            {
+                "name": "竣工验收达成",
+                "value": "40",
+                "unit": "%"
+            },
+            {
+                "name": "专项报告编制",
+                "value": "40",
+                "unit": "份"
+            },
+            {
+                "name": "EHS合规整改",
+                "value": "40",
+                "unit": "项"
+            },
+            {
+                "name": "三体系审核",
+                "value": "40",
+                "unit": "项"
+            }
+        ]
+    },
+    "_dimComparison_d6": {
+        "title": "4月组织活力",
+        "items": [
+            {
+                "name": "人员稳定性",
+                "value": "55",
+                "unit": "%"
+            },
+            {
+                "name": "跨组织支援",
+                "value": "55",
+                "unit": "人次"
+            },
+            {
+                "name": "数字化项目",
+                "value": "55",
+                "unit": "项"
+            },
+            {
+                "name": "AI创新项目",
+                "value": "55",
+                "unit": "项"
+            }
+        ]
+    }
+}

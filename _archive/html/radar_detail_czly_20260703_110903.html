@@ -1,0 +1,1179 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>常州锂源 - 雷达看板</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: "Microsoft YaHei", "PingFang SC", sans-serif; background: #f0f2f5; min-height: 100vh; }
+
+        .page-header {
+            background: linear-gradient(135deg, #0d2340 0%, #1e3c72 50%, #2a5498 100%);
+            color: white;
+            padding: 20px 40px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 4px 20px rgba(30,60,114,0.30);
+        }
+        .page-header .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            color: rgba(255,255,255,0.85);
+            text-decoration: none;
+            font-size: 14px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        .page-header .back-btn:hover { color: white; }
+        .header-row {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .bu-logo {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            object-fit: contain;
+            background: rgba(255,255,255,0.2);
+            border: 2px solid rgba(255,255,255,0.4);
+            flex-shrink: 0;
+        }
+        .bu-name { font-size: 22px; font-weight: bold; }
+        .bu-subtitle { font-size: 13px; opacity: 0.8; }
+
+        .container { max-width: 1100px; margin: 24px auto; padding: 0 20px; }
+
+        /* 综合评分概览 */
+        .score-overview {
+            display: grid;
+            grid-template-columns: 180px 1fr;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+        .score-main {
+            flex: 0 0 160px;
+            background: white;
+            border-radius: 16px;
+            padding: 28px 20px;
+            text-align: center;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+            border-left: 8px solid #1e3c72;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .big-score {
+            font-size: 36px;
+            font-weight: 900;
+            color: #1e3c72;
+            line-height: 1;
+            letter-spacing: -1px;
+        }
+        .big-score .score-unit { font-size: 16px; font-weight: 400; color: #64748B; margin-left: 2px; }
+        .score-label { font-size: 13px; color: #64748B; margin-top: 8px; letter-spacing: 1px; }
+        .score-sub { font-size: 11px; color: #aaa; margin-top: 4px; }
+
+        /* 分隔线 */
+        .score-divider {
+            height: 1px;
+            background: #e8eef4;
+            margin: 12px 0;
+            grid-column: 1 / -1;
+        }
+
+        .score-dims {
+            flex: 1;
+            background: white;
+            border-radius: 16px;
+            padding: 20px 24px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(2, 1fr);
+            gap: 10px;
+        }
+        .dim-item {
+            text-align: center;
+            padding: 10px 8px;
+            border-radius: 8px;
+            background: #f4f7fb;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1.5px solid transparent;
+        }
+        .dim-item:hover {
+            background: #eef4fc;
+            border-color: #1e3c72;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(46,117,182,0.15);
+        }
+        .dim-item .dim-name { font-size: 11px; color: #64748B; margin-bottom: 6px; font-weight: 400; }
+        .dim-item .dim-score { font-size: 22px; font-weight: 800; color: #1e3c72; }
+        .dim-item .dim-max { font-size: 10px; color: #aaa; }
+
+        /* 月份切换 */
+        .month-switcher {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+        .month-btn {
+            padding: 8px 16px;
+            border: 2px solid #ddd;
+            background: white;
+            border-radius: 8px;
+            font-size: 13px;
+            cursor: pointer;
+            color: #888;
+            font-family: inherit;
+            transition: all 0.2s;
+        }
+        .month-btn:hover { border-color: #1e3c72; color: #1e3c72; }
+        .month-btn.active {
+            border-color: #1e3c72;
+            background: #2e75b6;
+            color: white;
+            font-weight: bold;
+        }
+
+        /* Tab 导航 */
+        .tab-nav {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+            background: white;
+            border-radius: 16px;
+            padding: 6px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+        }
+        .tab-btn {
+            flex: 1;
+            padding: 10px 20px;
+            border: none;
+            background: none;
+            font-size: 14px;
+            color: #64748B;
+            cursor: pointer;
+            border-radius: 10px;
+            transition: all 0.2s;
+            font-family: inherit;
+            font-weight: 500;
+        }
+        .tab-btn:hover { color: #1e3c72; background: #f4f7fb; }
+        .tab-btn.active { color: white; background: #2e75b6; font-weight: bold; }
+
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        /* 图表区 */
+        .chart-section {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+            margin-bottom: 20px;
+            border-left: 8px solid #1e3c72;
+            transition: box-shadow 0.2s, transform 0.2s;
+        }
+        .chart-section:hover {
+            box-shadow: 0 6px 24px rgba(46,117,182,0.14);
+            transform: translateY(-1px);
+        }
+        .chart-title {
+            font-size: 15px;
+            font-weight: bold;
+            color: #1a2a3a;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #f4f7fb;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .chart-title::before {
+            content: '';
+            display: inline-block;
+            width: 4px;
+            height: 18px;
+            background: #2e75b6;
+            border-radius: 2px;
+            margin-right: 8px;
+        }
+        .chart-wrap { height: 360px; }
+
+        /* ── 增强雷达图 ── */
+        .radar-section { padding: 20px 24px 16px; }
+
+        .radar-controls {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        /* 模式切换按钮 */
+        .radar-mode-btns { display: flex; gap: 6px; }
+        .radar-mode-btn {
+            padding: 6px 16px;
+            border: 2px solid #e0e0e0;
+            background: white;
+            border-radius: 20px;
+            font-size: 12px;
+            color: #64748B;
+            cursor: pointer;
+            font-family: inherit;
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+        .radar-mode-btn:hover { border-color: #1e3c72; color: #1e3c72; background: #f4f7fb; }
+        .radar-mode-btn.active {
+            background: #2e75b6;
+            border-color: #1e3c72;
+            color: white;
+            font-weight: bold;
+            box-shadow: 0 2px 10px rgba(46,117,182,0.3);
+        }
+
+        /* 时间轴播放 */
+        .timeline-player {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex: 1;
+            max-width: 400px;
+        }
+        .play-btn {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            border: 2px solid #2e75b6;
+            background: white;
+            color: #1e3c72;
+            font-size: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+        .play-btn:hover, .play-btn.playing {
+            background: #2e75b6;
+            color: white;
+        }
+        .play-btn.playing { animation: pulse-glow 1.5s ease-in-out infinite; }
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(46,117,182,0.3); }
+            50% { box-shadow: 0 0 0 8px rgba(46,117,182,0); }
+        }
+
+        .timeline-track {
+            flex: 1;
+            height: 5px;
+            background: #e8eef4;
+            border-radius: 3px;
+            position: relative;
+            cursor: pointer;
+        }
+        .timeline-progress {
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            background: linear-gradient(90deg, #1a4c8f, #2e75b6, #5a9fd4);
+            border-radius: 3px;
+            transition: width 0.3s ease;
+        }
+        .timeline-dot {
+            position: absolute;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: white;
+            border: 2.5px solid #2e75b6;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .timeline-dot:hover, .timeline-dot.active {
+            background: #2e75b6;
+            transform: translate(-50%, -50%) scale(1.4);
+        }
+
+        .timeline-label {
+            font-size: 12px;
+            color: #1e3c72;
+            font-weight: bold;
+            min-width: 80px;
+            text-align: right;
+        }
+
+        /* 雷达图画布容器 */
+        .radar-chart-container {
+            position: relative;
+            height: 420px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .radar-wrap { height: 420px; width: 100%; position: relative; z-index: 2; }
+
+        /* 背景装饰同心圆 */
+        .radar-deco-hex {
+            position: absolute;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 1;
+        }
+        .hex-1 {
+            width: 400px; height: 400px;
+            background: radial-gradient(circle, rgba(46,117,182,0.03) 0%, transparent 70%);
+            border: 1.5px dashed rgba(46,117,182,0.12);
+        }
+        .hex-2 {
+            width: 310px; height: 310px;
+            background: radial-gradient(circle, rgba(46,117,182,0.05) 0%, transparent 70%);
+            border: 1px dashed rgba(46,117,182,0.08);
+        }
+        .hex-3 {
+            width: 220px; height: 220px;
+            background: radial-gradient(circle, rgba(46,117,182,0.07) 0%, transparent 70%);
+            border: 1px dashed rgba(46,117,182,0.06);
+        }
+
+        /* 维度标签行（3列网格 + 交互联动）*/
+        .dim-tags-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-top: 14px;
+        }
+        .dim-tag {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            padding: 8px 12px;
+            border-radius: 8px;
+            background: #f4f7fb;
+            border: 1.5px solid transparent;
+            font-size: 12px;
+            color: #64748B;
+            transition: all 0.25s;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        .dim-tag:hover {
+            border-color: #1e3c72;
+            background: #eef4fc;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(46,117,182,0.15);
+        }
+        .dim-tag.active {
+            background: #2e75b6;
+            color: white;
+            border-color: #1e3c72;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 14px rgba(46,117,182,0.3);
+        }
+        .dim-tag .dim-icon { font-size: 15px; }
+        .dim-tag .dim-label { font-weight: 500; }
+        .dim-tag .dim-val {
+            font-weight: 800;
+            color: #1e3c72;
+            font-size: 15px;
+            min-width: 24px;
+            text-align: right;
+        }
+        .dim-tag.active .dim-val { color: white; }
+
+        /* 对比图例 */
+        .compare-legend {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            margin-top: 12px;
+            flex-wrap: wrap;
+        }
+        .compare-legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            color: #555;
+        }
+        .compare-legend-item .legend-line {
+            width: 20px;
+            height: 3px;
+            border-radius: 2px;
+        }
+        .compare-legend-item .legend-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+
+        /* KPI表格 */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+        .data-table th {
+            background: #f4f7fb;
+            padding: 10px 14px;
+            text-align: center;
+            font-weight: bold;
+            color: #64748B;
+            border-bottom: 2px solid #d8e4f0;
+            font-size: 12px;
+        }
+        .data-table th:first-child { text-align: left; }
+        .data-table td {
+            padding: 10px 14px;
+            text-align: center;
+            border-bottom: 1px solid #e8eef4;
+            color: #1a2a3a;
+        }
+        .data-table td:first-child { text-align: left; font-weight: 500; }
+        .data-table tr:hover td { background: #f4f7fb; }
+        .data-table tr.highlight td { background: #eef4fc; font-weight: 600; }
+        .val-actual { color: #1e3c72; font-weight: 800; }
+        .val-good { color: #27ae60; }
+        .val-bad { color: #e74c3c; }
+        .val-neutral { color: #888; }
+        .rate-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+        .rate-good { background: #eafaf1; color: #27ae60; }
+        .rate-ok { background: #fef9e7; color: #d4a017; }
+        .rate-bad { background: #fdeaea; color: #e74c3c; }
+
+        /* KPI卡片 */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        .kpi-card {
+            background: white;
+            border-radius: 12px;
+            padding: 14px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+            border-left: 3px solid #2e75b6;
+            text-align: center;
+            transition: all 0.2s;
+            cursor: default;
+        }
+        .kpi-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(46,117,182,0.15);
+        }
+        .kpi-card .kpi-name { font-size: 11px; color: #64748B; margin-bottom: 6px; }
+        .kpi-card .kpi-val { font-size: 20px; font-weight: 800; color: #1e3c72; }
+        .kpi-card .kpi-unit { font-size: 11px; color: #aaa; margin-left: 2px; }
+        .kpi-card .kpi-sub { font-size: 11px; color: #aaa; margin-top: 3px; }
+
+        /* 维度说明 */
+        .dim-explain {
+            background: #f4f7fb;
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin-top: 12px;
+            font-size: 12px;
+            color: #64748B;
+            line-height: 1.8;
+        }
+        .dim-explain strong { color: #1e3c72; }
+
+        /* KPI达成率条 */
+        .achv-bar-wrap {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .achv-bar-bg {
+            flex: 1;
+            height: 6px;
+            background: #eee;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        .achv-bar {
+            height: 100%;
+            border-radius: 3px;
+            transition: width 0.5s ease;
+        }
+        .achv-val { font-size: 11px; min-width: 36px; text-align: right; }
+
+        /* 维度子项行 */
+        .dim-items-table { margin-top: 12px; }
+        .dim-items-table .section-subtitle {
+            font-size: 13px;
+            font-weight: bold;
+            color: #1e3c72;
+            margin: 16px 0 10px;
+        }
+
+        /* 趋势摘要 */
+        .trend-summary {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+        .trend-card {
+            flex: 1;
+            background: white;
+            border-radius: 12px;
+            padding: 14px 16px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+            border-left: 3px solid #2e75b6;
+        }
+        .trend-card .trend-label { font-size: 12px; color: #64748B; margin-bottom: 6px; }
+        .trend-card .trend-val { font-size: 22px; font-weight: 800; color: #1e3c72; }
+        .trend-card .trend-delta { font-size: 12px; margin-top: 2px; }
+        .trend-card .trend-delta.up { color: #e74c3c; }
+        .trend-card .trend-delta.down { color: #27ae60; }
+
+        .footer-note {
+            text-align: center;
+            color: #9ab0cc;
+            font-size: 12px;
+            padding: 24px;
+            border-top: 1px solid #e8eef4;
+        }
+        .footer-note a { color: #1e3c72; text-decoration: none; font-weight: 600; }
+        .footer-note a:hover { text-decoration: underline; }
+
+        @media (max-width: 768px) {
+            .score-overview { flex-direction: column; }
+            .score-dims { flex-wrap: wrap; }
+            .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+            .trend-summary { flex-direction: column; }
+        }
+        /* AI 洞察卡片 */
+        .ai-insights-container {
+            background: white;
+            border-radius: 16px;
+            padding: 20px 24px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+            border-left: 8px solid #1e3c72;
+            height: 520px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .ai-insights-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #e8eef4;
+            flex-shrink: 0;
+        }
+        .ai-insights-icon { font-size: 20px; }
+        .ai-insights-title { font-size: 16px; font-weight: 600; color: #1e293b; flex: 1; }
+        .ai-insights-refresh {
+            padding: 6px 12px;
+            background: #2e75b6;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        .ai-insights-refresh:hover { background: #2d5480; }
+        
+        /* AI洞察 - 左侧导航布局 */
+        .ai-insights-layout {
+            display: flex;
+            gap: 0;
+            flex: 1;
+            overflow: hidden;
+        }
+        .ai-insights-left-nav {
+            width: 160px;
+            background: #f8fafc;
+            border-right: 1px solid #e2e8f0;
+            padding: 12px 0;
+            flex-shrink: 0;
+            overflow-y: auto;
+        }
+        .ai-insights-nav-item {
+            padding: 12px 16px;
+            cursor: pointer;
+            font-size: 14px;
+            color: #475569;
+            border-left: 3px solid transparent;
+            transition: all 0.2s;
+        }
+        .ai-insights-nav-item:hover {
+            background: #e2e8f0;
+            color: #1e293b;
+        }
+        .ai-insights-nav-item.active {
+            background: #dbeafe;
+            color: #1e3c72;
+            border-left-color: #1e3c72;
+            font-weight: 600;
+        }
+        .ai-insights-right-content {
+            flex: 1;
+            padding: 16px;
+            overflow: hidden;
+            position: relative;
+        }
+        .ai-insights-panel {
+            display: none;
+            height: 100%;
+            overflow-y: auto;
+        }
+        .ai-insights-panel.active {
+            display: block;
+        }
+        
+        /* 维度分析面板 - 标签切换样式 */
+        .dims-tabs-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 16px;
+            flex-wrap: nowrap;
+            overflow-x: auto;
+            padding-bottom: 4px;
+        }
+        .dims-tabs-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: #1e293b;
+            margin-right: 8px;
+        }
+        .dims-tab-btn {
+            padding: 4px 10px;
+            background: #f1f5f9;
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            cursor: pointer;
+            font-size: 11px;
+            color: #475569;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+        .dims-tab-btn:hover {
+            background: #e2e8f0;
+            color: #1e293b;
+        }
+        .dims-tab-btn.active {
+            background: #2e75b6;
+            color: white;
+            border-color: #1e3c72;
+            font-weight: 600;
+        }
+        .dims-tab-content {
+            display: none;
+        }
+        .dims-tab-content.active {
+            display: block;
+        }
+        
+        .ai-insights-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 12px;
+        }
+        .ai-insight-card {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 16px;
+            min-height: 140px;
+            height: auto;
+            transition: all 0.2s;
+        }
+        .ai-insight-card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+        .ai-insight-card-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .ai-insight-card-icon { font-size: 18px; }
+        .ai-insight-card-title { font-size: 14px; font-weight: 600; color: #1e293b; }
+        .ai-insight-card-body {
+            font-size: 13px;
+            line-height: 1.6;
+            color: #475569;
+        }
+        .ai-insight-card-body ul {
+            margin: 8px 0;
+            padding-left: 20px;
+        }
+        .ai-insight-card-body li {
+            margin-bottom: 4px;
+        }
+        .ai-insights-loading {
+            text-align: center;
+            padding: 40px;
+            color: #64748b;
+            font-size: 14px;
+        }
+
+        /* ========= 新版AI洞察样式 V2 ========= */
+        .insight-trend-analysis { margin-bottom: 16px; }
+        .insight-trend-header { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+        .insight-trend-icon { font-size: 18px; }
+        .insight-trend-title { font-size: 15px; font-weight: 600; color: #1e293b; }
+        .insight-trend-badge { padding: 2px 8px; border-radius: 10px; font-size: 12px; font-weight: 600; margin-left: auto; }
+        .insight-trend-badge.positive { background: #dcfce7; color: #16a34a; }
+        .insight-trend-badge.negative { background: #fee2e2; color: #dc2626; }
+        .insight-trend-insight { font-size: 13px; color: #475569; line-height: 1.6; margin-bottom: 8px; }
+        
+        .insight-benchmark-analysis { margin-bottom: 16px; }
+        .insight-benchmark-list { list-style: none; padding: 0; margin: 8px 0; }
+        .insight-benchmark-list li { padding: 6px 0; font-size: 13px; color: #475569; }
+        .insight-benchmark-list li strong { margin: 0 4px; }
+        strong.positive { color: #16a34a; }
+        strong.negative { color: #dc2626; }
+        strong.warn { color: #d97706; }
+        
+        .insight-kpi-analysis { margin-bottom: 16px; }
+        .insight-kpi-summary { display: flex; gap: 12px; margin-bottom: 12px; }
+        .insight-kpi-card { flex: 1; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px; text-align: center; }
+        .insight-kpi-card.good { border-color: #bbf7d0; background: #f0fdf4; }
+        .insight-kpi-card.warn { border-color: #fde68a; background: #fefce8; }
+        .insight-kpi-card.bad { border-color: #fecaca; background: #fef2f2; }
+        .insight-kpi-card-value { font-size: 24px; font-weight: 700; color: #1e293b; }
+        .insight-kpi-card-label { font-size: 12px; color: #64748b; margin-top: 4px; }
+        .insight-kpi-detail-group { margin-bottom: 12px; }
+        .insight-kpi-detail-header { font-size: 13px; font-weight: 600; margin-bottom: 6px; }
+        .insight-kpi-detail-group ul { padding-left: 20px; margin: 4px 0; }
+        .insight-kpi-detail-group li { font-size: 12px; color: #475569; margin-bottom: 6px; line-height: 1.5; }
+        .insight-kpi-insight { font-size: 11px; color: #64748b; font-style: italic; }
+        
+        .insight-budget-analysis { margin-bottom: 16px; font-size: 13px; color: #475569; }
+        
+        .insight-dim-trend { margin-bottom: 10px; font-size: 13px; color: #475569; }
+        .insight-dim-trend-icon { margin-right: 4px; }
+        .insight-dim-benchmark { margin-bottom: 10px; font-size: 13px; color: #475569; }
+        .insight-dim-rootcause { margin-bottom: 10px; font-size: 13px; color: #475569; }
+        .insight-dim-rootcause ul { padding-left: 20px; margin: 4px 0; }
+        .insight-dim-rootcause li { margin-bottom: 6px; line-height: 1.5; }
+        .insight-dim-suggestion { margin-top: 12px; padding: 12px; border-radius: 8px; font-size: 13px; line-height: 1.6; }
+        .insight-dim-suggestion.bad { background: #fef2f2; border: 1px solid #fecaca; color: #991b1b; }
+        .insight-dim-suggestion.warn { background: #fefce8; border: 1px solid #fde68a; color: #92400e; }
+        .insight-dim-suggestion.good { background: #f0fdf4; border: 1px solid #bbf7d0; color: #166534; }
+        .insight-dim-suggestion.excellent { background: #eff6ff; border: 1px solid #bfdbfe; color: #1e40af; }
+        
+        .insight-risk-analysis { margin-bottom: 16px; }
+        .insight-risk-matrix { display: flex; gap: 12px; margin: 12px 0; }
+        .insight-risk-level { flex: 1; padding: 8px 12px; border-radius: 8px; font-size: 13px; font-weight: 600; text-align: center; }
+        .insight-risk-level.high { background: #fee2e2; color: #dc2626; border: 1px solid #fecaca; }
+        .insight-risk-level.medium { background: #fefce8; color: #d97706; border: 1px solid #fde68a; }
+        .insight-risk-level.low { background: #f0fdf4; color: #16a34a; border: 1px solid #bbf7d0; }
+        .insight-risk-list { list-style: none; padding: 0; margin: 8px 0; }
+        .insight-risk-item { padding: 10px 12px; margin-bottom: 8px; border-radius: 8px; border-left: 3px solid; }
+        .insight-risk-item.high { background: #fef2f2; border-color: #dc2626; }
+        .insight-risk-item.medium { background: #fefce8; border-color: #d97706; }
+        .insight-risk-item.low { background: #f0fdf4; border-color: #16a34a; }
+        .insight-risk-level-icon { margin-right: 6px; }
+        .insight-risk-name { font-weight: 600; color: #1e293b; margin-right: 8px; }
+        .insight-risk-detail { font-size: 12px; color: #64748b; margin-left: 8px; }
+        .insight-risk-impact { font-size: 11px; color: #9ca3af; margin-top: 4px; display: block; }
+        
+        .insight-highlight-analysis { margin-bottom: 16px; }
+        .insight-highlight-list { list-style: none; padding: 0; margin: 8px 0; }
+        .insight-highlight-item { padding: 10px 12px; margin-bottom: 8px; border-radius: 8px; border-left: 3px solid; }
+        .insight-highlight-item.breakthrough { background: #eff6ff; border-color: #3b82f6; }
+        .insight-highlight-item.momentum { background: #f0fdf4; border-color: #16a34a; }
+        .insight-highlight-item.stable { background: #f8fafc; border-color: #64748b; }
+        .insight-highlight-icon { margin-right: 6px; }
+        .insight-highlight-name { font-weight: 600; color: #1e293b; margin-right: 8px; }
+        .insight-highlight-detail { font-size: 12px; color: #64748b; margin-left: 8px; }
+        .insight-highlight-replicable { font-size: 11px; color: #9ca3af; margin-top: 4px; display: block; }
+        .insight-highlight-summary { font-size: 13px; color: #475569; margin-top: 12px; padding: 8px 12px; background: #f0fdf4; border-radius: 8px; }
+        
+        .insight-action-plan { margin-bottom: 16px; }
+        .insight-action-timeline { display: flex; gap: 12px; margin: 12px 0; }
+        .insight-action-phase { flex: 1; padding: 8px 12px; border-radius: 8px; font-size: 13px; font-weight: 600; text-align: center; }
+        .insight-action-phase.urgent { background: #fee2e2; color: #dc2626; border: 1px solid #fecaca; }
+        .insight-action-phase.important { background: #fefce8; color: #d97706; border: 1px solid #fde68a; }
+        .insight-action-phase.normal { background: #f0fdf4; color: #16a34a; border: 1px solid #bbf7d0; }
+        .insight-action-table { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 12px; }
+        .insight-action-table th { background: #f8fafc; padding: 8px 12px; text-align: left; border-bottom: 2px solid #e2e8f0; color: #475569; font-weight: 600; }
+        .insight-action-table td { padding: 8px 12px; border-bottom: 1px solid #f1f5f9; color: #64748b; vertical-align: top; }
+        .insight-action-table tr.urgent td { background: #fef2f2; }
+        .insight-action-table tr.important td { background: #fefce8; }
+        .insight-action-table tr.normal td { background: #f0fdf4; }
+
+        /* 问题预警模块新样式 V3 */
+        .insight-problems-detail { margin-top: 12px; }
+        .insight-problem-card { margin-bottom: 16px; border-radius: 10px; border: 1px solid; overflow: hidden; }
+        .insight-problem-card.high { background: #fef2f2; border-color: #fecaca; }
+        .insight-problem-card.medium { background: #fefce8; border-color: #fde68a; }
+        .insight-problem-card.low { background: #f0fdf4; border-color: #bbf7d0; }
+        .insight-problem-header { display: flex; align-items: center; gap: 8px; padding: 10px 16px; background: rgba(0,0,0,0.03); border-bottom: 1px solid rgba(0,0,0,0.06); }
+        .insight-problem-level { font-size: 12px; font-weight: 700; padding: 2px 8px; border-radius: 6px; }
+        .insight-problem-card.high .insight-problem-level { background: #fee2e2; color: #dc2626; }
+        .insight-problem-card.medium .insight-problem-level { background: #fefce8; color: #d97706; }
+        .insight-problem-card.low .insight-problem-level { background: #dcfce7; color: #16a34a; }
+        .insight-problem-name { font-size: 14px; font-weight: 600; color: #1e293b; }
+        .insight-problem-body { padding: 12px 16px; font-size: 13px; color: #475569; line-height: 1.6; }
+        .insight-problem-detail { margin-bottom: 6px; }
+        .insight-problem-history { margin-bottom: 6px; color: #64748b; }
+        .insight-problem-impact { margin-bottom: 6px; color: #dc2626; font-weight: 500; }
+        .insight-problem-card.medium .insight-problem-impact { color: #d97706; }
+        .insight-problem-card.low .insight-problem-impact { color: #16a34a; }
+        .insight-problem-rootcause { margin-bottom: 6px; color: #7c3aed; }
+        .insight-problem-action { color: #2563eb; font-weight: 500; }
+        
+        /* 改进建议模块新样式 V3 */
+        .insight-actions-detail { margin-top: 12px; }
+        .insight-action-card { margin-bottom: 16px; border-radius: 10px; border: 1px solid; overflow: hidden; }
+        .insight-action-card.urgent { background: #fef2f2; border-color: #fecaca; }
+        .insight-action-card.important { background: #fefce8; border-color: #fde68a; }
+        .insight-action-card.normal { background: #f0fdf4; border-color: #bbf7d0; }
+        .insight-action-header { display: flex; align-items: center; gap: 8px; padding: 10px 16px; background: rgba(0,0,0,0.03); border-bottom: 1px solid rgba(0,0,0,0.06); }
+        .insight-action-priority { font-size: 12px; font-weight: 700; padding: 2px 8px; border-radius: 6px; }
+        .insight-action-card.urgent .insight-action-priority { background: #fee2e2; color: #dc2626; }
+        .insight-action-card.important .insight-action-priority { background: #fefce8; color: #d97706; }
+        .insight-action-card.normal .insight-action-priority { background: #dcfce7; color: #16a34a; }
+        .insight-action-name { font-size: 14px; font-weight: 600; color: #1e293b; }
+        .insight-action-body { padding: 12px 16px; font-size: 13px; color: #475569; line-height: 1.6; }
+        .insight-action-detail { margin-bottom: 6px; }
+        .insight-action-timeline { margin-bottom: 6px; color: #7c3aed; }
+        .insight-action-owner { margin-bottom: 6px; color: #2563eb; }
+        .insight-action-actions { margin-bottom: 6px; }
+        .insight-action-actions ul { padding-left: 20px; margin: 4px 0; }
+        .insight-action-actions li { margin-bottom: 4px; line-height: 1.5; }
+        .insight-action-effect { color: #16a34a; font-weight: 500; }
+
+        /* TAB3 维度详情 - 左侧导航布局 */
+        .dims-layout {
+            display: flex;
+            gap: 0;
+            min-height: 500px;
+        }
+        .dims-left-nav {
+            width: 200px;
+            background: #f8fafc;
+            border-right: 1px solid #e2e8f0;
+            padding: 16px 0;
+            flex-shrink: 0;
+        }
+        .dims-nav-item {
+            padding: 12px 20px;
+            cursor: pointer;
+            font-size: 14px;
+            color: #475569;
+            border-left: 3px solid transparent;
+            transition: all 0.2s;
+        }
+        .dims-nav-item:hover {
+            background: #e2e8f0;
+            color: #1e293b;
+        }
+        .dims-nav-item.active {
+            background: #dbeafe;
+            color: #1e3c72;
+            border-left-color: #1e3c72;
+            font-weight: 600;
+        }
+        .dims-right-content {
+            flex: 1;
+            padding: 20px;
+            overflow-x: auto;
+        }
+        .dims-content-panel {
+            display: none;
+        }
+        .dims-content-panel.active {
+            display: block;
+        }
+
+        /* TAB4 生产基地 */
+        .base-cards-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-top: 16px;
+        }
+        .base-card {
+            background: white;
+            border-radius: 14px;
+            padding: 20px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+            border-left: 5px solid #1e3c72;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .base-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+        }
+        .base-card-name {
+            font-size: 16px;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 12px;
+        }
+        .base-card-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 6px 0;
+            font-size: 13px;
+            color: #475569;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        .base-card-row:last-child { border-bottom: none; }
+        .base-card-label { color: #94a3b8; }
+        .base-card-value { font-weight: 600; color: #1e293b; }
+        .base-card-achv {
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+        .base-card-achv.good { background: #dcfce7; color: #16a34a; }
+        .base-card-achv.ok { background: #fefce8; color: #d97706; }
+        .base-card-achv.bad { background: #fee2e2; color: #dc2626; }
+        .base-card-achv.off { background: #f1f5f9; color: #94a3b8; }
+
+    </style>
+
+<!-- BU 自检: CZLY -->
+<script src="inline_00.js"></script>
+<!-- BU 自检: CZLY -->
+<script src="inline_01.js"></script>
+</head>
+<body>
+<div class="page-header">
+    <a class="back-btn" href="radar_hub.html">← 雷达看板</a>
+    <a class="back-btn" href="index_v3.html" style="margin-left:8px">← 返回首页</a>
+    <div class="header-row">
+        <div style="width:48px;height:48px;border-radius:50%;background:rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;">🧴</div>
+        <div>
+            <div class="bu-name">常州锂源</div>
+            <div class="bu-subtitle">磷酸铁锂正极材料 · 新能源材料</div>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <!-- 月份切换 -->
+    <div class="month-switcher" id="monthSwitcher"></div>
+
+    <!-- 综合评分概览 -->
+    <div class="score-overview">
+        <div class="score-main">
+            <div class="big-score" id="bigScore">--</div>
+            <div class="score-label">综合评分</div>
+            <div class="score-sub">加权综合 · 权重因业而异</div>
+        </div>
+        <div class="score-dims" id="scoreDims"></div>
+    </div>
+
+    <!-- AI 洞察 -->
+    <div class="ai-insights-container" id="aiInsightsContainer">
+        <div class="ai-insights-header">
+            <span class="ai-insights-icon">🤖</span>
+            <span class="ai-insights-title">AI 经营洞察</span>
+            <button class="ai-insights-refresh" onclick="refreshInsights()">🔄 重新分析</button>
+        </div>
+        <div class="ai-insights-layout">
+            <div class="ai-insights-left-nav">
+                <div class="ai-insights-nav-item active" data-panel="summary" onclick="switchInsightPanel('summary')">综合表现</div>
+                <div class="ai-insights-nav-item" data-panel="dims" onclick="switchInsightPanel('dims')">维度分析</div>
+                <div class="ai-insights-nav-item" data-panel="issues" onclick="switchInsightPanel('issues')">问题预警</div>
+                <div class="ai-insights-nav-item" data-panel="progress" onclick="switchInsightPanel('progress')">积极进展</div>
+                <div class="ai-insights-nav-item" data-panel="suggestions" onclick="switchInsightPanel('suggestions')">改进建议</div>
+            </div>
+            <div class="ai-insights-right-content">
+                <div class="ai-insights-panel active" id="ai-panel-summary"></div>
+                <div class="ai-insights-panel" id="ai-panel-dims"></div>
+                <div class="ai-insights-panel" id="ai-panel-issues"></div>
+                <div class="ai-insights-panel" id="ai-panel-progress"></div>
+                <div class="ai-insights-panel" id="ai-panel-suggestions"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tab 导航 -->
+    <div class="tab-nav">
+        <button class="tab-btn active" onclick="switchTab(this, 'radar')">六维雷达图</button>
+        <button class="tab-btn" onclick="switchTab(this, 'kpi')">核心KPI</button>
+        <button class="tab-btn" onclick="switchTab(this, 'dims')">维度详情</button>
+        <button class="tab-btn" onclick="switchTab(this, 'bases')">生产基地</button>
+    </div>
+
+    <!-- Tab: 雷达图 -->
+    <div id="tab-radar" class="tab-content active">
+        <div class="chart-section radar-section">
+            <!-- 雷达图控制栏 -->
+            <div class="radar-controls">
+                <div class="chart-title" style="margin-bottom:0;border:none;padding-bottom:0;">
+                    六维能力雷达图
+                    <div class="radar-mode-btns">
+                        <button class="radar-mode-btn active" id="mode-single" onclick="setRadarMode('single')">单对象模式</button>
+                        <button class="radar-mode-btn" id="mode-compare" onclick="setRadarMode('compare')">多对象对比</button>
+                    </div>
+                </div>
+                <!-- 时间轴播放控制 -->
+                <div class="timeline-player" id="timelinePlayer">
+                    <button class="play-btn" id="playBtn" onclick="togglePlay()">
+                        <span id="playIcon">▶</span>
+                    </button>
+                    <div class="timeline-track" id="timelineTrack"></div>
+                    <span class="timeline-label" id="timelineLabel">2026年05月</span>
+                </div>
+            </div>
+
+            <!-- 雷达图主区域（带装饰背景） -->
+            <div class="radar-chart-container">
+                <!-- 背景装饰六边形 -->
+                <div class="radar-deco-hex hex-1"></div>
+                <div class="radar-deco-hex hex-2"></div>
+                <div class="radar-deco-hex hex-3"></div>
+                <!-- 主雷达图画布 -->
+                <div class="chart-wrap radar-wrap" id="radarChart"></div>
+            </div>
+
+            <!-- 维度标签说明 -->
+            <div class="dim-tags-row">
+                <div class="dim-tag" data-d="d1"><span class="dim-icon">🎯</span><span class="dim-label">战略执行力</span><span class="dim-val" id="dv-d1">--</span></div>
+                <div class="dim-tag" data-d="d2"><span class="dim-icon">📊</span><span class="dim-label">经营效益</span><span class="dim-val" id="dv-d2">--</span></div>
+                <div class="dim-tag" data-d="d3"><span class="dim-icon">⚙️</span><span class="dim-label">运营效率</span><span class="dim-val" id="dv-d3">--</span></div>
+                <div class="dim-tag" data-d="d4"><span class="dim-icon">🔬</span><span class="dim-label">技术创新</span><span class="dim-val" id="dv-d4">--</span></div>
+                <div class="dim-tag" data-d="d5"><span class="dim-icon">🛡️</span><span class="dim-label">风险合规</span><span class="dim-val" id="dv-d5">--</span></div>
+                <div class="dim-tag" data-d="d6"><span class="dim-icon">🏢</span><span class="dim-label">组织活力</span><span class="dim-val" id="dv-d6">--</span></div>
+            </div>
+
+            <!-- 对比图例（多对象模式时显示） -->
+            <div class="compare-legend" id="compareLegend" style="display:none;"></div>
+        </div>
+    </div>
+
+    <!-- Tab: 核心KPI -->
+    <div id="tab-kpi" class="tab-content">
+        <div class="kpi-grid" id="kpiGrid"></div>
+        <div class="chart-section">
+            <div class="chart-title" id="kpiChartTitle">核心KPI达标率（预算 → 挑战目标 → 实际）</div>
+            <div style="overflow-x:auto;">
+                <table class="data-table" id="kpiTable">
+                    <thead><tr>
+                        <th>指标名称</th><th>预算</th><th>挑战目标</th><th>实际达成</th><th>达成率</th><th>vs预算</th><th>vs目标</th>
+                    </tr></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tab: 维度详情 -->
+    <div id="tab-dims" class="tab-content">
+        <div class="dims-layout">
+            <div class="dims-left-nav" id="dimsLeftNav">
+                <div class="dims-nav-item active" data-dim="d1" onclick="switchDimPanel('d1')">D1 核心KPI</div>
+                <div class="dims-nav-item" data-dim="d2" onclick="switchDimPanel('d2')">D2 经营效益</div>
+                <div class="dims-nav-item" data-dim="d3" onclick="switchDimPanel('d3')">D3 运营效率</div>
+                <div class="dims-nav-item" data-dim="d4" onclick="switchDimPanel('d4')">D4 技术创新力</div>
+                <div class="dims-nav-item" data-dim="d5" onclick="switchDimPanel('d5')">D5 风险合规</div>
+                <div class="dims-nav-item" data-dim="d6" onclick="switchDimPanel('d6')">D6 组织活力</div>
+            </div>
+            <div class="dims-right-content">
+                <div class="dims-content-panel active" id="dims-panel-d1">
+                    <div class="chart-section">
+                        <div class="chart-title">D1 战略执行力 - 收入+利润+成本</div>
+                        <div style="overflow-x:auto;">
+                            <table class="data-table" id="dim1Table"><thead><tr><th>指标</th><th>预算</th><th>目标</th><th>实际</th><th>达成率</th><th>状态</th></tr></thead><tbody></tbody></table>
+                        </div>
+                    </div>
+                </div>
+                <div class="dims-content-panel" id="dims-panel-d2">
+                    <div class="chart-section">
+                        <div class="chart-title">D2 经营效益 - 各基地产量+发货量</div>
+                        <div style="overflow-x:auto;">
+                            <table class="data-table" id="dim2Table"><thead><tr><th>指标</th><th>预算</th><th>目标</th><th>实际</th><th>达成率</th><th>状态</th></tr></thead><tbody></tbody></table>
+                        </div>
+                    </div>
+                </div>
+                <div class="dims-content-panel" id="dims-panel-d3">
+                    <div class="chart-section">
+                        <div class="chart-title">D3 运营效率 - 产能利用率+合格率+库存周转</div>
+                        <div style="overflow-x:auto;">
+                            <table class="data-table" id="dim3Table"><thead><tr><th>指标</th><th>预算</th><th>目标</th><th>实际</th><th>达成率</th><th>状态</th></tr></thead><tbody></tbody></table>
+                        </div>
+                    </div>
+                </div>
+                <div class="dims-content-panel" id="dims-panel-d4">
+                    <div class="chart-section">
+                        <div class="chart-title">D4 技术创新力 - 专利+研发项目立项</div>
+                        <div style="overflow-x:auto;">
+                            <table class="data-table" id="dim4Table"><thead><tr><th>指标</th><th>上月</th><th>本月</th><th>环比</th><th>状态</th></tr></thead><tbody></tbody></table>
+                        </div>
+                    </div>
+                </div>
+                <div class="dims-content-panel" id="dims-panel-d5">
+                    <div class="chart-section">
+                        <div class="chart-title">D5 风险合规 - 质量+安全+环保</div>
+                        <div style="overflow-x:auto;">
+                            <table class="data-table" id="dim5Table"><thead><tr><th>指标</th><th>上月</th><th>本月</th><th>环比</th><th>状态</th></tr></thead><tbody></tbody></table>
+                        </div>
+                    </div>
+                </div>
+                <div class="dims-content-panel" id="dims-panel-d6">
+                    <div class="chart-section">
+                        <div class="chart-title">D6 组织活力 - AI项目+数字化+人才引进</div>
+                        <div style="overflow-x:auto;">
+                            <table class="data-table" id="dim6Table"><thead><tr><th>指标</th><th>上月</th><th>本月</th><th>环比</th><th>状态</th></tr></thead><tbody></tbody></table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tab: 生产基地 -->
+    <div id="tab-bases" class="tab-content">
+        <div class="container">
+            <div class="chart-card" style="margin-bottom:20px">
+                <div class="chart-title" id="baseChartTitle">各基地产量 vs 排产目标（吨）</div>
+                <div id="baseProductionChart" style="width:100%;height:420px"></div>
+            </div>
+            <div class="section-title" id="baseSectionTitle">生产基地概览</div>
+            <div class="base-cards-grid" id="baseCardsGrid">
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="footer-note">
+    数据来源：常州锂源2026年5月经营分析报告（锂源5月.pdf） <a href="radar_hub.html">返回雷达看板</a>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+<script src="inline_02.js"></script>
+</body>
+</html>

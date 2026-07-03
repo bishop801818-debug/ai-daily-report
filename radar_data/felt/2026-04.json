@@ -1,0 +1,258 @@
+{
+    "bu_id": "felt",
+    "bu_code": "FNLT",
+    "bu_name": "法恩莱特",
+    "month": "2026-04",
+    "source": "",
+    "dims": {
+        "d1": 20,
+        "d2": 15,
+        "d3": 47,
+        "d4": 100,
+        "d5": 71,
+        "d6": 50
+    },
+    "_isCurrent": false,
+    "kpis": {
+        "d1": [
+            20,
+            20,
+            20,
+            20
+        ],
+        "d2": [
+            15,
+            15,
+            15,
+            15
+        ],
+        "d3": [
+            47,
+            47,
+            47,
+            47
+        ],
+        "d4": [
+            100,
+            100,
+            100,
+            100
+        ],
+        "d5": [
+            71,
+            71,
+            71,
+            71
+        ],
+        "d6": [
+            50,
+            50,
+            50,
+            50
+        ]
+    },
+    "_kpiComparison": {
+        "title": "4月核心KPI达标率",
+        "period": "2026年4月",
+        "items": [
+            {
+                "name": "销量达成率(%)",
+                "budget": 4155,
+                "target": 7795,
+                "actual": 4155,
+                "unit": "%"
+            },
+            {
+                "name": "收入达成率(%)",
+                "budget": 9887,
+                "target": 17053,
+                "actual": 9887,
+                "unit": "%"
+            },
+            {
+                "name": "毛利率(%)",
+                "unit": "%"
+            },
+            {
+                "name": "期间费用率(%)",
+                "budget": 322,
+                "target": 366,
+                "actual": 322,
+                "unit": "%"
+            },
+            {
+                "name": "净利率(%)",
+                "target": 443,
+                "unit": "%"
+            },
+            {
+                "name": "现金流达成率(%)",
+                "budget": 362,
+                "target": 461,
+                "actual": 362,
+                "unit": "%"
+            },
+            {
+                "name": "回款率(%)",
+                "budget": 69,
+                "target": 69,
+                "actual": 69,
+                "unit": "%"
+            }
+        ]
+    },
+    "_dimComparison_d2": {
+        "title": "4月经营效益",
+        "items": [
+            {
+                "name": "销量达成率(%)",
+                "budget": 4155,
+                "target": 7795,
+                "actual": 4155,
+                "unit": "%"
+            },
+            {
+                "name": "收入达成率(%)",
+                "budget": 9887,
+                "target": 17053,
+                "actual": 9887,
+                "unit": "%"
+            },
+            {
+                "name": "毛利率(%)",
+                "unit": "%"
+            },
+            {
+                "name": "净利率(%)",
+                "target": 443,
+                "unit": "%"
+            }
+        ]
+    },
+    "_dimComparison_d3": {
+        "title": "4月运营效率",
+        "items": [
+            {
+                "name": "采购量达成率(%)",
+                "budget": 4007,
+                "target": 6477,
+                "actual": 4007,
+                "unit": "%"
+            },
+            {
+                "name": "降本率(%)",
+                "budget": 1.85,
+                "target": 6,
+                "actual": 1.85,
+                "unit": "%"
+            },
+            {
+                "name": "采购到货率(%)",
+                "budget": 92,
+                "target": 92,
+                "actual": 92,
+                "unit": "%"
+            },
+            {
+                "name": "供应商审核(家)",
+                "budget": 0,
+                "target": 0,
+                "actual": 0,
+                "unit": "家"
+            }
+        ]
+    },
+    "_dimComparison_d4": {
+        "title": "4月技术创新力",
+        "format": "mom",
+        "items": [
+            {
+                "name": "新产品销量(吨)",
+                "prev": 0,
+                "curr": 580,
+                "unit": "吨"
+            },
+            {
+                "name": "采购降本(万元)",
+                "prev": 0,
+                "curr": 0,
+                "unit": "万元"
+            },
+            {
+                "name": "技术降本(%)",
+                "prev": 1.85,
+                "curr": 1.85,
+                "unit": "%"
+            },
+            {
+                "name": "OEM认证(家)",
+                "prev": 0,
+                "curr": 0,
+                "unit": "家"
+            }
+        ]
+    },
+    "_dimComparison_d5": {
+        "title": "4月风险合规",
+        "items": [
+            {
+                "name": "采购及时到货率(%)",
+                "budget": 92,
+                "target": 92,
+                "actual": 92,
+                "unit": "%"
+            },
+            {
+                "name": "客户审核通过(家)",
+                "budget": 0,
+                "target": 0,
+                "actual": 0,
+                "unit": "家"
+            },
+            {
+                "name": "质量体系审核",
+                "budget": 0,
+                "target": 0,
+                "actual": 0,
+                "unit": "项"
+            },
+            {
+                "name": "EHS合规整改",
+                "budget": 0,
+                "target": 0,
+                "actual": 0,
+                "unit": "项"
+            }
+        ]
+    },
+    "_dimComparison_d6": {
+        "title": "4月组织活力",
+        "format": "mom",
+        "items": [
+            {
+                "name": "战略协议签订(项)",
+                "prev": 0,
+                "curr": 0,
+                "unit": "项"
+            },
+            {
+                "name": "AI项目立项(个)",
+                "prev": 0,
+                "curr": 0,
+                "unit": "个"
+            },
+            {
+                "name": "新客户开发(家)",
+                "prev": 0,
+                "curr": 0,
+                "unit": "家"
+            },
+            {
+                "name": "数字化项目(个)",
+                "prev": 0,
+                "curr": 0,
+                "unit": "个"
+            }
+        ]
+    }
+}

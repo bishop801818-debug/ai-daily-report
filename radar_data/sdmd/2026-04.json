@@ -1,0 +1,264 @@
+{
+    "bu_id": "sdmd",
+    "bu_code": "SDMD",
+    "bu_name": "山东美多",
+    "month": "2026-04",
+    "source": "",
+    "dims": {
+        "d1": 100,
+        "d2": 88,
+        "d3": 90,
+        "d4": 100,
+        "d5": 78,
+        "d6": 75
+    },
+    "_isCurrent": false,
+    "kpis": {
+        "d1": [
+            99.9,
+            100.0,
+            99.0,
+            100.0
+        ],
+        "d2": [
+            100.0,
+            75.0,
+            77.1,
+            101.4
+        ],
+        "d3": [
+            98.4,
+            100.0,
+            74.6,
+            86.9
+        ],
+        "d4": [
+            120.0,
+            120.0,
+            100.0
+        ],
+        "d5": [
+            110.4,
+            120.0,
+            78.9,
+            100.0
+        ],
+        "d6": [
+            70.0,
+            60.0,
+            90.0,
+            90.0
+        ]
+    },
+    "_kpiComparison": {
+        "title": "4月核心KPI达标率",
+        "period": "2026年4月",
+        "items": [
+            {
+                "name": "收入(万元)",
+                "budget": 3641,
+                "target": 7100,
+                "actual": 7382,
+                "unit": "万元"
+            },
+            {
+                "name": "毛利(万元)",
+                "budget": 287,
+                "target": 800,
+                "actual": 865,
+                "unit": "万元"
+            },
+            {
+                "name": "扣非净利润(万元)",
+                "budget": 97,
+                "target": 480,
+                "actual": 518,
+                "unit": "万元"
+            },
+            {
+                "name": "经营净利润(万元)",
+                "budget": 113,
+                "target": 500,
+                "actual": 542,
+                "unit": "万元"
+            },
+            {
+                "name": "回款(万元)",
+                "budget": 4114,
+                "target": 6300,
+                "actual": 6733,
+                "unit": "万元"
+            },
+            {
+                "name": "加工成本(万/t)",
+                "budget": 1.78,
+                "target": 1.89,
+                "actual": 1.91,
+                "unit": "万/t"
+            },
+            {
+                "name": "产品一次合格率",
+                "budget": 100,
+                "target": 100,
+                "actual": 100,
+                "unit": "%"
+            }
+        ]
+    },
+    "_dimComparison_d2": {
+        "title": "4月产品销量达成",
+        "items": [
+            {
+                "name": "碳酸锂销量(吨)",
+                "budget": 400,
+                "target": 400,
+                "actual": 400,
+                "unit": "吨"
+            },
+            {
+                "name": "修复LFP交付(吨)",
+                "budget": 400,
+                "target": 400,
+                "actual": 300,
+                "unit": "吨"
+            },
+            {
+                "name": "磷铁液交付(m3)",
+                "budget": 3100,
+                "target": 1500,
+                "actual": 1000,
+                "unit": "m3"
+            },
+            {
+                "name": "元明粉销售(吨)",
+                "budget": 1700,
+                "target": 1400,
+                "actual": 1400,
+                "unit": "吨"
+            }
+        ]
+    },
+    "_dimComparison_d3": {
+        "title": "4月生产效率达成",
+        "items": [
+            {
+                "name": "碳酸锂投料(吨)",
+                "budget": 2100,
+                "target": 2100,
+                "actual": 1988,
+                "unit": "吨"
+            },
+            {
+                "name": "碳酸锂产出(吨)",
+                "budget": 400,
+                "target": 400,
+                "actual": 400,
+                "unit": "吨"
+            },
+            {
+                "name": "磷铁液产出(m3)",
+                "budget": 3100,
+                "target": 2000,
+                "actual": 1325.86,
+                "unit": "m3"
+            },
+            {
+                "name": "加工成本(万/t)",
+                "budget": 1.78,
+                "target": 1.66,
+                "actual": 1.91,
+                "unit": "万/t"
+            }
+        ]
+    },
+    "_dimComparison_d4": {
+        "title": "技术创新力 3月→4月环比",
+        "format": "mom",
+        "items": [
+            {
+                "name": "在研课题(个)",
+                "prev": 8,
+                "curr": 11,
+                "unit": "个"
+            },
+            {
+                "name": "MCU项目(项)",
+                "prev": 4,
+                "curr": 7,
+                "unit": "项"
+            },
+            {
+                "name": "MCU降本(万元)",
+                "prev": 43.9,
+                "curr": 18.31,
+                "unit": "万元"
+            },
+            {
+                "name": "技改项目(项)",
+                "prev": 4,
+                "curr": 9,
+                "unit": "项"
+            }
+        ]
+    },
+    "_dimComparison_d5": {
+        "title": "安全环保 3月→4月环比",
+        "format": "mom",
+        "items": [
+            {
+                "name": "隐患整改率(%)",
+                "prev": 82.3,
+                "curr": 90.83,
+                "unit": "%"
+            },
+            {
+                "name": "安全教育(人次)",
+                "prev": 600,
+                "curr": 703,
+                "unit": "人次"
+            },
+            {
+                "name": "排查隐患(项)",
+                "prev": 3024,
+                "curr": 2387,
+                "unit": "项"
+            },
+            {
+                "name": "应急演练(场)",
+                "prev": 2,
+                "curr": 2,
+                "unit": "场"
+            }
+        ]
+    },
+    "_dimComparison_d6": {
+        "title": "组织活力 3月→4月环比",
+        "format": "mom",
+        "items": [
+            {
+                "name": "AI项目立项(个)",
+                "prev": 0,
+                "curr": 0,
+                "unit": "个"
+            },
+            {
+                "name": "获得企业荣誉(项)",
+                "prev": 0,
+                "curr": 0,
+                "unit": "项"
+            },
+            {
+                "name": "IATF审核问题(项)",
+                "prev": 0,
+                "curr": 46,
+                "unit": "项"
+            },
+            {
+                "name": "5S覆盖率(%)",
+                "prev": 100,
+                "curr": 100,
+                "unit": "%"
+            }
+        ]
+    }
+}

@@ -1198,8 +1198,9 @@ const DIMS_DEF_SJLD = [
 
 const RADAR_HISTORY_SJLD = {
     // 数据来源：三金3月.pdf / 三金4月.pdf / 三金5月.pdf
+            // 2026年03 data (src: )
+    // ============================================================
     '2026-03': {
-        // 三金3月.pdf (2026年3月31日)
         dims: { d1: 85, d2: 1, d3: 15, d4: 56, d5: 1, d6: 32 },
         kpis: {
             d1: [85, 85, 85, 85],
@@ -1209,73 +1210,65 @@ const RADAR_HISTORY_SJLD = {
             d5: [1, 1, 1, 1],
             d6: [32, 32, 32, 32],
         },
+        _isCurrent: false,
         _kpiComparison: {
             title: '3月核心KPI达成率',
             period: '2026年3月',
             items: [
-                { name: '净利润达成率',     budget: 85, target: 85, actual: 85, unit: '%' },
-                { name: '管理费用控制率',   budget: 85, target: 85, actual: 85, unit: '%' },
-                { name: '主材降本达成率',   budget: 85, target: 85, actual: 85, unit: '%' },
-                { name: '回款率',           budget: 85, target: 85, actual: 85, unit: '%' },
-            ],
-        },
-        _dimComparison_d1: {
-            title: '3月核心KPI',
-            items: [
-                { name: '净利润达成率',     value: '85',  unit: '%' },
-                { name: '管理费用控制率',   value: '85',  unit: '%' },
-                { name: '主材降本达成率',   value: '85',  unit: '%' },
-                { name: '回款率',           value: '85',  unit: '%' },
+                {name: '净利润达成率', budget: 85, target: 85, actual: 85, unit: '%'},
+                {name: '管理费用控制率', budget: 85, target: 85, actual: 85, unit: '%'},
+                {name: '主材降本达成率', budget: 85, target: 85, actual: 85, unit: '%'},
+                {name: '回款率', budget: 85, target: 85, actual: 85, unit: '%'}
             ],
         },
         _dimComparison_d2: {
             title: '3月基建进度',
             items: [
-                { name: '竣工验收进度',     value: '1',   unit: '%' },
-                { name: '正常化项目',       value: '1',   unit: '项' },
-                { name: '机电板块进度',     value: '1',   unit: '%' },
-                { name: '土建板块进度',     value: '1',   unit: '%' },
+                {name: '竣工验收进度', value: '1', unit: '%'},
+                {name: '正常化项目', value: '1', unit: '项'},
+                {name: '机电板块进度', value: '1', unit: '%'},
+                {name: '土建板块进度', value: '1', unit: '%'}
             ],
         },
         _dimComparison_d3: {
             title: '3月运营准备',
             items: [
-                { name: '元明粉出售',        value: '15',  unit: '万' },
-                { name: '正常化施工',        value: '15',  unit: '%' },
-                { name: '代工客户洽谈',     value: '15',  unit: '家' },
-                { name: '成本测算',          value: '15',  unit: '%' },
+                {name: '元明粉出售', value: '15', unit: '万'},
+                {name: '正常化施工', value: '15', unit: '%'},
+                {name: '代工客户洽谈', value: '15', unit: '家'},
+                {name: '成本测算', value: '15', unit: '%'}
             ],
         },
         _dimComparison_d4: {
             title: '3月客户开发与技术',
             items: [
-                { name: 'Ni93样品交付',     value: '56',  unit: '批' },
-                { name: 'BTR客户推进',       value: '56',  unit: '家' },
-                { name: 'GEM代工洽谈',       value: '56',  unit: '家' },
-                { name: 'LGES客户开发',      value: '56',  unit: '家' },
+                {name: 'Ni93样品交付', value: '56', unit: '批'},
+                {name: 'BTR客户推进', value: '56', unit: '家'},
+                {name: 'GEM代工洽谈', value: '56', unit: '家'},
+                {name: 'LGES客户开发', value: '56', unit: '家'}
             ],
         },
         _dimComparison_d5: {
             title: '3月竣工验收与合规',
             items: [
-                { name: '竣工验收达成',     value: '1',   unit: '%' },
-                { name: '专项报告编制',     value: '1',   unit: '份' },
-                { name: 'EHS合规整改',      value: '1',   unit: '项' },
-                { name: '三体系审核',       value: '1',   unit: '项' },
+                {name: '竣工验收达成', value: '1', unit: '%'},
+                {name: '专项报告编制', value: '1', unit: '份'},
+                {name: 'EHS合规整改', value: '1', unit: '项'},
+                {name: '三体系审核', value: '1', unit: '项'}
             ],
         },
         _dimComparison_d6: {
             title: '3月组织活力',
             items: [
-                { name: '人员稳定性',        value: '32',  unit: '%' },
-                { name: '跨组织支援',        value: '32',  unit: '人次' },
-                { name: '数字化项目',        value: '32',  unit: '项' },
-                { name: 'AI创新项目',        value: '32',  unit: '项' },
+                {name: '人员稳定性', value: '32', unit: '%'},
+                {name: '跨组织支援', value: '32', unit: '人次'},
+                {name: '数字化项目', value: '32', unit: '项'},
+                {name: 'AI创新项目', value: '32', unit: '项'}
             ],
-        },
-    },
+        },},
+            // 2026年04 data (src: )
+    // ============================================================
     '2026-04': {
-        // 三金4月.pdf (2026年4月30日)
         dims: { d1: 80, d2: 14, d3: 48, d4: 56, d5: 40, d6: 55 },
         kpis: {
             d1: [80, 80, 80, 80],
@@ -1285,73 +1278,65 @@ const RADAR_HISTORY_SJLD = {
             d5: [40, 40, 40, 40],
             d6: [55, 55, 55, 55],
         },
+        _isCurrent: false,
         _kpiComparison: {
             title: '4月核心KPI达成率',
             period: '2026年4月',
             items: [
-                { name: '净利润达成率',     budget: 80, target: 80, actual: 80, unit: '%' },
-                { name: '管理费用控制率',   budget: 80, target: 80, actual: 80, unit: '%' },
-                { name: '主材降本达成率',   budget: 80, target: 80, actual: 80, unit: '%' },
-                { name: '回款率',           budget: 80, target: 80, actual: 80, unit: '%' },
-            ],
-        },
-        _dimComparison_d1: {
-            title: '4月核心KPI',
-            items: [
-                { name: '净利润达成率',     value: '80',  unit: '%' },
-                { name: '管理费用控制率',   value: '80',  unit: '%' },
-                { name: '主材降本达成率',   value: '80',  unit: '%' },
-                { name: '回款率',           value: '80',  unit: '%' },
+                {name: '净利润达成率', budget: 80, target: 80, actual: 80, unit: '%'},
+                {name: '管理费用控制率', budget: 80, target: 80, actual: 80, unit: '%'},
+                {name: '主材降本达成率', budget: 80, target: 80, actual: 80, unit: '%'},
+                {name: '回款率', budget: 80, target: 80, actual: 80, unit: '%'}
             ],
         },
         _dimComparison_d2: {
             title: '4月基建进度',
             items: [
-                { name: '竣工验收进度',     value: '14',  unit: '%' },
-                { name: '正常化项目',       value: '14',  unit: '项' },
-                { name: '机电板块进度',     value: '14',  unit: '%' },
-                { name: '土建板块进度',     value: '14',  unit: '%' },
+                {name: '竣工验收进度', value: '14', unit: '%'},
+                {name: '正常化项目', value: '14', unit: '项'},
+                {name: '机电板块进度', value: '14', unit: '%'},
+                {name: '土建板块进度', value: '14', unit: '%'}
             ],
         },
         _dimComparison_d3: {
             title: '4月运营准备',
             items: [
-                { name: '元明粉出售',        value: '48',  unit: '万' },
-                { name: '正常化施工',        value: '48',  unit: '%' },
-                { name: '代工客户洽谈',     value: '48',  unit: '家' },
-                { name: '成本测算',          value: '48',  unit: '%' },
+                {name: '元明粉出售', value: '48', unit: '万'},
+                {name: '正常化施工', value: '48', unit: '%'},
+                {name: '代工客户洽谈', value: '48', unit: '家'},
+                {name: '成本测算', value: '48', unit: '%'}
             ],
         },
         _dimComparison_d4: {
             title: '4月客户开发与技术',
             items: [
-                { name: 'Ni93样品交付',     value: '56',  unit: '批' },
-                { name: 'BTR客户推进',       value: '56',  unit: '家' },
-                { name: 'GEM代工洽谈',       value: '56',  unit: '家' },
-                { name: 'LGES客户开发',      value: '56',  unit: '家' },
+                {name: 'Ni93样品交付', value: '56', unit: '批'},
+                {name: 'BTR客户推进', value: '56', unit: '家'},
+                {name: 'GEM代工洽谈', value: '56', unit: '家'},
+                {name: 'LGES客户开发', value: '56', unit: '家'}
             ],
         },
         _dimComparison_d5: {
             title: '4月竣工验收与合规',
             items: [
-                { name: '竣工验收达成',     value: '40',  unit: '%' },
-                { name: '专项报告编制',     value: '40',  unit: '份' },
-                { name: 'EHS合规整改',      value: '40',  unit: '项' },
-                { name: '三体系审核',       value: '40',  unit: '项' },
+                {name: '竣工验收达成', value: '40', unit: '%'},
+                {name: '专项报告编制', value: '40', unit: '份'},
+                {name: 'EHS合规整改', value: '40', unit: '项'},
+                {name: '三体系审核', value: '40', unit: '项'}
             ],
         },
         _dimComparison_d6: {
             title: '4月组织活力',
             items: [
-                { name: '人员稳定性',        value: '55',  unit: '%' },
-                { name: '跨组织支援',        value: '55',  unit: '人次' },
-                { name: '数字化项目',        value: '55',  unit: '项' },
-                { name: 'AI创新项目',        value: '55',  unit: '项' },
+                {name: '人员稳定性', value: '55', unit: '%'},
+                {name: '跨组织支援', value: '55', unit: '人次'},
+                {name: '数字化项目', value: '55', unit: '项'},
+                {name: 'AI创新项目', value: '55', unit: '项'}
             ],
-        },
-    },
+        },},
+            // 2026年05 data (src: )
+    // ============================================================
     '2026-05': {
-        // 三金5月.pdf (2026年5月) ★当前月
         dims: { d1: 95, d2: 46, d3: 61, d4: 70, d5: 57, d6: 48 },
         kpis: {
             d1: [95, 95, 95, 95],
@@ -1366,67 +1351,57 @@ const RADAR_HISTORY_SJLD = {
             title: '5月核心KPI达成率',
             period: '2026年5月',
             items: [
-                { name: '净利润达成率',     budget: 95, target: 95, actual: 95, unit: '%' },
-                { name: '管理费用控制率',   budget: 95, target: 95, actual: 95, unit: '%' },
-                { name: '主材降本达成率',   budget: 95, target: 95, actual: 95, unit: '%' },
-                { name: '回款率',           budget: 95, target: 95, actual: 95, unit: '%' },
-            ],
-        },
-        _dimComparison_d1: {
-            title: '5月核心KPI',
-            items: [
-                { name: '净利润达成率',     value: '95',  unit: '%' },
-                { name: '管理费用控制率',   value: '95',  unit: '%' },
-                { name: '主材降本达成率',   value: '95',  unit: '%' },
-                { name: '回款率',           value: '95',  unit: '%' },
+                {name: '净利润达成率', budget: 95, target: 95, actual: 95, unit: '%'},
+                {name: '管理费用控制率', budget: 95, target: 95, actual: 95, unit: '%'},
+                {name: '主材降本达成率', budget: 95, target: 95, actual: 95, unit: '%'},
+                {name: '回款率', budget: 95, target: 95, actual: 95, unit: '%'}
             ],
         },
         _dimComparison_d2: {
             title: '5月基建进度',
             items: [
-                { name: '竣工验收进度',     value: '46',  unit: '%' },
-                { name: '正常化项目',       value: '46',  unit: '项' },
-                { name: '机电板块进度',     value: '46',  unit: '%' },
-                { name: '土建板块进度',     value: '46',  unit: '%' },
+                {name: '竣工验收进度', value: '46', unit: '%'},
+                {name: '正常化项目', value: '46', unit: '项'},
+                {name: '机电板块进度', value: '46', unit: '%'},
+                {name: '土建板块进度', value: '46', unit: '%'}
             ],
         },
         _dimComparison_d3: {
             title: '5月运营准备',
             items: [
-                { name: '元明粉出售',        value: '61',  unit: '万' },
-                { name: '正常化施工',        value: '61',  unit: '%' },
-                { name: '代工客户洽谈',     value: '61',  unit: '家' },
-                { name: '成本测算',          value: '61',  unit: '%' },
+                {name: '元明粉出售', value: '61', unit: '万'},
+                {name: '正常化施工', value: '61', unit: '%'},
+                {name: '代工客户洽谈', value: '61', unit: '家'},
+                {name: '成本测算', value: '61', unit: '%'}
             ],
         },
         _dimComparison_d4: {
             title: '5月客户开发与技术',
             items: [
-                { name: 'Ni93样品交付',     value: '70',  unit: '批' },
-                { name: 'BTR客户推进',       value: '70',  unit: '家' },
-                { name: 'GEM代工洽谈',       value: '70',  unit: '家' },
-                { name: 'LGES客户开发',      value: '70',  unit: '家' },
+                {name: 'Ni93样品交付', value: '70', unit: '批'},
+                {name: 'BTR客户推进', value: '70', unit: '家'},
+                {name: 'GEM代工洽谈', value: '70', unit: '家'},
+                {name: 'LGES客户开发', value: '70', unit: '家'}
             ],
         },
         _dimComparison_d5: {
             title: '5月竣工验收与合规',
             items: [
-                { name: '竣工验收达成',     value: '57',  unit: '%' },
-                { name: '专项报告编制',     value: '57',  unit: '份' },
-                { name: 'EHS合规整改',      value: '57',  unit: '项' },
-                { name: '三体系审核',       value: '57',  unit: '项' },
+                {name: '竣工验收达成', value: '57', unit: '%'},
+                {name: '专项报告编制', value: '57', unit: '份'},
+                {name: 'EHS合规整改', value: '57', unit: '项'},
+                {name: '三体系审核', value: '57', unit: '项'}
             ],
         },
         _dimComparison_d6: {
             title: '5月组织活力',
             items: [
-                { name: '人员稳定性',        value: '48',  unit: '%' },
-                { name: '跨组织支援',        value: '48',  unit: '人次' },
-                { name: '数字化项目',        value: '48',  unit: '项' },
-                { name: 'AI创新项目',        value: '48',  unit: '项' },
+                {name: '人员稳定性', value: '48', unit: '%'},
+                {name: '跨组织支援', value: '48', unit: '人次'},
+                {name: '数字化项目', value: '48', unit: '项'},
+                {name: 'AI创新项目', value: '48', unit: '项'}
             ],
-        },
-    },
+        },},
 };
 
 
