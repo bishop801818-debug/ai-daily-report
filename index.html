@@ -9570,6 +9570,13 @@ window.addEventListener('hashchange', function() {
 })();
 </script>
 
+
+
+<script>
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/ai-daily-report/sw.js');
+}
+</script>
 </body>
 </html>
 <div id="aiChatDialog">
@@ -10047,5 +10054,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
     <script src="assets/ai_fab_inject.js?v=20260619"></script>
     <script src="feishu-jsapi.js?v=20260622"></script>
+
+
+<script>
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/ai-daily-report/sw.js');
+}
+</script>
 </body>
 </html>
