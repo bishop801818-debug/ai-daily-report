@@ -1,7 +1,7 @@
 {
   "commodity": "锂云母",
   "source": "同花顺iFind",
-  "update_time": "2026-07-01 23:30:18",
+  "update_time": "2026-07-04 13:46:33",
   "history": [
     {
       "date": "2024-01-02",
@@ -5221,36 +5221,63 @@
       "date": "2026-06-29",
       "grade": "锂云母精矿2.0-2.5%",
       "origin": "",
-      "min_price": 5200.0,
-      "max_price": 5825.0,
-      "avg_price": 5512.5,
-      "unit": "元/吨"
+      "min_price": 4450,
+      "max_price": 4450,
+      "avg_price": 4450,
+      "unit": "元/吨",
+      "source": "同花顺iFind",
+      "note": "来自同花顺页面：http://goodsfu.10jqka.com.cn/20260626/c677740099.shtml"
     },
     {
       "date": "2026-06-30",
       "grade": "锂云母精矿2.0-2.5%",
       "origin": "",
-      "min_price": 4560.0,
-      "max_price": 6325.0,
-      "avg_price": 5411,
+      "min_price": 4625,
+      "max_price": 4625,
+      "avg_price": 4625,
       "unit": "元/吨",
       "price_yuan_per_ton": 3225,
-      "source": "Mysteel",
-      "note": "已修正：原同花顺数据3350元/吨错误，正确价格约5411元/吨（按2405元/吨度×2.25%计算）"
+      "source": "同花顺iFind",
+      "note": "来自同花顺页面"
     },
     {
       "date": "2026-07-01",
       "grade": "锂云母精矿2.0-2.5%",
       "origin": "",
-      "min_price": 4560.0,
-      "max_price": 6325.0,
-      "avg_price": 5411,
+      "min_price": 4775,
+      "max_price": 4775,
+      "avg_price": 4775,
       "unit": "元/吨",
       "price_yuan_per_ton": 3350,
-      "source": "Mysteel",
-      "note": "已修正：原同花顺数据3350元/吨错误，正确价格约5411元/吨（按2405元/吨度×2.25%计算）"
+      "source": "同花顺iFind",
+      "note": "来自同花顺页面：http://goodsfu.10jqka.com.cn/20260701/c677861925.shtml"
+    },
+    {
+      "date": "2026-07-02",
+      "grade": "锂云母精矿2.0-2.5%",
+      "origin": "",
+      "min_price": 4950,
+      "max_price": 4950,
+      "avg_price": 4950,
+      "unit": "元/吨",
+      "price_yuan_per_ton": 3350,
+      "source": "同花顺iFind",
+      "note": "来自同花顺页面：http://goodsfu.10jqka.com.cn/20260702/c677894938.shtml"
+    },
+    {
+      "date": "2026-07-03",
+      "grade": "锂云母精矿2.0-2.5%",
+      "origin": "",
+      "min_price": 5100,
+      "max_price": 5100,
+      "avg_price": 5100,
+      "unit": "元/吨",
+      "price_yuan_per_ton": 3350,
+      "source": "同花顺iFind",
+      "note": "来自同花顺页面：http://goodsfu.10jqka.com.cn/20260703/c677926290.shtml"
     }
   ],
   "data_points": 2766,
-  "note": "数据已完全修正（2026-07-01）：同花顺数据源错误，已切换为Mysteel数据"
+  "note": "数据已完全修正（2026-07-01）：同花顺数据源错误，已切换为Mysteel数据",
+  "unit": "元/吨"
 }

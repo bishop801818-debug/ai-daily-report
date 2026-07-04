@@ -243,6 +243,32 @@ def save_electrolyte_data(data):
     print(f"数据已保存到: {DATA_FILE}")
 
 
+def update_html_version():
+    """更新HTML文件中的electrolyte_data.js版本参数，强制浏览器重新加载"""
+    today_str = datetime.now().strftime("%Y%m%d")
+    html_files = ["index_v3.html", "index.html"]
+    
+    for html_file in html_files:
+        if not Path(html_file).exists():
+            print(f"  警告: {html_file} 不存在，跳过")
+            continue
+        
+        with open(html_file, "r", encoding="utf-8") as f:
+            content = f.read()
+        
+        # 替换版本参数: electrolyte_data.js?v=旧日期 -> electrolyte_data.js?v=今天日期
+        pattern = r'electrolyte_data\.js\?v=\d+'
+        replacement = f'electrolyte_data.js?v={today_str}'
+        new_content = re.sub(pattern, replacement, content)
+        
+        if new_content != content:
+            with open(html_file, "w", encoding="utf-8") as f:
+                f.write(new_content)
+            print(f"  已更新 {html_file} 版本参数: v={today_str}")
+        else:
+            print(f"  {html_file} 版本参数已是最新")
+
+
 def run_update():
     """主更新流程"""
     today = datetime.now().strftime("%Y-%m-%d")
@@ -250,6 +276,9 @@ def run_update():
 
     # 1. 加载现有数据
     existing_data = load_existing_data()
+    if not existing_data:
+        print("加载现有数据失败")
+        return False
 
     # 2. 抓取SMM数据
     if not crawl_smm_data():
@@ -277,6 +306,10 @@ def run_update():
 
     # 5. 保存
     save_electrolyte_data(existing_data)
+
+    # 6. 更新HTML版本参数（强制浏览器重新加载）
+    print("\n更新HTML版本参数...")
+    update_html_version()
 
     print(f"\n更新完成！共更新 {len(updated)} 条数据")
     return True

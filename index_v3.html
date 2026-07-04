@@ -15,11 +15,38 @@
     <link rel="preload" href="latest_data.js?v=20260702_001" as="script" type="application/javascript">
     <link rel="preload" href="assets/hero-banner.webp?v=20260703" as="image" type="image/webp">
     <script defer src="assets/echarts.min.js"></script>
-    <script defer src="electrolyte_data.js?v=20260625"></script>
+    <script defer src="electrolyte_data.js?v=20260704"></script>
     <script defer src="recycling_data_v2.js?v=20260625"></script>
     <script defer src="chemical_data.js?v=20260625"></script>
     <script defer src="recycling_gantt.js?v=20260625"></script>
     <script src="inline_00.js"></script>
+    
+    <!-- 全局fetch拦截器 - 禁用JSON数据缓存（确保LFP等数据实时更新） -->
+    <script>
+    (function() {
+        const originalFetch = window.fetch;
+        
+        window.fetch = function(input, init) {
+            // 如果是JSON数据请求（reports目录或data目录），强制禁用缓存
+            if (typeof input === 'string' && (input.includes('.json') || input.includes('reports/') || input.includes('data/'))) {
+                init = init || {};
+                init.cache = 'no-store';
+                
+                // 同时添加时间戳防止浏览器缓存URL
+                if (input.includes('?')) {
+                    input = input + '&_nocache=' + Date.now();
+                } else {
+                    input = input + '?_nocache=' + Date.now();
+                }
+            }
+            
+            return originalFetch.call(this, input, init);
+        };
+        
+        console.log('[缓存修复] 全局fetch拦截器已启用 - JSON数据将实时加载');
+    })();
+    </script>
+    
     <script src="latest_data.js?v=20260702_001"></script>
 
         <script src="inline_01.js"></script>
