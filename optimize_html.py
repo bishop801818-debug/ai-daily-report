@@ -113,15 +113,46 @@ def optimize_html(html_path, output_dir=None):
     # 写回 HTML
     with open(html_path, "w", encoding="utf-8") as f:
         f.write(new_content)
-    
+
     new_size = os.path.getsize(html_path)
+
+    # ── 第3步：大小校验（警告模式，不阻断）────────────────────
+    HTML_SIZE_LIMIT = 300 * 1024  # 300KB 红线
+    JS_SIZE_LIMIT = 500 * 1024   # 500KB 红线
+
+    warnings = []
+
+    if new_size > HTML_SIZE_LIMIT:
+        oversize_kb = (new_size - HTML_SIZE_LIMIT) / 1024
+        warnings.append(
+            f'  ⚠️  HTML 大小超限：{new_size/1024:.1f} KB > 300 KB（超出 {oversize_kb:.1f} KB）'
+        )
+    else:
+        print(f'  ✅  HTML 大小：{new_size/1024:.1f} KB ≤ 300 KB')
+
+    for js_fname, js_size in extracted_files:
+        if js_size > JS_SIZE_LIMIT:
+            oversize_kb = (js_size - JS_SIZE_LIMIT) / 1024
+            warnings.append(
+                f'  ⚠️  JS 大小超限：{js_fname} = {js_size/1024:.1f} KB > 500 KB（超出 {oversize_kb:.1f} KB）'
+            )
+
     print(f"\n✅ 优化完成:")
     print(f"  HTML: {original_size:,} → {new_size:,} bytes ({new_size/1024:.1f} KB)")
     print(f"  减少: {(original_size-new_size):,} bytes ({(original_size-new_size)/original_size*100:.1f}%)")
     print(f"  提取 JS 文件: {len(extracted_files)} 个")
     total_js = sum(s[1] for s in extracted_files)
     print(f"  JS 文件合计: {total_js:,} bytes ({total_js/1024:.1f} KB)")
-    
+
+    if warnings:
+        print(f"\n  {'='*50}")
+        print(f"  文件大小警告（仅警告，不阻断）：")
+        for w in warnings:
+            print(w)
+        print(f"  {'='*50}")
+    else:
+        print(f"  ✅ 所有文件大小均在红线以内")
+
     return original_size
 
 
