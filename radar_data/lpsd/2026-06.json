@@ -1,0 +1,82 @@
+{
+  "month": "2026-06",
+  "source": "龙蟠时代-6月总结暨7月计划报告V1",
+  "source_pages": [5, 10, 11, 12, 13, 14, 15, 20, 26, 31, 32, 35, 36, 37, 38],
+  "_isCurrent": true,
+  "_kpiComparison": {
+    "title": "6月核心KPI达成率",
+    "period": "2026年6月",
+    "items": [
+      {"name": "营业收入(万元)", "budget": 50305, "target": 50305, "actual": 29984, "unit": "万元"},
+      {"name": "净利润(万元)", "budget": 3246, "target": 3246, "actual": 2754, "unit": "万元"},
+      {"name": "毛利率(%)", "budget": 9.58, "target": 9.58, "actual": 11.4, "unit": "%"},
+      {"name": "资产负债率(%)", "budget": 66, "target": 66, "actual": 64, "unit": "%"}
+    ]
+  },
+  "_dimComparison_d2": {
+    "title": "6月经营效益",
+    "format": "mom",
+    "items": [
+      {"name": "碳酸锂产量(吨)", "prev": 2302, "curr": 3039, "budget": 5684, "actual": 3039, "unit": "吨"},
+      {"name": "营业收入(万元)", "prev": 25139, "curr": 29984, "unit": "万元"},
+      {"name": "毛利率(%)", "prev": 23.5, "curr": 11.4, "unit": "%"},
+      {"name": "成品结存(吨)", "prev": 361, "curr": 359, "unit": "吨"}
+    ]
+  },
+  "_dimComparison_d3": {
+    "title": "6月运营效率",
+    "format": "mom",
+    "items": [
+      {"name": "焙烧转化率(%)", "prev": 88.26, "curr": 89.07, "unit": "%"},
+      {"name": "综合收率(%)", "prev": 80.34, "curr": 80.5, "unit": "%"},
+      {"name": "燃动加工成本(度/吨)", "prev": 7986, "curr": 7239, "unit": "度/吨"},
+      {"name": "采购降本(万元)", "prev": 0, "curr": 83, "unit": "万元"}
+    ]
+  },
+  "_dimComparison_d4": {
+    "title": "6月技术创新力",
+    "format": "mom",
+    "items": [
+      {"name": "当月专利提交(件)", "prev": 5, "curr": 7, "unit": "件"},
+      {"name": "节能降本项目(项)", "prev": 7, "curr": 8, "unit": "项"},
+      {"name": "技改项目(项)", "prev": 2, "curr": 4, "unit": "项"},
+      {"name": "在研课题(项)", "prev": 6, "curr": 9, "unit": "项"}
+    ]
+  },
+  "_dimComparison_d5": {
+    "title": "6月风险合规",
+    "format": "mom",
+    "items": [
+      {"name": "安全事故(起)", "prev": 0, "curr": 1, "unit": "起"},
+      {"name": "废气小时超標(条)", "prev": 0, "curr": 7, "unit": "条"},
+      {"name": "成品一次合格率(%)", "prev": 100, "curr": 100, "unit": "%"},
+      {"name": "客户投诉(次)", "prev": 0, "curr": 0, "unit": "次"}
+    ]
+  },
+  "_dimComparison_d6": {
+    "title": "6月组织活力",
+    "format": "mom",
+    "items": [
+      {"name": "AI项目立项(项)", "prev": 5, "curr": 8, "unit": "项"},
+      {"name": "数字化项目(项)", "prev": 3, "curr": 4, "unit": "项"},
+      {"name": "专项培训(周)", "prev": 5, "curr": 11, "unit": "周"},
+      {"name": "人员缺口(人)", "prev": 0, "curr": 40, "unit": "人"}
+    ]
+  },
+  "dims": {
+    "d1": 68,
+    "d2": 70,
+    "d3": 78,
+    "d4": 82,
+    "d5": 68,
+    "d6": 75
+  },
+  "kpis": {
+    "d1": [60, 85, 100, 100],
+    "d2": [53, 100, 85, 85],
+    "d3": [91, 82, 91, 83],
+    "d4": [85, 85, 90, 85],
+    "d5": [70, 55, 100, 100],
+    "d6": [85, 80, 90, 50]
+  }
+}

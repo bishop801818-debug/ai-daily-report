@@ -1,0 +1,15 @@
+name: Sync to MiaoDa
+
+on:
+  push:
+    branches: [main, master]
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger MiaoDa sync
+        run: |
+          curl -X POST "https://lopal603906.aiforce.cloud/app/app_4k7069448fj88/openapi/sync-ai-daily-report" \
+            -H "Content-Type: application/json" \
+            -d '{"repo":"${{ github.repository }}","branch":"${{ github.ref_name }}"}'

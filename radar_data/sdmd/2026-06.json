@@ -1,0 +1,83 @@
+{
+  "month": "2026-06",
+  "source": "山东美多6月总结和7月工作计划汇报V2 -20260629",
+  "source_pages": [4, 6, 7, 8, 9, 10, 11, 13, 14, 15, 17, 18, 19, 20, 21, 22, 23, 24, 25],
+  "_isCurrent": true,
+  "_kpiComparison": {
+    "title": "6月核心KPI达标率（预算 → 实际）",
+    "period": "2026年6月",
+    "items": [
+      {"name": "收入(万元)", "budget": 3914, "target": 3914, "actual": 4682, "unit": "万元"},
+      {"name": "毛利(万元)", "budget": 356, "target": 356, "actual": 187, "unit": "万元"},
+      {"name": "扣非净利润(万元)", "budget": 170, "target": 170, "actual": 2, "unit": "万元"},
+      {"name": "经营净利润(万元)", "budget": 182, "target": 182, "actual": 34, "unit": "万元"},
+      {"name": "回款(万元)", "budget": 4423, "target": 4423, "actual": 10072, "unit": "万元"},
+      {"name": "加工成本(万/t)", "budget": 1.99, "target": 1.99, "actual": 2.12, "unit": "万/t"},
+      {"name": "产品一次合格率", "budget": 100, "target": 100, "actual": 100, "unit": "%"}
+    ]
+  },
+  "_dimComparison_d2": {
+    "title": "6月产品销量达成（预算 → 目标 → 实际）",
+    "items": [
+      {"name": "碳酸锂销量(吨)", "budget": 330, "target": 330, "actual": 208, "unit": "吨"},
+      {"name": "修复LFP交付(吨)", "budget": 300, "target": 300, "actual": 310, "unit": "吨"},
+      {"name": "磷铁液交付(m³)", "budget": 4500, "target": 4500, "actual": 1400, "unit": "m³"},
+      {"name": "元明粉销售(吨)", "budget": 1500, "target": 1500, "actual": 1500, "unit": "吨"}
+    ]
+  },
+  "_dimComparison_d3": {
+    "title": "6月生产效率达成（预算 → 目标 → 实际）",
+    "items": [
+      {"name": "碳酸锂投料(吨)", "budget": 1960, "target": 1960, "actual": 1945.5, "unit": "吨"},
+      {"name": "碳酸锂产出(吨)", "budget": 330, "target": 330, "actual": 364.5, "unit": "吨"},
+      {"name": "磷铁液产出(m³)", "budget": 4500, "target": 4500, "actual": 1453.64, "unit": "m³"},
+      {"name": "加工成本(万/t)", "budget": 1.99, "target": 1.99, "actual": 2.12, "unit": "万/t"}
+    ]
+  },
+  "_dimComparison_d4": {
+    "title": "技术创新力 5月→6月环比",
+    "format": "mom",
+    "items": [
+      {"name": "在研课题(个)", "prev": 8, "curr": 10, "unit": "个"},
+      {"name": "MCU项目(项)", "prev": 5, "curr": 12, "unit": "项"},
+      {"name": "MCU降本(万元)", "prev": 5.31, "curr": 27.64, "unit": "万元"},
+      {"name": "技改项目(项)", "prev": 12, "curr": 8, "unit": "项"}
+    ]
+  },
+  "_dimComparison_d5": {
+    "title": "安全环保 5月→6月环比",
+    "format": "mom",
+    "items": [
+      {"name": "隐患整改率(%)", "prev": 98.3, "curr": 88.48, "unit": "%"},
+      {"name": "安全教育(人次)", "prev": 2009, "curr": 1075, "unit": "人次"},
+      {"name": "排查隐患(项)", "prev": 2816, "curr": 1519, "unit": "项"},
+      {"name": "应急演练(场)", "prev": 1, "curr": 3, "unit": "场"}
+    ]
+  },
+  "_dimComparison_d6": {
+    "title": "组织活力 5月→6月环比",
+    "format": "mom",
+    "items": [
+      {"name": "AI项目立项(个)", "prev": 16, "curr": 72, "unit": "个"},
+      {"name": "获得企业荣誉(项)", "prev": 2, "curr": 4, "unit": "项"},
+      {"name": "IATF审核问题(项)", "prev": 35, "curr": 35, "unit": "项"},
+      {"name": "5S覆盖率(%)", "prev": 100, "curr": 100, "unit": "%"}
+    ]
+  },
+  "dims": {
+    "d1": 76,
+    "d2": 74,
+    "d3": 78,
+    "d4": 89,
+    "d5": 74,
+    "d6": 100
+  },
+  "kpis": {
+    "d1": [72.3, 35.9, 93.9, 100.0],
+    "d2": [63.0, 100.0, 31.1, 100.0],
+    "d3": [87.4, 100.0, 32.3, 93.9],
+    "d4": [100.0, 100.0, null, 66.7],
+    "d5": [90.0, 53.5, 53.9, 100.0],
+    "d6": [100.0, 100.0, 100.0, 100.0]
+  }
+}

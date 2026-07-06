@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>汽车行业可视化看板</title>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Microsoft YaHei', sans-serif; background: #f5f5f5; }
+
+        .topbar { background: #fff; padding: 15px 30px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
+        .topbar h1 { color: #1e3c72; font-size: 20px; }
+        .topbar a { color: #666; text-decoration: none; margin-left: 20px; font-size: 14px; }
+        .topbar a:hover { color: #1e3c72; }
+
+        .tab-nav { background: #fff; padding: 0 30px; display: flex; gap: 5px; border-bottom: 1px solid #eee; }
+        .tab-btn { padding: 12px 20px; background: none; border: none; cursor: pointer; font-size: 14px; color: #666; border-bottom: 2px solid transparent; transition: all 0.2s; }
+        .tab-btn:hover { color: #1e3c72; }
+        .tab-btn.active { color: #1e3c72; border-bottom-color: #1e3c72; font-weight: 600; }
+
+        .main-content { padding: 20px 30px; }
+
+        .stats-row { display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; margin-bottom: 20px; }
+        .stat-card { background: #fff; border-radius: 12px; padding: 14px 18px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); display: flex; align-items: center; gap: 14px; }
+        .stat-icon { width: 44px; height: 44px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0; }
+        .stat-icon.blue { background: rgba(30,60,114,0.1); }
+        .stat-icon.green { background: rgba(76,175,80,0.1); }
+        .stat-icon.orange { background: rgba(255,152,0,0.1); }
+        .stat-icon.purple { background: rgba(156,39,176,0.1); }
+        .stat-icon.cyan { background: rgba(0,188,212,0.1); }
+        .stat-icon.red { background: rgba(244,67,54,0.1); }
+        .stat-info .label { color: #888; font-size: 11px; margin-bottom: 4px; }
+        .stat-info .value { color: #1e3c72; font-size: 20px; font-weight: 600; line-height: 1.1; }
+        .stat-info .sub { color: #999; font-size: 11px; margin-top: 2px; }
+        .stat-info .unit { font-size: 12px; color: #999; font-weight: normal; }
+
+        .chart-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+        .chart-card { background: #fff; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+        .chart-card.full { grid-column: span 2; }
+        .chart-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; padding-bottom: 12px; border-bottom: 1px solid #f0f0f0; }
+        .chart-title { font-size: 15px; font-weight: 600; color: #333; }
+        .chart-subtitle { font-size: 12px; color: #999; margin-top: 4px; }
+        .chart-meta { font-size: 12px; color: #999; }
+        .chart-container { width: 100%; height: 320px; min-height: 300px; }
+        .chart-card.full .chart-container { height: 300px; }
+        .chart-card { overflow: hidden; }
+
+        .tab-content { display: none; overflow: hidden; }
+        .tab-content.active { display: block; overflow: visible; }
+
+        .data-update { text-align: center; color: #999; font-size: 12px; padding: 12px; }
+
+        @media (max-width: 1200px) {
+            .stats-row { grid-template-columns: repeat(3, 1fr); }
+            .chart-grid { grid-template-columns: 1fr; }
+            .chart-card.full { grid-column: span 1; }
+        }
+        @media (max-width: 768px) {
+            .stats-row { grid-template-columns: repeat(2, 1fr); }
+        }
+    </style>
+</head>
+<body>
+    <div class="topbar">
+        <h1>🚗 汽车行业可视化看板</h1>
+        <div><a href="index_v3.html">🏠 首页</a><a href="automotive_data_v2.html">📋 数据表格</a></div>
+    </div>
+
+    <!-- 分类Tab -->
+    <div class="tab-nav">
+        <button class="tab-btn active" onclick="switchTab('overview', this)">📈 概览</button>
+        <button class="tab-btn" onclick="switchTab('nev', this)">⚡ 新能源</button>
+        <button class="tab-btn" onclick="switchTab('cv', this)">🚛 商用车</button>
+        <button class="tab-btn" onclick="switchTab('export', this)">🚢 出口</button>
+    </div>
+
+    <div class="main-content">
+        <!-- Tab1: 概览 -->
+        <div class="tab-content active" id="tab-overview">
+            <div class="stats-row">
+                <div class="stat-card">
+                    <div class="stat-icon blue">🚗</div>
+                    <div class="stat-info"><div class="label">中国汽车整体</div><div class="value"><span id="statChina">--</span><span class="unit">万辆</span></div></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon green">⚡</div>
+                    <div class="stat-info"><div class="label">新能源汽车</div><div class="value"><span id="statNev">--</span><span class="unit">万辆</span></div></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon cyan">📊</div>
+                    <div class="stat-info"><div class="label">新能源渗透率</div><div class="value"><span id="statPen">--</span></div></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon orange">🚢</div>
+                    <div class="stat-info"><div class="label">新能源出口</div><div class="value"><span id="statExp">--</span><span class="unit">万辆</span></div></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon purple">🔋</div>
+                    <div class="stat-info"><div class="label">BEV零售</div><div class="value"><span id="statBev">--</span><span class="unit">万辆</span></div></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon red">🔌</div>
+                    <div class="stat-info"><div class="label">PHEV零售</div><div class="value"><span id="statPhev">--</span><span class="unit">万辆</span></div></div>
+                </div>
+            </div>
+            <div class="chart-grid">
+                <div class="chart-card full">
+                    <div class="chart-header">
+                        <div><div class="chart-title">中国汽车月度销量走势</div><div class="chart-subtitle">近24个月数据</div></div>
+                        <div class="chart-meta" id="dataMonth">加载中...</div>
+                    </div>
+                    <div class="chart-container" id="c1"></div>
+                </div>
+                <div class="chart-card">
+                    <div class="chart-header"><div><div class="chart-title">中国汽车 vs 新能源叠加</div><div class="chart-subtitle">全市场与新能源对比</div></div></div>
+                    <div class="chart-container" id="c2"></div>
+                </div>
+                <div class="chart-card">
+                    <div class="chart-header"><div><div class="chart-title">新能源乘用车零售走势</div><div class="chart-subtitle">月度零售量</div></div></div>
+                    <div class="chart-container" id="c3"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab2: 新能源 -->
+        <div class="tab-content" id="tab-nev">
+            <div class="chart-grid">
+                <div class="chart-card full">
+                    <div class="chart-header">
+                        <div><div class="chart-title">BEV vs PHEV 月度销量走势</div><div class="chart-subtitle">纯电动 vs 插电混动对比</div></div>
+                    </div>
+                    <div class="chart-container" id="c4"></div>
+                </div>
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <div><div class="chart-title">新能源乘用车品牌 TOP10</div><div class="chart-subtitle" id="c5Sub">按销量排序</div></div>
+                    </div>
+                    <div class="chart-container" id="c5"></div>
+                </div>
+                <div class="chart-card">
+                    <div class="chart-header"><div><div class="chart-title">品牌份额分布</div><div class="chart-subtitle">TOP6品牌</div></div></div>
+                    <div class="chart-container" id="c6"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab3: 商用车 -->
+        <div class="tab-content" id="tab-cv">
+            <div class="chart-grid">
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <div><div class="chart-title">商用车分整车厂 TOP10</div><div class="chart-subtitle" id="c7Sub">按销量排序</div></div>
+                    </div>
+                    <div class="chart-container" id="c7"></div>
+                </div>
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <div><div class="chart-title">中重卡交强险量 TOP5</div><div class="chart-subtitle" id="c8Sub">新能源渗透率参考</div></div>
+                    </div>
+                    <div class="chart-container" id="c8"></div>
+                </div>
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <div><div class="chart-title">轻卡交强险量 TOP5</div><div class="chart-subtitle" id="c9Sub">新能源渗透率参考</div></div>
+                    </div>
+                    <div class="chart-container" id="c9"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab4: 出口 -->
+        <div class="tab-content" id="tab-export">
+            <div class="chart-grid">
+                <div class="chart-card full">
+                    <div class="chart-header">
+                        <div><div class="chart-title">新能源汽车出口走势</div><div class="chart-subtitle">近24个月出口量（万辆）</div></div>
+                    </div>
+                    <div class="chart-container" id="c10"></div>
+                </div>
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <div><div class="chart-title">乘用车出口车企 TOP10</div><div class="chart-subtitle" id="c11Sub">按出口量排序</div></div>
+                    </div>
+                    <div class="chart-container" id="c11"></div>
+                </div>
+                <div class="chart-card">
+                    <div class="chart-header"><div><div class="chart-title">出口车企份额</div><div class="chart-subtitle">TOP6出口企业</div></div></div>
+                    <div class="chart-container" id="c12"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="data-update">
+        数据来源: 汽车行业数据库 | automotive_embedded_data.js | <span id="dataMonth2">加载中...</span>
+    </div>
+
+    <script src="automotive_embedded_data.js?v=20260630"></script>
+    <script>
+    var COLORS = ['#1e3c72','#4a6fa5','#4facfe','#f59e0b','#10b981','#ef4444','#3b82f6','#8b5cf6','#ec4899','#06b6d4'];
+    var C = { primary: '#1e3c72', secondary: '#4a6fa5', accent: '#4facfe', border: '#e0e0e0', text: '#333', textLight: '#666' };
+
+    // ── 工具函数 ──────────────────────────────────────────────────────────────────
+    function getTable(name) {
+        var t = EMBEDDED_DATA.tables.find(function(t){ return t.table_name === name; });
+        return t ? t.data : [];
+    }
+    function toYY(v) {
+        if (!v) return '';
+        var s = String(v).slice(0,10);
+        var m = s.match(/^(\d{4})-(\d{2})-/);
+        return m ? (String(+m[1]).slice(-2) + '-' + m[2]) : '';
+    }
+    function num(v) { var n = parseFloat(String(v).replace(/,/g,'')); return isNaN(n) ? null : n; }
+
+    // ── 数据提取（从 embedded JS） ──────────────────────────────────────────────
+    (function loadData() {
+        // 中国汽车整体销量（最新24个月，升序）
+        var chinaRows = getTable('汽车销量-中国市场').slice(0, 24).reverse();
+        window.CHINA_MONTHS = chinaRows.map(function(r){ return toYY(r['日期']); });
+        window.CHINA_SALES  = chinaRows.map(function(r){ return num(r['本期销量（万辆）']); });
+
+        // 新能源汽车销量-中国市场（最新24个月，升序）
+        var nevRows = getTable('新能源汽车销量-中国市场').slice(0, 24).reverse();
+        window.NEV_MONTHS = nevRows.map(function(r){ return toYY(r['日期']); });
+        window.NEV_SALES   = nevRows.map(function(r){ return num(r['本期销量（万辆）']); });
+
+        // 乘用车零售（最新24个月，升序）
+        var retRows = getTable('新能源汽车销量-国内乘用车零售').slice(0, 24).reverse();
+        window.RETAIL_MONTHS = retRows.map(function(r){ return toYY(r['日期']); });
+        window.RETAIL_SALES  = retRows.map(function(r){ return num(r['本期销量（万辆）']); });
+
+        // BEV/PHEV 走势
+        var bevRows = getTable('新能源汽车销量-乘用车零售分类型').filter(function(r){ return r['车辆类型']==='BEV'; }).slice(0,24).reverse();
+        var pheRows = getTable('新能源汽车销量-乘用车零售分类型').filter(function(r){ return r['车辆类型']==='PHEV'; }).slice(0,24).reverse();
+        window.TYPE_MONTHS = bevRows.map(function(r){ return toYY(r['日期']); });
+        window.BEV_HIST    = bevRows.map(function(r){ return num(r['本期销量（万辆）']); });
+        window.PHEV_HIST   = pheRows.map(function(r){ return num(r['本期销量（万辆）']); });
+
+        // 乘用车零售品牌TOP10（最新月份）
+        var retLatest = retRows[0] || {};
+        var retLatestMonth = toYY(retLatest['日期']) || '—';
+        var brandRows = getTable('新能源汽车销量-乘用车零售分品牌').slice(0, 10);
+        window.BRAND_NAMES = brandRows.map(function(r){ return r['品牌'] || ''; });
+        window.BRAND_SALES = brandRows.map(function(r){ return num(r['本期销量（万辆）']); });
+        window.LATEST_BRAND_MONTH = retLatestMonth;
+
+        // 商用车分整车厂TOP10
+        var cvRows = getTable('汽车销量-中国商用车分整车厂').slice(0, 10);
+        window.CV_NAMES = cvRows.map(function(r){ return r['企业名称'] || ''; });
+        window.CV_SALES = cvRows.map(function(r){ return num(r['本期销量（万辆）']); });
+        window.LATEST_CV_MONTH = toYY((getTable('汽车销量-中国商用车'))[0] && getTable('汽车销量-中国商用车')[0]['日期']) || '—';
+
+        // 新能源出口（最新24个月，升序）
+        var expRows = getTable('新能源汽车销量-出口').slice(0, 24).reverse();
+        window.EXP_MONTHS = expRows.map(function(r){ return toYY(r['日期']); });
+        window.EXP_SALES  = expRows.map(function(r){ return num(r['本期销量（万辆）']); });
+        window.LATEST_EXP_MONTH = toYY(expRows[0] && expRows[0]['日期']) || '—';
+
+        // 乘用车出口车企TOP10
+        var expOemRows = getTable('新能源汽车销量-乘用车出口分车企').slice(0, 10);
+        window.EXP_OEM_NAMES = expOemRows.map(function(r){ return r['企业名称'] || ''; });
+        window.EXP_OEM_SALES = expOemRows.map(function(r){ return num(r['本期销量（万辆）']); });
+
+        // 中重卡/轻卡（交强险）
+        var zcRows = getTable('汽车销量-中国商用车中重卡').slice(0, 5);
+        window.ZC_NAMES = zcRows.map(function(r){ return r['企业名称'] || ''; });
+        window.ZC_VOL   = zcRows.map(function(r){ return num(r['本期销量（万辆）']); });
+        window.ZC_PCT   = zcRows.map(function(r){ return r['同比'] || ''; });
+        window.LATEST_ZC_MONTH = toYY((getTable('汽车销量-中国商用车中重卡'))[0] && getTable('汽车销量-中国商用车中重卡')[0]['日期']) || '—';
+
+        var qcRows = getTable('汽车销量-中国商用车轻卡').slice(0, 5);
+        window.QC_NAMES = qcRows.map(function(r){ return r['企业名称'] || ''; });
+        window.QC_VOL   = qcRows.map(function(r){ return num(r['本期销量（万辆）']); });
+        window.QC_PCT   = qcRows.map(function(r){ return r['同比'] || ''; });
+        window.LATEST_QC_MONTH = toYY((getTable('汽车销量-中国商用车轻卡'))[0] && getTable('汽车销量-中国商用车轻卡')[0]['日期']) || '—';
+
+        // 统计数字
+        var c0 = (getTable('汽车销量-中国市场'))[0] || {};
+        var n0 = (getTable('新能源汽车销量-中国市场'))[0] || {};
+        window.STAT_MONTH = toYY(c0['日期']) || '—';
+        window.STAT_CHINA = num(c0['本期销量（万辆）']) || 0;
+        window.STAT_NEV   = num(n0['本期销量（万辆）']) || 0;
+        window.STAT_PEN   = c0['本期销量（万辆）'] && n0['本期销量（万辆）']
+            ? ((num(n0['本期销量（万辆）']) / num(c0['本期销量（万辆）'])) * 100).toFixed(1) : '—';
+        window.STAT_EXP   = num((getTable('新能源汽车销量-出口'))[0] && (getTable('新能源汽车销量-出口'))[0]['本期销量（万辆）']) || 0;
+        window.BEV_YOY    = n0['同比'] || '—';
+        window.PHEV_YOY   = n0['同比'] || '—';
+
+        // BEV/PHEV latest
+        var bev0 = (getTable('新能源汽车销量-乘用车零售分类型')).filter(function(r){ return r['车辆类型']==='BEV'; })[0] || {};
+        var phe0 = (getTable('新能源汽车销量-乘用车零售分类型')).filter(function(r){ return r['车辆类型']==='PHEV'; })[0] || {};
+        window.STAT_BEV  = num(bev0['本期销量（万辆）']) || 0;
+        window.STAT_PHEV = num(phe0['本期销量（万辆）']) || 0;
+    })();
+
+    // 更新统计卡片
+    document.getElementById('statChina').textContent = STAT_CHINA;
+    document.getElementById('statNev').textContent = STAT_NEV;
+    document.getElementById('statPen').textContent = STAT_PEN + '%';
+    document.getElementById('statExp').textContent = STAT_EXP;
+    document.getElementById('statBev').textContent = STAT_BEV + ' (YoY: ' + BEV_YOY + ')';
+    document.getElementById('statPhev').textContent = STAT_PHEV + ' (YoY: ' + PHEV_YOY + ')';
+    document.getElementById('dataMonth').textContent = '数据截至 ' + STAT_MONTH;
+
+    
+    // 图表初始化
+    function initChart(id, opt) { echarts.init(document.getElementById(id)).setOption(opt); }
+
+    // Tab1-1: 中国汽车整体销量走势
+    initChart('c1', {
+        tooltip: { trigger: 'axis' },
+        legend: { data: ['中国汽车整体'], top: 5 },
+        grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+        xAxis: { type: 'category', data: CHINA_MONTHS, axisLabel: { color: C.textLight } },
+        yAxis: { type: 'value', name: '万辆', axisLabel: { color: C.textLight }, splitLine: { lineStyle: { color: C.border } } },
+        series: [{
+            name: '中国汽车整体', type: 'bar',
+            data: CHINA_SALES,
+            itemStyle: { color: C.primary, borderRadius: [4,4,0,0] },
+            label: { show: false }
+        }]
+    });
+
+    // Tab1-2: 中国汽车 vs 新能源叠加
+    initChart('c2', {
+        tooltip: { trigger: 'axis', axisPointer: { type: 'cross' } },
+        legend: { data: ['中国汽车','新能源'], top: 5 },
+        grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+        xAxis: { type: 'category', data: NEV_MONTHS, axisLabel: { color: C.textLight } },
+        yAxis: [
+            { type: 'value', name: '万辆', position: 'left', axisLabel: { color: C.textLight }, splitLine: { lineStyle: { color: C.border } } },
+            { type: 'value', name: '%', position: 'right', min: 0, max: 100, axisLabel: { color: C.textLight }, splitLine: { show: false } }
+        ],
+        series: [
+            {
+                name: '中国汽车', type: 'bar', data: CHINA_SALES,
+                itemStyle: { color: 'rgba(30,60,114,0.3)', borderRadius: [2,2,0,0] },
+                barWidth: '40%'
+            },
+            {
+                name: '新能源', type: 'bar', data: NEV_SALES,
+                itemStyle: { color: C.primary, borderRadius: [4,4,0,0] },
+                label: { show: true, position: 'top', formatter: '{c}', fontSize: 9, color: C.primary, fontWeight: 'bold' }
+            }
+        ]
+    });
+
+    // Tab1-3: 新能源乘用车零售走势
+    initChart('c3', {
+        tooltip: { trigger: 'axis' },
+        grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+        xAxis: { type: 'category', data: RETAIL_MONTHS, axisLabel: { color: C.textLight } },
+        yAxis: { type: 'value', name: '万辆', axisLabel: { color: C.textLight }, splitLine: { lineStyle: { color: C.border } } },
+        series: [{
+            type: 'line', data: RETAIL_SALES, smooth: true,
+            lineStyle: { color: C.accent, width: 3 },
+            itemStyle: { color: C.accent },
+            areaStyle: { color: { type: 'linear', x: 0, y: 0, x2: 0, y2: 1, colorStops: [{ offset: 0, color: 'rgba(79,172,254,0.2)' }, { offset: 1, color: 'rgba(79,172,254,0.02)' }] } },
+            label: { show: true, position: 'top', formatter: '{c}', fontSize: 9, color: C.accent, fontWeight: 'bold' }
+        }]
+    });
+
+    // Tab2-1: BEV vs PHEV 走势
+    initChart('c4', {
+        tooltip: { trigger: 'axis' },
+        legend: { data: ['BEV','PHEV'], top: 5 },
+        grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+        xAxis: { type: 'category', data: TYPE_MONTHS, axisLabel: { color: C.textLight } },
+        yAxis: { type: 'value', name: '万辆', axisLabel: { color: C.textLight }, splitLine: { lineStyle: { color: C.border } } },
+        series: [
+            {
+                name: 'BEV', type: 'line', data: BEV_HIST, smooth: true,
+                lineStyle: { color: C.primary, width: 3 }, itemStyle: { color: C.primary },
+                areaStyle: { color: { type: 'linear', x: 0, y: 0, x2: 0, y2: 1, colorStops: [{ offset: 0, color: 'rgba(30,60,114,0.15)' }, { offset: 1, color: 'rgba(30,60,114,0.02)' }] } },
+                label: { show: false }
+            },
+            {
+                name: 'PHEV', type: 'line', data: PHEV_HIST, smooth: true,
+                lineStyle: { color: C.accent, width: 3 }, itemStyle: { color: C.accent },
+                label: { show: false }
+            }
+        ]
+    });
+
+    // Tab2-2: 品牌TOP10
+    initChart('c5', {
+        tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' }, formatter: function(p) { return p.name + ': ' + p.value + '万辆'; } },
+        grid: { left: '3%', right: '15%', bottom: '3%', containLabel: true },
+        xAxis: { type: 'value', axisLabel: { formatter: '{value}万' }, splitLine: { lineStyle: { color: C.border } } },
+        yAxis: { type: 'category', data: BRAND_NAMES.reverse(), axisLabel: { color: C.text, fontSize: 11 } },
+        series: [{
+            type: 'bar', data: BRAND_SALES.reverse(),
+            itemStyle: { color: function(p){ return COLORS[p.dataIndex % COLORS.length]; }, borderRadius: [0,4,4,0] },
+            label: { show: true, position: 'right', formatter: '{c}万', fontSize: 10, color: C.textLight }
+        }]
+    });
+
+    // Tab2-3: 品牌份额饼图
+    initChart('c6', {
+        tooltip: { trigger: 'item', formatter: '{b}: {c}万辆 ({d}%)' },
+        legend: { orient: 'vertical', right: 5, top: 'center', textStyle: { fontSize: 11 } },
+        series: [{
+            type: 'pie', radius: ['25%', '60%'], center: ['38%', '50%'],
+            data: BRAND_NAMES.slice(0,6).map(function(n,i){
+                return {name: n + ' ' + BRAND_SALES[i] + '万', value: BRAND_SALES[i]};
+            }),
+            label: { show: true, formatter: '{b}', fontSize: 10, color: '#333' },
+            itemStyle: { color: function(p){ return COLORS[p.dataIndex % COLORS.length]; } }
+        }]
+    });
+
+    // Tab3-1: 商用车OEM TOP10
+    initChart('c7', {
+        tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' }, formatter: function(p) { return p.name + ': ' + p.value + '万辆'; } },
+        grid: { left: '3%', right: '15%', bottom: '3%', containLabel: true },
+        xAxis: { type: 'value', axisLabel: { formatter: '{value}万' }, splitLine: { lineStyle: { color: C.border } } },
+        yAxis: { type: 'category', data: CV_NAMES.reverse(), axisLabel: { color: C.text, fontSize: 11 } },
+        series: [{
+            type: 'bar', data: CV_SALES.reverse(),
+            itemStyle: { color: function(p){ return COLORS[p.dataIndex % COLORS.length]; }, borderRadius: [0,4,4,0] },
+            label: { show: true, position: 'right', formatter: '{c}万', fontSize: 10, color: C.textLight }
+        }]
+    });
+
+    // Tab3-2: 中重卡交强险量TOP5
+    initChart('c8', {
+        tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' }, formatter: function(p) { return p.name + ': ' + p.value + '万台'; } },
+        grid: { left: '3%', right: '15%', bottom: '3%', containLabel: true },
+        xAxis: { type: 'value', axisLabel: { formatter: '{value}万' }, splitLine: { lineStyle: { color: C.border } } },
+        yAxis: { type: 'category', data: ZC_NAMES.reverse(), axisLabel: { color: C.text, fontSize: 11 } },
+        series: [{
+            type: 'bar', data: ZC_VOL.reverse(),
+            itemStyle: { color: function(p){ return COLORS[p.dataIndex % COLORS.length]; }, borderRadius: [0,4,4,0] },
+            label: { show: true, position: 'right', formatter: '{c}万', fontSize: 10, color: C.textLight }
+        }]
+    });
+
+    // Tab3-3: 轻卡交强险量TOP5
+    initChart('c9', {
+        tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' }, formatter: function(p) { return p.name + ': ' + p.value + '万台'; } },
+        grid: { left: '3%', right: '15%', bottom: '3%', containLabel: true },
+        xAxis: { type: 'value', axisLabel: { formatter: '{value}万' }, splitLine: { lineStyle: { color: C.border } } },
+        yAxis: { type: 'category', data: QC_NAMES.reverse(), axisLabel: { color: C.text, fontSize: 11 } },
+        series: [{
+            type: 'bar', data: QC_VOL.reverse(),
+            itemStyle: { color: function(p){ return COLORS[p.dataIndex % COLORS.length]; }, borderRadius: [0,4,4,0] },
+            label: { show: true, position: 'right', formatter: '{c}万', fontSize: 10, color: C.textLight }
+        }]
+    });
+
+    // Tab4-1: 新能源出口走势
+    initChart('c10', {
+        tooltip: { trigger: 'axis' },
+        grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+        xAxis: { type: 'category', data: EXP_MONTHS, axisLabel: { color: C.textLight } },
+        yAxis: { type: 'value', name: '万辆', axisLabel: { color: C.textLight }, splitLine: { lineStyle: { color: C.border } } },
+        series: [{
+            type: 'bar', data: EXP_SALES,
+            itemStyle: { color: C.primary, borderRadius: [4,4,0,0] },
+            label: { show: true, position: 'top', formatter: '{c}', fontSize: 9, color: C.primary, fontWeight: 'bold' }
+        }]
+    });
+
+    // Tab4-2: 乘用车出口车企TOP10
+    initChart('c11', {
+        tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' }, formatter: function(p) { return p.name + ': ' + p.value + '万辆'; } },
+        grid: { left: '3%', right: '15%', bottom: '3%', containLabel: true },
+        xAxis: { type: 'value', axisLabel: { formatter: '{value}万' }, splitLine: { lineStyle: { color: C.border } } },
+        yAxis: { type: 'category', data: EXP_OEM_NAMES.reverse(), axisLabel: { color: C.text, fontSize: 11 } },
+        series: [{
+            type: 'bar', data: EXP_OEM_SALES.reverse(),
+            itemStyle: { color: function(p){ return COLORS[p.dataIndex % COLORS.length]; }, borderRadius: [0,4,4,0] },
+            label: { show: true, position: 'right', formatter: '{c}万', fontSize: 10, color: C.textLight }
+        }]
+    });
+
+    // Tab4-3: 出口车企饼图
+    initChart('c12', {
+        tooltip: { trigger: 'item', formatter: '{b}: {c}万辆 ({d}%)' },
+        legend: { orient: 'vertical', right: 5, top: 'center', textStyle: { fontSize: 11 } },
+        series: [{
+            type: 'pie', radius: ['25%', '60%'], center: ['38%', '50%'],
+            data: EXP_OEM_NAMES.slice(0,6).map(function(n,i){
+                return {name: n + ' ' + EXP_OEM_SALES[i] + '万', value: EXP_OEM_SALES[i]};
+            }),
+            label: { show: true, formatter: '{b}', fontSize: 10, color: '#333' },
+            itemStyle: { color: function(p){ return COLORS[p.dataIndex % COLORS.length]; } }
+        }]
+    });
+
+    // 更新图表副标题
+    var brandSubtitle = document.querySelector('#c5 .chart-header .chart-subtitle, #c5 + *');
+    document.getElementById('c5Sub').textContent = '数据月份: ' + LATEST_BRAND_MONTH + '  最新';
+    document.getElementById('c7Sub').textContent = '数据月份: ' + LATEST_CV_MONTH + '  最新';
+    document.getElementById('c11Sub').textContent = '数据月份: ' + LATEST_EXP_MONTH + '  最新';
+    document.getElementById('c8Sub').textContent = '数据月份: ' + LATEST_ZC_MONTH;
+    document.getElementById('c9Sub').textContent = '数据月份: ' + LATEST_QC_MONTH;
+
+    
+    function switchTab(tab, btn) {
+        document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
+        document.querySelectorAll('.tab-content').forEach(function(t) { t.classList.remove('active'); });
+        if (btn) btn.classList.add('active');
+        var content = document.getElementById('tab-' + tab);
+        if (content) content.classList.add('active');
+        // Resize all echarts after tab switch
+        setTimeout(function() {
+            document.querySelectorAll('.chart-container[id]').forEach(function(el) {
+                try { echarts.getInstanceByDom(el) && echarts.getInstanceByDom(el).resize(); } catch(e) {}
+            });
+        }, 50);
+    }
+
+    document.getElementById('dataMonth').textContent = '数据截至 ' + STAT_MONTH;
+    document.getElementById('dataMonth2').textContent = '数据截至 26-04';
+    </script>
+    <script src="assets/ai_fab_inject.js"></script>
+</body>
+</html>

@@ -1,0 +1,239 @@
+{
+    "bu_id": "lpsd",
+    "bu_code": "LPSD",
+    "bu_name": "龙蟠时代",
+    "month": "2026-05",
+    "source": "",
+    "dims": {
+        "d1": 58,
+        "d2": 88,
+        "d3": 75,
+        "d4": 85,
+        "d5": 85,
+        "d6": 75
+    },
+    "_isCurrent": true,
+    "kpis": {
+        "d1": [
+            51,
+            117,
+            154,
+            100
+        ],
+        "d2": [
+            106,
+            95,
+            99,
+            90
+        ],
+        "d3": [
+            82,
+            78,
+            88,
+            72
+        ],
+        "d4": [
+            85,
+            85,
+            80,
+            90
+        ],
+        "d5": [
+            100,
+            85,
+            80,
+            85
+        ],
+        "d6": [
+            75,
+            80,
+            70,
+            75
+        ]
+    },
+    "_kpiComparison": {
+        "title": "5月核心KPI达成率",
+        "period": "2026年5月",
+        "items": [
+            {
+                "name": "营业收入(万)",
+                "budget": 45101,
+                "target": 45101,
+                "actual": 22885,
+                "unit": "万"
+            },
+            {
+                "name": "净利润(万)",
+                "budget": 3030,
+                "target": 3030,
+                "actual": 3550,
+                "unit": "万"
+            },
+            {
+                "name": "毛利率(%)",
+                "budget": 13.1,
+                "target": 13.1,
+                "actual": 20.2,
+                "unit": "%"
+            },
+            {
+                "name": "产量(T)",
+                "budget": 2164,
+                "target": 2164,
+                "actual": 2302,
+                "unit": "T"
+            },
+            {
+                "name": "云母收率(%)",
+                "budget": 80.34,
+                "target": 80.34,
+                "actual": 79.22,
+                "unit": "%"
+            }
+        ]
+    },
+    "_dimComparison_d2": {
+        "title": "5月经营效益",
+        "items": [
+            {
+                "name": "碳酸锂产量(T)",
+                "budget": 2164,
+                "target": 2164,
+                "actual": 2302,
+                "unit": "T"
+            },
+            {
+                "name": "云母采购量(T)",
+                "budget": 50000,
+                "target": 50000,
+                "actual": 10000,
+                "unit": "T"
+            },
+            {
+                "name": "云母收率(%)",
+                "budget": 80.34,
+                "target": 80.34,
+                "actual": 79.22,
+                "unit": "%"
+            },
+            {
+                "name": "焙烧转化率(%)",
+                "budget": 89.0,
+                "target": 89.0,
+                "actual": 88.26,
+                "unit": "%"
+            }
+        ]
+    },
+    "_dimComparison_d3": {
+        "title": "5月运营效率",
+        "items": [
+            {
+                "name": "电单耗(kWh/T)",
+                "budget": 0,
+                "target": 50,
+                "actual": 46,
+                "unit": "kWh/T"
+            },
+            {
+                "name": "气单耗(m³/T)",
+                "budget": 0,
+                "target": 200,
+                "actual": 185,
+                "unit": "m³/T"
+            },
+            {
+                "name": "综合能耗(kgce/T)",
+                "budget": 0,
+                "target": 68,
+                "actual": 62,
+                "unit": "kgce/T"
+            },
+            {
+                "name": "存货周转率(次)",
+                "budget": 0,
+                "target": 6.0,
+                "actual": 5.2,
+                "unit": "次"
+            }
+        ]
+    },
+    "_dimComparison_d4": {
+        "title": "5月技术创新力",
+        "items": [
+            {
+                "name": "发明专利新增(件)",
+                "budget": 0,
+                "target": 3,
+                "actual": 5,
+                "unit": "件"
+            },
+            {
+                "name": "实用新型专利(件)",
+                "budget": 0,
+                "target": 5,
+                "actual": 6,
+                "unit": "件"
+            },
+            {
+                "name": "研发项目立项(项)",
+                "budget": 0,
+                "target": 2,
+                "actual": 2,
+                "unit": "项"
+            }
+        ]
+    },
+    "_dimComparison_d5": {
+        "title": "5月风险合规",
+        "items": [
+            {
+                "name": "安全事故(起)",
+                "budget": 0,
+                "target": 0,
+                "actual": 0,
+                "unit": "起"
+            },
+            {
+                "name": "环保合规",
+                "budget": 1,
+                "target": 1,
+                "actual": 1,
+                "unit": "项"
+            },
+            {
+                "name": "质量体系审核",
+                "budget": 1,
+                "target": 1,
+                "actual": 1,
+                "unit": "项"
+            }
+        ]
+    },
+    "_dimComparison_d6": {
+        "title": "5月组织活力",
+        "items": [
+            {
+                "name": "能源项目立项(项)",
+                "budget": 0,
+                "target": 1,
+                "actual": 1,
+                "unit": "项"
+            },
+            {
+                "name": "新客户开发(家)",
+                "budget": 0,
+                "target": 3,
+                "actual": 2,
+                "unit": "家"
+            },
+            {
+                "name": "人才引进(人)",
+                "budget": 0,
+                "target": 2,
+                "actual": 1,
+                "unit": "人"
+            }
+        ]
+    }
+}

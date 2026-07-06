@@ -1,0 +1,196 @@
+#!/bin/sh
+# pre-commit hook: 数据保护 - 防止误删早报数据 + 数据库回退
+# ========== 龙蟠数据保护钩子 ==========
+
+PROTECTED_DIRS="reports/ data/ embedded/"
+WARN_COLOR='\033[0;33m'
+RED_COLOR='\033[0;31m'
+NC='\033[0m'
+
+# ========== 1. reports/ 删除警告 ==========
+deleted_files=$(git diff --cached --name-only --diff-filter=D | grep -E '^reports/')
+if [ -n "$deleted_files" ]; then
+    echo ""
+    echo "${WARN_COLOR}[PRE-COMMIT] 检测到 reports/ 目录文件被删除:${NC}"
+    echo "$deleted_files" | head -20
+    echo ""
+    echo "  以上文件将从 Git 历史中永久消失！"
+    echo "  按 Ctrl+C 取消提交，或回车继续..."
+    read -r reply
+fi
+
+# ========== 2. 数据库嵌入数据文件逐表回退检测（全部 7 个数据库） ==========
+# 返回值：0=通过，1=阻止提交
+check_data_regression() {
+    local FILE="$1"
+    local LABEL="$2"
+    local BLOCK=0
+    local REGRESSIONS=""
+
+    if ! git diff --cached --name-only | grep -q "^${FILE}$"; then
+        return 0  # 未被修改，跳过
+    fi
+
+    # 逐表比较 staged vs HEAD，检测任意表数据回退
+    REGRESSIONS=$(git show :"$FILE" 2>/dev/null | python3 -c "
+import json, sys, subprocess, os
+
+def extract_per_table(content):
+    try:
+        start = content.find('{')
+        if start < 0:
+            return {}
+        d = json.loads(content[start:].rstrip().rstrip(';'))
+        result = {}
+        for t in d.get('tables', []):
+            tname = t.get('table_name', '')
+            latest = ''
+            for row in t.get('data', []):
+                for k in ('日期', '当前日期', '时间', '月份'):
+                    v = str(row.get(k, ''))[:7]
+                    if v and v > latest:
+                        latest = v
+            if tname:
+                result[tname] = latest
+        return result
+    except:
+        return {}
+
+staged = sys.stdin.read()
+head_content = subprocess.check_output(
+    ['git', 'show', 'HEAD:${FILE}'],
+    stderr=subprocess.DEVNULL
+).decode('utf-8', errors='replace')
+
+staged_tables = extract_per_table(staged)
+head_tables = extract_per_table(head_content)
+
+for tname, head_latest in head_tables.items():
+    staged_latest = staged_tables.get(tname, '')
+    if head_latest and staged_latest and staged_latest < head_latest:
+        print(f'REGRESSION: {tname} HEAD={head_latest} STAGED={staged_latest}')
+" 2>/dev/null)
+
+    if [ -n "$REGRESSIONS" ]; then
+        BLOCK=1
+        echo ""
+        echo "${RED_COLOR}[PRE-COMMIT] 数据库回退阻止提交！${NC}"
+        echo "  文件: $FILE ($LABEL)"
+        echo "$REGRESSIONS" | sed 's/^/    /'
+        echo ""
+        echo "  阻止提交。如需强制提交请用: git commit --no-verify"
+        echo "  恢复 HEAD 版本: git checkout HEAD -- $FILE"
+        echo "  查看差异: git diff HEAD -- $FILE"
+    fi
+
+    return $BLOCK
+}
+
+REGRESSION_FOUND=0
+
+# ── 7 个数据库核心文件（逐表回退检测） ──
+check_data_regression "recycling_embedded_data.js"    "回收数据库"       || REGRESSION_FOUND=1
+check_data_regression "lib_battery_embedded_data.js"  "锂电池数据库"     || REGRESSION_FOUND=1
+check_data_regression "lfp_embedded_data.js"          "磷酸铁锂数据库"   || REGRESSION_FOUND=1
+check_data_regression "electrolyte_embedded_data.js"  "电解液数据库"     || REGRESSION_FOUND=1
+check_data_regression "carbonate_embedded_data.js"    "碳酸锂数据库"     || REGRESSION_FOUND=1
+check_data_regression "ternary_embedded_data.js"      "三元前驱体数据库" || REGRESSION_FOUND=1
+check_data_regression "automotive_embedded_data.js"   "汽车数据库"       || REGRESSION_FOUND=1
+
+if [ $REGRESSION_FOUND -eq 1 ]; then
+    echo ""
+    echo "${RED_COLOR}请先修复上述数据回退问题后再提交。${NC}"
+    exit 1
+fi
+
+# ========== 3. automotive_data_v2.html 静态数据禁止回滚 ==========
+STATIC_TR_BLOCK=0
+if git diff --cached --name-only | grep -q "^automotive_data_v2.html$"; then
+    # 检查 staged 版本中 tbody 内是否有 <tr> 行（静态写死数据）
+    STATIC_TR=$(git show :automotive_data_v2.html 2>/dev/null | python3 -c "
+import sys, re
+content = sys.stdin.read()
+# 找所有 tbody 块，检测其中是否含 <tr>
+matches = re.findall(r'<tbody[^>]*>(.*?)</tbody>', content, re.DOTALL)
+for i, body in enumerate(matches):
+    if re.search(r'<tr[\s>]', body):
+        print(f'第{i+1}个tbody含静态数据行')
+" 2>/dev/null)
+    if [ -n "$STATIC_TR" ]; then
+        STATIC_TR_BLOCK=1
+        echo ""
+        echo "${RED_COLOR}[PRE-COMMIT] automotive_data_v2.html 含静态 <tr> 数据，禁止回滚！${NC}"
+        echo "  静态 tbody 内容:"
+        echo "$STATIC_TR" | sed 's/^/    /'
+        echo ""
+        echo "  该文件已改造为动态加载，禁止向 <tbody> 写入静态行。"
+        echo "  如需强制提交请用: git commit --no-verify"
+    fi
+fi
+
+if [ $STATIC_TR_BLOCK -eq 1 ]; then
+    exit 1
+fi
+
+# ========== 3b. lfp_data_v2.html / ternary_data_v2.html 数据源引用回退检测 ==========
+# 如果 data_v2.html 引用的 embedded JS 版本比 HEAD 更新，则必须同步提交 embedded JS
+# 否则页面会指向旧数据（数据回滚但 embedded JS 日期更新了，造成假象）
+DATA_V2_REGRESSION=0
+for HTML_FILE in "lfp_data_v2.html" "ternary_data_v2.html"; do
+    if ! git diff --cached --name-only | grep -q "^${HTML_FILE}$"; then
+        continue
+    fi
+
+    # 取出 staged 和 HEAD 中引用的 embedded JS 文件名
+    STAGED_EMB=$(git show :${HTML_FILE} 2>/dev/null | grep -oP 'src="[^"]*_embedded_data\.js"' | head -1 | sed 's/src="//;s/"//')
+    HEAD_EMB=$(git show HEAD:${HTML_FILE} 2>/dev/null | grep -oP 'src="[^"]*_embedded_data\.js"' | head -1 | sed 's/src="//;s/"//')
+
+    if [ -n "$STAGED_EMB" ] && [ "$STAGED_EMB" != "$HEAD_EMB" ]; then
+        # embedded JS 文件名变了（新增或切换了数据源），检查该 embedded JS 是否在 staged 中
+        if ! git diff --cached --name-only | grep -q "^${STAGED_EMB}$"; then
+            echo ""
+            echo "${RED_COLOR}[PRE-COMMIT] ${HTML_FILE} 引用了 ${STAGED_EMB}，但该文件未一起提交！${NC}"
+            echo "  当前 staged 的 embedded JS: ${STAGED_EMB}"
+            echo "  HEAD 中的 embedded JS:    ${HEAD_EMB:-（无）}"
+            echo ""
+            echo "  风险：提交后页面会指向旧数据，等同数据回滚。"
+            echo "  解决：git add ${STAGED_EMB} 后重新提交"
+            DATA_V2_REGRESSION=1
+        fi
+    fi
+done
+
+if [ $DATA_V2_REGRESSION -eq 1 ]; then
+    echo ""
+    echo "${RED_COLOR}请将对应的 *_embedded_data.js 文件一起提交后再试。${NC}"
+    exit 1
+fi
+
+# ========== 4. 数据库 JSON 新增大小警告 ==========
+added_files=$(git diff --cached --name-only --diff-filter=A | grep -E '(lib_battery|recycling).*\.(json|js)$')
+total_size=0
+for f in $added_files; do
+    size=$(git ls-files -s "$f" | awk '{print $3}')
+    total_size=$((total_size + size))
+done
+if [ $total_size -gt 50000000 ]; then
+    echo ""
+    echo "${WARN_COLOR}[PRE-COMMIT] 数据库文件新增超过 50MB，总计 $((total_size/1024/1024))MB${NC}"
+    echo "  按 Ctrl+C 取消提交，或回车继续..."
+    read -r reply
+fi
+
+# ========== 5. 自动备份 reports/ 目录（每次提交前） ==========
+REPORTS_DIR="$(git rev-parse --show-toplevel)/reports"
+BACKUP_DIR="$(git rev-parse --show-toplevel)/_archive/reports_auto_backup"
+TIMESTAMP=$(date +%Y%m%d_%H%M%S)
+TEMP_BACKUP="$BACKUP_DIR/pre_commit_$TIMESTAMP"
+
+if [ -d "$REPORTS_DIR" ]; then
+    mkdir -p "$TEMP_BACKUP"
+    cp -r "$REPORTS_DIR"/*.json "$TEMP_BACKUP/" 2>/dev/null
+    # 只保留最近 5 份备份
+    cd "$BACKUP_DIR" && ls -dt pre_commit_* | tail -n +6 | xargs rm -rf 2>/dev/null
+fi
+
+echo "[pre-commit] 数据保护钩子检查通过"

@@ -1,0 +1,128 @@
+{
+    "bu_id": "dkhx",
+    "bu_code": "DKHX",
+    "bu_name": "迪克化学",
+    "month": "2026-03",
+    "source": "",
+    "dims": {
+        "d1": 86,
+        "d2": 78,
+        "d3": 82,
+        "d4": 80,
+        "d5": 80,
+        "d6": 78
+    },
+    "_isCurrent": false,
+    "kpis": {
+        "d1": [
+            100,
+            87,
+            86,
+            67
+        ],
+        "d2": [
+            75,
+            80,
+            82,
+            75
+        ],
+        "d3": [
+            85,
+            80,
+            82,
+            80
+        ],
+        "d4": [
+            80,
+            85,
+            78,
+            78
+        ],
+        "d5": [
+            80,
+            85,
+            78,
+            78
+        ],
+        "d6": [
+            75,
+            80,
+            80,
+            78
+        ]
+    },
+    "_kpiComparison": {
+        "title": "3月核心KPI达成率",
+        "period": "2026年3月",
+        "items": [
+            {
+                "name": "销售收入(万)",
+                "budget": 3211,
+                "target": 3211,
+                "actual": 3267,
+                "unit": "万"
+            },
+            {
+                "name": "净利润(万)",
+                "budget": 398,
+                "target": 398,
+                "actual": 348,
+                "unit": "万"
+            },
+            {
+                "name": "净利润率(%)",
+                "budget": 12.4,
+                "target": 12.4,
+                "actual": 10.7,
+                "unit": "%"
+            },
+            {
+                "name": "采购降本率(%)",
+                "budget": 10.0,
+                "target": 10.0,
+                "actual": 15.0,
+                "unit": "%"
+            },
+            {
+                "name": "应收账款天数",
+                "budget": 0,
+                "target": 0,
+                "actual": 0,
+                "unit": "天"
+            }
+        ]
+    },
+    "_dimComparison_d2": {
+        "title": "3月经营效益",
+        "items": [
+            {
+                "name": "冷却液销售(万)",
+                "budget": 700,
+                "target": 700,
+                "actual": 560,
+                "unit": "万"
+            },
+            {
+                "name": "制动液销售(万)",
+                "budget": 1300,
+                "target": 1300,
+                "actual": 1040,
+                "unit": "万"
+            },
+            {
+                "name": "防冻液销售(万)",
+                "budget": 1800,
+                "target": 1800,
+                "actual": 1440,
+                "unit": "万"
+            },
+            {
+                "name": "其他化学品(万)",
+                "budget": 300,
+                "target": 300,
+                "actual": 227,
+                "unit": "万"
+            }
+        ]
+    }
+}

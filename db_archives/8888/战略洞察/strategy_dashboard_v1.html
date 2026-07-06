@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>战略洛通仪表盘</title>
+<script src="./echarts.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,'Microsoft YaHei',sans-serif;background:#f4f6fa;color:#1a1a2e}
+.topbar{display:flex;justify-content:space-between;align-items:center;padding:0 24px;height:52px;background:linear-gradient(135deg,#1e3c72,#2a5298);color:#fff;font-size:14px}
+.topbar a{color:rgba(255,255,255,0.85);text-decoration:none;font-size:13px}
+.topbar a:hover{color:#fff}
+.topbar-center{font-size:15px;font-weight:600}
+.btn-export{background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.35);color:#fff;padding:5px 16px;border-radius:20px;cursor:pointer;font-size:13px;font-family:inherit;transition:all .2s}
+.btn-export:hover{background:rgba(255,255,255,0.25)}
+.hero{background:linear-gradient(135deg,#1e3c72,#2a5298);color:#fff;padding:28px 32px 24px}
+.hero h1{font-size:22px;font-weight:700;margin-bottom:4px}
+.hero p{font-size:13px;color:rgba(255,255,255,0.75);margin-bottom:2px}
+.dashboard-body{padding:16px 20px 32px}
+.dashboard-row{display:flex;gap:16px;margin-bottom:16px}
+.dashboard-left{flex:0 0 62%}
+.dashboard-right{flex:1;display:flex;flex-direction:column;gap:10px}
+.card{background:#fff;border-radius:12px;padding:16px;box-shadow:0 1px 4px rgba(0,0,0,0.06)}
+.card h3{font-size:12px;color:#888;margin-bottom:10px;font-weight:600;text-transform:uppercase;letter-spacing:.5px}
+.signal-card{background:#fff;border-radius:10px;padding:12px 14px;box-shadow:0 1px 4px rgba(0,0,0,0.06);cursor:pointer;transition:all .2s;border-left:4px solid transparent}
+.signal-card:hover{box-shadow:0 4px 12px rgba(0,0,0,0.1);transform:translateY(-1px)}
+.signal-card.green{border-left-color:#27ae60}
+.signal-card.yellow{border-left-color:#f39c12}
+.signal-card.red{border-left-color:#e74c3c}
+.signal-title{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;font-size:13px;font-weight:600}
+.signal-title .dot{width:9px;height:9px;border-radius:50%;display:inline-block;margin-right:5px}
+.signal-title .dot.green{background:#27ae60}
+.signal-title .dot.yellow{background:#f39c12}
+.signal-title .dot.red{background:#e74c3c}
+.signal-score{font-size:18px;font-weight:700;color:#1e3c72}
+.signal-bar-wrap{background:#f0f0f0;border-radius:4px;height:6px;margin:5px 0;overflow:hidden}
+.signal-bar{height:100%;border-radius:4px;transition:width .5s}
+.signal-bar.green{background:linear-gradient(90deg,#27ae60,#2ecc71)}
+.signal-bar.yellow{background:linear-gradient(90deg,#f39c12,#f1c40f)}
+.signal-bar.red{background:linear-gradient(90deg,#e74c3c,#e67e22)}
+.signal-meta{font-size:10px;color:#aaa;display:flex;justify-content:space-between}
+.detail-section{background:#fff;border-radius:12px;padding:20px;box-shadow:0 1px 4px rgba(0,0,0,0.06);margin-top:4px}
+.detail-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.table-title{font-size:15px;font-weight:700;color:#1e3c72;margin-bottom:12px}
+.dim-selector{display:flex;gap:6px;flex-wrap:wrap}
+.dim-chip{padding:5px 14px;border-radius:20px;border:1px solid #e0e0e0;background:#fff;cursor:pointer;font-size:12px;transition:all .2s;font-family:inherit}
+.dim-chip.active{background:#1e3c72;color:#fff;border-color:#1e3c72}
+.dim-chip:hover:not(.active){border-color:#1e3c72;color:#1e3c72}
+.detail-table{border-collapse:collapse;width:100%;min-width:500px;font-size:13px}
+.detail-table th{background:#f4f6fa;padding:8px 12px;text-align:left;font-weight:600;color:#555;border-bottom:2px solid #e0e0e0}
+.detail-table td{padding:8px 12px;border-bottom:1px solid #f0f0f0}
+.detail-table .total-row td{background:#fafafa;font-weight:700;border-top:2px solid #e0e0e0}
+.detail-table tr:last-child td{border-bottom:none}
+@media(max-width:900px){.dashboard-row{flex-direction:column}.dashboard-left{flex:1}}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <a href="strategy_hub.html">← 返回战略洨通中心</a>
+  <span class="topbar-center" id="bu-title">常州铲源 · 战略洛通</span>
+  <button class="btn-export" onclick="exportReport()">导出报告</button>
+</div>
+<div class="hero">
+  <h1 id="bu-title2">常州铲源 · 战略洛通</h1>
+  <p id="bu-sub">磸酸铴酱事业部</p>
+  <p id="update-time">数据更新：2026-05-28</p>
+</div>
+<div class="dashboard-body" id="dashboard-page">
+  <div class="dashboard-row">
+    <div class="dashboard-left">
+      <div class="card">
+        <h3>综合竞争力雷达图</h3>
+        <div id="radar-chart" style="width:100%;height:360px"></div>
+      </div>
+      <div class="card" style="margin-top:12px">
+        <h3>雷达面积得分趋势（近4季度）</h3>
+        <div id="trend-mini-chart" style="width:100%;height:100px"></div>
+      </div>
+    </div>
+    <div class="dashboard-right">
+      <div id="signal-board"></div>
+    </div>
+  </div>
+  <div class="detail-section">
+    <div class="detail-header">
+      <div class="dim-selector">
+        <button class="dim-chip active" data-dim="cost" onclick="switchDim('cost')">成本竞争力</button>
+        <button class="dim-chip" data-dim="tech" onclick="switchDim('tech')">产品技术力</button>
+        <button class="dim-chip" data-dim="market" onclick="switchDim('market')">市场与客户</button>
+        <button class="dim-chip" data-dim="supply" onclick="switchDim('supply')">供应链韧性</button>
+        <button class="dim-chip" data-dim="growth" onclick="switchDim('growth')">成长与创新</button>
+      </div>
+    </div>
+    <div id="detail-table"></div>
+  </div>
+</div>
+<script>
+var BU_STRATEGY_DATA = {
+    czly: {
+        update_time: '2026-05-28',
+        quarters: ['Q3-2024','Q4-2024','Q1-2025','Q2-2025','Q3-2025','Q4-2025','Q1-2026','Q2-2026'],
+        scores: {
+            czly: {
+                cost:   [6.0,6.2,6.5,6.8,7.0,7.2,7.0,7.2],
+                tech:   [5.5,5.8,6.0,6.2,6.5,6.8,7.0,7.2],
+                market: [6.5,6.6,6.7,6.8,7.0,7.2,7.1,7.3],
+                supply: [5.0,5.2,5.5,5.8,6.0,6.2,6.5,6.5],
+                growth: [5.8,6.0,6.2,6.5,6.8,7.0,7.1,7.2]
+            },
+            hnyn: {
+                cost:   [6.5,6.7,7.0,7.2,7.5,7.8,7.6,7.8],
+                tech:   [6.0,6.3,6.5,6.8,7.0,7.3,7.5,7.8],
+                market: [7.0,7.2,7.3,7.5,7.8,8.0,7.9,8.1],
+                supply: [5.5,5.8,6.0,6.3,6.5,6.8,7.0,7.2],
+                growth: [6.0,6.2,6.5,6.8,7.0,7.2,7.3,7.5]
+            },
+            wrxn: {
+                cost:   [5.5,5.7,6.0,6.2,6.5,6.8,6.5,6.7],
+                tech:   [5.0,5.2,5.5,5.8,6.0,6.2,6.3,6.5],
+                market: [6.0,6.1,6.3,6.5,6.7,6.9,6.8,7.0],
+                supply: [5.0,5.2,5.5,5.8,6.0,6.2,6.3,6.5],
+                growth: [5.5,5.7,6.0,6.2,6.5,6.7,6.8,7.0]
+            },
+            avg: {
+                cost:   [5.8,6.0,6.2,6.5,6.8,7.0,6.9,7.0],
+                tech:   [5.5,5.7,5.9,6.1,6.3,6.5,6.6,6.7],
+                market: [6.2,6.4,6.5,6.7,6.9,7.1,7.0,7.2],
+                supply: [5.2,5.4,5.6,5.8,6.0,6.2,6.3,6.4],
+                growth: [5.6,5.8,6.0,6.2,6.5,6.7,6.8,6.9]
+            }
+        },
+        raw: {
+            cost: {
+                czly: { val: 0.85, unit: '万元/吨', label: '单吨制造成本' },
+                hnyn: { val: 0.82, unit: '万元/吨', label: '单吨制造成本' },
+                wrxn: { val: 0.88, unit: '万元/吨', label: '单吨制造成本' },
+                avg:  { val: 0.90, unit: '万元/吨', label: '单吨制造成本' }
+            },
+            tech: {
+                czly: { val: 72, unit: '%', label: '高压实产品占比' },
+                hnyn: { val: 75, unit: '%', label: '高压实产品占比' },
+                wrxn: { val: 68, unit: '%', label: '高压实产品占比' },
+                avg:  { val: 70, unit: '%', label: '高压实产品占比' }
+            },
+            market: {
+                czly: { val: 33042, unit: '吨/月', label: '月座产量' },
+                hnyn: { val: 112750, unit: '吨/月', label: '月座产量' },
+                wrxn: { val: 39000, unit: '吨/月', label: '月座产量' },
+                avg:  { val: 58000, unit: '吨/月', label: '月座产量' }
+            },
+            supply: {
+                czly: { val: 60, unit: '%', label: '磷矿长协覆盖率' },
+                hnyn: { val: 70, unit: '%', label: '磷矿长协覆盖率' },
+                wrxn: { val: 55, unit: '%', label: '磷矿长协覆盖率' },
+                avg:  { val: 58, unit: '%', label: '磷矿长协覆盖率' }
+            },
+            growth: {
+                czly: { val: 4.5, unit: '%', label: '研发投入占比' },
+                hnyn: { val: 4.0, unit: '%', label: '研发投入占比' },
+                wrxn: { val: 3.8, unit: '%', label: '研发投入占比' },
+                avg:  { val: 3.5, unit: '%', label: '研发投入占比' }
+            }
+        },
+        current: {
+            cost:   { val: 7.2, target: 8.0, mom: 0.0 },
+            tech:   { val: 7.2, target: 8.0, mom: 0.2 },
+            market: { val: 7.3, target: 7.5, mom: 0.1 },
+            supply: { val: 6.5, target: 7.0, mom: 0.3 },
+            growth: { val: 7.2, target: 7.5, mom: 0.2 }
+        }
+    }
+};
+</script>
+<script>
+var currentDim = 'cost';
+
+function initRouter() {
+    var params = new URLSearchParams(location.search);
+    var buId = params.get('id') || 'czly';
+    renderDashboard(buId);
+}
+
+function renderDashboard(buId) {
+    var data = BU_STRATEGY_DATA[buId] || BU_STRATEGY_DATA['czly'];
+    var meta = {
+        czly: { name: '常州锂源', sub: '磷酸铁锂事业部' },
+        hnyn: { name: '湖南裕能', sub: '磷酸铁锂事业部' },
+        wrxn: { name: '万润新能', sub: '磷酸铁锂事业部' }
+    };
+    var m = meta[buId] || meta['czly'];
+    document.getElementById('bu-title').textContent = m.name + ' · 战略洞察';
+    document.getElementById('update-time').textContent = '数据更新：' + data.update_time;
+    renderRadar(data);
+    renderTrendMini(data);
+    renderSignalBoard(data);
+    renderDetailTable(data, currentDim);
+}
+
+function renderRadar(data) {
+    var chart = echarts.init(document.getElementById('radar-chart'));
+    var dimKeys = ['cost','tech','market','supply','growth'];
+    var dimNames = ['成本竞争力','产品技术力','市场与客户','供应链韧性','成长与创新'];
+    var last = data.quarters.length - 1;
+    var option = {
+        backgroundColor: '#fff',
+        legend: { data: ['常州锂源','湖南裕能','万润新能','行业均值'], bottom: 0, textStyle: { fontSize: 12 } },
+        tooltip: { trigger: 'item' },
+        radar: {
+            indicator: dimKeys.map(function(k,i){ return { name: dimNames[i], max: 10 }; }),
+            shape: 'polygon', splitNumber: 5,
+            axisName: { color: '#333', fontSize: 12 },
+            splitLine: { lineStyle: { color: '#e0e0e0' } },
+            splitArea: { areaStyle: { color: ['#fafafa','#f5f5f5','#f0f0f0','#ebebeb','#e5e5e5'] } },
+            axisLine: { lineStyle: { color: '#ccc' } }
+        },
+        series: [{
+            type: 'radar',
+            data: [
+                { value: dimKeys.map(function(k){ return data.scores.czly[k][last]; }), name: '常州锂源',
+                  areaStyle: { color: 'rgba(30,60,114,0.25)' }, lineStyle: { color: '#1e3c72', width: 2 }, itemStyle: { color: '#1e3c72' } },
+                { value: dimKeys.map(function(k){ return data.scores.hnyn[k][last]; }), name: '湖南裕能',
+                  lineStyle: { color: '#95a5a6', width: 1.5, type: 'dashed' }, itemStyle: { color: '#95a5a6' } },
+                { value: dimKeys.map(function(k){ return data.scores.wrxn[k][last]; }), name: '万润新能',
+                  lineStyle: { color: '#7f8c8d', width: 1.5, type: 'dashed' }, itemStyle: { color: '#7f8c8d' } },
+                { value: dimKeys.map(function(k){ return data.scores.avg[k][last]; }), name: '行业均值',
+                  lineStyle: { color: '#b0c4de', width: 1, type: 'dotted' }, itemStyle: { color: '#b0c4de' } }
+            ]
+        }]
+    };
+    chart.setOption(option);
+    window.addEventListener('resize', function(){ chart.resize(); });
+}
+
+function renderTrendMini(data) {
+    var chart = echarts.init(document.getElementById('trend-mini-chart'));
+    var quarters = data.quarters;
+    var czlyScores = quarters.map(function(q, i){
+        var s = data.scores.czly;
+        return ((s.cost[i]+s.tech[i]+s.market[i]+s.supply[i]+s.growth[i])/5*10).toFixed(1)*1;
+    });
+    var option = {
+        backgroundColor: 'transparent',
+        grid: { top: 8, bottom: 20, left: 40, right: 12 },
+        xAxis: { type: 'category', data: quarters, axisLabel: { fontSize: 9, color: '#999' }, axisLine: { lineStyle: { color: '#eee' } }, axisTick: { show: false } },
+        yAxis: { type: 'value', min: 0, max: 10, axisLabel: { fontSize: 9, color: '#999' }, splitLine: { lineStyle: { color: '#f0f0f0' } }, name: '综合得分', nameTextStyle: { fontSize: 9 } },
+        tooltip: { trigger: 'axis' },
+        series: [{
+            type: 'line', data: czlyScores, smooth: true,
+            areaStyle: { color: { type: 'linear', x:0, y:0, x2:0, y2:1, colorStops: [{ offset:0, color:'rgba(30,60,114,0.4)' },{ offset:1, color:'rgba(30,60,114,0.05)' }] } },
+            lineStyle: { color: '#1e3c72', width: 2 },
+            itemStyle: { color: '#1e3c72' },
+            symbol: 'circle', symbolSize: 4
+        }]
+    };
+    chart.setOption(option);
+    window.addEventListener('resize', function(){ chart.resize(); });
+}
+
+function renderSignalBoard(data) {
+    var board = document.getElementById('signal-board');
+    var dims = [
+        { key: 'cost',   name: '成本竞争力' },
+        { key: 'tech',   name: '产品技术力' },
+        { key: 'market', name: '市场与客户' },
+        { key: 'supply', name: '供应链韧性' },
+        { key: 'growth', name: '成长与创新' }
+    ];
+    var html = '';
+    dims.forEach(function(d) {
+        var cur = data.current[d.key];
+        var pct = Math.round(cur.val / cur.target * 100);
+        var cls = cur.val >= 7 ? 'green' : (cur.val >= 5 ? 'yellow' : 'red');
+        var arrow = cur.mom >= 0 ? '↑' : '↓';
+        html += '<div class="signal-card ' + cls + '" onclick="switchDim(\' + d.key + \')">';
+        html += '<div class="signal-title">';
+        html += '<span><span class="dot ' + cls + '"></span>' + d.name + '</span>';
+        html += '<span class="signal-score">' + cur.val + '</span>';
+        html += '</div>';
+        html += '<div class="signal-bar-wrap"><div class="signal-bar ' + cls + '" style="width:' + Math.min(pct,100) + '%"></div></div>';
+        html += '<div class="signal-meta">';
+        html += '<span>目标 ' + cur.target + '</span>';
+        html += '<span>行业均值 6.7</span>';
+        html += '<span style="color:' + (cur.mom>=0?'#27ae60':'#e74c3c') + '">' + arrow + ' ' + Math.abs(cur.mom) + ' 较上季</span>';
+        html += '</div></div>';
+    });
+    board.innerHTML = html;
+}
+
+function switchDim(dim) {
+    currentDim = dim;
+    document.querySelectorAll('.dim-chip').forEach(function(c){ c.classList.remove('active'); });
+    document.querySelector('.dim-chip[data-dim="'+dim+'"]').classList.add('active');
+    var data = BU_STRATEGY_DATA['czly'];
+    renderDetailTable(data, dim);
+}
+
+function renderDetailTable(data, dim) {
+    var tableEl = document.getElementById('detail-table');
+    var dimMap = {
+        cost:   { name: '成本竞争力', sub: [
+            { label:'单吨制造成本',  unit:'万元/吨', w:40, czly:0.85, hnyn:0.82, wrxn:0.88, avg:0.90 },
+            { label:'产能利用率',   unit:'%',       w:30, czly:80,   hnyn:85,   wrxn:75,   avg:72 },
+            { label:'碳酸锂自给率', unit:'%',       w:30, czly:25,   hnyn:30,   wrxn:20,   avg:22 }
+        ]},
+        tech:   { name: '产品技术力', sub: [
+            { label:'高压实产品占比', unit:'%', w:40, czly:72, hnyn:75, wrxn:68, avg:70 },
+            { label:'四代产品认证数', unit:'个', w:30, czly:3,  hnyn:4,  wrxn:2,  avg:2 },
+            { label:'循环寿命',       unit:'次', w:30, czly:3000,hnyn:3200,wrxn:2800,avg:2900 }
+        ]},
+        market: { name: '市场与客户', sub: [
+            { label:'月座产量',     unit:'吨/月', w:40, czly:33042, hnyn:112750, wrxn:39000, avg:58000 },
+            { label:'TOP3集中度',   unit:'%',     w:30, czly:55,    hnyn:60,     wrxn:50,    avg:52 },
+            { label:'客户NPS',      unit:'分',    w:30, czly:72,    hnyn:75,     wrxn:68,    avg:70 }
+        ]},
+        supply: { name: '供应链韧性', sub: [
+            { label:'磷矿长协覆盖率', unit:'%', w:40, czly:60, hnyn:70, wrxn:55, avg:58 },
+            { label:'设备国产化率',   unit:'%', w:30, czly:85, hnyn:80, wrxn:75, avg:78 },
+            { label:'ESG认证进度',   unit:'级', w:30, czly:3,  hnyn:4,  wrxn:2,  avg:3 }
+        ]},
+        growth: { name: '成长与创新', sub: [
+            { label:'研发投入占比', unit:'%',  w:40, czly:4.5, hnyn:4.0, wrxn:3.8, avg:3.5 },
+            { label:'在研新品数',   unit:'个', w:30, czly:12,  hnyn:15,  wrxn:10,  avg:11 },
+            { label:'人均营收',     unit:'万元',w:30, czly:85,  hnyn:90,  wrxn:78,  avg:82 }
+        ]}
+    };
+    var cfg = dimMap[dim];
+    var last = data.quarters.length - 1;
+    var scoreVals = {
+        czly: data.scores.czly[dim][last],
+        hnyn: data.scores.hnyn[dim][last],
+        wrxn: data.scores.wrxn[dim][last],
+        avg:  data.scores.avg[dim][last]
+    };
+    var html = '<h3 class="table-title">' + cfg.name + ' 维度分析</h3>';
+    html += '<div style="display:flex;gap:20px;align-items:flex-start;min-width:0;flex-wrap:nowrap">';
+    html += '<table class="detail-table"><thead><tr><th>子指标</th><th>常州锂源</th><th>湖南裕能</th><th>万润新能</th><th>行业均值</th><th>权重</th></tr></thead><tbody>';
+    cfg.sub.forEach(function(s) {
+        html += '<tr><td>' + s.label + '</td><td>' + s.czly + ' ' + s.unit + '</td><td>' + s.hnyn + ' ' + s.unit + '</td><td>' + s.wrxn + ' ' + s.unit + '</td><td>' + s.avg + ' ' + s.unit + '</td><td>' + s.w + '%</td></tr>';
+    });
+    html += '<tr class="total-row"><td>维度综合得分</td>';
+    html += '<td><b style="color:#1e3c72">' + scoreVals.czly.toFixed(1) + '</b></td>';
+    html += '<td><b>' + scoreVals.hnyn.toFixed(1) + '</b></td>';
+    html += '<td><b>' + scoreVals.wrxn.toFixed(1) + '</b></td>';
+    html += '<td><b>' + scoreVals.avg.toFixed(1) + '</b></td><td></td></tr></tbody></table>';
+    html += '<div id="dim-bar-chart" style="width:360px;height:220px;flex-shrink:0;min-width:360px"></div></div>';
+    tableEl.innerHTML = html;
+    var barChart = echarts.init(document.getElementById('dim-bar-chart'));
+    barChart.setOption({
+        backgroundColor: '#fff',
+        tooltip: { trigger: 'axis' },
+        legend: { bottom: 0, textStyle: { fontSize: 11 } },
+        grid: { top: 10, bottom: 30, left: 60, right: 20 },
+        xAxis: { type: 'category', data: ['常州锂源','湖南裕能','万润新能','行业均值'], axisLabel: { fontSize: 10 } },
+        yAxis: { type: 'value', max: 10, axisLabel: { fontSize: 10 }, splitLine: { lineStyle: { color: '#f0f0f0' } } },
+        series: [{ name: cfg.name, type: 'bar',
+            data: [scoreVals.czly, scoreVals.hnyn, scoreVals.wrxn, scoreVals.avg],
+            itemStyle: { color: function(p){ return p.dataIndex === 0 ? '#1e3c72' : '#95a5a6'; } },
+            barWidth: '40%' }]
+    });
+    window.addEventListener('resize', function(){ barChart.resize(); });
+}
+
+function exportReport() {
+    var el = document.getElementById('dashboard-page');
+    html2canvas(el, { scale: 2, useCORS: true }).then(function(canvas) {
+        var link = document.createElement('a');
+        var d = new Date();
+        var dateStr = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+        link.download = '战略洨通报告_' + dateStr + '.png';
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+    });
+}
+
+document.addEventListener('DOMContentLoaded', initRouter);
+</script>
+</body>
+</html>

@@ -1,0 +1,254 @@
+{
+    "bu_id": "kls",
+    "bu_code": "KLS",
+    "bu_name": "可兰素",
+    "month": "2026-06",
+    "source": "可兰素事业部6月总结及7月计划--6.26汇报版本",
+    "dims": {
+        "d1": 75.0,
+        "d2": 85.4,
+        "d3": 83.0,
+        "d4": 70.2,
+        "d5": 75.0,
+        "d6": 60.3
+    },
+    "_isCurrent": true,
+    "kpis": {
+        "d1": [
+            69.9,
+            73.5,
+            88.6,
+            94.5
+        ],
+        "d2": [
+            10138.0,
+            91.7,
+            90.0,
+            60.0
+        ],
+        "d3": [
+            56.4,
+            80.0,
+            115.6,
+            80.0
+        ],
+        "d4": [
+            1.0,
+            80.0,
+            80.0,
+            120.0
+        ],
+        "d5": [
+            100.0,
+            100.0,
+            0.0,
+            100.0
+        ],
+        "d6": [
+            1.0,
+            80.0,
+            80.0,
+            80.0
+        ]
+    },
+    "_kpiComparison": {
+        "title": "6月核心KPI达标率",
+        "period": "2026年6月",
+        "items": [
+            {
+                "name": "收入达成率(%)",
+                "budget": 7247,
+                "target": 7247,
+                "actual": 5069,
+                "unit": "%"
+            },
+            {
+                "name": "净利润达成率(%)",
+                "budget": 825,
+                "target": 825,
+                "actual": 606,
+                "unit": "%"
+            },
+            {
+                "name": "毛利率(%)",
+                "budget": 26.27,
+                "target": 26.27,
+                "actual": 23.27,
+                "unit": "%"
+            },
+            {
+                "name": "期间费用率(%)",
+                "budget": 14.16,
+                "target": 14.16,
+                "actual": 14.99,
+                "unit": "%"
+            },
+            {
+                "name": "回款率(%)",
+                "budget": 100,
+                "target": 100,
+                "actual": 90,
+                "unit": "%"
+            }
+        ]
+    },
+    "_dimComparison_d2": {
+        "title": "6月经营效益",
+        "items": [
+            {
+                "name": "尿素溶液销售(万)",
+                "budget": 7247,
+                "target": 603.9,
+                "actual": 5069,
+                "unit": "万元"
+            },
+            {
+                "name": "一卡通网点(家)",
+                "budget": 20000,
+                "target": 1667,
+                "actual": 18335,
+                "unit": "家"
+            },
+            {
+                "name": "加注机累计(台)",
+                "budget": 3000,
+                "target": 250,
+                "actual": 2765,
+                "unit": "台"
+            },
+            {
+                "name": "OEM配套(家)",
+                "budget": 0,
+                "target": 0,
+                "actual": 0,
+                "unit": "家"
+            }
+        ]
+    },
+    "_dimComparison_d3": {
+        "title": "6月运营效率",
+        "items": [
+            {
+                "name": "产能利用率(%)",
+                "budget": 80,
+                "target": 80,
+                "actual": 56.4,
+                "unit": "%"
+            },
+            {
+                "name": "一次合格率(%)",
+                "budget": 100,
+                "target": 100,
+                "actual": 80,
+                "unit": "%"
+            },
+            {
+                "name": "单吨能耗(元/吨)",
+                "budget": 37.7,
+                "target": 37.7,
+                "actual": 32.6,
+                "unit": "元/吨"
+            },
+            {
+                "name": "配送时效(小时)",
+                "budget": 0,
+                "target": 0,
+                "actual": 0,
+                "unit": "小时"
+            }
+        ]
+    },
+    "_dimComparison_d4": {
+        "title": "6月技术创新力 5月→6月环比",
+        "format": "mom",
+        "items": [
+            {
+                "name": "新产品配方数",
+                "prev": 0,
+                "curr": 1,
+                "unit": "个"
+            },
+            {
+                "name": "OEM认证取得(家)",
+                "prev": 0,
+                "curr": 0,
+                "unit": "家"
+            },
+            {
+                "name": "国六适配型号数",
+                "prev": 0,
+                "curr": 0,
+                "unit": "个"
+            },
+            {
+                "name": "技术服务项目",
+                "prev": 3,
+                "curr": 5,
+                "unit": "个"
+            }
+        ]
+    },
+    "_dimComparison_d5": {
+        "title": "6月风险合规",
+        "items": [
+            {
+                "name": "环保合规",
+                "budget": 1,
+                "target": 1,
+                "actual": 1,
+                "unit": "项"
+            },
+            {
+                "name": "安全培训完成(次)",
+                "budget": 2,
+                "target": 2,
+                "actual": 2,
+                "unit": "次"
+            },
+            {
+                "name": "绿色工厂认证",
+                "budget": 1,
+                "target": 1,
+                "actual": 0,
+                "unit": "项"
+            },
+            {
+                "name": "客户投诉率(%)",
+                "budget": 0,
+                "target": 0,
+                "actual": 0,
+                "unit": "%"
+            }
+        ]
+    },
+    "_dimComparison_d6": {
+        "title": "6月组织活力 5月→6月环比",
+        "format": "mom",
+        "items": [
+            {
+                "name": "AI项目立项(个)",
+                "prev": 0,
+                "curr": 1,
+                "unit": "个"
+            },
+            {
+                "name": "星推官(人)",
+                "prev": 0,
+                "curr": 4244,
+                "unit": "人"
+            },
+            {
+                "name": "新市场开拓(个)",
+                "prev": 0,
+                "curr": 3,
+                "unit": "个"
+            },
+            {
+                "name": "数字化项目(个)",
+                "prev": 0,
+                "curr": 6,
+                "unit": "个"
+            }
+        ]
+    }
+}

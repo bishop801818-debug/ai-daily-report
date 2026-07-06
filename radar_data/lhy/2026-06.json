@@ -1,0 +1,83 @@
+{
+    "bu_id": "lhy",
+    "bu_code": "LHY",
+    "bu_name": "润滑油",
+    "month": "2026-06",
+    "source": "润滑油事业部月度总结计划--26年6月总结及7月计划",
+    "dims": {
+        "d1": 81,
+        "d2": 100,
+        "d3": 92,
+        "d4": 90,
+        "d5": 100,
+        "d6": 85
+    },
+    "_isCurrent": true,
+    "kpis": {
+        "d1": [80.3, 59.3, 95.8, 90.0],
+        "d2": [100.0, 100.0, 100.0, 100.0],
+        "d3": [100.0, 100.0, 100.0, 80.0],
+        "d4": [120.0, 120.0, 120.0, 90.0],
+        "d5": [100.0, 100.0, 100.0, 100.0],
+        "d6": [100.0, 100.0, 120.0, 120.0]
+    },
+    "_kpiComparison": {
+        "title": "6月核心KPI达标率",
+        "period": "2026年6月",
+        "items": [
+            {"name": "销售收入(万)", "budget": 12452, "target": 12452, "actual": 10000, "unit": "万元"},
+            {"name": "净利润(万)", "budget": 1418, "target": 1418, "actual": 841, "unit": "万元"},
+            {"name": "毛利率(%)", "budget": 24.3, "target": 24.3, "actual": 23.29, "unit": "%"},
+            {"name": "期间费用率(%)", "budget": 10.11, "target": 10.11, "actual": 11.24, "unit": "%"},
+            {"name": "应收账款天数", "budget": 52, "target": 52, "actual": 49, "unit": "天"}
+        ]
+    },
+    "_dimComparison_d2": {
+        "title": "6月品类销售达成",
+        "items": [
+            {"name": "冷却液(万)", "budget": 50000, "target": 4167, "actual": 25820, "unit": "万元"},
+            {"name": "汽机油(万)", "budget": 40000, "target": 3333, "actual": 19680, "unit": "万元"},
+            {"name": "柴机油(万)", "budget": 15000, "target": 1250, "actual": 7119, "unit": "万元"},
+            {"name": "变速箱油(万)", "budget": 6000, "target": 500, "actual": 2325, "unit": "万元"}
+        ]
+    },
+    "_dimComparison_d3": {
+        "title": "6月运营效率指标",
+        "items": [
+            {"name": "海外市场(万)", "budget": 10000, "target": 833, "actual": 4597, "unit": "万元"},
+            {"name": "工业油(万)", "budget": 5000, "target": 417, "actual": 163, "unit": "万元"},
+            {"name": "玻璃水(万)", "budget": 7000, "target": 583, "actual": 970, "unit": "万元"},
+            {"name": "应收账款天数", "budget": 52, "target": 52, "actual": 49, "unit": "天"}
+        ]
+    },
+    "_dimComparison_d4": {
+        "title": "6月技术创新力 5月→6月环比",
+        "format": "mom",
+        "items": [
+            {"name": "新产品下线(款)", "prev": 3, "curr": 7, "unit": "款"},
+            {"name": "客户审核通过(家)", "prev": 3, "curr": 6, "unit": "家"},
+            {"name": "品牌内容发布(篇)", "prev": 15, "curr": 24, "unit": "篇"},
+            {"name": "华为中试进展", "prev": 0, "curr": 90, "unit": "%"}
+        ]
+    },
+    "_dimComparison_d5": {
+        "title": "6月风险合规 5月→6月环比",
+        "format": "mom",
+        "items": [
+            {"name": "安全事故(起)", "prev": 0, "curr": 0, "unit": "起"},
+            {"name": "诉讼案件(件)", "prev": 0, "curr": 0, "unit": "件"},
+            {"name": "零碳工厂认证", "prev": 0, "curr": 100, "unit": "%"},
+            {"name": "安全月活动完成率(%)", "prev": 0, "curr": 300, "unit": "%"}
+        ]
+    },
+    "_dimComparison_d6": {
+        "title": "6月组织活力 5月→6月环比",
+        "format": "mom",
+        "items": [
+            {"name": "AI智能体项目(项)", "prev": 0, "curr": 1, "unit": "项"},
+            {"name": "新客户导入(家)", "prev": 2, "curr": 3, "unit": "家"},
+            {"name": "海外市场拓展(国)", "prev": 3, "curr": 5, "unit": "国"},
+            {"name": "数字化项目(项)", "prev": 2, "curr": 3, "unit": "项"}
+        ]
+    }
+}

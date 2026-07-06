@@ -1,0 +1,115 @@
+/* ================================================================
+   子页面统一导航栏样式（绿色主题 · 与首页一致）
+   适用于所有子页面（index_v3.html 除外）
+   由 generate_unified_nav.py 自动注入
+   ================================================================ */
+
+/* ── 统一顶部导航栏 ── */
+.sub-topbar {
+    background: linear-gradient(135deg, #064e3b 0%, #0d7a4a 100%);
+    color: #fff;
+    height: 52px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    box-shadow: 0 2px 10px rgba(7,82,54,0.25);
+    padding: 0 24px;
+    gap: 16px;
+}
+
+/* 返回首页 */
+.sub-topbar-home {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: rgba(255,255,255,0.85);
+    text-decoration: none;
+    font-size: 14px;
+    padding: 6px 14px;
+    border-radius: 8px;
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.25);
+    transition: all 0.2s;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+.sub-topbar-home:hover {
+    background: rgba(255,255,255,0.22);
+    color: #fff;
+}
+
+/* 页面标题（居中） */
+.sub-topbar-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #fff;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex-shrink: 0;
+}
+
+/* 日期/时间显示（居标题右侧） */
+.sub-topbar-date {
+    color: rgba(255,255,255,0.7);
+    font-size: 13px;
+    flex-shrink: 0;
+}
+
+/* 右侧导航菜单 */
+.sub-topbar-nav {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-shrink: 0;
+}
+
+/* 单个导航项 */
+.sub-nav-item {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    color: rgba(255,255,255,0.85);
+    transition: all 0.2s;
+    user-select: none;
+}
+.sub-nav-item:hover {
+    background: rgba(255,255,255,0.18);
+    color: #fff;
+}
+.sub-nav-item.active {
+    background: rgba(255,255,255,0.22);
+    color: #fff;
+}
+
+/* 导航项颜色 */
+.sub-nav-item {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    color: rgba(255,255,255,0.85);
+    transition: all 0.2s;
+    user-select: none;
+}
+.sub-nav-item:hover {
+    background: rgba(255,255,255,0.18);
+    color: #fff;
+}
+.sub-nav-item.active {
+    background: rgba(255,255,255,0.22);
+    color: #fff;
+}

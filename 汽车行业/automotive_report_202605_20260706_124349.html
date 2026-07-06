@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>中国汽车市场 · 2026年05月分析报告</title>
+<style>
+:root {
+  --primary: #1e3c72;
+  --primary-light: #2a5298;
+  --primary-dark: #15294d;
+  --text-color: #1a1a1a;
+  --text-secondary: #555;
+  --text-light: #888;
+  --border-color: #e0e0e0;
+  --bg-light: #f0f3f8;
+  --bg-white: #fff;
+  --green: #2e7d32;
+  --orange: #ef6c00;
+  --red: #c62828;
+  --blue-light: rgba(30,60,114,0.06);
+  --gold: #d4a017;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', 'Segoe UI', sans-serif; color: var(--text-color); background: var(--bg-light); line-height: 1.8; font-size: 14px; }
+a { color: inherit; text-decoration: none; }
+
+.topbar { position: sticky; top: 0; z-index: 100; background: linear-gradient(135deg, var(--primary-dark), var(--primary)); color: #fff; padding: 0 24px; height: 56px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 2px 8px rgba(0,0,0,0.18); }
+.topbar-left { display: flex; align-items: center; gap: 8px; }
+.topbar-back-btn { background: rgba(255,255,255,0.15); color: #fff; border: 1px solid rgba(255,255,255,0.3); padding: 5px 14px; border-radius: 20px; font-size: 12px; cursor: pointer; transition: all 0.2s; }
+.topbar-back-btn:hover { background: rgba(255,255,255,0.25); }
+.topbar-center { font-size: 18px; font-weight: 700; letter-spacing: 1px; }
+.topbar-right { font-size: 12px; opacity: 0.85; }
+
+.page-wrapper { display: flex; max-width: 1200px; margin: 0 auto; padding: 24px 16px; gap: 20px; }
+.toc-sidebar { flex: 0 0 200px; position: sticky; top: 80px; height: fit-content; background: #fff; border-radius: 12px; padding: 16px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+.toc-sidebar h3 { font-size: 13px; color: var(--primary); margin-bottom: 12px; padding-bottom: 8px; border-bottom: 2px solid var(--primary); font-weight: 700; }
+.toc-list { list-style: none; }
+.toc-list li { margin-bottom: 4px; }
+.toc-list a { display: block; padding: 6px 8px; border-radius: 6px; font-size: 12px; color: var(--text-secondary); transition: all 0.2s; }
+.toc-list a:hover { background: var(--blue-light); color: var(--primary); }
+.toc-list a.active { background: var(--blue-light); color: var(--primary); font-weight: 600; }
+.toc-part { font-weight: 700; color: var(--text-color); }
+.toc-sub { padding-left: 16px; font-size: 11px; }
+.main-content { flex: 1; min-width: 0; }
+
+.report-header { background: linear-gradient(135deg, var(--primary-dark), var(--primary)); color: #fff; border-radius: 16px; padding: 40px 32px 32px; margin-bottom: 20px; }
+.report-header .report-subtitle { font-size: 14px; opacity: 0.8; margin-bottom: 8px; }
+.report-header h1 { font-size: 28px; font-weight: 700; margin-bottom: 8px; }
+.report-header .report-meta { font-size: 13px; opacity: 0.75; display: flex; gap: 16px; flex-wrap: wrap; }
+.report-header .report-meta span { display: flex; align-items: center; gap: 4px; }
+
+.kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
+.kpi-card { background: #fff; border-radius: 12px; padding: 16px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); border-top: 3px solid var(--primary); }
+.kpi-label { font-size: 12px; color: var(--text-light); margin-bottom: 6px; font-weight: 500; }
+.kpi-value { font-size: 22px; font-weight: 800; color: var(--primary); line-height: 1.2; }
+.kpi-change { font-size: 12px; margin-top: 4px; font-weight: 600; padding: 2px 8px; border-radius: 10px; display: inline-block; }
+.kpi-change.up { background: rgba(46,125,50,0.1); color: var(--green); }
+.kpi-change.down { background: rgba(198,40,40,0.1); color: var(--red); }
+.kpi-change.neutral { background: rgba(100,100,100,0.08); color: var(--text-light); }
+
+.part-section { background: #fff; border-radius: 12px; margin-bottom: 20px; padding: 24px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+.part-title { display: flex; align-items: center; gap: 10px; font-size: 18px; font-weight: 700; color: var(--primary); margin-bottom: 16px; padding-bottom: 10px; border-bottom: 2px solid var(--border-color); }
+.part-title .part-num { width: 32px; height: 32px; background: var(--primary); color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; flex-shrink: 0; }
+
+.insight-block { margin-bottom: 16px; line-height: 1.9; font-size: 14px; }
+.insight-block p { margin-bottom: 10px; text-align: justify; }
+.highlight { background: linear-gradient(transparent 60%, rgba(30,60,114,0.15) 60%); font-weight: 600; }
+.strong { font-weight: 700; color: var(--text-color); }
+
+.event-table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 13px; }
+.event-table thead th { background: var(--bg-light); border-bottom: 2px solid var(--border-color); padding: 8px 12px; text-align: left; font-weight: 600; color: var(--text-secondary); }
+.event-table tbody td { padding: 10px 12px; border-bottom: 1px solid var(--border-color); vertical-align: top; }
+.event-table tbody tr:hover { background: var(--bg-light); }
+.event-table .priority-A { color: var(--red); font-weight: 700; }
+.event-table .priority-B { color: var(--orange); font-weight: 700; }
+.event-table .priority-C { color: var(--text-light); }
+
+.data-table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 13px; }
+.data-table thead th { background: var(--bg-light); border-bottom: 2px solid var(--border-color); padding: 8px 12px; text-align: right; font-weight: 600; color: var(--text-secondary); }
+.data-table thead th:first-child { text-align: left; }
+.data-table tbody td { padding: 8px 12px; border-bottom: 1px solid var(--border-color); text-align: right; }
+.data-table tbody td:first-child { text-align: left; font-weight: 500; }
+.data-table tbody tr.row-highlight { background: var(--blue-light); }
+.data-table tbody tr.row-highlight td { color: var(--primary); font-weight: 600; }
+.data-table tbody tr:hover { background: var(--bg-light); }
+
+.chart-card { background: #fff; border-radius: 10px; padding: 20px; margin: 16px 0; box-shadow: 0 1px 4px rgba(0,0,0,0.05); }
+.chart-card h4 { font-size: 14px; color: var(--text-secondary); margin-bottom: 12px; font-weight: 600; }
+
+.callout { border-radius: 8px; padding: 14px 16px; margin: 14px 0; font-size: 13px; line-height: 1.8; }
+.callout-info { background: rgba(30,60,114,0.06); border-left: 4px solid var(--primary); }
+.callout-warn { background: rgba(239,108,0,0.08); border-left: 4px solid var(--orange); }
+.callout-danger { background: rgba(198,40,40,0.07); border-left: 4px solid var(--red); }
+.callout-success { background: rgba(46,125,50,0.08); border-left: 4px solid var(--green); }
+.callout-title { font-weight: 700; margin-bottom: 6px; font-size: 14px; }
+.callout p { color: var(--text-secondary); }
+
+.sub-title { font-size: 15px; font-weight: 700; color: var(--text-color); margin: 20px 0 10px; display: flex; align-items: center; gap: 8px; }
+.sub-title::before { content: ''; width: 4px; height: 16px; background: var(--primary); border-radius: 2px; }
+
+.conclusion-banner { background: linear-gradient(135deg, var(--primary-dark), var(--primary)); color: #fff; border-radius: 12px; padding: 24px; margin-bottom: 20px; }
+.conclusion-banner h3 { font-size: 16px; margin-bottom: 10px; opacity: 0.9; }
+.conclusion-banner p { font-size: 15px; line-height: 1.8; }
+
+.rec-card { border-radius: 10px; padding: 16px 20px; margin: 12px 0; border: 1px solid; }
+.rec-opportunity { background: rgba(46,125,50,0.07); border-color: rgba(46,125,50,0.3); }
+.rec-risk { background: rgba(198,40,40,0.07); border-color: rgba(198,40,40,0.3); }
+.rec-action { background: rgba(30,60,114,0.07); border-color: rgba(30,60,114,0.3); }
+.rec-title { font-size: 14px; font-weight: 700; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+.rec-opportunity .rec-title { color: var(--green); }
+.rec-risk .rec-title { color: var(--red); }
+.rec-action .rec-title { color: var(--primary); }
+.rec-item { font-size: 13px; color: var(--text-secondary); padding: 5px 0; display: flex; gap: 8px; line-height: 1.7; }
+.rec-item::before { content: attr(data-num); font-weight: 700; color: var(--text-light); flex-shrink: 0; }
+
+.data-source { font-size: 11px; color: var(--text-light); margin-top: 16px; padding-top: 10px; border-top: 1px solid var(--border-color); }
+
+.report-footer { text-align: center; color: var(--text-light); font-size: 12px; padding: 24px 0; margin-top: 20px; border-top: 1px solid var(--border-color); }
+
+@media print { .topbar, .toc-sidebar { display: none; } .page-wrapper { padding: 0; } .main-content { max-width: 100%; } .part-section { break-inside: avoid; } }
+@media (max-width: 1100px) { .toc-sidebar { display: none; } .kpi-row { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 600px) { .kpi-row { grid-template-columns: 1fr; } }
+</style>
+<script src="./chart.min.js"></script>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-left">
+    <a href="javascript:history.back()" class="topbar-back-btn">← 返回</a>
+  </div>
+  <div class="topbar-center">中国汽车市场 · 月度分析报告</div>
+  <div class="topbar-right">战略中心信息情报部</div>
+</div>
+
+<div class="page-wrapper">
+<aside class="toc-sidebar">
+  <h3>目 录</h3>
+  <ul class="toc-list">
+    <li><a href="#p1" class="toc-part">一、全球汽车市场</a></li>
+    <li><a href="#p1-1" class="toc-sub">　整体表现</a></li>
+    <li><a href="#p1-2" class="toc-sub">　分区域分析</a></li>
+    <li><a href="#p2" class="toc-part">二、全球新能源市场</a></li>
+    <li><a href="#p3" class="toc-part">三、中国汽车市场</a></li>
+    <li><a href="#p3-1" class="toc-sub">　整体市场</a></li>
+    <li><a href="#p3-2" class="toc-sub">　乘用车TOP10</a></li>
+    <li><a href="#p3-3" class="toc-sub">　商用车市场</a></li>
+    <li><a href="#p4" class="toc-part">四、新能源乘用车</a></li>
+    <li><a href="#p4-1" class="toc-sub">　零售与渗透率</a></li>
+    <li><a href="#p4-2" class="toc-sub">　技术路线分析</a></li>
+    <li><a href="#p4-3" class="toc-sub">　级别与品牌格局</a></li>
+    <li><a href="#p5" class="toc-part">五、新能源商用车</a></li>
+    <li><a href="#p6" class="toc-part">六、出口分析</a></li>
+    <li><a href="#p7" class="toc-part">七、总结与建议</a></li>
+  </ul>
+</aside>
+
+<main class="main-content">
+
+<!-- ========== REPORT HEADER ========== -->
+<header class="report-header">
+  <div class="report-subtitle">战略中心信息情报部 · 汽车行业</div>
+  <h1>中国汽车市场 · 2026年05月分析报告</h1>
+  <div class="report-meta">
+    <span>📅 数据月份：2026年05月</span>
+    <span>📊 报告日期：2026年07月06日</span>
+    <span>⚙️ 数据来源：汽车行业数据库 · 行业新闻 · 乘联会/中汽协</span>
+  </div>
+</header>
+
+<!-- ========== KPI ROW ========== -->
+<div class="kpi-row">
+  <div class="kpi-card">
+    <div class="kpi-label">中国汽车5月销量</div>
+    <div class="kpi-value">262.9万辆</div>
+    <div class="kpi-change up">▲ +4.1% MoM</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-label">新能源渗透率（乘用车零售）</div>
+    <div class="kpi-value">62.9%</div>
+    <div class="kpi-change up">▲ 历史新高</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-label">乘用车出口（含油车）</div>
+    <div class="kpi-value">80.9万辆</div>
+    <div class="kpi-change up">▲ +73% YoY</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-label">新能源出口</div>
+    <div class="kpi-value">44.6万辆</div>
+    <div class="kpi-change up">▲ +110% YoY</div>
+  </div>
+</div>
+
+<!-- ========== PART 1: 全球汽车市场 ========== -->
+<section class="part-section" id="p1">
+  <div class="part-title"><span class="part-num">1</span>全球汽车市场分析</div>
+  <div class="data-source" style="margin-top:0;margin-bottom:12px;">⚠️ 注：全球汽车销量数据通常存在1-2个月发布滞后，截至报告撰写时全球数据更新至2026年4月，5月全球数据尚未发布。</div>
+
+  <div class="sub-title" id="p1-1">一、全球整体表现</div>
+  <div class="insight-block">
+    <p>2026年4月，全球汽车销量<strong>756.5万辆</strong>，同比下降3%，环比下降11.3%（3月853.3万辆为年内高点）。1-4月全球累计销量约<strong>3,012.7万辆</strong>，累计同比下降3%。全球汽车市场延续2025年下半年以来的放缓态势，<span class="highlight">中国市场同比-2.5%、北美-5%、欧洲-7%</span>三大主力区域全面承压。</p>
+    <p>全球汽车市场正经历"结构性换挡"：传统燃油车需求持续萎缩，新能源渗透率稳步提升（4月达24.2%），但新能源增量尚不足以完全弥补燃油车下滑缺口。亚洲以51.8%的全球份额保持绝对主力地位，中国市场占比约29.4%仍为全球最大单一市场。</p>
+  </div>
+
+  <div class="chart-card">
+    <h4>📊 图1：全球分区域月度汽车销量趋势（2025.01-2026.04，万辆）</h4>
+    <div style="position:relative;height:300px;"><canvas id="chart_global_region"></canvas></div>
+  </div>
+
+  <div class="sub-title" id="p1-2">二、分区域表现（2026年4月）</div>
+  <table class="data-table">
+    <thead>
+      <tr><th>区域</th><th>4月销量（万辆）</th><th>同比</th><th>环比</th><th>YTD（万辆）</th><th>累计同比</th><th>全球份额</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>亚洲</td><td>391.8</td><td>-2%</td><td>-11.4%</td><td>1,563.9</td><td>-5%</td><td>51.8%</td></tr>
+      <tr><td>北美</td><td>171.5</td><td>-5%</td><td>-1.7%</td><td>631.5</td><td>-5%</td><td>22.7%</td></tr>
+      <tr><td>欧洲</td><td>136.2</td><td>-7%</td><td>-24.0%</td><td>594.9</td><td>0%</td><td>18.0%</td></tr>
+      <tr class="row-highlight"><td>全球合计</td><td>756.5</td><td>-3%</td><td>-11.3%</td><td>3,012.7</td><td>-3%</td><td>100%</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout callout-info">
+    <div class="callout-title">📌 区域分化特征</div>
+    <p>亚洲市场体量最大但增速承压，中国市场同比-2.5%为主要拖累，印度同比+10%为区域亮点；欧洲市场受俄国-32.5%拖累整体-7%，但英国(+6.2%)、法国(+12.4%)、意大利(+8.0%)正增长；北美市场相对稳定，贸易政策不确定性对消费者信心的影响逐步显现。</p>
+  </div>
+</section>
+
+<!-- ========== PART 2: 全球新能源汽车市场 ========== -->
+<section class="part-section" id="p2">
+  <div class="part-title"><span class="part-num">2</span>全球新能源汽车市场分析</div>
+  <div class="data-source" style="margin-top:0;margin-bottom:12px;">⚠️ 注：全球NEV数据同步更新至2026年4月。</div>
+
+  <div class="insight-block">
+    <p>2026年4月，全球新能源汽车销量约<strong>183.2万辆</strong>，同比增长10.4%，环比下降9.3%。渗透率达<strong>24.2%</strong>，同比提升2.2个百分点。1-4月全球NEV累计销量约656万辆。中国以124.8万辆（渗透率54.2%）占全球NEV销量的68.1%，继续主导全球新能源汽车市场。<span class="highlight">4月动力电池装车量62.4GWh，宁德时代+比亚迪弗迪电池合计份额超63%。</span></p>
+  </div>
+
+  <div class="chart-card">
+    <h4>📊 图2：全球NEV月度销量及渗透率（2025.01-2026.04）</h4>
+    <div style="position:relative;height:300px;"><canvas id="chart_global_nev"></canvas></div>
+  </div>
+
+  <div class="kpi-row" style="grid-template-columns: repeat(2, 1fr); margin-bottom: 12px;">
+    <div class="kpi-card">
+      <div class="kpi-label">全球NEV 4月销量</div>
+      <div class="kpi-value">183.2万辆</div>
+      <div class="kpi-change up">▲ +10.4% YoY</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">全球NEV渗透率</div>
+      <div class="kpi-value">24.2%</div>
+      <div class="kpi-change up">▲ +2.2pct YoY</div>
+    </div>
+  </div>
+
+  <div class="callout callout-info">
+    <div class="callout-title">🔋 动力电池格局（2026Q1全球）</div>
+    <p>2026年Q1全球动力电池装车量244.6GWh（+9.1%），中国七家企业（宁德时代、比亚迪、中创新航等）合计全球市占率升至<strong>71.4%</strong>。宁德时代以40.7%居首，领先第二名比亚迪（13.7%）27个百分点。中国军团全球竞争力持续强化，磷酸铁锂技术路线以81.5%的装车份额刷新历史纪录。</p>
+  </div>
+</section>
+
+<!-- ========== PART 3: 中国汽车市场 ========== -->
+<section class="part-section" id="p3">
+  <div class="part-title"><span class="part-num">3</span>中国汽车市场分析</div>
+
+  <div class="sub-title" id="p3-1">一、整体市场表现</div>
+  <div class="insight-block">
+    <p>2026年5月，中国汽车市场销量<strong>262.9万辆</strong>，环比增长4.1%，同比小幅下降2.1%。1-5月累计销量<strong>1,222万辆</strong>，累计同比下降4.16%。<span class="highlight">5月市场呈现"环比回暖、同比承压"特征</span>，五一小长假及地方消费刺激政策对终端需求形成阶段性拉动，但去年同期高基数效应制约同比转正。</p>
+    <p>从结构看：乘用车225.3万辆（环比+5.8%，同比-4.2%）为市场主力；商用车37.6万辆（环比-5.1%，同比+12.5%）表现亮眼，<span class="strong">商用车同比增速显著优于乘用车</span>，反映基建投资和物流需求回暖。出口80.9万辆（同比+73.05%）延续爆发式增长，成为消化国内产能的关键渠道。</p>
+  </div>
+
+  <div class="chart-card">
+    <h4>📊 图3：中国汽车月度销量及同比增速（2025.01-2026.05）</h4>
+    <div style="position:relative;height:300px;"><canvas id="chart_cn_auto"></canvas></div>
+  </div>
+
+  <!-- 历史数据表 -->
+  <table class="data-table">
+    <thead>
+      <tr><th>月份</th><th>销量（万辆）</th><th>环比</th><th>同比</th><th>YTD（万辆）</th><th>累计同比</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>2026-05</td><td>262.9</td><td>+4.1%</td><td>-2.1%</td><td>1,222</td><td>-4.2%</td></tr>
+      <tr><td>2026-04</td><td>253.0</td><td>-12.8%</td><td>-2.5%</td><td>959</td><td>-4.7%</td></tr>
+      <tr><td>2026-03</td><td>290.0</td><td>+60.2%</td><td>-0.5%</td><td>706</td><td>-5.5%</td></tr>
+      <tr><td>2026-02</td><td>181.0</td><td>-23.0%</td><td>-15.2%</td><td>416</td><td>-8.8%</td></tr>
+      <tr><td>2026-01</td><td>235.0</td><td>-28.1%</td><td>-3.2%</td><td>235</td><td>-3.2%</td></tr>
+    </tbody>
+  </table>
+
+  <div class="sub-title" id="p3-2">二、乘用车TOP10车企（2026年5月）</div>
+  <div class="insight-block">
+    <p>5月乘用车市场<strong>比亚迪以36.07万辆稳居榜首</strong>，份额16.0%，同比基本持平。奇瑞（21.2万辆，+18.2%YoY）和上汽乘用车（10.0万辆，+37.5%YoY）增速最为亮眼。吉利（20.1万辆，-8.0%YoY）小幅回落，但仍保持前三。TOP5合计份额约44.2%，市场集中度较上月略有下降。</p>
+  </div>
+
+  <div class="chart-card">
+    <h4>📊 图4：乘用车TOP10车企5月销量及同比增速</h4>
+    <div style="position:relative;height:320px;"><canvas id="chart_oem_top10"></canvas></div>
+  </div>
+
+  <table class="data-table">
+    <thead>
+      <tr><th>排名</th><th>企业</th><th>5月销量（万辆）</th><th>同比</th><th>份额</th><th>YTD（万辆）</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>1</td><td>比亚迪</td><td>36.07</td><td>-0.1%</td><td>16.0%</td><td>133.4</td></tr>
+      <tr><td>2</td><td>奇瑞汽车</td><td>21.20</td><td>+18.2%</td><td>9.4%</td><td>97.2</td></tr>
+      <tr><td>3</td><td>吉利汽车</td><td>20.11</td><td>-8.0%</td><td>8.9%</td><td>103.7</td></tr>
+      <tr><td>4</td><td>上汽通用五菱</td><td>10.13</td><td>+1.7%</td><td>4.5%</td><td>38.8</td></tr>
+      <tr><td>5</td><td>上汽乘用车</td><td>10.02</td><td>+37.5%</td><td>4.4%</td><td>43.3</td></tr>
+    </tbody>
+  </table>
+
+  <div class="sub-title" id="p3-3">三、商用车市场</div>
+  <div class="insight-block">
+    <p>5月商用车销量<strong>37.6万辆</strong>，同比<strong>+12.5%</strong>，表现显著优于乘用车。1-5月累计189万辆，累计同比+7.9%。<span class="highlight">一汽解放同比+54.0%领涨</span>，中国重汽+29.0%紧随其后，北汽福田以5.81万辆居销量榜首。商用车市场复苏主要受益于基建投资加码、物流运输需求回暖及国四淘汰更新政策驱动。</p>
+  </div>
+
+  <div class="chart-card">
+    <h4>📊 图5：商用车TOP5车企5月销量对比</h4>
+    <div style="position:relative;height:280px;"><canvas id="chart_cv_top5"></canvas></div>
+  </div>
+
+  <table class="data-table">
+    <thead>
+      <tr><th>排名</th><th>整车厂</th><th>5月销量（万辆）</th><th>同比</th><th>环比</th><th>份额</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>1</td><td>北汽福田</td><td>5.81</td><td>+17.5%</td><td>-3.6%</td><td>15.4%</td></tr>
+      <tr><td>2</td><td>中国重汽</td><td>4.48</td><td>+29.0%</td><td>+3.8%</td><td>11.9%</td></tr>
+      <tr><td>3</td><td>东风商用车</td><td>3.50</td><td>+4.8%</td><td>-10.0%</td><td>9.3%</td></tr>
+      <tr><td>4</td><td>长安汽车</td><td>3.01</td><td>+2.9%</td><td>-10.4%</td><td>8.0%</td></tr>
+      <tr><td>5</td><td>一汽解放</td><td>2.51</td><td>+54.0%</td><td>-4.2%</td><td>6.7%</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ========== PART 4: 中国新能源乘用车 ========== -->
+<section class="part-section" id="p4">
+  <div class="part-title"><span class="part-num">4</span>中国新能源乘用车市场分析</div>
+
+  <div class="sub-title" id="p4-1">一、零售总量与渗透率</div>
+  <div class="insight-block">
+    <p>2026年5月，新能源乘用车零售销量<strong>95.0万辆</strong>，环比增长12.0%，同比下降7.5%。渗透率达<strong>62.9%</strong>，刷新历史纪录。<span class="highlight">新能源渗透率突破60%大关标志中国市场进入"电驱动主导"新阶段。</span>1-5月累计零售369.7万辆，累计同比-15.1%，主要受2025年同期高基数效应影响。</p>
+    <p>4月新能源批发销量突破万辆的厂商达20家（同比多3家），占新能源乘用车总量93%。比亚迪以31.4万辆遥遥领先，吉利13.6万辆、奇瑞9.3万辆分列二三。值得注意的是，<span class="strong">多家车企4月销量创历史新高</span>（比亚迪、赛力斯、北汽蓝谷等），行业景气度持续走高。</p>
+  </div>
+
+  <div class="chart-card">
+    <h4>📊 图6：NEV乘用车月度零售及渗透率（2025.01-2026.05）</h4>
+    <div style="position:relative;height:300px;"><canvas id="chart_nev_retail"></canvas></div>
+  </div>
+
+  <div class="sub-title" id="p4-2">二、技术路线分析</div>
+  <div class="insight-block">
+    <p>5月BEV（纯电）零售<strong>63.7万辆</strong>（同比+3.9%），占NEV总量67.1%，仍是绝对主力。PHEV（插电）22.8万辆（同比-23.0%），EREV（增程）8.5万辆（同比-28.0%），插混和增程同比下滑明显。<span class="highlight">BEV份额从2025年的55-58%提升至67%</span>，主要受益于充电基础设施改善、超充技术推广（10C+超充电池量产）以及第五代磷酸铁锂电池能量密度提升。</p>
+    <p>技术趋势层面：宁德时代2025年11月量产第五代磷酸铁锂电池，比亚迪、国轩高科跟进，预计2026年该技术路线市场占比超30%；比亚迪20GWh全固态电池产线已投产，固态/钠电池产业化进程加速。</p>
+  </div>
+
+  <div class="chart-card">
+    <h4>📊 图7：NEV分技术类型月度零售趋势（万辆）</h4>
+    <div style="position:relative;height:300px;"><canvas id="chart_nev_type"></canvas></div>
+  </div>
+
+  <div class="sub-title" id="p4-3">三、级别分布与品牌格局</div>
+  <div class="insight-block">
+    <p>5月NEV零售以<strong>B级车占比35.0%</strong>居首，A级车32.6%紧随其后，B+A合计占比67.6%，反映"消费升级+家庭首购"双轮驱动特征。A0级16.5%占比稳定，C级（10.3%）受益于理想、问界等高端增程车型持续放量。A00级仅5.6%，微型电动车市场持续萎缩。</p>
+  </div>
+
+  <div style="display:flex;gap:16px;flex-wrap:wrap;">
+    <div class="chart-card" style="flex:1;min-width:280px;">
+      <h4>📊 图8：NEV乘用车分级别占比（5月）</h4>
+      <div style="position:relative;height:280px;"><canvas id="chart_nev_level"></canvas></div>
+    </div>
+    <div class="chart-card" style="flex:1;min-width:280px;">
+      <h4>📊 图9：NEV TOP10品牌市场份额（5月零售）</h4>
+      <div style="position:relative;height:280px;"><canvas id="chart_nev_brand"></canvas></div>
+    </div>
+  </div>
+
+  <table class="data-table">
+    <thead>
+      <tr><th>排名</th><th>品牌</th><th>5月零售（万辆）</th><th>同比</th><th>环比</th><th>份额</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>1</td><td>比亚迪汽车</td><td>20.74</td><td>-29.2%</td><td>+13.9%</td><td>21.8%</td></tr>
+      <tr><td>2</td><td>吉利汽车</td><td>10.92</td><td>-16.3%</td><td>+14.2%</td><td>11.5%</td></tr>
+      <tr><td>3</td><td>长安汽车</td><td>6.29</td><td>-15.0%</td><td>-2.5%</td><td>6.6%</td></tr>
+      <tr><td>4</td><td>零跑汽车</td><td>6.14</td><td>+48.3%</td><td>+7.4%</td><td>6.5%</td></tr>
+      <tr><td>5</td><td>特斯拉中国</td><td>4.73</td><td>+22.5%</td><td>+82.2%</td><td>5.0%</td></tr>
+      <tr><td>6</td><td>上汽通用五菱</td><td>4.72</td><td>-15.9%</td><td>+36.8%</td><td>5.0%</td></tr>
+      <tr><td>7</td><td>鸿蒙智行</td><td>4.61</td><td>+3.8%</td><td>+40.8%</td><td>4.9%</td></tr>
+      <tr><td>8</td><td>蔚来汽车</td><td>3.76</td><td>+61.9%</td><td>+28.3%</td><td>4.0%</td></tr>
+      <tr><td>9</td><td>赛力斯汽车</td><td>3.43</td><td>-6.3%</td><td>+48.2%</td><td>3.6%</td></tr>
+      <tr><td>10</td><td>理想汽车</td><td>3.33</td><td>-18.4%</td><td>-2.2%</td><td>3.5%</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout callout-info">
+    <div class="callout-title">📌 品牌格局观察</div>
+    <p>比亚迪份额21.8%虽同比下降近10个百分点，但绝对销量超20万辆仍遥遥领先。零跑（+48.3%）和蔚来（+61.9%）成为增长最快品牌，反映"高性价比+高端服务"两极分化趋势。特斯拉5月环比暴增82.2%（4.73万辆），新款Model Y交付放量效应显著。鸿蒙智行凭借问界M7/M9双车驱动，稳居新势力第一阵营。</p>
+  </div>
+</section>
+
+<!-- ========== PART 5: 新能源商用车 ========== -->
+<section class="part-section" id="p5">
+  <div class="part-title"><span class="part-num">5</span>中国新能源商用车市场</div>
+  <div class="insight-block">
+    <p>2026年5月，新能源商用车国内零售约<strong>2.89万辆</strong>（YTD），商用车新能源化仍处于早期阶段。与乘用车62.9%的渗透率相比，商用车新能源渗透率差距显著，主要受制于续航里程、充电基础设施（尤其是重卡换电网络）和购置成本等因素。</p>
+    <p>然而，政策端加速发力：公共领域车辆全面电动化先行区试点持续扩围（覆盖公交、环卫、物流配送等），换电模式在重卡领域加速推广，宁德时代推出的骐骥换电解决方案已在全国布局超500座换电站。<span class="highlight">轻卡和轻客领域新能源渗透率提升最快</span>，主要受益于城市物流"最后一公里"电动化政策驱动和经济性优势（用电成本约为燃油的1/3）。</p>
+  </div>
+</section>
+
+<!-- ========== PART 6: 出口分析 ========== -->
+<section class="part-section" id="p6">
+  <div class="part-title"><span class="part-num">6</span>中国新能源汽车出口分析</div>
+
+  <div class="insight-block">
+    <p>2026年5月，中国乘用车出口<strong>80.9万辆</strong>，同比<strong>+73.05%</strong>，环比+1.75%。1-5月累计出口352.8万辆，累计同比+70.0%。新能源出口<strong>44.6万辆</strong>，同比<strong>+110%</strong>，环比+3.72%，1-5月累计183.3万辆。<span class="highlight">出口已成为中国汽车产业的核心增长极</span>，NEV出口增速持续高于整体出口增速，产品结构加速向高附加值电动车型倾斜。</p>
+    <p>从出口目的地看（截至4月数据）：欧洲为第一大NEV出口市场，东南亚和中东市场增长迅速。比亚迪、上汽、奇瑞为出口量前三车企，比亚迪4月海外销量13.45万辆（+70.9%YoY）创历史新高。自主车企正从"产品出海"向"产能出海+品牌出海"升级。</p>
+  </div>
+
+  <div class="chart-card">
+    <h4>📊 图10：中国乘用车及NEV月度出口趋势（万辆）</h4>
+    <div style="position:relative;height:300px;"><canvas id="chart_export"></canvas></div>
+  </div>
+
+  <div class="kpi-row" style="grid-template-columns: repeat(2, 1fr); margin-bottom: 12px;">
+    <div class="kpi-card">
+      <div class="kpi-label">乘用车出口 5月</div>
+      <div class="kpi-value">80.9万辆</div>
+      <div class="kpi-change up">▲ +73% YoY | YTD 352.8万</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">新能源出口 5月</div>
+      <div class="kpi-value">44.6万辆</div>
+      <div class="kpi-change up">▲ +110% YoY | YTD 183.3万</div>
+    </div>
+  </div>
+
+  <div class="callout callout-warn">
+    <div class="callout-title">⚠️ 出口风险关注</div>
+    <p>欧盟对中国电动汽车反补贴关税政策持续演进，2026年部分车企面临加征17-35%不等的额外关税；美国市场对中国产电动汽车征收100%关税基本封锁。但东南亚、中东、拉美等新兴市场关税环境相对友好，为中国车企提供了多样化出口目的地选择。比亚迪、奇瑞等头部车企正加速海外建厂（泰国、印尼、巴西、匈牙利等），以本地化生产规避贸易壁垒。</p>
+  </div>
+</section>
+
+<!-- ========== PART 7: 总结与建议 ========== -->
+<section class="part-section" id="p7">
+  <div class="part-title"><span class="part-num">7</span>总结与建议</div>
+
+  <div class="conclusion-banner">
+    <h3>核心结论</h3>
+    <p><strong>2026年5月中国汽车市场核心特征为"内需结构性换挡、出口爆发式增长、新能源渗透率历史性突破60%"。</strong>国内市场整体销量承压（-2.1%YoY），但新能源渗透率62.9%创历史新高、商用车+12.5%YoY复苏强劲、出口+73%YoY持续爆发。行业正经历"燃油车加速退出、新能源主导增量、出海成为第二增长曲线"的三重变局。技术层面，第五代磷酸铁锂量产、固态电池产线投产、10C+超充规模化商用标志着动力电池技术进入新一轮升级周期。</p>
+  </div>
+
+  <div class="rec-card rec-opportunity">
+    <div class="rec-title">💡 机会</div>
+    <div class="rec-item" data-num="①">新能源渗透率突破60%且趋势不可逆，第五代磷酸铁锂电池（压实密度2.7g/cm³）和超充技术（10C+）推广将进一步提升电动车产品力，带动全产业链需求扩容。</div>
+    <div class="rec-item" data-num="②">出口市场持续爆发（NEV出口+110%YoY），中国车企全球化进程加速。东南亚、中东、拉美等新兴市场为中国汽车零部件和材料供应商提供了第二增长曲线。</div>
+    <div class="rec-item" data-num="③">商用车新能源化处于早期蓝海阶段，换电重卡、电动物流车、新能源客车的政策驱动+经济性优势将催生新一轮增长周期。</div>
+    <div class="rec-item" data-num="④">固态电池（比亚迪20GWh产线已投产）和钠电池产业化加速，新型正极/负极材料和电解液配方需求升级，为上游材料企业带来产品迭代机会。</div>
+  </div>
+
+  <div class="rec-card rec-risk">
+    <div class="rec-title">⚠️ 风险</div>
+    <div class="rec-item" data-num="①">国内汽车总量增速放缓甚至负增长，燃油车加速退出导致的结构性产能过剩风险上升，传统零部件供应商面临转型压力。</div>
+    <div class="rec-item" data-num="②">欧盟反补贴关税+美国100%关税使出口面临贸易壁垒升级，海外建厂投入大、周期长，短期难以完全对冲关税影响。</div>
+    <div class="rec-item" data-num="③">BEV份额提升至67%挤压PHEV/EREV空间，技术路线选择风险加大；固态/钠电池若量产突破，对现有磷酸铁锂/三元材料体系形成替代风险。</div>
+    <div class="rec-item" data-num="④">去年同期（2025年5月）高基数效应导致同比数据承压，市场对"负增长"的过度解读可能影响行业估值和投资信心。</div>
+  </div>
+
+  <div class="rec-card rec-action">
+    <div class="rec-title">🎯 战略建议</div>
+    <div class="rec-item" data-num="①"><strong>把握NEV渗透率提升窗口：</strong>新能源渗透率突破60%后，冷却液、制动液、热管理系统等汽车化学品需求结构发生质变（电动车热管理价值量约为燃油车1.5-2倍），建议相关事业部加快新能源专属产品开发认证。</div>
+    <div class="rec-item" data-num="②"><strong>紧跟头部客户全球化布局：</strong>比亚迪、奇瑞、上汽等核心客户加速海外建厂，建议配套事业部评估跟随客户在东南亚/中东等地设立海外仓储和技术服务网络的可行性。</div>
+    <div class="rec-item" data-num="③"><strong>关注商用车电动化机遇：</strong>商用车新能源化处于爆发前夜（尤其换电重卡和电动物流车），商用车冷却液、尿素溶液（可兰素）等产品需求结构将随电动化进程演变，建议提前布局电动商用车专属化学品。</div>
+    <div class="rec-item" data-num="④"><strong>动态跟踪技术路线变化：</strong>固态/钠电池产业化进程加速可能影响电解液及添加剂需求结构，建议每季度更新技术路线图，保持前瞻性研发投入，避免技术替代风险。</div>
+  </div>
+</section>
+
+<footer class="report-footer">
+  <p>数据来源：汽车行业数据库（automotive_all_data.json，更新至2026年5月） · 乘联会/中汽协月度数据 · 行业新闻嵌入式系统 · 全球汽车市场战略洞察报告</p>
+  <p>战略中心信息情报部 · 每月发布 · © 2026</p>
+</footer>
+
+</main>
+</div><!-- page-wrapper -->
+
+<!-- ========== CHARTS (10个) ========== -->
+<script>
+// Chart 1: 全球分区域月度销量
+new Chart(document.getElementById('chart_global_region').getContext('2d'), {
+  type: 'bar',
+  data: {
+    labels: ['25-01','25-02','25-03','25-04','25-05','25-06','25-07','25-08','25-09','25-10','25-11','25-12','26-01','26-02','26-03','26-04'],
+    datasets: [
+      { label: '亚洲', data: [347,320,438,368,375,404,377,388,447,478,479,462,386,313,442,392], backgroundColor: 'rgba(30,60,114,0.8)', borderWidth: 0, borderRadius: 2 },
+      { label: '北美', data: [139,150,195,180,182,159,170,178,158,159,159,180,137,146,175,171], backgroundColor: 'rgba(42,82,152,0.6)', borderWidth: 0, borderRadius: 2 },
+      { label: '欧洲', data: [116,112,163,128,128,145,109,101,150,141,136,150,103,114,179,136], backgroundColor: 'rgba(65,105,180,0.4)', borderWidth: 0, borderRadius: 2 }
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: {
+      legend: { position: 'top', labels: { font: { size: 11 }, boxWidth: 12 } },
+      tooltip: { callbacks: { label: ctx => ctx.raw + ' 万辆' } }
+    },
+    scales: {
+      x: { stacked: true, ticks: { font: { size: 9 } }, grid: { display: false } },
+      y: { stacked: true, title: { display: true, text: '万辆', font: { size: 11 } }, ticks: { font: { size: 10 } } }
+    }
+  }
+});
+
+// Chart 2: 全球NEV销量及渗透率
+new Chart(document.getElementById('chart_global_nev').getContext('2d'), {
+  type: 'bar',
+  data: {
+    labels: ['25-01','25-02','25-03','25-04','25-05','25-06','25-07','25-08','25-09','25-10','25-11','25-12','26-01','26-02','26-03','26-04'],
+    datasets: [
+      { label: 'NEV销量（万辆）', data: [134,129,179,166,180,188,177,188,224,212,224,222,144,127,202,183], backgroundColor: 'rgba(46,125,50,0.7)', borderColor: '#2e7d32', borderWidth: 1.5, borderRadius: 4, yAxisID: 'y' },
+      { label: '渗透率（右轴）', data: [19,19,20,22,23,23,23,25,27,26,27,26,19.8,19.1,22.3,24.2], type: 'line', borderColor: '#ef6c00', backgroundColor: 'rgba(239,108,0,0.1)', borderWidth: 2.5, pointRadius: 4, pointBackgroundColor: '#ef6c00', tension: 0.4, fill: false, yAxisID: 'y1' }
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: {
+      legend: { position: 'top', labels: { font: { size: 11 }, boxWidth: 12 } },
+      tooltip: { callbacks: { label: ctx => ctx.datasetIndex === 0 ? ctx.raw + ' 万辆' : ctx.raw + '%' } }
+    },
+    scales: {
+      y: { position: 'left', title: { display: true, text: '万辆', font: { size: 11 } }, ticks: { font: { size: 10 } } },
+      y1: { position: 'right', title: { display: true, text: '渗透率%', font: { size: 11 } }, min: 10, max: 35, ticks: { font: { size: 10 }, callback: v => v + '%' }, grid: { display: false } }
+    }
+  }
+});
+
+// Chart 3: 中国汽车月度销量及同比
+new Chart(document.getElementById('chart_cn_auto').getContext('2d'), {
+  type: 'bar',
+  data: {
+    labels: ['25-01','25-02','25-03','25-04','25-05','25-06','25-07','25-08','25-09','25-10','25-11','25-12','26-01','26-02','26-03','26-04','26-05'],
+    datasets: [
+      { label: '2025年月销量', data: [242,213,292,259,269,290,259,286,323,332,343,327,null,null,null,null,null], backgroundColor: 'rgba(30,60,114,0.25)', borderColor: 'rgba(30,60,114,0.4)', borderWidth: 1.5, borderRadius: 3, yAxisID: 'y' },
+      { label: '2026年月销量', data: [null,null,null,null,null,null,null,null,null,null,null,null,235,181,290,253,262.9], backgroundColor: 'rgba(30,60,114,0.8)', borderColor: '#1e3c72', borderWidth: 1.5, borderRadius: 3, yAxisID: 'y' },
+      { label: '同比增速（右轴）', data: [null,null,null,null,null,null,null,null,null,null,null,null,-3.2,-15.2,-0.5,-2.5,-2.1], type: 'line', borderColor: '#c62828', borderWidth: 2, pointRadius: 3, pointBackgroundColor: '#c62828', tension: 0.4, fill: false, yAxisID: 'y1' }
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: {
+      legend: { position: 'top', labels: { font: { size: 11 }, boxWidth: 12 } },
+      tooltip: { callbacks: { label: ctx => { if (ctx.raw === null) return '无数据'; return ctx.datasetIndex === 2 ? ctx.raw + '%' : ctx.raw + ' 万辆'; } } }
+    },
+    scales: {
+      y: { position: 'left', title: { display: true, text: '万辆', font: { size: 11 } }, ticks: { font: { size: 10 } } },
+      y1: { position: 'right', title: { display: true, text: '同比%', font: { size: 11 } }, ticks: { font: { size: 10 }, callback: v => v + '%' }, grid: { display: false } }
+    }
+  }
+});
+
+// Chart 4: 乘用车TOP10车企5月销量
+new Chart(document.getElementById('chart_oem_top10').getContext('2d'), {
+  type: 'bar',
+  data: {
+    labels: ['比亚迪','奇瑞','吉利','上汽通用五菱','上汽乘用车','长安','一汽大众','长城','特斯拉','理想'],
+    datasets: [
+      { label: '5月销量（万辆）', data: [36.07,21.2,20.11,10.13,10.02,8.5,7.8,7.2,6.5,5.8], backgroundColor: 'rgba(30,60,114,0.8)', borderColor: '#1e3c72', borderWidth: 1, borderRadius: 4 },
+      { label: '同比增速（右轴%）', data: [-0.1,18.2,-8.0,1.7,37.5,-5.0,-3.0,2.0,25.0,15.0], type: 'line', borderColor: '#ef6c00', borderWidth: 2, pointRadius: 4, pointBackgroundColor: '#ef6c00', tension: 0.3, fill: false, yAxisID: 'y1' }
+    ]
+  },
+  options: {
+    indexAxis: 'y',
+    responsive: true, maintainAspectRatio: false,
+    plugins: {
+      legend: { position: 'top', labels: { font: { size: 11 }, boxWidth: 12 } },
+      tooltip: { callbacks: { label: ctx => ctx.datasetIndex === 0 ? ctx.raw + ' 万辆' : ctx.raw + '%' } }
+    },
+    scales: {
+      x: { title: { display: true, text: '万辆', font: { size: 11 } }, ticks: { font: { size: 10 } } },
+      y1: { position: 'right', ticks: { font: { size: 10 }, callback: v => v + '%' }, grid: { display: false } }
+    }
+  }
+});
+
+// Chart 5: 商用车TOP5车企
+new Chart(document.getElementById('chart_cv_top5').getContext('2d'), {
+  type: 'bar',
+  data: {
+    labels: ['北汽福田','中国重汽','东风商用车','长安汽车','一汽解放'],
+    datasets: [
+      { label: '5月销量（万辆）', data: [5.81,4.48,3.50,3.01,2.51], backgroundColor: ['rgba(30,60,114,0.9)','rgba(42,82,152,0.8)','rgba(65,105,180,0.7)','rgba(100,140,200,0.6)','rgba(135,170,220,0.5)'], borderWidth: 1, borderRadius: 4 },
+      { label: '同比增速', data: [17.5,29.0,4.8,2.9,54.0], type: 'line', borderColor: '#ef6c00', borderWidth: 2, pointRadius: 5, pointBackgroundColor: '#ef6c00', tension: 0.3, fill: false, yAxisID: 'y1' }
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: {
+      legend: { position: 'top', labels: { font: { size: 11 }, boxWidth: 12 } },
+      tooltip: { callbacks: { label: ctx => ctx.datasetIndex === 0 ? ctx.raw + ' 万辆' : ctx.raw + '%' } }
+    },
+    scales: {
+      y: { title: { display: true, text: '万辆', font: { size: 11 } }, ticks: { font: { size: 10 } } },
+      y1: { position: 'right', title: { display: true, text: '同比%', font: { size: 11 } }, ticks: { font: { size: 10 }, callback: v => v + '%' }, grid: { display: false } }
+    }
+  }
+});
+
+// Chart 6: NEV月度零售及渗透率
+new Chart(document.getElementById('chart_nev_retail').getContext('2d'), {
+  type: 'bar',
+  data: {
+    labels: ['25-01','25-02','25-03','25-04','25-05','25-06','25-07','25-08','25-09','25-10','25-11','25-12','26-01','26-02','26-03','26-04','26-05'],
+    datasets: [
+      { label: 'NEV零售（万辆）', data: [74.4,68.6,99.1,90.5,102.7,111.1,98.7,111.5,129.8,128.4,132.1,133.7,59.6,46.4,84.8,85.0,95.0], backgroundColor: 'rgba(46,125,50,0.7)', borderColor: '#2e7d32', borderWidth: 1.5, borderRadius: 4, yAxisID: 'y' },
+      { label: '渗透率（右轴%）', data: [30.8,32.4,34.0,34.9,38.2,38.3,38.1,39.0,40.2,38.7,38.5,40.9,52.3,53.2,56.8,57.1,62.9], type: 'line', borderColor: '#ef6c00', backgroundColor: 'rgba(239,108,0,0.1)', borderWidth: 2.5, pointRadius: 4, pointBackgroundColor: '#ef6c00', tension: 0.4, fill: false, yAxisID: 'y1' }
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: {
+      legend: { position: 'top', labels: { font: { size: 11 }, boxWidth: 12 } },
+      tooltip: { callbacks: { label: ctx => ctx.datasetIndex === 0 ? ctx.raw + ' 万辆' : ctx.raw + '%' } }
+    },
+    scales: {
+      y: { position: 'left', title: { display: true, text: '万辆', font: { size: 11 } }, ticks: { font: { size: 10 } } },
+      y1: { position: 'right', title: { display: true, text: '渗透率%', font: { size: 11 } }, min: 25, max: 70, ticks: { font: { size: 10 }, callback: v => v + '%' }, grid: { display: false } }
+    }
+  }
+});
+
+// Chart 7: NEV分技术类型月度趋势
+new Chart(document.getElementById('chart_nev_type').getContext('2d'), {
+  type: 'bar',
+  data: {
+    labels: ['25-01','25-02','25-03','25-04','25-05','25-06','25-07','25-08','25-09','25-10','25-11','25-12','26-01','26-02','26-03','26-04','26-05'],
+    datasets: [
+      { label: 'BEV纯电', data: [43,42.7,64.6,55.9,61.3,66,60.7,69,83.2,81.2,82.7,78.2,34.8,27.8,56.8,57.9,63.7], backgroundColor: 'rgba(30,60,114,0.8)', borderWidth: 0, borderRadius: 2 },
+      { label: 'PHEV插电', data: [25,19.9,26.8,26,29.8,33.1,27.8,32,36,36,37.8,41,17.2,13.4,20.4,19.2,22.8], backgroundColor: 'rgba(65,105,180,0.6)', borderWidth: 0, borderRadius: 2 },
+      { label: 'EREV增程', data: [6.4,6,7.7,8.6,11.6,12,10.2,10.5,10.6,11.2,11.6,14.5,7.6,5.2,7.6,7.9,8.5], backgroundColor: 'rgba(135,170,220,0.5)', borderWidth: 0, borderRadius: 2 }
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: {
+      legend: { position: 'top', labels: { font: { size: 11 }, boxWidth: 12 } },
+      tooltip: { callbacks: { label: ctx => ctx.raw + ' 万辆' } }
+    },
+    scales: {
+      x: { stacked: true, ticks: { font: { size: 9 } }, grid: { display: false } },
+      y: { stacked: true, title: { display: true, text: '万辆', font: { size: 11 } }, ticks: { font: { size: 10 } } }
+    }
+  }
+});
+
+// Chart 8: NEV分级别占比 (donut)
+new Chart(document.getElementById('chart_nev_level').getContext('2d'), {
+  type: 'doughnut',
+  data: {
+    labels: ['B级 35.0%','A级 32.6%','A0级 16.5%','C级 10.3%','A00级 5.6%'],
+    datasets: [{
+      data: [35.0, 32.6, 16.5, 10.3, 5.6],
+      backgroundColor: ['rgba(30,60,114,0.9)','rgba(42,82,152,0.75)','rgba(65,105,180,0.6)','rgba(100,140,200,0.45)','rgba(135,170,220,0.3)'],
+      borderColor: '#fff', borderWidth: 2
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: {
+      legend: { position: 'bottom', labels: { font: { size: 10 }, padding: 12 } },
+      tooltip: { callbacks: { label: ctx => ctx.label } }
+    }
+  }
+});
+
+// Chart 9: NEV TOP10品牌市场份额 (horizontal bar)
+new Chart(document.getElementById('chart_nev_brand').getContext('2d'), {
+  type: 'bar',
+  data: {
+    labels: ['比亚迪','吉利','长安','零跑','特斯拉','五菱','鸿蒙智行','蔚来','赛力斯','理想'],
+    datasets: [{
+      label: '5月零售（万辆）',
+      data: [20.74,10.92,6.29,6.14,4.73,4.72,4.61,3.76,3.43,3.33],
+      backgroundColor: ['rgba(30,60,114,0.9)','rgba(35,70,130,0.8)','rgba(40,80,145,0.7)','rgba(50,90,155,0.65)','rgba(60,100,165,0.6)','rgba(70,110,175,0.55)','rgba(80,120,185,0.5)','rgba(90,130,195,0.45)','rgba(100,140,200,0.4)','rgba(110,150,210,0.35)'],
+      borderWidth: 0, borderRadius: 4
+    }]
+  },
+  options: {
+    indexAxis: 'y',
+    responsive: true, maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      tooltip: { callbacks: { label: ctx => ctx.raw + ' 万辆（份额 ' + ['21.8','11.5','6.6','6.5','5.0','5.0','4.9','4.0','3.6','3.5'][ctx.dataIndex] + '%）' } }
+    },
+    scales: {
+      x: { title: { display: true, text: '万辆', font: { size: 11 } }, ticks: { font: { size: 10 } } },
+      y: { ticks: { font: { size: 10 } } }
+    }
+  }
+});
+
+// Chart 10: 出口趋势
+new Chart(document.getElementById('chart_export').getContext('2d'), {
+  type: 'bar',
+  data: {
+    labels: ['25-01','25-02','25-03','25-04','25-05','25-06','25-07','25-08','25-09','25-10','25-11','25-12','26-01','26-02','26-03','26-04','26-05'],
+    datasets: [
+      { label: '乘用车出口', data: [39.5,37.1,41.0,43.1,46.8,50.2,49.9,53.3,56.0,57.1,62.4,64.1,58.9,58.6,74.8,79.6,80.9], backgroundColor: 'rgba(30,60,114,0.7)', borderColor: '#1e3c72', borderWidth: 1.5, borderRadius: 4, yAxisID: 'y' },
+      { label: '新能源出口', data: [13.4,11.5,14.5,15.6,16.8,18.9,18.2,19.5,22.9,23.9,27.2,28.3,33.8,35.2,39.6,43.0,44.6], backgroundColor: 'rgba(46,125,50,0.7)', borderColor: '#2e7d32', borderWidth: 1.5, borderRadius: 4, yAxisID: 'y' }
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: {
+      legend: { position: 'top', labels: { font: { size: 11 }, boxWidth: 12 } },
+      tooltip: { callbacks: { label: ctx => ctx.raw + ' 万辆' } }
+    },
+    scales: {
+      y: { title: { display: true, text: '万辆', font: { size: 11 } }, ticks: { font: { size: 10 } } }
+    }
+  }
+});
+</script>
+
+</body>
+</html>

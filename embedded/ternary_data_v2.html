@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数据库 - 三元正极及前驱体数据</title>
+    <meta name="html-version" content="20260530a">
+    <script src="ternary_embedded_data.js"></script>
+    <style>
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #c1c1c1; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #a1a1a1; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --primary-dark: #1e3c72;
+            --primary-light: #2a5298;
+            --bg-gradient-start: #f5f7fa;
+            --bg-gradient-end: #c3cfe2;
+            --sidebar-width: 280px;
+            --sidebar-collapsed: 70px;
+            --transition-speed: 0.3s;
+        }
+
+        body {
+            font-family: 'Microsoft YaHei', 'PingFang SC', Arial, sans-serif;
+            background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
+            min-height: 100vh;
+            display: flex;
+        }
+
+        .sidebar {
+            width: var(--sidebar-width); background: #f5f5f5;
+            height: 100vh; position: fixed; left: 0; top: 0; z-index: 1000;
+            transition: width var(--transition-speed) ease;
+            overflow-y: auto; box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+        }
+        .sidebar.collapsed { width: var(--sidebar-collapsed); }
+
+        .sidebar-header {
+            padding: 20px 15px; border-bottom: 1px solid rgba(0,0,0,0.1);
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .sidebar-logo {
+            display: flex; align-items: center; gap: 12px;
+            color: var(--primary-dark); font-size: 18px; font-weight: bold;
+            white-space: nowrap; overflow: hidden;
+        }
+        .sidebar-logo-icon {
+            width: 36px; height: 36px;
+            background: linear-gradient(135deg, var(--primary-light), #2a5298);
+            border-radius: 10px; display: flex; align-items: center; justify-content: center;
+            font-size: 18px; flex-shrink: 0;
+        }
+        .collapse-btn {
+            width: 28px; height: 28px; background: rgba(0,0,0,0.08); border: none;
+            border-radius: 6px; color: #666; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            transition: all 0.2s; flex-shrink: 0;
+        }
+        .collapse-btn:hover { background: rgba(0,0,0,0.15); color: var(--primary-dark); }
+        .sidebar.collapsed .collapse-btn { transform: rotate(180deg); }
+
+        .sidebar-stats { padding: 15px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .sidebar.collapsed .sidebar-stats { display: none; }
+        .stat-item { background: rgba(30,60,114,0.08); border-radius: 8px; padding: 10px; text-align: center; }
+        .stat-value { color: var(--primary-dark); font-size: 18px; font-weight: bold; }
+        .stat-label { color: #888; font-size: 11px; margin-top: 4px; }
+
+        .nav-section { padding: 10px 0; }
+        .nav-section-title {
+            color: #888; font-size: 13px; font-weight: bold;
+            padding: 10px 20px 5px; white-space: nowrap; overflow: hidden;
+        }
+        .sidebar.collapsed .nav-section-title { opacity: 0; }
+        .nav-item {
+            display: flex; align-items: center; padding: 12px 15px; color: #333;
+            cursor: pointer; transition: all 0.2s;
+            position: relative; border-left: 3px solid transparent; gap: 12px;
+        }
+        .nav-item:hover { background: rgba(0,0,0,0.05); color: var(--primary-dark); }
+        .nav-item.active {
+            background: linear-gradient(90deg, rgba(30,60,114,0.15) 0%, transparent 100%);
+            color: var(--primary-dark); border-left-color: var(--primary-dark);
+        }
+        .nav-item-icon {
+            width: 32px; height: 32px; border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 16px; flex-shrink: 0;
+            background: rgba(30,60,114,0.1); color: var(--primary-dark);
+        }
+        .nav-item.active .nav-item-icon {
+            background: linear-gradient(135deg, var(--primary-dark), var(--primary-light));
+            color: white;
+        }
+        .nav-item-text { font-size: 14px; white-space: nowrap; overflow: hidden; flex: 1; }
+        .sidebar.collapsed .nav-item-text { opacity: 0; width: 0; }
+        .nav-item-badge {
+            background: rgba(30,60,114,0.15); color: var(--primary-dark);
+            font-size: 11px; padding: 2px 8px; border-radius: 10px; flex-shrink: 0;
+        }
+        .sidebar.collapsed .nav-item-badge { position: absolute; top: 5px; right: 5px; padding: 2px 5px; font-size: 10px; }
+        .nav-item.active .nav-item-badge { background: var(--primary-dark); color: white; }
+
+        .main-content {
+            flex: 1; margin-left: var(--sidebar-width); padding: 20px;
+            transition: margin-left var(--transition-speed) ease;
+        }
+        .sidebar.collapsed ~ .main-content { margin-left: var(--sidebar-collapsed); }
+
+        .toolbar {
+            background: white; border-radius: 12px;
+            padding: 15px 20px; margin-bottom: 20px;
+            box-shadow: 0 4px 20px rgba(30,60,114,0.1);
+            display: flex; justify-content: space-between; align-items: center;
+            flex-wrap: wrap; gap: 15px;
+        }
+        .toolbar-left { display: flex; align-items: center; gap: 15px; }
+        .toolbar-btn {
+            display: flex; align-items: center; gap: 8px;
+            padding: 10px 18px; border-radius: 8px; border: none;
+            cursor: pointer; font-size: 14px; font-weight: 500; transition: all 0.2s;
+        }
+        .toolbar-btn-secondary { background: #f5f7fa; color: #666; }
+        .toolbar-btn-secondary:hover { background: #e9ecef; }
+        .toolbar-title { font-size: 20px; font-weight: bold; color: var(--primary-dark); }
+        .toolbar-right { display: flex; align-items: center; gap: 15px; }
+        .search-box {
+            display: flex; align-items: center;
+            background: #f5f7fa; border-radius: 8px;
+            padding: 8px 15px; gap: 10px;
+        }
+        .search-box input {
+            border: none; background: transparent; outline: none;
+            font-size: 14px; width: 200px; color: #333;
+        }
+        .search-box input::placeholder { color: #999; }
+        .update-info { color: #888; font-size: 13px; }
+        .update-info span { color: var(--primary-dark); font-weight: 500; }
+
+        .content-section { display: none; animation: fadeIn 0.3s ease; }
+        .content-section.active { display: block; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px; margin-bottom: 20px;
+        }
+        .metric-card {
+            background: white; border-radius: 12px; padding: 20px;
+            box-shadow: 0 4px 15px rgba(30,60,114,0.1);
+            position: relative; overflow: hidden; transition: all 0.3s;
+        }
+        .metric-card::before {
+            content: ''; position: absolute;
+            top: 0; left: 0; width: 4px; height: 100%;
+            background: linear-gradient(180deg, var(--primary-light), #2a5298);
+        }
+        .metric-card:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(30,60,114,0.15); }
+        .metric-label { color: #666; font-size: 13px; margin-bottom: 8px; }
+        .metric-value { color: var(--primary-dark); font-size: 26px; font-weight: bold; }
+        .metric-unit { font-size: 14px; color: #888; font-weight: normal; }
+
+        .data-card {
+            background: white; border-radius: 12px; overflow: hidden;
+            box-shadow: 0 4px 20px rgba(30,60,114,0.1);
+        }
+        .data-card-header {
+            padding: 15px 20px;
+            background: linear-gradient(135deg, var(--primary-dark), var(--primary-light));
+            color: white; display: flex; justify-content: space-between; align-items: center;
+        }
+        .data-card-title { font-size: 16px; font-weight: bold; display: flex; align-items: center; gap: 10px; }
+        .data-card-actions { display: flex; gap: 10px; }
+        .action-btn {
+            padding: 6px 12px; background: rgba(255,255,255,0.2);
+            border: none; border-radius: 6px; color: white;
+            font-size: 12px; cursor: pointer; transition: all 0.2s;
+        }
+        .action-btn:hover { background: rgba(255,255,255,0.3); }
+
+        .table-container { max-height: 500px; overflow: auto; }
+        .data-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        .data-table th {
+            background: #f8f9fa; color: var(--primary-dark);
+            padding: 12px 15px; text-align: left; font-weight: 600;
+            position: sticky; top: 0; z-index: 10; border-bottom: 2px solid #e9ecef;
+        }
+        .data-table td {
+            padding: 10px 15px; border-bottom: 1px solid #f0f0f0; transition: background 0.2s;
+        }
+        .data-table tbody tr:hover { background: #f0fff4; }
+        .loading { text-align: center; padding: 40px; color: #888; }
+        .rank-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--primary-dark), var(--primary-light));
+            color: white; padding: 4px 10px; border-radius: 12px;
+            font-size: 12px; font-weight: bold;
+        }
+        .rank-badge.top3 { background: linear-gradient(135deg, #ffd700, #f39c12); color: #333; }
+
+        .wide-table { min-width: 900px; }
+
+        @media (max-width: 768px) {
+            .sidebar { width: var(--sidebar-collapsed); }
+            .sidebar.collapsed { width: 0; }
+            .main-content { margin-left: var(--sidebar-collapsed); }
+        }
+    </style>
+</head>
+<body>
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-logo">
+                <div class="sidebar-logo-icon">🔋</div>
+                <span class="logo-text">三元材料数据库</span>
+            </div>
+            <button class="collapse-btn" onclick="toggleSidebar()">◀</button>
+        </div>
+        <div class="sidebar-stats">
+            <div class="stat-item">
+                <div class="stat-value" id="totalTables">19</div>
+                <div class="stat-label">数据表</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="totalRecords">-</div>
+                <div class="stat-label">数据条数</div>
+            </div>
+        </div>
+        <div id="sidebarNav"></div>
+    </nav>
+
+    <main class="main-content">
+        <div class="toolbar">
+            <div class="toolbar-left">
+                <button class="toolbar-btn toolbar-btn-secondary" onclick="window.location.href='index_v3.html'">← 返回首页</button>
+                <button class="toolbar-btn toolbar-btn-secondary" onclick="window.location.href='database_hub.html'">← 返回数据库</button>
+                <button class="toolbar-btn toolbar-btn-secondary" onclick="window.location.href='ternary_charts.html'">📈 可视化看板</button>
+                <div class="toolbar-title">🔋 三元正极及前驱体数据库</div>
+            </div>
+            <div class="toolbar-right">
+                <div class="search-box">
+                    🔍 <input type="text" placeholder="搜索数据..." id="searchInput" oninput="filterTable()">
+                </div>
+                <div class="update-info">
+                    更新于 <span id="updateTime">加载中...</span>
+                </div>
+            </div>
+        </div>
+        <div id="contentArea"></div>
+    </main>
+
+<script src="inline_00.js"></script>
+</body>
+</html>

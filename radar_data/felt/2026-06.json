@@ -1,0 +1,85 @@
+{
+  "month": "2026-06",
+  "source": "6月总结与7月工作计划（法恩莱特6.28）",
+  "source_pages": [4, 5, 7, 8, 9],
+  "_isCurrent": true,
+  "_kpiComparison": {
+    "title": "6月核心KPI达成率",
+    "period": "2026年6月",
+    "items": [
+      {"name": "销量(吨)", "budget": 7968, "target": 4976, "actual": 4160, "unit": "吨"},
+      {"name": "销售收入(万元)", "budget": 17500, "target": 11675, "actual": 9457, "unit": "万元"},
+      {"name": "毛利率(%)", "budget": 4.86, "target": 1.60, "actual": 0.96, "unit": "%"},
+      {"name": "期间费用(万元)", "budget": 377, "target": 325, "actual": 364, "unit": "万元"},
+      {"name": "净利润(万元)", "budget": 459, "target": -122, "actual": -262, "unit": "万元"},
+      {"name": "经营现金流(万元)", "budget": 732, "target": 59, "actual": 59, "unit": "万元"},
+      {"name": "到期回款率(%)", "budget": 90.0, "target": 90.0, "actual": 95.8, "unit": "%"}
+    ]
+  },
+  "_dimComparison_d2": {
+    "title": "6月经营效益",
+    "format": "mom",
+    "items": [
+      {"name": "电解液销量(吨)", "prev": 4800, "curr": 4160, "unit": "吨"},
+      {"name": "营业收入(万元)", "prev": 12000, "curr": 9457, "unit": "万元"},
+      {"name": "净利润(万元)", "prev": -100, "curr": -262, "unit": "万元"},
+      {"name": "回款率(%)", "prev": 96.0, "curr": 95.8, "unit": "%"}
+    ]
+  },
+  "_dimComparison_d3": {
+    "title": "6月运营效率",
+    "format": "mom",
+    "items": [
+      {"name": "采购降本率(%)", "prev": 5.0, "curr": 7.39, "unit": "%"},
+      {"name": "目标达成率(%)", "prev": 95.0, "curr": 84.0, "unit": "%"},
+      {"name": "产能利用率(%)", "prev": 85.0, "curr": 62.0, "unit": "%"},
+      {"name": "回款率(%)", "prev": 90.0, "curr": 95.8, "unit": "%"}
+    ]
+  },
+  "_dimComparison_d4": {
+    "title": "6月技术创新力",
+    "format": "mom",
+    "items": [
+      {"name": "新产品配方销量(吨)", "prev": 300, "curr": 416.5, "unit": "吨"},
+      {"name": "技术交流次数(次)", "prev": 15, "curr": 26, "unit": "次"},
+      {"name": "在研项目(项)", "prev": 5, "curr": 6, "unit": "项"},
+      {"name": "配方开发数量(批)", "prev": 18, "curr": 54, "unit": "批"}
+    ]
+  },
+  "_dimComparison_d5": {
+    "title": "6月风险合规",
+    "format": "mom",
+    "items": [
+      {"name": "安全隐患整改率(%)", "prev": 100, "curr": 100, "unit": "%"},
+      {"name": "安全教育完成率(%)", "prev": 100, "curr": 100, "unit": "%"},
+      {"name": "排查隐患(起)", "prev": 0, "curr": 0, "unit": "起"},
+      {"name": "客户投诉(次)", "prev": 0, "curr": 0, "unit": "次"}
+    ]
+  },
+  "_dimComparison_d6": {
+    "title": "6月组织活力",
+    "format": "mom",
+    "items": [
+      {"name": "AI项目立项(项)", "prev": 0, "curr": 0, "unit": "项"},
+      {"name": "新客户开发(家)", "prev": 2, "curr": 3, "unit": "家"},
+      {"name": "人才引进(人)", "prev": 2, "curr": 3, "unit": "人"},
+      {"name": "数字化项目(项)", "prev": 1, "curr": 1, "unit": "项"}
+    ]
+  },
+  "dims": {
+    "d1": 52,
+    "d2": 38,
+    "d3": 60,
+    "d4": 80,
+    "d5": 100,
+    "d6": 60
+  },
+  "kpis": {
+    "d1": [52, 67, 33, 100],
+    "d2": [52, 67, 65, 96],
+    "d3": [62, 84, 59, 96],
+    "d4": [116, 86, 100, 54],
+    "d5": [100, 100, 100, 100],
+    "d6": [0, 50, 50, 0]
+  }
+}

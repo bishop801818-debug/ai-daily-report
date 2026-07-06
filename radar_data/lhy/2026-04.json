@@ -1,0 +1,236 @@
+{
+    "bu_id": "lhy",
+    "bu_code": "LHY",
+    "bu_name": "润滑油",
+    "month": "2026-04",
+    "source": "",
+    "dims": {
+        "d1": 96,
+        "d2": 100,
+        "d3": 100,
+        "d4": 94,
+        "d5": 75,
+        "d6": 100
+    },
+    "_isCurrent": false,
+    "kpis": {
+        "d1": [
+            100.0,
+            90.0,
+            94.0,
+            100.0
+        ],
+        "d2": [
+            100.0,
+            100.0,
+            100.0,
+            100.0
+        ],
+        "d3": [
+            100.0,
+            100.0,
+            100.0,
+            100.0
+        ],
+        "d4": [
+            100.0,
+            100.0,
+            100.0,
+            75.0
+        ],
+        "d5": [
+            100.0,
+            100.0,
+            100.0,
+            0.0
+        ],
+        "d6": [
+            100.0,
+            100.0,
+            100.0,
+            100.0
+        ]
+    },
+    "_kpiComparison": {
+        "title": "4月核心KPI达标率",
+        "period": "2026年4月",
+        "items": [
+            {
+                "name": "销售收入(万)",
+                "budget": 8530,
+                "target": 8530,
+                "actual": 11881,
+                "unit": "万元"
+            },
+            {
+                "name": "净利润(万)",
+                "budget": 1125,
+                "target": 1125,
+                "actual": 1007,
+                "unit": "万元"
+            },
+            {
+                "name": "毛利率(%)",
+                "budget": 24.3,
+                "target": 24.3,
+                "actual": 22.8,
+                "unit": "%"
+            },
+            {
+                "name": "期间费用率(%)",
+                "budget": 13.67,
+                "target": 13.67,
+                "actual": 12.0,
+                "unit": "%"
+            },
+            {
+                "name": "应收账款天数",
+                "budget": 52,
+                "target": 52,
+                "actual": 51,
+                "unit": "天"
+            }
+        ]
+    },
+    "_dimComparison_d2": {
+        "title": "4月品类销售达成",
+        "items": [
+            {
+                "name": "冷却液(万)",
+                "budget": 50000,
+                "target": 4167,
+                "actual": 14431,
+                "unit": "万元"
+            },
+            {
+                "name": "汽机油(万)",
+                "budget": 40000,
+                "target": 3333,
+                "actual": 14854,
+                "unit": "万元"
+            },
+            {
+                "name": "柴机油(万)",
+                "budget": 15000,
+                "target": 1250,
+                "actual": 5902,
+                "unit": "万元"
+            },
+            {
+                "name": "变速箱油(万)",
+                "budget": 6000,
+                "target": 500,
+                "actual": 1630,
+                "unit": "万元"
+            }
+        ]
+    },
+    "_dimComparison_d3": {
+        "title": "4月运营效率指标",
+        "items": [
+            {
+                "name": "海外市场(万)",
+                "budget": 10000,
+                "target": 833,
+                "actual": 2613,
+                "unit": "万元"
+            },
+            {
+                "name": "工业油(万)",
+                "budget": 5000,
+                "target": 417,
+                "actual": 67,
+                "unit": "万元"
+            },
+            {
+                "name": "玻璃水(万)",
+                "budget": 7000,
+                "target": 583,
+                "actual": 585,
+                "unit": "万元"
+            },
+            {
+                "name": "应收账款天数",
+                "budget": 52,
+                "target": 52,
+                "actual": 51,
+                "unit": "天"
+            }
+        ]
+    },
+    "_dimComparison_d4": {
+        "title": "4月技术创新力",
+        "items": [
+            {
+                "name": "新产品配方开发",
+                "value": "四代低导/OEM认证/LP48稳定性",
+                "unit": "项"
+            },
+            {
+                "name": "OEM认证",
+                "value": "沃尔沃/潍柴LP60定点",
+                "unit": "项"
+            },
+            {
+                "name": "配方改进",
+                "value": "LP48稳定性改进",
+                "unit": "项"
+            },
+            {
+                "name": "技术服务项目",
+                "value": "吉利/长安/东风台架验证",
+                "unit": "项"
+            }
+        ]
+    },
+    "_dimComparison_d5": {
+        "title": "4月风险合规",
+        "items": [
+            {
+                "name": "质量管控计划",
+                "value": "冷却液复合包管控方案",
+                "unit": "项"
+            },
+            {
+                "name": "海外认证推进",
+                "value": "制动液+冷却液海外认证",
+                "unit": "项"
+            },
+            {
+                "name": "AI质量检测",
+                "value": "AI在质量检测效率提升应用",
+                "unit": "项"
+            },
+            {
+                "name": "供应商问题",
+                "value": "0",
+                "unit": "个"
+            }
+        ]
+    },
+    "_dimComparison_d6": {
+        "title": "4月组织活力",
+        "items": [
+            {
+                "name": "新客户开发(家)",
+                "value": "15",
+                "unit": "家"
+            },
+            {
+                "name": "AI项目立项",
+                "value": "0",
+                "unit": "项"
+            },
+            {
+                "name": "海外客户开发(家)",
+                "value": "非洲/东南亚/日韩",
+                "unit": "家"
+            },
+            {
+                "name": "数字化项目(个)",
+                "value": "绿瓜灌装线安装调试",
+                "unit": "个"
+            }
+        ]
+    }
+}

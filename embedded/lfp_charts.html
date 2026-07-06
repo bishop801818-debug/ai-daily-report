@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>可视化看板 - 铁锂行业数据</title>
+    <script src="./echarts.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Microsoft YaHei', sans-serif; background: #f5f5f5; }
+        
+        /* 顶部导航 */
+        .topbar { background: #fff; padding: 15px 30px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
+        .topbar h1 { color: #1e3c72; font-size: 20px; }
+        .topbar a { color: #666; text-decoration: none; margin-left: 20px; font-size: 14px; }
+        
+        /* 标签导航 */
+        .tab-nav { background: #fff; padding: 0 30px; display: flex; gap: 5px; border-bottom: 1px solid #eee; }
+        .tab-btn { padding: 12px 20px; background: none; border: none; cursor: pointer; font-size: 14px; color: #666; border-bottom: 2px solid transparent; transition: all 0.2s; }
+        .tab-btn:hover { color: #1e3c72; }
+        .tab-btn.active { color: #1e3c72; border-bottom-color: #1e3c72; font-weight: 600; }
+        
+        /* 主内容 */
+        .main-content { padding: 20px 30px; }
+        
+        /* 统计卡片 */
+        .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 20px; }
+        .stat-card { background: #fff; border-radius: 12px; padding: 16px 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); display: flex; align-items: center; gap: 16px; }
+        .stat-icon { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px; }
+        .stat-icon.blue { background: rgba(30,60,114,0.1); }
+        .stat-icon.green { background: rgba(76,175,80,0.1); }
+        .stat-icon.orange { background: rgba(255,152,0,0.1); }
+        .stat-icon.purple { background: rgba(156,39,176,0.1); }
+        .stat-info .label { color: #888; font-size: 12px; margin-bottom: 4px; }
+        .stat-info .value { color: #1e3c72; font-size: 24px; font-weight: 600; }
+        .stat-info .unit { font-size: 14px; color: #999; font-weight: normal; }
+        
+        /* 图表网格 */
+        .chart-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+        .chart-card { background: #fff; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+        .chart-card.full { grid-column: span 2; }
+        .chart-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid #f0f0f0; }
+        .chart-title { font-size: 15px; font-weight: 600; color: #333; }
+        .chart-subtitle { font-size: 12px; color: #999; margin-top: 4px; }
+        .chart-meta { font-size: 12px; color: #999; }
+        .chart-container { width: 100%; height: 300px; }
+        .chart-card.full .chart-container { height: 280px; }
+        
+        /* Tab内容隐藏 */
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        
+        @media (max-width: 1200px) {
+            .stats-row { grid-template-columns: repeat(2, 1fr); }
+            .chart-grid { grid-template-columns: 1fr; }
+            .chart-card.full { grid-column: span 1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="topbar">
+        <h1>📊 可视化看板</h1>
+        <div><a href="index_v3.html">🏠 首页</a><a href="lfp_data_v2.html">📋 数据表格</a></div>
+    </div>
+    
+    <!-- 分类Tab导航 -->
+    <div class="tab-nav">
+        <button class="tab-btn active" onclick="switchTab('overview')">📈 概览</button>
+        <button class="tab-btn" onclick="switchTab('production')">🏭 产量</button>
+        <button class="tab-btn" onclick="switchTab('price')">💰 价格</button>
+        <button class="tab-btn" onclick="switchTab('export')">🚢 出口</button>
+    </div>
+    
+    <div class="main-content">
+        <!-- Tab1: 概览 -->
+        <div class="tab-content active" id="tab-overview">
+            <div class="stats-row">
+                <div class="stat-card" id="s0">
+                    <div class="stat-icon blue">📊</div>
+                    <div class="stat-info"><div class="label">LFP月产量</div><div class="value">—<span class="unit">万吨</span></div></div>
+                </div>
+                <div class="stat-card" id="s1">
+                    <div class="stat-icon green">⚡</div>
+                    <div class="stat-info"><div class="label">产能利用率</div><div class="value">—<span class="unit">%</span></div></div>
+                </div>
+                <div class="stat-card" id="s2">
+                    <div class="stat-icon orange">🚢</div>
+                    <div class="stat-info"><div class="label">月出口量</div><div class="value">—<span class="unit">万吨</span></div></div>
+                </div>
+                <div class="stat-card" id="s3">
+                    <div class="stat-icon purple">💵</div>
+                    <div class="stat-info"><div class="label">出口均价</div><div class="value">—<span class="unit">万元/吨</span></div></div>
+                </div>
+            </div>
+            <div class="chart-grid">
+                <div class="chart-card full"><div class="chart-header"><div class="chart-title">LFP/FP行业产量走势</div><div class="chart-meta">近12个月</div></div><div class="chart-container" id="c1"></div></div>
+                <div class="chart-card"><div class="chart-header"><div class="chart-title">产能利用率趋势</div></div><div class="chart-container" id="c2"></div></div>
+                <div class="chart-card"><div class="chart-header"><div class="chart-title">企业产量TOP10</div></div><div class="chart-container" id="c3"></div></div>
+            </div>
+        </div>
+        
+        <!-- Tab2: 产量 -->
+        <div class="tab-content" id="tab-production">
+            <div class="chart-grid">
+                <div class="chart-card full"><div class="chart-header"><div class="chart-title">磷酸铁锂(LFP)月度产量</div><div class="chart-subtitle">数据来源: 飞书-行业整体产量</div></div><div class="chart-container" id="p1"></div></div>
+                <div class="chart-card full"><div class="chart-header"><div class="chart-title">磷酸铁(FP)月度产量</div></div><div class="chart-container" id="p2"></div></div>
+                <div class="chart-card"><div class="chart-header"><div class="chart-title">LFP企业产量分布</div></div><div class="chart-container" id="p3"></div></div>
+                <div class="chart-card"><div class="chart-header"><div class="chart-title">FP企业产量分布</div></div><div class="chart-container" id="p4"></div></div>
+            </div>
+        </div>
+        
+        <!-- Tab3: 价格 -->
+        <div class="tab-content" id="tab-price">
+            <div class="chart-grid">
+                <div class="chart-card full"><div class="chart-header"><div class="chart-title">LFP现货价格走势</div><div class="chart-subtitle">数据来源: 飞书-LFP现货市场价</div></div><div class="chart-container" id="x1"></div></div>
+                <div class="chart-card"><div class="chart-header"><div class="chart-title">磷矿石(30%品位)价格</div></div><div class="chart-container" id="x2"></div></div>
+                <div class="chart-card"><div class="chart-header"><div class="chart-title">主要原料价格对比</div></div><div class="chart-container" id="x3"></div></div>
+            </div>
+        </div>
+        
+        <!-- Tab4: 出口 -->
+        <div class="tab-content" id="tab-export">
+            <div class="chart-grid">
+                <div class="chart-card full"><div class="chart-header"><div class="chart-title">LFP出口量与均价走势</div><div class="chart-subtitle">近12个月</div></div><div class="chart-container" id="e1"></div></div>
+                <div class="chart-card"><div class="chart-header"><div class="chart-title">出口贸易伙伴TOP10</div></div><div class="chart-container" id="e2"></div></div>
+                <div class="chart-card"><div class="chart-header"><div class="chart-title">核心客户采购量</div></div><div class="chart-container" id="e3"></div></div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="lfp_embedded_data.js?v=20260630"></script>
+    <script>
+    var COLORS = ['#1e3c72', '#4a6fa5', '#4facfe', '#667eea', '#764ba2', '#f59e0b', '#10b981', '#ef4444', '#3b82f6', '#8b5cf6'];
+    var C = { primary: '#1e3c72', secondary: '#4a6fa5', accent: '#4facfe', border: '#e0e0e0', text: '#333', textLight: '#666' };
+
+    // ── 工具函数 ──────────────────────────────────────────────────────────────
+    function getTable(name) {
+        var t = EMBEDDED_DATA.tables.find(function(t){ return t.table_name === name; });
+        return t ? t.data : [];
+    }
+    function toYY(v) {
+        if (!v) return '';
+        var s = String(v).slice(0,7);
+        var m = s.match(/^(\d{4})-(\d{2})/);
+        return m ? (String(+m[1]).slice(-2) + '-' + m[2]) : '';
+    }
+    function num(v) { var n = parseFloat(String(v).replace(/,/g,'')); return isNaN(n) ? null : n; }
+
+    // ── 动态数据提取 ──────────────────────────────────────────────────────────────
+    (function loadData() {
+        // LFP行业整体产量（最新12月，升序）
+        var lfpRows = getTable('LFP-行业整体产量').slice(0,12).reverse();
+        window.LFP_MONTHS = lfpRows.map(function(r){ return toYY(r['月份']); });
+        window.LFP_OUTPUT = lfpRows.map(function(r){ return num(r['月度产量']); });
+        window.LFP_UTIL   = lfpRows.map(function(r){
+            var p = num(r['月度产量']), c = num(r['月度产能']);
+            return (c > 0 ? Math.round(p/c*100) : null);
+        });
+
+        // FP行业整体产量（最新12月，升序）
+        var fpRows = getTable('FP-行业整体产量').slice(0,12).reverse();
+        window.FP_OUTPUT = fpRows.map(function(r){ return num(r['月度产量']); });
+
+        // 分企业TOP10（最新月份）
+        var top10 = getTable('LFP-分企业产量').slice(0,10);
+        window.TOP10_NAMES  = top10.map(function(r){ return r['企业名称'] || ''; });
+        window.TOP10_OUTPUT = top10.map(function(r){ return num(r['产量']); });
+
+        // 出口月度（最新12月，升序）
+        var expRows = getTable('LFP-出口量').slice(0,12).reverse();
+        window.EXP_VOL   = expRows.map(function(r){ return num(r['出口量（吨）']); });
+        window.EXP_PRICE = expRows.map(function(r){ return num(r['出口均价（万元/吨）']); });
+
+        // ── 价格Tab动态数据 ──────────────────────────────────────────
+
+        // x1: LFP现货市场价 → 按ISO周聚合，取最新14周
+        var lfpPriceRaw = getTable('LFP现货市场价') || [];
+        var byWeek = {};
+        lfpPriceRaw.forEach(function(r){
+            var dStr = String(r['日期']||'').slice(0,10);
+            var avg = parseFloat(r['均价（万元/吨）']);
+            if (!dStr || isNaN(avg)) return;
+            var dt = new Date(dStr.replace(/-/g,'/'));
+            if (isNaN(dt)) return;
+            var iso = dt.getISOWeek ? dt.getISOWeek() : getISOWeek(dt);
+            var y = dt.getFullYear();
+            var key = y + '-W' + String(iso).padStart(2,'0');
+            if (!byWeek[key]) byWeek[key] = [];
+            byWeek[key].push(avg);
+        });
+        function getISOWeek(d) {
+            var d2 = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+            var dayNum = d2.getUTCDay() || 7;
+            d2.setUTCDate(d2.getUTCDate() + 4 - dayNum);
+            var yearStart = new Date(Date.UTC(d2.getUTCFullYear(), 0, 1));
+            return Math.ceil((((d2 - yearStart) / 86400000) + 1) / 7);
+        }
+        var weekKeys = Object.keys(byWeek).sort().slice(-14);
+        window.X1_AVG   = weekKeys.map(function(k){ var v=byWeek[k]; return Math.round((v.reduce(function(a,b){return a+b;},0)/v.length)*100)/100; });
+        // 横轴显示每周的周一（MM-DD格式，如 "06-22"）
+        window.X1_DATES = weekKeys.map(function(k){
+            var parts = k.split('-W');
+            if (parts.length < 2) return k;
+            var y = parseInt(parts[0]) + 2000, w = parseInt(parts[1]);
+            // ISO week first Monday
+            var jan4 = new Date(y, 0, 4); // Jan 4 is always in ISO week 1
+            var monday = new Date(jan4);
+            monday.setDate(monday.getDate() - (jan4.getDay() + 6) % 7 + (w - 1) * 7);
+            var mo = String(monday.getMonth()+1).padStart(2,'0');
+            var da = String(monday.getDate()).padStart(2,'0');
+            return mo + '-' + da;
+        });
+
+        // x2: 磷矿石30%品位 → 月度均价，最新12月
+        var phosphateRaw = getTable('磷酸盐价格') || [];
+        var byMonthPhos = {};
+        phosphateRaw.forEach(function(r){
+            if (String(r['规格']||'') !== '磷矿石30%品位') return;
+            var dStr = String(r['日期']||'').slice(0,7);
+            var avg = parseFloat(r['今日均价（万元/吨）']);
+            if (!dStr || isNaN(avg)) return;
+            byMonthPhos[dStr] = avg;
+        });
+        var phosKeys = Object.keys(byMonthPhos).sort().slice(-12);
+        window.X2_DATES = phosKeys.map(function(m){ return m.replace(/^(\d{4})-(\d{2})$/,function(_,y,mo){ return (y-2000)+'-'+mo; }); });
+        window.X2_AVG   = phosKeys.map(function(m){ return byMonthPhos[m]; });
+
+        // x3: 非磷原料最新价格 → 取最新日期各规格均价
+        var nonPhosRaw = getTable('非磷原料价格') || [];
+        var byDateNP = {};
+        nonPhosRaw.forEach(function(r){
+            var dStr = String(r['日期']||'').slice(0,10);
+            var spec = String(r['规格']||'');
+            var avg = parseFloat(r['今日均价']);
+            if (!dStr || !spec || isNaN(avg)) return;
+            if (!byDateNP[dStr]) byDateNP[dStr] = {};
+            byDateNP[dStr][spec] = avg;
+        });
+        var latestDateNP = Object.keys(byDateNP).sort().reverse()[0];
+        var npLatest = byDateNP[latestDateNP] || {};
+        // 取前5个有代表性的规格
+        var npSpecs = Object.keys(npLatest);
+        // 选择：硫酸98%、硫酸铵、硫酸亚铁、铁粉电池用、液氨优等品
+        var priority = ['硫酸98%','硫酸铵','硫酸亚铁FeSO\u2084\u00b77H\u2082O\u226590%','铁粉电池用','液氨优等品','双氧水27.5%','硝酸68%','液碱32%','氢氧化钡98%','铁块纯铁','氧化铁红电极铁'];
+        var chosen = [];
+        priority.forEach(function(p){ if (npLatest[p] !== undefined) chosen.push({spec:p, val:npLatest[p]}); });
+        npSpecs.slice(0,3).forEach(function(s){ if (!chosen.find(function(c){return c.spec===s;})) chosen.push({spec:s,val:npLatest[s]}); });
+        window.X3_SPECS = chosen.map(function(c){ return c.spec; });
+        // 转换为万元/吨（除以10000），铁粉等大数值需要，小数值直接用
+        window.X3_VALS = chosen.map(function(c){
+            var v = c.val;
+            return (v >= 100 ? Math.round(v/100)/100 : Math.round(v*100)/100);
+        });
+
+        // 动态更新 stat cards
+        var l0 = lfpRows[0] || {};
+        var e0 = expRows[0] || {};
+        var setS = function(id, label, val, unit) {
+            var el = document.getElementById(id);
+            if (!el) return;
+            el.querySelector('.stat-info').innerHTML =
+                '<div class="label">' + label + '</div><div class="value">' + val + '<span class="unit">' + unit + '</span></div>';
+        };
+        if (l0) {
+            var p = num(l0['月度产量']) || 0;
+            var c = num(l0['月度产能']) || 1;
+            setS('s0', 'LFP月产量', (p/10000).toFixed(1), '万吨');
+            setS('s1', '产能利用率', Math.round(p/c*100), '%');
+        }
+        if (e0) {
+            setS('s2', '月出口量', num(e0['出口量（吨）'])/10000, '万吨');
+            setS('s3', '出口均价', num(e0['出口均价（万元/吨）']) || '—', '万元/吨');
+        }
+    })();
+
+
+
+    
+    function initChart(id, opt) { echarts.init(document.getElementById(id)).setOption(opt); }
+    
+    // 概览Tab图表
+    initChart('c1', {
+        tooltip: { trigger: 'axis' }, legend: { data: ['LFP','FP'], top: 5 }, grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+        xAxis: { type: 'category', data: LFP_MONTHS, axisLabel: { color: C.textLight } },
+        yAxis: { type: 'value', name: '万吨', axisLabel: { color: C.textLight }, splitLine: { lineStyle: { color: C.border } } },
+        series: [
+            { name: 'LFP', type: 'line', data: LFP_OUTPUT, smooth: true, lineStyle: { color: C.primary, width: 3 }, itemStyle: { color: C.primary },
+              label: { show: true, position: 'top', formatter: '{c}万', fontSize: 9, color: C.primary, fontWeight: 'bold' } },
+            { name: 'FP', type: 'line', data: FP_OUTPUT, smooth: true, lineStyle: { color: C.secondary, width: 3 }, itemStyle: { color: C.secondary },
+              label: { show: true, position: 'bottom', formatter: '{c}万', fontSize: 9, color: C.secondary } }
+        ]
+    });
+
+    initChart('c2', {
+        tooltip: { trigger: 'axis', formatter: '{b}: {c}%' }, grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+        xAxis: { type: 'category', data: LFP_MONTHS, axisLabel: { color: C.textLight } },
+        yAxis: { type: 'value', name: '%', min: 0, max: 100, axisLabel: { color: C.textLight }, splitLine: { lineStyle: { color: C.border } } },
+        series: [{ type: 'line', data: LFP_UTIL, smooth: true, lineStyle: { color: C.primary, width: 3 },
+            areaStyle: { color: { type: 'linear', x: 0, y: 0, x2: 0, y2: 1, colorStops: [{ offset: 0, color: 'rgba(30,60,114,0.2)' }, { offset: 1, color: 'rgba(30,60,114,0.02)' }] } },
+            label: { show: true, position: 'top', formatter: '{c}%', fontSize: 9, color: C.primary, fontWeight: 'bold' } }]
+    });
+    
+    initChart('c3', {
+        tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' }, formatter: '{b}: {c}万吨' }, grid: { left: '3%', right: '15%', bottom: '3%', containLabel: true },
+        xAxis: { type: 'value', axisLabel: { formatter: '{value}万吨' }, splitLine: { lineStyle: { color: C.border } } },
+        yAxis: { type: 'category', data: TOP10_NAMES.reverse(), axisLabel: { color: C.text, fontSize: 11 } },
+        series: [{ type: 'bar', data: TOP10_OUTPUT.reverse(), itemStyle: { color: function(p){return COLORS[p.dataIndex % COLORS.length];}, borderRadius: [0,4,4,0] }, label: { show: true, position: 'right', formatter: '{c}万吨', fontSize: 10, color: C.textLight } }]
+    });
+    
+    // 产量Tab图表
+    initChart('p1', {
+        tooltip: { trigger: 'axis' }, grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+        xAxis: { type: 'category', data: LFP_MONTHS, axisLabel: { color: C.textLight } },
+        yAxis: { type: 'value', name: '万吨', axisLabel: { color: C.textLight }, splitLine: { lineStyle: { color: C.border } } },
+        series: [{ type: 'bar', data: LFP_OUTPUT, itemStyle: { color: C.primary, borderRadius: [4,4,0,0] },
+            label: { show: true, position: 'top', formatter: '{c}万', fontSize: 9, color: C.textLight } }]
+    });
+
+    initChart('p2', {
+        tooltip: { trigger: 'axis' }, grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+        xAxis: { type: 'category', data: LFP_MONTHS, axisLabel: { color: C.textLight } },
+        yAxis: { type: 'value', name: '万吨', axisLabel: { color: C.textLight }, splitLine: { lineStyle: { color: C.border } } },
+        series: [{ type: 'bar', data: FP_OUTPUT, itemStyle: { color: C.secondary, borderRadius: [4,4,0,0] },
+            label: { show: true, position: 'top', formatter: '{c}万', fontSize: 9, color: C.textLight } }]
+    });    
+    
+    initChart('p3', {
+        tooltip: { trigger: 'item', formatter: '{b}: {c}万吨 ({d}%)' },
+        legend: { orient: 'vertical', right: 10, top: 'center', textStyle: { fontSize: 11 } },
+        series: [{ 
+            type: 'pie', 
+            radius: ['30%', '65%'], 
+            center: ['40%', '50%'],
+            data: TOP10_NAMES.map((n,i)=>({name:n + ' ' + TOP10_OUTPUT[i] + '万吨', value:TOP10_OUTPUT[i]})), 
+            label: { show: true, formatter: '{b}', fontSize: 10, color: '#333' }, 
+            itemStyle: { color: function(p){return COLORS[p.dataIndex % COLORS.length];} } 
+        }]
+    });
+    
+    initChart('p4', {
+        tooltip: { trigger: 'item', formatter: '{b}: {c}万吨 ({d}%)' },
+        legend: { orient: 'vertical', right: 10, top: 'center', textStyle: { fontSize: 11 } },
+        series: [{ 
+            type: 'pie', 
+            radius: ['30%', '65%'], 
+            center: ['40%', '50%'],
+            data: TOP10_NAMES.slice(0,5).map((n,i)=>({name:n + ' ' + (TOP10_OUTPUT[i]*0.8).toFixed(1) + '万吨', value:TOP10_OUTPUT[i]*0.8})), 
+            label: { show: true, formatter: '{b}', fontSize: 10, color: '#333' }, 
+            itemStyle: { color: function(p){return COLORS[p.dataIndex % COLORS.length];} } 
+        }]
+    });
+    
+    // 价格Tab图表
+    initChart('x1', {
+        tooltip: { trigger: 'axis' }, grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+        xAxis: { type: 'category', data: (window.X1_DATES||[]), axisLabel: { color: C.textLight, rotate: 0 } },
+        yAxis: { type: 'value', name: '万元/吨', axisLabel: { color: C.textLight }, splitLine: { lineStyle: { color: C.border } } },
+        series: [{ type: 'line', data: (window.X1_AVG||[]), smooth: true, lineStyle: { color: C.primary, width: 3 },
+            areaStyle: { color: { type: 'linear', x: 0, y: 0, x2: 0, y2: 1, colorStops: [{ offset: 0, color: 'rgba(30,60,114,0.2)' }, { offset: 1, color: 'rgba(30,60,114,0.02)' }] } },
+            label: { show: true, position: 'top', formatter: '{c}万', fontSize: 9, color: C.primary, fontWeight: 'bold' } }]
+    });
+
+    initChart('x2', {
+        tooltip: { trigger: 'axis' }, grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+        xAxis: { type: 'category', data: (window.X2_DATES||[]), axisLabel: { color: C.textLight } },
+        yAxis: { type: 'value', name: '万元/吨', axisLabel: { color: C.textLight }, splitLine: { lineStyle: { color: C.border } } },
+        series: [{ type: 'line', data: (window.X2_AVG||[]), smooth: true, lineStyle: { color: C.secondary, width: 3 },
+            label: { show: true, position: 'top', formatter: '{c}万', fontSize: 9, color: C.secondary, fontWeight: 'bold' } }]
+    });
+
+    initChart('x3', {
+        tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } }, grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+        xAxis: { type: 'category', data: (window.X3_SPECS||[]), axisLabel: { color: C.textLight } },
+        yAxis: { type: 'value', name: '万元/吨', axisLabel: { color: C.textLight }, splitLine: { lineStyle: { color: C.border } } },
+        series: [{ type: 'bar', data: (window.X3_VALS||[]), itemStyle: { color: C.accent, borderRadius: [4,4,0,0] },
+            label: { show: true, position: 'top', formatter: '{c}万', fontSize: 10, color: C.textLight } }]
+    });
+
+    // 出口Tab图表
+    initChart('e1', {
+        tooltip: { trigger: 'axis', axisPointer: { type: 'cross' } }, legend: { data: ['出口量','均价'], top: 5 },
+        grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+        xAxis: { type: 'category', data: LFP_MONTHS, axisLabel: { color: C.textLight } },
+        yAxis: [{ type: 'value', name: '万吨', position: 'left', axisLabel: { color: C.textLight }, splitLine: { lineStyle: { color: C.border } } }, { type: 'value', name: '万元/吨', min: 3, max: 6, position: 'right', axisLabel: { color: C.textLight }, splitLine: { show: false } }],
+        series: [
+            { name: '出口量', type: 'bar', data: EXP_VOL, itemStyle: { color: C.secondary, borderRadius: [4,4,0,0] },
+              label: { show: true, position: 'top', formatter: '{c}万', fontSize: 9, color: C.textLight } },
+            { name: '均价', type: 'line', yAxisIndex: 1, data: EXP_PRICE, smooth: true, lineStyle: { color: C.accent, width: 3 },
+              label: { show: true, position: 'bottom', formatter: '{c}万', fontSize: 9, color: C.accent, fontWeight: 'bold' } }
+        ]
+    });
+
+    initChart('e2', {
+        tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } }, grid: { left: '3%', right: '15%', bottom: '3%', containLabel: true },
+        xAxis: { type: 'value', splitLine: { lineStyle: { color: C.border } } },
+        yAxis: { type: 'category', data: ['德国','日本','印尼','巴西','印度','中国台湾','韩国','波兰','越南','加拿大'].reverse(), axisLabel: { color: C.text } },
+        series: [{ type: 'bar', data: [65,75,80,85,96,96,96,942,968,976].reverse(), itemStyle: { color: function(p){return p.dataIndex<3?C.primary:C.secondary}, borderRadius: [0,4,4,0] },
+            label: { show: true, position: 'right', formatter: '{c}吨', fontSize: 9, color: C.textLight } }]
+    });
+
+    initChart('e3', {
+        tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } }, grid: { left: '3%', right: '15%', bottom: '3%', containLabel: true },
+        xAxis: { type: 'value', splitLine: { lineStyle: { color: C.border } } },
+        yAxis: { type: 'category', data: ['吉利','蜂巢','天合','国轩','欣旺达','海辰','远景','亿纬','BYD','CATL'].reverse(), axisLabel: { color: C.text } },
+        series: [{ type: 'bar', data: [1500,2500,3500,3500,5000,5000,7000,10000,12000,25000].reverse(), itemStyle: { color: function(p){return p.dataIndex<3?C.primary:C.secondary}, borderRadius: [0,4,4,0] },
+            label: { show: true, position: 'right', formatter: '{c}吨', fontSize: 9, color: C.textLight } }]
+    });
+    
+    // Tab切换
+    function switchTab(tab) {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+        event.target.classList.add('active');
+        document.getElementById('tab-' + tab).classList.add('active');
+        setTimeout(function(){ document.querySelectorAll('.chart-container').forEach(function(c){ var chart = echarts.getInstanceByDom(c); if(chart) chart.resize(); }); }, 100);
+    }
+    
+    window.addEventListener('resize', function(){ document.querySelectorAll('.chart-container').forEach(function(c){ var chart = echarts.getInstanceByDom(c); if(chart) chart.resize(); }); });
+    </script>
+    <script src="assets/ai_fab_inject.js"></script>
+
+<!-- __AUTO_REFRESH__ -->
+<script>
+(function() {
+  var _js = "lfp_embedded_data.js";
+  var _lastVer = null;
+
+  function _readVer() {
+    try { return (window[_js.replace('.js','').replace(/-/g,'_').replace(/ /g,'')] || {}).update_time || null; }
+    catch(e) { return null; }
+  }
+
+  function _fetchVer(cb) {
+    fetch(_js + '?t=' + Date.now())
+      .then(function(r) { return r.text(); })
+      .then(function(txt) {
+        var m = txt.match(/update_time\s*=\s*['"]([^'"]+)['"]/);
+        cb(m ? m[1] : null);
+      })
+      .catch(function() { cb(null); });
+  }
+
+  function _showBanner() {
+    if (document.getElementById('__ar_banner__')) return;
+    var b = document.createElement('div');
+    b.id = '__ar_banner__';
+    b.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:99999;background:#1a73e8;color:#fff;'
+      + 'text-align:center;padding:10px 20px;font-size:14px;font-family:sans-serif;'
+      + 'display:flex;align-items:center;justify-content:center;gap:16px;box-shadow:0 2px 8px rgba(0,0,0,0.2);';
+    b.innerHTML = '\uD83D\uDCCA 数据已更新至新版本 &nbsp;'
+      + '<button onclick="location.reload()" style="background:#fff;color:#1a73e8;border:none;'
+      + 'padding:5px 14px;border-radius:4px;cursor:pointer;font-size:13px;font-weight:bold;">刷新页面</button>'
+      + '<button onclick="this.parentElement.style.display=\'none\'" style="background:rgba(255,255,255,0.2);'
+      + 'color:#fff;border:1px solid rgba(255,255,255,0.6);padding:5px 12px;border-radius:4px;'
+      + 'cursor:pointer;font-size:13px;">稍后</button>';
+    document.body.appendChild(b);
+  }
+
+  _lastVer = _readVer();
+
+  // 每 60 秒检测一次
+  setInterval(function() {
+    _fetchVer(function(ver) {
+      if (ver && ver !== _lastVer) {
+        _lastVer = ver;
+        _showBanner();
+      }
+    });
+  }, 60000);
+})();
+</script>
+</body>
+</html>

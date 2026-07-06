@@ -1,0 +1,84 @@
+{
+  "month": "2026-06",
+  "source": "【三金锂电】2026年6月月报（0625）",
+  "source_pages": [5, 6, 8, 9, 10, 11, 15, 16],
+  "_isCurrent": true,
+  "_kpiComparison": {
+    "title": "6月核心KPI达成率",
+    "period": "2026年6月",
+    "items": [
+      {"name": "净利润(万元)", "budget": -518, "target": -518, "actual": -575, "unit": "万元"},
+      {"name": "竣工验收进度(项)", "budget": 30, "target": 30, "actual": 21, "unit": "项"},
+      {"name": "销售回款率(%)", "budget": 100, "target": 100, "actual": 100, "unit": "%"},
+      {"name": "代加工业务(项)", "budget": 2, "target": 2, "actual": 1, "unit": "项"},
+      {"name": "管理费用(万元)", "budget": 138, "target": 138, "actual": 182, "unit": "万元"},
+      {"name": "正常化项目(项)", "budget": 2, "target": 2, "actual": 1, "unit": "项"}
+    ]
+  },
+  "_dimComparison_d2": {
+    "title": "6月基建进度",
+    "format": "snapshot",
+    "items": [
+      {"name": "竣工验收进度(%)", "value": 70, "unit": "%"},
+      {"name": "正常化项目(项)", "value": 1, "unit": "项"},
+      {"name": "机电板块进度(%)", "value": 45, "unit": "%"},
+      {"name": "土建板块进度(%)", "value": 10, "unit": "%"}
+    ]
+  },
+  "_dimComparison_d3": {
+    "title": "6月运营准备",
+    "format": "snapshot",
+    "items": [
+      {"name": "前驱体发货(吨)", "value": 84, "unit": "吨"},
+      {"name": "不良品出售毛利(万元)", "value": 278, "unit": "万元"},
+      {"name": "代加工达成(项)", "value": 1, "unit": "项"},
+      {"name": "采购降本洽谈(项)", "value": 2, "unit": "项"}
+    ]
+  },
+  "_dimComparison_d4": {
+    "title": "6月客户开发与技术",
+    "format": "mom",
+    "items": [
+      {"name": "Ni93样品交付(kg)", "prev": 10, "curr": 30, "unit": "kg"},
+      {"name": "Ni95样品交付(kg)", "prev": 20, "curr": 50, "unit": "kg"},
+      {"name": "BTR客户推进(阶段)", "prev": 2, "curr": 3, "unit": "阶段"},
+      {"name": "代工洽谈(家)", "prev": 1, "curr": 1, "unit": "家"}
+    ]
+  },
+  "_dimComparison_d5": {
+    "title": "6月竣工验收与合规",
+    "format": "snapshot",
+    "items": [
+      {"name": "竣工验收达成率(%)", "value": 70, "unit": "%"},
+      {"name": "专项报告编制(份)", "value": 4, "unit": "份"},
+      {"name": "EHS隐患整改率(%)", "value": 95, "unit": "%"},
+      {"name": "工贸定性进展", "value": 40, "unit": "%"}
+    ]
+  },
+  "_dimComparison_d6": {
+    "title": "6月组织活力",
+    "format": "snapshot",
+    "items": [
+      {"name": "关键岗位到岗率(%)", "value": 80, "unit": "%"},
+      {"name": "跨组织支援(人次)", "value": 5, "unit": "人次"},
+      {"name": "SAP系统上线(%)", "value": 60, "unit": "%"},
+      {"name": "AI创新项目(项)", "value": 0, "unit": "项"}
+    ]
+  },
+  "dims": {
+    "d1": 58,
+    "d2": 45,
+    "d3": 52,
+    "d4": 72,
+    "d5": 55,
+    "d6": 52
+  },
+  "kpis": {
+    "d1": [89, 76, 60, 100],
+    "d2": [70, 50, 45, 10],
+    "d3": [65, 50, 50, 55],
+    "d4": [85, 80, 50, 30],
+    "d5": [70, 50, 95, 30],
+    "d6": [55, 55, 65, 40]
+  }
+}

@@ -1,0 +1,82 @@
+{
+  "month": "2026-06",
+  "source": "2026年6月迪克工作总结&7月工作计划0627",
+  "source_pages": [8, 11, 15, 16, 18],
+  "_isCurrent": true,
+  "_kpiComparison": {
+    "title": "6月核心KPI达成率",
+    "period": "2026年6月",
+    "items": [
+      {"name": "营业收入(万元)", "budget": 4492, "target": 4492, "actual": 3507, "unit": "万元"},
+      {"name": "净利润额(万元)", "budget": 513, "target": 513, "actual": 315, "unit": "万元"},
+      {"name": "现金流(万元)", "budget": 739, "target": 739, "actual": 450, "unit": "万元"},
+      {"name": "净利润率(%)", "budget": 11.4, "target": 11.4, "actual": 9.0, "unit": "%"}
+    ]
+  },
+  "_dimComparison_d2": {
+    "title": "6月经营效益",
+    "format": "snapshot",
+    "items": [
+      {"name": "制动液销售(吨)", "value": 397, "unit": "吨"},
+      {"name": "防冻液销售(吨)", "value": 2186, "unit": "吨"},
+      {"name": "车清销售(吨)", "value": 141, "unit": "吨"},
+      {"name": "海外销售增长率(%)", "value": 274, "unit": "%"}
+    ]
+  },
+  "_dimComparison_d3": {
+    "title": "6月运营效率",
+    "format": "mom",
+    "items": [
+      {"name": "库存周转天数(天)", "prev": 69, "curr": 46, "unit": "天"},
+      {"name": "乙二醇采购降本(万元)", "prev": 0, "curr": 16.3, "unit": "万元"},
+      {"name": "SKU精简数量(个)", "prev": 0, "curr": 149, "unit": "个"},
+      {"name": "物流降本目标(%)", "prev": 0, "curr": 20, "unit": "%"}
+    ]
+  },
+  "_dimComparison_d4": {
+    "title": "6月技术创新力",
+    "format": "mom",
+    "items": [
+      {"name": "新产品下线(款)", "prev": 3, "curr": 7, "unit": "款"},
+      {"name": "客户审核通过(家)", "prev": 3, "curr": 6, "unit": "家"},
+      {"name": "品牌内容发布(篇)", "prev": 15, "curr": 24, "unit": "篇"},
+      {"name": "华为中试进展", "prev": 0, "curr": 90, "unit": "%"}
+    ]
+  },
+  "_dimComparison_d5": {
+    "title": "6月风险合规",
+    "format": "snapshot",
+    "items": [
+      {"name": "安全事故(起)", "value": 0, "unit": "起"},
+      {"name": "诉讼案件(件)", "value": 0, "unit": "件"},
+      {"name": "零碳工厂认证", "value": 100, "unit": "%"},
+      {"name": "安全月活动完成率(%)", "value": 300, "unit": "%"}
+    ]
+  },
+  "_dimComparison_d6": {
+    "title": "6月组织活力",
+    "format": "mom",
+    "items": [
+      {"name": "AI智能体项目(项)", "prev": 0, "curr": 1, "unit": "项"},
+      {"name": "新客户导入(家)", "prev": 2, "curr": 3, "unit": "家"},
+      {"name": "海外市场拓展(国)", "prev": 3, "curr": 5, "unit": "国"},
+      {"name": "数字化项目(项)", "prev": 2, "curr": 3, "unit": "项"}
+    ]
+  },
+  "dims": {
+    "d1": 68,
+    "d2": 72,
+    "d3": 88,
+    "d4": 85,
+    "d5": 95,
+    "d6": 82
+  },
+  "kpis": {
+    "d1": [78, 61, 79, 65],
+    "d2": [70, 72, 75, 68],
+    "d3": [85, 92, 80, 88],
+    "d4": [88, 85, 80, 82],
+    "d5": [95, 98, 100, 90],
+    "d6": [85, 88, 80, 78]
+  }
+}
