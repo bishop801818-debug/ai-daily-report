@@ -15,7 +15,7 @@
     <link rel="preload" href="latest_data.js?v=20260707_001" as="script" type="application/javascript">
     <link rel="preload" href="assets/hero-banner.webp?v=20260703" as="image" type="image/webp">
     <script defer src="assets/echarts.min.js"></script>
-    <script defer src="electrolyte_data.js?v=20260706"></script>
+    <script defer src="electrolyte_data.js?v=20260707"></script>
     <script defer src="recycling_data_v2.js?v=20260625"></script>
     <script defer src="chemical_data.js?v=20260625"></script>
     <script defer src="recycling_gantt.js?v=20260625"></script>
@@ -3767,6 +3767,95 @@
     box-shadow: 0 5px 18px rgba(45,159,110,0.65) !important;
 }
 
+/* ===== Aily AI 助手面板（独立组件，不依赖旧 Coze 对话框） ===== */
+.aily-panel {
+    position: fixed;
+    right: 28px;
+    bottom: 132px;
+    width: 400px;
+    height: 600px;
+    max-width: calc(100vw - 32px);
+    max-height: calc(100vh - 160px);
+    background: #fff;
+    border-radius: 18px;
+    box-shadow: 0 18px 60px rgba(0,0,0,0.38), 0 0 0 1px rgba(10,166,106,0.18);
+    z-index: 10002;
+    display: none;
+    flex-direction: column;
+    overflow: hidden;
+    font-family: "Microsoft YaHei", "微软雅黑", 'PingFang SC', sans-serif;
+    animation: aily-panel-in 0.30s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+.aily-panel.open { display: flex; }
+@keyframes aily-panel-in {
+    from { opacity: 0; transform: translateY(18px) scale(0.94); }
+    to   { opacity: 1; transform: translateY(0)    scale(1); }
+}
+.aily-panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 13px 18px;
+    background: linear-gradient(135deg, #0AA66A, #0d7a4a);
+    color: #fff;
+    flex: 0 0 auto;
+}
+.aily-panel-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    font-size: 15px;
+}
+.aily-panel-title .dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: #7CFFC4; box-shadow: 0 0 8px #7CFFC4;
+}
+.aily-panel-close {
+    cursor: pointer;
+    font-size: 22px;
+    line-height: 1;
+    opacity: 0.9;
+    transition: opacity 0.2s, transform 0.2s;
+    user-select: none;
+}
+.aily-panel-close:hover { opacity: 1; transform: scale(1.12); }
+.aily-panel-body {
+    flex: 1 1 auto;
+    position: relative;
+    background: #f4f8f6;
+}
+.aily-panel-body iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    display: block;
+}
+.aily-panel-empty {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    color: #8AA69A;
+    font-size: 13px;
+    text-align: center;
+    padding: 24px;
+}
+.aily-panel-empty .big { font-size: 34px; }
+
+/* 响应式：小屏幕面板近乎全屏 */
+@media (max-width: 640px) {
+    .aily-panel {
+        right: 12px; left: 12px; bottom: 12px;
+        width: auto; height: auto;
+        max-width: none; max-height: none;
+        top: 12px;
+    }
+}
+
 /* 响应式：小屏幕缩小按钮 */
 @media (max-width: 640px) {
     .ai-float-wrap {
@@ -7126,6 +7215,59 @@
     <div class="ai-tooltip" id="aiTooltip">需要帮忙吗？</div>
     <span class="ai-float-label">AI龙小蟠</span>
 </div>
+
+<!-- ===== Aily AI 日报助手（独立悬浮按钮，不复用旧 Coze 对话框，避免 JS 冲突） ===== -->
+<div class="ai-float-wrap" id="ailyFab" style="position:fixed;bottom:36px;right:36px;z-index:9999;display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;user-select:none;">
+  <div id="ailySphere" style="width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:30px;background:linear-gradient(135deg,#2d9f6e,#0AA66A);box-shadow:0 0 0 3px rgba(10,166,106,0.45),0 0 24px 6px rgba(10,166,106,0.45),0 10px 28px rgba(0,0,0,0.4);transition:transform .25s;cursor:pointer;">🐉</div>
+  <span style="font-family:'Microsoft YaHei','微软雅黑',sans-serif;font-size:12px;font-weight:600;color:#fff;background:linear-gradient(135deg,#2d9f6e,#4ecb8a);padding:3px 12px;border-radius:20px;letter-spacing:2px;white-space:nowrap;box-shadow:0 3px 12px rgba(45,159,110,0.45);">AI 日报</span>
+</div>
+
+<!-- Aily 对话面板（iframe 加载飞书 Aily 自定义智能体；AILY_EMBED_URL 待配置） -->
+<div class="aily-panel" id="ailyPanel">
+  <div class="aily-panel-header">
+    <span class="aily-panel-title"><span class="dot"></span>AI 龙小蟠 · 日报助手</span>
+    <span class="aily-panel-close" id="ailyClose">×</span>
+  </div>
+  <div class="aily-panel-body">
+    <div class="aily-panel-empty" id="ailyEmpty">
+      <div class="big">🐉</div>
+      <div>Aily 嵌入链接待配置</div>
+      <div style="font-size:12px;opacity:0.8;max-width:260px;">在 index_v3.html 中把常量 AILY_EMBED_URL 填入飞书 Aily 后台「发布 → Web 嵌入」拿到的 iframe 链接即可启用</div>
+    </div>
+    <iframe id="ailyFrame" title="AI 日报助手" style="display:none;"></iframe>
+  </div>
+</div>
+
+<script>
+(function(){
+  var FAB = document.getElementById('ailyFab');
+  var PANEL = document.getElementById('ailyPanel');
+  var FRAME = document.getElementById('ailyFrame');
+  var EMPTY = document.getElementById('ailyEmpty');
+  var CLOSE = document.getElementById('ailyClose');
+  // 【配置点】填入飞书 Aily 后台「发布 → Web 嵌入」获得的 iframe 链接（形如 https://xxx.aily.feishu.cn/.../web-embed?...）
+  // 留空时面板仅显示占位提示，不会加载任何外部资源，也不会产生 JS 错误。
+  var AILY_EMBED_URL = "";
+  function openPanel(){
+    if(!PANEL) return;
+    PANEL.classList.add('open');
+    if(FRAME && AILY_EMBED_URL && !FRAME.getAttribute('src')){
+      FRAME.style.display = 'block';
+      if(EMPTY) EMPTY.style.display = 'none';
+      FRAME.setAttribute('src', AILY_EMBED_URL);
+    }
+  }
+  function closePanel(){ if(PANEL) PANEL.classList.remove('open'); }
+  if(FAB) FAB.addEventListener('click', function(){
+    if(PANEL && PANEL.classList.contains('open')) closePanel(); else openPanel();
+  });
+  if(CLOSE) CLOSE.addEventListener('click', closePanel);
+  if(FRAME) FRAME.addEventListener('error', function(){
+    if(EMPTY){ EMPTY.style.display='flex'; EMPTY.querySelector('div:nth-child(2)').textContent='Aily 面板加载失败'; }
+    FRAME.style.display='none';
+  });
+})();
+</script>
 
 <!-- ===== 返回顶部按钮 ===== -->
 <div class="back-to-top" id="backToTop" title="返回顶部" style="display:none; position:fixed; bottom:30px; right:30px; width:50px; height:50px; background:linear-gradient(135deg, #00A86B, #007D4E); color:#fff; border-radius:50%; box-shadow:0 4px 12px rgba(0,125,78,0.4); cursor:pointer; z-index:9999; display:flex; align-items:center; justify-content:center; font-size:24px; transition:all 0.3s ease; opacity:0; pointer-events:none;">

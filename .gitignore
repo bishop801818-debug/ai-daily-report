@@ -242,3 +242,22 @@ archive/
 _archive/
 backup/
 embedded_backup_before_regenerate/
+
+# ------------------------------------------
+# 18. 源同步硬依赖校验标记（2026-07-07 新增）
+# ------------------------------------------
+# 本地运行标记：由 10:05 源任务写入，12:30 直传版任务读取校验，禁止提交（防换机器带旧标记）
+sync_marker
+sync_marker/**
+# Aily 知识库同步产物：由脚本生成的 Markdown 文档 + 增量状态，禁止提交
+_aily_kb/
+_aily_kb/**
+# Aily 云盘 folder_token 等敏感配置，禁止提交（含密钥）
+_aily_config.json
+# 校验/标记脚本为自动化核心依赖，需纳入版本管理（不被上方 *.py 忽略）
+!feishu_notify.py
+!write_sync_marker.py
+!check_source_sync.py
+# Aily 知识库同步脚本（2026-07-07 新增）：JSON->Markdown 转换 + 飞书云盘同步，自动化核心依赖
+!_aily_export.py
+!_aily_sync.py

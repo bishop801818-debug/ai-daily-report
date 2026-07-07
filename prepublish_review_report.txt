@@ -1,7 +1,5 @@
-预发布审查提示(已发布) @ 2026-07-07 09:44
+预发布审查提示(已发布) @ 2026-07-07 10:31
 
-以下 2 个页面存在非致命问题（不影响发布，已照常发布）：
+以下 1 个页面存在非致命问题（不影响发布，已照常发布）：
 • **行业新闻** (`/industry_news_embedded.html`)
-    - JS异常(非致命,页面有内容): Unexpected end of input; null is not a function
-• **电解液数据页** (`/electrolyte_data_v2.html`)
-    - JS异常(非致命,页面有内容): db.localeCompare is not a function
+    - JS异常(非致命,页面有内容): null is not a function

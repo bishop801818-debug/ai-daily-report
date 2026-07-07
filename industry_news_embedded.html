@@ -24392,7 +24392,7 @@
     "priority": "P2",
     "dept": "felt"
   }
-]</script><script>
+]]</script><script>
 // ============================================================
 // 配置
 // ============================================================
@@ -25244,7 +25244,7 @@ function toggleCard(el) {
 
 <!-- ===== 2026-05-20 嵌入版数据 (自动生成) ===== -->
 <script>
-window.__EMBEDDED__ = null
+window.__EMBEDDED__ = window.__EMBEDDED__ || function() { return {}; };
 
 (function() {
   var _orig = window.fetch;
@@ -25317,6 +25317,12 @@ window.__EMBEDDED__ = null
       });
     }
 
+    if (typeof _orig !== 'function') {
+      return Promise.reject(new Error('fetch 不可用（_orig 非函数）'));
+    }
+    if (typeof _orig !== 'function') {
+      return Promise.reject(new Error('fetch 不可用（_orig 非函数）'));
+    }
     return _orig.apply(window, arguments);
   };
 })();

@@ -1,5 +1,5 @@
 const EMBEDDED_DATA = {
-  "update_time": "2026-06-30 13:56:09",
+  "update_time": "2026-07-07 13:56:47",
   "source": "electrolyte_all_data.json",
   "tables": [
     {
