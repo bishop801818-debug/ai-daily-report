@@ -407,7 +407,19 @@ function buildCard(buId, meta) {
         return '<span class="dim-chip"><span class="chip-val" style="color:' + meta.color + '">' + v + '</span>' + DIM_NAMES[i] + '</span>';
     }).join('');
 
-    var detailUrl = (buId === 'sdmd') ? 'radar_detail_sdmd.html' : (buId === 'dhx') ? 'radar_detail_dkhx.html' : (buId === 'sjld') ? 'radar_detail_sjld.html' : ('radar_detail.html?id=' + buId);
+    // 各事业部雷达详情页均有独立专用文件，直接链接（妙搭 Serving 会丢弃 ?query 参数，
+    // 故不使用 radar_detail.html?id=XXX 的跳转页，避免落到“未知BU”错误页）
+    var DETAIL_FILE = {
+        'sdmd': 'radar_detail_sdmd.html',
+        'kls':  'radar_detail_kelan.html',   // 可兰素专用页文件名为 kelan
+        'lhy':  'radar_detail_lhy.html',
+        'dhx':  'radar_detail_dkhx.html',
+        'czly': 'radar_detail_czly.html',
+        'lpsd': 'radar_detail_lpsd.html',
+        'felt': 'radar_detail_felt.html',
+        'sjld': 'radar_detail_sjld.html'
+    };
+    var detailUrl = DETAIL_FILE[buId] || ('radar_detail.html?id=' + buId);
     return '<div id="card-' + buId + '" class="dept-card ' + meta.category + '" style="border-left-color:' + meta.color + '">' +
         '<div class="dept-card-header">' +
         logoHTML +

@@ -613,7 +613,7 @@
     // 日期显示
     var weekDays = ['星期日','星期一','星期二','星期三','星期四','星期五','星期六'];
     var now = new Date();
-    document.getElementById('headerDate').textContent =
+    var hd = document.getElementById('headerDate'); if (hd) hd.textContent =
         now.getFullYear() + ' 年 ' + (now.getMonth()+1) + ' 月 ' + now.getDate() + ' 日 ' + weekDays[now.getDay()];
 
     // ========== 收藏功能 ==========

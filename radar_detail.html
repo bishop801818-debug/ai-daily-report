@@ -26,14 +26,15 @@
     <script>
         (function() {
             var params = new URLSearchParams(window.location.search);
-            var id = params.get('id') || '';
+            // 妙搭 Serving 丢弃 ?query，但保留 #hash，故同时兼容两种写法
+            var id = params.get('id') || window.location.hash.replace('#', '') || '';
             var dest = {
                 'sdmd': 'radar_detail_sdmd.html',
                 'felt':  'radar_detail_felt.html',
                 'lhy':   'radar_detail_lhy.html',
                 'lpsd':  'radar_detail_lpsd.html',
                 'sjld':  'radar_detail_sjld.html',
-                'kls':   'radar_detail_kls.html',
+                'kls':   'radar_detail_kelan.html',   // 可兰素专用页文件名为 kelan
                 'czly':  'radar_detail_czly.html',
                 'dkhx':  'radar_detail_dkhx.html',
             };

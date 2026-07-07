@@ -1,6 +1,6 @@
 {
   "source": "合并数据 (carbonate_all_data.json + jin10)",
-  "update_time": "2026-07-06 12:02:48",
+  "update_time": "2026-07-07 09:17:00",
   "data": {
     "battery_grade": [
       {
@@ -1093,6 +1093,13 @@
         "unit": "元/吨",
         "spec": "电池级",
         "source_url": "https://jiage.cngold.org/c/2026-07-03/c10601554.html"
+      },
+      {
+        "date": "2026-07-06",
+        "price": 162000.0,
+        "unit": "元/吨",
+        "spec": "电池级",
+        "source_url": "https://jiage.cngold.org/c/2026-07-06/c10605554.html"
       }
     ],
     "industrial_grade": [
@@ -2221,6 +2228,13 @@
         "unit": "元/吨",
         "spec": "工业级",
         "source_url": "https://jiage.cngold.org/c/2026-07-03/c10601578.html"
+      },
+      {
+        "date": "2026-07-06",
+        "price": 160000.0,
+        "unit": "元/吨",
+        "spec": "工业级",
+        "source_url": "https://jiage.cngold.org/c/2026-07-06/c10605578.html"
       }
     ]
   }

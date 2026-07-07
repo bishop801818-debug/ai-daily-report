@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="html-version" content="20260706_001">
+<meta name="html-version" content="20260707_001">
 <title>事业部历史存档</title>
 <script>
   // 每次修改此文件后，将 content 值改为今天日期（如 20260420）
@@ -336,9 +336,12 @@ const OLD_NEW_MAP = {
   'lhy':  ['lube'],           // 润滑油事业部: 6月 lube
 };
 
-/* ── 读取 URL 参数 ── */
+/* ── 读取 URL 参数（兼容 ?id= 与 #id 两种写法）──
+   说明：妙搭 Serving 模式会丢弃查询参数(?id=)，但哈希片段(#id)永远被浏览器保留，
+   因此直传版统一改用 #id；GitHub Pages 等普通静态托管仍可用 ?id= 回退。 */
 const params = new URLSearchParams(location.search);
-const buId = params.get('id') || '';
+const hashId = (location.hash || '').replace(/^#/, '');
+const buId = params.get('id') || hashId || '';
 
 function getBUId() { return buId; }
 
@@ -371,7 +374,7 @@ function renderGuidePage() {
       <div class="date-list-title">📋 选择事业部查看历史早报</div>
       <div class="guide-grid">
         ${Object.entries(BU_META).map(([id, m]) => `
-          <a class="guide-card" href="dept-archive.html?id=${id}">
+          <a class="guide-card" href="dept-archive.html#${id}">
             <div class="gi">${m.icon}</div>
             <div class="gn">${m.name}</div>
             <div class="gt">${m.subtitle}</div>
@@ -1009,6 +1012,8 @@ function buildSectionsHTML(dept) {
 
 /* ── 启动 ── */
 initPage();
+/* 页内引导卡片点击切换 #id 时，重新初始化（哈希变化不会触发整页重载）*/
+window.addEventListener('hashchange', initPage);
 </script>
     <script src="assets/ai_fab_inject.js"></script>
 </body>

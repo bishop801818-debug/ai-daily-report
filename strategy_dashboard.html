@@ -192,9 +192,11 @@ var selectedQuarterIdx = null;  // null=最新季度
 
 function initRouter() {
     var params = new URLSearchParams(location.search);
-    var buId = params.get('id') || 'czly';
+    // 妙搭 Serving 丢弃 ?query，但保留 #hash；两者都读，兼容 localhost 与妙搭
+    var buId = params.get('id') || location.hash.replace('#','') || 'czly';
     renderDashboard(buId);
 }
+window.addEventListener('hashchange', function(){ initRouter(); });
 
 function renderDashboard(buId) {
     var data = BU_STRATEGY_DATA;
