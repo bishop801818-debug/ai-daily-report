@@ -7,8 +7,11 @@
  * - 非飞书环境 → 受限页显示"请在飞书中打开"；公共页正常。
  * - 调试：URL 带 ?bypass=1 跳过鉴权（仅本地/测试用）。
  *
- * 依赖（需在其之前加载）：auth_policy.js（定义 window.AUTH_BACKEND / window.AUTH_POLICY）
- * 鉴权链路复用飞书 JSAPI 的 tt.getAuthCode（由妙搭/Lark 运行时注入 window.tt）。
+ * 两种模式：
+ *  - 多应用模式（免后端）：若 window.APP_BU 已设置（由发布脚本按应用注入），
+ *    直接按该 BU 判定可见性，无需查询飞书、无需后端；配合妙搭 access-scope 按部门限制进入。
+ *  - 单应用 + 后端模式：否则走 tt.getAuthCode → 后端换部门（需部署 api/feishu.py 并填 AUTH_BACKEND）。
+ * 依赖（需在其之前加载）：auth_policy.js（定义 window.AUTH_POLICY）；可选 app_config.js（定义 window.APP_BU）。
  */
 (function () {
     'use strict';
@@ -87,6 +90,8 @@
 
     // ---------- 身份获取 ----------
     function getIdentity() {
+        // 0. 多应用模式：本应用已绑定 BU，直接用 APP_BU 判定，无需查飞书/后端
+        if (window.APP_BU) return Promise.resolve({ dept_ids: [], matched_bu: window.APP_BU });
         // 1. 调试绕过
         if (getBypass()) return Promise.resolve({ dept_ids: [], matched_bu: 'bypass' });
         // 2. 会话缓存
@@ -150,14 +155,30 @@
     function run() {
         // 调试绕过
         if (getBypass()) { removeOverlay(); return; }
+
+        var key = getPageKey();
+        var policy = window.AUTH_POLICY && window.AUTH_POLICY[key];
+
+        // ===== 多应用模式（免后端）=====
+        // 本应用已通过 window.APP_BU 绑定到某个事业部（由发布脚本按应用注入）。
+        // 飞书 access-scope 已保证"进来的都是本部门的人"，此处直接按 APP_BU 判定可见性，
+        // 无需查询飞书、无需任何后端。跨事业部页面在本应用内被隐藏。
+        if (window.APP_BU) {
+            if (isOpen(policy)) { removeOverlay(); return; }
+            if (checkAccess({ matched_bu: window.APP_BU, dept_ids: [] }, allowedSet(policy))) {
+                removeOverlay();
+            } else {
+                renderOverlay('denied', '无权限访问', '本页面不在本应用授权范围内。如需访问，请联系战略研究部。');
+            }
+            return;
+        }
+
+        // ===== 单应用 + 后端模式 =====
         // 后端未配置 / 显式关闭 → 临时全开放（fail-open），不影响网站正常使用
         if (!isBackendConfigured()) {
             console.warn('[auth] 鉴权后端未配置(AUTH_BACKEND 为空/占位符)或已显式禁用，临时放开全部页面(fail-open)。部署后端并填写 AUTH_BACKEND 后自动恢复鉴权。');
             removeOverlay(); return;
         }
-
-        var key = getPageKey();
-        var policy = window.AUTH_POLICY && window.AUTH_POLICY[key];
 
         // 公共页：直接放行
         if (isOpen(policy)) { removeOverlay(); return; }
@@ -186,21 +207,9 @@
 
     // 暴露重试
     window.__authRetry = function () {
-        if (!isBackendConfigured()) { removeOverlay(); return; }
         try { sessionStorage.removeItem(CACHE_KEY); } catch (e) {}
-        renderOverlay('checking', '权限校验中…', '正在重新核对权限');
-        // 重新执行（复用 run 的逻辑核心）
-        var key = getPageKey();
-        var policy = window.AUTH_POLICY && window.AUTH_POLICY[key];
-        if (isOpen(policy)) { removeOverlay(); return; }
-        var allowed = allowedSet(policy);
-        getIdentity().then(function (identity) {
-            if (checkAccess(identity, allowed)) removeOverlay();
-            else renderOverlay('denied', '无权限访问', '您当前的飞书部门不在本页授权范围内。如需访问，请联系战略研究部开通权限。');
-        }).catch(function (err) {
-            if (err && err.code === 'no_tt') renderOverlay('needfeishu', '请在飞书中打开', '本页面仅对授权部门开放，请在飞书客户端/妙搭中打开本应用。');
-            else renderOverlay('denied', '无权限访问', '身份验证失败，请在飞书内重试。');
-        });
+        removeOverlay();
+        run();
     };
 
     // DOM 就绪后执行（此时 body 已可挂载遮罩）
