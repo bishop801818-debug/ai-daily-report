@@ -271,3 +271,52 @@ _aily_config.json
 embedded/lfp_data_embedded.html
 embedded/carbonate_data_embedded.html
 embedded/lib_battery_data_embedded.html
+
+# ------------------------------------------
+# 20. 过期备份/调试/超大旧 HTML + 孤立脚本（2026-07-08 批量移出版本控制）
+#    这些文件被全量引用扫描确认：无核心/妙搭页面引用（含两个 industry_news.html 仅被孤立 temp_check*.js 引用）。
+#    本地文件保留作备份，不再纳入版本控制；与 section 19 同策略。
+# ------------------------------------------
+analysis_hub_20260706.html
+data/mysteel_lepidolite_debug.html
+db_archives/8888${f}_20260604_232937.html
+electrolyte_gantt_test.html
+embedded/automotive_analysis.html
+embedded/automotive_charts_embedded.html
+embedded/database_hub_embedded.html
+embedded/dept-archive_embedded.html
+embedded/electrolyte_analysis.html
+embedded/electrolyte_analysis_202603.html
+embedded/electrolyte_report_2026_05.html
+embedded/index_v3_embedded.html
+embedded/index_v3_fixed.html
+embedded/industry_news.html
+embedded/lfp_report_2026_05.html
+embedded/policy_center_embedded.html
+embedded/strategy_hub_embedded.html
+embedded/temp_check3.js
+embedded/temp_check4.js
+equity_chain.html
+error-logs.html
+feishu-callback.html
+frontend/index.html
+iframe_wrapper.html
+index_v3.backup.html
+index_v3.min.html
+index_v3_DATABASE_fixed.html
+index_v3_async.html
+index_v3_bak.html
+index_v3_corrupted_20260703_092432.html
+index_v3_fixed.html
+index_v3_fixed2.html
+index_v3_fixed3.html
+index_v3_git_backup.html
+index_v3_restored.html
+index_v3_simple.html
+industry_news.html
+lfp_report_2026_05.html
+node_modules/uglify-js/tools/domprops.html
+radar_detail_sjl.html
+recovery.html
+recycling_report_2026_05.html
+smm_page_content.html
