@@ -24480,8 +24480,10 @@ async function loadCleanNews() {
     console.log('[行业新闻] 内嵌清洗数据:', items.length, '条');
 
     // ② 从 reports/ 目录加载最新报告（5月21日以后），合并去重
+    let __freshLoadedDates = [];
     try {
       const fresh = await loadAllReports();
+      if (fresh && Array.isArray(fresh.loadedDates)) __freshLoadedDates = fresh.loadedDates;
       if (fresh && fresh.data) {
         for (const [deptId, deptData] of Object.entries(fresh.data)) {
           if (!mergedDepts[deptId]) {
@@ -24523,7 +24525,9 @@ async function loadCleanNews() {
     window.__pendingNewsDates = __pendingNewsDates;
     console.log('[行业新闻] 内嵌数据: 首批=' + sortedDates.length + '日期, 待加载=' + __pendingNewsDates.length + '日期');
 
-    return { data: mergedDepts, dateRange, loadedDates: sortedDates };
+    // 实际已加载日期 = 内嵌清洗数据日期 ∪ reports/ 已加载日期（避免 EMBEDDED_NEWS 旧日期导致误判为空）
+    const __finalLoadedDates = [...new Set([...sortedDates, ...__freshLoadedDates])].sort();
+    return { data: mergedDepts, dateRange, loadedDates: __finalLoadedDates };
   } catch(e) {
     console.error('[行业新闻] 内嵌数据失败:', e);
     return loadAllReports();
