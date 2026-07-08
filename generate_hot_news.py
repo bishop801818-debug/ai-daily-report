@@ -530,7 +530,7 @@ def search_with_tavily(title, api_key):
 
     except Exception as e:
         print(f"    [Tavily] API调用失败: {e}")
-        return None, None
+        return None, None, None
 
 def search_with_bing(title, max_results=5):
     """使用Bing搜索（备用方法）"""
@@ -595,7 +595,7 @@ def search_with_bing(title, max_results=5):
 
     except Exception as e:
         print(f"    [Bing] 搜索失败: {e}")
-        return None, None
+        return None, None, None
 
 def load_existing_news_for_url_inheritance():
     """
@@ -704,56 +704,70 @@ def deduplicate_news(selected_items, all_items, target_count=5, similarity_thres
     """
     对已选择的新闻去重（基于标题相似度）。
     不同事业部可能选出同一事件的新闻，需要去重。
-    
-    算法：
+
+    算法（迭代收敛，防止补充候选后再次引入相似项）：
     1. 用 difflib.SequenceMatcher 计算标题相似度
     2. 相似度 > threshold 的配对，保留第一条，移除后续重复项
-    3. 从 all_items 中补充新项（排除已选标题）
+    3. 从 all_items 中补充新项（排除已选标题 + 已移除标题）
+    4. 重复 2~3 直到「无超阈值配对」或「候选耗尽」，确保最终集合任意两两相似度 <= threshold
     """
     if not selected_items or len(selected_items) <= 1:
         return selected_items
-    
+
     import difflib
-    
-    # 找出所有重复项（相似度超阈值）
-    to_remove = set()
-    for i in range(len(selected_items)):
-        if i in to_remove:
-            continue
-        for j in range(i+1, len(selected_items)):
-            if j in to_remove:
+
+    def find_over_pairs(items):
+        """返回需移除的 index 集合（每个超阈值配对中靠后者）"""
+        to_remove = set()
+        for i in range(len(items)):
+            if i in to_remove:
                 continue
-            title_i = selected_items[i]['title']
-            title_j = selected_items[j]['title']
-            ratio = difflib.SequenceMatcher(None, title_i, title_j).ratio()
-            if ratio > similarity_threshold:
-                print(f"    [去重] 发现相似新闻（相似度{ratio:.2f}）：")
-                print(f"          保留: [{selected_items[i]['bu']}] {title_i[:35]}...")
-                print(f"          移除: [{selected_items[j]['bu']}] {title_j[:35]}...")
-                to_remove.add(j)
-    
-    if not to_remove:
-        return selected_items
-    
-    # 移除重复项，保留顺序
-    new_selected = [selected_items[i] for i in range(len(selected_items)) if i not in to_remove]
-    removed_count = len(to_remove)
-    
-    # 从 all_items 中补充新项（排除已选标题 + 已移除标题）
-    all_titles = {item['title'] for item in new_selected}
-    removed_titles = {selected_items[i]['title'] for i in to_remove}
-    all_titles.update(removed_titles)
-    
-    candidates = [item for item in all_items if item['title'] not in all_titles]
+            for j in range(i + 1, len(items)):
+                if j in to_remove:
+                    continue
+                ratio = difflib.SequenceMatcher(None, items[i]['title'], items[j]['title']).ratio()
+                if ratio > similarity_threshold:
+                    print(f"    [去重] 发现相似新闻（相似度{ratio:.2f}）：")
+                    print(f"          保留: [{items[i]['bu']}] {items[i]['title'][:35]}...")
+                    print(f"          移除: [{items[j]['bu']}] {items[j]['title'][:35]}...")
+                    to_remove.add(j)
+        return to_remove
+
+    def has_over_pairs(items):
+        for i in range(len(items)):
+            for j in range(i + 1, len(items)):
+                if difflib.SequenceMatcher(None, items[i]['title'], items[j]['title']).ratio() > similarity_threshold:
+                    return True
+        return False
+
+    selected_titles = {it['title'] for it in selected_items}
+    candidates = [it for it in all_items if it['title'] not in selected_titles]
     random.shuffle(candidates)
-    
+
+    result = list(selected_items)
+    removed_count = 0
     added_count = 0
-    while len(new_selected) < target_count and candidates:
-        new_selected.append(candidates.pop(0))
-        added_count += 1
-    
-    print(f"[去重] 移除了 {removed_count} 条重复新闻，补充了 {added_count} 条新新闻")
-    return new_selected
+    safety = 0
+    while safety < 50:
+        safety += 1
+        to_remove = find_over_pairs(result)
+        if to_remove:
+            removed_count += len(to_remove)
+            result = [result[i] for i in range(len(result)) if i not in to_remove]
+        # 补齐到 target_count
+        while len(result) < target_count and candidates:
+            result.append(candidates.pop(0))
+            added_count += 1
+        # 收敛判定：无超阈值配对 或 候选已耗尽
+        if not has_over_pairs(result) or not candidates:
+            # 候选耗尽但仍有超阈值配对且数量超标时，再移除多余项
+            if not candidates and has_over_pairs(result) and len(result) > target_count:
+                result = [r for i, r in enumerate(result) if i not in find_over_pairs(result)]
+                continue
+            break
+
+    print(f"[去重] 移除了 {removed_count} 条重复新闻，补充了 {added_count} 条新新闻，最终保留 {len(result)} 条")
+    return result
 
 
 def enrich_news_with_urls(selected_items, inheritance_map=None):
