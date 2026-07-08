@@ -24573,6 +24573,8 @@ const DIM_MAP = {
   '客户':       'competitor',
   '前沿':       'frontier',
   '市场':       'market',
+  'topnews':    'topnews',
+  'tips':       'tips',
 };
 
 function normalizeDim(rawDim) {
@@ -24593,6 +24595,8 @@ const DIM_TABS = [
   { key:'market',     label:'行业新闻', icon:'📊', color:'#f39c12', desc:'市场价格、供需库存、行情动态' },
   { key:'competitor', label:'企业动态', icon:'🏢', color:'#3498db', desc:'企业动态、竞品情报、项目招标、客户需求' },
   { key:'frontier',   label:'技术产品', icon:'💻', color:'#9b59b6', desc:'技术进展、产品研发、创新动态' },
+  { key:'topnews',    label:'头条快讯', icon:'🔥', color:'#e74c3c', desc:'当日头条综合新闻' },
+  { key:'tips',       label:'策略提示', icon:'💡', color:'#16a085', desc:'策略建议与行动提示' },
 ];
 
 // ============================================================
@@ -25277,8 +25281,9 @@ window.__EMBEDDED__ = window.__EMBEDDED__ || function() { return {}; };
       });
     }
 
-    // index.json
+    // index.json → 直接读取真实文件（内嵌桩仅作兜底）
     if (s.includes('index.json')) {
+      if (typeof _orig === 'function') return _orig.apply(window, arguments);
       return Promise.resolve({
         ok: true,
         status: 200,
@@ -25302,9 +25307,10 @@ window.__EMBEDDED__ = window.__EMBEDDED__ || function() { return {}; };
       });
     }
 
-    // reports/YYYY-MM-DD.json
+    // reports/YYYY-MM-DD.json → 直接读取真实文件（内嵌桩仅作兜底）
     var m = s.match(/reports\/(\d{4}-\d{2}-\d{2})\.json/);
     if (m) {
+      if (typeof _orig === 'function') return _orig.apply(window, arguments);
       var date = m[1];
       if (date === window.__EMBEDDED__.today && window.__EMBEDDED__.report) {
         return Promise.resolve({
