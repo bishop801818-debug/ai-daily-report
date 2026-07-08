@@ -29,11 +29,17 @@
     lubricant: 'lpsd', kelan: 'lpsd', dkhx: 'dhx', bych: 'bych'
   };
   var BU_NAMES = {
-    HQ: '集团总部', czly: '常州锂源', sdmd: '山东美多', lpsd: '龙蟠时代',
+    HQ: '集团总部', public: '非本部门', czly: '常州锂源', sdmd: '山东美多', lpsd: '龙蟠时代',
     felt: '法恩莱特', sjld: '三金锂电', dhx: '迪克化学', bych: '铂源催化'
   };
 
   function getTier() {
+    // 多应用模式（妙搭部署）：应用已通过 window.APP_BU 绑定事业部，
+    // 飞书 access-scope 已保证“能进入本应用的人都属于该部门”，
+    // 故直接以 APP_BU 作为身份判定，无需飞书免登、无需后端（免后端方案）。
+    if (typeof window.APP_BU !== 'undefined' && window.APP_BU) {
+      return String(window.APP_BU).trim();
+    }
     try {
       var p = new URLSearchParams(location.search);
       var t = p.get('tier');
@@ -81,14 +87,16 @@
 
   // 首页：过滤矩阵卡片（事业部员工仅见自身卡片；HQ 见全部；集团汇总入口仅 HQ）
   function filterMatrix(tier) {
-    var myBu = (tier === 'HQ') ? null : (MATRIX_ALIAS[tier] || tier);
+    // 无身份（tier 为空）时按"公开页"处理：展示全部卡片，不隐藏
+    var myBu = (!tier || tier === 'HQ') ? null : (MATRIX_ALIAS[tier] || tier);
+    var showAll = !tier || tier === 'HQ';
     var cards = document.querySelectorAll('.matrix-card');
     cards.forEach(function (card) {
       var m = card.getAttribute('onclick') || '';
       var code = (m.match(/openPanel\('([^']+)'\)/) || [])[1];
       if (!code) return;
       var bu = MATRIX_ALIAS[code] || code;
-      if (tier === 'HQ') { card.style.display = ''; return; }
+      if (showAll) { card.style.display = ''; return; }
       card.style.display = (bu === myBu) ? '' : 'none';
     });
     document.querySelectorAll('[data-role="hq-only"]').forEach(function (el) {
