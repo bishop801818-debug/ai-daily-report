@@ -17,7 +17,6 @@
  *
  * 【默认映射说明】以下为初始默认方案（按页面主题归类到对应事业部）。
  *   雷达详情页 radar_detail_<bu>.html 已明确对应 BU；其余数据/报告/图表页按主题归类。
- *   注：回收(recycling)与锂电(lib_battery)原属 kls/lhy，2026-07-08 已并入 lpsd（常州锂源事业部）。
  *   ⚠️ 这是"建议默认"，请据实际组织架构确认/微调；要更细可用 allowed_dept_ids 指定具体部门。
  *   聚合/导航类页面（首页、行业新闻、help、政策中心、toolbox、各 hub、归档）默认全员可见，
  *   若需限制到"战略研究"等相关部门，请补充 allowed_dept_ids。
@@ -71,17 +70,17 @@ window.AUTH_POLICY = {
     'radar_detail_czly.html':  { allowed_bus: ['czly'] },
     'radar_detail_lpsd.html':  { allowed_bus: ['lpsd'] },
 
-    // ---------- 回收（原 kls，已并入 lpsd 常州锂源事业部）----------
-    'recycling_data_v2.html':  { allowed_bus: ['lpsd'] },
-    'recycling_charts.html':   { allowed_bus: ['lpsd'] },
-    'radar_detail_kelan.html': { allowed_bus: ['lpsd'] },
+    // ---------- 回收 / 可兰素（kls）----------
+    'recycling_data_v2.html':  { allowed_bus: ['kls'] },
+    'recycling_charts.html':   { allowed_bus: ['kls'] },
+    'radar_detail_kelan.html': { allowed_bus: ['kls'] },
 
-    // ---------- 锂电 / 润滑油（原 lhy，已并入 lpsd 常州锂源事业部）----------
-    'lib_battery_data_v2.html':{ allowed_bus: ['lpsd'] },
-    'lib_battery_analysis.html': { allowed_bus: ['lpsd'] },
-    'lib_battery_charts.html': { allowed_bus: ['lpsd'] },
-    'radar_detail_lhy.html':   { allowed_bus: ['lpsd'] },
-    'radar_detail_lubricant.html': { allowed_bus: ['lpsd'] },
+    // ---------- 润滑油 / 锂电（lhy）----------
+    'lib_battery_data_v2.html':{ allowed_bus: ['lhy'] },
+    'lib_battery_analysis.html': { allowed_bus: ['lhy'] },
+    'lib_battery_charts.html': { allowed_bus: ['lhy'] },
+    'radar_detail_lhy.html':   { allowed_bus: ['lhy'] },
+    'radar_detail_lubricant.html': { allowed_bus: ['lhy'] },
 
     // ---------- 三元 / 锂源系（lpsd + czly）----------
     'ternary_data_v2.html':    { allowed_bus: ['lpsd', 'czly'] },
