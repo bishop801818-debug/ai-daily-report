@@ -265,6 +265,8 @@ _aily_config.json
 #   inject_auth_gate.py = 闸门注入维护脚本；api/feishu.py = Vercel 鉴权后端（部署必需）
 !inject_auth_gate.py
 !api/feishu.py
+# Vercel 一键部署脚本（含飞书 App Secret 明文，严禁入库）
+deploy_vercel.bat
 
 # ------------------------------------------
 # 19. 孤儿过期数据页（2026-07-08 移出版本控制）

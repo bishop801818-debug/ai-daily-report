@@ -41,6 +41,18 @@
         return /[?&]bypass=1\b/.test(location.search);
     }
 
+    // 后端是否已真实配置：未配置 / 占位符 / 显式禁用 → 返回 false
+    // 返回 false 时主流程走 fail-open（全页面放行），避免受限页因无后端而打挂
+    function isBackendConfigured() {
+        if (window.AUTH_DISABLED === true) return false;
+        var b = window.AUTH_BACKEND;
+        if (!b || typeof b !== 'string') return false;
+        if (b.indexOf('<') >= 0) return false;                 // 模板占位符未替换
+        if (/vercel\.app|YOUR-VERCEL/i.test(b)) return false;  // 占位符域名未替换
+        if (/^https?:\/\/[\s/]*$/.test(b)) return false;       // 仅协议无主机
+        return true;
+    }
+
     // ---------- 遮罩 ----------
     function ensureOverlay() {
         var el = document.getElementById(OVERLAY_ID);
@@ -138,6 +150,11 @@
     function run() {
         // 调试绕过
         if (getBypass()) { removeOverlay(); return; }
+        // 后端未配置 / 显式关闭 → 临时全开放（fail-open），不影响网站正常使用
+        if (!isBackendConfigured()) {
+            console.warn('[auth] 鉴权后端未配置(AUTH_BACKEND 为空/占位符)或已显式禁用，临时放开全部页面(fail-open)。部署后端并填写 AUTH_BACKEND 后自动恢复鉴权。');
+            removeOverlay(); return;
+        }
 
         var key = getPageKey();
         var policy = window.AUTH_POLICY && window.AUTH_POLICY[key];
@@ -169,6 +186,7 @@
 
     // 暴露重试
     window.__authRetry = function () {
+        if (!isBackendConfigured()) { removeOverlay(); return; }
         try { sessionStorage.removeItem(CACHE_KEY); } catch (e) {}
         renderOverlay('checking', '权限校验中…', '正在重新核对权限');
         // 重新执行（复用 run 的逻辑核心）
