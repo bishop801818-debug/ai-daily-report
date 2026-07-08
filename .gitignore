@@ -261,6 +261,10 @@ _aily_config.json
 # Aily 知识库同步脚本（2026-07-07 新增）：JSON->Markdown 转换 + 飞书云盘同步，自动化核心依赖
 !_aily_export.py
 !_aily_sync.py
+# 权限闸门：子页面飞书组织架构鉴权（2026-07-08 新增）
+#   inject_auth_gate.py = 闸门注入维护脚本；api/feishu.py = Vercel 鉴权后端（部署必需）
+!inject_auth_gate.py
+!api/feishu.py
 
 # ------------------------------------------
 # 19. 孤儿过期数据页（2026-07-08 移出版本控制）

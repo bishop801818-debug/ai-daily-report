@@ -1,15 +1,9 @@
 {
   "version": 2,
-  "builds": [
-    {
-      "src": "api/feishu.py",
-      "use": "@vercel/python"
-    }
-  ],
-  "routes": [
-    {
-      "src": "/feishu/(.*)",
-      "dest": "/api/feishu.py?$1"
-    }
+  "functions": {
+    "api/feishu.py": { "runtime": "@vercel/python" }
+  },
+  "rewrites": [
+    { "source": "/feishu/(.*)", "destination": "/api/feishu.py" }
   ]
 }
