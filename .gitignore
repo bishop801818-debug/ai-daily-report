@@ -320,3 +320,12 @@ radar_detail_sjl.html
 recovery.html
 recycling_report_2026_05.html
 smm_page_content.html
+
+# ------------------------------------------
+# 21. 临时抓取/测试产物（2026-07-08 加固：防 git add -A 误入库导致仓库回胀）
+#    以下为脚本临时运行产生的 JSON / 测试基线 / 调试报告，非项目源文件，不应入版本库。
+#    与 section 19/20 同目标：保持仓库精简。配合自动化改用 `git add -u` 形成双保险。
+# ------------------------------------------
+*_prices_*.json
+*.golden_*
+automation_report_*.md
