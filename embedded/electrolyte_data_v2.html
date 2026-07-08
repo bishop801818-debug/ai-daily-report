@@ -854,7 +854,7 @@
                 return [...data].sort((a, b) => {
                     const da = a['日期'] || a['月份'] || a['数据年月'] || '';
                     const db = b['日期'] || b['月份'] || b['数据年月'] || '';
-                    return db.localeCompare(da);
+                    return String(db).localeCompare(String(da));
                 });
             }
 

@@ -7,9 +7,11 @@
 // ============ 配置区域 ============
 const FEISHU_JS_CONFIG = {
     // 后端服务地址（需要公网可访问）
-    // 开发环境：使用内网穿透地址（如 ngrok）
-    // 生产环境：使用云函数地址
-    backendUrl: 'http://localhost:5000',  // 开发环境
+    // 优先使用 auth_policy.js 定义的全局 window.AUTH_BACKEND（部署后仅改一处）；
+    // 未配置时回退到开发环境地址。
+    backendUrl: (typeof window.AUTH_BACKEND !== 'undefined' && window.AUTH_BACKEND &&
+                 window.AUTH_BACKEND.indexOf('<YOUR-VERCEL-APP>') === -1)
+                ? window.AUTH_BACKEND : 'http://localhost:5000',  // 开发环境回退
     
     // 飞书应用信息
     appId: 'cli_aab2066784b85bcf'
@@ -120,7 +122,11 @@ function getFeishuAuthCode() {
  * 交换 auth code 为用户信息
  */
 async function exchangeAuthCode(authCode) {
-    const response = await fetch(`${FEISHU_JS_CONFIG.backendUrl}/feishu/callback`, {
+    // 调用时再解析后端地址（避免脚本加载顺序影响 window.AUTH_BACKEND 取值）
+    const _base = (typeof window.AUTH_BACKEND !== 'undefined' && window.AUTH_BACKEND &&
+                   window.AUTH_BACKEND.indexOf('<YOUR-VERCEL-APP>') === -1)
+                  ? window.AUTH_BACKEND : FEISHU_JS_CONFIG.backendUrl;
+    const response = await fetch(`${_base}/feishu/callback`, {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({code: authCode})
