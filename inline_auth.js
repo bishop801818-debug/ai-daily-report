@@ -87,9 +87,10 @@
 
   // 首页：过滤矩阵卡片（事业部员工仅见自身卡片；HQ 见全部；集团汇总入口仅 HQ）
   function filterMatrix(tier) {
-    // 无身份（tier 为空）时按"公开页"处理：展示全部卡片，不隐藏
-    var myBu = (!tier || tier === 'HQ') ? null : (MATRIX_ALIAS[tier] || tier);
-    var showAll = !tier || tier === 'HQ';
+    // 无身份（tier 为空）或公共应用（全员共享入口）时展示全部卡片；
+    // 点受限页仍由 applyGate 弹锁屏，安全不降级。
+    var showAll = !tier || tier === 'HQ' || tier === 'public';
+    var myBu = showAll ? null : (MATRIX_ALIAS[tier] || tier);
     var cards = document.querySelectorAll('.matrix-card');
     cards.forEach(function (card) {
       var m = card.getAttribute('onclick') || '';
