@@ -261,3 +261,13 @@ _aily_config.json
 # Aily 知识库同步脚本（2026-07-07 新增）：JSON->Markdown 转换 + 飞书云盘同步，自动化核心依赖
 !_aily_export.py
 !_aily_sync.py
+
+# ------------------------------------------
+# 19. 孤儿过期数据页（2026-07-08 移出版本控制）
+#    以下 embedded 数据页内嵌过期数据(today=2026-05-20)、无任何页面/JS 引用、
+#    不在妙搭 FILES 清单、github pages 上无人触达。已由 lfp_data_v2.html(fetch 独立 JSON)取代。
+#    保留本地文件作备份，不再纳入版本控制，避免仓库体积虚增 ~24MB。
+# ------------------------------------------
+embedded/lfp_data_embedded.html
+embedded/carbonate_data_embedded.html
+embedded/lib_battery_data_embedded.html
