@@ -1,221 +1,149 @@
 /**
- * 权限闸门（inline_auth.js）
+ * inline_auth.js — 统一权限闸门（UI门禁，非真安全，可接受技术绕过）
  * ------------------------------------------------------------------
- * 页面加载时根据 auth_policy.js 的 AUTH_POLICY 判定当前页是否允许当前飞书用户访问。
- * - 命中（部门 ID 交集 或 事业部匹配 或 页面不设限）→ 移除遮罩，正常渲染。
- * - 未命中 → 显示"无权限访问"遮罩。
- * - 非飞书环境 → 受限页显示"请在飞书中打开"；公共页正常。
- * - 调试：URL 带 ?bypass=1 跳过鉴权（仅本地/测试用）。
+ * 读取用户身份（tier）的顺序：
+ *   1) URL ?tier=   （由妙搭壳/测试透传，最高优先级）
+ *   2) localStorage.user_bu_permission / feishu_user_info.matched_bu
+ *      （由 feishu-jsapi.js 飞书免登回填）
+ *   3) 若均缺失且在飞书环境内 → 触发 feishu-jsapi.js 免登
  *
- * 两种模式：
- *  - 多应用模式（免后端）：若 window.APP_BU 已设置（由发布脚本按应用注入），
- *    直接按该 BU 判定可见性，无需查询飞书、无需后端；配合妙搭 access-scope 按部门限制进入。
- *  - 单应用 + 后端模式：否则走 tt.getAuthCode → 后端换部门（需部署 api/feishu.py 并填 AUTH_BACKEND）。
- * 依赖（需在其之前加载）：auth_policy.js（定义 window.AUTH_POLICY）；可选 app_config.js（定义 window.APP_BU）。
+ * 判定（与 auth_policy.js 的 BU 体系对齐）：
+ *   - tier === 'HQ'            → 集团全权限（所有页 + 首页全部矩阵卡）
+ *   - 当前页 policy.open===true（公开/聚合页）
+ *        → 事业部员工在首页仅见自身矩阵卡；受限子页不在此类
+ *   - 当前页 policy.allowed_bus / allowed_dept_ids 命中 tier → 放行
+ *   - 否则 → 显示「无访问权限」遮罩
+ *
+ * 说明：
+ *   首页矩阵 openPanel 用的是另一套 code（sjl/dkhx/lubricant/kelan…），
+ *   本文件用 MATRIX_ALIAS 将其映射到 auth_policy 规范 BU 码，避免三套命名错配。
  */
 (function () {
-    'use strict';
+  'use strict';
 
-    var APP_ID = (window.FEISHU_JS_CONFIG && window.FEISHU_JS_CONFIG.appId) || 'cli_aab2066784b85bcf';
-    var CACHE_KEY = 'auth_identity';
-    var OVERLAY_ID = 'auth_gate_overlay';
+  var PAGE = (location.pathname.split('/').pop() || 'index.html').split('?')[0];
 
-    // ---------- 工具 ----------
-    function getPageKey() {
-        var path = location.pathname.split('/').pop();
-        if (!path) path = 'index.html';
-        if (window.AUTH_POLICY && window.AUTH_POLICY[path]) return path;
-        if (path === 'index.html' && window.AUTH_POLICY && window.AUTH_POLICY['index_v3.html']) return 'index_v3.html';
-        return path;
+  // 首页矩阵 openPanel code -> 规范 BU 码（与 auth_policy.js 对齐）
+  var MATRIX_ALIAS = {
+    czly: 'czly', sdmd: 'sdmd', sjl: 'sjld', lpsd: 'lpsd', felt: 'felt',
+    lubricant: 'lpsd', kelan: 'lpsd', dkhx: 'dhx', bych: 'bych'
+  };
+  var BU_NAMES = {
+    HQ: '集团总部', czly: '常州锂源', sdmd: '山东美多', lpsd: '龙蟠时代',
+    felt: '法恩莱特', sjld: '三金锂电', dhx: '迪克化学', bych: '铂源催化'
+  };
+
+  function getTier() {
+    try {
+      var p = new URLSearchParams(location.search);
+      var t = p.get('tier');
+      if (t) return t.trim();
+    } catch (e) {}
+    try {
+      var ls = localStorage.getItem('user_bu_permission');
+      if (ls) return ls.trim();
+      var fi = JSON.parse(localStorage.getItem('feishu_user_info') || '{}');
+      if (fi && fi.matched_bu) return String(fi.matched_bu).trim();
+    } catch (e) {}
+    return null;
+  }
+
+  function tryFeishuLogin() {
+    if (typeof window.startFeishuSilentLogin === 'function') {
+      try { window.startFeishuSilentLogin(); } catch (e) {}
+      return true;
+    }
+    return false;
+  }
+
+  function blockPage(tier) {
+    var name = BU_NAMES[tier] || tier || '未知';
+    if (document.getElementById('auth-block-overlay')) return;
+    var overlay = document.createElement('div');
+    overlay.id = 'auth-block-overlay';
+    overlay.style.cssText = 'position:fixed;inset:0;z-index:99999;background:rgba(245,247,250,.97);' +
+      'display:flex;align-items:center;justify-content:center;' +
+      'font-family:-apple-system,Segoe UI,Roboto,"Microsoft YaHei",sans-serif;';
+    overlay.innerHTML =
+      '<div style="max-width:440px;text-align:center;padding:34px 30px;background:#fff;' +
+      'border:1px solid #e3e8ef;border-radius:14px;box-shadow:0 8px 30px rgba(20,40,80,.08)">' +
+      '<div style="font-size:42px;margin-bottom:12px">🔒</div>' +
+      '<div style="font-size:18px;font-weight:700;color:#1f3864;margin-bottom:8px">无访问权限</div>' +
+      '<div style="font-size:14px;color:#5b6b82;line-height:1.7">当前身份「' + name +
+      '」无权查看本页面。<br>如需访问，请在飞书客户端内打开，或联系集团战略研究部开通对应事业部权限。</div>' +
+      '<button onclick="location.href=\'index_v3.html\'" ' +
+      'style="margin-top:18px;padding:9px 22px;border:none;background:#1f3864;color:#fff;' +
+      'border-radius:8px;font-size:14px;cursor:pointer">返回首页</button>' +
+      '</div>';
+    document.body.appendChild(overlay);
+    document.body.style.overflow = 'hidden';
+  }
+
+  // 首页：过滤矩阵卡片（事业部员工仅见自身卡片；HQ 见全部；集团汇总入口仅 HQ）
+  function filterMatrix(tier) {
+    var myBu = (tier === 'HQ') ? null : (MATRIX_ALIAS[tier] || tier);
+    var cards = document.querySelectorAll('.matrix-card');
+    cards.forEach(function (card) {
+      var m = card.getAttribute('onclick') || '';
+      var code = (m.match(/openPanel\('([^']+)'\)/) || [])[1];
+      if (!code) return;
+      var bu = MATRIX_ALIAS[code] || code;
+      if (tier === 'HQ') { card.style.display = ''; return; }
+      card.style.display = (bu === myBu) ? '' : 'none';
+    });
+    document.querySelectorAll('[data-role="hq-only"]').forEach(function (el) {
+      el.style.display = (tier === 'HQ') ? '' : 'none';
+    });
+  }
+
+  function applyGate(tier) {
+    var policy = (window.AUTH_POLICY && window.AUTH_POLICY[PAGE]) || { open: true };
+
+    // 公开 / 聚合 / 导航类页
+    if (policy.open === true) {
+      if (tier) filterMatrix(tier);
+      return;
     }
 
-    function isOpen(policy) {
-        return !policy || policy.open === true;
+    // 集团全权限
+    if (tier === 'HQ') return;
+
+    // 受限页：命中事业部或部门 ID 才放行
+    var allowed = policy.allowed_bus || [];
+    var allowedDepts = policy.allowed_dept_ids || [];
+    var ok = allowed.indexOf(tier) !== -1 ||
+      (allowedDepts.length > 0 && allowedDepts.indexOf(tier) !== -1);
+    if (!ok) blockPage(tier);
+  }
+
+  function run() {
+    var tier = getTier();
+
+    // 未识别身份：尝试飞书免登（在飞书环境内会异步回填并重载）
+    if (!tier) {
+      if (tryFeishuLogin()) return; // 登录完成后页面会重载，再次进入本逻辑
+      // 非飞书环境且未带 tier：受限页一律阻塞，公开页不阻塞
+      var pol = (window.AUTH_POLICY && window.AUTH_POLICY[PAGE]) || { open: true };
+      if (pol.open !== true) blockPage(null);
+      return;
     }
 
-    function allowedSet(policy) {
-        var s = new Set();
-        (policy.allowed_bus || []).forEach(function (b) { s.add('bu:' + b); });
-        (policy.allowed_dept_ids || []).forEach(function (d) { s.add(d); });
-        return s;
+    applyGate(tier);
+
+    // 飞书自动登录可能在 1s 后才回填 tier，对公开首页做短轮询以补全矩阵过滤
+    if (tier && (window.AUTH_POLICY && window.AUTH_POLICY[PAGE] || {}).open === true) {
+      var tries = 0;
+      var timer = setInterval(function () {
+        var t2 = getTier();
+        if (t2 && t2 !== tier) { applyGate(t2); clearInterval(timer); return; }
+        if (++tries > 8) clearInterval(timer);
+      }, 700);
     }
+  }
 
-    function getBypass() {
-        return /[?&]bypass=1\b/.test(location.search);
-    }
-
-    // 后端是否已真实配置：未配置 / 占位符 / 显式禁用 → 返回 false
-    // 返回 false 时主流程走 fail-open（全页面放行），避免受限页因无后端而打挂
-    function isBackendConfigured() {
-        if (window.AUTH_DISABLED === true) return false;
-        var b = window.AUTH_BACKEND;
-        if (!b || typeof b !== 'string') return false;
-        if (b.indexOf('<') >= 0) return false;                 // 模板占位符未替换
-        if (/vercel\.app|YOUR-VERCEL/i.test(b)) return false;  // 占位符域名未替换
-        if (/^https?:\/\/[\s/]*$/.test(b)) return false;       // 仅协议无主机
-        return true;
-    }
-
-    // ---------- 遮罩 ----------
-    function ensureOverlay() {
-        var el = document.getElementById(OVERLAY_ID);
-        if (el) return el;
-        el = document.createElement('div');
-        el.id = OVERLAY_ID;
-        el.style.cssText = 'position:fixed;inset:0;z-index:2147483647;background:rgba(245,247,250,.97);' +
-            'display:flex;align-items:center;justify-content:center;flex-direction:column;' +
-            'font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;color:#1f2329;';
-        (document.body || document.documentElement).appendChild(el);
-        return el;
-    }
-
-    function renderOverlay(kind, title, sub) {
-        var el = ensureOverlay();
-        var btn = '';
-        if (kind === 'denied' || kind === 'needfeishu') {
-            btn = '<button onclick="window.__authRetry && window.__authRetry()" ' +
-                'style="margin-top:18px;padding:8px 18px;border:none;border-radius:6px;' +
-                'background:#3370ff;color:#fff;font-size:14px;cursor:pointer;">重新验证</button>';
-        }
-        el.innerHTML =
-            '<div style="font-size:15px;font-weight:600;letter-spacing:.5px;">' + title + '</div>' +
-            (sub ? '<div style="margin-top:10px;font-size:13px;color:#646a73;max-width:320px;text-align:center;line-height:1.6;">' + sub + '</div>' : '') +
-            btn;
-    }
-
-    function removeOverlay() {
-        var el = document.getElementById(OVERLAY_ID);
-        if (el && el.parentNode) el.parentNode.removeChild(el);
-    }
-
-    // ---------- 身份获取 ----------
-    function getIdentity() {
-        // 0. 多应用模式：本应用已绑定 BU，直接用 APP_BU 判定，无需查飞书/后端
-        if (window.APP_BU) return Promise.resolve({ dept_ids: [], matched_bu: window.APP_BU });
-        // 1. 调试绕过
-        if (getBypass()) return Promise.resolve({ dept_ids: [], matched_bu: 'bypass' });
-        // 2. 会话缓存
-        try {
-            var cached = sessionStorage.getItem(CACHE_KEY);
-            if (cached) return Promise.resolve(JSON.parse(cached));
-        } catch (e) {}
-        // 3. 非飞书环境
-        if (typeof window.tt === 'undefined') {
-            return Promise.reject({ code: 'no_tt' });
-        }
-        // 4. 飞书免登：getAuthCode -> 后端换部门
-        return new Promise(function (resolve, reject) {
-            function doGet() {
-                window.tt.getAuthCode({
-                    appId: APP_ID,
-                    success: function (res) {
-                        var code = res && res.code;
-                        if (!code) { reject({ code: 'no_code' }); return; }
-                        fetch(window.AUTH_BACKEND + '/feishu/callback', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ code: code })
-                        }).then(function (r) { return r.json(); }).then(function (data) {
-                            if (!data || data.code !== 0 || !data.data) {
-                                reject({ code: 'exchange_fail', msg: (data && data.msg) || '' });
-                                return;
-                            }
-                            var identity = {
-                                dept_ids: data.data.dept_ids || [],
-                                matched_bu: data.data.matched_bu || 'all'
-                            };
-                            try { sessionStorage.setItem(CACHE_KEY, JSON.stringify(identity)); } catch (e) {}
-                            resolve(identity);
-                        }).catch(function (err) { reject({ code: 'net', err: err }); });
-                    },
-                    fail: function (err) { reject({ code: 'getauthcode_fail', err: err }); }
-                });
-            }
-            if (window.tt.ready) {
-                window.tt.ready(doGet);
-            } else {
-                doGet();
-            }
-        });
-    }
-
-    // ---------- 判定 ----------
-    function checkAccess(identity, allowed) {
-        if (!identity) return false;
-        if (identity.matched_bu === 'bypass') return true;
-        if (allowed.has('bu:' + identity.matched_bu)) return true;
-        var deptIds = identity.dept_ids || [];
-        for (var i = 0; i < deptIds.length; i++) {
-            if (allowed.has(deptIds[i])) return true;
-        }
-        return false;
-    }
-
-    // ---------- 主流程 ----------
-    function run() {
-        // 调试绕过
-        if (getBypass()) { removeOverlay(); return; }
-
-        var key = getPageKey();
-        var policy = window.AUTH_POLICY && window.AUTH_POLICY[key];
-
-        // ===== 多应用模式（免后端）=====
-        // 本应用已通过 window.APP_BU 绑定到某个事业部（由发布脚本按应用注入）。
-        // 飞书 access-scope 已保证"进来的都是本部门的人"，此处直接按 APP_BU 判定可见性，
-        // 无需查询飞书、无需任何后端。跨事业部页面在本应用内被隐藏。
-        if (window.APP_BU) {
-            if (isOpen(policy)) { removeOverlay(); return; }
-            if (checkAccess({ matched_bu: window.APP_BU, dept_ids: [] }, allowedSet(policy))) {
-                removeOverlay();
-            } else {
-                renderOverlay('denied', '无权限访问', '本页面不在本应用授权范围内。如需访问，请联系战略研究部。');
-            }
-            return;
-        }
-
-        // ===== 单应用 + 后端模式 =====
-        // 后端未配置 / 显式关闭 → 临时全开放（fail-open），不影响网站正常使用
-        if (!isBackendConfigured()) {
-            console.warn('[auth] 鉴权后端未配置(AUTH_BACKEND 为空/占位符)或已显式禁用，临时放开全部页面(fail-open)。部署后端并填写 AUTH_BACKEND 后自动恢复鉴权。');
-            removeOverlay(); return;
-        }
-
-        // 公共页：直接放行
-        if (isOpen(policy)) { removeOverlay(); return; }
-
-        var allowed = allowedSet(policy);
-        renderOverlay('checking', '权限校验中…', '正在核对您的飞书组织架构权限');
-
-        getIdentity().then(function (identity) {
-            if (checkAccess(identity, allowed)) {
-                removeOverlay();   // 放行：正常渲染
-            } else {
-                renderOverlay('denied', '无权限访问', '您当前的飞书部门不在本页授权范围内。如需访问，请联系战略研究部开通权限。');
-            }
-        }).catch(function (err) {
-            if (err && err.code === 'no_tt') {
-                renderOverlay('needfeishu', '请在飞书中打开', '本页面仅对授权部门开放，请在飞书客户端/妙搭中打开本应用。');
-            } else {
-                var sub = '身份验证失败';
-                if (err && err.msg) sub += '：' + err.msg;
-                else if (err && err.code) sub += '（' + err.code + '）';
-                sub += '。请点击重新验证，或在飞书内打开。';
-                renderOverlay('denied', '无权限访问', sub);
-            }
-        });
-    }
-
-    // 暴露重试
-    window.__authRetry = function () {
-        try { sessionStorage.removeItem(CACHE_KEY); } catch (e) {}
-        removeOverlay();
-        run();
-    };
-
-    // DOM 就绪后执行（此时 body 已可挂载遮罩）
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', run);
-    } else {
-        run();
-    }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function () { setTimeout(run, 300); });
+  } else {
+    setTimeout(run, 300);
+  }
 })();

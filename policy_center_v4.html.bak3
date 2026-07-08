@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="html-version" content="20260703_001">
+    <meta name="html-version" content="20260708_001">
     <title>政策中心 · 锂电池产业链信息中台</title>
     <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Noto+Sans+SC:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
     <style>
@@ -277,6 +277,11 @@
 
     .pos-block { margin-bottom: 14px; }
     .pos-block:last-child { margin-bottom: 0; }
+    .pos-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+    .pos-tag { padding: 3px 10px; background: var(--primary-light); color: var(--primary); border-radius: 4px; font-size: 12px; }
+    .pos-desc { font-size: 12px; color: var(--text-light); margin-top: 4px; line-height: 1.6; }
+    .pos-item { margin-bottom: 8px; }
+    .pos-item:last-child { margin-bottom: 0; }
     .pos-heading { font-size: 14px; font-weight: 700; color: var(--text-mid); margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
     .pos-heading::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: var(--accent); }
     .pos-text { font-size: 14px; color: var(--text-mid); line-height: 1.8; padding: 10px 14px; background: var(--surface2); border-radius: 6px; }
@@ -319,6 +324,8 @@
         .container { padding: 16px; }
     }
     </style>
+    <script src="auth_policy.js"></script>
+    <script src="inline_auth.js"></script>
 </head>
 <body>
     <div class="layout">
@@ -423,8 +430,50 @@
       "迪克化学"
     ],
     "issuer": "中国能源网",
-    "vertical": "电池制造",
-    "horizontal": "全国统一的政策要求，各省份按此执行"
+    "policy_nature": "规划引导类",
+    "mandatory_level": "引导性",
+    "strategic_level": "国家战略性",
+    "strategic_desc": "服务国家双碳目标和能源安全战略，支撑新型能源体系建设",
+    "impact_segments": [
+      "电池制造"
+    ],
+    "implementation": {
+      "effective_date": "即日起",
+      "policy_cycle": "长期（5年以上）",
+      "key_milestones": "具体节点待明确"
+    },
+    "impact_scope": {
+      "bus": [
+        "迪克化学"
+      ],
+      "segments": [
+        "磷酸铁锂"
+      ],
+      "direction": "neutral",
+      "magnitude": "medium"
+    },
+    "key_metrics": [],
+    "response_guide": {
+      "opportunities": [
+        "关注行业整合机会，通过并购提升竞争力"
+      ],
+      "risks": [
+        "警惕产能过剩风险，避免盲目扩产",
+        "关注竞争对手动向，保持竞争优势"
+      ],
+      "actions": [
+        {
+          "priority": "high",
+          "task": "梳理现有业务，评估政策影响",
+          "timeline": "1周内"
+        },
+        {
+          "priority": "medium",
+          "task": "研究政策细节，制定应对方案",
+          "timeline": "1个月内"
+        }
+      ]
+    }
   },
   {
     "date": "2026-06-30",
@@ -454,8 +503,50 @@
       "铂源催化"
     ],
     "issuer": "中国能源网",
-    "vertical": "电池制造",
-    "horizontal": "全国统一的政策要求，各省份按此执行"
+    "policy_nature": "规划引导类",
+    "mandatory_level": "引导性",
+    "strategic_level": "国家战略性",
+    "strategic_desc": "服务国家双碳目标和能源安全战略，支撑新型能源体系建设",
+    "impact_segments": [
+      "回收"
+    ],
+    "implementation": {
+      "effective_date": "即日起",
+      "policy_cycle": "长期（5年以上）",
+      "key_milestones": "具体节点待明确"
+    },
+    "impact_scope": {
+      "bus": [
+        "铂源催化"
+      ],
+      "segments": [
+        "回收"
+      ],
+      "direction": "neutral",
+      "magnitude": "medium"
+    },
+    "key_metrics": [],
+    "response_guide": {
+      "opportunities": [
+        "关注行业整合机会，通过并购提升竞争力"
+      ],
+      "risks": [
+        "警惕产能过剩风险，避免盲目扩产",
+        "关注竞争对手动向，保持竞争优势"
+      ],
+      "actions": [
+        {
+          "priority": "high",
+          "task": "梳理现有业务，评估政策影响",
+          "timeline": "1周内"
+        },
+        {
+          "priority": "medium",
+          "task": "研究政策细节，制定应对方案",
+          "timeline": "1个月内"
+        }
+      ]
+    }
   },
   {
     "date": "2026-06-29",
@@ -486,8 +577,51 @@
       "常州锂源"
     ],
     "issuer": "中国能源网",
-    "vertical": "新能源汽车",
-    "horizontal": "全国范围内实施，具有普遍约束力"
+    "policy_nature": "规划引导类",
+    "mandatory_level": "引导性",
+    "strategic_level": "产业发展性",
+    "strategic_desc": "推动产业链转型升级，提升产业核心竞争力",
+    "impact_segments": [
+      "新能源汽车"
+    ],
+    "implementation": {
+      "effective_date": "即日起",
+      "policy_cycle": "短期（1-2年）",
+      "key_milestones": "2026年启动实施"
+    },
+    "impact_scope": {
+      "bus": [
+        "三金锂电",
+        "常州锂源"
+      ],
+      "segments": [
+        "新能源汽车"
+      ],
+      "direction": "neutral",
+      "magnitude": "medium"
+    },
+    "key_metrics": [],
+    "response_guide": {
+      "opportunities": [
+        "关注行业整合机会，通过并购提升竞争力"
+      ],
+      "risks": [
+        "警惕产能过剩风险，避免盲目扩产",
+        "关注竞争对手动向，保持竞争优势"
+      ],
+      "actions": [
+        {
+          "priority": "high",
+          "task": "梳理现有业务，评估政策影响",
+          "timeline": "1周内"
+        },
+        {
+          "priority": "medium",
+          "task": "研究政策细节，制定应对方案",
+          "timeline": "1个月内"
+        }
+      ]
+    }
   },
   {
     "date": "2026-06-24",
@@ -517,8 +651,54 @@
       "山东美多"
     ],
     "issuer": "中国政府网",
-    "vertical": "新能源汽车、回收",
-    "horizontal": "全国范围内实施，具有普遍约束力"
+    "policy_nature": "监管约束类",
+    "mandatory_level": "引导性",
+    "strategic_level": "地方实施性",
+    "strategic_desc": "结合地方产业实际，落实中央政策要求",
+    "impact_segments": [
+      "电池制造",
+      "新能源汽车",
+      "回收"
+    ],
+    "implementation": {
+      "effective_date": "即日起",
+      "policy_cycle": "短期（1-2年）",
+      "key_milestones": "2026年启动实施"
+    },
+    "impact_scope": {
+      "bus": [
+        "山东美多"
+      ],
+      "segments": [
+        "电池制造",
+        "回收",
+        "新能源汽车"
+      ],
+      "direction": "neutral",
+      "magnitude": "medium"
+    },
+    "key_metrics": [],
+    "response_guide": {
+      "opportunities": [
+        "关注行业整合机会，通过并购提升竞争力"
+      ],
+      "risks": [
+        "警惕产能过剩风险，避免盲目扩产",
+        "关注竞争对手动向，保持竞争优势"
+      ],
+      "actions": [
+        {
+          "priority": "high",
+          "task": "梳理现有业务，评估政策影响",
+          "timeline": "1周内"
+        },
+        {
+          "priority": "medium",
+          "task": "研究政策细节，制定应对方案",
+          "timeline": "1个月内"
+        }
+      ]
+    }
   },
   {
     "date": "2026-06-22",
@@ -548,8 +728,50 @@
       "常州锂源"
     ],
     "issuer": "中国能源网",
-    "vertical": "电池制造",
-    "horizontal": "全国范围内实施，具有普遍约束力"
+    "policy_nature": "规划引导类",
+    "mandatory_level": "引导性",
+    "strategic_level": "地方实施性",
+    "strategic_desc": "结合地方产业实际，落实中央政策要求",
+    "impact_segments": [
+      "正极材料"
+    ],
+    "implementation": {
+      "effective_date": "即日起",
+      "policy_cycle": "短期（1-2年）",
+      "key_milestones": "2026年启动实施"
+    },
+    "impact_scope": {
+      "bus": [
+        "常州锂源"
+      ],
+      "segments": [
+        "磷酸铁锂"
+      ],
+      "direction": "neutral",
+      "magnitude": "medium"
+    },
+    "key_metrics": [],
+    "response_guide": {
+      "opportunities": [
+        "关注行业整合机会，通过并购提升竞争力"
+      ],
+      "risks": [
+        "警惕产能过剩风险，避免盲目扩产",
+        "关注竞争对手动向，保持竞争优势"
+      ],
+      "actions": [
+        {
+          "priority": "high",
+          "task": "梳理现有业务，评估政策影响",
+          "timeline": "1周内"
+        },
+        {
+          "priority": "medium",
+          "task": "研究政策细节，制定应对方案",
+          "timeline": "1个月内"
+        }
+      ]
+    }
   },
   {
     "date": "2026-06-22",
@@ -579,8 +801,54 @@
       "常州锂源"
     ],
     "issuer": "中国能源网",
-    "vertical": "正极材料、储能",
-    "horizontal": "全国范围内实施，具有普遍约束力"
+    "policy_nature": "监管约束类",
+    "mandatory_level": "强制性",
+    "strategic_level": "行业规范性",
+    "strategic_desc": "规范市场秩序，提升行业发展质量和标准水平",
+    "impact_segments": [
+      "电池制造",
+      "正极材料",
+      "储能"
+    ],
+    "implementation": {
+      "effective_date": "即日起",
+      "policy_cycle": "中期（3-5年）",
+      "key_milestones": "具体节点待明确"
+    },
+    "impact_scope": {
+      "bus": [
+        "常州锂源"
+      ],
+      "segments": [
+        "电池制造",
+        "磷酸铁锂",
+        "储能"
+      ],
+      "direction": "neutral",
+      "magnitude": "high"
+    },
+    "key_metrics": [],
+    "response_guide": {
+      "opportunities": [
+        "关注行业整合机会，通过并购提升竞争力"
+      ],
+      "risks": [
+        "警惕产能过剩风险，避免盲目扩产",
+        "关注竞争对手动向，保持竞争优势"
+      ],
+      "actions": [
+        {
+          "priority": "high",
+          "task": "梳理现有业务，评估政策影响",
+          "timeline": "1周内"
+        },
+        {
+          "priority": "medium",
+          "task": "研究政策细节，制定应对方案",
+          "timeline": "1个月内"
+        }
+      ]
+    }
   },
   {
     "date": "2026-06-22",
@@ -610,8 +878,51 @@
       "迪克化学"
     ],
     "issuer": "中国能源网",
-    "vertical": "电池制造",
-    "horizontal": "全国范围内实施，具有普遍约束力"
+    "policy_nature": "规划引导类",
+    "mandatory_level": "鼓励性",
+    "strategic_level": "地方实施性",
+    "strategic_desc": "结合地方产业实际，落实中央政策要求",
+    "impact_segments": [
+      "电池制造"
+    ],
+    "implementation": {
+      "effective_date": "即日起",
+      "policy_cycle": "中期（3-5年）",
+      "key_milestones": "具体节点待明确"
+    },
+    "impact_scope": {
+      "bus": [
+        "迪克化学"
+      ],
+      "segments": [
+        "磷酸铁锂"
+      ],
+      "direction": "positive",
+      "magnitude": "medium"
+    },
+    "key_metrics": [],
+    "response_guide": {
+      "opportunities": [
+        "关注政策支持的技改项目，积极申报专项资金",
+        "提前布局产能扩张，抢占市场份额"
+      ],
+      "risks": [
+        "警惕产能过剩风险，避免盲目扩产",
+        "关注竞争对手动向，保持竞争优势"
+      ],
+      "actions": [
+        {
+          "priority": "high",
+          "task": "梳理现有业务，评估政策影响",
+          "timeline": "1周内"
+        },
+        {
+          "priority": "medium",
+          "task": "研究政策细节，制定应对方案",
+          "timeline": "1个月内"
+        }
+      ]
+    }
   },
   {
     "date": "2026-06-22",
@@ -641,8 +952,50 @@
       "迪克化学"
     ],
     "issuer": "应急管理部",
-    "vertical": "电池制造",
-    "horizontal": "全国统一的政策要求，各省份按此执行"
+    "policy_nature": "监管约束类",
+    "mandatory_level": "引导性",
+    "strategic_level": "行业规范性",
+    "strategic_desc": "规范市场秩序，提升行业发展质量和标准水平",
+    "impact_segments": [
+      "电池制造"
+    ],
+    "implementation": {
+      "effective_date": "2026年6月10日生效",
+      "policy_cycle": "短期（1-2年）",
+      "key_milestones": "2026年启动实施"
+    },
+    "impact_scope": {
+      "bus": [
+        "迪克化学"
+      ],
+      "segments": [
+        "磷酸铁锂"
+      ],
+      "direction": "neutral",
+      "magnitude": "medium"
+    },
+    "key_metrics": [],
+    "response_guide": {
+      "opportunities": [
+        "关注行业整合机会，通过并购提升竞争力"
+      ],
+      "risks": [
+        "警惕产能过剩风险，避免盲目扩产",
+        "关注竞争对手动向，保持竞争优势"
+      ],
+      "actions": [
+        {
+          "priority": "high",
+          "task": "梳理现有业务，评估政策影响",
+          "timeline": "1周内"
+        },
+        {
+          "priority": "medium",
+          "task": "研究政策细节，制定应对方案",
+          "timeline": "1个月内"
+        }
+      ]
+    }
   },
   {
     "date": "2026-06-22",
@@ -672,8 +1025,54 @@
       "山东美多"
     ],
     "issuer": "中国政府网",
-    "vertical": "新能源汽车、回收",
-    "horizontal": "国家层面的顶层设计，引领行业发展方向"
+    "policy_nature": "监管约束类",
+    "mandatory_level": "强制性",
+    "strategic_level": "地方实施性",
+    "strategic_desc": "结合地方产业实际，落实中央政策要求",
+    "impact_segments": [
+      "电池制造",
+      "新能源汽车",
+      "回收"
+    ],
+    "implementation": {
+      "effective_date": "即日起",
+      "policy_cycle": "短期（1-2年）",
+      "key_milestones": "2026年启动实施"
+    },
+    "impact_scope": {
+      "bus": [
+        "山东美多"
+      ],
+      "segments": [
+        "电池制造",
+        "回收",
+        "新能源汽车"
+      ],
+      "direction": "neutral",
+      "magnitude": "high"
+    },
+    "key_metrics": [],
+    "response_guide": {
+      "opportunities": [
+        "关注行业整合机会，通过并购提升竞争力"
+      ],
+      "risks": [
+        "警惕产能过剩风险，避免盲目扩产",
+        "关注竞争对手动向，保持竞争优势"
+      ],
+      "actions": [
+        {
+          "priority": "high",
+          "task": "梳理现有业务，评估政策影响",
+          "timeline": "1周内"
+        },
+        {
+          "priority": "medium",
+          "task": "研究政策细节，制定应对方案",
+          "timeline": "1个月内"
+        }
+      ]
+    }
   },
   {
     "date": "2026-06-22",
@@ -703,8 +1102,54 @@
       "山东美多"
     ],
     "issuer": "中国政府网",
-    "vertical": "储能、回收",
-    "horizontal": "全国范围内实施，具有普遍约束力"
+    "policy_nature": "规划引导类",
+    "mandatory_level": "强制性",
+    "strategic_level": "地方实施性",
+    "strategic_desc": "结合地方产业实际，落实中央政策要求",
+    "impact_segments": [
+      "电池制造",
+      "回收",
+      "储能"
+    ],
+    "implementation": {
+      "effective_date": "即日起",
+      "policy_cycle": "短期（1-2年）",
+      "key_milestones": "2027年试点推广"
+    },
+    "impact_scope": {
+      "bus": [
+        "山东美多"
+      ],
+      "segments": [
+        "电池制造",
+        "回收",
+        "储能"
+      ],
+      "direction": "neutral",
+      "magnitude": "high"
+    },
+    "key_metrics": [],
+    "response_guide": {
+      "opportunities": [
+        "关注行业整合机会，通过并购提升竞争力"
+      ],
+      "risks": [
+        "警惕产能过剩风险，避免盲目扩产",
+        "关注竞争对手动向，保持竞争优势"
+      ],
+      "actions": [
+        {
+          "priority": "high",
+          "task": "梳理现有业务，评估政策影响",
+          "timeline": "1周内"
+        },
+        {
+          "priority": "medium",
+          "task": "研究政策细节，制定应对方案",
+          "timeline": "1个月内"
+        }
+      ]
+    }
   },
   {
     "date": "2026-06-21",
@@ -734,8 +1179,50 @@
       "龙蟠时代"
     ],
     "issuer": "新浪网",
-    "vertical": "电池制造",
-    "horizontal": "国家层面的顶层设计，引领行业发展方向"
+    "policy_nature": "监管约束类",
+    "mandatory_level": "引导性",
+    "strategic_level": "产业发展性",
+    "strategic_desc": "推动产业链转型升级，提升产业核心竞争力",
+    "impact_segments": [
+      "电池制造"
+    ],
+    "implementation": {
+      "effective_date": "即日起",
+      "policy_cycle": "短期（1-2年）",
+      "key_milestones": "具体节点待明确"
+    },
+    "impact_scope": {
+      "bus": [
+        "龙蟠时代"
+      ],
+      "segments": [
+        "磷酸铁锂"
+      ],
+      "direction": "negative",
+      "magnitude": "medium"
+    },
+    "key_metrics": [],
+    "response_guide": {
+      "opportunities": [
+        "关注行业整合机会，通过并购提升竞争力"
+      ],
+      "risks": [
+        "警惕政策风险，及时调整经营策略",
+        "加强合规管理，避免违规行为"
+      ],
+      "actions": [
+        {
+          "priority": "high",
+          "task": "梳理现有业务，评估政策影响",
+          "timeline": "1周内"
+        },
+        {
+          "priority": "medium",
+          "task": "研究政策细节，制定应对方案",
+          "timeline": "1个月内"
+        }
+      ]
+    }
   },
   {
     "date": "2026-06-20",
@@ -765,8 +1252,50 @@
       "山东美多"
     ],
     "issuer": "经济日报",
-    "vertical": "电池制造",
-    "horizontal": "全国范围内实施，具有普遍约束力"
+    "policy_nature": "规划引导类",
+    "mandatory_level": "引导性",
+    "strategic_level": "产业发展性",
+    "strategic_desc": "推动产业链转型升级，提升产业核心竞争力",
+    "impact_segments": [
+      "回收"
+    ],
+    "implementation": {
+      "effective_date": "即日起",
+      "policy_cycle": "中期（3-5年）",
+      "key_milestones": "具体节点待明确"
+    },
+    "impact_scope": {
+      "bus": [
+        "山东美多"
+      ],
+      "segments": [
+        "回收"
+      ],
+      "direction": "neutral",
+      "magnitude": "medium"
+    },
+    "key_metrics": [],
+    "response_guide": {
+      "opportunities": [
+        "关注行业整合机会，通过并购提升竞争力"
+      ],
+      "risks": [
+        "警惕产能过剩风险，避免盲目扩产",
+        "关注竞争对手动向，保持竞争优势"
+      ],
+      "actions": [
+        {
+          "priority": "high",
+          "task": "梳理现有业务，评估政策影响",
+          "timeline": "1周内"
+        },
+        {
+          "priority": "medium",
+          "task": "研究政策细节，制定应对方案",
+          "timeline": "1个月内"
+        }
+      ]
+    }
   },
   {
     "date": "2026-06-19",
@@ -796,8 +1325,51 @@
       "迪克化学"
     ],
     "issuer": "央视新闻",
-    "vertical": "新能源汽车",
-    "horizontal": "全国范围内实施，具有普遍约束力"
+    "policy_nature": "激励支持类",
+    "mandatory_level": "引导性",
+    "strategic_level": "产业发展性",
+    "strategic_desc": "推动产业链转型升级，提升产业核心竞争力",
+    "impact_segments": [
+      "新能源汽车"
+    ],
+    "implementation": {
+      "effective_date": "即日起",
+      "policy_cycle": "中期（3-5年）",
+      "key_milestones": "具体节点待明确"
+    },
+    "impact_scope": {
+      "bus": [
+        "迪克化学"
+      ],
+      "segments": [
+        "新能源汽车"
+      ],
+      "direction": "positive",
+      "magnitude": "medium"
+    },
+    "key_metrics": [],
+    "response_guide": {
+      "opportunities": [
+        "关注政策支持的技改项目，积极申报专项资金",
+        "提前布局产能扩张，抢占市场份额"
+      ],
+      "risks": [
+        "警惕产能过剩风险，避免盲目扩产",
+        "关注竞争对手动向，保持竞争优势"
+      ],
+      "actions": [
+        {
+          "priority": "high",
+          "task": "梳理现有业务，评估政策影响",
+          "timeline": "1周内"
+        },
+        {
+          "priority": "medium",
+          "task": "研究政策细节，制定应对方案",
+          "timeline": "1个月内"
+        }
+      ]
+    }
   },
   {
     "date": "2026-06-19",
@@ -827,8 +1399,50 @@
       "可兰素"
     ],
     "issuer": "经济日报",
-    "vertical": "电池制造",
-    "horizontal": "全国范围内实施，具有普遍约束力"
+    "policy_nature": "规划引导类",
+    "mandatory_level": "引导性",
+    "strategic_level": "产业发展性",
+    "strategic_desc": "推动产业链转型升级，提升产业核心竞争力",
+    "impact_segments": [
+      "电池制造"
+    ],
+    "implementation": {
+      "effective_date": "即日起",
+      "policy_cycle": "中期（3-5年）",
+      "key_milestones": "具体节点待明确"
+    },
+    "impact_scope": {
+      "bus": [
+        "可兰素"
+      ],
+      "segments": [
+        "磷酸铁锂"
+      ],
+      "direction": "neutral",
+      "magnitude": "medium"
+    },
+    "key_metrics": [],
+    "response_guide": {
+      "opportunities": [
+        "关注行业整合机会，通过并购提升竞争力"
+      ],
+      "risks": [
+        "警惕产能过剩风险，避免盲目扩产",
+        "关注竞争对手动向，保持竞争优势"
+      ],
+      "actions": [
+        {
+          "priority": "high",
+          "task": "梳理现有业务，评估政策影响",
+          "timeline": "1周内"
+        },
+        {
+          "priority": "medium",
+          "task": "研究政策细节，制定应对方案",
+          "timeline": "1个月内"
+        }
+      ]
+    }
   },
   {
     "date": "2026-06-18",
@@ -858,8 +1472,51 @@
       "铂源催化"
     ],
     "issuer": "发改委",
-    "vertical": "电池制造",
-    "horizontal": "全国范围内实施，具有普遍约束力"
+    "policy_nature": "激励支持类",
+    "mandatory_level": "引导性",
+    "strategic_level": "产业发展性",
+    "strategic_desc": "推动产业链转型升级，提升产业核心竞争力",
+    "impact_segments": [
+      "回收"
+    ],
+    "implementation": {
+      "effective_date": "即日起",
+      "policy_cycle": "中期（3-5年）",
+      "key_milestones": "具体节点待明确"
+    },
+    "impact_scope": {
+      "bus": [
+        "铂源催化"
+      ],
+      "segments": [
+        "回收"
+      ],
+      "direction": "positive",
+      "magnitude": "medium"
+    },
+    "key_metrics": [],
+    "response_guide": {
+      "opportunities": [
+        "关注政策支持的技改项目，积极申报专项资金",
+        "提前布局产能扩张，抢占市场份额"
+      ],
+      "risks": [
+        "警惕产能过剩风险，避免盲目扩产",
+        "关注竞争对手动向，保持竞争优势"
+      ],
+      "actions": [
+        {
+          "priority": "high",
+          "task": "梳理现有业务，评估政策影响",
+          "timeline": "1周内"
+        },
+        {
+          "priority": "medium",
+          "task": "研究政策细节，制定应对方案",
+          "timeline": "1个月内"
+        }
+      ]
+    }
   },
   {
     "date": "2026-06-17",
@@ -889,8 +1546,50 @@
       "润滑油事业部"
     ],
     "issuer": "宜君县人民政府",
-    "vertical": "电池制造",
-    "horizontal": "结合本地产业基础，制定具体实施方案"
+    "policy_nature": "监管约束类",
+    "mandatory_level": "引导性",
+    "strategic_level": "地方实施性",
+    "strategic_desc": "结合地方产业实际，落实中央政策要求",
+    "impact_segments": [
+      "电池制造"
+    ],
+    "implementation": {
+      "effective_date": "即日起",
+      "policy_cycle": "短期（1-2年）",
+      "key_milestones": "2026年启动实施"
+    },
+    "impact_scope": {
+      "bus": [
+        "润滑油事业部"
+      ],
+      "segments": [
+        "磷酸铁锂"
+      ],
+      "direction": "neutral",
+      "magnitude": "medium"
+    },
+    "key_metrics": [],
+    "response_guide": {
+      "opportunities": [
+        "关注行业整合机会，通过并购提升竞争力"
+      ],
+      "risks": [
+        "警惕产能过剩风险，避免盲目扩产",
+        "关注竞争对手动向，保持竞争优势"
+      ],
+      "actions": [
+        {
+          "priority": "high",
+          "task": "梳理现有业务，评估政策影响",
+          "timeline": "1周内"
+        },
+        {
+          "priority": "medium",
+          "task": "研究政策细节，制定应对方案",
+          "timeline": "1个月内"
+        }
+      ]
+    }
   },
   {
     "date": "2026-06-17",
@@ -920,8 +1619,52 @@
       "山东美多"
     ],
     "issuer": "央广网",
-    "vertical": "回收",
-    "horizontal": "全国统一的政策要求，各省份按此执行"
+    "policy_nature": "监管约束类",
+    "mandatory_level": "引导性",
+    "strategic_level": "产业发展性",
+    "strategic_desc": "推动产业链转型升级，提升产业核心竞争力",
+    "impact_segments": [
+      "电池制造",
+      "回收"
+    ],
+    "implementation": {
+      "effective_date": "即日起",
+      "policy_cycle": "中期（3-5年）",
+      "key_milestones": "具体节点待明确"
+    },
+    "impact_scope": {
+      "bus": [
+        "山东美多"
+      ],
+      "segments": [
+        "电池制造",
+        "回收"
+      ],
+      "direction": "neutral",
+      "magnitude": "high"
+    },
+    "key_metrics": [],
+    "response_guide": {
+      "opportunities": [
+        "关注行业整合机会，通过并购提升竞争力"
+      ],
+      "risks": [
+        "警惕产能过剩风险，避免盲目扩产",
+        "关注竞争对手动向，保持竞争优势"
+      ],
+      "actions": [
+        {
+          "priority": "high",
+          "task": "梳理现有业务，评估政策影响",
+          "timeline": "1周内"
+        },
+        {
+          "priority": "medium",
+          "task": "研究政策细节，制定应对方案",
+          "timeline": "1个月内"
+        }
+      ]
+    }
   },
   {
     "date": "2026-06-17",
@@ -951,8 +1694,50 @@
       "迪克化学"
     ],
     "issuer": "发改委",
-    "vertical": "电池制造",
-    "horizontal": "全国范围内实施，具有普遍约束力"
+    "policy_nature": "规划引导类",
+    "mandatory_level": "引导性",
+    "strategic_level": "国家战略性",
+    "strategic_desc": "服务国家双碳目标和能源安全战略，支撑新型能源体系建设",
+    "impact_segments": [
+      "电池制造"
+    ],
+    "implementation": {
+      "effective_date": "即日起",
+      "policy_cycle": "中期（3-5年）",
+      "key_milestones": "具体节点待明确"
+    },
+    "impact_scope": {
+      "bus": [
+        "迪克化学"
+      ],
+      "segments": [
+        "磷酸铁锂"
+      ],
+      "direction": "neutral",
+      "magnitude": "medium"
+    },
+    "key_metrics": [],
+    "response_guide": {
+      "opportunities": [
+        "关注行业整合机会，通过并购提升竞争力"
+      ],
+      "risks": [
+        "警惕产能过剩风险，避免盲目扩产",
+        "关注竞争对手动向，保持竞争优势"
+      ],
+      "actions": [
+        {
+          "priority": "high",
+          "task": "梳理现有业务，评估政策影响",
+          "timeline": "1周内"
+        },
+        {
+          "priority": "medium",
+          "task": "研究政策细节，制定应对方案",
+          "timeline": "1个月内"
+        }
+      ]
+    }
   },
   {
     "date": "2026-06-17",
@@ -982,8 +1767,50 @@
       "法恩莱特"
     ],
     "issuer": "经济日报新闻客户端",
-    "vertical": "电解液",
-    "horizontal": "全国统一的政策要求，各省份按此执行"
+    "policy_nature": "监管约束类",
+    "mandatory_level": "引导性",
+    "strategic_level": "产业发展性",
+    "strategic_desc": "推动产业链转型升级，提升产业核心竞争力",
+    "impact_segments": [
+      "电解液"
+    ],
+    "implementation": {
+      "effective_date": "即日起",
+      "policy_cycle": "短期（1-2年）",
+      "key_milestones": "2026年启动实施"
+    },
+    "impact_scope": {
+      "bus": [
+        "法恩莱特"
+      ],
+      "segments": [
+        "电解液"
+      ],
+      "direction": "neutral",
+      "magnitude": "medium"
+    },
+    "key_metrics": [],
+    "response_guide": {
+      "opportunities": [
+        "关注行业整合机会，通过并购提升竞争力"
+      ],
+      "risks": [
+        "警惕产能过剩风险，避免盲目扩产",
+        "关注竞争对手动向，保持竞争优势"
+      ],
+      "actions": [
+        {
+          "priority": "high",
+          "task": "梳理现有业务，评估政策影响",
+          "timeline": "1周内"
+        },
+        {
+          "priority": "medium",
+          "task": "研究政策细节，制定应对方案",
+          "timeline": "1个月内"
+        }
+      ]
+    }
   },
   {
     "date": "2026-06-16",
@@ -1013,8 +1840,51 @@
       "可兰素"
     ],
     "issuer": "中国政府采购网",
-    "vertical": "电池制造",
-    "horizontal": "全国范围内实施，具有普遍约束力"
+    "policy_nature": "监管约束类",
+    "mandatory_level": "引导性",
+    "strategic_level": "产业发展性",
+    "strategic_desc": "推动产业链转型升级，提升产业核心竞争力",
+    "impact_segments": [
+      "电池制造"
+    ],
+    "implementation": {
+      "effective_date": "2026年6月16日生效",
+      "policy_cycle": "短期（1-2年）",
+      "key_milestones": "2026年启动实施"
+    },
+    "impact_scope": {
+      "bus": [
+        "可兰素"
+      ],
+      "segments": [
+        "磷酸铁锂"
+      ],
+      "direction": "positive",
+      "magnitude": "high"
+    },
+    "key_metrics": [],
+    "response_guide": {
+      "opportunities": [
+        "关注政策支持的技改项目，积极申报专项资金",
+        "提前布局产能扩张，抢占市场份额"
+      ],
+      "risks": [
+        "警惕产能过剩风险，避免盲目扩产",
+        "关注竞争对手动向，保持竞争优势"
+      ],
+      "actions": [
+        {
+          "priority": "high",
+          "task": "梳理现有业务，评估政策影响",
+          "timeline": "1周内"
+        },
+        {
+          "priority": "medium",
+          "task": "研究政策细节，制定应对方案",
+          "timeline": "1个月内"
+        }
+      ]
+    }
   },
   {
     "date": "2026-06-16",
@@ -1044,8 +1914,52 @@
       "山东美多"
     ],
     "issuer": "今日头条",
-    "vertical": "回收",
-    "horizontal": "全国统一的政策要求，各省份按此执行"
+    "policy_nature": "监管约束类",
+    "mandatory_level": "强制性",
+    "strategic_level": "地方实施性",
+    "strategic_desc": "结合地方产业实际，落实中央政策要求",
+    "impact_segments": [
+      "电池制造",
+      "回收"
+    ],
+    "implementation": {
+      "effective_date": "即日起",
+      "policy_cycle": "中期（3-5年）",
+      "key_milestones": "具体节点待明确"
+    },
+    "impact_scope": {
+      "bus": [
+        "山东美多"
+      ],
+      "segments": [
+        "电池制造",
+        "回收"
+      ],
+      "direction": "neutral",
+      "magnitude": "high"
+    },
+    "key_metrics": [],
+    "response_guide": {
+      "opportunities": [
+        "关注行业整合机会，通过并购提升竞争力"
+      ],
+      "risks": [
+        "警惕产能过剩风险，避免盲目扩产",
+        "关注竞争对手动向，保持竞争优势"
+      ],
+      "actions": [
+        {
+          "priority": "high",
+          "task": "梳理现有业务，评估政策影响",
+          "timeline": "1周内"
+        },
+        {
+          "priority": "medium",
+          "task": "研究政策细节，制定应对方案",
+          "timeline": "1个月内"
+        }
+      ]
+    }
   },
   {
     "date": "2026-06-15",
@@ -1075,8 +1989,50 @@
       "铂源催化"
     ],
     "issuer": "发改委",
-    "vertical": "电池制造",
-    "horizontal": "全国统一的政策要求，各省份按此执行"
+    "policy_nature": "规划引导类",
+    "mandatory_level": "引导性",
+    "strategic_level": "国家战略性",
+    "strategic_desc": "服务国家双碳目标和能源安全战略，支撑新型能源体系建设",
+    "impact_segments": [
+      "电池制造"
+    ],
+    "implementation": {
+      "effective_date": "即日起",
+      "policy_cycle": "中期（3-5年）",
+      "key_milestones": "具体节点待明确"
+    },
+    "impact_scope": {
+      "bus": [
+        "铂源催化"
+      ],
+      "segments": [
+        "磷酸铁锂"
+      ],
+      "direction": "neutral",
+      "magnitude": "medium"
+    },
+    "key_metrics": [],
+    "response_guide": {
+      "opportunities": [
+        "关注行业整合机会，通过并购提升竞争力"
+      ],
+      "risks": [
+        "警惕产能过剩风险，避免盲目扩产",
+        "关注竞争对手动向，保持竞争优势"
+      ],
+      "actions": [
+        {
+          "priority": "high",
+          "task": "梳理现有业务，评估政策影响",
+          "timeline": "1周内"
+        },
+        {
+          "priority": "medium",
+          "task": "研究政策细节，制定应对方案",
+          "timeline": "1个月内"
+        }
+      ]
+    }
   },
   {
     "date": "2026-06-15",
@@ -1106,8 +2062,51 @@
       "龙蟠时代"
     ],
     "issuer": "金融界",
-    "vertical": "固态电池",
-    "horizontal": "国家层面的顶层设计，引领行业发展方向"
+    "policy_nature": "规划引导类",
+    "mandatory_level": "引导性",
+    "strategic_level": "地方实施性",
+    "strategic_desc": "结合地方产业实际，落实中央政策要求",
+    "impact_segments": [
+      "电池制造"
+    ],
+    "implementation": {
+      "effective_date": "即日起",
+      "policy_cycle": "中期（3-5年）",
+      "key_milestones": "具体节点待明确"
+    },
+    "impact_scope": {
+      "bus": [
+        "龙蟠时代"
+      ],
+      "segments": [
+        "电池制造"
+      ],
+      "direction": "positive",
+      "magnitude": "medium"
+    },
+    "key_metrics": [],
+    "response_guide": {
+      "opportunities": [
+        "关注政策支持的技改项目，积极申报专项资金",
+        "提前布局产能扩张，抢占市场份额"
+      ],
+      "risks": [
+        "警惕产能过剩风险，避免盲目扩产",
+        "关注竞争对手动向，保持竞争优势"
+      ],
+      "actions": [
+        {
+          "priority": "high",
+          "task": "梳理现有业务，评估政策影响",
+          "timeline": "1周内"
+        },
+        {
+          "priority": "medium",
+          "task": "研究政策细节，制定应对方案",
+          "timeline": "1个月内"
+        }
+      ]
+    }
   },
   {
     "date": "2026-06-15",
@@ -1137,8 +2136,50 @@
       "铂源催化"
     ],
     "issuer": "中国新闻网",
-    "vertical": "电池制造",
-    "horizontal": "全国范围内实施，具有普遍约束力"
+    "policy_nature": "监管约束类",
+    "mandatory_level": "引导性",
+    "strategic_level": "产业发展性",
+    "strategic_desc": "推动产业链转型升级，提升产业核心竞争力",
+    "impact_segments": [
+      "电池制造"
+    ],
+    "implementation": {
+      "effective_date": "即日起",
+      "policy_cycle": "中期（3-5年）",
+      "key_milestones": "具体节点待明确"
+    },
+    "impact_scope": {
+      "bus": [
+        "铂源催化"
+      ],
+      "segments": [
+        "磷酸铁锂"
+      ],
+      "direction": "neutral",
+      "magnitude": "medium"
+    },
+    "key_metrics": [],
+    "response_guide": {
+      "opportunities": [
+        "关注行业整合机会，通过并购提升竞争力"
+      ],
+      "risks": [
+        "警惕产能过剩风险，避免盲目扩产",
+        "关注竞争对手动向，保持竞争优势"
+      ],
+      "actions": [
+        {
+          "priority": "high",
+          "task": "梳理现有业务，评估政策影响",
+          "timeline": "1周内"
+        },
+        {
+          "priority": "medium",
+          "task": "研究政策细节，制定应对方案",
+          "timeline": "1个月内"
+        }
+      ]
+    }
   },
   {
     "date": "2026-06-15",
@@ -1168,8 +2209,50 @@
       "常州锂源"
     ],
     "issuer": "云南日报",
-    "vertical": "电池制造",
-    "horizontal": "国家层面的顶层设计，引领行业发展方向"
+    "policy_nature": "规划引导类",
+    "mandatory_level": "引导性",
+    "strategic_level": "地方实施性",
+    "strategic_desc": "结合地方产业实际，落实中央政策要求",
+    "impact_segments": [
+      "电池制造"
+    ],
+    "implementation": {
+      "effective_date": "即日起",
+      "policy_cycle": "短期（1-2年）",
+      "key_milestones": "2026年启动实施"
+    },
+    "impact_scope": {
+      "bus": [
+        "常州锂源"
+      ],
+      "segments": [
+        "磷酸铁锂"
+      ],
+      "direction": "neutral",
+      "magnitude": "medium"
+    },
+    "key_metrics": [],
+    "response_guide": {
+      "opportunities": [
+        "关注行业整合机会，通过并购提升竞争力"
+      ],
+      "risks": [
+        "警惕产能过剩风险，避免盲目扩产",
+        "关注竞争对手动向，保持竞争优势"
+      ],
+      "actions": [
+        {
+          "priority": "high",
+          "task": "梳理现有业务，评估政策影响",
+          "timeline": "1周内"
+        },
+        {
+          "priority": "medium",
+          "task": "研究政策细节，制定应对方案",
+          "timeline": "1个月内"
+        }
+      ]
+    }
   },
   {
     "date": "2026-06-15",
@@ -1199,8 +2282,50 @@
       "常州锂源"
     ],
     "issuer": "发改委",
-    "vertical": "电池制造",
-    "horizontal": "全国范围内实施，具有普遍约束力"
+    "policy_nature": "规划引导类",
+    "mandatory_level": "引导性",
+    "strategic_level": "国家战略性",
+    "strategic_desc": "服务国家双碳目标和能源安全战略，支撑新型能源体系建设",
+    "impact_segments": [
+      "电池制造"
+    ],
+    "implementation": {
+      "effective_date": "即日起",
+      "policy_cycle": "中期（3-5年）",
+      "key_milestones": "具体节点待明确"
+    },
+    "impact_scope": {
+      "bus": [
+        "常州锂源"
+      ],
+      "segments": [
+        "磷酸铁锂"
+      ],
+      "direction": "neutral",
+      "magnitude": "medium"
+    },
+    "key_metrics": [],
+    "response_guide": {
+      "opportunities": [
+        "关注行业整合机会，通过并购提升竞争力"
+      ],
+      "risks": [
+        "警惕产能过剩风险，避免盲目扩产",
+        "关注竞争对手动向，保持竞争优势"
+      ],
+      "actions": [
+        {
+          "priority": "high",
+          "task": "梳理现有业务，评估政策影响",
+          "timeline": "1周内"
+        },
+        {
+          "priority": "medium",
+          "task": "研究政策细节，制定应对方案",
+          "timeline": "1个月内"
+        }
+      ]
+    }
   },
   {
     "date": "2026-06-15",
@@ -1230,8 +2355,50 @@
       "迪克化学"
     ],
     "issuer": "中国发展网",
-    "vertical": "电池制造",
-    "horizontal": "国家层面的顶层设计，引领行业发展方向"
+    "policy_nature": "规划引导类",
+    "mandatory_level": "引导性",
+    "strategic_level": "产业发展性",
+    "strategic_desc": "推动产业链转型升级，提升产业核心竞争力",
+    "impact_segments": [
+      "电池制造"
+    ],
+    "implementation": {
+      "effective_date": "即日起",
+      "policy_cycle": "短期（1-2年）",
+      "key_milestones": "2026年启动实施"
+    },
+    "impact_scope": {
+      "bus": [
+        "迪克化学"
+      ],
+      "segments": [
+        "磷酸铁锂"
+      ],
+      "direction": "neutral",
+      "magnitude": "medium"
+    },
+    "key_metrics": [],
+    "response_guide": {
+      "opportunities": [
+        "关注行业整合机会，通过并购提升竞争力"
+      ],
+      "risks": [
+        "警惕产能过剩风险，避免盲目扩产",
+        "关注竞争对手动向，保持竞争优势"
+      ],
+      "actions": [
+        {
+          "priority": "high",
+          "task": "梳理现有业务，评估政策影响",
+          "timeline": "1周内"
+        },
+        {
+          "priority": "medium",
+          "task": "研究政策细节，制定应对方案",
+          "timeline": "1个月内"
+        }
+      ]
+    }
   },
   {
     "date": "2026-06-15",
@@ -1261,8 +2428,52 @@
       "法恩莱特"
     ],
     "issuer": "科技日报",
-    "vertical": "储能、电解液",
-    "horizontal": "全国范围内实施，具有普遍约束力"
+    "policy_nature": "规划引导类",
+    "mandatory_level": "引导性",
+    "strategic_level": "地方实施性",
+    "strategic_desc": "结合地方产业实际，落实中央政策要求",
+    "impact_segments": [
+      "电解液",
+      "储能"
+    ],
+    "implementation": {
+      "effective_date": "即日起",
+      "policy_cycle": "短期（1-2年）",
+      "key_milestones": "2026年启动实施"
+    },
+    "impact_scope": {
+      "bus": [
+        "法恩莱特"
+      ],
+      "segments": [
+        "储能",
+        "电解液"
+      ],
+      "direction": "neutral",
+      "magnitude": "medium"
+    },
+    "key_metrics": [],
+    "response_guide": {
+      "opportunities": [
+        "关注行业整合机会，通过并购提升竞争力"
+      ],
+      "risks": [
+        "警惕产能过剩风险，避免盲目扩产",
+        "关注竞争对手动向，保持竞争优势"
+      ],
+      "actions": [
+        {
+          "priority": "high",
+          "task": "梳理现有业务，评估政策影响",
+          "timeline": "1周内"
+        },
+        {
+          "priority": "medium",
+          "task": "研究政策细节，制定应对方案",
+          "timeline": "1个月内"
+        }
+      ]
+    }
   },
   {
     "date": "2026-06-15",
@@ -1292,8 +2503,50 @@
       "可兰素"
     ],
     "issuer": "科技日报",
-    "vertical": "电池制造",
-    "horizontal": "国家层面的顶层设计，引领行业发展方向"
+    "policy_nature": "规划引导类",
+    "mandatory_level": "引导性",
+    "strategic_level": "地方实施性",
+    "strategic_desc": "结合地方产业实际，落实中央政策要求",
+    "impact_segments": [
+      "电池制造"
+    ],
+    "implementation": {
+      "effective_date": "即日起",
+      "policy_cycle": "短期（1-2年）",
+      "key_milestones": "2026年启动实施"
+    },
+    "impact_scope": {
+      "bus": [
+        "可兰素"
+      ],
+      "segments": [
+        "磷酸铁锂"
+      ],
+      "direction": "neutral",
+      "magnitude": "medium"
+    },
+    "key_metrics": [],
+    "response_guide": {
+      "opportunities": [
+        "关注行业整合机会，通过并购提升竞争力"
+      ],
+      "risks": [
+        "警惕产能过剩风险，避免盲目扩产",
+        "关注竞争对手动向，保持竞争优势"
+      ],
+      "actions": [
+        {
+          "priority": "high",
+          "task": "梳理现有业务，评估政策影响",
+          "timeline": "1周内"
+        },
+        {
+          "priority": "medium",
+          "task": "研究政策细节，制定应对方案",
+          "timeline": "1个月内"
+        }
+      ]
+    }
   },
   {
     "date": "2026-06-15",
@@ -1323,8 +2576,50 @@
       "润滑油事业部"
     ],
     "issuer": "中国发展网",
-    "vertical": "电池制造",
-    "horizontal": "全国统一的政策要求，各省份按此执行"
+    "policy_nature": "规划引导类",
+    "mandatory_level": "引导性",
+    "strategic_level": "产业发展性",
+    "strategic_desc": "推动产业链转型升级，提升产业核心竞争力",
+    "impact_segments": [
+      "电池制造"
+    ],
+    "implementation": {
+      "effective_date": "即日起",
+      "policy_cycle": "长期（5年以上）",
+      "key_milestones": "具体节点待明确"
+    },
+    "impact_scope": {
+      "bus": [
+        "润滑油事业部"
+      ],
+      "segments": [
+        "磷酸铁锂"
+      ],
+      "direction": "neutral",
+      "magnitude": "medium"
+    },
+    "key_metrics": [],
+    "response_guide": {
+      "opportunities": [
+        "关注行业整合机会，通过并购提升竞争力"
+      ],
+      "risks": [
+        "警惕产能过剩风险，避免盲目扩产",
+        "关注竞争对手动向，保持竞争优势"
+      ],
+      "actions": [
+        {
+          "priority": "high",
+          "task": "梳理现有业务，评估政策影响",
+          "timeline": "1周内"
+        },
+        {
+          "priority": "medium",
+          "task": "研究政策细节，制定应对方案",
+          "timeline": "1个月内"
+        }
+      ]
+    }
   },
   {
     "date": "2026-06-15",
@@ -1354,8 +2649,50 @@
       "润滑油事业部"
     ],
     "issuer": "中化新网",
-    "vertical": "电池制造",
-    "horizontal": "全国统一的政策要求，各省份按此执行"
+    "policy_nature": "监管约束类",
+    "mandatory_level": "引导性",
+    "strategic_level": "产业发展性",
+    "strategic_desc": "推动产业链转型升级，提升产业核心竞争力",
+    "impact_segments": [
+      "电池制造"
+    ],
+    "implementation": {
+      "effective_date": "即日起",
+      "policy_cycle": "中期（3-5年）",
+      "key_milestones": "具体节点待明确"
+    },
+    "impact_scope": {
+      "bus": [
+        "润滑油事业部"
+      ],
+      "segments": [
+        "磷酸铁锂"
+      ],
+      "direction": "neutral",
+      "magnitude": "high"
+    },
+    "key_metrics": [],
+    "response_guide": {
+      "opportunities": [
+        "关注行业整合机会，通过并购提升竞争力"
+      ],
+      "risks": [
+        "警惕产能过剩风险，避免盲目扩产",
+        "关注竞争对手动向，保持竞争优势"
+      ],
+      "actions": [
+        {
+          "priority": "high",
+          "task": "梳理现有业务，评估政策影响",
+          "timeline": "1周内"
+        },
+        {
+          "priority": "medium",
+          "task": "研究政策细节，制定应对方案",
+          "timeline": "1个月内"
+        }
+      ]
+    }
   },
   {
     "date": "2026-06-14",
@@ -1385,8 +2722,52 @@
       "法恩莱特"
     ],
     "issuer": "中国能源报",
-    "vertical": "电解液",
-    "horizontal": "全国统一的政策要求，各省份按此执行"
+    "policy_nature": "监管约束类",
+    "mandatory_level": "强制性",
+    "strategic_level": "地方实施性",
+    "strategic_desc": "结合地方产业实际，落实中央政策要求",
+    "impact_segments": [
+      "电池制造",
+      "电解液"
+    ],
+    "implementation": {
+      "effective_date": "2026年7月1日生效",
+      "policy_cycle": "短期（1-2年）",
+      "key_milestones": "2027年试点推广"
+    },
+    "impact_scope": {
+      "bus": [
+        "法恩莱特"
+      ],
+      "segments": [
+        "电池制造",
+        "电解液"
+      ],
+      "direction": "neutral",
+      "magnitude": "high"
+    },
+    "key_metrics": [],
+    "response_guide": {
+      "opportunities": [
+        "关注行业整合机会，通过并购提升竞争力"
+      ],
+      "risks": [
+        "警惕产能过剩风险，避免盲目扩产",
+        "关注竞争对手动向，保持竞争优势"
+      ],
+      "actions": [
+        {
+          "priority": "high",
+          "task": "梳理现有业务，评估政策影响",
+          "timeline": "1周内"
+        },
+        {
+          "priority": "medium",
+          "task": "研究政策细节，制定应对方案",
+          "timeline": "1个月内"
+        }
+      ]
+    }
   },
   {
     "date": "2026-06-13",
@@ -1416,8 +2797,54 @@
       "法恩莱特"
     ],
     "issuer": "央广网",
-    "vertical": "储能、电解液",
-    "horizontal": "全国统一的政策要求，各省份按此执行"
+    "policy_nature": "规划引导类",
+    "mandatory_level": "引导性",
+    "strategic_level": "产业发展性",
+    "strategic_desc": "推动产业链转型升级，提升产业核心竞争力",
+    "impact_segments": [
+      "电解液",
+      "回收",
+      "储能"
+    ],
+    "implementation": {
+      "effective_date": "即日起",
+      "policy_cycle": "短期（1-2年）",
+      "key_milestones": "2026年启动实施"
+    },
+    "impact_scope": {
+      "bus": [
+        "法恩莱特"
+      ],
+      "segments": [
+        "回收",
+        "储能",
+        "电解液"
+      ],
+      "direction": "neutral",
+      "magnitude": "medium"
+    },
+    "key_metrics": [],
+    "response_guide": {
+      "opportunities": [
+        "关注行业整合机会，通过并购提升竞争力"
+      ],
+      "risks": [
+        "警惕产能过剩风险，避免盲目扩产",
+        "关注竞争对手动向，保持竞争优势"
+      ],
+      "actions": [
+        {
+          "priority": "high",
+          "task": "梳理现有业务，评估政策影响",
+          "timeline": "1周内"
+        },
+        {
+          "priority": "medium",
+          "task": "研究政策细节，制定应对方案",
+          "timeline": "1个月内"
+        }
+      ]
+    }
   },
   {
     "date": "2026-06-12",
@@ -1447,8 +2874,50 @@
       "润滑油事业部"
     ],
     "issuer": "北京市商务局",
-    "vertical": "电池制造",
-    "horizontal": "省内先行先试，为全国提供经验借鉴"
+    "policy_nature": "监管约束类",
+    "mandatory_level": "引导性",
+    "strategic_level": "地方实施性",
+    "strategic_desc": "结合地方产业实际，落实中央政策要求",
+    "impact_segments": [
+      "电池制造"
+    ],
+    "implementation": {
+      "effective_date": "2026年6月1日生效",
+      "policy_cycle": "短期（1-2年）",
+      "key_milestones": "2026年启动实施"
+    },
+    "impact_scope": {
+      "bus": [
+        "润滑油事业部"
+      ],
+      "segments": [
+        "磷酸铁锂"
+      ],
+      "direction": "neutral",
+      "magnitude": "medium"
+    },
+    "key_metrics": [],
+    "response_guide": {
+      "opportunities": [
+        "关注行业整合机会，通过并购提升竞争力"
+      ],
+      "risks": [
+        "警惕产能过剩风险，避免盲目扩产",
+        "关注竞争对手动向，保持竞争优势"
+      ],
+      "actions": [
+        {
+          "priority": "high",
+          "task": "梳理现有业务，评估政策影响",
+          "timeline": "1周内"
+        },
+        {
+          "priority": "medium",
+          "task": "研究政策细节，制定应对方案",
+          "timeline": "1个月内"
+        }
+      ]
+    }
   },
   {
     "date": "2026-06-12",
@@ -1478,8 +2947,54 @@
       "山东美多"
     ],
     "issuer": "察布查尔县人民政府",
-    "vertical": "新能源汽车、回收",
-    "horizontal": "结合本地产业基础，制定具体实施方案"
+    "policy_nature": "规划引导类",
+    "mandatory_level": "引导性",
+    "strategic_level": "产业发展性",
+    "strategic_desc": "推动产业链转型升级，提升产业核心竞争力",
+    "impact_segments": [
+      "电池制造",
+      "新能源汽车",
+      "回收"
+    ],
+    "implementation": {
+      "effective_date": "即日起",
+      "policy_cycle": "长期（5年以上）",
+      "key_milestones": "具体节点待明确"
+    },
+    "impact_scope": {
+      "bus": [
+        "山东美多"
+      ],
+      "segments": [
+        "电池制造",
+        "回收",
+        "新能源汽车"
+      ],
+      "direction": "neutral",
+      "magnitude": "medium"
+    },
+    "key_metrics": [],
+    "response_guide": {
+      "opportunities": [
+        "关注行业整合机会，通过并购提升竞争力"
+      ],
+      "risks": [
+        "警惕产能过剩风险，避免盲目扩产",
+        "关注竞争对手动向，保持竞争优势"
+      ],
+      "actions": [
+        {
+          "priority": "high",
+          "task": "梳理现有业务，评估政策影响",
+          "timeline": "1周内"
+        },
+        {
+          "priority": "medium",
+          "task": "研究政策细节，制定应对方案",
+          "timeline": "1个月内"
+        }
+      ]
+    }
   },
   {
     "date": "2026-06-12",
@@ -1509,8 +3024,54 @@
       "山东美多"
     ],
     "issuer": "常州市工业和信息化局",
-    "vertical": "新能源汽车、回收",
-    "horizontal": "省内先行先试，为全国提供经验借鉴"
+    "policy_nature": "规划引导类",
+    "mandatory_level": "引导性",
+    "strategic_level": "地方实施性",
+    "strategic_desc": "结合地方产业实际，落实中央政策要求",
+    "impact_segments": [
+      "电池制造",
+      "新能源汽车",
+      "回收"
+    ],
+    "implementation": {
+      "effective_date": "即日起",
+      "policy_cycle": "中期（3-5年）",
+      "key_milestones": "具体节点待明确"
+    },
+    "impact_scope": {
+      "bus": [
+        "山东美多"
+      ],
+      "segments": [
+        "电池制造",
+        "回收",
+        "新能源汽车"
+      ],
+      "direction": "neutral",
+      "magnitude": "medium"
+    },
+    "key_metrics": [],
+    "response_guide": {
+      "opportunities": [
+        "关注行业整合机会，通过并购提升竞争力"
+      ],
+      "risks": [
+        "警惕产能过剩风险，避免盲目扩产",
+        "关注竞争对手动向，保持竞争优势"
+      ],
+      "actions": [
+        {
+          "priority": "high",
+          "task": "梳理现有业务，评估政策影响",
+          "timeline": "1周内"
+        },
+        {
+          "priority": "medium",
+          "task": "研究政策细节，制定应对方案",
+          "timeline": "1个月内"
+        }
+      ]
+    }
   },
   {
     "date": "2026-06-12",
@@ -1540,8 +3101,54 @@
       "山东美多"
     ],
     "issuer": "常州市工业和信息化局",
-    "vertical": "新能源汽车、回收",
-    "horizontal": "结合本省产业实际，制定差异化政策措施"
+    "policy_nature": "监管约束类",
+    "mandatory_level": "引导性",
+    "strategic_level": "地方实施性",
+    "strategic_desc": "结合地方产业实际，落实中央政策要求",
+    "impact_segments": [
+      "电池制造",
+      "新能源汽车",
+      "回收"
+    ],
+    "implementation": {
+      "effective_date": "即日起",
+      "policy_cycle": "中期（3-5年）",
+      "key_milestones": "具体节点待明确"
+    },
+    "impact_scope": {
+      "bus": [
+        "山东美多"
+      ],
+      "segments": [
+        "电池制造",
+        "回收",
+        "新能源汽车"
+      ],
+      "direction": "neutral",
+      "magnitude": "medium"
+    },
+    "key_metrics": [],
+    "response_guide": {
+      "opportunities": [
+        "关注行业整合机会，通过并购提升竞争力"
+      ],
+      "risks": [
+        "警惕产能过剩风险，避免盲目扩产",
+        "关注竞争对手动向，保持竞争优势"
+      ],
+      "actions": [
+        {
+          "priority": "high",
+          "task": "梳理现有业务，评估政策影响",
+          "timeline": "1周内"
+        },
+        {
+          "priority": "medium",
+          "task": "研究政策细节，制定应对方案",
+          "timeline": "1个月内"
+        }
+      ]
+    }
   },
   {
     "date": "2026-06-12",
@@ -1571,8 +3178,52 @@
       "迪克化学"
     ],
     "issuer": "央广网",
-    "vertical": "储能",
-    "horizontal": "全国范围内实施，具有普遍约束力"
+    "policy_nature": "规划引导类",
+    "mandatory_level": "引导性",
+    "strategic_level": "产业发展性",
+    "strategic_desc": "推动产业链转型升级，提升产业核心竞争力",
+    "impact_segments": [
+      "回收",
+      "储能"
+    ],
+    "implementation": {
+      "effective_date": "即日起",
+      "policy_cycle": "短期（1-2年）",
+      "key_milestones": "2026年启动实施"
+    },
+    "impact_scope": {
+      "bus": [
+        "迪克化学"
+      ],
+      "segments": [
+        "回收",
+        "储能"
+      ],
+      "direction": "neutral",
+      "magnitude": "medium"
+    },
+    "key_metrics": [],
+    "response_guide": {
+      "opportunities": [
+        "关注行业整合机会，通过并购提升竞争力"
+      ],
+      "risks": [
+        "警惕产能过剩风险，避免盲目扩产",
+        "关注竞争对手动向，保持竞争优势"
+      ],
+      "actions": [
+        {
+          "priority": "high",
+          "task": "梳理现有业务，评估政策影响",
+          "timeline": "1周内"
+        },
+        {
+          "priority": "medium",
+          "task": "研究政策细节，制定应对方案",
+          "timeline": "1个月内"
+        }
+      ]
+    }
   },
   {
     "date": "2026-06-12",
@@ -1602,8 +3253,54 @@
       "三金锂电"
     ],
     "issuer": "经济参考报",
-    "vertical": "新能源汽车",
-    "horizontal": "全国范围内实施，具有普遍约束力"
+    "policy_nature": "监管约束类",
+    "mandatory_level": "强制性",
+    "strategic_level": "地方实施性",
+    "strategic_desc": "结合地方产业实际，落实中央政策要求",
+    "impact_segments": [
+      "电池制造",
+      "正极材料",
+      "新能源汽车"
+    ],
+    "implementation": {
+      "effective_date": "2026年7月1日生效",
+      "policy_cycle": "短期（1-2年）",
+      "key_milestones": "2026年启动实施"
+    },
+    "impact_scope": {
+      "bus": [
+        "三金锂电"
+      ],
+      "segments": [
+        "电池制造",
+        "磷酸铁锂",
+        "新能源汽车"
+      ],
+      "direction": "neutral",
+      "magnitude": "high"
+    },
+    "key_metrics": [],
+    "response_guide": {
+      "opportunities": [
+        "关注行业整合机会，通过并购提升竞争力"
+      ],
+      "risks": [
+        "警惕产能过剩风险，避免盲目扩产",
+        "关注竞争对手动向，保持竞争优势"
+      ],
+      "actions": [
+        {
+          "priority": "high",
+          "task": "梳理现有业务，评估政策影响",
+          "timeline": "1周内"
+        },
+        {
+          "priority": "medium",
+          "task": "研究政策细节，制定应对方案",
+          "timeline": "1个月内"
+        }
+      ]
+    }
   },
   {
     "date": "2026-06-10",
@@ -1633,8 +3330,53 @@
       "山东美多"
     ],
     "issuer": "央视新闻",
-    "vertical": "回收",
-    "horizontal": "国家层面的顶层设计，引领行业发展方向"
+    "policy_nature": "规划引导类",
+    "mandatory_level": "引导性",
+    "strategic_level": "产业发展性",
+    "strategic_desc": "推动产业链转型升级，提升产业核心竞争力",
+    "impact_segments": [
+      "电池制造",
+      "回收"
+    ],
+    "implementation": {
+      "effective_date": "即日起",
+      "policy_cycle": "长期（5年以上）",
+      "key_milestones": "具体节点待明确"
+    },
+    "impact_scope": {
+      "bus": [
+        "山东美多"
+      ],
+      "segments": [
+        "电池制造",
+        "回收"
+      ],
+      "direction": "positive",
+      "magnitude": "high"
+    },
+    "key_metrics": [],
+    "response_guide": {
+      "opportunities": [
+        "关注政策支持的技改项目，积极申报专项资金",
+        "提前布局产能扩张，抢占市场份额"
+      ],
+      "risks": [
+        "警惕产能过剩风险，避免盲目扩产",
+        "关注竞争对手动向，保持竞争优势"
+      ],
+      "actions": [
+        {
+          "priority": "high",
+          "task": "梳理现有业务，评估政策影响",
+          "timeline": "1周内"
+        },
+        {
+          "priority": "medium",
+          "task": "研究政策细节，制定应对方案",
+          "timeline": "1个月内"
+        }
+      ]
+    }
   },
   {
     "date": "2026-06-10",
@@ -1664,8 +3406,50 @@
       "迪克化学"
     ],
     "issuer": "央广网",
-    "vertical": "电池制造",
-    "horizontal": "全国统一的政策要求，各省份按此执行"
+    "policy_nature": "监管约束类",
+    "mandatory_level": "引导性",
+    "strategic_level": "地方实施性",
+    "strategic_desc": "结合地方产业实际，落实中央政策要求",
+    "impact_segments": [
+      "电池制造"
+    ],
+    "implementation": {
+      "effective_date": "即日起",
+      "policy_cycle": "短期（1-2年）",
+      "key_milestones": "2026年启动实施"
+    },
+    "impact_scope": {
+      "bus": [
+        "迪克化学"
+      ],
+      "segments": [
+        "电池制造"
+      ],
+      "direction": "neutral",
+      "magnitude": "medium"
+    },
+    "key_metrics": [],
+    "response_guide": {
+      "opportunities": [
+        "关注行业整合机会，通过并购提升竞争力"
+      ],
+      "risks": [
+        "警惕产能过剩风险，避免盲目扩产",
+        "关注竞争对手动向，保持竞争优势"
+      ],
+      "actions": [
+        {
+          "priority": "high",
+          "task": "梳理现有业务，评估政策影响",
+          "timeline": "1周内"
+        },
+        {
+          "priority": "medium",
+          "task": "研究政策细节，制定应对方案",
+          "timeline": "1个月内"
+        }
+      ]
+    }
   },
   {
     "date": "2026-06-10",
@@ -1695,8 +3479,50 @@
       "迪克化学"
     ],
     "issuer": "全国汽车标准化技术委员会",
-    "vertical": "电池制造",
-    "horizontal": "全国范围内实施，具有普遍约束力"
+    "policy_nature": "监管约束类",
+    "mandatory_level": "引导性",
+    "strategic_level": "产业发展性",
+    "strategic_desc": "推动产业链转型升级，提升产业核心竞争力",
+    "impact_segments": [
+      "电池制造"
+    ],
+    "implementation": {
+      "effective_date": "即日起",
+      "policy_cycle": "短期（1-2年）",
+      "key_milestones": "2026年启动实施"
+    },
+    "impact_scope": {
+      "bus": [
+        "迪克化学"
+      ],
+      "segments": [
+        "磷酸铁锂"
+      ],
+      "direction": "neutral",
+      "magnitude": "medium"
+    },
+    "key_metrics": [],
+    "response_guide": {
+      "opportunities": [
+        "关注行业整合机会，通过并购提升竞争力"
+      ],
+      "risks": [
+        "警惕产能过剩风险，避免盲目扩产",
+        "关注竞争对手动向，保持竞争优势"
+      ],
+      "actions": [
+        {
+          "priority": "high",
+          "task": "梳理现有业务，评估政策影响",
+          "timeline": "1周内"
+        },
+        {
+          "priority": "medium",
+          "task": "研究政策细节，制定应对方案",
+          "timeline": "1个月内"
+        }
+      ]
+    }
   },
   {
     "date": "2026-06-08",
@@ -1726,8 +3552,54 @@
       "山东美多"
     ],
     "issuer": "中国政府网",
-    "vertical": "新能源汽车、回收",
-    "horizontal": "全国范围内实施，具有普遍约束力"
+    "policy_nature": "监管约束类",
+    "mandatory_level": "引导性",
+    "strategic_level": "地方实施性",
+    "strategic_desc": "结合地方产业实际，落实中央政策要求",
+    "impact_segments": [
+      "电池制造",
+      "新能源汽车",
+      "回收"
+    ],
+    "implementation": {
+      "effective_date": "2026年4月1日生效",
+      "policy_cycle": "短期（1-2年）",
+      "key_milestones": "2026年启动实施"
+    },
+    "impact_scope": {
+      "bus": [
+        "山东美多"
+      ],
+      "segments": [
+        "电池制造",
+        "回收",
+        "新能源汽车"
+      ],
+      "direction": "neutral",
+      "magnitude": "medium"
+    },
+    "key_metrics": [],
+    "response_guide": {
+      "opportunities": [
+        "关注行业整合机会，通过并购提升竞争力"
+      ],
+      "risks": [
+        "警惕产能过剩风险，避免盲目扩产",
+        "关注竞争对手动向，保持竞争优势"
+      ],
+      "actions": [
+        {
+          "priority": "high",
+          "task": "梳理现有业务，评估政策影响",
+          "timeline": "1周内"
+        },
+        {
+          "priority": "medium",
+          "task": "研究政策细节，制定应对方案",
+          "timeline": "1个月内"
+        }
+      ]
+    }
   },
   {
     "date": "2026-06-06",
@@ -1757,8 +3629,53 @@
       "山东美多"
     ],
     "issuer": "央广网",
-    "vertical": "回收",
-    "horizontal": "全国范围内实施，具有普遍约束力"
+    "policy_nature": "监管约束类",
+    "mandatory_level": "引导性",
+    "strategic_level": "产业发展性",
+    "strategic_desc": "推动产业链转型升级，提升产业核心竞争力",
+    "impact_segments": [
+      "电池制造",
+      "回收"
+    ],
+    "implementation": {
+      "effective_date": "即日起",
+      "policy_cycle": "中期（3-5年）",
+      "key_milestones": "具体节点待明确"
+    },
+    "impact_scope": {
+      "bus": [
+        "山东美多"
+      ],
+      "segments": [
+        "电池制造",
+        "回收"
+      ],
+      "direction": "positive",
+      "magnitude": "medium"
+    },
+    "key_metrics": [],
+    "response_guide": {
+      "opportunities": [
+        "关注政策支持的技改项目，积极申报专项资金",
+        "提前布局产能扩张，抢占市场份额"
+      ],
+      "risks": [
+        "警惕产能过剩风险，避免盲目扩产",
+        "关注竞争对手动向，保持竞争优势"
+      ],
+      "actions": [
+        {
+          "priority": "high",
+          "task": "梳理现有业务，评估政策影响",
+          "timeline": "1周内"
+        },
+        {
+          "priority": "medium",
+          "task": "研究政策细节，制定应对方案",
+          "timeline": "1个月内"
+        }
+      ]
+    }
   },
   {
     "date": "2026-06-05",
@@ -1788,8 +3705,50 @@
       "可兰素"
     ],
     "issuer": "江华瑶族自治县人民政府",
-    "vertical": "电池制造",
-    "horizontal": "在城市群中发挥示范引领作用"
+    "policy_nature": "监管约束类",
+    "mandatory_level": "引导性",
+    "strategic_level": "产业发展性",
+    "strategic_desc": "推动产业链转型升级，提升产业核心竞争力",
+    "impact_segments": [
+      "电池制造"
+    ],
+    "implementation": {
+      "effective_date": "2026年6月5日生效",
+      "policy_cycle": "短期（1-2年）",
+      "key_milestones": "2026年启动实施"
+    },
+    "impact_scope": {
+      "bus": [
+        "可兰素"
+      ],
+      "segments": [
+        "磷酸铁锂"
+      ],
+      "direction": "negative",
+      "magnitude": "medium"
+    },
+    "key_metrics": [],
+    "response_guide": {
+      "opportunities": [
+        "关注行业整合机会，通过并购提升竞争力"
+      ],
+      "risks": [
+        "警惕政策风险，及时调整经营策略",
+        "加强合规管理，避免违规行为"
+      ],
+      "actions": [
+        {
+          "priority": "high",
+          "task": "梳理现有业务，评估政策影响",
+          "timeline": "1周内"
+        },
+        {
+          "priority": "medium",
+          "task": "研究政策细节，制定应对方案",
+          "timeline": "1个月内"
+        }
+      ]
+    }
   },
   {
     "date": "2026-06-01",
@@ -1819,8 +3778,54 @@
       "山东美多"
     ],
     "issuer": "福建省工业和信息化厅",
-    "vertical": "新能源汽车、回收",
-    "horizontal": "省内先行先试，为全国提供经验借鉴"
+    "policy_nature": "监管约束类",
+    "mandatory_level": "引导性",
+    "strategic_level": "地方实施性",
+    "strategic_desc": "结合地方产业实际，落实中央政策要求",
+    "impact_segments": [
+      "电池制造",
+      "新能源汽车",
+      "回收"
+    ],
+    "implementation": {
+      "effective_date": "即日起",
+      "policy_cycle": "中期（3-5年）",
+      "key_milestones": "具体节点待明确"
+    },
+    "impact_scope": {
+      "bus": [
+        "山东美多"
+      ],
+      "segments": [
+        "电池制造",
+        "回收",
+        "新能源汽车"
+      ],
+      "direction": "neutral",
+      "magnitude": "medium"
+    },
+    "key_metrics": [],
+    "response_guide": {
+      "opportunities": [
+        "关注行业整合机会，通过并购提升竞争力"
+      ],
+      "risks": [
+        "警惕产能过剩风险，避免盲目扩产",
+        "关注竞争对手动向，保持竞争优势"
+      ],
+      "actions": [
+        {
+          "priority": "high",
+          "task": "梳理现有业务，评估政策影响",
+          "timeline": "1周内"
+        },
+        {
+          "priority": "medium",
+          "task": "研究政策细节，制定应对方案",
+          "timeline": "1个月内"
+        }
+      ]
+    }
   },
   {
     "date": "2026-05-27",
@@ -1850,8 +3855,50 @@
       "迪克化学"
     ],
     "issuer": "全国汽车标准化技术委员会",
-    "vertical": "电池制造",
-    "horizontal": "国家层面的顶层设计，引领行业发展方向"
+    "policy_nature": "监管约束类",
+    "mandatory_level": "引导性",
+    "strategic_level": "行业规范性",
+    "strategic_desc": "规范市场秩序，提升行业发展质量和标准水平",
+    "impact_segments": [
+      "电池制造"
+    ],
+    "implementation": {
+      "effective_date": "即日起",
+      "policy_cycle": "中期（3-5年）",
+      "key_milestones": "具体节点待明确"
+    },
+    "impact_scope": {
+      "bus": [
+        "迪克化学"
+      ],
+      "segments": [
+        "磷酸铁锂"
+      ],
+      "direction": "neutral",
+      "magnitude": "medium"
+    },
+    "key_metrics": [],
+    "response_guide": {
+      "opportunities": [
+        "关注行业整合机会，通过并购提升竞争力"
+      ],
+      "risks": [
+        "警惕产能过剩风险，避免盲目扩产",
+        "关注竞争对手动向，保持竞争优势"
+      ],
+      "actions": [
+        {
+          "priority": "high",
+          "task": "梳理现有业务，评估政策影响",
+          "timeline": "1周内"
+        },
+        {
+          "priority": "medium",
+          "task": "研究政策细节，制定应对方案",
+          "timeline": "1个月内"
+        }
+      ]
+    }
   },
   {
     "date": "2026-04-27",
@@ -1881,8 +3928,53 @@
       "山东美多"
     ],
     "issuer": "湖南省政府门户网站",
-    "vertical": "回收",
-    "horizontal": "在国家标准基础上，提出更严格的实施要求"
+    "policy_nature": "监管约束类",
+    "mandatory_level": "引导性",
+    "strategic_level": "地方实施性",
+    "strategic_desc": "结合地方产业实际，落实中央政策要求",
+    "impact_segments": [
+      "电池制造",
+      "回收"
+    ],
+    "implementation": {
+      "effective_date": "即日起",
+      "policy_cycle": "中期（3-5年）",
+      "key_milestones": "具体节点待明确"
+    },
+    "impact_scope": {
+      "bus": [
+        "山东美多"
+      ],
+      "segments": [
+        "电池制造",
+        "回收"
+      ],
+      "direction": "positive",
+      "magnitude": "medium"
+    },
+    "key_metrics": [],
+    "response_guide": {
+      "opportunities": [
+        "关注政策支持的技改项目，积极申报专项资金",
+        "提前布局产能扩张，抢占市场份额"
+      ],
+      "risks": [
+        "警惕产能过剩风险，避免盲目扩产",
+        "关注竞争对手动向，保持竞争优势"
+      ],
+      "actions": [
+        {
+          "priority": "high",
+          "task": "梳理现有业务，评估政策影响",
+          "timeline": "1周内"
+        },
+        {
+          "priority": "medium",
+          "task": "研究政策细节，制定应对方案",
+          "timeline": "1个月内"
+        }
+      ]
+    }
   },
   {
     "date": "2025-12-01",
@@ -1912,8 +4004,52 @@
       "山东美多"
     ],
     "issuer": "工信部",
-    "vertical": "新能源汽车",
-    "horizontal": "全国范围内实施，具有普遍约束力"
+    "policy_nature": "监管约束类",
+    "mandatory_level": "引导性",
+    "strategic_level": "国家战略性",
+    "strategic_desc": "服务国家双碳目标和能源安全战略，支撑新型能源体系建设",
+    "impact_segments": [
+      "电池制造",
+      "新能源汽车"
+    ],
+    "implementation": {
+      "effective_date": "即日起",
+      "policy_cycle": "中期（3-5年）",
+      "key_milestones": "具体节点待明确"
+    },
+    "impact_scope": {
+      "bus": [
+        "山东美多"
+      ],
+      "segments": [
+        "电池制造",
+        "新能源汽车"
+      ],
+      "direction": "neutral",
+      "magnitude": "medium"
+    },
+    "key_metrics": [],
+    "response_guide": {
+      "opportunities": [
+        "关注行业整合机会，通过并购提升竞争力"
+      ],
+      "risks": [
+        "警惕产能过剩风险，避免盲目扩产",
+        "关注竞争对手动向，保持竞争优势"
+      ],
+      "actions": [
+        {
+          "priority": "high",
+          "task": "梳理现有业务，评估政策影响",
+          "timeline": "1周内"
+        },
+        {
+          "priority": "medium",
+          "task": "研究政策细节，制定应对方案",
+          "timeline": "1个月内"
+        }
+      ]
+    }
   },
   {
     "date": "2025-10-20",
@@ -1943,8 +4079,50 @@
       "润滑油事业部"
     ],
     "issuer": "甘肃政务服务网",
-    "vertical": "电池制造",
-    "horizontal": "全国统一的政策要求，各省份按此执行"
+    "policy_nature": "规划引导类",
+    "mandatory_level": "引导性",
+    "strategic_level": "地方实施性",
+    "strategic_desc": "结合地方产业实际，落实中央政策要求",
+    "impact_segments": [
+      "回收"
+    ],
+    "implementation": {
+      "effective_date": "即日起",
+      "policy_cycle": "中期（3-5年）",
+      "key_milestones": "具体节点待明确"
+    },
+    "impact_scope": {
+      "bus": [
+        "润滑油事业部"
+      ],
+      "segments": [
+        "回收"
+      ],
+      "direction": "neutral",
+      "magnitude": "medium"
+    },
+    "key_metrics": [],
+    "response_guide": {
+      "opportunities": [
+        "关注行业整合机会，通过并购提升竞争力"
+      ],
+      "risks": [
+        "警惕产能过剩风险，避免盲目扩产",
+        "关注竞争对手动向，保持竞争优势"
+      ],
+      "actions": [
+        {
+          "priority": "high",
+          "task": "梳理现有业务，评估政策影响",
+          "timeline": "1周内"
+        },
+        {
+          "priority": "medium",
+          "task": "研究政策细节，制定应对方案",
+          "timeline": "1个月内"
+        }
+      ]
+    }
   },
   {
     "date": "2025-09-01",
@@ -1974,8 +4152,51 @@
       "铂源催化"
     ],
     "issuer": "大连市人民政府",
-    "vertical": "电池制造",
-    "horizontal": "省内先行先试，为全国提供经验借鉴"
+    "policy_nature": "激励支持类",
+    "mandatory_level": "鼓励性",
+    "strategic_level": "地方实施性",
+    "strategic_desc": "结合地方产业实际，落实中央政策要求",
+    "impact_segments": [
+      "回收"
+    ],
+    "implementation": {
+      "effective_date": "2026年12月31日生效",
+      "policy_cycle": "短期（1-2年）",
+      "key_milestones": "2026年启动实施"
+    },
+    "impact_scope": {
+      "bus": [
+        "铂源催化"
+      ],
+      "segments": [
+        "回收"
+      ],
+      "direction": "positive",
+      "magnitude": "medium"
+    },
+    "key_metrics": [],
+    "response_guide": {
+      "opportunities": [
+        "关注政策支持的技改项目，积极申报专项资金",
+        "提前布局产能扩张，抢占市场份额"
+      ],
+      "risks": [
+        "警惕产能过剩风险，避免盲目扩产",
+        "关注竞争对手动向，保持竞争优势"
+      ],
+      "actions": [
+        {
+          "priority": "high",
+          "task": "梳理现有业务，评估政策影响",
+          "timeline": "1周内"
+        },
+        {
+          "priority": "medium",
+          "task": "研究政策细节，制定应对方案",
+          "timeline": "1个月内"
+        }
+      ]
+    }
   },
   {
     "id": 83,
@@ -2006,8 +4227,6 @@
         "content": "推动国际产能合作，支持企业参与国际标准制定和技术法规协调，加强与国际组织和其他国家的政策协调，共同应对气候变化、环境保护等全球性挑战，提升国际话语权和影响力，推动构建开放包容、互利共赢的国际合作新格局，为全球新能源产业发展贡献中国智慧"
       }
     ],
-    "vertical": "欧盟绿色协议组成部分",
-    "horizontal": "全球最严格的电池法规",
     "impact": {
       "上游材料": "低碳材料需求增加",
       "中游制造": "出口欧洲成本增加",
@@ -2020,7 +4239,55 @@
     },
     "scope": "overseas",
     "industry": "锂电池",
-    "_isDaily": false
+    "_isDaily": false,
+    "policy_nature": "规划引导类",
+    "mandatory_level": "引导性",
+    "strategic_level": "地方实施性",
+    "strategic_desc": "结合地方产业实际，落实中央政策要求",
+    "impact_segments": [
+      "电池制造"
+    ],
+    "implementation": {
+      "effective_date": "即日起",
+      "policy_cycle": "中期（3-5年）",
+      "key_milestones": "具体节点待明确"
+    },
+    "impact_scope": {
+      "bus": [
+        "常州锂源",
+        "龙蟠时代",
+        "法恩莱特",
+        "三金锂电",
+        "山东美多"
+      ],
+      "segments": [
+        "电池制造"
+      ],
+      "direction": "neutral",
+      "magnitude": "medium"
+    },
+    "key_metrics": [],
+    "response_guide": {
+      "opportunities": [
+        "关注行业整合机会，通过并购提升竞争力"
+      ],
+      "risks": [
+        "警惕产能过剩风险，避免盲目扩产",
+        "关注竞争对手动向，保持竞争优势"
+      ],
+      "actions": [
+        {
+          "priority": "high",
+          "task": "梳理现有业务，评估政策影响",
+          "timeline": "1周内"
+        },
+        {
+          "priority": "medium",
+          "task": "研究政策细节，制定应对方案",
+          "timeline": "1个月内"
+        }
+      ]
+    }
   },
   {
     "id": 84,
@@ -2048,8 +4315,6 @@
         "content": "建立健全行业标准体系，加快制定关键技术标准、产品标准、检测方法标准和售后服务标准，推动标准国际化和互认互通，提升中国标准在国际上的话语权和影响力，规范行业发展秩序，提升产品质量和技术水平，推动产业高质量发展，增强国际竞争力"
       }
     ],
-    "vertical": "美国清洁能源补贴核心条款",
-    "horizontal": "全球最具吸引力新能源补贴政策",
     "impact": {
       "上游材料": "倒逼海外产能布局",
       "中游制造": "北美建厂需求增加",
@@ -2062,7 +4327,52 @@
     },
     "scope": "overseas",
     "industry": "材料",
-    "_isDaily": false
+    "_isDaily": false,
+    "policy_nature": "规划引导类",
+    "mandatory_level": "引导性",
+    "strategic_level": "产业发展性",
+    "strategic_desc": "推动产业链转型升级，提升产业核心竞争力",
+    "impact_segments": [
+      "电池制造"
+    ],
+    "implementation": {
+      "effective_date": "即日起",
+      "policy_cycle": "中期（3-5年）",
+      "key_milestones": "具体节点待明确"
+    },
+    "impact_scope": {
+      "bus": [
+        "常州锂源",
+        "三金锂电"
+      ],
+      "segments": [
+        "电池制造"
+      ],
+      "direction": "neutral",
+      "magnitude": "medium"
+    },
+    "key_metrics": [],
+    "response_guide": {
+      "opportunities": [
+        "关注行业整合机会，通过并购提升竞争力"
+      ],
+      "risks": [
+        "警惕产能过剩风险，避免盲目扩产",
+        "关注竞争对手动向，保持竞争优势"
+      ],
+      "actions": [
+        {
+          "priority": "high",
+          "task": "梳理现有业务，评估政策影响",
+          "timeline": "1周内"
+        },
+        {
+          "priority": "medium",
+          "task": "研究政策细节，制定应对方案",
+          "timeline": "1个月内"
+        }
+      ]
+    }
   }
 ];</script>
 
@@ -2451,31 +4761,128 @@
         // 政策定位：优先使用新版 vertical/horizontal，其次使用旧版 policy_positioning
         const posHtml = (function() {
             if (!hasDetail) return '';
-            // 新版：vertical + horizontal
-            if (policy.vertical) {
-                return `<div class="pos-block">
-                    <div class="pos-heading">纵向（与国家政策关系）</div>
-                    <div class="pos-text">${policy.vertical}</div>
-                </div>
-                <div class="pos-block">
-                    <div class="pos-heading">横向（与其他省份/地区对比）</div>
-                    <div class="pos-text">${policy.horizontal || ''}</div>
+            
+            let html = '';
+            
+            // 1. 政策属性
+            if (policy.policy_nature) {
+                html += `<div class="pos-block">
+                    <div class="pos-heading">📌 政策属性</div>
+                    <div class="pos-text">${policy.policy_nature} · ${policy.mandatory_level || ''}</div>
                 </div>`;
             }
-            // 旧版：policy_positioning
-            if (policy.policy_positioning) {
-                return `<div style="font-size:14px;color:var(--text-mid);line-height:1.8;padding:10px 14px;background:var(--surface2);border-radius:6px;">
-                    <span style="font-weight:700;color:var(--text-mid);">政策定位：</span>${policy.policy_positioning}
+            
+            // 2. 战略层级
+            if (policy.strategic_level) {
+                html += `<div class="pos-block">
+                    <div class="pos-heading">🎯 战略层级</div>
+                    <div class="pos-text">${policy.strategic_level}</div>
+                    ${policy.strategic_desc ? `<div class="pos-desc">${policy.strategic_desc}</div>` : ''}
                 </div>`;
             }
-            return '';
+            
+            // 3. 影响环节
+            if (policy.impact_segments && policy.impact_segments.length > 0) {
+                html += `<div class="pos-block">
+                    <div class="pos-heading">🔗 影响环节</div>
+                    <div class="pos-tags">${policy.impact_segments.map(s => `<span class="pos-tag">${s}</span>`).join('')}</div>
+                </div>`;
+            }
+            
+            // 4. 实施节奏
+            if (policy.implementation) {
+                html += `<div class="pos-block">
+                    <div class="pos-heading">⏱️ 实施节奏</div>
+                    <div class="pos-item">生效时间：${policy.implementation.effective_date || '即日起'}</div>
+                    <div class="pos-item">政策周期：${policy.implementation.policy_cycle || '中期（3-5年）'}</div>
+                    ${policy.implementation.key_milestones ? `<div class="pos-item">关键节点：${policy.implementation.key_milestones}</div>` : ''}
+                </div>`;
+            }
+            
+            return html;
         })();
 
-        const impactRows = (hasDetail && policy.impact && typeof policy.impact === 'object')
-          ? Object.entries(policy.impact).map(([seg, text]) =>
-              `<div class="seg-impact"><div class="seg-name">${seg}</div><div class="seg-impact-text">${text}</div></div>`
-            ).join('')
-          : '';
+        // 政策影响（3维度）
+        const impactHtml = (function() {
+            if (!hasDetail) return '';
+            
+            let html = '';
+            
+            // 1. 影响范围
+            if (policy.impact_scope) {
+                html += `<div style="margin-bottom:12px;">
+                    <div style="font-size:13px;font-weight:700;color:var(--text-mid);margin-bottom:6px;">📍 影响范围</div>`;
+                
+                // 受影响BU
+                if (policy.impact_scope.bus && policy.impact_scope.bus.length > 0) {
+                    html += `<div style="font-size:12px;color:var(--text);margin-bottom:4px;">受影响BU：${policy.impact_scope.bus.map(b => `<span style="padding:2px 8px;background:#E8F5E9;color:#2E7D32;border-radius:3px;margin-right:4px;font-size:11px;">${b}</span>`).join(' ')}</div>`;
+                }
+                
+                // 受影响环节
+                if (policy.impact_scope.segments && policy.impact_scope.segments.length > 0) {
+                    html += `<div style="font-size:12px;color:var(--text);margin-bottom:4px;">受影响环节：${policy.impact_scope.segments.map(s => `<span style="padding:2px 8px;background:#E3F2FD;color:#1565C0;border-radius:3px;margin-right:4px;font-size:11px;">${s}</span>`).join(' ')}</div>`;
+                }
+                
+                // 影响方向和程度
+                const directionIcon = {'positive': '↑', 'negative': '↓', 'neutral': '→'}[policy.impact_scope.direction] || '→';
+                const directionText = {'positive': '正面', 'negative': '负面', 'neutral': '中性'}[policy.impact_scope.direction] || '中性';
+                const magnitudeText = {'high': '高', 'medium': '中', 'low': '低'}[policy.impact_scope.magnitude] || '中';
+                
+                html += `<div style="font-size:12px;color:var(--text-mid);">影响方向：${directionIcon} ${directionText} | 影响程度：${magnitudeText}</div>`;
+                
+                html += `</div>`;
+            }
+            
+            // 2. 核心指标
+            if (policy.key_metrics && policy.key_metrics.length > 0) {
+                html += `<div style="margin-bottom:12px;">
+                    <div style="font-size:13px;font-weight:700;color:var(--text-mid);margin-bottom:6px;">📊 核心指标</div>`;
+                
+                policy.key_metrics.forEach(m => {
+                    html += `<div style="padding:4px 8px;background:var(--surface1);border-radius:4px;margin-bottom:4px;font-size:12px;">
+                        <span style="font-weight:600;color:var(--text-mid);">${m.metric}</span>
+                        <span style="color:var(--primary);margin-left:6px;">→ ${m.target}</span>
+                        ${m.timeline ? `<span style="color:var(--text-dim);font-size:11px;margin-left:6px;">（${m.timeline}）</span>` : ''}
+                    </div>`;
+                });
+                
+                html += `</div>`;
+            }
+            
+            // 3. 应对建议
+            if (policy.response_guide) {
+                html += `<div style="margin-bottom:8px;">
+                    <div style="font-size:13px;font-weight:700;color:var(--text-mid);margin-bottom:6px;">💡 应对建议</div>`;
+                
+                // 机会
+                if (policy.response_guide.opportunities && policy.response_guide.opportunities.length > 0) {
+                    html += `<div style="font-size:12px;color:var(--text);margin-bottom:4px;">💰 机会：${policy.response_guide.opportunities.map(o => `<span style="margin-right:8px;">• ${o}</span>`).join('')}</div>`;
+                }
+                
+                // 风险
+                if (policy.response_guide.risks && policy.response_guide.risks.length > 0) {
+                    html += `<div style="font-size:12px;color:var(--text);margin-bottom:4px;">⚠️ 风险：${policy.response_guide.risks.map(r => `<span style="margin-right:8px;">• ${r}</span>`).join('')}</div>`;
+                }
+                
+                // 行动
+                if (policy.response_guide.actions && policy.response_guide.actions.length > 0) {
+                    html += `<div style="font-size:12px;color:var(--text-mid);margin-top:6px;">📋 行动：</div>`;
+                    policy.response_guide.actions.forEach(a => {
+                        const priorityColor = {'high': '#F44336', 'medium': '#FF9800', 'low': '#4CAF50'}[a.priority] || '#FF9800';
+                        const priorityText = {'high': '高', 'medium': '中', 'low': '低'}[a.priority] || '中';
+                        html += `<div style="padding:4px 8px;border-left:3px solid ${priorityColor};margin:4px 0;font-size:12px;">
+                            <span style="padding:1px 6px;background:${priorityColor}20;color:${priorityColor};border-radius:3px;font-size:11px;margin-right:6px;">${priorityText}</span>
+                            <span>${a.task}</span>
+                            ${a.timeline ? `<span style="color:var(--text-dim);font-size:11px;margin-left:6px;">（${a.timeline}）</span>` : ''}
+                        </div>`;
+                    });
+                }
+                
+                html += `</div>`;
+            }
+            
+            return html;
+        })();
 
         const riskHtml = (hasDetail && policy.risk)
           ? `<div class="risk-item"><div class="risk-header"><span class="risk-dot">⚠️</span><span class="risk-name">政策推进风险</span></div><div class="risk-body">${policy.risk.policy || ''}</div></div>
@@ -2530,9 +4937,9 @@
                 <div class="info-card-header"><span class="info-card-icon">🎯</span><span class="info-card-title">政策定位</span></div>
                 ${posHtml}
             </div>` : ''}
-            ${impactRows ? `<div class="info-card" style="margin-bottom:16px">
-                <div class="info-card-header"><span class="info-card-icon">📈</span><span class="info-card-title orange">政策影响（分环节）</span></div>
-                ${impactRows}
+            ${impactHtml ? `<div class="info-card" style="margin-bottom:16px">
+                <div class="info-card-header"><span class="info-card-icon">💥</span><span class="info-card-title orange">政策影响</span></div>
+                ${impactHtml}
             </div>` : ''}
             ${riskHtml ? `<div class="info-card">
                 <div class="info-card-header"><span class="info-card-icon"></span><span class="info-card-title red">风险控制</span></div>

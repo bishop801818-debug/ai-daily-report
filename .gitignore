@@ -228,6 +228,8 @@ _archive/reports_auto_backup/
 !logos/*.png
 backup_git_*.zip
 dist-miaoda-test/
+dist-multi-*/
+dist-app-*/
 *.csv
 _price_*.json
 
@@ -265,6 +267,8 @@ _aily_config.json
 #   inject_auth_gate.py = 闸门注入维护脚本；api/feishu.py = Vercel 鉴权后端（部署必需）
 !inject_auth_gate.py
 !api/feishu.py
+# 多应用发布脚本（2026-07-08 新增）：循环建应用+注入APP_BU+发布+设飞书部门访问范围，部署核心依赖
+!publish_multi_app.py
 # Vercel 一键部署脚本（含飞书 App Secret 明文，严禁入库）
 deploy_vercel.bat
 
