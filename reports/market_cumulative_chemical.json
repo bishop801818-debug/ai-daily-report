@@ -2,9 +2,9 @@
   "meta": {
     "description": "化工板块2026年累计涨跌幅",
     "data_source": "各产品源数据文件",
-    "update_time": "2026-07-07 16:56:20",
+    "update_time": "2026-07-08 11:59:14",
     "year": 2026,
-    "generated_at": "2026-07-07T16:56:20.821956",
+    "generated_at": "2026-07-08T11:59:14.071960",
     "generator_version": "20260616_v2"
   },
   "products": [
@@ -12,13 +12,13 @@
       "name": "尿素期货",
       "unit": "元/吨",
       "start_date": "2026-01-05",
-      "end_date": "2026-07-06",
+      "end_date": "2026-07-07",
       "start_price": 1768.0,
-      "end_price": 1738.0,
-      "change": -30.0,
-      "change_pct": -1.7,
+      "end_price": 1744.0,
+      "change": -24.0,
+      "change_pct": -1.36,
       "direction": "down",
-      "data_points": 120,
+      "data_points": 121,
       "price_series": [
         {
           "date": "2026-01-05",
@@ -499,6 +499,10 @@
         {
           "date": "2026-07-06",
           "price": 1738.0
+        },
+        {
+          "date": "2026-07-07",
+          "price": 1744.0
         }
       ]
     },
@@ -506,13 +510,13 @@
       "name": "WTI原油",
       "unit": "美元/桶",
       "start_date": "2026-01-02",
-      "end_date": "2026-07-07",
+      "end_date": "2026-07-08",
       "start_price": 57.32,
-      "end_price": 69.44,
-      "change": 12.12,
-      "change_pct": 21.14,
+      "end_price": 72.25,
+      "change": 14.93,
+      "change_pct": 26.05,
       "direction": "up",
-      "data_points": 132,
+      "data_points": 133,
       "price_series": [
         {
           "date": "2026-01-02",
@@ -1040,7 +1044,11 @@
         },
         {
           "date": "2026-07-07",
-          "price": 69.44
+          "price": 72.19
+        },
+        {
+          "date": "2026-07-08",
+          "price": 72.25
         }
       ]
     },
