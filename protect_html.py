@@ -12,6 +12,9 @@ import os
 import sys
 import subprocess
 
+sys.stdout.reconfigure(encoding='utf-8')
+sys.stderr.reconfigure(encoding='utf-8')
+
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 OPTIMIZE_PY = os.path.join(BASE_DIR, "optimize_html.py")
 
