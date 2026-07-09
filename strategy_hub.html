@@ -610,5 +610,72 @@ const BU_LOGOS = {
         };
 </script>
     <script src="assets/ai_fab_inject.js"></script>
+
+<!-- BU_GATE_INJECT_START -->
+<style>.no-auth-card{cursor:not-allowed;opacity:.55;filter:grayscale(.4);}</style>
+<script>
+(function(){
+  var APP_BASE='https://lopal603906.aiforce.cloud/app/app_4k7069448fj88';
+  var HQ=['od-8ad5942df92ef45ac8905b543fc38d2b'];
+  var BU_DEPT={
+    hq:['od-8ad5942df92ef45ac8905b543fc38d2b'],
+    czly:['od-c8c5bc8612d60825208196a97cd0686d'],
+    lpsd:['od-349632b3f04edaa205990f6c96e66c26','od-c36a380b50b52171d47b7a8f5c1f3a70'],
+    sdmd:['od-05e668aea865f92b574f366b3d976094'],
+    sjl:['od-310bdafba6cb5bdbd3300cf326878caa'],
+    felt:['od-2e6cc0918fbe3086ebf636680997a2f2'],
+    dhx:['od-7a313bc06887dc30349237cb0d64ce83'],
+    lhy:['od-280342e9ed0ad39d203d5462b337451c'],  // 润滑油
+    kls:['od-c90e5fd524dfde6467bd59b867cfed8c'],  // 可兰素
+    bych:['od-33054981612c6dc0fbbdfbb743774d1b'],  // 铂源催化
+  };
+  var CODE_TO_BU={czly:'czly',lpsd:'lpsd',sdmd:'sdmd',sjld:'sjl',felt:'felt',dhx:'dhx',dkhx:'dhx',lhy:'lhy',kelan:'kls',kls:'kls',bych:'bych'};
+  function getDept(){
+    var m=location.search.match(/[?&]__dept=([^&]+)/);
+    var d=m?decodeURIComponent(m[1]):'';
+    try{ if(d){sessionStorage.setItem('__dept',d);} else {d=sessionStorage.getItem('__dept')||'';} }catch(e){}
+    return d;
+  }
+  function isAllowed(bu,dept){
+    if(!dept)return false;
+    if(HQ.indexOf(dept)>=0)return true;
+    var ds=BU_DEPT[bu]||[];
+    return ds.indexOf(dept)>=0;
+  }
+  function showNoAuth(){
+    var b=document.getElementById('__noauth_banner__');
+    if(!b){b=document.createElement('div');b.id='__noauth_banner__';b.style.cssText='position:fixed;top:0;left:0;right:0;z-index:2147483647;background:#c0392b;color:#fff;padding:10px 16px;font-size:14px;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,.2)';document.body.appendChild(b);}
+    b.textContent='⛔ 无权限访问：您所在的部门无权查看该事业部的数据，请联系管理员。';
+    b.style.display='block';clearTimeout(b.__t);b.__t=setTimeout(function(){b.style.display='none';},3500);
+  }
+  function rewrite(a){
+    if(a.dataset.__gated)return;
+    var href=a.getAttribute('href')||'';
+    var m,module,code;
+    if((m=href.match(/dept-archive\.html(?:\?id=|#)([a-z0-9]+)/i))){module='archive';code=m[1];}
+    else if((m=href.match(/strategy_dashboard\.html(?:\?id=|#)([a-z0-9]+)/i))){module='competitor';code=m[1];}
+    else if((m=href.match(/radar_detail_([a-z0-9]+)\.html/i))){module='radar';code=m[1];}
+    else return;
+    a.dataset.__gated='1';
+    var bu=CODE_TO_BU[code]||code;
+    var dept=getDept();
+    if(isAllowed(bu,dept)){
+      a.setAttribute('href',APP_BASE+'/api/secure-content/'+module+'/'+bu+'?departmentId='+encodeURIComponent(dept));
+    }else{
+      a.setAttribute('href','javascript:void(0)');
+      a.classList.add('no-auth-card');
+      a.addEventListener('click',function(e){e.preventDefault();showNoAuth();});
+    }
+  }
+  function scan(){var links=document.querySelectorAll('a[href]');for(var i=0;i<links.length;i++){rewrite(links[i]);}}
+  scan();
+  if(window.MutationObserver){
+    var to;
+    var obs=new MutationObserver(function(){clearTimeout(to);to=setTimeout(scan,150);});
+    obs.observe(document.documentElement,{childList:true,subtree:true,attributes:true,attributeFilter:['href']});
+  }
+})();
+</script>
+<!-- BU_GATE_INJECT_END -->
 </body>
 </html>
