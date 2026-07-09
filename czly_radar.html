@@ -3419,21 +3419,24 @@ function renderBaseTab() {
 })();
 </script>
     <script>
-      // 返回首页：优先走妙搭原生导航（服务端权限校验），其次 postMessage，最后无害降级
+      // 返回首页：优先妙搭原生导航(需配置 window.__HOME_PAGE_API_ID__)，
+      // 否则降级为 SPA 历史返回 / postMessage，全程无害
       function goHome() {
         try {
+          var HOME_ID = window.__HOME_PAGE_API_ID__ || "";
           var p = window.parent;
-          if (p && p.application && p.application.navigation && p.application.navigation.openPage) {
-            p.application.navigation.openPage("__HOME_PAGE_API_ID__", { target: "self" });
+          if (HOME_ID && p && p.application && p.application.navigation && p.application.navigation.openPage) {
+            p.application.navigation.openPage(HOME_ID, { target: "self" });
             return;
           }
         } catch (e) {}
         try {
-          if (window.parent && window.parent !== window) {
-            window.parent.postMessage({ type: "navigateHome" }, "*");
-            return;
-          }
+          if (window.parent && window.parent !== window) { window.parent.history.back(); return; }
         } catch (e) {}
+        try {
+          if (window.parent && window.parent !== window) { window.parent.postMessage({ type: "navigateHome" }, "*"); return; }
+        } catch (e) {}
+        try { window.history.back(); return; } catch (e) {}
         console.log("goHome: 未处于妙搭导航上下文，已安全降级");
       }
     </script>
