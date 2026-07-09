@@ -329,3 +329,16 @@ smm_page_content.html
 *_prices_*.json
 *.golden_*
 automation_report_*.md
+
+# ------------------------------------------
+# 22. 多妙搭应用发布构建产物（2026-07-09 加固：防 git add -A 误入版本库）
+#     以下均为本地发布/构建产物（每个约 100MB+，含带时间戳的历年重试快照），
+#     站点(index.html/index_v3.html)并不引用这些目录，GitHub Pages 也不服务它们，
+#     不应入版本库。本地文件保留，仅排除于 git；与 section 21 同目标：保持仓库精简。
+# ------------------------------------------
+dist-app-*/
+dist-minimal-*/
+dist-multi-base*/
+dist-pubfix-*/
+dist-miaoda*
+*.zip
