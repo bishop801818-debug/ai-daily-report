@@ -414,14 +414,14 @@ function buildCard(buId, meta) {
       return m ? 'departmentId=' + decodeURIComponent(m[1]) : '';
     })();
     var DETAIL_FILE = {
-        'sdmd': MIAODA_BASE + 'api/secure-content/radar/sdmd',
-        'kls':  MIAODA_BASE + 'api/secure-content/radar/kls',
-        'lhy':  MIAODA_BASE + 'api/secure-content/radar/lhy',
-        'dhx':  MIAODA_BASE + 'api/secure-content/radar/dhx',
-        'czly': MIAODA_BASE + 'api/secure-content/radar/czly',
-        'lpsd': MIAODA_BASE + 'api/secure-content/radar/lpsd',
-        'felt': MIAODA_BASE + 'api/secure-content/radar/felt',
-        'sjld': MIAODA_BASE + 'api/secure-content/radar/sjl'
+        'sdmd': MIAODA_BASE + 'secure-content/radar/sdmd',
+        'kls':  MIAODA_BASE + 'secure-content/radar/kls',
+        'lhy':  MIAODA_BASE + 'secure-content/radar/lhy',
+        'dhx':  MIAODA_BASE + 'secure-content/radar/dhx',
+        'czly': MIAODA_BASE + 'secure-content/radar/czly',
+        'lpsd': MIAODA_BASE + 'secure-content/radar/lpsd',
+        'felt': MIAODA_BASE + 'secure-content/radar/felt',
+        'sjld': MIAODA_BASE + 'secure-content/radar/sjl'
     };
     var raw = DETAIL_FILE[buId] || ('radar_detail.html?id=' + buId);
     var detailUrl = deptParam ? (raw + '?' + deptParam) : raw;
