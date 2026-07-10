@@ -3434,7 +3434,9 @@ function renderBaseTab() {
   };
   function getDept(){
     var m=location.search.match(/[?&]departmentId=([^&]+)/);
-    return m?decodeURIComponent(m[1]):'';
+    if(m)return decodeURIComponent(m[1]);
+    var m2=location.search.match(/[?&]__dept=([^&]+)/);
+    return m2?decodeURIComponent(m2[1]):'';
   }
   function isAllowed(deptId){
     if(!deptId)return false;
