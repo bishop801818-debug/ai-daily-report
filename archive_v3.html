@@ -1,6 +1,27 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
+    <script>
+    // 全局拦截：导航到HUB页面时自动追加__dept参数
+    (function(){
+      var _href = window.location.href;
+      var _dept = (new URL(_href, location.origin)).searchParams.get('__dept');
+      if(!_dept){
+        try{ _dept = sessionStorage.getItem('__dept'); }catch(e){}
+      }
+      var HUB_PAGES = ['radar_hub.html','strategy_hub.html','archive_v3.html'];
+      window.__goto = function(url){
+        if(!url || !_dept) { window.location.href = url; return; }
+        var target = url.split('?')[0].split('#')[0];
+        if(HUB_PAGES.indexOf(target.split('/').pop()) > -1){
+          var sep = url.indexOf('?')>-1 ? '&' : '?';
+          window.location.href = url + sep + '__dept=' + encodeURIComponent(_dept);
+        } else {
+          window.location.href = url;
+        }
+      };
+    })();
+    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>事业部历史数据总览</title>
@@ -137,9 +158,9 @@
         <div class="sub-nav-item" onclick="window.location.href='industry_news_embedded.html'"><span> 行业新闻</span></div>
         <div class="sub-nav-item" onclick="window.location.href='archive_v3.html'"><span> 历史数据</span></div>
         <div class="sub-nav-item" onclick="window.location.href='database_hub.html'"><span> 数据库</span></div>
-        <div class="sub-nav-item" onclick="window.location.href='analysis_hub.html'"><span> 行业分析</span></div>
-        <div class="sub-nav-item" onclick="window.location.href='strategy_hub.html'"><span> 竞品比对</span></div>
-        <div class="sub-nav-item" onclick="window.location.href='radar_hub.html'"><span> 雷达看板</span></div>
+        <div class="sub-nav-item" onclick="__goto('analysis_hub.html')"><span> 行业分析</span></div>
+        <div class="sub-nav-item" onclick="__goto('strategy_hub.html')"><span> 竞品比对</span></div>
+        <div class="sub-nav-item" onclick="__goto('radar_hub.html')"><span> 雷达看板</span></div>
     </div>
 </div>
 
