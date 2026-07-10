@@ -407,7 +407,10 @@ function buildCard(buId, meta) {
         return '<span class="dim-chip"><span class="chip-val" style="color:' + meta.color + '">' + v + '</span>' + DIM_NAMES[i] + '</span>';
     }).join('');
 
-    // 全部 BU 的雷达详情页走妙搭服务端门禁路由（@NeedLogin + 部门校验）。
+    // 雷达详情页路由：
+    //   - 本地调试（localhost/127.0.0.1）→ 相对路径访问本地 radar_detail_*.html
+    //   - 妙搭线上 → Miaoda secure-content 服务端门禁路由
+    var IS_LOCAL = /localhost|127\.0\.0\.1/i.test(location.hostname);
     var MIAODA_BASE = 'https://lopal603906.aiforce.cloud/app/app_4k7069448fj88/';
     var deptParam = (function(){
       // 优先从 URL 读 __dept；若无（直接访问），从 sessionStorage 读（由 index_v3 导航拦截器存入）
@@ -415,7 +418,16 @@ function buildCard(buId, meta) {
       var deptId = m ? decodeURIComponent(m[1]) : (sessionStorage.getItem('_dept') || '');
       return deptId ? 'departmentId=' + encodeURIComponent(deptId) : '';
     })();
-    var DETAIL_FILE = {
+    var DETAIL_FILE = IS_LOCAL ? {
+        'sdmd': 'radar_detail_sdmd.html',
+        'kls':  'radar_detail_kelan.html',
+        'lhy':  'radar_detail_lhy.html',
+        'dhx':  'radar_detail_dkhx.html',
+        'czly': 'radar_detail_czly.html',
+        'lpsd': 'radar_detail_lpsd.html',
+        'felt': 'radar_detail_felt.html',
+        'sjld': 'radar_detail_sjl.html'
+    } : {
         'sdmd': MIAODA_BASE + 'secure-content/radar/sdmd',
         'kls':  MIAODA_BASE + 'secure-content/radar/kls',
         'lhy':  MIAODA_BASE + 'secure-content/radar/lhy',
