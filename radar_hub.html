@@ -696,23 +696,24 @@ window.addEventListener('resize', function() {
     b.style.display='block';clearTimeout(b.__t);b.__t=setTimeout(function(){b.style.display='none';},5000);
   }
   function rewrite(a){
+    // 暂时注释掉API端点拦截（跨域CSRF限制），改为纯前端权限展示
+    // 后续需在Miaoda侧创建 /radar/:bu 路由才能实现真正的服务端门禁
     if(a.dataset.__gated)return;
     var href=a.getAttribute('href')||'';
-    var m,module,code;
-    if((m=href.match(/dept-archive\.html(?:\?id=|#)([a-z0-9]+)/i))){module='archive';code=m[1];}
-    else if((m=href.match(/strategy_dashboard\.html(?:\?id=|#)([a-z0-9]+)/i))){module='competitor';code=m[1];}
-    else if((m=href.match(/radar_detail_([a-z0-9]+)\.html/i))){module='radar';code=m[1];}
+    var m,code;
+    if((m=href.match(/dept-archive\.html(?:\?id=|#)([a-z0-9]+)/i))){}
+    else if((m=href.match(/strategy_dashboard\.html(?:\?id=|#)([a-z0-9]+)/i))){}
+    else if((m=href.match(/radar_detail_([a-z0-9]+)\.html/i))){code=m[1];}
     else return;
     a.dataset.__gated='1';
     var bu=CODE_TO_BU[code]||code;
     var dept=getDept();
-    if(isAllowed(bu,dept)){
-      a.setAttribute('href',APP_BASE+'/api/secure-content/'+module+'/'+bu+'?departmentId='+encodeURIComponent(dept));
-    }else{
+    if(!isAllowed(bu,dept)){
       a.setAttribute('href','javascript:void(0)');
       a.classList.add('no-auth-card');
       a.addEventListener('click',function(e){e.preventDefault();showNoAuth();});
     }
+    // 允许的链接保持原样，不改href
   }
   function scan(){var links=document.querySelectorAll('a[href]');for(var i=0;i<links.length;i++){rewrite(links[i]);}}
   scan();
