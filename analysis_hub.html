@@ -3,14 +3,15 @@
 <head>
     <script>
     (function(){
-      var _href = window.location.href;
-      var _dept = (new URL(_href, location.origin)).searchParams.get('__dept');
+      var _dept=(new URL(location.href)).searchParams.get('__dept');
       if(!_dept){try{_dept=sessionStorage.getItem('__dept');}catch(e){}}
+      if(_dept){try{sessionStorage.setItem('__dept',_dept);}catch(e){}}
       var HUB_PAGES=['radar_hub.html','strategy_hub.html','archive_v3.html'];
       window.__goto=function(url){
-        if(!url||!_dept){window.location.href=url;return;}
-        var t=url.split('?')[0].split('#')[0].split('/').pop();
-        if(HUB_PAGES.indexOf(t)>-1){var s=url.indexOf('?')>-1?'&':'?';window.location.href=url+s+'__dept='+encodeURIComponent(_dept);}
+        if(!url)return;
+        var d=_dept||sessionStorage.getItem('__dept');
+        var t=(url.split('?')[0].split('#')[0]).split('/').pop();
+        if(d&&HUB_PAGES.indexOf(t)>-1){var s=url.indexOf('?')>-1?'&':'?';window.location.href=url+s+'__dept='+encodeURIComponent(d);}
         else{window.location.href=url;}
       };
     })();

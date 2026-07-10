@@ -650,16 +650,11 @@ window.addEventListener('resize', function() {
 <style>.no-auth-card{cursor:not-allowed;opacity:.55;filter:grayscale(.4);}</style>
 <script>
 (function(){
-  // 如果URL没有__dept，从sessionStorage取并重定向（整页跳转后sessionStorage同域可共享）
+  // 优先从URL读，存入sessionStorage（保证跨页面都能用）
   (function fixDept(){
     var m=location.search.match(/[?&]__dept=([^&]+)/);
-    if(!m){
-      var d=sessionStorage.getItem('__dept');
-      if(d){
-        var sep=location.search?'&':'?';
-        location.replace(location.pathname+location.search+sep+'__dept='+encodeURIComponent(d)+location.hash);
-      }
-    }
+    var d=m?decodeURIComponent(m[1]):sessionStorage.getItem('__dept')||'';
+    if(d){ try{sessionStorage.setItem('__dept',d);}catch(e){} }
   })();
   var APP_BASE='https://lopal603906.aiforce.cloud/app/app_4k7069448fj88';
   var HQ=['od-8ad5942df92ef45ac8905b543fc38d2b','7593161552124923083'];
@@ -678,9 +673,9 @@ window.addEventListener('resize', function() {
   var CODE_TO_BU={czly:'czly',lpsd:'lpsd',sdmd:'sdmd',sjld:'sjl',felt:'felt',dhx:'dhx',dkhx:'dhx',lhy:'lhy',kelan:'kls',kls:'kls',bych:'bych'};
   function getDept(){
     var m=location.search.match(/[?&]__dept=([^&]+)/);
-    var d=m?decodeURIComponent(m[1]):'';
-    try{ if(d){sessionStorage.setItem('__dept',d);} else {d=sessionStorage.getItem('__dept')||'';} }catch(e){}
-    console.log('[radar_hub] getDept() =', d, '| full URL:', location.href);
+    var d=m?decodeURIComponent(m[1]):sessionStorage.getItem('__dept')||'';
+    if(d){ try{sessionStorage.setItem('__dept',d);}catch(e){} }
+    console.log('[radar_hub] getDept()=', d, '| URL:', location.href);
     return d;
   }
   function isAllowed(bu,dept){
