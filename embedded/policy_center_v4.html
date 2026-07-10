@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="html-version" content="20260709_001">
+    <meta name="html-version" content="20260710_001">
     <title>政策中心 · 锂电池产业链信息中台</title>
     <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Noto+Sans+SC:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
     <style>
@@ -4528,18 +4528,18 @@
         document.getElementById('stat-local').textContent    = local;
         document.getElementById('stat-overseas').textContent = overseas;
 
-        // Month nav：从 allPolicies 收集
+        // Month nav：从 allPolicies 收集，仅保留2026-04及以后的月份，标签含年份
         const monthCounts = {};
         allPolicies.forEach(p => {
             const m = (p.date || '').substring(0, 7);
-            if (m) monthCounts[m] = (monthCounts[m] || 0) + 1;
+            if (m && m >= '2026-04') monthCounts[m] = (monthCounts[m] || 0) + 1;
         });
         const sortedMonths = Object.keys(monthCounts).sort((a, b) => b.localeCompare(a));
         const monthNav = document.getElementById('month-nav');
         monthNav.innerHTML = sortedMonths.map(m => {
-            // 提取月份：如果是 "2026-06" 格式，提取 "06"；如果是 "2026" 格式则显示 "2026年"
-            const monthPart = m.includes('-') ? m.split('-')[1] : m;
-            const label = monthPart.length === 2 ? monthPart + '月' : m + '年';
+            // 格式："2026-06" → "2026年6月"
+            const [year, month] = m.split('-');
+            const label = `${year}年${month}月`;
             return `<button class="month-btn" data-month="${m}">${label}</button>`;
         }).join('');
         sortedMonths.forEach(m => activeMonths.add(m));
@@ -4624,11 +4624,17 @@
             return;
         }
 
-        // 不再按月份分组，直接按时间顺序渲染
+        // 按月份分组渲染，月份分隔线 = month-marker，供侧边栏月份按钮滚动定位
         let html = '';
         const displayList = filtered.slice(0, displayedPolicyCount);
-        
+        let currentMonth = null;
         displayList.forEach(p => {
+            const month = (p.date || '').substring(0, 7);
+            if (month !== currentMonth) {
+                currentMonth = month;
+                const [year, mon] = month.split('-');
+                html += `<div class="month-marker" data-month="${month}"><span class="month-marker-label">${year}年${mon}月</span></div>`;
+            }
             const typeLabel = p.type === 'central' ? '国家政策' : p.type === 'local' ? '地方政策' : '海外政策';
             const isDaily  = p._isDaily;
             const dailyBadge = isDaily

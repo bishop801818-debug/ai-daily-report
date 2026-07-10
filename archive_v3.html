@@ -2,23 +2,22 @@
 <html lang="zh-CN">
 <head>
     <script>
-    // 全局拦截：导航到HUB页面时自动追加__dept参数
+    // 全局拦截：导航到HUB页面时自动追加__dept参数（管理员默认值兜底）
     (function(){
-      var _href = window.location.href;
-      var _dept = (new URL(_href, location.origin)).searchParams.get('__dept');
-      if(!_dept){
-        try{ _dept = sessionStorage.getItem('__dept'); }catch(e){}
-      }
-      var HUB_PAGES = ['radar_hub.html','strategy_hub.html','archive_v3.html'];
-      window.__goto = function(url){
-        if(!url || !_dept) { window.location.href = url; return; }
-        var target = url.split('?')[0].split('#')[0];
-        if(HUB_PAGES.indexOf(target.split('/').pop()) > -1){
-          var sep = url.indexOf('?')>-1 ? '&' : '?';
-          window.location.href = url + sep + '__dept=' + encodeURIComponent(_dept);
-        } else {
-          window.location.href = url;
-        }
+      var ADMIN_DEPT='7593161552124923083'; // 管理员部门ID
+      var _dept=(new URL(location.href)).searchParams.get('__dept');
+      if(!_dept){ try{_dept=sessionStorage.getItem('__dept');}catch(e){} }
+      if(!_dept){ _dept=ADMIN_DEPT; } // 读不到就用管理员默认值
+      if(_dept){ try{sessionStorage.setItem('__dept',_dept);}catch(e){} }
+      var HUB_PAGES=['radar_hub.html','strategy_hub.html','archive_v3.html'];
+      window.__goto=function(url){
+        if(!url)return;
+        var d=_dept||sessionStorage.getItem('__dept')||ADMIN_DEPT;
+        var t=(url.split('?')[0].split('#')[0]).split('/').pop();
+        if(HUB_PAGES.indexOf(t)>-1){
+          var s=url.indexOf('?')>-1?'&':'?';
+          window.location.href=url+s+'__dept='+encodeURIComponent(d);
+        }else{window.location.href=url;}
       };
     })();
     </script>

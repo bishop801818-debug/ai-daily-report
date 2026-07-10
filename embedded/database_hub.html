@@ -377,8 +377,7 @@ const DB_LIST = [
         charts: 'lfp_charts.html?v=20260629',
         data: 'lfp_data_v2.html',
         reportMonths: [
-            { label: '2026年4月', href: 'lfp_report_2026_04.html', current: false },
-            { label: '2026年5月', href: 'lfp_report.html', current: true }
+            { label: '2026年5月', href: 'lfp_report_2026_05.html', current: true }
         ]
     },
     {
@@ -394,7 +393,9 @@ const DB_LIST = [
                  '关键原料-现货价', '硫酸钴镍-产量规模', '硫酸钴镍-现货价'],
         charts: 'ternary_charts.html?v=20260629',
         data: 'ternary_data_v2.html',
-        reportMonths: []
+        reportMonths: [
+            { label: '2026年5月', href: 'ternary_report_202605.html', current: true }
+        ]
     },
     {
         id: 'electrolyte',
@@ -411,7 +412,8 @@ const DB_LIST = [
         charts: 'electrolyte_charts.html?v=20260629',
         data: 'electrolyte_data_v2.html',
         reportMonths: [
-            { label: '2026年5月', href: 'electrolyte_report.html', current: true }
+            { label: '2026年4月', href: 'felt_report_202604.html', current: false },
+            { label: '2026年5月', href: 'felt_report_202605.html', current: true }
         ]
     },
     {
@@ -427,7 +429,9 @@ const DB_LIST = [
                  '锂云母价格', '锂辉石精矿价格'],
         charts: 'carbonate_charts.html?v=20260629',
         data: 'carbonate_data_v2.html',
-        reportMonths: []
+        reportMonths: [
+            { label: '2026年5月', href: 'carbonate_report_202605.html', current: true }
+        ]
     },
     {
         id: 'recycling',
@@ -440,7 +444,9 @@ const DB_LIST = [
         tables: ['黑粉处理量-总计', '黑粉处理量-三元+钴酸锂', '黑粉处理量-铁锂', '黑粉整体处理量-分企业', '锂电池价格', '极片价格', '辅料价格', '黑粉价格'],
         data: 'recycling_data_v2.html',
         charts: 'recycling_charts.html?v=20260629',
-        reportMonths: []
+        reportMonths: [
+            { label: '2026年5月', href: 'recycling_report_2026_05.html', current: true }
+        ]
     },
     {
         id: 'lib_battery',
@@ -453,7 +459,9 @@ const DB_LIST = [
         tables: ['行业产量（分规格）', '行业产量产能', '分企业产量（分规格）', '分企业产量产能', '电池排产预测'],
         charts: 'lib_battery_charts.html?v=20260629',
         analysis: 'lib_battery_analysis.html',
-        reportMonths: []
+        reportMonths: [
+            { label: '2026年5月', href: 'lib_battery_analysis.html', current: true }
+        ]
     },
     {
         id: 'automotive',
@@ -470,7 +478,9 @@ const DB_LIST = [
                  '乘用车出口分市场', '乘用车出口分类型', '乘用车出口分车企'],
         charts: 'automotive_charts.html?v=20260629',
         data: 'automotive_data_v2.html',
-        reportMonths: []
+        reportMonths: [
+            { label: '2026年5月', href: 'automotive_report_202605.html', current: true }
+        ]
     }
 ];
 
@@ -530,9 +540,9 @@ function buildCardHTML(db, viewType) {
             <a href="${btnDataHref}" class="${db.hasData ? 'btn-data' : 'btn-data disabled'}">${icons.data} ${labels.data}</a>
             <a href="${btnChartHref}" class="${db.hasData ? 'btn-chart' : 'btn-chart disabled'}">${icons.chart} ${labels.chart}</a>
             <div class="analysis-wrap">
-                <button class="${db.hasData && db.reportMonths && db.reportMonths.length > 0 ? 'btn-analysis has-reports' : (db.hasData ? 'btn-analysis' : 'btn-analysis disabled')}"
-                        onclick="${db.hasData && db.reportMonths && db.reportMonths.length > 0 ? `toggleReportMenu('${db.id}', this)` : 'javascript:void(0)'}"
-                        ${!db.hasData || !db.reportMonths || db.reportMonths.length === 0 ? 'disabled' : ''}>
+                <button class="${db.hasData ? 'btn-analysis has-reports' : 'btn-analysis disabled'}"
+                        onclick="${db.hasData ? `toggleReportMenu('${db.id}', this)` : 'javascript:void(0)'}"
+                        ${db.hasData ? '' : 'disabled'}>
                     ${icons.analysis} ${labels.analysis} <span class="analysis-arrow">▾</span>
                 </button>
                 ${db.reportMonths && db.reportMonths.length > 0 ? `

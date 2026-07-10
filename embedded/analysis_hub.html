@@ -1,6 +1,23 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
+    <script>
+    (function(){
+      var ADMIN_DEPT='7593161552124923083';
+      var _dept=(new URL(location.href)).searchParams.get('__dept');
+      if(!_dept){try{_dept=sessionStorage.getItem('__dept');}catch(e){}}
+      if(!_dept){_dept=ADMIN_DEPT;}
+      if(_dept){try{sessionStorage.setItem('__dept',_dept);}catch(e){}}
+      var HUB_PAGES=['radar_hub.html','strategy_hub.html','archive_v3.html'];
+      window.__goto=function(url){
+        if(!url)return;
+        var d=_dept||sessionStorage.getItem('__dept')||ADMIN_DEPT;
+        var t=(url.split('?')[0].split('#')[0]).split('/').pop();
+        if(HUB_PAGES.indexOf(t)>-1){var s=url.indexOf('?')>-1?'&':'?';window.location.href=url+s+'__dept='+encodeURIComponent(d);}
+        else{window.location.href=url;}
+      };
+    })();
+    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>分析报告 - 龙蟠行业数据库</title>
@@ -245,9 +262,9 @@
         <div class="sub-nav-item" onclick="window.location.href='industry_news_embedded.html'"><span> 行业新闻</span></div>
         <div class="sub-nav-item" onclick="window.location.href='archive_v3.html'"><span> 历史数据</span></div>
         <div class="sub-nav-item" onclick="window.location.href='database_hub.html'"><span> 数据库</span></div>
-        <div class="sub-nav-item" onclick="window.location.href='analysis_hub.html'"><span> 行业分析</span></div>
-        <div class="sub-nav-item" onclick="window.location.href='strategy_hub.html'"><span> 竞品比对</span></div>
-        <div class="sub-nav-item" onclick="window.location.href='radar_hub.html'"><span> 雷达看板</span></div>
+        <div class="sub-nav-item" onclick="__goto('analysis_hub.html')"><span> 行业分析</span></div>
+        <div class="sub-nav-item" onclick="__goto('strategy_hub.html')"><span> 竞品比对</span></div>
+        <div class="sub-nav-item" onclick="__goto('radar_hub.html')"><span> 雷达看板</span></div>
     </div>
 </div>
 <div class="main-content">
