@@ -407,18 +407,10 @@ function buildCard(buId, meta) {
         return '<span class="dim-chip"><span class="chip-val" style="color:' + meta.color + '">' + v + '</span>' + DIM_NAMES[i] + '</span>';
     }).join('');
 
-    // 雷达详情页路由：
-    //   - 本地调试（localhost/127.0.0.1）→ 相对路径访问本地 radar_detail_*.html
-    //   - 妙搭线上 → Miaoda secure-content 服务端门禁路由
+    // 点击雷达卡片时动态读取 sessionStorage._dept，保证身份切换后立即生效
     var IS_LOCAL = /localhost|127\.0\.0\.1/i.test(location.hostname);
     var MIAODA_BASE = 'https://lopal603906.aiforce.cloud/app/app_4k7069448fj88/';
-    var deptParam = (function(){
-      // 优先从 URL 读 __dept；若无（直接访问），从 sessionStorage 读（由 index_v3 导航拦截器存入）
-      var m = location.search.match(/[?&]__dept=([^&]+)/);
-      var deptId = m ? decodeURIComponent(m[1]) : (sessionStorage.getItem('_dept') || '');
-      return deptId ? 'departmentId=' + encodeURIComponent(deptId) : '';
-    })();
-    var DETAIL_FILE = IS_LOCAL ? {
+    var BU_FILES = {
         'sdmd': 'radar_detail_sdmd.html',
         'kls':  'radar_detail_kelan.html',
         'lhy':  'radar_detail_lhy.html',
@@ -427,18 +419,18 @@ function buildCard(buId, meta) {
         'lpsd': 'radar_detail_lpsd.html',
         'felt': 'radar_detail_felt.html',
         'sjld': 'radar_detail_sjl.html'
-    } : {
-        'sdmd': MIAODA_BASE + 'secure-content/radar/sdmd',
-        'kls':  MIAODA_BASE + 'secure-content/radar/kls',
-        'lhy':  MIAODA_BASE + 'secure-content/radar/lhy',
-        'dhx':  MIAODA_BASE + 'secure-content/radar/dhx',
-        'czly': MIAODA_BASE + 'secure-content/radar/czly',
-        'lpsd': MIAODA_BASE + 'secure-content/radar/lpsd',
-        'felt': MIAODA_BASE + 'secure-content/radar/felt',
-        'sjld': MIAODA_BASE + 'secure-content/radar/sjl'
     };
-    var raw = DETAIL_FILE[buId] || ('radar_detail.html?id=' + buId);
-    var detailUrl = deptParam ? (raw + '?' + deptParam) : raw;
+    function navigateToDetail(buId) {
+        var isLocal = /localhost|127\.0\.0\.1/i.test(location.hostname);
+        var base = isLocal ? '' : 'https://lopal603906.aiforce.cloud/app/app_4k7069448fj88/secure-content/radar/' + buId;
+        var file = isLocal ? (BU_FILES[buId] || 'radar_detail.html?id=' + buId) : '';
+        var url = isLocal ? file : base;
+        var m = location.search.match(/[?&]__dept=([^&]+)/);
+        var deptId = m ? decodeURIComponent(m[1]) : (sessionStorage.getItem('_dept') || '');
+        var finalUrl = deptId ? (url + '?departmentId=' + encodeURIComponent(deptId)) : url;
+        window.location.href = finalUrl;
+    }
+
     return '<div id="card-' + buId + '" class="dept-card ' + meta.category + '" style="border-left-color:' + meta.color + '">' +
         '<div class="dept-card-header">' +
         logoHTML +
@@ -447,7 +439,7 @@ function buildCard(buId, meta) {
         '<div class="dept-subtitle">' + meta.subtitle + '</div>' +
         '</div></div>' +
         monthToggle +
-        '<a href="' + detailUrl + '" class="dept-radar-link" onclick="event.stopPropagation()">' +
+        '<a href="javascript:void(0)" class="dept-radar-link" onclick="event.stopPropagation();navigateToDetail(\'' + buId + '\')">' +
         '<div class="dept-radar-preview" id="radar-' + buId + '"></div>' +
         '</a>' +
         '<div class="dept-dims-row">' + dimChips + '</div>' +
