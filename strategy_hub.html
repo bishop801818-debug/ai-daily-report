@@ -615,18 +615,8 @@ const BU_LOGOS = {
 <style>.no-auth-card{cursor:not-allowed;opacity:.55;filter:grayscale(.4);}</style>
 <script>
 (function(){
-  // 如果URL没有__dept，从sessionStorage取并重定向（整页跳转后sessionStorage同域可共享）
-  (function fixDept(){
-    var m=location.search.match(/[?&]__dept=([^&]+)/);
-    if(!m){
-      var d=sessionStorage.getItem('__dept');
-      if(d){
-        var sep=location.search?'&':'?';
-        location.replace(location.pathname+location.search+sep+'__dept='+encodeURIComponent(d)+location.hash);
-      }
-    }
-  })();
-  var APP_BASE='https://lopal603906.aiforce.cloud/app/app_4k7069448fj88';
+  // URL 参数 __dept 是唯一来源 - 不读取 sessionStorage
+  var GITHUB_BASE='https://bishop801818-debug.github.io/ai-daily-report/';
   var HQ=['od-8ad5942df92ef45ac8905b543fc38d2b','7593161552124923083'];
   var BU_DEPT={
     hq:['od-8ad5942df92ef45ac8905b543fc38d2b','7593161552124923083'],
@@ -643,9 +633,7 @@ const BU_LOGOS = {
   var CODE_TO_BU={czly:'czly',lpsd:'lpsd',sdmd:'sdmd',sjld:'sjl',felt:'felt',dhx:'dhx',dkhx:'dhx',lhy:'lhy',kelan:'kls',kls:'kls',bych:'bych'};
   function getDept(){
     var m=location.search.match(/[?&]__dept=([^&]+)/);
-    var d=m?decodeURIComponent(m[1]):'';
-    try{ if(d){sessionStorage.setItem('__dept',d);} else {d=sessionStorage.getItem('__dept')||'';} }catch(e){}
-    return d;
+    return m?decodeURIComponent(m[1]):'';
   }
   function isAllowed(bu,dept){
     if(!dept)return false;
@@ -666,6 +654,7 @@ const BU_LOGOS = {
     if(a.dataset.__gated)return;
     var href=a.getAttribute('href')||'';
     var m,module,code;
+    var deptParam=getDept()?'__dept='+encodeURIComponent(getDept()):'';
     if((m=href.match(/dept-archive\.html(?:\?id=|#)([a-z0-9]+)/i))){module='archive';code=m[1];}
     else if((m=href.match(/strategy_dashboard\.html(?:\?id=|#)([a-z0-9]+)/i))){module='competitor';code=m[1];}
     else if((m=href.match(/radar_detail_([a-z0-9]+)\.html/i))){module='radar';code=m[1];}
@@ -674,7 +663,13 @@ const BU_LOGOS = {
     var bu=CODE_TO_BU[code]||code;
     var dept=getDept();
     if(isAllowed(bu,dept)){
-      a.setAttribute('href',APP_BASE+'/api/secure-content/'+module+'/'+bu+'?departmentId='+encodeURIComponent(dept));
+      if(module==='radar'){
+        a.setAttribute('href',GITHUB_BASE+'radar_detail_'+code+'.html?'+deptParam);
+      } else if(module==='archive'){
+        a.setAttribute('href',GITHUB_BASE+'dept-archive.html?'+deptParam+'#'+code);
+      } else if(module==='competitor'){
+        a.setAttribute('href',GITHUB_BASE+'strategy_dashboard.html?'+deptParam+'#'+code);
+      }
     }else{
       a.setAttribute('href','javascript:void(0)');
       a.classList.add('no-auth-card');
