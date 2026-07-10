@@ -3,15 +3,17 @@
 <head>
     <script>
     (function(){
+      var ADMIN_DEPT='7593161552124923083';
       var _dept=(new URL(location.href)).searchParams.get('__dept');
       if(!_dept){try{_dept=sessionStorage.getItem('__dept');}catch(e){}}
+      if(!_dept){_dept=ADMIN_DEPT;}
       if(_dept){try{sessionStorage.setItem('__dept',_dept);}catch(e){}}
       var HUB_PAGES=['radar_hub.html','strategy_hub.html','archive_v3.html'];
       window.__goto=function(url){
         if(!url)return;
-        var d=_dept||sessionStorage.getItem('__dept');
+        var d=_dept||sessionStorage.getItem('__dept')||ADMIN_DEPT;
         var t=(url.split('?')[0].split('#')[0]).split('/').pop();
-        if(d&&HUB_PAGES.indexOf(t)>-1){var s=url.indexOf('?')>-1?'&':'?';window.location.href=url+s+'__dept='+encodeURIComponent(d);}
+        if(HUB_PAGES.indexOf(t)>-1){var s=url.indexOf('?')>-1?'&':'?';window.location.href=url+s+'__dept='+encodeURIComponent(d);}
         else{window.location.href=url;}
       };
     })();

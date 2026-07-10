@@ -650,10 +650,12 @@ window.addEventListener('resize', function() {
 <style>.no-auth-card{cursor:not-allowed;opacity:.55;filter:grayscale(.4);}</style>
 <script>
 (function(){
-  // 优先从URL读，存入sessionStorage（保证跨页面都能用）
+  // 管理员默认身份：直接硬编码，跳过所有传递逻辑
   (function fixDept(){
+    // 管理员部门ID，优先从URL或sessionStorage读，读不到则用此默认值
+    var ADMIN_DEPT = '7593161552124923083';
     var m=location.search.match(/[?&]__dept=([^&]+)/);
-    var d=m?decodeURIComponent(m[1]):sessionStorage.getItem('__dept')||'';
+    var d=m?decodeURIComponent(m[1]):sessionStorage.getItem('__dept')||ADMIN_DEPT;
     if(d){ try{sessionStorage.setItem('__dept',d);}catch(e){} }
   })();
   var APP_BASE='https://lopal603906.aiforce.cloud/app/app_4k7069448fj88';
