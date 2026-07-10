@@ -1,12 +1,12 @@
 /**
  * Service Worker for AI Daily Report
- * 版本：v1.3 (2026-07-02)
+ * 版本：v1.4 (2026-07-10)
  * 功能：离线缓存静态资源和数据文件，提升二次访问速度
- * 更新：修复 response clone 时序错误，简化缓存逻辑
+ * 更新：升级缓存版本，修复radar_hub HQ部门ID配置
  */
 
-const CACHE_NAME = 'ai-daily-v5';
-const CACHE_VERSION = '20260702v5';
+const CACHE_NAME = 'ai-daily-v6';
+const CACHE_VERSION = '20260710v1';
 
 // 规范化 URL：移除缓存破坏参数（如 ?t=xxx）
 function normalizeUrl(url) {
