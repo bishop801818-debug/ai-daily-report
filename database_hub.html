@@ -354,6 +354,92 @@
         <div class="sub-nav-item" onclick="window.location.href='radar_hub.html'"><span> 雷达看板</span></div>
     </div>
 </div>
+<!-- 权限调试面板 -->
+<style>
+#perm-debug{position:fixed;top:70px;right:16px;z-index:9999;background:#1a1a2e;border-radius:12px;padding:14px 16px;min-width:240px;box-shadow:0 4px 24px rgba(0,0,0,.2);font-size:12px;color:#fff;display:none}
+#perm-debug.open{display:block}
+#perm-debug h4{margin:0 0 8px;font-size:13px;color:#64b5f6}
+#perm-debug label{display:block;margin:4px 0;cursor:pointer}
+#perm-debug input[type=radio]{margin-right:6px}
+#perm-debug .current-user{margin-top:8px;padding-top:8px;border-top:1px solid #444;font-size:11px;color:#aaa}
+#perm-debug .btn-test{margin-top:8px;width:100%;padding:6px;background:#0d7a4a;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:12px}
+#perm-debug .btn-test:hover{background:#0a5f3a}
+</style>
+<div id="perm-debug">
+  <h4>🔐 权限模拟（调试）</h4>
+  <label><input type="radio" name="sim_dept" value="od-8ad5942df92ef45ac8905b543fc38d2b"> 集团领导（全量可见）</label>
+  <label><input type="radio" name="sim_dept" value="od-c8c5bc8612d60825208196a97cd0686d"> 常州锂源（磷酸铁锂+锂电池）</label>
+  <label><input type="radio" name="sim_dept" value="od-2e6cc0918fbe3086ebf636680997a2f2"> 法恩莱特（电解液+锂电池）</label>
+  <label><input type="radio" name="sim_dept" value="od-05e668aea865f92b574f366b3d976094"> 山东美多（回收+锂电池）</label>
+  <label><input type="radio" name="sim_dept" value="od-c36a380b50b52171d47b7a8f5c1f3a70"> 龙蟠时代（碳酸锂+锂电池）</label>
+  <label><input type="radio" name="sim_dept" value="od-310bdafba6cb5bdbd3300cf326878caa"> 三金锂电（三元+锂电池）</label>
+  <label><input type="radio" name="sim_dept" value=""> 清除模拟（恢复真实身份）</label>
+  <div class="current-user" id="sim-info">当前：真实身份</div>
+  <button class="btn-test" onclick="applySimFilter()">应用模拟 → 刷新过滤</button>
+</div>
+<button onclick="document.getElementById('perm-debug').classList.toggle('open')"
+  style="position:fixed;top:70px;right:16px;z-index:9998;background:#1a1a2e;color:#64b5f6;border:1px solid #64b5f6;border-radius:8px;padding:5px 10px;font-size:12px;cursor:pointer">
+  🔐调试
+</button>
+<script>
+(function(){
+  var KEY = '_sim_dept';
+  var infoEl = document.getElementById('sim-info');
+  function getStoredSim() { return sessionStorage.getItem(KEY) || ''; }
+  function getRealDept() {
+    var m = location.search.match(/[?&]__dept=([^&]+)/);
+    return m ? decodeURIComponent(m[1]) : (sessionStorage.getItem('_dept') || '');
+  }
+  var DEPT_TO_BU = {
+    'od-8ad5942df92ef45ac8905b543fc38d2b':'hq','7593161552124923083':'hq',
+    'od-c8c5bc8612d60825208196a97cd0686d':'czly',
+    'od-2e6cc0918fbe3086ebf636680997a2f2':'felt',
+    'od-05e668aea865f92b574f366b3d976094':'sdmd',
+    'od-c36a380b50b52171d47b7a8f5c1f3a70':'lpsd',
+    'od-310bdafba6cb5bdbd3300cf326878caa':'sjl',
+    'od-7a313bc06887dc30349237cb0d64ce83':'dhx',
+    'od-280342e9ed0ad39d203d5462b337451c':'lhy',
+    'od-c90e5fd524dfde6467bd59b867cfed8c':'kls',
+    'od-33054981612c6dc0fbbdfbb743774d1b':'bych'
+  };
+
+  window.applySimFilter = function() {
+    var sel = document.querySelector('input[name=sim_dept]:checked');
+    var val = sel ? sel.value : '';
+    if (val) {
+      sessionStorage.setItem(KEY, val);
+      infoEl.textContent = '已模拟：' + (sel ? sel.parentElement.textContent.trim() : val);
+    } else {
+      sessionStorage.removeItem(KEY);
+      infoEl.textContent = '当前：真实身份';
+    }
+    // 重新执行过滤
+    var simBu = getStoredSim() ? (DEPT_TO_BU[getStoredSim()] || null) : null;
+    document.querySelectorAll('.db-card[data-allowed-bu]').forEach(function(el) {
+      var allowed = el.getAttribute('data-allowed-bu') || '';
+      var buList = allowed ? allowed.split(',') : [];
+      if (!simBu) {
+        el.style.display = '';
+      } else if (simBu === 'hq') {
+        el.style.display = '';
+      } else {
+        el.style.display = (buList.length > 0 && buList.indexOf(simBu) === -1) ? 'none' : '';
+      }
+    });
+    var total = document.querySelectorAll('.db-card[data-allowed-bu]').length;
+    var shown = document.querySelectorAll('.db-card[data-allowed-bu]:not([style*="none"])').length;
+    console.log('[BU模拟] 显示 ' + shown + '/' + total + ' 个数据库');
+  };
+
+  var sim = getStoredSim();
+  if (sim) {
+    infoEl.textContent = '已模拟：' + sim;
+  } else {
+    infoEl.textContent = '当前：真实身份';
+  }
+})();
+</script>
+
 <div class="main-content">
     <div id="panel-data" class="tab-panel active">
         <div class="db-grid" id="db-grid-data"></div>
@@ -676,6 +762,10 @@ updateTopbarTime();
     };
 
     function getBu() {
+        // 优先读取模拟身份（调试面板设置）
+        var simDept = sessionStorage.getItem('_sim_dept');
+        if (simDept) return DEPT_TO_BU[simDept] || null;
+        // 否则读真实身份
         var m = location.search.match(/[?&]__dept=([^&]+)/);
         var deptId = m ? decodeURIComponent(m[1]) : (sessionStorage.getItem('_dept') || '');
         return DEPT_TO_BU[deptId] || null;
@@ -685,7 +775,10 @@ updateTopbarTime();
         var bu = getBu();
         if (!bu) return; // 无部门信息，不过滤（保守）
         // HQ（集团领导）可见全部
-        if (bu === 'hq') return;
+        if (bu === 'hq') {
+            console.log('[BU过滤] 集团领导，全部可见');
+            return;
+        }
 
         // 非HQ：隐藏无权访问的卡片
         var hidden = 0, total = 0;
@@ -699,7 +792,9 @@ updateTopbarTime();
             }
         });
         if (hidden > 0) {
-            console.log('[BU过滤] 已隐藏 ' + hidden + '/' + total + ' 个无权访问的数据库');
+            console.log('[BU过滤] 已隐藏 ' + hidden + '/' + total + ' 个无权访问的数据库（模拟角色：' + bu + '）');
+        } else {
+            console.log('[BU过滤] 显示 ' + total + ' 个数据库（模拟角色：' + bu + '）');
         }
     }
 
