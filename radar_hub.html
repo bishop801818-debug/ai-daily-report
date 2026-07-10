@@ -680,6 +680,7 @@ window.addEventListener('resize', function() {
     var m=location.search.match(/[?&]__dept=([^&]+)/);
     var d=m?decodeURIComponent(m[1]):'';
     try{ if(d){sessionStorage.setItem('__dept',d);} else {d=sessionStorage.getItem('__dept')||'';} }catch(e){}
+    console.log('[radar_hub] getDept() =', d, '| full URL:', location.href);
     return d;
   }
   function isAllowed(bu,dept){
