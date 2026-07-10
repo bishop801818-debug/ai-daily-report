@@ -667,7 +667,6 @@ window.addEventListener('resize', function() {
   if(dept){try{sessionStorage.setItem('__dept',dept);}catch(e){}}
   console.log('[radar_hub] dept=',dept);
 
-  var GATED=['sdmd','lpsd'];
   var HQ=['od-8ad5942df92ef45ac8905b543fc38d2b','7593161552124923083'];
   var BU_DEPT={
     hq:['od-8ad5942df92ef45ac8905b543fc38d2b','7593161552124923083'],
@@ -692,14 +691,13 @@ window.addEventListener('resize', function() {
     return false;
   }
 
-  var APP_BASE='https://lopal603906.aiforce.cloud/app/app_4k7069448fj88';
   var GITHUB_BASE='https://bishop801818-debug.github.io/ai-daily-report/';
 
   function buildDetailUrl(buId){
     var deptParam=dept?'departmentId='+encodeURIComponent(dept):'';
     var url;
-    if(buId==='sdmd')url=APP_BASE+'/api/secure-content/radar/sdmd';
-    else if(buId==='lpsd')url=APP_BASE+'/api/secure-content/radar/lpsd';
+    if(buId==='sdmd')url=GITHUB_BASE+'radar_detail_sdmd.html';
+    else if(buId==='lpsd')url=GITHUB_BASE+'radar_detail_lpsd.html';
     else if(buId==='kls')url=GITHUB_BASE+'radar_detail_kelan.html';
     else if(buId==='lhy')url=GITHUB_BASE+'radar_detail_lhy.html';
     else if(buId==='dhx')url=GITHUB_BASE+'radar_detail_dkhx.html';
@@ -707,7 +705,7 @@ window.addEventListener('resize', function() {
     else if(buId==='felt')url=GITHUB_BASE+'radar_detail_felt.html';
     else if(buId==='sjld')url=GITHUB_BASE+'radar_detail_sjld.html';
     else url='radar_detail.html?id='+buId;
-    if(GATED.indexOf(buId)>=0&&deptParam)url+='?'+deptParam;
+    if(deptParam)url+=(url.indexOf('?')>=0?'&':'?')+deptParam;
     return url;
   }
 
