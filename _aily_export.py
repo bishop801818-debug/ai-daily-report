@@ -97,7 +97,7 @@ def render_report(data, filename):
         bu_name = "、".join(b for b in bus if b) or "全公司"
     title = f"锂电早报 {date}" + (f" · {bu_name}" if bu_name else "")
     parts.append(f"# {title}\n")
-    parts.append(f"> 生成日期：{datetime.now().strftime('%Y-%m-%d %H:%M')} ｜ 源文件：`{filename}`\n")
+    parts.append(f"> 生成日期：{date or '—'} ｜ 源文件：`{filename}`\n")
 
     header = data.get("header")
     if isinstance(header, dict):

@@ -3160,28 +3160,7 @@ function refreshInsights() {
     kls:['od-c90e5fd524dfde6467bd59b867cfed8c'],
     bych:['od-33054981612c6dc0fbbdfbb743774d1b'],
   };
-  function getDept(){
-    var m=location.search.match(/[?&]departmentId=([^&]+)/);
-    return m?decodeURIComponent(m[1]):'';
-  }
-  function isAllowed(deptId){
-    if(!deptId)return false;
-    if(BU_DEPT.hq.indexOf(deptId)>=0)return true;
-    var arr=BU_DEPT['lpsd'];
-    if(arr&&arr.indexOf(deptId)>=0)return true;
-    return false;
-  }
-  var dept=getDept();
-  if(!isAllowed(dept)){
-    document.title='无权限 - 龙蟠时代雷达详情';
-    document.body.innerHTML='<div style="display:flex;align-items:center;justify-content:center;height:100vh;background:#f5f6fa;font-family:Microsoft YaHei,sans-serif"><div style="text-align:center;padding:48px;background:#fff;border-radius:16px;box-shadow:0 8px 30px rgba(0,0,0,.08);max-width:400px"><div style="font-size:48px;margin-bottom:12px">⛔</div><div style="font-size:20px;font-weight:700;color:#c0392b;margin-bottom:8px">无权限访问</div><div style="color:#888;font-size:14px">您所在的部门无权查看该事业部的数据，请联系管理员。</div></div></div>';
-    throw new Error('access denied');
-  }
-  renderMonthSwitcher();
-  initTimeline();
-  renderAll();
-})();
-</script>
+  
 </script>
     <script src="assets/ai_fab_inject.js"></script>
 </body>

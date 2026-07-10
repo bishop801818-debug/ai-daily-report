@@ -654,64 +654,6 @@ window.addEventListener('resize', function() {
 </script>
     <script src="assets/ai_fab_inject.js"></script>
 
-<!-- BU_GATE_INJECT_START -->
-<script>
-(function(){
-  // 试点阶段（2026-07-10）：sdmd + lpsd 两个 BU 走 Miaoda 服务端路由，
-  // departmentId 由服务端门禁校验；其余 BU 走 GitHub Pages 独立文件。
-  // 管理员默认兜底：从 URL ?__dept= 读，读不到则用硬编码值
-  var ADMIN_DEPT='7593161552124923083';
-  var m=location.search.match(/[?&]__dept=([^&]+)/);
-  var dept=m?decodeURIComponent(m[1]):sessionStorage.getItem('__dept')||ADMIN_DEPT;
-  if(dept){try{sessionStorage.setItem('__dept',dept);}catch(e){}}
-  console.log('[radar_hub] dept=',dept);
 
-  var GATED=['sdmd','lpsd'];
-  var APP_BASE='https://lopal603906.aiforce.cloud/app/app_4k7069448fj88';
-  var GITHUB_BASE='https://bishop801818-debug.github.io/ai-daily-report/';
-
-  function buildDetailUrl(buId){
-    var deptParam=dept?'departmentId='+encodeURIComponent(dept):'';
-    var url;
-    if(buId==='sdmd')url=APP_BASE+'/api/secure-content/radar/sdmd';
-    else if(buId==='lpsd')url=APP_BASE+'/api/secure-content/radar/lpsd';
-    else if(buId==='kls')url=GITHUB_BASE+'radar_detail_kelan.html';
-    else if(buId==='lhy')url=GITHUB_BASE+'radar_detail_lhy.html';
-    else if(buId==='dhx')url=GITHUB_BASE+'radar_detail_dkhx.html';
-    else if(buId==='czly')url=GITHUB_BASE+'radar_detail_czly.html';
-    else if(buId==='felt')url=GITHUB_BASE+'radar_detail_felt.html';
-    else if(buId==='sjld')url=GITHUB_BASE+'radar_detail_sjld.html';
-    else url='radar_detail.html?id='+buId;
-    if(GATED.indexOf(buId)>=0&&deptParam)url+='?'+deptParam;
-    return url;
-  }
-
-  // 拦截雷达卡片链接：从 href 提取 buId，重新构建 Miaoda 服务端 URL
-  function rewriteLink(a){
-    var href=a.getAttribute('href')||'';
-    // 匹配 radar_detail_xxx.html
-    var m=href.match(/radar_detail_([a-z0-9]+)\.html/i);
-    if(!m)return;
-    var buId=m[1];
-    // 规范化别名
-    var alias={'dkhx':'dhx','sjld':'sjld','kelan':'kls'};
-    buId=alias[buId]||buId;
-    a.href=buildDetailUrl(buId);
-  }
-
-  function scan(){
-    document.querySelectorAll('a[href]').forEach(function(a){rewriteLink(a);});
-  }
-  scan();
-  if(window.MutationObserver){
-    var to;
-    new MutationObserver(function(){
-      clearTimeout(to);
-      to=setTimeout(scan,200);
-    }).observe(document.body,{childList:true,subtree:true});
-  }
-})();
-</script>
-<!-- BU_GATE_INJECT_END -->
 </body>
 </html>
