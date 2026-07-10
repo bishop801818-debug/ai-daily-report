@@ -658,10 +658,9 @@ window.addEventListener('resize', function() {
 (function(){
   // 试点阶段（2026-07-10）：sdmd + lpsd 走 Miaoda 服务端路由（服务端门禁），
   // 其余 BU 走 GitHub Pages（前端灰卡，HQ 管理员可见全部）。
-  // 管理员兜底：从 URL ?__dept= 读，读不到则用硬编码值
-  var ADMIN_DEPT='7593161552124923083';
+  // 部门权限：从 URL ?__dept= 读取，读不到则空字符串（非管理员，全灰卡）。
   var m=location.search.match(/[?&]__dept=([^&]+)/);
-  var dept=m?decodeURIComponent(m[1]):sessionStorage.getItem('__dept')||ADMIN_DEPT;
+  var dept=m?decodeURIComponent(m[1]):sessionStorage.getItem('__dept')||'';
   if(dept){try{sessionStorage.setItem('__dept',dept);}catch(e){}}
   console.log('[radar_hub] dept=',dept);
 
