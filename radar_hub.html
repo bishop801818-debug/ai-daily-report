@@ -407,27 +407,25 @@ function buildCard(buId, meta) {
         return '<span class="dim-chip"><span class="chip-val" style="color:' + meta.color + '">' + v + '</span>' + DIM_NAMES[i] + '</span>';
     }).join('');
 
-    // 试点阶段：sdmd + lpsd 两个 BU 走 Miaoda 服务端路由（server/content/ 受 @NeedLogin 门禁保护）。
-    // 其余 BU 仍走 GitHub Pages 独立文件，待后续迁移。
-    var GATED_BUS = { sdmd: true, lpsd: true };
-    var APP_BASE = 'https://lopal603906.aiforce.cloud/app/app_4k7069448fj88';
+    // 全部 BU 的雷达详情页统一走 GitHub Pages 独立文件（client-side 门禁在详情页内执行）。
+    // 不再经 Miaoda 服务端 /api/secure-content 路由（跨域 iframe 被网关 CSRF 拦截）。
     var GITHUB_BASE = 'https://bishop801818-debug.github.io/ai-daily-report/';
     var deptParam = (function(){
       var m = location.search.match(/[?&]__dept=([^&]+)/);
       return m ? 'departmentId=' + decodeURIComponent(m[1]) : '';
     })();
     var DETAIL_FILE = {
-        'sdmd': APP_BASE + '/api/secure-content/radar/sdmd',
+        'sdmd': GITHUB_BASE + 'radar_detail_sdmd.html',
         'kls':  GITHUB_BASE + 'radar_detail_kelan.html',
         'lhy':  GITHUB_BASE + 'radar_detail_lhy.html',
         'dhx':  GITHUB_BASE + 'radar_detail_dkhx.html',
         'czly': GITHUB_BASE + 'radar_detail_czly.html',
-        'lpsd': APP_BASE + '/api/secure-content/radar/lpsd',
+        'lpsd': GITHUB_BASE + 'radar_detail_lpsd.html',
         'felt': GITHUB_BASE + 'radar_detail_felt.html',
         'sjld': GITHUB_BASE + 'radar_detail_sjld.html'
     };
     var raw = DETAIL_FILE[buId] || ('radar_detail.html?id=' + buId);
-    var detailUrl = (GATED_BUS[buId] && deptParam) ? (raw + '?' + deptParam) : raw;
+    var detailUrl = deptParam ? (raw + '?' + deptParam) : raw;
     return '<div id="card-' + buId + '" class="dept-card ' + meta.category + '" style="border-left-color:' + meta.color + '">' +
         '<div class="dept-card-header">' +
         logoHTML +
