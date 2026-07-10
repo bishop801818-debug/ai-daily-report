@@ -3147,10 +3147,7 @@ function refreshInsights() {
 }
 
 // ─────────────────────────────────────────────
-// 部门门禁（client-side）：读取 departmentId → isAllowed 校验 → 遮罩或放行
-// ─────────────────────────────────────────────
 (function gating(){
-  var ADMIN_DEPT='7593161552124923083';
   var BU_DEPT={
     hq:['od-8ad5942df92ef45ac8905b543fc38d2b','7593161552124923083'],
     czly:['od-c8c5bc8612d60825208196a97cd0686d'],
@@ -3165,17 +3162,13 @@ function refreshInsights() {
   };
   function getDept(){
     var m=location.search.match(/[?&]departmentId=([^&]+)/);
-    var d=m?decodeURIComponent(m[1]):sessionStorage.getItem('__dept')||'';
-    if(d&&d!==ADMIN_DEPT)try{sessionStorage.setItem('__dept',d);}catch(e){}
-    return d;
+    return m?decodeURIComponent(m[1]):'';
   }
   function isAllowed(deptId){
-    var bu='lpsd';
     if(!deptId)return false;
-    if(deptId===ADMIN_DEPT)return true;
-    var arr=BU_DEPT[deptId];
-    if(arr)return arr.indexOf(deptId)>=0;
-    for(var b in BU_DEPT){if(b==='hq')continue;if(BU_DEPT[b].indexOf(deptId)>=0)return b===bu;}
+    if(BU_DEPT.hq.indexOf(deptId)>=0)return true;
+    var arr=BU_DEPT['lpsd'];
+    if(arr&&arr.indexOf(deptId)>=0)return true;
     return false;
   }
   var dept=getDept();
@@ -3188,6 +3181,7 @@ function refreshInsights() {
   initTimeline();
   renderAll();
 })();
+</script>
 </script>
     <script src="assets/ai_fab_inject.js"></script>
 </body>
