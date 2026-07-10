@@ -3146,11 +3146,47 @@ function refreshInsights() {
     setTimeout(renderInsights, 500);
 }
 
-// 初始化
-(function init() {
-    renderMonthSwitcher();
-    initTimeline();
-    renderAll();
+// ─────────────────────────────────────────────
+// 部门门禁（client-side）：读取 departmentId → isAllowed 校验 → 遮罩或放行
+// ─────────────────────────────────────────────
+(function gating(){
+  var ADMIN_DEPT='7593161552124923083';
+  var BU_DEPT={
+    hq:['od-8ad5942df92ef45ac8905b543fc38d2b','7593161552124923083'],
+    czly:['od-c8c5bc8612d60825208196a97cd0686d'],
+    lpsd:['od-349632b3f04edaa205990f6c96e66c26','od-c36a380b50b52171d47b7a8f5c1f3a70'],
+    sdmd:['od-05e668aea865f92b574f366b3d976094'],
+    sjl:['od-310bdafba6cb5bdbd3300cf326878caa'],
+    felt:['od-2e6cc0918fbe3086ebf636680997a2f2'],
+    dhx:['od-7a313bc06887dc30349237cb0d64ce83'],
+    lhy:['od-280342e9ed0ad39d203d5462b337451c'],
+    kls:['od-c90e5fd524dfde6467bd59b867cfed8c'],
+    bych:['od-33054981612c6dc0fbbdfbb743774d1b'],
+  };
+  function getDept(){
+    var m=location.search.match(/[?&]departmentId=([^&]+)/);
+    var d=m?decodeURIComponent(m[1]):sessionStorage.getItem('__dept')||'';
+    if(d&&d!==ADMIN_DEPT)try{sessionStorage.setItem('__dept',d);}catch(e){}
+    return d;
+  }
+  function isAllowed(deptId){
+    var bu='lpsd';
+    if(!deptId)return false;
+    if(deptId===ADMIN_DEPT)return true;
+    var arr=BU_DEPT[deptId];
+    if(arr)return arr.indexOf(deptId)>=0;
+    for(var b in BU_DEPT){if(b==='hq')continue;if(BU_DEPT[b].indexOf(deptId)>=0)return b===bu;}
+    return false;
+  }
+  var dept=getDept();
+  if(!isAllowed(dept)){
+    document.title='无权限 - 龙蟠时代雷达详情';
+    document.body.innerHTML='<div style="display:flex;align-items:center;justify-content:center;height:100vh;background:#f5f6fa;font-family:Microsoft YaHei,sans-serif"><div style="text-align:center;padding:48px;background:#fff;border-radius:16px;box-shadow:0 8px 30px rgba(0,0,0,.08);max-width:400px"><div style="font-size:48px;margin-bottom:12px">⛔</div><div style="font-size:20px;font-weight:700;color:#c0392b;margin-bottom:8px">无权限访问</div><div style="color:#888;font-size:14px">您所在的部门无权查看该事业部的数据，请联系管理员。</div></div></div>';
+    throw new Error('access denied');
+  }
+  renderMonthSwitcher();
+  initTimeline();
+  renderAll();
 })();
 </script>
     <script src="assets/ai_fab_inject.js"></script>
