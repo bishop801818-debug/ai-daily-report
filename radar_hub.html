@@ -407,19 +407,27 @@ function buildCard(buId, meta) {
         return '<span class="dim-chip"><span class="chip-val" style="color:' + meta.color + '">' + v + '</span>' + DIM_NAMES[i] + '</span>';
     }).join('');
 
-    // 各事业部雷达详情页均有独立专用文件，直接链接（妙搭 Serving 会丢弃 ?query 参数，
-    // 故不使用 radar_detail.html?id=XXX 的跳转页，避免落到“未知BU”错误页）
+    // 试点阶段：sdmd + lpsd 两个 BU 走 Miaoda 服务端路由（server/content/ 受 @NeedLogin 门禁保护）。
+    // 其余 BU 仍走 GitHub Pages 独立文件，待后续迁移。
+    var GATED_BUS = { sdmd: true, lpsd: true };
+    var APP_BASE = 'https://lopal603906.aiforce.cloud/app/app_4k7069448fj88';
+    var GITHUB_BASE = 'https://bishop801818-debug.github.io/ai-daily-report/';
+    var deptParam = (function(){
+      var m = location.search.match(/[?&]__dept=([^&]+)/);
+      return m ? 'departmentId=' + decodeURIComponent(m[1]) : '';
+    })();
     var DETAIL_FILE = {
-        'sdmd': 'radar_detail_sdmd.html',
-        'kls':  'radar_detail_kelan.html',   // 可兰素专用页文件名为 kelan
-        'lhy':  'radar_detail_lhy.html',
-        'dhx':  'radar_detail_dkhx.html',
-        'czly': 'radar_detail_czly.html',
-        'lpsd': 'radar_detail_lpsd.html',
-        'felt': 'radar_detail_felt.html',
-        'sjld': 'radar_detail_sjld.html'
+        'sdmd': APP_BASE + '/api/secure-content/radar/sdmd',
+        'kls':  GITHUB_BASE + 'radar_detail_kelan.html',
+        'lhy':  GITHUB_BASE + 'radar_detail_lhy.html',
+        'dhx':  GITHUB_BASE + 'radar_detail_dkhx.html',
+        'czly': GITHUB_BASE + 'radar_detail_czly.html',
+        'lpsd': APP_BASE + '/api/secure-content/radar/lpsd',
+        'felt': GITHUB_BASE + 'radar_detail_felt.html',
+        'sjld': GITHUB_BASE + 'radar_detail_sjld.html'
     };
-    var detailUrl = DETAIL_FILE[buId] || ('radar_detail.html?id=' + buId);
+    var raw = DETAIL_FILE[buId] || ('radar_detail.html?id=' + buId);
+    var detailUrl = (GATED_BUS[buId] && deptParam) ? (raw + '?' + deptParam) : raw;
     return '<div id="card-' + buId + '" class="dept-card ' + meta.category + '" style="border-left-color:' + meta.color + '">' +
         '<div class="dept-card-header">' +
         logoHTML +
@@ -647,79 +655,61 @@ window.addEventListener('resize', function() {
     <script src="assets/ai_fab_inject.js"></script>
 
 <!-- BU_GATE_INJECT_START -->
-<style>.no-auth-card{cursor:not-allowed;opacity:.55;filter:grayscale(.4);}</style>
 <script>
 (function(){
-  // 如果URL没有__dept，从sessionStorage取并重定向（整页跳转后sessionStorage同域可共享）
-  (function fixDept(){
-    var m=location.search.match(/[?&]__dept=([^&]+)/);
-    if(!m){
-      var d=sessionStorage.getItem('__dept');
-      if(d){
-        var sep=location.search?'&':'?';
-        location.replace(location.pathname+location.search+sep+'__dept='+encodeURIComponent(d)+location.hash);
-      }
-    }
-  })();
+  // 试点阶段（2026-07-10）：sdmd + lpsd 两个 BU 走 Miaoda 服务端路由，
+  // departmentId 由服务端门禁校验；其余 BU 走 GitHub Pages 独立文件。
+  // 管理员默认兜底：从 URL ?__dept= 读，读不到则用硬编码值
+  var ADMIN_DEPT='7593161552124923083';
+  var m=location.search.match(/[?&]__dept=([^&]+)/);
+  var dept=m?decodeURIComponent(m[1]):sessionStorage.getItem('__dept')||ADMIN_DEPT;
+  if(dept){try{sessionStorage.setItem('__dept',dept);}catch(e){}}
+  console.log('[radar_hub] dept=',dept);
+
+  var GATED=['sdmd','lpsd'];
   var APP_BASE='https://lopal603906.aiforce.cloud/app/app_4k7069448fj88';
-  var HQ=['od-8ad5942df92ef45ac8905b543fc38d2b','7593161552124923083'];
-  var BU_DEPT={
-    hq:['od-8ad5942df92ef45ac8905b543fc38d2b','7593161552124923083'],
-    czly:['od-c8c5bc8612d60825208196a97cd0686d'],
-    lpsd:['od-349632b3f04edaa205990f6c96e66c26','od-c36a380b50b52171d47b7a8f5c1f3a70'],
-    sdmd:['od-05e668aea865f92b574f366b3d976094'],
-    sjl:['od-310bdafba6cb5bdbd3300cf326878caa'],
-    felt:['od-2e6cc0918fbe3086ebf636680997a2f2'],
-    dhx:['od-7a313bc06887dc30349237cb0d64ce83'],
-    lhy:['od-280342e9ed0ad39d203d5462b337451c'],
-    kls:['od-c90e5fd524dfde6467bd59b867cfed8c'],
-    bych:['od-33054981612c6dc0fbbdfbb743774d1b'],
-  };
-  var CODE_TO_BU={czly:'czly',lpsd:'lpsd',sdmd:'sdmd',sjld:'sjl',felt:'felt',dhx:'dhx',dkhx:'dhx',lhy:'lhy',kelan:'kls',kls:'kls',bych:'bych'};
-  function getDept(){
-    var m=location.search.match(/[?&]__dept=([^&]+)/);
-    var d=m?decodeURIComponent(m[1]):'';
-    try{ if(d){sessionStorage.setItem('__dept',d);} else {d=sessionStorage.getItem('__dept')||'';} }catch(e){}
-    console.log('[radar_hub] getDept() =', d, '| full URL:', location.href);
-    return d;
+  var GITHUB_BASE='https://bishop801818-debug.github.io/ai-daily-report/';
+
+  function buildDetailUrl(buId){
+    var deptParam=dept?'departmentId='+encodeURIComponent(dept):'';
+    var url;
+    if(buId==='sdmd')url=APP_BASE+'/api/secure-content/radar/sdmd';
+    else if(buId==='lpsd')url=APP_BASE+'/api/secure-content/radar/lpsd';
+    else if(buId==='kls')url=GITHUB_BASE+'radar_detail_kelan.html';
+    else if(buId==='lhy')url=GITHUB_BASE+'radar_detail_lhy.html';
+    else if(buId==='dhx')url=GITHUB_BASE+'radar_detail_dkhx.html';
+    else if(buId==='czly')url=GITHUB_BASE+'radar_detail_czly.html';
+    else if(buId==='felt')url=GITHUB_BASE+'radar_detail_felt.html';
+    else if(buId==='sjld')url=GITHUB_BASE+'radar_detail_sjld.html';
+    else url='radar_detail.html?id='+buId;
+    if(GATED.indexOf(buId)>=0&&deptParam)url+='?'+deptParam;
+    return url;
   }
-  function isAllowed(bu,dept){
-    if(!dept)return false;
-    if(HQ.indexOf(dept)>=0)return true;
-    var arr=BU_DEPT[bu];
-    if(arr&&arr.indexOf(dept)>=0)return true;
-    if(bu===dept)return true;
-    for(var b in BU_DEPT){if(b==='hq')continue;if(BU_DEPT[b].indexOf(dept)>=0)return b===bu;}
-    return false;
-  }
-  function showNoAuth(){
-    var b=document.getElementById('__noauth_banner__');
-    if(!b){b=document.createElement('div');b.id='__noauth_banner__';b.style.cssText='position:fixed;top:0;left:0;right:0;z-index:2147483647;background:#c0392b;color:#fff;padding:10px 16px;font-size:14px;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,.2)';document.body.appendChild(b);}
-    b.textContent='\u2705 \u65e0\u6743\u9650\u8bbf\u95ee\uff1a\u60a8\u6240\u5728\u90e8\u95e8\u65e0\u6743\u67e5\u770b\u8be5\u4e8b\u4e1a\u90e8\u7684\u6570\u636e\uff0c\u8bf7\u8054\u7cfb\u7ba1\u7406\u5458\u3002';
-    b.style.display='block';clearTimeout(b.__t);b.__t=setTimeout(function(){b.style.display='none';},5000);
-  }
-  function rewrite(a){
-    if(a.dataset.__gated)return;
+
+  // 拦截雷达卡片链接：从 href 提取 buId，重新构建 Miaoda 服务端 URL
+  function rewriteLink(a){
     var href=a.getAttribute('href')||'';
-    var m,module,code;
-    if((m=href.match(/dept-archive\.html(?:\?id=|#)([a-z0-9]+)/i))){module='archive';code=m[1];}
-    else if((m=href.match(/strategy_dashboard\.html(?:\?id=|#)([a-z0-9]+)/i))){module='competitor';code=m[1];}
-    else if((m=href.match(/radar_detail_([a-z0-9]+)\.html/i))){module='radar';code=m[1];}
-    else return;
-    a.dataset.__gated='1';
-    var bu=CODE_TO_BU[code]||code;
-    var dept=getDept();
-    if(isAllowed(bu,dept)){
-      a.setAttribute('href',APP_BASE+'/api/secure-content/'+module+'/'+bu+'?departmentId='+encodeURIComponent(dept));
-    }else{
-      a.setAttribute('href','javascript:void(0)');
-      a.classList.add('no-auth-card');
-      a.addEventListener('click',function(e){e.preventDefault();showNoAuth();});
-    }
+    // 匹配 radar_detail_xxx.html
+    var m=href.match(/radar_detail_([a-z0-9]+)\.html/i);
+    if(!m)return;
+    var buId=m[1];
+    // 规范化别名
+    var alias={'dkhx':'dhx','sjld':'sjld','kelan':'kls'};
+    buId=alias[buId]||buId;
+    a.href=buildDetailUrl(buId);
   }
-  function scan(){var links=document.querySelectorAll('a[href]');for(var i=0;i<links.length;i++){rewrite(links[i]);}}
+
+  function scan(){
+    document.querySelectorAll('a[href]').forEach(function(a){rewriteLink(a);});
+  }
   scan();
-  if(window.MutationObserver){var to;new MutationObserver(function(){clearTimeout(to);to=setTimeout(scan,200);}).observe(document.body,{childList:true,subtree:true});}
+  if(window.MutationObserver){
+    var to;
+    new MutationObserver(function(){
+      clearTimeout(to);
+      to=setTimeout(scan,200);
+    }).observe(document.body,{childList:true,subtree:true});
+  }
 })();
 </script>
 <!-- BU_GATE_INJECT_END -->
