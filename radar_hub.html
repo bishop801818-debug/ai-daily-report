@@ -660,8 +660,7 @@ window.addEventListener('resize', function() {
   // 其余 BU 走 GitHub Pages（前端灰卡，HQ 管理员可见全部）。
   // 部门权限：从 URL ?__dept= 读取，读不到则空字符串（非管理员，全灰卡）。
   var m=location.search.match(/[?&]__dept=([^&]+)/);
-  var dept=m?decodeURIComponent(m[1]):sessionStorage.getItem('__dept')||'';
-  if(dept){try{sessionStorage.setItem('__dept',dept);}catch(e){}}
+  var dept=m?decodeURIComponent(m[1]):'';
   console.log('[radar_hub] dept=',dept);
 
   var HQ=['od-8ad5942df92ef45ac8905b543fc38d2b','7593161552124923083'];

@@ -3085,10 +3085,7 @@ function refreshInsights() {
 }
 
 // ─────────────────────────────────────────────
-// 部门门禁（client-side）：读取 departmentId → isAllowed 校验 → 遮罩或放行
-// ─────────────────────────────────────────────
 (function gating(){
-  var ADMIN_DEPT='7593161552124923083';
   var BU_DEPT={
     hq:['od-8ad5942df92ef45ac8905b543fc38d2b','7593161552124923083'],
     czly:['od-c8c5bc8612d60825208196a97cd0686d'],
@@ -3103,17 +3100,13 @@ function refreshInsights() {
   };
   function getDept(){
     var m=location.search.match(/[?&]departmentId=([^&]+)/);
-    var d=m?decodeURIComponent(m[1]):sessionStorage.getItem('__dept')||'';
-    if(d&&d!==ADMIN_DEPT)try{sessionStorage.setItem('__dept',d);}catch(e){}
-    return d;
+    return m?decodeURIComponent(m[1]):'';
   }
   function isAllowed(deptId){
-    var bu='sdmd';
     if(!deptId)return false;
-    if(deptId===ADMIN_DEPT)return true;
-    var arr=BU_DEPT[deptId];
-    if(arr)return arr.indexOf(deptId)>=0;
-    for(var b in BU_DEPT){if(b==='hq')continue;if(BU_DEPT[b].indexOf(deptId)>=0)return b===bu;}
+    if(BU_DEPT.hq.indexOf(deptId)>=0)return true;
+    var arr=BU_DEPT['sdmd'];
+    if(arr&&arr.indexOf(deptId)>=0)return true;
     return false;
   }
   var dept=getDept();
@@ -3122,11 +3115,11 @@ function refreshInsights() {
     document.body.innerHTML='<div style="display:flex;align-items:center;justify-content:center;height:100vh;background:#f5f6fa;font-family:Microsoft YaHei,sans-serif"><div style="text-align:center;padding:48px;background:#fff;border-radius:16px;box-shadow:0 8px 30px rgba(0,0,0,.08);max-width:400px"><div style="font-size:48px;margin-bottom:12px">⛔</div><div style="font-size:20px;font-weight:700;color:#c0392b;margin-bottom:8px">无权限访问</div><div style="color:#888;font-size:14px">您所在的部门无权查看该事业部的数据，请联系管理员。</div></div></div>';
     throw new Error('access denied');
   }
-  // 放行：正常初始化
   renderMonthSwitcher();
   initTimeline();
   renderAll();
 })();
+</script>
 </script>
     <script src="assets/ai_fab_inject.js"></script>
 </body>

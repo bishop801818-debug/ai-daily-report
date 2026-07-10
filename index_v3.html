@@ -7178,5 +7178,110 @@
 
     <script src="assets/ai_fab_inject.js?v=20260619"></script>
     <script src="feishu-jsapi.js?v=20260622"></script>
+<!-- INDEX_BU_GATE_START -->
+<script>
+(function(){
+  // ─── 读取 __dept（HomePage 注入到 iframe URL）──────────────────────────
+  var m=location.search.match(/[?&]__dept=([^&]+)/);
+  var dept=m?decodeURIComponent(m[1]):'';
+  console.log('[index_v3] dept=',dept);
+
+  // ─── BU 权限矩阵（inline_03.js buList 代码 → 权限代码）────────────────
+  var BU_DEPT={
+    hq:  ['od-8ad5942df92ef45ac8905b543fc38d2b','7593161552124923083'],
+    czly:['od-c8c5bc8612d60825208196a97cd0686d'],
+    lpsd:['od-349632b3f04edaa205990f6c96e66c26','od-c36a380b50b52171d47b7a8f5c1f3a70'],
+    sdmd:['od-05e668aea865f92b574f366b3d976094'],
+    sjl: ['od-310bdafba6cb5bdbd3300cf326878caa'],
+    felt:['od-2e6cc0918fbe3086ebf636680997a2f2'],
+    dhx: ['od-7a313bc06887dc30349237cb0d64ce83'],
+    lhy: ['od-280342e9ed0ad39d203d5462b337451c'],
+    kls: ['od-c90e5fd524dfde6467bd59b867cfed8c'],
+    bych:['od-33054981612c6dc0fbbdfbb743774d1b'],
+  };
+  // inline_03.js buList 代码 → 权限代码的别名映射
+  var ALIAS={'lubricant':'lhy','kelan':'kls','dkhx':'dhx','lube':'lhy'};
+
+  function isAllowed(buId){
+    if(!dept)return false;
+    if(BU_DEPT.hq.indexOf(dept)>=0)return true;
+    var code=ALIAS[buId]||buId;
+    var arr=BU_DEPT[code];
+    if(arr&&arr.indexOf(dept)>=0)return true;
+    return false;
+  }
+
+  // ─── 过滤全览矩阵卡（allbu-card）─────────────────────────────────────
+  // cards 在 openAllBuModal() 后才渲染，用 MutationObserver 监控 allbuGrid
+  function filterAllBuCards(){
+    var grid=document.getElementById('allbuGrid');
+    if(!grid)return;
+    var cards=grid.querySelectorAll('.allbu-card');
+    cards.forEach(function(card){
+      var buId=card.className.split(' ').find(function(c){return c!=='allbu-card'&&c;});
+      var code=ALIAS[buId]||buId;
+      if(!isAllowed(code)){
+        card.style.display='none';
+      } else {
+        card.style.display='';
+      }
+    });
+  }
+  var to;
+  new MutationObserver(function(){
+    clearTimeout(to);
+    to=setTimeout(filterAllBuCards,300);
+  }).observe(document.body,{childList:true,subtree:true});
+
+  // ─── 拦截子页导航，追加 __dept 参数 ───────────────────────────────────
+  // index_v3.html 用 window.location.href='xxx.html' 导航，拦截 clicks
+  function appendDept(url){
+    if(!dept||!url)return url;
+    var base=url.split('#')[0];
+    var hash=url.indexOf('#')>=0?url.slice(url.indexOf('#')):'';
+    var sep=base.indexOf('?')>=0?'&':'?';
+    return base+sep+'__dept='+encodeURIComponent(dept)+hash;
+  }
+  function patchNav(){
+    document.querySelectorAll('[onclick]').forEach(function(el){
+      var oc=el.getAttribute('onclick')||'';
+      if(/\.html['"]?\s*$/.test(oc)||/location\.href\s*=\s*['"][^'"]*\.html/.test(oc)){
+        el.addEventListener('mouseup',function handler(){
+          el.removeEventListener('mouseup',handler);
+        });
+      }
+    });
+  }
+  document.addEventListener('click',function(e){
+    var el=e.target.closest('[onclick]');
+    if(!el)return;
+    var oc=el.getAttribute('onclick')||'';
+    // 匹配 window.location.href='xxx.html' 或 onclick="location.href='xxx.html'"
+    var match=oc.match(/location\.href\s*=\s*['"]([^'"]+\.html)/);
+    if(match){
+      e.preventDefault();
+      window.location.href=appendDept(match[1]);
+      return;
+    }
+    // 匹配 onclick="xxx('.html')" 形式（函数调用含 .html 字符串）
+    var m2=oc.match(/['"]([^'"]+\.html)/);
+    if(m2){
+      e.preventDefault();
+      window.location.href=appendDept(m2[1]);
+      return;
+    }
+  });
+  // 也拦截 <a href=".html"> 链接
+  document.addEventListener('click',function(e){
+    var a=e.target.closest('a[href$=".html"]');
+    if(!a||a.href.indexOf('__dept=')>=0)return;
+    if(a.host&&a.host!==location.host)return; // 外部链接不处理
+    e.preventDefault();
+    window.location.href=appendDept(a.getAttribute('href'));
+  });
+  console.log('[index_v3] BU gate ready, dept=',dept);
+})();
+</script>
+<!-- INDEX_BU_GATE_END -->
 </body>
 </html>
