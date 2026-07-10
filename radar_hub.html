@@ -410,18 +410,20 @@ function buildCard(buId, meta) {
     // 全部 BU 的雷达详情页走妙搭服务端门禁路由（@NeedLogin + 部门校验）。
     var MIAODA_BASE = 'https://lopal603906.aiforce.cloud/app/app_4k7069448fj88/';
     var deptParam = (function(){
+      // 优先从 URL 读 __dept；若无（直接访问），从 sessionStorage 读（由 index_v3 导航拦截器存入）
       var m = location.search.match(/[?&]__dept=([^&]+)/);
-      return m ? 'departmentId=' + decodeURIComponent(m[1]) : '';
+      var deptId = m ? decodeURIComponent(m[1]) : (sessionStorage.getItem('_dept') || '');
+      return deptId ? 'departmentId=' + encodeURIComponent(deptId) : '';
     })();
     var DETAIL_FILE = {
-        'sdmd': MIAODA_BASE + 'api/secure-content/radar/sdmd',
-        'kls':  MIAODA_BASE + 'api/secure-content/radar/kls',
-        'lhy':  MIAODA_BASE + 'api/secure-content/radar/lhy',
-        'dhx':  MIAODA_BASE + 'api/secure-content/radar/dhx',
-        'czly': MIAODA_BASE + 'api/secure-content/radar/czly',
-        'lpsd': MIAODA_BASE + 'api/secure-content/radar/lpsd',
-        'felt': MIAODA_BASE + 'api/secure-content/radar/felt',
-        'sjld': MIAODA_BASE + 'api/secure-content/radar/sjl'
+        'sdmd': MIAODA_BASE + 'secure-content/radar/sdmd',
+        'kls':  MIAODA_BASE + 'secure-content/radar/kls',
+        'lhy':  MIAODA_BASE + 'secure-content/radar/lhy',
+        'dhx':  MIAODA_BASE + 'secure-content/radar/dhx',
+        'czly': MIAODA_BASE + 'secure-content/radar/czly',
+        'lpsd': MIAODA_BASE + 'secure-content/radar/lpsd',
+        'felt': MIAODA_BASE + 'secure-content/radar/felt',
+        'sjld': MIAODA_BASE + 'secure-content/radar/sjl'
     };
     var raw = DETAIL_FILE[buId] || ('radar_detail.html?id=' + buId);
     var detailUrl = deptParam ? (raw + '?' + deptParam) : raw;
