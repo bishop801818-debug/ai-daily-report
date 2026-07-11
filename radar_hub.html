@@ -422,13 +422,14 @@ function buildCard(buId, meta) {
     };
     function navigateToDetail(buId) {
         var isLocal = /localhost|127\.0\.0\.1/i.test(location.hostname);
-        var base = isLocal ? '' : 'https://lopal603906.aiforce.cloud/app/app_4k7069448fj88/secure-content/radar/' + buId;
+        var base = isLocal ? '' : 'https://lopal603906.aiforce.cloud/app/app_4k7069448fj88/api/secure-content/radar/' + buId;
         var file = isLocal ? (BU_FILES[buId] || 'radar_detail.html?id=' + buId) : '';
         var url = isLocal ? file : base;
         var m = location.search.match(/[?&]__dept=([^&]+)/);
         var deptId = m ? decodeURIComponent(m[1]) : (sessionStorage.getItem('_dept') || '');
         var finalUrl = deptId ? (url + '?departmentId=' + encodeURIComponent(deptId)) : url;
-        window.location.href = finalUrl;
+        // 使用 location.assign() 而非 location.href=，使 inline_01.js 的 setter 能够拦截并追加 __dept
+        location.assign(finalUrl);
     }
 
     return '<div id="card-' + buId + '" class="dept-card ' + meta.category + '" style="border-left-color:' + meta.color + '">' +
