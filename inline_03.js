@@ -3778,6 +3778,11 @@ const BU_LOGOS = {
                 `</div>`;
             }
             grid.innerHTML = html;
+
+            // BU 门禁过滤
+            if (typeof window.applyBUFilter === 'function') {
+                setTimeout(function() { window.applyBUFilter('#allbuGrid'); }, 50);
+            }
         }
 
         // 从全览卡片进入单个BU轮播
