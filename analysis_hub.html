@@ -264,7 +264,7 @@ const REPORT_LIST = [
         desc: '磷酸铁锂正极材料供需格局、竞争格局、价格体系、出口贸易及战略展望',
         done: true,
         reportBase: 'lfp_report',
-        availableMonths: ['2026-05', '2026-04'],
+        availableMonths: ['2026-04'], // 2026-05 对应 lfp_report_2026_05_v2.html（后缀_v2），暂从列表移除
         dataHref: 'lfp_data_v2.html',
         chartHref: 'lfp_charts.html',
         tabs: '6个Tab',
@@ -311,10 +311,11 @@ const REPORT_LIST = [
         id: 'recycling',
         name: '锂电池回收数据库',
         icon: '♻️',
-        desc: '动力电池回收规模、梯次利用、再生利用、白名单企业与战略展望',
+        desc: '动力电池回收规模、梯次利用、再生利用，白名单企业与战略展望',
         done: true,
-        reportBase: 'recycling_report',
-        availableMonths: ['2026-05'],
+        availableMonths: [], // 暂无可用月度报告，注释掉报告入口
+        dataHref: 'recycling_data_v2.html',
+        chartHref: 'recycling_charts.html',
         tabs: '4个Tab',
         charts: '8个图表',
     },
@@ -406,6 +407,8 @@ function buildReportCard(db) {
         </div>
         <div class="card-actions">
             ${reportBtns}
+            ${db.dataHref ? `<a href="${db.dataHref}" class="btn-data" target="_blank">📊 查看数据</a>` : ''}
+            ${db.chartHref ? `<a href="${db.chartHref}" class="btn-chart" target="_blank">📈 查看图表</a>` : ''}
         </div>
     </div>`;
 }
