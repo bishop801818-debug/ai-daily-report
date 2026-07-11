@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>雷达看板 - 龙蟠科技</title>
+    <script src="bu_gate.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: "Microsoft YaHei", "PingFang SC", sans-serif; background: #f0f2f5; min-height: 100vh; }
@@ -335,7 +336,7 @@ var currentCardMonth = {};
         .then(function(r) { return r.json(); })
         .then(function(logos) {
             BU_LOGOS = logos;
-            renderCards();
+            renderCards(); window.applyBUFilter && setTimeout(function() { window.applyBUFilter('#grid-main'); }, 50);
             if (focusBuId) {
                 var card = document.getElementById('card-' + focusBuId);
                 if (card) {
@@ -345,7 +346,7 @@ var currentCardMonth = {};
             }
         })
         .catch(function() {
-            renderCards();
+            renderCards(); window.applyBUFilter && setTimeout(function() { window.applyBUFilter('#grid-main'); }, 50);
             if (focusBuId) {
                 var card = document.getElementById('card-' + focusBuId);
                 if (card) {
