@@ -373,9 +373,9 @@ function buildReportCard(db) {
             }).join('');
 
             reportBtns = `
-                <a href="${latestHref}" class="btn-report" id="btn-report-${db.id}"> 查看报告（${monthLabel}）</a>
+                <a href="${latestHref}" class="btn-report" id="btn-report-${db.id}"> 查看报告</a>
                 <select class="btn-month" id="sel-month-${db.id}"
-                    onchange="var b=document.getElementById('btn-report-${db.id}');b.href=this.value;b.innerHTML=' 查看报告（'+this.options[this.selectedIndex].text+'）';"
+                    onchange="document.getElementById('btn-report-${db.id}').href=this.value;"
                     title="选择报告月份">
                     ${monthOptions}
                 </select>`;

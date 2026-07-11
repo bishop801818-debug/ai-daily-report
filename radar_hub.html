@@ -366,6 +366,32 @@ function getScore(buId, dims) {
 }
 
 // ─────────────────────────────────────────────
+// 跳转详情页（全局函数，供 onclick 调用）
+// ─────────────────────────────────────────────
+var BU_FILES = {
+    'sdmd': 'radar_detail_sdmd.html',
+    'kls':  'radar_detail_kelan.html',
+    'lhy':  'radar_detail_lhy.html',
+    'dhx':  'radar_detail_dkhx.html',
+    'czly': 'radar_detail_czly.html',
+    'lpsd': 'radar_detail_lpsd.html',
+    'felt': 'radar_detail_felt.html',
+    'sjld': 'radar_detail_sjl.html'
+};
+
+function navigateToDetail(buId) {
+    var isLocal = /localhost|127\.0\.0\.1/i.test(location.hostname);
+    var base = isLocal ? '' : 'https://lopal603906.aiforce.cloud/app/app_4k7069448fj88/api/secure-content/radar/' + buId;
+    var file = isLocal ? (BU_FILES[buId] || 'radar_detail.html?id=' + buId) : '';
+    var url = isLocal ? file : base;
+    var m = location.search.match(/[?&]__dept=([^&]+)/);
+    var deptId = m ? decodeURIComponent(m[1]) : (sessionStorage.getItem('_dept') || '');
+    var finalUrl = deptId ? (url + '?departmentId=' + encodeURIComponent(deptId)) : url;
+    // 使用 location.assign() 而非 location.href=，使 inline_01.js 的 setter 能够拦截并追加 __dept
+    location.assign(finalUrl);
+}
+
+// ─────────────────────────────────────────────
 // 渲染卡片 HTML（雷达图容器使用真实 ECharts div）
 // ─────────────────────────────────────────────
 function buildCard(buId, meta) {
@@ -407,27 +433,7 @@ function buildCard(buId, meta) {
         return '<span class="dim-chip"><span class="chip-val" style="color:' + meta.color + '">' + v + '</span>' + DIM_NAMES[i] + '</span>';
     }).join('');
 
-    // 全部 BU 的雷达详情页走妙搭服务端门禁路由（@NeedLogin + 部门校验）。
-    var MIAODA_BASE = 'https://lopal603906.aiforce.cloud/app/app_4k7069448fj88/';
-    var deptParam = (function(){
-      // 优先从 URL 读 __dept；若无（直接访问），从 sessionStorage 读（由 index_v3 导航拦截器存入）
-      var m = location.search.match(/[?&]__dept=([^&]+)/);
-      var deptId = m ? decodeURIComponent(m[1]) : (sessionStorage.getItem('_dept') || '');
-      return deptId ? 'departmentId=' + encodeURIComponent(deptId) : '';
-    })();
-    var DETAIL_FILE = {
-        'sdmd': MIAODA_BASE + 'secure-content/radar/sdmd',
-        'kls':  MIAODA_BASE + 'secure-content/radar/kls',
-        'lhy':  MIAODA_BASE + 'secure-content/radar/lhy',
-        'dhx':  MIAODA_BASE + 'secure-content/radar/dhx',
-        'czly': MIAODA_BASE + 'secure-content/radar/czly',
-        'lpsd': MIAODA_BASE + 'secure-content/radar/lpsd',
-        'felt': MIAODA_BASE + 'secure-content/radar/felt',
-        'sjld': MIAODA_BASE + 'secure-content/radar/sjl'
-    };
-    var raw = DETAIL_FILE[buId] || ('radar_detail.html?id=' + buId);
-    var detailUrl = deptParam ? (raw + '?' + deptParam) : raw;
-    return '<div id="card-' + buId + '" class="dept-card ' + meta.category + '" style="border-left-color:' + meta.color + '">' +
+    return '<div id="card-' + buId + '" class="dept-card ' + meta.category + '" style="border-left-color:' + meta.color + '" onclick="navigateToDetail(\'' + buId + '\')">' +
         '<div class="dept-card-header">' +
         logoHTML +
         '<div class="dept-info">' +
@@ -435,7 +441,7 @@ function buildCard(buId, meta) {
         '<div class="dept-subtitle">' + meta.subtitle + '</div>' +
         '</div></div>' +
         monthToggle +
-        '<a href="' + detailUrl + '" class="dept-radar-link" onclick="event.stopPropagation()">' +
+        '<a href="javascript:void(0)" class="dept-radar-link" onclick="event.stopPropagation();navigateToDetail(\'' + buId + '\')">' +
         '<div class="dept-radar-preview" id="radar-' + buId + '"></div>' +
         '</a>' +
         '<div class="dept-dims-row">' + dimChips + '</div>' +
