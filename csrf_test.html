@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="zh-CN">
+<head><meta charset="utf-8"><title>CSRF Test</title></head>
+<body>
+<h2>测试：直接改 iframe src 能否绕过 CSRF</h2>
+<p>点击按钮后，观察是否成功加载（无 Forbidden 报错），还是同样报错。</p>
+<button onclick="testIframeSrc()">方法1: 改当前 iframe src</button>
+&nbsp;
+<button onclick="testLocationAssign()">方法2: location.assign（已知会报 CSRF）</button>
+<hr>
+<iframe id="test-frame" style="width:100%;height:400px;border:1px solid #ccc"></iframe>
+<script>
+function getDept() {
+  var m = location.search.match(/[?&]__dept=([^&]+)/);
+  return m ? decodeURIComponent(m[1]) : '';
+}
+
+function testIframeSrc() {
+  var dept = getDept() || 'od-1768efca88fb4611b75efca7140fe16b';
+  var url = 'https://lopal603906.aiforce.cloud/app/app_179wsjrn4fj/api/secure-content/radar/czly?departmentId=' + encodeURIComponent(dept);
+  document.getElementById('test-frame').src = url;
+  document.getElementById('log').textContent = '加载: ' + url;
+}
+
+function testLocationAssign() {
+  var dept = getDept() || 'od-1768efca88fb4611b75efca7140fe16b';
+  var url = 'https://lopal603906.aiforce.cloud/app/app_179wsjrn4fj/api/secure-content/radar/czly?departmentId=' + encodeURIComponent(dept);
+  location.assign(url);
+}
+</script>
+<p id="log" style="color:#888;margin-top:8px">准备就绪</p>
+</body>
+</html>
