@@ -392,6 +392,21 @@ function navigateToDetail(buId) {
     var m = location.search.match(/[?&]__dept=([^&]+)/);
     var deptId = m ? decodeURIComponent(m[1]) : (sessionStorage.getItem('_dept') || '');
     var finalUrl = deptId ? (url + '?departmentId=' + encodeURIComponent(deptId)) : url;
+
+    if (!isLocal && window.parent !== window) {
+        // 通过 postMessage 告知父窗口（Miaoda HomePage）更新 iframe src
+        // HomePage 收到后在自己 iframe 内加载该 URL，完全绕过 CSRF（子资源请求）
+        try {
+            window.parent.postMessage(
+                { type: 'miaoda-navigate-miaoda', miaoUrl: finalUrl },
+                window.location.origin
+            );
+            return;
+        } catch (e) {
+            console.warn('[navigateToDetail] postMessage failed, falling back to location.assign:', e);
+        }
+    }
+    // 回退：直接跳转（localhost 开发环境走这路）
     location.assign(finalUrl);
 }
 
