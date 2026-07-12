@@ -429,7 +429,7 @@ function buildCard(buId, meta) {
         var deptId = m ? decodeURIComponent(m[1]) : (sessionStorage.getItem('_dept') || '');
         var finalUrl = deptId ? (url + '?departmentId=' + encodeURIComponent(deptId)) : url;
         // 使用 location.assign() 而非 location.href=，使 inline_01.js 的 setter 能够拦截并追加 __dept
-        top.location.replace(finalUrl);
+        window.location.replace(finalUrl);
     }
 
     return '<div id="card-' + buId + '" class="dept-card ' + meta.category + '" style="border-left-color:' + meta.color + '">' +
@@ -440,7 +440,7 @@ function buildCard(buId, meta) {
         '<div class="dept-subtitle">' + meta.subtitle + '</div>' +
         '</div></div>' +
         monthToggle +
-        '<a target="_top" href="javascript:void(0)" class="dept-radar-link" onclick="event.stopPropagation();navigateToDetail(\'' + buId + '\')">' +
+        '<a href="javascript:void(0)" class="dept-radar-link" onclick="event.stopPropagation();navigateToDetail(\'' + buId + '\')">' +
         '<div class="dept-radar-preview" id="radar-' + buId + '"></div>' +
         '</a>' +
         '<div class="dept-dims-row">' + dimChips + '</div>' +
