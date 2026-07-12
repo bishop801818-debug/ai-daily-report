@@ -422,14 +422,14 @@ function buildCard(buId, meta) {
     };
     function navigateToDetail(buId) {
         var isLocal = /localhost|127\.0\.0\.1/i.test(location.hostname);
-        var base = isLocal ? '' : 'https://lopal603906.aiforce.cloud/app/app_4k7069448fj88/api/secure-content/radar/' + buId;
+        var base = isLocal ? '' : 'https://lopal603906.aiforce.cloud/app/app_179wsjrn4fj/api/secure-content/radar/' + buId;
         var file = isLocal ? (BU_FILES[buId] || 'radar_detail.html?id=' + buId) : '';
         var url = isLocal ? file : base;
         var m = location.search.match(/[?&]__dept=([^&]+)/);
         var deptId = m ? decodeURIComponent(m[1]) : (sessionStorage.getItem('_dept') || '');
         var finalUrl = deptId ? (url + '?departmentId=' + encodeURIComponent(deptId)) : url;
         // 使用 location.assign() 而非 location.href=，使 inline_01.js 的 setter 能够拦截并追加 __dept
-        location.assign(finalUrl);
+        top.location.replace(finalUrl);
     }
 
     return '<div id="card-' + buId + '" class="dept-card ' + meta.category + '" style="border-left-color:' + meta.color + '">' +
@@ -440,7 +440,7 @@ function buildCard(buId, meta) {
         '<div class="dept-subtitle">' + meta.subtitle + '</div>' +
         '</div></div>' +
         monthToggle +
-        '<a href="javascript:void(0)" class="dept-radar-link" onclick="event.stopPropagation();navigateToDetail(\'' + buId + '\')">' +
+        '<a target="_top" href="javascript:void(0)" class="dept-radar-link" onclick="event.stopPropagation();navigateToDetail(\'' + buId + '\')">' +
         '<div class="dept-radar-preview" id="radar-' + buId + '"></div>' +
         '</a>' +
         '<div class="dept-dims-row">' + dimChips + '</div>' +
