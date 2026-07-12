@@ -367,6 +367,35 @@ function getScore(buId, dims) {
 }
 
 // ─────────────────────────────────────────────
+// 全局变量：BU文件映射（必须放在 buildCard 之前，供 navigateToDetail 调用）
+// ─────────────────────────────────────────────
+var BU_FILES = {
+    'sdmd': 'radar_detail_sdmd.html',
+    'kls':  'radar_detail_kelan.html',
+    'lhy':  'radar_detail_lhy.html',
+    'dhx':  'radar_detail_dkhx.html',
+    'czly': 'radar_detail_czly.html',
+    'lpsd': 'radar_detail_lpsd.html',
+    'felt': 'radar_detail_felt.html',
+    'sjld': 'radar_detail_sjl.html'
+};
+
+// ─────────────────────────────────────────────
+// 跳转详情页（必须为全局函数，供 onclick 调用）
+// 注意：不要将此函数移入 buildCard 内部，否则 onclick 找不到它）
+// ─────────────────────────────────────────────
+function navigateToDetail(buId) {
+    var isLocal = /localhost|127\.0\.0\.1/i.test(location.hostname);
+    var base = isLocal ? '' : 'https://lopal603906.aiforce.cloud/app/app_179wsjrn4fj/api/secure-content/radar/' + buId;
+    var file = isLocal ? (BU_FILES[buId] || 'radar_detail.html?id=' + buId) : '';
+    var url = isLocal ? file : base;
+    var m = location.search.match(/[?&]__dept=([^&]+)/);
+    var deptId = m ? decodeURIComponent(m[1]) : (sessionStorage.getItem('_dept') || '');
+    var finalUrl = deptId ? (url + '?departmentId=' + encodeURIComponent(deptId)) : url;
+    location.assign(finalUrl);
+}
+
+// ─────────────────────────────────────────────
 // 渲染卡片 HTML（雷达图容器使用真实 ECharts div）
 // ─────────────────────────────────────────────
 function buildCard(buId, meta) {
@@ -408,32 +437,7 @@ function buildCard(buId, meta) {
         return '<span class="dim-chip"><span class="chip-val" style="color:' + meta.color + '">' + v + '</span>' + DIM_NAMES[i] + '</span>';
     }).join('');
 
-    // 点击雷达卡片时动态读取 sessionStorage._dept，保证身份切换后立即生效
-    var IS_LOCAL = /localhost|127\.0\.0\.1/i.test(location.hostname);
-    var MIAODA_BASE = 'https://lopal603906.aiforce.cloud/app/app_4k7069448fj88/';
-    var BU_FILES = {
-        'sdmd': 'radar_detail_sdmd.html',
-        'kls':  'radar_detail_kelan.html',
-        'lhy':  'radar_detail_lhy.html',
-        'dhx':  'radar_detail_dkhx.html',
-        'czly': 'radar_detail_czly.html',
-        'lpsd': 'radar_detail_lpsd.html',
-        'felt': 'radar_detail_felt.html',
-        'sjld': 'radar_detail_sjl.html'
-    };
-    function navigateToDetail(buId) {
-        var isLocal = /localhost|127\.0\.0\.1/i.test(location.hostname);
-        var base = isLocal ? '' : 'https://lopal603906.aiforce.cloud/app/app_4k7069448fj88/api/secure-content/radar/' + buId;
-        var file = isLocal ? (BU_FILES[buId] || 'radar_detail.html?id=' + buId) : '';
-        var url = isLocal ? file : base;
-        var m = location.search.match(/[?&]__dept=([^&]+)/);
-        var deptId = m ? decodeURIComponent(m[1]) : (sessionStorage.getItem('_dept') || '');
-        var finalUrl = deptId ? (url + '?departmentId=' + encodeURIComponent(deptId)) : url;
-        // 使用 location.assign() 而非 location.href=，使 inline_01.js 的 setter 能够拦截并追加 __dept
-        location.assign(finalUrl);
-    }
-
-    return '<div id="card-' + buId + '" class="dept-card ' + meta.category + '" style="border-left-color:' + meta.color + '">' +
+    return '<div id="card-' + buId + '" class="dept-card ' + meta.category + '" style="border-left-color:' + meta.color + '" onclick="navigateToDetail(\'' + buId + '\')">' +
         '<div class="dept-card-header">' +
         logoHTML +
         '<div class="dept-info">' +
