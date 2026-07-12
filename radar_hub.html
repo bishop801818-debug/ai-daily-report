@@ -381,26 +381,65 @@ var BU_FILES = {
 };
 
 // ─────────────────────────────────────────────
-// 跳转详情页（必须为全局函数，供 onclick 调用）
-// 注意：不要将此函数移入 buildCard 内部，否则 onclick 找不到它）
+// 跳转详情页（MutationObserver 方式：Bypasses React onclick 拦截）
 // ─────────────────────────────────────────────
-function navigateToDetail(buId) {
+function getFinalUrl(buId) {
     var isLocal = /localhost|127\.0\.0\.1/i.test(location.hostname);
     var base = isLocal ? '' : 'https://lopal603906.aiforce.cloud/app/app_179wsjrn4fj/api/secure-content/radar/' + buId;
     var file = isLocal ? (BU_FILES[buId] || 'radar_detail.html?id=' + buId) : '';
     var url = isLocal ? file : base;
     var m = location.search.match(/[?&]__dept=([^&]+)/);
     var deptId = m ? decodeURIComponent(m[1]) : (sessionStorage.getItem('_dept') || '');
-    var finalUrl = deptId ? (url + '?departmentId=' + encodeURIComponent(deptId)) : url;
+    return deptId ? (url + '?departmentId=' + encodeURIComponent(deptId)) : url;
+}
 
-    if (!isLocal && window.parent !== window) {
+function navigateToDetail(buId) {
+    var finalUrl = getFinalUrl(buId);
+    var isLocal = /localhost|127\.0\.0\.1/i.test(location.hostname);
+    var isInIframe = window !== window.top;
+
+    if (!isLocal && isInIframe) {
         // 通过 postMessage 告知父窗口（Miaoda HomePage）更新 iframe src
-        // HomePage 收到后在自己 iframe 内加载该 URL，完全绕过 CSRF（子资源请求）
         try {
             window.parent.postMessage(
                 { type: 'miaoda-navigate-miaoda', miaoUrl: finalUrl },
                 window.location.origin
             );
+            return;
+        } catch (e) { console.warn('[navigateToDetail] postMessage failed:', e); }
+    }
+    // 回退：直接跳转
+    location.assign(finalUrl);
+}
+
+// MutationObserver：监听 BU 卡片渲染，为其添加原生 click 监听
+// 绕开 Miaoda React 的 onclick 拦截（__reactDispatcher）
+function attachBUDetailNavigation() {
+    // 找出所有 .dept-card 元素（卡片）
+    document.querySelectorAll('.dept-card').forEach(function(card) {
+        // 避免重复绑定
+        if (card.__buNavAttached) return;
+        card.__buNavAttached = true;
+        card.addEventListener('click', function(e) {
+            // 取出 data-bu-id 属性（buildCard 里已加入）
+            var buId = card.getAttribute('data-bu-id');
+            if (buId) {
+                e.preventDefault();
+                e.stopPropagation();
+                navigateToDetail(buId);
+            }
+        });
+    });
+}
+
+// 立即执行一次（页面已有卡片）
+attachBUDetailNavigation();
+
+// 持续监听 DOM 变化（卡片动态渲染时）
+var buDetailObserver = new MutationObserver(function() {
+    attachBUDetailNavigation();
+});
+buDetailObserver.observe(document.body, { childList: true, subtree: true });
             return;
         } catch (e) {
             console.warn('[navigateToDetail] postMessage failed, falling back to location.assign:', e);
@@ -452,7 +491,7 @@ function buildCard(buId, meta) {
         return '<span class="dim-chip"><span class="chip-val" style="color:' + meta.color + '">' + v + '</span>' + DIM_NAMES[i] + '</span>';
     }).join('');
 
-    return '<div id="card-' + buId + '" class="dept-card ' + meta.category + '" style="border-left-color:' + meta.color + '" onclick="navigateToDetail(\'' + buId + '\')">' +
+    return '<div id="card-' + buId + '" class="dept-card ' + meta.category + '" style="border-left-color:' + meta.color + '" data-bu-id="' + buId + '">' +
         '<div class="dept-card-header">' +
         logoHTML +
         '<div class="dept-info">' +
@@ -460,7 +499,7 @@ function buildCard(buId, meta) {
         '<div class="dept-subtitle">' + meta.subtitle + '</div>' +
         '</div></div>' +
         monthToggle +
-        '<a href="javascript:void(0)" class="dept-radar-link" onclick="event.stopPropagation();navigateToDetail(\'' + buId + '\')">' +
+        '<a href="javascript:void(0)" class="dept-radar-link" data-bu-id="' + buId + '">' +
         '<div class="dept-radar-preview" id="radar-' + buId + '"></div>' +
         '</a>' +
         '<div class="dept-dims-row">' + dimChips + '</div>' +
