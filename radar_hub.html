@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>雷达看板 - 龙蟠科技</title>
-    <script src="bu_gate.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: "Microsoft YaHei", "PingFang SC", sans-serif; background: #f0f2f5; min-height: 100vh; }
@@ -336,7 +335,7 @@ var currentCardMonth = {};
         .then(function(r) { return r.json(); })
         .then(function(logos) {
             BU_LOGOS = logos;
-            renderCards(); window.applyBUFilter && setTimeout(function() { window.applyBUFilter('#grid-main'); }, 50);
+            renderCards();
             if (focusBuId) {
                 var card = document.getElementById('card-' + focusBuId);
                 if (card) {
@@ -346,7 +345,7 @@ var currentCardMonth = {};
             }
         })
         .catch(function() {
-            renderCards(); window.applyBUFilter && setTimeout(function() { window.applyBUFilter('#grid-main'); }, 50);
+            renderCards();
             if (focusBuId) {
                 var card = document.getElementById('card-' + focusBuId);
                 if (card) {
@@ -364,95 +363,6 @@ function getScore(buId, dims) {
     var vals = DIM_IDS.map(function(d) { return dims[d] || 0; });
     var wts = BU_WEIGHTS[buId] || DEFAULT_WEIGHTS;
     return Math.round(vals.reduce(function(a, b, i) { return a + b * wts[i] / 100; }, 0));
-}
-
-// ─────────────────────────────────────────────
-// 全局变量：BU文件映射（必须放在 buildCard 之前，供 navigateToDetail 调用）
-// ─────────────────────────────────────────────
-var BU_FILES = {
-    'sdmd': 'radar_detail_sdmd.html',
-    'kls':  'radar_detail_kelan.html',
-    'lhy':  'radar_detail_lhy.html',
-    'dhx':  'radar_detail_dkhx.html',
-    'czly': 'radar_detail_czly.html',
-    'lpsd': 'radar_detail_lpsd.html',
-    'felt': 'radar_detail_felt.html',
-    'sjld': 'radar_detail_sjl.html'
-};
-
-// ─────────────────────────────────────────────
-// 跳转详情页（MutationObserver 方式：Bypasses React onclick 拦截）
-// ─────────────────────────────────────────────
-function getFinalUrl(buId) {
-    var isLocal = /localhost|127\.0\.0\.1/i.test(location.hostname);
-    var base = isLocal ? '' : 'https://lopal603906.aiforce.cloud/app/app_179wsjrn4fj/api/secure-content/radar/' + buId;
-    var file = isLocal ? (BU_FILES[buId] || 'radar_detail.html?id=' + buId) : '';
-    var url = isLocal ? file : base;
-    var m = location.search.match(/[?&]__dept=([^&]+)/);
-    var deptId = m ? decodeURIComponent(m[1]) : (sessionStorage.getItem('_dept') || '');
-    return deptId ? (url + '?departmentId=' + encodeURIComponent(deptId)) : url;
-}
-
-function navigateToDetail(buId) {
-    var finalUrl = getFinalUrl(buId);
-    var isLocal = /localhost|127\.0\.0\.1/i.test(location.hostname);
-    var isInIframe = window !== window.top;
-
-    if (!isLocal && isInIframe) {
-        // 通过 postMessage 告知父窗口（Miaoda HomePage）更新 iframe src
-        try {
-            window.parent.postMessage(
-                { type: 'miaoda-navigate-miaoda', miaoUrl: finalUrl },
-                window.location.origin
-            );
-            // 用户可见提示
-            var toast = document.createElement('div');
-            toast.textContent = '正在加载 ' + buId.toUpperCase() + ' 详情页…';
-            toast.style.cssText = 'position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#1F3864;color:#fff;padding:10px 20px;border-radius:8px;z-index:9999;font-size:14px';
-            document.body.appendChild(toast);
-            setTimeout(function() { if (toast.parentNode) toast.parentNode.removeChild(toast); }, 3000);
-            return;
-        } catch (e) { console.warn('[navigateToDetail] postMessage failed:', e); }
-    }
-    // 回退：直接跳转
-    location.assign(finalUrl);
-}
-
-// MutationObserver：监听 BU 卡片渲染，为其添加原生 click 监听
-// 绕开 Miaoda React 的 onclick 拦截（__reactDispatcher）
-function attachBUDetailNavigation() {
-    // 找出所有 .dept-card 元素（卡片）
-    document.querySelectorAll('.dept-card').forEach(function(card) {
-        // 避免重复绑定
-        if (card.__buNavAttached) return;
-        card.__buNavAttached = true;
-        card.addEventListener('click', function(e) {
-            // 取出 data-bu-id 属性（buildCard 里已加入）
-            var buId = card.getAttribute('data-bu-id');
-            if (buId) {
-                e.preventDefault();
-                e.stopPropagation();
-                navigateToDetail(buId);
-            }
-        });
-    });
-}
-
-// 立即执行一次（页面已有卡片）
-attachBUDetailNavigation();
-
-// 持续监听 DOM 变化（卡片动态渲染时）
-var buDetailObserver = new MutationObserver(function() {
-    attachBUDetailNavigation();
-});
-buDetailObserver.observe(document.body, { childList: true, subtree: true });
-            return;
-        } catch (e) {
-            console.warn('[navigateToDetail] postMessage failed, falling back to location.assign:', e);
-        }
-    }
-    // 回退：直接跳转（localhost 开发环境走这路）
-    location.assign(finalUrl);
 }
 
 // ─────────────────────────────────────────────
@@ -497,7 +407,32 @@ function buildCard(buId, meta) {
         return '<span class="dim-chip"><span class="chip-val" style="color:' + meta.color + '">' + v + '</span>' + DIM_NAMES[i] + '</span>';
     }).join('');
 
-    return '<div id="card-' + buId + '" class="dept-card ' + meta.category + '" style="border-left-color:' + meta.color + '" data-bu-id="' + buId + '">' +
+    // 点击雷达卡片时动态读取 sessionStorage._dept，保证身份切换后立即生效
+    var IS_LOCAL = /localhost|127\.0\.0\.1/i.test(location.hostname);
+    var MIAODA_BASE = 'https://lopal603906.aiforce.cloud/app/app_4k7069448fj88/';
+    var BU_FILES = {
+        'sdmd': 'radar_detail_sdmd.html',
+        'kls':  'radar_detail_kelan.html',
+        'lhy':  'radar_detail_lhy.html',
+        'dhx':  'radar_detail_dkhx.html',
+        'czly': 'radar_detail_czly.html',
+        'lpsd': 'radar_detail_lpsd.html',
+        'felt': 'radar_detail_felt.html',
+        'sjld': 'radar_detail_sjl.html'
+    };
+    function navigateToDetail(buId) {
+        var isLocal = /localhost|127\.0\.0\.1/i.test(location.hostname);
+        var base = isLocal ? '' : 'https://lopal603906.aiforce.cloud/app/app_4k7069448fj88/api/secure-content/radar/' + buId;
+        var file = isLocal ? (BU_FILES[buId] || 'radar_detail.html?id=' + buId) : '';
+        var url = isLocal ? file : base;
+        var m = location.search.match(/[?&]__dept=([^&]+)/);
+        var deptId = m ? decodeURIComponent(m[1]) : (sessionStorage.getItem('_dept') || '');
+        var finalUrl = deptId ? (url + '?departmentId=' + encodeURIComponent(deptId)) : url;
+        // 使用 location.assign() 而非 location.href=，使 inline_01.js 的 setter 能够拦截并追加 __dept
+        location.assign(finalUrl);
+    }
+
+    return '<div id="card-' + buId + '" class="dept-card ' + meta.category + '" style="border-left-color:' + meta.color + '">' +
         '<div class="dept-card-header">' +
         logoHTML +
         '<div class="dept-info">' +
@@ -505,7 +440,7 @@ function buildCard(buId, meta) {
         '<div class="dept-subtitle">' + meta.subtitle + '</div>' +
         '</div></div>' +
         monthToggle +
-        '<a href="javascript:void(0)" class="dept-radar-link" data-bu-id="' + buId + '">' +
+        '<a href="javascript:void(0)" class="dept-radar-link" onclick="event.stopPropagation();navigateToDetail(\'' + buId + '\')">' +
         '<div class="dept-radar-preview" id="radar-' + buId + '"></div>' +
         '</a>' +
         '<div class="dept-dims-row">' + dimChips + '</div>' +
