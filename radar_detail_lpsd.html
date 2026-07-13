@@ -3146,6 +3146,13 @@ function refreshInsights() {
     setTimeout(renderInsights, 500);
 }
 
+// 初始化
+(function init() {
+    renderMonthSwitcher();
+    initTimeline();
+    renderAll();
+})();
+
 // ─────────────────────────────────────────────
 (function gating(){
   var BU_DEPT={
@@ -3161,6 +3168,7 @@ function refreshInsights() {
     bych:['od-33054981612c6dc0fbbdfbb743774d1b'],
   };
   
+})();
 </script>
     <script src="assets/ai_fab_inject.js"></script>
 </body>

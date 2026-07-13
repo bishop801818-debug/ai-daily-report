@@ -15,27 +15,29 @@ var BU_FILES = {
     'sjld': 'radar_detail_sjl.html'
 };
 
+function showToast(msg) {
+    var t = document.createElement('div');
+    t.textContent = msg;
+    Object.assign(t.style, {position:'fixed',top:'50%',left:'50%',transform:'translate(-50%,-50%)',background:'#1a1a2e',color:'#fff',padding:'12px 24px',borderRadius:'8px',fontSize:'14px',zIndex:99999,opacity:'0',transition:'opacity .3s',boxShadow:'0 4px 20px rgba(0,0,0,.25)'});
+    document.body.appendChild(t);
+    requestAnimationFrame(function(){t.style.opacity='1';});
+    setTimeout(function(){t.style.opacity='0';setTimeout(function(){document.body.removeChild(t);},300);},2000);
+}
+
 function navigateToDetail(buId) {
     var isLocal = /localhost|127\.0\.0\.1/i.test(location.hostname);
-    var base = isLocal ? '' : 'https://lopal603906.aiforce.cloud/app/app_179wsjrn4fj/api/secure-content/radar/' + buId;
+    var m = location.search.match(/[?&]__dept=([^&]+)/);
+    var deptId = m ? decodeURIComponent(m[1]) : (sessionStorage.getItem('_dept') || '');
+    if (!deptId) { showToast('当前账号无权限'); return; }
+
+    var base = isLocal ? '' : 'https://lopal603906.aiforce.cloud/app/app_179wsjrn4fj/sc/radar/' + buId;
     var file = isLocal ? (BU_FILES[buId] || 'radar_detail.html?id=' + buId) : '';
     var url = isLocal ? file : base;
 
-    // 优先从 URL 读取 __dept，其次从 sessionStorage
-    var m = location.search.match(/[?&]__dept=([^&]+)/);
-    var deptId = m ? decodeURIComponent(m[1]) : (sessionStorage.getItem('_dept') || '');
-
-    // 将 __dept 存入 sessionStorage（供子页面 bu_gate.js 读取权限）
     if (deptId) {
         try { sessionStorage.setItem('_dept', deptId); } catch(e) {}
     }
 
-    // 拼接 URL 参数：departmentId（子页面用）+ __dept（妙搭平台保留参数）
-    var separator = url.includes('?') ? '&' : '?';
-    var params = '';
-    if (deptId) {
-        params = 'departmentId=' + encodeURIComponent(deptId) + '&__dept=' + encodeURIComponent(deptId);
-    }
-    var finalUrl = params ? (url + separator + params) : url;
+    var finalUrl = url + '?departmentId=' + encodeURIComponent(deptId) + '&__dept=' + encodeURIComponent(deptId);
     location.assign(finalUrl);
 }
