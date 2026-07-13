@@ -135,7 +135,7 @@
         .db-card .btn-report {
             background: #064e3b;
             color: #fff;
-            border-radius: 8px;
+            border-radius: 8px 0 0 8px;
         }
         .db-card .btn-report:hover { background: #0d7a4a; }
         .db-card .btn-month {
@@ -263,7 +263,8 @@ const REPORT_LIST = [
         icon: '🔋',
         desc: '磷酸铁锂正极材料供需格局、竞争格局、价格体系、出口贸易及战略展望',
         done: true,
-        reportHref: 'lfp_report_2026_05_v2.html',
+        reportBase: 'lfp_report',
+        availableMonths: ['2026-04'], // 2026-05 对应 lfp_report_2026_05_v2.html（后缀_v2），暂从列表移除
         dataHref: 'lfp_data_v2.html',
         chartHref: 'lfp_charts.html',
         tabs: '6个Tab',
@@ -299,7 +300,8 @@ const REPORT_LIST = [
         icon: '🧪',
         desc: '电解液及六氟磷酸锂供需格局、成本结构、竞争格局与战略展望',
         done: true,
-        reportHref: 'felt_report_202605.html',
+        reportBase: 'felt_report',
+        availableMonths: ['2026-05', '2026-04'],
         dataHref: 'electrolyte_data_v2.html',
         chartHref: 'electrolyte_charts.html',
         tabs: '1个Tab',
@@ -311,7 +313,7 @@ const REPORT_LIST = [
         icon: '♻️',
         desc: '动力电池回收规模、梯次利用、再生利用，白名单企业与战略展望',
         done: true,
-        reportHref: '../recycling_report_2026_05.html',
+        availableMonths: [], // 暂无可用月度报告，注释掉报告入口
         dataHref: 'recycling_data_v2.html',
         chartHref: 'recycling_charts.html',
         tabs: '4个Tab',
@@ -370,9 +372,9 @@ function buildReportCard(db) {
             }).join('');
 
             reportBtns = `
-                <a href="${latestHref}" class="btn-report" id="btn-report-${db.id}"> 查看报告</a>
+                <a href="${latestHref}" class="btn-report" id="btn-report-${db.id}"> 查看报告（${monthLabel}）</a>
                 <select class="btn-month" id="sel-month-${db.id}"
-                    onchange="document.getElementById('btn-report-${db.id}').href=this.value;"
+                    onchange="var b=document.getElementById('btn-report-${db.id}');b.href=this.value;b.innerHTML=' 查看报告（'+this.options[this.selectedIndex].text+'）';"
                     title="选择报告月份">
                     ${monthOptions}
                 </select>`;
