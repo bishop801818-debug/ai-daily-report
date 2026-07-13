@@ -17,7 +17,7 @@ var BU_FILES = {
 
 function navigateToDetail(buId) {
     var isLocal = /localhost|127\.0\.0\.1/i.test(location.hostname);
-    var base = isLocal ? '' : 'https://lopal603906.aiforce.cloud/app/app_179wsjrn4fj/api/secure-content/radar/' + buId;
+    var base = isLocal ? '' : 'https://lopal603906.aiforce.cloud/app/app_179wsjrn4fj/sc/radar/' + buId;
     var file = isLocal ? (BU_FILES[buId] || 'radar_detail.html?id=' + buId) : '';
     var url = isLocal ? file : base;
 
