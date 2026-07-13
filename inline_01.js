@@ -258,20 +258,36 @@
         }
     }, true);
 
-    // 拦截 location.href 直接赋值（window.location.href = 'xxx.html'）
+    // 先拦截 location.assign / location.replace（跨环境可靠）
     var _loc = window.location;
-    Object.defineProperty(window, 'location', {
-        get: function() { return _loc; },
-        set: function(newVal) {
-            var url = String(newVal);
-            if (shouldAppendDept(url)) {
-                url = appendDept(url);
-                console.log('[导航拦截] location 赋值:', url);
+    ['assign', 'replace'].forEach(function(method) {
+        var orig = _loc[method].bind(_loc);
+        _loc[method] = function(url) {
+            if (url && shouldAppendDept(String(url))) {
+                url = appendDept(String(url));
+                console.log('[导航拦截] location.' + method + ':', url);
             }
-            _loc.href = url;
-        },
-        configurable: true
+            return orig(url);
+        };
     });
+
+    // 尝试拦截 location.href 直接赋值（部分环境不允许重定义，捕获忽略）
+    try {
+        Object.defineProperty(window, 'location', {
+            get: function() { return _loc; },
+            set: function(newVal) {
+                var url = String(newVal);
+                if (shouldAppendDept(url)) {
+                    url = appendDept(url);
+                    console.log('[导航拦截] location 赋值:', url);
+                }
+                _loc.href = url;
+            },
+            configurable: true
+        });
+    } catch(e) {
+        console.log('[导航拦截] location defineProperty 跳过:', e.message);
+    }
 
     // 拦截 location.assign / location.replace / location.replace
     ['assign', 'replace'].forEach(function(method) {
