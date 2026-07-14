@@ -3,8 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="html-version" content="20260714_001">
+<meta name="html-version" content="20260714_002">
 <title>事业部历史存档</title>
+<script src="inline_01.js"></script>
 <script src="bu_gate.js"></script>
 <script>
   // 每次修改此文件后，将 content 值改为今天日期（如 20260420）
@@ -343,10 +344,12 @@ const BU_META = {
 /* ── 新ID → 旧ID 映射（5月+JSON用新ID，4月JSON用旧ID）── */
 /* 支持数组多 fallback，如 felt 在6月用 fnlt，4月用 fent */
 const OLD_NEW_MAP = {
-  'felt': ['fnlt', 'fent'],  // 法恩莱特: 6月 fnlt, 4月 fent
-  'sdmd': ['sjmd'],           // 山东美多
-  'dhx':  ['dkhx'],           // 迪克化学
-  'lhy':  ['lube'],           // 润滑油事业部: 6月 lube
+  'felt': ['fnlt', 'fent'],         // 法恩莱特
+  'sdmd': ['sjmd'],                  // 山东美多
+  'dhx':  ['dkhx'],                  // 迪克化学
+  'lhy':  ['lubricant', 'lube'],    // 润滑油事业部 (7月 lubricant, 6月 lube)
+  'sjld': ['sjl'],                   // 三金锂电 (7月 sjl)
+  'kls':  ['kelan'],                 // 可兰素 (7月 kelan)
 };
 
 /* ── 读取 URL 参数（兼容 ?id= 与 #id 两种写法）──
