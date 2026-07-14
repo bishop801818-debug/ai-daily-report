@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="html-version" content="20260714_001">
 <title>事业部历史存档</title>
+<script src="bu_gate.js"></script>
 <script>
   // 每次修改此文件后，将 content 值改为今天日期（如 20260420）
   // 浏览器遇到新的 html-version 会强制重新加载，永久告别缓存问题
@@ -349,6 +350,7 @@ function getBUId() { return buId; }
 async function initPage() {
   if (!buId || !BU_META[buId]) {
     renderGuidePage();
+    window.applyBUFilter && setTimeout(function() { window.applyBUFilter(); }, 50);
     return;
   }
   const meta = BU_META[buId];
@@ -374,7 +376,7 @@ function renderGuidePage() {
       <div class="date-list-title">📋 选择事业部查看历史早报</div>
       <div class="guide-grid">
         ${Object.entries(BU_META).map(([id, m]) => `
-          <a class="guide-card" href="dept-archive.html#${id}">
+          <a class="guide-card" href="dept-archive.html#${id}" data-bu="${id}">
             <div class="gi">${m.icon}</div>
             <div class="gn">${m.name}</div>
             <div class="gt">${m.subtitle}</div>
