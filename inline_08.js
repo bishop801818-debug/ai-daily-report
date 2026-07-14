@@ -257,32 +257,16 @@
                                 bg.style.backgroundImage = 'url(' + item.image_url + ')';
                                 bg.style.backgroundSize = 'cover';
                                 bg.style.backgroundPosition = 'center';
-                                // 检查图片是否可加载
-                                (function(bgEl, url, title) {
+                                // 预加载图片：加载成功后渐变被覆盖，失败则渐变兜底
+                                (function(bgEl, url) {
                                     var img = new Image();
-                                    var settled = false;
-                                    var setFallback = function() {
-                                        if (settled) return;
-                                        settled = true;
-                                        // 国内网络 Unsplash 不可达，直接用本地 SVG 占位符
-                                        bgEl.style.backgroundImage = 'url(' + generateSvgPlaceholder(title || '资讯') + ')';
-                                    };
-                                    // 8秒超时兜底（GitHub Pages CDN 偶尔慢）
-                                    var timeoutId = setTimeout(setFallback, 8000);
                                     img.onload = function() {
-                                        clearTimeout(timeoutId);
-                                        if (settled) return;
-                                        settled = true;
                                         bgEl.style.backgroundImage = 'url(' + url + ')';
                                         bgEl.style.backgroundSize = 'cover';
                                         bgEl.style.backgroundPosition = 'center';
                                     };
-                                    img.onerror = function() {
-                                        clearTimeout(timeoutId);
-                                        setFallback();
-                                    };
                                     img.src = url;
-                                })(bg, item.image_url, item.title);
+                                })(bg, item.image_url);
                             }
                         }
                         continue;  // 跳过API调用
