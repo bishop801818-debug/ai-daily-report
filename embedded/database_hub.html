@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- __dept 导航拦截器：拦截 database_hub 子页面内所有导航，追加 __dept 参数 -->
+    <script src="inline_01.js"></script>
     <title>数据库 - 龙蟠科技行业数据库</title>
     <meta name="html-version" content="20260424a">
     <style>
@@ -373,6 +375,7 @@ const DB_LIST = [
         hasData: true,
         tableCount: 12,
         updateDate: null,
+        allowedBu: ['czly'], // 仅常州锂源可见
         tables: ['行业整体产量', '企业产量排名', '价格走势', '进出口数据', '项目动态', '库存数据', '成本利润', '终端需求'],
         charts: 'lfp_charts.html?v=20260629',
         data: 'lfp_data_v2.html',
@@ -388,6 +391,7 @@ const DB_LIST = [
         hasData: true,
         tableCount: 19,
         updateDate: null,
+        allowedBu: ['sjl'], // 仅三金锂电可见
         tables: ['三元正极-行业产量', '三元正极-分型号产量', '三元正极-分企业产量', '三元正极-进出口', '三元正极-现货价',
                  '三元前驱体-行业产量', '三元前驱体-分型号产量', '三元前驱体-分企业产量', '三元前驱体-进出口', '三元前驱体-现货价',
                  '关键原料-现货价', '硫酸钴镍-产量规模', '硫酸钴镍-现货价'],
@@ -401,10 +405,11 @@ const DB_LIST = [
         id: 'electrolyte',
         name: '电解液数据库',
         icon: '🧪',
-        desc: '电解液及六氟磷酸锂、溶剂溶质价格、产能、出货量数据',
+        desc: '电解液及六氟磷酸锂、溶剂溶质价格、产能，出货量数据',
         hasData: true,
         tableCount: 28,
         updateDate: null,
+        allowedBu: ['felt'], // 仅法恩莱特可见
         tables: ['电解液行业产量', '电解液分企业产量', '电解液企业top15排名', '电解液年累top15排名',
                  '电解液价格(LFP动力/储能/三元/圆柱)', '高压电解液价格', '六氟磷酸锂行业产量', '六氟磷酸锂分企业产量',
                  '六氟磷酸锂top15排名', '六氟磷酸锂价格(主流/出口)', 'LiFSI价格(固态/液态)', '六氟出口总量',
@@ -424,6 +429,7 @@ const DB_LIST = [
         hasData: true,
         tableCount: 12,
         updateDate: null,
+        allowedBu: ['lpsd'], // 仅龙蟠时代可见
         tables: ['碳酸锂行业产量', '碳酸锂分企业产量', '碳酸锂出口量', '碳酸锂出口贸易伙伴', '碳酸锂现货价',
                  '氢氧化锂行业产量', '氢氧化锂分企业产量', '氢氧化锂出口量', '氢氧化锂出口贸易伙伴', '氢氧化锂现货价',
                  '锂云母价格', '锂辉石精矿价格'],
@@ -441,6 +447,7 @@ const DB_LIST = [
         hasData: true,
         tableCount: 27,
         updateDate: null,
+        allowedBu: ['sdmd'], // 仅山东美多可见
         tables: ['黑粉处理量-总计', '黑粉处理量-三元+钴酸锂', '黑粉处理量-铁锂', '黑粉整体处理量-分企业', '锂电池价格', '极片价格', '辅料价格', '黑粉价格'],
         data: 'recycling_data_v2.html',
         charts: 'recycling_charts.html?v=20260629',
@@ -456,6 +463,7 @@ const DB_LIST = [
         hasData: true,
         tableCount: 5,
         updateDate: '2026-05-09',
+        allowedBu: ['czly','lpsd','sdmd','felt','sjl','dhx','lhy','kls','bych'], // 除hq外全员可见
         tables: ['行业产量（分规格）', '行业产量产能', '分企业产量（分规格）', '分企业产量产能', '电池排产预测'],
         charts: 'lib_battery_charts.html?v=20260629',
         analysis: 'lib_battery_analysis.html',
@@ -471,6 +479,7 @@ const DB_LIST = [
         hasData: true,
         tableCount: 22,
         updateDate: '2026-05-18',
+        allowedBu: ['hq'], // 仅集团总部可见（暂无BU专属数据）
         tables: ['全球分区域销量', '全球分国家销量', '中国汽车整体', '中国乘用车', '乘用车出口', '乘用车分整车厂',
                  '中国商用车', '商用车分整车厂', '中重卡分整车厂', '轻卡分整车厂',
                  '新能源全球整体', '新能源全球分地区', '新能源中国整体', '新能源出口',
@@ -514,7 +523,7 @@ function buildCardHTML(db, viewType) {
     const btnAnalysisHref = db.hasData ? `${db.id}_analysis.html` : 'javascript:void(0)';
 
     return `
-    <div class="db-card" data-db="${db.id}">
+    <div class="db-card" data-db="${db.id}" data-allowed-bu="${(db.allowedBu || []).join(',')}">
         ${db.hasData ? '' : '<div class="building-overlay">🚧 数据录入中</div>'}
         <div class="card-top">
             <div class="card-icon-wrap">${db.icon}</div>
@@ -648,5 +657,75 @@ renderAllPanels();
 updateTopbarTime();
 </script>
     <script src="assets/ai_fab_inject.js"></script>
+
+<!-- BU 过滤脚本：按部门隐藏无权访问的数据库卡片 -->
+<script>
+(function() {
+    // 部门ID → BU代码映射（与 secure-content BU_DEPT 一致）
+    var DEPT_TO_BU = {
+        'od-8ad5942df92ef45ac8905b543fc38d2b': 'hq',
+        '7593161552124923083': 'hq',
+        'od-c8c5bc8612d60825208196a97cd0686d': 'czly',
+        'od-349632b3f04edaa205990f6c96e66c26': 'lpsd',
+        'od-c36a380b50b52171d47b7a8f5c1f3a70': 'lpsd',
+        'od-05e668aea865f92b574f366b3d976094': 'sdmd',
+        'od-2e6cc0918fbe3086ebf636680997a2f2': 'felt',
+        'od-310bdafba6cb5bdbd3300cf326878caa': 'sjl',
+        'od-7a313bc06887dc30349237cb0d64ce83': 'dhx',
+        'od-280342e9ed0ad39d203d5462b337451c': 'lhy',
+        'od-c90e5fd524dfde6467bd59b867cfed8c': 'kls',
+        'od-33054981612c6dc0fbbdfbb743774d1b': 'bych'
+    };
+
+    function getBu() {
+        // 优先读取模拟身份（调试面板设置）
+        var simDept = sessionStorage.getItem('_sim_dept');
+        if (simDept) return DEPT_TO_BU[simDept] || null;
+        // 否则读真实身份
+        var m = location.search.match(/[?&]__dept=([^&]+)/);
+        var deptId = m ? decodeURIComponent(m[1]) : (sessionStorage.getItem('_dept') || '');
+        return DEPT_TO_BU[deptId] || null;
+    }
+
+    function filterDbCards() {
+        var bu = getBu();
+        if (!bu) return; // 无部门信息，不过滤（保守）
+        // HQ（集团领导）可见全部
+        if (bu === 'hq') {
+            console.log('[BU过滤] 集团领导，全部可见');
+            return;
+        }
+
+        // 非HQ：隐藏无权访问的卡片
+        var hidden = 0, total = 0;
+        document.querySelectorAll('.db-card[data-allowed-bu]').forEach(function(el) {
+            total++;
+            var allowed = el.getAttribute('data-allowed-bu') || '';
+            var buList = allowed ? allowed.split(',') : [];
+            if (buList.length > 0 && buList.indexOf(bu) === -1) {
+                el.style.display = 'none';
+                hidden++;
+            }
+        });
+        if (hidden > 0) {
+            console.log('[BU过滤] 已隐藏 ' + hidden + '/' + total + ' 个无权访问的数据库（模拟角色：' + bu + '）');
+        } else {
+            console.log('[BU过滤] 显示 ' + total + ' 个数据库（模拟角色：' + bu + '）');
+        }
+    }
+
+    // 等卡片渲染完再过滤
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(filterDbCards, 100);
+        });
+    } else {
+        setTimeout(filterDbCards, 100);
+    }
+})();
+</script>
+
+
+
 </body>
 </html>

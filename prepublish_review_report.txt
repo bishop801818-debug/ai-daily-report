@@ -1,7 +1,7 @@
-预发布审查未通过(已中止) @ 2026-07-10 12:27
+预发布审查提示(已发布) @ 2026-07-13 12:25
 
-以下 2 个页面展示异常，已**中止**自动发布：
-• **雷达·龙蟠时代** (`/radar_detail_lpsd.html`)
-    - JS异常且页面基本空白: access denied
-• **雷达·山东美多** (`/radar_detail_sdmd.html`)
-    - JS异常且页面基本空白: access denied
+以下 2 个页面存在非致命问题（不影响发布，已照常发布）：
+• **首页·AI早报** (`/index_v3.html`)
+    - JS异常(非致命,页面有内容): Cannot redefine property: location
+• **数据库枢纽** (`/database_hub.html`)
+    - JS异常(非致命,页面有内容): Cannot redefine property: location

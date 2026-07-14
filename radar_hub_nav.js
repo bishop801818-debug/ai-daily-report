@@ -26,18 +26,21 @@ function showToast(msg) {
 
 function navigateToDetail(buId) {
     var isLocal = /localhost|127\.0\.0\.1/i.test(location.hostname);
+    // 本地模式：直接跳转，不校验 __dept
+    if (isLocal) {
+        var file = BU_FILES[buId] || 'radar_detail.html?id=' + buId;
+        location.assign(file);
+        return;
+    }
     var m = location.search.match(/[?&]__dept=([^&]+)/);
     var deptId = m ? decodeURIComponent(m[1]) : (sessionStorage.getItem('_dept') || '');
     if (!deptId) { showToast('当前账号无权限'); return; }
-
-    var base = isLocal ? '' : 'https://lopal603906.aiforce.cloud/app/app_179wsjrn4fj/sc/radar/' + buId;
-    var file = isLocal ? (BU_FILES[buId] || 'radar_detail.html?id=' + buId) : '';
-    var url = isLocal ? file : base;
 
     if (deptId) {
         try { sessionStorage.setItem('_dept', deptId); } catch(e) {}
     }
 
-    var finalUrl = url + '?departmentId=' + encodeURIComponent(deptId) + '&__dept=' + encodeURIComponent(deptId);
+    var finalUrl = 'https://lopal603906.aiforce.cloud/app/app_179wsjrn4fj/sc/radar/' + buId
+        + '?departmentId=' + encodeURIComponent(deptId) + '&__dept=' + encodeURIComponent(deptId);
     location.assign(finalUrl);
 }

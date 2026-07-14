@@ -24406,24 +24406,30 @@ async function loadCleanNews() {
   try {
     // ★ 先获取可用日期列表，确定首批日期范围
     let __initialDates = [];
+    const __allItems = typeof EMBEDDED_NEWS !== 'undefined' ? EMBEDDED_NEWS : [];
+    const __embedDates = [...new Set(__allItems.flat().map(it => it.date))].filter(Boolean).sort().reverse();
+    // ① 取 embedded 数据最近15个日期（覆盖4月~5月数据丰富的区间）
+    __initialDates = __embedDates.slice(0, 15);
+    // ② 再追加 index.json 的最近日期（去重，不混入已有）
     try {
       const __idxRes = await fetch(`${REPORT_BASE}index.json?v=${Date.now()}`);
       if (__idxRes.ok) {
         const __idx = await __idxRes.json();
-        const __all = (__idx.available_dates || []).sort().reverse();
-        __initialDates = __all.slice(0, 3);
+        const __idxDates = (__idx.available_dates || []).sort().reverse();
+        const __used = new Set(__initialDates);
+        for (const d of __idxDates) {
+          if (__initialDates.length >= 20) break;
+          if (!__used.has(d)) { __initialDates.push(d); __used.add(d); }
+        }
       }
     } catch(e) {}
-    if (__initialDates.length === 0) {
-      const __allItems = typeof EMBEDDED_NEWS !== 'undefined' ? EMBEDDED_NEWS : [];
-      const __dates = [...new Set(__allItems.map(it => it.date))].filter(Boolean).sort().reverse();
-      __initialDates = __dates.slice(0, 3);
-    }
     const __initialSet = new Set(__initialDates);
     console.log('[行业新闻] 首批日期:', __initialDates);
 
     const items = typeof EMBEDDED_NEWS !== 'undefined' ? EMBEDDED_NEWS : [];
     const mergedDepts = {};
+    const __deptIdMap = { 'lubricant':'lhy', 'kelan':'kls', 'sjl':'sjld' };
+    const __normDept = id => __deptIdMap[id] || id;
     const CLEAN_DEPT_LIST = [
       { id:'czly', name:'常州锂源',  color:'#1e3c72' },
       { id:'sdmd', name:'山东美多',  color:'#d35400' },
@@ -24448,7 +24454,7 @@ async function loadCleanNews() {
     // ① 处理内嵌清洗数据（按日期分批）
     const allDates = [];
     const __pendingNewsByDate = {};
-    for (const item of items) {
+    for (const item of items.flat()) {
       const __itemDate = item.date || '';
       if (!__initialSet.has(__itemDate)) {
         // 非首批日期：暂存，等"加载更早数据"时再合并
@@ -24456,17 +24462,17 @@ async function loadCleanNews() {
         __pendingNewsByDate[__itemDate].push(item);
         continue;
       }
-      const deptId = item.dept || '__other__';
+      const deptId = __normDept(item.dept) || '__other__';
       if (!mergedDepts[deptId]) {
         mergedDepts[deptId] = {
           name: deptId, subtitle: '', report_date: '',
           sections: { market:[], policy:[], competitor:[], frontier:[] }, total_events: 0,
         };
       }
-      const dim = item.dim || 'competitor';
-      // 市场/价格类条目不纳入（price table 由其他模块展示）
-      if (isPriceTableEntry(item)) continue;
-      if (!mergedDepts[deptId].sections[dim]) mergedDepts[deptId].sections[dim] = [];
+      const rawDim = item.dim || 'market';
+      const dim = normalizeDim(rawDim) || 'market';
+      // 非标准维度不纳入（DIM_TABS 之外的跳过）
+      if (!mergedDepts[deptId].sections[dim]) continue;
       const sig = (item.title||'').substring(0,60);
       if (seenSigs.has(sig)) continue;
       seenSigs.add(sig);
@@ -24482,10 +24488,12 @@ async function loadCleanNews() {
     // ② 从 reports/ 目录加载最新报告（5月21日以后），合并去重
     let __freshLoadedDates = [];
     try {
-      const fresh = await loadAllReports();
+      const __protectedDates = new Set(items.flat().map(it => it.date).filter(Boolean));
+      const fresh = await loadAllReports(__protectedDates);
       if (fresh && Array.isArray(fresh.loadedDates)) __freshLoadedDates = fresh.loadedDates;
       if (fresh && fresh.data) {
-        for (const [deptId, deptData] of Object.entries(fresh.data)) {
+        for (const [rawId, deptData] of Object.entries(fresh.data)) {
+          const deptId = __normDept(rawId);
           if (!mergedDepts[deptId]) {
             mergedDepts[deptId] = {
               name: deptData.name || deptId,
@@ -24530,7 +24538,7 @@ async function loadCleanNews() {
     return { data: mergedDepts, dateRange, loadedDates: __finalLoadedDates };
   } catch(e) {
     console.error('[行业新闻] 内嵌数据失败:', e);
-    return loadAllReports();
+    return loadAllReports(new Set());
   }
 }
 
@@ -24538,6 +24546,14 @@ async function loadCleanNews() {
 // 加载所有日期的报告并合并（回退方案）
 // ============================================================
 const REPORT_BASE = 'reports/';
+
+// 旧 ID → 规范 ID 映射（5月 embedded 用旧 ID，6月底起 reports 用新 ID）
+const DEPT_ID_MAP = {
+  'lubricant': 'lhy',
+  'kelan':     'kls',
+  'sjl':       'sjld',
+};
+const normalizeDeptId = id => DEPT_ID_MAP[id] || id;
 
 const DEPT_LIST = [
   { id:'czly', name:'常州锂源',  color:'#1e3c72' },
@@ -24573,8 +24589,6 @@ const DIM_MAP = {
   '客户':       'competitor',
   '前沿':       'frontier',
   '市场':       'market',
-  'topnews':    'topnews',
-  'tips':       'tips',
 };
 
 function normalizeDim(rawDim) {
@@ -24595,8 +24609,6 @@ const DIM_TABS = [
   { key:'market',     label:'行业新闻', icon:'📊', color:'#f39c12', desc:'市场价格、供需库存、行情动态' },
   { key:'competitor', label:'企业动态', icon:'🏢', color:'#3498db', desc:'企业动态、竞品情报、项目招标、客户需求' },
   { key:'frontier',   label:'技术产品', icon:'💻', color:'#9b59b6', desc:'技术进展、产品研发、创新动态' },
-  { key:'topnews',    label:'头条快讯', icon:'🔥', color:'#e74c3c', desc:'当日头条综合新闻' },
-  { key:'tips',       label:'策略提示', icon:'💡', color:'#16a085', desc:'策略建议与行动提示' },
 ];
 
 // ============================================================
@@ -24625,14 +24637,15 @@ function isPriceTableEntry(item) {
 // ============================================================
 // 加载所有日期的报告并合并
 // ============================================================
-async function loadAllReports() {
+async function loadAllReports(protectedDates) {
+  const skipDates = protectedDates || new Set();
   // 1. 获取可用日期列表
   let allAvailableDates = [];
   try {
     const idxRes = await fetch(`${REPORT_BASE}index.json?v=${Date.now()}`);
     if (idxRes.ok) {
       const idx = await idxRes.json();
-      allAvailableDates = idx.available_dates || [];
+      allAvailableDates = (idx.available_dates || []).filter(d => !skipDates.has(d));
     }
   } catch(e) {}
 
@@ -24644,7 +24657,7 @@ async function loadAllReports() {
       const ds = d.toISOString().slice(0,10);
       try {
         const r = await fetch(`${REPORT_BASE}${ds}.json`);
-        if (r.ok) allAvailableDates.push(ds);
+        if (r.ok && !skipDates.has(ds)) allAvailableDates.push(ds);
       } catch(e) {}
     }
   }
@@ -24663,6 +24676,9 @@ async function loadAllReports() {
   window.__loadedDates = [];
   window.__onMoreLoaded = null; // 回调：加载更多后刷新当前视图
 
+  const __deptIdMap = { 'lubricant':'lhy', 'kelan':'kls', 'sjl':'sjld' };
+  const __normDept = id => __deptIdMap[id] || id;
+
   async function fetchAndMerge(dateStr) {
     try {
       const res = await fetch(`${REPORT_BASE}${dateStr}.json?v=${Date.now()}`);
@@ -24671,16 +24687,17 @@ async function loadAllReports() {
       if (!json.departments) return;
       window.__loadedDates.push(dateStr);
       for (const [deptId, deptData] of Object.entries(json.departments)) {
-        if (!window.__mergedDepts[deptId]) {
-          window.__mergedDepts[deptId] = {
-            name: deptData.name || DEPT_LIST.find(d=>d.id===deptId)?.name || deptId,
+        const normalizedId = __normDept(deptId);
+        if (!window.__mergedDepts[normalizedId]) {
+          window.__mergedDepts[normalizedId] = {
+            name: deptData.name || DEPT_LIST.find(d=>d.id===normalizedId)?.name || normalizedId,
             subtitle: deptData.subtitle || '',
             report_date: dateStr,
             sections: { market:[], policy:[], competitor:[], frontier:[] },
             total_events: 0,
           };
         }
-        const target = window.__mergedDepts[deptId];
+        const target = window.__mergedDepts[normalizedId];
         target.report_date = dateStr;
 
         const rawSections = deptData.sections || {};
@@ -24750,7 +24767,7 @@ async function loadAllReports() {
 // Tab 交互（点击展开/收起下拉菜单）
 // ============================================================
 let currentBu = null;      // 当前选中的BU
-let currentDim = 'policy'; // 当前选中的维度
+let currentDim = 'competitor'; // 当前选中的维度
 let globalData = null;
 let openBu = null;         // 当前展开下拉的BU
 
@@ -25070,8 +25087,9 @@ window.loadMoreReports = async function() {
             sections: { market:[], policy:[], competitor:[], frontier:[] }, total_events: 0,
           };
         }
-        const __dim = __item.dim || 'competitor';
-        if (!globalData[__dId].sections[__dim]) globalData[__dId].sections[__dim] = [];
+        const __rawDim = __item.dim || 'market';
+        const __dim = normalizeDim(__rawDim) || 'market';
+        if (!globalData[__dId].sections[__dim]) continue;
         const __sig = (__item.title||'').substring(0,60);
         if (!globalData[__dId]._seen) globalData[__dId]._seen = new Set();
         if (globalData[__dId]._seen.has(__sig)) continue;
@@ -25226,7 +25244,7 @@ function toggleCard(el) {
     // 首次默认选中第一个BU（常州锂源）
     const buIds = Object.keys(BU_NAME_MAP).filter(k => k !== 'all');
     currentBu = buIds[0] || 'czly';
-    currentDim = 'policy';
+    currentDim = 'competitor';
 
     document.getElementById('topbarDate').textContent = dateRange;
     document.title = `行业新闻 - ${dateRange} 晨会指挥中心`;

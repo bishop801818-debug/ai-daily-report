@@ -5,8 +5,8 @@
  * 更新：升级缓存版本，修复radar_hub HQ部门ID配置
  */
 
-const CACHE_NAME = 'ai-daily-v6';
-const CACHE_VERSION = '20260710v1';
+const CACHE_NAME = 'ai-daily-v7';
+const CACHE_VERSION = '20260713v1';
 
 // 规范化 URL：移除缓存破坏参数（如 ?t=xxx）
 function normalizeUrl(url) {
