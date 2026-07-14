@@ -188,6 +188,18 @@
   .empty-state h3 { font-size:18px; color:var(--text); margin-bottom:8px; }
   .empty-state p { font-size:14px; color:var(--text-dim); }
 
+  /* ── 加载更多按钮 ── */
+  .load-more-wrap { text-align:center; padding:20px 0 40px; }
+  .load-more-btn {
+    padding:12px 40px; border-radius:25px; font-size:14px; font-weight:600;
+    border:2px solid var(--primary); background:#fff; color:var(--primary);
+    cursor:pointer; transition:all 0.2s; font-family:inherit;
+  }
+  .load-more-btn:hover {
+    background:var(--primary); color:#fff;
+    box-shadow:0 4px 12px rgba(7,82,54,0.25); transform:translateY(-1px);
+  }
+
   /* ── 引导页（无 id 参数） ── */
   .guide-section { margin-bottom:28px; }
   .guide-title { font-size:13px; color:var(--text-dim); margin-bottom:12px; }
@@ -346,6 +358,63 @@ const buId = params.get('id') || hashId || '';
 
 function getBUId() { return buId; }
 
+/* ── 分页加载 ── */
+const PAGE_SIZE = 10;
+let allDateCards = [];
+let visibleCount = 0;
+let currentBUId = '';
+
+function renderDateCardsPage(count) {
+  const container = document.getElementById('mainContainer');
+  const today = new Date().toISOString().slice(0, 10);
+  const cardsToShow = allDateCards.slice(0, count);
+  const hasMore = count < allDateCards.length;
+
+  let html = `<div class="date-list-title"> 选择日期查看早报（共 ${allDateCards.length} 期，已显示 ${count} 期）</div>`;
+
+  html += cardsToShow.map((card, i) => {
+    const isToday = card.date === today;
+    const isLatest = i === 0;
+    const cardClass = isToday ? 'today' : (isLatest ? 'latest' : '');
+    return `
+      <div class="date-card ${cardClass} ${card.empty ? 'date-card-empty' : ''}">
+        <div class="date-card-left">
+          <div class="date-card-day">${card.day}</div>
+          <div class="date-card-month">${card.month}</div>
+        </div>
+        <div class="date-card-info">
+          <div class="date-card-date">${card.date}</div>
+          <div class="date-card-status">${card.empty ? '❌ 该日无数据' : '✅ 有早报内容'}</div>
+        </div>
+        <div class="date-card-actions">
+          ${card.empty
+            ? '<button class="action-btn primary" style="background:#ccc" disabled>无数据</button>'
+            : `<button class="action-btn primary" onclick="openReportModal('${card.date}','${currentBUId}')">查看早报</button>
+               <button class="action-btn secondary" onclick="openReportModal('${card.date}','${currentBUId}',true)">弹窗预览</button>`
+          }
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  if (hasMore) {
+    html += `
+      <div class="load-more-wrap">
+        <button class="load-more-btn" onclick="loadMoreCards()">
+          📋 点击加载更多数据（还有 ${allDateCards.length - count} 期）
+        </button>
+      </div>`;
+  }
+
+  container.innerHTML = html;
+  visibleCount = count;
+}
+
+function loadMoreCards() {
+  const nextCount = Math.min(visibleCount + PAGE_SIZE, allDateCards.length);
+  renderDateCardsPage(nextCount);
+}
+
 /* ── 页面初始化 ── */
 async function initPage() {
   if (!buId || !BU_META[buId]) {
@@ -451,35 +520,13 @@ async function loadBUHistory(id) {
       return;
     }
 
-    container.innerHTML = `
-      <div class="date-list-title">📅 选择日期查看早报（${dates.length} 期）</div>
-      ${dateCards.map((card, i) => {
-        const isToday = card.date === today;
-        const isLatest = i === 0;
-        const cardClass = isToday ? 'today' : (isLatest ? 'latest' : '');
-        const badgeClass = isToday ? 'badge-today' : (isLatest ? 'badge-latest' : 'badge-normal');
-        const badgeText = isToday ? '今日' : (isLatest ? '最新' : '');
-        return `
-          <div class="date-card ${cardClass} ${card.empty ? 'date-card-empty' : ''}">
-            <div class="date-card-left">
-              <div class="date-card-day">${card.day}</div>
-              <div class="date-card-month">${card.month}</div>
-            </div>
-            <div class="date-card-info">
-              <div class="date-card-date">${card.date}</div>
-              <div class="date-card-status">${card.empty ? '❌ 该日无数据' : '✅ 有早报内容'}</div>
-            </div>
-            <div class="date-card-actions">
-              ${card.empty
-                ? '<button class="action-btn primary" style="background:#ccc" disabled>无数据</button>'
-                : `<button class="action-btn primary" onclick="openReportModal('${card.date}','${id}')">查看早报</button>
-                   <button class="action-btn secondary" onclick="openReportModal('${card.date}','${id}',true)">弹窗预览</button>`
-              }
-            </div>
-          </div>
-        `;
-      }).join('')}
-    `;
+    // 存储数据用于分页
+    allDateCards = dateCards;
+    visibleCount = 0;
+    currentBUId = id;
+
+    // 初始显示第一页（10条）
+    renderDateCardsPage(Math.min(PAGE_SIZE, dateCards.length));
 
   } catch(e) {
     console.error('loadBUHistory error:', e);
