@@ -433,8 +433,8 @@ function buildCard(buId, meta) {
         var isLocal = /localhost|127\.0\.0\.1/i.test(location.hostname);
         var m = location.search.match(/[?&]__dept=([^&]+)/);
         var deptId = m ? decodeURIComponent(m[1]) : (sessionStorage.getItem('_dept') || '');
-        // 本地模式：直接跳转本地文件，不校验 __dept
-        if (isLocal) {
+        // 不在 iframe 中（本地或 GitHub Pages 直连）→ 直跳本地文件，不校验 __dept
+        if (isLocal || window === window.top) {
             var file = BU_FILES[buId] || 'radar_detail.html?id=' + buId;
             location.assign(file);
             return;
