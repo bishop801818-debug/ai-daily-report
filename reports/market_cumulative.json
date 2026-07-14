@@ -2,9 +2,9 @@
   "meta": {
     "description": "2026年至今累计涨跌幅",
     "data_source": "各产品源数据文件",
-    "update_time": "2026-07-13 11:58:52",
+    "update_time": "2026-07-14 11:57:56",
     "year": 2026,
-    "generated_at": "2026-07-13T11:58:52.514991",
+    "generated_at": "2026-07-14T11:57:56.733297",
     "generator_version": "20260612_v4"
   },
   "products": [
@@ -12,13 +12,13 @@
       "name": "碳酸锂期货",
       "unit": "元/吨",
       "start_date": "2026-01-05",
-      "end_date": "2026-07-10",
+      "end_date": "2026-07-13",
       "start_price": 129980.0,
-      "end_price": 151520.0,
-      "change": 21540.0,
-      "change_pct": 16.57,
+      "end_price": 148000.0,
+      "change": 18020.0,
+      "change_pct": 13.86,
       "direction": "up",
-      "data_points": 124,
+      "data_points": 125,
       "price_series": [
         {
           "date": "2026-01-05",
@@ -515,6 +515,10 @@
         {
           "date": "2026-07-10",
           "price": 151520.0
+        },
+        {
+          "date": "2026-07-13",
+          "price": 148000.0
         }
       ]
     },
@@ -522,13 +526,13 @@
       "name": "电池级碳酸锂",
       "unit": "元/吨",
       "start_date": "2026-01-04 00:00:00",
-      "end_date": "2026-07-10",
+      "end_date": "2026-07-13",
       "start_price": 120000.0,
-      "end_price": 154000.0,
-      "change": 34000.0,
-      "change_pct": 28.33,
+      "end_price": 153000.0,
+      "change": 33000.0,
+      "change_pct": 27.5,
       "direction": "up",
-      "data_points": 145,
+      "data_points": 146,
       "price_series": [
         {
           "date": "2026-01-04 00:00:00",
@@ -1109,6 +1113,10 @@
         {
           "date": "2026-07-10",
           "price": 154000.0
+        },
+        {
+          "date": "2026-07-13",
+          "price": 153000.0
         }
       ]
     },
@@ -1116,13 +1124,13 @@
       "name": "工业级碳酸锂",
       "unit": "元/吨",
       "start_date": "2026-01-04 00:00:00",
-      "end_date": "2026-07-10",
+      "end_date": "2026-07-13",
       "start_price": 106500.0,
       "end_price": 152000.0,
       "change": 45500.0,
       "change_pct": 42.72,
       "direction": "up",
-      "data_points": 150,
+      "data_points": 151,
       "price_series": [
         {
           "date": "2026-01-04 00:00:00",
@@ -1723,6 +1731,10 @@
         {
           "date": "2026-07-10",
           "price": 152000.0
+        },
+        {
+          "date": "2026-07-13",
+          "price": 152000.0
         }
       ]
     },
@@ -1730,13 +1742,13 @@
       "name": "磷酸铁锂(动力型)",
       "unit": "元/吨",
       "start_date": "2026-01-06",
-      "end_date": "2026-07-10",
+      "end_date": "2026-07-13",
       "start_price": 44950,
-      "end_price": 59250,
-      "change": 14300,
-      "change_pct": 31.81,
+      "end_price": 59200,
+      "change": 14250,
+      "change_pct": 31.7,
       "direction": "up",
-      "data_points": 117,
+      "data_points": 118,
       "price_series": [
         {
           "date": "2026-01-06",
@@ -2205,6 +2217,10 @@
         {
           "date": "2026-07-10",
           "price": 59250
+        },
+        {
+          "date": "2026-07-13",
+          "price": 59200
         }
       ]
     },
@@ -2212,13 +2228,13 @@
       "name": "磷酸铁锂(储能型)",
       "unit": "元/吨",
       "start_date": "2026-01-06",
-      "end_date": "2026-07-08",
+      "end_date": "2026-07-13",
       "start_price": 41950,
-      "end_price": 59800,
-      "change": 17850,
-      "change_pct": 42.55,
+      "end_price": 58000,
+      "change": 16050,
+      "change_pct": 38.26,
       "direction": "up",
-      "data_points": 105,
+      "data_points": 107,
       "price_series": [
         {
           "date": "2026-01-06",
@@ -2639,6 +2655,14 @@
         {
           "date": "2026-07-08",
           "price": 59800
+        },
+        {
+          "date": "2026-07-10",
+          "price": 57275
+        },
+        {
+          "date": "2026-07-13",
+          "price": 58000
         }
       ]
     },
@@ -2646,13 +2670,13 @@
       "name": "磷酸铁",
       "unit": "元/吨",
       "start_date": "2026-01-04",
-      "end_date": "2026-07-10",
+      "end_date": "2026-07-13",
       "start_price": 11600,
       "end_price": 15200,
       "change": 3600,
       "change_pct": 31.03,
       "direction": "up",
-      "data_points": 118,
+      "data_points": 119,
       "price_series": [
         {
           "date": "2026-01-04",
@@ -3124,6 +3148,10 @@
         },
         {
           "date": "2026-07-10",
+          "price": 15200
+        },
+        {
+          "date": "2026-07-13",
           "price": 15200
         }
       ]
