@@ -242,70 +242,26 @@
                     newsCarousel.appendChild(slide);
                 });
                 
-                // 加载热点资讯图片（优先使用JSON中预绑定的image_url，否则fallback到API调用）
-                var usedImageUrls = [];  // 已使用的图片URL，避免重复
-                for (var i = 0; i < items.length; i++) {
-                    var item = items[i];
-                    var slide = newsCarousel.children[i];
-                    
-                    // 优先使用JSON预绑定的图片URL
+                // 预加载热点资讯图片（提前开始下载，避免滑到时白屏）
+                items.forEach(function(item, i) {
                     if (item.image_url) {
-                        console.log('[热点资讯] 使用预绑定图片: ' + item.title.substring(0, 20) + '...');
-                        if (slide) {
-                            var bg = slide.querySelector('.news-slide-bg');
-                            if (bg) {
-                                bg.style.backgroundImage = 'url(' + item.image_url + ')';
-                                bg.style.backgroundSize = 'cover';
-                                bg.style.backgroundPosition = 'center';
-                                // 检查图片是否可加载
-                                (function(bgEl, url, title) {
-                                    var img = new Image();
-                                    img.onerror = function() {
-                                        console.warn('[热点资讯] 预绑定图片加载失败，切换API调用: ' + url);
-                                        // 异步调用Unsplash API作为fallback
-                                        fetchUnsplashImage(extractKeywords(title), usedImageUrls).then(function(apiUrl) {
-                                            if (apiUrl) {
-                                                usedImageUrls.push(apiUrl);
-                                                bgEl.style.backgroundImage = 'url(' + apiUrl + ')';
-                                            }
-                                        });
-                                    };
-                                    img.src = url;
-                                })(bg, item.image_url, item.title);
-                            }
-                        }
-                        continue;  // 跳过API调用
-                    }
-                    
-                    // Fallback：JSON中没有image_url时，调用Unsplash API获取
-                    try {
-                        const searchQuery = extractKeywords(item.title);
-                        const imageUrl = await fetchUnsplashImage(searchQuery, usedImageUrls);
-                        console.log('[热点资讯] API调用获取图片: ' + item.title.substring(0, 20) + '...');
-                        if (imageUrl) {
-                            usedImageUrls.push(imageUrl);  // 记录已用URL，后续排除
-                            if (slide) {
-                                const bg = slide.querySelector('.news-slide-bg');
-                                if (bg) {
-                                    bg.style.backgroundImage = 'url(' + imageUrl + ')';
-                                    bg.style.backgroundSize = 'cover';
-                                    bg.style.backgroundPosition = 'center';
-                                    // 加载失败检测：Lorem Picsum 也失败时换成 SVG 本地占位符
-                                    (function(bgEl, url, title) {
-                                        var img = new Image();
-                                        img.onerror = function() {
-                                            console.warn('[热点资讯] 图片加载失败，切换SVG占位符: ' + url);
-                                            bgEl.style.backgroundImage = 'url(' + generateSvgPlaceholder(title || '资讯') + ')';
-                                        };
-                                        img.src = url;
-                                    })(bg, imageUrl, item.title || searchQuery);
+                        var preloadImg = new Image();
+                        preloadImg.onload = (function(idx, imgUrl) {
+                            return function() {
+                                var slideEl = newsCarousel.children[idx];
+                                if (slideEl) {
+                                    var bgEl = slideEl.querySelector('.news-slide-bg');
+                                    if (bgEl) {
+                                        bgEl.style.backgroundImage = 'url(' + imgUrl + ')';
+                                        bgEl.style.backgroundSize = 'cover';
+                                        bgEl.style.backgroundPosition = 'center';
+                                    }
                                 }
-                            }
-                        }
-                    } catch (e) {
-                        console.warn('[热点资讯] Unsplash图片加载失败:', e);
+                            };
+                        })(i, item.image_url);
+                        preloadImg.src = item.image_url;
                     }
-                }
+                });
                 
                 totalNewsSlides = items.length;
                 currentNewsSlide = 0;
