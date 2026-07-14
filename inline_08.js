@@ -260,15 +260,26 @@
                                 // 检查图片是否可加载
                                 (function(bgEl, url, title) {
                                     var img = new Image();
+                                    var settled = false;
+                                    var setFallback = function() {
+                                        if (settled) return;
+                                        settled = true;
+                                        // 国内网络 Unsplash 不可达，直接用本地 SVG 占位符
+                                        bgEl.style.backgroundImage = 'url(' + generateSvgPlaceholder(title || '资讯') + ')';
+                                    };
+                                    // 8秒超时兜底（GitHub Pages CDN 偶尔慢）
+                                    var timeoutId = setTimeout(setFallback, 8000);
+                                    img.onload = function() {
+                                        clearTimeout(timeoutId);
+                                        if (settled) return;
+                                        settled = true;
+                                        bgEl.style.backgroundImage = 'url(' + url + ')';
+                                        bgEl.style.backgroundSize = 'cover';
+                                        bgEl.style.backgroundPosition = 'center';
+                                    };
                                     img.onerror = function() {
-                                        console.warn('[热点资讯] 预绑定图片加载失败，切换API调用: ' + url);
-                                        // 异步调用Unsplash API作为fallback
-                                        fetchUnsplashImage(extractKeywords(title), usedImageUrls).then(function(apiUrl) {
-                                            if (apiUrl) {
-                                                usedImageUrls.push(apiUrl);
-                                                bgEl.style.backgroundImage = 'url(' + apiUrl + ')';
-                                            }
-                                        });
+                                        clearTimeout(timeoutId);
+                                        setFallback();
                                     };
                                     img.src = url;
                                 })(bg, item.image_url, item.title);
