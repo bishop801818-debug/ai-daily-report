@@ -1,5 +1,5 @@
 const EMBEDDED_DATA = {
-  "update_time": "2026-07-09 13:58:58",
+  "update_time": "2026-07-14 14:02:22",
   "source": "ternary_all_data.json",
   "tables": [
     {
