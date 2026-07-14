@@ -26,8 +26,8 @@ function showToast(msg) {
 
 function navigateToDetail(buId) {
     var isLocal = /localhost|127\.0\.0\.1/i.test(location.hostname);
-    // 本地模式：直接跳转，不校验 __dept
-    if (isLocal) {
+    // 不在 iframe 中（直接访问 GitHub Pages / 本地）→ 直跳文件，不校验 __dept
+    if (isLocal || window === window.top) {
         var file = BU_FILES[buId] || 'radar_detail.html?id=' + buId;
         location.assign(file);
         return;
