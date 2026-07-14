@@ -57,6 +57,20 @@
           navigator.serviceWorker.register('./sw.js?v=' + window.HTML_VERSION)
             .then(function(registration) {
               console.log('[SW] 注册成功:', registration.scope);
+              // 注册成功后，通知 SW 预取子页面（下次访问秒开）
+              if (registration.active) {
+                registration.active.postMessage({
+                  type: 'PREFETCH_PAGES',
+                  urls: [
+                    './portal-bundle.js?v=' + window.HTML_VERSION,
+                    './bu_gate.js',
+                    './radar_hub.html',
+                    './database_hub.html',
+                    './dept-archive.html',
+                    './reports/index.json'
+                  ]
+                });
+              }
             })
             .catch(function(error) {
               console.log('[SW] 注册失败:', error);
