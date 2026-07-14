@@ -1,6 +1,9 @@
 
 // 异步加载报告数据（动态获取最新报告）
+// 仅对门户页面（index_v3.html / index.html）生效
 (function() {
+    var pageName = location.pathname.split('/').pop() || '';
+    if (pageName !== 'index_v3.html' && pageName !== 'index.html') return;
     var DATA_BASE = (location.hostname.includes('aiforce.cloud') || location.hostname.includes('miaoda'))
       ? 'https://bishop801818-debug.github.io/ai-daily-report'
       : '.';
