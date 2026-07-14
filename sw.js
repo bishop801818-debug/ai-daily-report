@@ -1,85 +1,120 @@
 /**
  * Service Worker for AI Daily Report
- * 版本：v1.4 (2026-07-10)
- * 功能：离线缓存静态资源和数据文件，提升二次访问速度
- * 更新：升级缓存版本，修复radar_hub HQ部门ID配置
+ * 版本：v2.0 (2026-07-14)
+ * 策略：
+ *   - 动态资源（JSON/JS/HTML）：缓存优先 + 后台更新（stale-while-revalidate）
+ *   - 预取：门户页加载后 postMessage 触发子页面缓存
+ *   - 用户第一次浏览时体验不变（走网络+缓存），后续访问全部从缓存秒开
  */
 
-const CACHE_NAME = 'ai-daily-v7';
-const CACHE_VERSION = '20260713v1';
+const CACHE_NAME = 'ai-daily-v8';
+const CACHE_VERSION = '20260714v2';
 
-// 规范化 URL：移除缓存破坏参数（如 ?t=xxx）
+/** 归一化 URL：移除缓存破坏参数 */
 function normalizeUrl(url) {
-  const urlObj = new URL(url);
-  return urlObj.pathname;
+  try {
+    const u = new URL(url);
+    return u.pathname;
+  } catch { return url; }
 }
 
-// 安装事件：预缓存静态资源
+// ============================================================
+//  安装阶段：预缓存门户入口页
+// ============================================================
 self.addEventListener('install', function(event) {
-  console.log('[SW] 安装中...');
+  console.log('[SW v8] 安装中...');
   event.waitUntil(
     caches.open(CACHE_NAME).then(function(cache) {
-      console.log('[SW] 预缓存静态资源');
-      return cache.addAll([
-        './index_v3.html',
-        './index.html'
-      ]);
+      console.log('[SW v8] 预缓存门户入口');
+      return cache.addAll(['./index_v3.html', './index.html']);
     }).then(function() {
-      console.log('[SW] 安装完成，跳过等待');
+      console.log('[SW v8] 安装完成，跳过等待');
       return self.skipWaiting();
     })
   );
 });
 
-// 激活事件：清理旧缓存
+// ============================================================
+//  激活阶段：清理旧缓存
+// ============================================================
 self.addEventListener('activate', function(event) {
-  console.log('[SW] 激活中...');
+  console.log('[SW v8] 激活中...');
   event.waitUntil(
     caches.keys().then(function(cacheNames) {
       return Promise.all(
-        cacheNames.map(function(cacheName) {
-          if (cacheName !== CACHE_NAME) {
-            console.log('[SW] 删除旧缓存:', cacheName);
-            return caches.delete(cacheName);
+        cacheNames.map(function(name) {
+          if (name !== CACHE_NAME) {
+            console.log('[SW v8] 删除旧缓存:', name);
+            return caches.delete(name);
           }
         })
       );
     }).then(function() {
-      console.log('[SW] 激活完成，接管所有页面');
+      console.log('[SW v8] 激活完成');
       return self.clients.claim();
     })
   );
 });
 
-// 请求拦截：统一缓存策略
-self.addEventListener('fetch', function(event) {
-  const requestUrl = event.request.url;
-  const urlObj = new URL(requestUrl);
-  const pathname = urlObj.pathname;
-  const normalizedUrl = normalizeUrl(requestUrl);
-  const cacheKey = new Request(normalizedUrl);
+// ============================================================
+//  消息处理：门户页通知 SW 预取子页面
+// ============================================================
+self.addEventListener('message', function(event) {
+  if (event.data && event.data.type === 'PREFETCH_PAGES') {
+    var urls = event.data.urls || [];
+    console.log('[SW v8] 收到预取请求:', urls.length, '个页面');
+    event.waitUntil(
+      caches.open(CACHE_NAME).then(function(cache) {
+        return Promise.allSettled(
+          urls.map(function(url) {
+            return fetch(url).then(function(res) {
+              if (res && res.status === 200) {
+                cache.put(normalizeUrl(url), res);
+              }
+            }).catch(function() { /* 静默失败 */ });
+          })
+        );
+      })
+    );
+  }
+});
 
-  // 策略：网络优先，缓存兜底（适用于所有资源）
+// ============================================================
+//  请求拦截：缓存优先 + 后台更新
+// ============================================================
+self.addEventListener('fetch', function(event) {
+  var request = event.request;
+  var url = request.url;
+  var pathname = normalizeUrl(url);
+
+  // 只处理 GET 请求
+  if (request.method !== 'GET') return;
+
+  // 只处理同域请求（ai-daily-report 域下的资源）
+  if (!url.includes('ai-daily-report')) return;
+
   event.respondWith(
-    fetch(event.request).then(function(response) {
-      // 网络成功：克隆 response 并缓存（立即克隆，防止 body 被消耗）
-      if (response && response.status === 200) {
-        const responseToCache = response.clone();
-        caches.open(CACHE_NAME).then(function(cache) {
-          cache.put(cacheKey, responseToCache);
-        });
-      }
-      return response;
-    }).catch(function() {
-      // 网络失败：返回缓存
-      return caches.match(cacheKey).then(function(cachedResponse) {
-        if (cachedResponse) {
-          console.log('[SW] 缓存命中:', pathname);
-          return cachedResponse;
+    caches.match(pathname).then(function(cached) {
+      // 后台发起网络更新（不阻塞当前响应）
+      var fetcher = fetch(request).then(function(response) {
+        if (response && response.status === 200) {
+          var clone = response.clone();
+          caches.open(CACHE_NAME).then(function(cache) {
+            cache.put(pathname, clone);
+          });
         }
-        // 无缓存：返回错误
-        return new Response('网络不可用', { status: 503 });
+        return response;
+      }).catch(function() {
+        return cached || new Response('', { status: 503 });
       });
+
+      // 有缓存 → 直接返回缓存（0ms），后台静默更新
+      if (cached) {
+        return cached;
+      }
+
+      // 无缓存 → 等待网络
+      return fetcher;
     })
   );
 });
