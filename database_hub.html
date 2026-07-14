@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- __dept 导航拦截器：拦截 database_hub 子页面内所有导航，追加 __dept 参数 -->
+    <script src="bu_gate.js"></script>
     <script src="inline_01.js"></script>
     <title>数据库 - 龙蟠科技行业数据库</title>
     <meta name="html-version" content="20260424a">
@@ -605,7 +606,28 @@ function renderAllPanels() {
                 }
             });
         });
+        // 数据库权限过滤：根据用户部门隐藏无权访问的卡片
+        applyDbFilter();
     }
+}
+
+/** 数据库权限过滤：根据 allowedBu 和用户部门隐藏无权卡片 */
+function applyDbFilter() {
+    var gate = window.BU_GATE;
+    if (!gate) return;
+    var deptId = gate.getCurrentDeptId();
+    if (!deptId) return;
+    var userDeptIds = gate.parseDeptIds(deptId);
+    DB_LIST.forEach(function(db) {
+        if (!db.allowedBu || !db.allowedBu.length) return;
+        var allowed = db.allowedBu.some(function(bu) {
+            return gate.isAllowed(bu, userDeptIds);
+        });
+        if (!allowed) {
+            var card = document.querySelector('.db-card[data-db="' + db.id + '"]');
+            if (card) card.style.display = 'none';
+        }
+    });
 }
 
 function updateTopbarTime() {
