@@ -353,6 +353,21 @@ async function initPage() {
     window.applyBUFilter && setTimeout(function() { window.applyBUFilter(); }, 50);
     return;
   }
+  // 权限校验：非管理员访问其他 BU → 退回引导页
+  // 直连 GitHub Pages（不在 iframe 中）跳过校验
+  if (window !== window.top) {
+    var gate = window.BU_GATE;
+    if (gate) {
+      var deptId = gate.getCurrentDeptId();
+      var userDeptIds = deptId ? gate.parseDeptIds(deptId) : [];
+      if (!gate.isAllowed(buId, userDeptIds)) {
+        location.hash = '';
+        renderGuidePage();
+        window.applyBUFilter && setTimeout(function() { window.applyBUFilter(); }, 50);
+        return;
+      }
+    }
+  }
   const meta = BU_META[buId];
   applyBUTheme(meta);
   await loadBUHistory(buId);

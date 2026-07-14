@@ -164,6 +164,7 @@ window.applyBUFilter = function(containerSelector) {
 window.BU_GATE = {
   isAllowed: isAllowed,
   getCurrentDeptId: getCurrentDeptId,
+  parseDeptIds: parseDeptIds,
   BU_DEPT: BU_DEPT,
 };
 
