@@ -445,35 +445,35 @@ document.getElementById('data-time').textContent = EMBEDDED_DATA.update_time || 
 
     // Stat cards
     if (ncmInd.length) {
-        var last = ncmInd[ncmInd.length-1];
+        var last = ncmInd[0];
         document.getElementById('stat-ncm-output').innerHTML = (toNum(last['月度产量'])/10000).toFixed(2) + '<span class="unit">万吨</span>';
         document.getElementById('stat-ncm-date').textContent = last['月份'] + ' | 利用率 ' + (last['产能利用率']||'—');
     }
     if (preInd.length) {
-        var last = preInd[preInd.length-1];
+        var last = preInd[0];
         document.getElementById('stat-pre-output').innerHTML = (toNum(last['月度产量'])/10000).toFixed(2) + '<span class="unit">万吨</span>';
         document.getElementById('stat-pre-date').textContent = last['月份'] + ' | 利用率 ' + (last['产能利用率']||'—');
     }
     // NCM811 latest price
     var ncmPrice = getTable('三元正极-现货市场价');
     if (ncmPrice.length) {
-        var last = ncmPrice[ncmPrice.length-1];
+        var last = ncmPrice[0];
         var dk = Object.keys(last)[0];
         var col811 = Object.keys(last).find(function(k){ return k.indexOf('811')>=0 && k.endsWith('均价'); });
         if (col811) {
             document.getElementById('stat-ncm811-price').innerHTML = toNum(last[col811]).toFixed(2) + '<span class="unit">万/吨</span>';
-            document.getElementById('stat-ncm811-date').textContent = last[dk];
+            document.getElementById('stat-ncm811-date').textContent = (last[dk]||'').split(/[ T]/)[0];
         }
     }
     // Cobalt price
     var rawPrice = getTable('硫酸钴镍-现货市场价');
     if (rawPrice.length) {
-        var last = rawPrice[rawPrice.length-1];
+        var last = rawPrice[0];
         var dk = Object.keys(last)[0];
         var colCo = Object.keys(last).find(function(k){ return k.endsWith('均价'); });
         if (colCo) {
             document.getElementById('stat-cobalt-price').innerHTML = toNum(last[colCo]).toFixed(2) + '<span class="unit">万/吨</span>';
-            document.getElementById('stat-cobalt-date').textContent = last[dk];
+            document.getElementById('stat-cobalt-date').textContent = (last[dk]||'').split(/[ T]/)[0];
         }
     }
 
@@ -831,26 +831,27 @@ document.getElementById('data-time').textContent = EMBEDDED_DATA.update_time || 
 
     // Stats
     if (rawPrice.length) {
-        var last = rawPrice[rawPrice.length-1];
+        var last = rawPrice[0];
         var dk = Object.keys(last)[0];
+        var dateStr = (last[dk]||'').split(/[ T]/)[0];
         var coCol = Object.keys(last).find(function(k){ return k.indexOf('钴')>=0 && k.endsWith('均价'); });
         var mnCol = Object.keys(last).find(function(k){ return k.indexOf('锰')>=0 && k.endsWith('均价'); });
         var niCol = Object.keys(last).find(function(k){ return k.indexOf('镍')>=0 && k.endsWith('均价'); });
         if (coCol) {
             document.getElementById('stat-raw-cobalt').innerHTML = toNum(last[coCol]).toFixed(2) + '<span class="unit">万/吨</span>';
-            document.getElementById('stat-raw-cobalt-date').textContent = last[dk];
+            document.getElementById('stat-raw-cobalt-date').textContent = dateStr;
         }
         if (mnCol) {
             document.getElementById('stat-raw-mn').innerHTML = toNum(last[mnCol]).toFixed(2) + '<span class="unit">万/吨</span>';
-            document.getElementById('stat-raw-mn-date').textContent = last[dk];
+            document.getElementById('stat-raw-mn-date').textContent = dateStr;
         }
         if (niCol) {
             document.getElementById('stat-raw-ni').innerHTML = toNum(last[niCol]).toFixed(2) + '<span class="unit">万/吨</span>';
-            document.getElementById('stat-raw-ni-date').textContent = last[dk];
+            document.getElementById('stat-raw-ni-date').textContent = dateStr;
         }
     }
     if (coInd.length) {
-        var last = coInd[coInd.length-1];
+        var last = coInd[0];
         document.getElementById('stat-co3o4-output').innerHTML = (toNum(last['月度产量'])/10000).toFixed(2) + '<span class="unit">万吨</span>';
         document.getElementById('stat-co3o4-date').textContent = last['月份'] + ' | 利用率 ' + (last['产能利用率']||'—');
     }

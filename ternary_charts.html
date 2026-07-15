@@ -463,7 +463,7 @@ document.getElementById('data-time').textContent = EMBEDDED_DATA.update_time || 
         var col811 = Object.keys(last).find(function(k){ return k.indexOf('811')>=0 && k.endsWith('均价'); });
         if (col811) {
             document.getElementById('stat-ncm811-price').innerHTML = toNum(last[col811]).toFixed(2) + '<span class="unit">万/吨</span>';
-            document.getElementById('stat-ncm811-date').textContent = last[dk];
+            document.getElementById('stat-ncm811-date').textContent = (last[dk]||'').split(/[ T]/)[0];
         }
     }
     // Cobalt price
@@ -474,7 +474,7 @@ document.getElementById('data-time').textContent = EMBEDDED_DATA.update_time || 
         var colCo = Object.keys(last).find(function(k){ return k.endsWith('均价'); });
         if (colCo) {
             document.getElementById('stat-cobalt-price').innerHTML = toNum(last[colCo]).toFixed(2) + '<span class="unit">万/吨</span>';
-            document.getElementById('stat-cobalt-date').textContent = last[dk];
+            document.getElementById('stat-cobalt-date').textContent = (last[dk]||'').split(/[ T]/)[0];
         }
     }
 
@@ -832,22 +832,23 @@ document.getElementById('data-time').textContent = EMBEDDED_DATA.update_time || 
 
     // Stats
     if (rawPrice.length) {
-        var last = rawPrice[rawPrice.length-1];
+        var last = rawPrice[0];
         var dk = Object.keys(last)[0];
+        var dateStr = (last[dk]||'').split(/[ T]/)[0];
         var coCol = Object.keys(last).find(function(k){ return k.indexOf('钴')>=0 && k.endsWith('均价'); });
         var mnCol = Object.keys(last).find(function(k){ return k.indexOf('锰')>=0 && k.endsWith('均价'); });
         var niCol = Object.keys(last).find(function(k){ return k.indexOf('镍')>=0 && k.endsWith('均价'); });
         if (coCol) {
             document.getElementById('stat-raw-cobalt').innerHTML = toNum(last[coCol]).toFixed(2) + '<span class="unit">万/吨</span>';
-            document.getElementById('stat-raw-cobalt-date').textContent = last[dk];
+            document.getElementById('stat-raw-cobalt-date').textContent = dateStr;
         }
         if (mnCol) {
             document.getElementById('stat-raw-mn').innerHTML = toNum(last[mnCol]).toFixed(2) + '<span class="unit">万/吨</span>';
-            document.getElementById('stat-raw-mn-date').textContent = last[dk];
+            document.getElementById('stat-raw-mn-date').textContent = dateStr;
         }
         if (niCol) {
             document.getElementById('stat-raw-ni').innerHTML = toNum(last[niCol]).toFixed(2) + '<span class="unit">万/吨</span>';
-            document.getElementById('stat-raw-ni-date').textContent = last[dk];
+            document.getElementById('stat-raw-ni-date').textContent = dateStr;
         }
     }
     if (coInd.length) {
