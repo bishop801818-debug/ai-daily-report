@@ -69,7 +69,7 @@ self.addEventListener('message', function(event) {
           urls.map(function(url) {
             return fetch(url).then(function(res) {
               if (res && res.status === 200) {
-                cache.put(normalizeUrl(url), res);
+                cache.put(normalizeUrl(url), res).catch(function() {});
               }
             }).catch(function() { /* 静默失败 */ });
           })
@@ -100,7 +100,9 @@ self.addEventListener('fetch', function(event) {
         if (response && response.status === 200) {
           var clone = response.clone();
           caches.open(CACHE_NAME).then(function(cache) {
-            cache.put(pathname, clone);
+            cache.put(pathname, clone).catch(function(err) {
+              console.log('[SW v8] 缓存更新非关键错误（不阻塞）:', err.message);
+            });
           });
         }
         return response;

@@ -29,6 +29,9 @@ body{font-family:"Microsoft YaHei","PingFang SC",Arial,sans-serif;background:#f0
 .chart-ctn{width:100%;height:300px}
 .section-title{font-size:16px;font-weight:700;color:#1e3c72;margin:22px 0 4px;display:flex;align-items:center;gap:8px}
 .src-tag{font-size:11px;font-weight:400;color:#fff;background:#cf1322;padding:2px 8px;border-radius:10px;margin-left:6px}
+.asof{font-size:12px;font-weight:700;text-align:center;line-height:1.3;padding:5px 11px;border-radius:8px;white-space:nowrap;flex-shrink:0}
+.asof-fresh{color:#237804;background:#f6ffed;border:1px solid #b7eb8f}
+.asof-stale{color:#ad6800;background:#fffbe6;border:1px solid #ffe58f}
 .summary{background:#fff;border-radius:12px;padding:16px 20px;box-shadow:0 2px 8px rgba(0,0,0,.04);overflow-x:auto;margin-top:8px}
 table{width:100%;border-collapse:collapse;font-size:13px}
 th,td{padding:9px 12px;text-align:left;border-bottom:1px solid #f0f0f0;white-space:nowrap}
@@ -56,6 +59,7 @@ td.v{font-weight:600;color:#1e3c72}
   本页用 <b>Mysteel 免费公开源</b>的<b>近似替代</b>序列接在 SMM 历史之后，使图表恢复连续更新：
   <b class="ok">07-07 及之前 = SMM 真实值</b>；<b>07-08 起 = Mysteel 近似替代</b>。
   各品种替代口径见图表副标题与底部汇总表。<b>钴酸锂电池包</b>替代源为「钴酸锂极片粉料」，口径差异较大，仅供趋势参考。
+  <br/>各品种「数据截至」日不同（属源站发布频率，非未更新）：<b>正极片类</b>=日度快照（随交易日更新，今日即 07-14）；<b>其余废料类</b>=Mysteel快讯最近发布日（07-10）；<b>电池包/箔粉</b>=SMM冻结日（无免费源）。
 </div>
 
 <div class="main">
@@ -82,6 +86,8 @@ td.v{font-weight:600;color:#1e3c72}
   var META = (typeof RECYCLING_DATA_META !== 'undefined') ? RECYCLING_DATA_META : {};
   var SMM_FREEZE = "2026-07-07";
   var keys = Object.keys(DATA);
+  var allLast = keys.map(function(k){ var a=DATA[k]||[]; return a.length? a[a.length-1]['日期'] : ''; }).filter(Boolean);
+  var globalMax = allLast.sort().pop() || '';
   var revived = keys.filter(function(k){
     var m = META[k];
     return m && m.source && m.source.indexOf("SMM（冻结）") < 0;
@@ -105,13 +111,17 @@ td.v{font-weight:600;color:#1e3c72}
     var switchIdx = -1;
     for (var i=0;i<dates.length;i++){ if (dates[i] > SMM_FREEZE){ switchIdx = i; break; } }
     var meta = META[k] || {};
+    var lastDate = dates[dates.length-1];
+    var isFresh = (lastDate === globalMax);
 
     var card = document.createElement('div'); card.className='chart-card';
     card.innerHTML =
       '<div class="chart-header"><div>'+
         '<div class="chart-title">'+k+'</div>'+
         '<div class="chart-sub">单位：万元/吨 · 数据源：<span class="sm">'+(meta.source||'')+'</span><br/>'+(meta.note||'')+'</div>'+
-      '</div></div>'+
+      '</div>'+
+      '<div class="asof '+(isFresh?'asof-fresh':'asof-stale')+'">数据截至<br/>'+lastDate+'</div>'+
+      '</div>'+
       '<div class="chart-ctn" id="r-'+idx+'"></div>';
     grid.appendChild(card);
 

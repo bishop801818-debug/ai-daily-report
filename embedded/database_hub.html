@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- __dept 导航拦截器：拦截 database_hub 子页面内所有导航，追加 __dept 参数 -->
+    <script src="bu_gate.js"></script>
     <script src="inline_01.js"></script>
     <title>数据库 - 龙蟠科技行业数据库</title>
     <meta name="html-version" content="20260424a">
@@ -429,7 +430,7 @@ const DB_LIST = [
         hasData: true,
         tableCount: 12,
         updateDate: null,
-        allowedBu: ['lpsd'], // 仅龙蟠时代可见
+        allowedBu: ['czly','lpsd','sdmd'], // 常州锂源、龙蟠时代、山东美多可见
         tables: ['碳酸锂行业产量', '碳酸锂分企业产量', '碳酸锂出口量', '碳酸锂出口贸易伙伴', '碳酸锂现货价',
                  '氢氧化锂行业产量', '氢氧化锂分企业产量', '氢氧化锂出口量', '氢氧化锂出口贸易伙伴', '氢氧化锂现货价',
                  '锂云母价格', '锂辉石精矿价格'],
@@ -479,7 +480,7 @@ const DB_LIST = [
         hasData: true,
         tableCount: 22,
         updateDate: '2026-05-18',
-        allowedBu: ['hq'], // 仅集团总部可见（暂无BU专属数据）
+        allowedBu: ['czly','lpsd','sdmd','felt','sjl','dhx','lhy','kls','bych'], // 全BU可见（无专门BU数据）
         tables: ['全球分区域销量', '全球分国家销量', '中国汽车整体', '中国乘用车', '乘用车出口', '乘用车分整车厂',
                  '中国商用车', '商用车分整车厂', '中重卡分整车厂', '轻卡分整车厂',
                  '新能源全球整体', '新能源全球分地区', '新能源中国整体', '新能源出口',
@@ -605,7 +606,28 @@ function renderAllPanels() {
                 }
             });
         });
+        // 数据库权限过滤：根据用户部门隐藏无权访问的卡片
+        applyDbFilter();
     }
+}
+
+/** 数据库权限过滤：根据 allowedBu 和用户部门隐藏无权卡片 */
+function applyDbFilter() {
+    var gate = window.BU_GATE;
+    if (!gate) return;
+    var deptId = gate.getCurrentDeptId();
+    if (!deptId) return;
+    var userDeptIds = gate.parseDeptIds(deptId);
+    DB_LIST.forEach(function(db) {
+        if (!db.allowedBu || !db.allowedBu.length) return;
+        var allowed = db.allowedBu.some(function(bu) {
+            return gate.isAllowed(bu, userDeptIds);
+        });
+        if (!allowed) {
+            var card = document.querySelector('.db-card[data-db="' + db.id + '"]');
+            if (card) card.style.display = 'none';
+        }
+    });
 }
 
 function updateTopbarTime() {
