@@ -136,7 +136,7 @@ body{font-family:"Microsoft YaHei","PingFang SC",Arial,sans-serif;background:#f0
             
     // ── dynamic data loader (reads EMBEDDED_DATA at runtime) ──────────────────
     (function() {
-      var tables = window.EMBEDDED_DATA ? window.EMBEDDED_DATA.tables : [];
+      var tables = EMBEDDED_DATA ? EMBEDDED_DATA.tables : [];
       var tblMap = {};
       tables.forEach(function(t){ tblMap[t.table_name] = t.data; });
 
@@ -242,7 +242,7 @@ body{font-family:"Microsoft YaHei","PingFang SC",Arial,sans-serif;background:#f0
       window.PIE_DATA = pie;
 
       window.LATEST_MONTH = latestEntYM;
-      window.UPDATE_TIME  = window.EMBEDDED_DATA ? window.EMBEDDED_DATA.update_time : '';
+      window.UPDATE_TIME  = EMBEDDED_DATA ? EMBEDDED_DATA.update_time : '';
       window.N_COMPANIES  = entLatest.length;
 
       // price series
