@@ -1,0 +1,1159 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>中国锂电回收市场分析报告 · 2026年05月</title>
+<style>
+:root {
+  --primary: #064e3b;
+  --primary-light: #0AA66A;
+  --primary-dark: #022c1d;
+  --text-color: #1a1a1a;
+  --text-secondary: #555;
+  --text-light: #888;
+  --border-color: #e0e0e0;
+  --bg-light: #f4faf7;
+  --bg-white: #fff;
+  --green: #2e7d32;
+  --orange: #ef6c00;
+  --red: #c62828;
+  --blue-light: rgba(6,78,59,0.06);
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', 'Segoe UI', sans-serif; color: var(--text-color); background: var(--bg-light); line-height: 1.8; font-size: 14px; }
+a { color: inherit; text-decoration: none; }
+
+.topbar { position: sticky; top: 0; z-index: 100; background: linear-gradient(135deg, var(--primary-dark), var(--primary)); color: #fff; padding: 0 24px; height: 56px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
+.topbar-left { display: flex; align-items: center; gap: 8px; }
+.topbar-back-btn { background: rgba(255,255,255,0.15); color: #fff; border: 1px solid rgba(255,255,255,0.3); padding: 5px 14px; border-radius: 20px; font-size: 12px; cursor: pointer; transition: all 0.2s; }
+.topbar-back-btn:hover { background: rgba(255,255,255,0.25); }
+.topbar-export-btn { background: rgba(255,255,255,0.2); color: #fff; border: 1px solid rgba(255,255,255,0.4); padding: 5px 14px; border-radius: 20px; font-size: 12px; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
+.topbar-export-btn:hover { background: rgba(255,255,255,0.35); }
+.topbar-export-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.topbar-export-btn.loading::after { content: ' 生成中…'; }
+.topbar-center { font-size: 18px; font-weight: 700; letter-spacing: 1px; }
+.topbar-right { font-size: 12px; opacity: 0.85; }
+
+.page-wrapper { display: flex; max-width: 1200px; margin: 0 auto; padding: 24px 16px; gap: 20px; }
+.toc-sidebar { flex: 0 0 200px; position: sticky; top: 80px; height: fit-content; background: #fff; border-radius: 12px; padding: 16px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+.toc-sidebar h3 { font-size: 13px; color: var(--primary); margin-bottom: 12px; padding-bottom: 8px; border-bottom: 2px solid var(--primary); font-weight: 700; }
+.toc-list { list-style: none; }
+.toc-list a { display: block; padding: 6px 8px; border-radius: 6px; font-size: 12px; color: var(--text-secondary); transition: all 0.2s; }
+.toc-list a:hover { background: var(--blue-light); color: var(--primary); }
+.toc-list a.active { background: var(--blue-light); color: var(--primary); font-weight: 600; }
+.toc-part { font-weight: 700; color: var(--text-color); }
+.toc-sub { padding-left: 16px; font-size: 11px; }
+.main-content { flex: 1; min-width: 0; }
+
+.report-header { background: linear-gradient(135deg, var(--primary-dark), var(--primary)); color: #fff; border-radius: 16px; padding: 40px 32px 32px; margin-bottom: 20px; }
+.report-header .report-subtitle { font-size: 14px; opacity: 0.8; margin-bottom: 8px; }
+.report-header h1 { font-size: 28px; font-weight: 700; margin-bottom: 8px; }
+.report-header .report-meta { font-size: 13px; opacity: 0.75; display: flex; gap: 16px; flex-wrap: wrap; }
+.report-header .report-meta span { display: flex; align-items: center; gap: 4px; }
+
+.kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
+.kpi-card { background: #fff; border-radius: 12px; padding: 16px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); border-top: 3px solid var(--primary); }
+.kpi-label { font-size: 12px; color: var(--text-light); margin-bottom: 6px; font-weight: 500; }
+.kpi-value { font-size: 22px; font-weight: 800; color: var(--primary); line-height: 1.2; }
+.kpi-change { font-size: 12px; margin-top: 4px; font-weight: 600; padding: 2px 8px; border-radius: 10px; display: inline-block; }
+.kpi-change.up { background: rgba(46,125,50,0.1); color: var(--green); }
+.kpi-change.down { background: rgba(198,40,40,0.1); color: var(--red); }
+.kpi-change.neutral { background: rgba(100,100,100,0.08); color: var(--text-light); }
+
+.part-section { background: #fff; border-radius: 12px; margin-bottom: 20px; padding: 24px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+.part-title { display: flex; align-items: center; gap: 10px; font-size: 18px; font-weight: 700; color: var(--primary); margin-bottom: 16px; padding-bottom: 10px; border-bottom: 2px solid var(--border-color); }
+.part-title .part-num { width: 32px; height: 32px; background: var(--primary); color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; flex-shrink: 0; }
+
+.insight-block { margin-bottom: 16px; line-height: 1.9; font-size: 14px; }
+.insight-block p { margin-bottom: 10px; text-align: justify; }
+.highlight { background: linear-gradient(transparent 60%, rgba(6,78,59,0.18) 60%); font-weight: 600; }
+.strong { font-weight: 700; color: var(--text-color); }
+
+.event-table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 13px; }
+.event-table thead th { background: var(--bg-light); border-bottom: 2px solid var(--border-color); padding: 8px 12px; text-align: left; font-weight: 600; color: var(--text-secondary); }
+.event-table tbody td { padding: 10px 12px; border-bottom: 1px solid var(--border-color); vertical-align: top; }
+.event-table tbody tr:hover { background: var(--bg-light); }
+.event-table .priority-A { color: var(--primary); font-weight: 700; }
+.event-table .priority-B { color: var(--orange); font-weight: 700; }
+.event-table .priority-C { color: var(--text-light); }
+
+.data-table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 13px; }
+.data-table thead th { background: var(--bg-light); border-bottom: 2px solid var(--border-color); padding: 8px 12px; text-align: right; font-weight: 600; color: var(--text-secondary); }
+.data-table thead th:first-child { text-align: left; }
+.data-table tbody td { padding: 8px 12px; border-bottom: 1px solid var(--border-color); text-align: right; }
+.data-table tbody td:first-child { text-align: left; font-weight: 500; }
+.data-table tbody tr.row-highlight { background: var(--blue-light); }
+.data-table tbody tr.row-highlight td { color: var(--primary); font-weight: 600; }
+.data-table tbody tr:hover { background: var(--bg-light); }
+
+.chart-card { background: #fff; border-radius: 10px; padding: 20px; margin: 16px 0; box-shadow: 0 1px 4px rgba(0,0,0,0.05); }
+.chart-card h4 { font-size: 14px; color: var(--text-secondary); margin-bottom: 12px; font-weight: 600; }
+.chart-container { width: 100%; height: 280px; }
+
+.callout { border-radius: 8px; padding: 14px 16px; margin: 14px 0; font-size: 13px; line-height: 1.8; }
+.callout-info { background: rgba(6,78,59,0.06); border-left: 4px solid var(--primary); }
+.callout-warn { background: rgba(239,108,0,0.08); border-left: 4px solid var(--orange); }
+.callout-danger { background: rgba(198,40,40,0.07); border-left: 4px solid var(--red); }
+.callout-success { background: rgba(46,125,50,0.08); border-left: 4px solid var(--green); }
+.callout-title { font-weight: 700; margin-bottom: 6px; font-size: 14px; }
+.callout p { color: var(--text-secondary); }
+
+.sub-title { font-size: 15px; font-weight: 700; color: var(--text-color); margin: 20px 0 10px; display: flex; align-items: center; gap: 8px; }
+.sub-title::before { content: ''; width: 4px; height: 16px; background: var(--primary); border-radius: 2px; }
+
+.data-source { font-size: 11px; color: var(--text-light); margin-top: 16px; padding-top: 10px; border-top: 1px solid var(--border-color); }
+.data-source span { display: inline-flex; align-items: center; gap: 2px; margin-right: 12px; }
+
+.rec-card { border-radius: 10px; padding: 16px 20px; margin: 12px 0; border: 1px solid; }
+.rec-opportunity { background: rgba(46,125,50,0.07); border-color: rgba(46,125,50,0.3); }
+.rec-risk { background: rgba(198,40,40,0.07); border-color: rgba(198,40,40,0.3); }
+.rec-action { background: rgba(6,78,59,0.07); border-color: rgba(6,78,59,0.3); }
+.rec-title { font-size: 14px; font-weight: 700; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+.rec-opportunity .rec-title { color: var(--green); }
+.rec-risk .rec-title { color: var(--red); }
+.rec-action .rec-title { color: var(--primary); }
+.rec-item { font-size: 13px; color: var(--text-secondary); padding: 5px 0; display: flex; gap: 8px; line-height: 1.7; }
+.rec-item::before { content: attr(data-num); font-weight: 700; color: var(--text-light); flex-shrink: 0; }
+
+.conclusion-banner { background: linear-gradient(135deg, var(--primary-dark), var(--primary)); color: #fff; border-radius: 12px; padding: 24px; margin-bottom: 20px; }
+.conclusion-banner h3 { font-size: 16px; margin-bottom: 10px; opacity: 0.9; }
+.conclusion-banner p { font-size: 15px; line-height: 1.8; }
+
+.report-footer { text-align: center; color: var(--text-light); font-size: 12px; padding: 24px 0; margin-top: 20px; border-top: 1px solid var(--border-color); }
+
+.price-table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 13px; }
+.price-table th { background: var(--bg-light); padding: 8px 12px; text-align: center; font-weight: 600; border: 1px solid var(--border-color); }
+.price-table td { padding: 8px 12px; text-align: center; border: 1px solid var(--border-color); }
+.price-table td:first-child { text-align: left; font-weight: 600; }
+.price-up { color: var(--red); font-weight: 700; }
+.price-down { color: var(--green); font-weight: 700; }
+
+.lp-card { background: linear-gradient(135deg, rgba(6,78,59,0.08), rgba(6,78,59,0.03)); border: 1px solid rgba(6,78,59,0.2); border-radius: 12px; padding: 16px 20px; margin: 16px 0; }
+.lp-card-title { font-size: 13px; font-weight: 700; color: var(--primary); margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+.lp-card-body { font-size: 13px; color: var(--text-secondary); line-height: 1.8; }
+.lp-card-body strong { color: var(--text-color); }
+
+.felt-list-item { font-size: 14px; color: var(--text-secondary); padding: 8px 0 8px 28px; line-height: 1.9; border-bottom: 1px solid var(--border-color); position: relative; }
+.felt-list-item:last-child { border-bottom: none; }
+.felt-list-item strong { color: var(--text-color); font-weight: 600; }
+.felt-list-wrap { counter-reset: item; }
+.felt-list-wrap .felt-list-item:nth-child(1)::before { content: '①'; }
+.felt-list-wrap .felt-list-item:nth-child(2)::before { content: '②'; }
+.felt-list-wrap .felt-list-item:nth-child(3)::before { content: '③'; }
+.felt-list-wrap .felt-list-item:nth-child(4)::before { content: '④'; }
+.felt-list-wrap .felt-list-item:nth-child(5)::before { content: '⑤'; }
+.felt-list-wrap .felt-list-item:nth-child(6)::before { content: '⑥'; }
+.felt-list-wrap .felt-list-item:nth-child(7)::before { content: '⑦'; }
+.felt-action-urgent { border-left: 3px solid var(--red) !important; background: rgba(198,40,40,0.04); padding: 8px 12px 8px 28px !important; }
+.felt-action-urgent strong { color: var(--red) !important; }
+.felt-action-urgent::before { color: var(--red) !important; }
+
+@media print { .topbar, .toc-sidebar { display: none; } .page-wrapper { padding: 0; } .main-content { max-width: 100%; } .part-section { break-inside: avoid; } }
+@media (max-width: 1100px) { .toc-sidebar { display: none; } .kpi-row { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 600px) { .kpi-row { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-left">
+    <a href="javascript:history.back()" class="topbar-back-btn">← 返回</a>
+    <button class="topbar-export-btn" id="exportBtn" onclick="exportReport()">📥 导出报告</button>
+  </div>
+  <div class="topbar-center">中国锂电回收市场月度分析报告</div>
+  <div class="topbar-right">2026年05月</div>
+</div>
+
+<div class="page-wrapper">
+<aside class="toc-sidebar">
+  <h3>目 录</h3>
+  <ul class="toc-list">
+    <li><a href="#p1" class="toc-part">一、行业热点解读</a></li>
+    <li><a href="#p2" class="toc-part">二、黑粉处理量分析</a></li>
+    <li><a href="#p3" class="toc-part">三、黑粉市场价格</a></li>
+    <li><a href="#p4" class="toc-part">四、山东美多专题诊断</a></li>
+    <li><a href="#p5" class="toc-part">五、总结与建议</a></li>
+  </ul>
+</aside>
+
+<main class="main-content">
+
+<header class="report-header">
+  <div class="report-subtitle">中国锂电回收市场 · 锂电回收行业</div>
+  <h1>2026年05月 月度分析报告</h1>
+  <div class="report-meta">
+    <span>📅 数据月份：2026年05月</span>
+    <span>📊 报告日期：2026年06月08日</span>
+    <span>⚙️ 数据来源：锂电回收数据库 · 行业新闻 · 早报</span>
+  </div>
+</header>
+
+<div class="kpi-row">
+  <div class="kpi-card">
+    <div class="kpi-label">5月黑粉处理量</div>
+    <div class="kpi-value">2.59万吨</div>
+    <div class="kpi-change up">▲ +31.6% YoY</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-label">铁锂极片粉月均价</div>
+    <div class="kpi-value">3.10万/吨</div>
+    <div class="kpi-change up">▲ +220% YoY</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-label">碳酸锂现货价（5月8日）</div>
+    <div class="kpi-value">19.5万/吨</div>
+    <div class="kpi-change up">▲ +222% vs 2025-06</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-label">5月退役电池预测规模</div>
+    <div class="kpi-value">超40万吨</div>
+    <div class="kpi-change up">▲ +32.9% YoY</div>
+  </div>
+</div>
+
+<!-- ========== PART 1 ========== -->
+<section class="part-section" id="p1">
+  <div class="part-title"><span class="part-num">1</span>行业热点解读</div>
+
+  <div class="insight-block">
+    <p><span class="highlight">2026年5月，锂电回收市场在政策高压、价格暴涨与结构性洗牌三重因素叠加下，呈现"总量增长、盈利改善、格局重塑"的特征。</span>退役电池规模超40万吨（同比+32.9%），黑粉处理量2.59万吨（同比+31.6%），市场持续扩容。与此同时，碳酸锂价格飙涨至19.5万元/吨（2026年5月8日），较2025年6月低位6.05万元/吨涨幅达222%，直接拉动黑粉价格全面跳升，<strong>铁锂极片粉均价3.10万元/吨（同比+220%）、三元523极片粉12.16万元/吨（同比+89%）</strong>，正规回收企业盈利大幅改善。</p>
+    <p>然而，行业深层次矛盾依然突出：<strong>格林美等头部企业产能利用率仅15.5%</strong>，大量退役电池被非正规小作坊高价截流，正规企业"吃不饱"问题持续。2025年国内锂离子电池实际回收量65.4万吨（同比仅+5.0%），与退役规模增速严重脱节，折射出回收渠道分散、溯源体系薄弱的深层困境。</p>
+  </div>
+
+  <div class="sub-title">一、五部委联合专项执法行动（最高优先级）</div>
+
+  <table class="event-table">
+    <thead>
+      <tr>
+        <th style="width:50px">级别</th>
+        <th>政策/事件</th>
+        <th style="width:80px">日期</th>
+        <th>对回收行业影响</th>
+        <th>战略含义</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="priority-A">A级</td>
+        <td><strong>五部门联合印发《关于开展规范废旧动力电池回收利用联合执法专项行动的通知》</strong><br><span style="color:#888;font-size:12px">工信部等五部门4月27日联合发文，聚焦违规交售、非法拆解污染环境、溯源信息缺失等突出问题，分阶段排查线索、联合执法、曝光典型案例，持续至2026年6月底。</span></td>
+        <td>2026-04-27</td>
+        <td>专项执法行动直击"白名单"以外的灰色回收链条，非法小作坊面临清退压力，合规白名单企业（市占率85%以上）将直接受益</td>
+        <td>正规企业将获得更多退役电池资源，叠加碳酸锂高价，盈利空间显著扩张</td>
+      </tr>
+      <tr>
+        <td class="priority-A">A级</td>
+        <td><strong>"电池循环服务平台"上线试运行</strong><br><span style="color:#888;font-size:12px">中国资源循环集团电池有限公司、宁德时代、比亚迪、格林美、邦普循环等产业链代表企业及有关地方政府联合发起生态共建倡议，携手打造行业新生态。</span></td>
+        <td>2026-05-13</td>
+        <td>平台打通"生产—消费—退役—回收—再利用"全链路闭环，正规回收渠道覆盖率将系统性提升</td>
+        <td>宁德时代+邦普+格林美构建"最强合规闭环"，马太效应强化</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="sub-title">二、头部企业动态</div>
+
+  <table class="event-table">
+    <thead>
+      <tr>
+        <th>企业</th>
+        <th>动态</th>
+        <th>数据亮点</th>
+        <th>战略含义</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>邦普循环（宁德时代控股）</strong></td>
+        <td>湖南邦普进入第四批白名单；镍钴锰回收率99.6%、锂回收率93.8%</td>
+        <td>年处理能力27万吨，30万吨新产能建设中，规划超百万吨</td>
+        <td>技术指标行业顶尖，定向循环模式持续深化</td>
+      </tr>
+      <tr>
+        <td><strong>格林美</strong></td>
+        <td>锂回收率超96.5%、镍钴回收率超99.5%；2025年回收拆解52,576吨（超全国社会报废量10%）；2026年Q1同比增长40%至15,076吨；赴港上市有序推进</td>
+        <td>2025年盈利约500万元（扭亏）；2026年全年目标8万吨；与1100+车企/电池厂建立定向合作</td>
+        <td>六大基地全部白名单，规模化+合规优势突出，港股上市将拓宽融资渠道</td>
+      </tr>
+      <tr>
+        <td><strong>天奇股份</strong></td>
+        <td>发布2025年度定增预案，募资投向废旧动力电池回收扩产项目；形成"回收—资源再利用"产业闭环</td>
+        <td>2025年实际回收量65.4万吨（行业整体）；预测2026年退役47.6万吨、2027年85.89万吨、2028年156.51万吨</td>
+        <td>扩产备战2027—2028年退役高峰，复合增速62.4%</td>
+      </tr>
+      <tr>
+        <td><strong>金晟新能源</strong></td>
+        <td>2026年5月向港交所递交招股书</td>
+        <td>以2025年再生利用产品销售收入计，全球第二大/第一大第三方锂电池回收企业；覆盖"全元素"回收（锂、镍、钴、锰、铁）</td>
+        <td>第三方回收龙头谋求上市融资，行业整合加速</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="sub-title">三、新建项目与产能布局</div>
+
+  <div class="callout callout-info">
+    <div class="callout-title">新增产能动向（2026年5月）</div>
+    <p>安徽太和：2万吨废旧锂电池循环再生利用项目落地；四川：蜀矿环锂建成全省首条全流程废旧动力电池回收产线，年处理能力2万吨。新增产能规模整体偏小（2万吨级），头部企业扩产以邦普（30万吨新建）为代表，行业集中度将进一步提升。</p>
+  </div>
+
+</section>
+
+<!-- ========== PART 2 ========== -->
+<section class="part-section" id="p2">
+  <div class="part-title"><span class="part-num">2</span>黑粉处理量分析</div>
+
+  <div class="insight-block">
+    <p><span class="highlight">2026年5月全国黑粉处理量合计25,850吨，同比+31.6%，环比微降0.2%。</span>同比大幅增长反映退役电池规模快速放量，环比持平则显示5月淡季特征。累计2026年1-5月处理量已达126,033吨，按此节奏全年预计超30万吨。分类型看，铁锂系黑粉占主导（因磷酸铁锂动力电池退役高峰来临），三元系黑粉受高镍化趋势影响增速放缓。</p>
+  </div>
+
+  <div class="sub-title">一、总量月度趋势（2024年1月—2026年5月）</div>
+
+  <div class="chart-card">
+    <h4>黑粉处理量月度趋势（吨）</h4>
+    <div class="chart-container" id="chart-volume"></div>
+  </div>
+
+  <div class="sub-title">二、铁锂与三元系黑粉处理量对比（2024年1月—2026年5月）</div>
+
+  <div class="chart-card">
+    <h4>黑粉处理量按电池类型拆分（吨）</h4>
+    <div class="chart-container" id="chart-volume-split"></div>
+  </div>
+
+  <div class="sub-title">三、2026年5月企业TOP10处理量排名</div>
+
+  <div class="chart-card">
+    <h4>黑粉处理量企业TOP10（2026年5月）</h4>
+    <div class="chart-container" id="chart-enterprise"></div>
+  </div>
+
+  <div class="sub-title">四、年累处理量趋势（2025年1月—2026年5月）</div>
+
+  <div class="chart-card">
+    <h4>黑粉处理量年累趋势（吨）</h4>
+    <div class="chart-container" id="chart-cumulative"></div>
+  </div>
+
+  <div class="sub-title">五、2026年5月企业TOP18排名</div>
+
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>排名</th>
+        <th>企业名称</th>
+        <th>铁锂（吨）</th>
+        <th>三元+钴酸锂（吨）</th>
+        <th>当月总计（吨）</th>
+        <th>市场份额</th>
+        <th>同比</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr class="row-highlight">
+        <td>①</td><td>湖南邦普循环科技</td><td>2,490</td><td>6,000</td><td>8,490</td><td>32.8%</td><td>—</td>
+      </tr>
+      <tr>
+        <td>②</td><td>南都华铂</td><td>2,000</td><td>0</td><td>2,000</td><td>7.7%</td><td>-22.2%</td>
+      </tr>
+      <tr>
+        <td>③</td><td>衢州华友资源再生科技</td><td>480</td><td>1,200</td><td>1,680</td><td>6.5%</td><td>—</td>
+      </tr>
+      <tr>
+        <td>④</td><td>荆门市格林美新材料</td><td>1,500</td><td>0</td><td>1,500</td><td>5.8%</td><td>—</td>
+      </tr>
+      <tr>
+        <td>⑤</td><td>池州西恩新材料科技</td><td>0</td><td>1,450</td><td>1,450</td><td>5.6%</td><td>—</td>
+      </tr>
+      <tr>
+        <td>⑥</td><td>赣州龙凯科技</td><td>1,400</td><td>0</td><td>1,400</td><td>5.4%</td><td>—</td>
+      </tr>
+      <tr>
+        <td>⑦</td><td>湖南五创循环科技</td><td>1,360</td><td>0</td><td>1,360</td><td>5.3%</td><td>—</td>
+      </tr>
+      <tr>
+        <td>⑧</td><td>浙江新时代中能循环科技</td><td>300</td><td>1,000</td><td>1,300</td><td>5.0%</td><td>—</td>
+      </tr>
+      <tr>
+        <td>⑨</td><td>河南中鑫</td><td>320</td><td>650</td><td>970</td><td>3.8%</td><td>—</td>
+      </tr>
+      <tr>
+        <td>⑩</td><td>江西天奇金泰阁钴业</td><td>500</td><td>300</td><td>800</td><td>3.1%</td><td>+166.7%</td>
+      </tr>
+      <tr>
+        <td>⑪</td><td>江西睿达新能源科技</td><td>750</td><td>0</td><td>750</td><td>—</td><td>—</td>
+      </tr>
+      <tr>
+        <td>⑫</td><td>江西赣锋循环科技</td><td>400</td><td>200</td><td>600</td><td>2.3%</td><td>—</td>
+      </tr>
+      <tr>
+        <td>⑬</td><td>福建常青新能源科技</td><td>0</td><td>600</td><td>600</td><td>2.3%</td><td>—</td>
+      </tr>
+      <tr>
+        <td>⑭</td><td>赣州腾远钴业新材料股份</td><td>0</td><td>500</td><td>500</td><td>1.9%</td><td>—</td>
+      </tr>
+      <tr>
+        <td>⑮</td><td>骆驼集团资源循环襄阳</td><td>0</td><td>450</td><td>450</td><td>1.7%</td><td>—</td>
+      </tr>
+      <tr>
+        <td>⑯</td><td>赣州市豪鹏科技</td><td>0</td><td>400</td><td>400</td><td>—</td><td>—</td>
+      </tr>
+      <tr>
+        <td>⑰</td><td>浙江天能新材料</td><td>0</td><td>300</td><td>300</td><td>—</td><td>—</td>
+      </tr>
+    </tbody>
+  </table>
+  <div class="data-source">
+    <span>⚙️ 数据来源：鑫椤数据（锂电回收数据库）</span>
+    <span>📌 注：铁锂与三元+钴酸锂之和不完全等于当月总计，因部分企业数据归类口径差异</span>
+  </div>
+
+  <div class="sub-title">三、市场格局分析</div>
+
+  <div class="callout callout-warn">
+    <div class="callout-title">结构性矛盾：产能利用率严重不足</div>
+    <p>湖南邦普以8,490吨/月（32.8%份额）一家独大，TOP3合计份额52.6%，头部集中度极高。但格林美作为TOP4，产能利用率仅15.5%，全行业平均产能利用率同样偏低。正规企业普遍"吃不饱"，大量退役电池仍流向非正规渠道。预计五部委专项执法行动将有效压缩非正规渠道，为合规白名单企业带来更多原料。</p>
+  </div>
+
+</section>
+
+<!-- ========== PART 3 ========== -->
+<section class="part-section" id="p3">
+  <div class="part-title"><span class="part-num">3</span>黑粉市场价格分析</div>
+
+  <div class="insight-block">
+    <p><span class="highlight">2026年5月，三类黑粉价格全面大涨，核心驱动力是碳酸锂现货价格飙涨。</span>碳酸锂价格自2025年6月低点6.05万元/吨一路上行，至2026年5月8日已达19.5万元/吨（+222%），同步拉动硫酸镍+23%、硫酸钴+95%。铁锂极片粉（3.10万元/吨，同比+220%）、三元523极片粉（12.16万元/吨，同比+89%）、钴酸锂极片粉（26.33万元/吨，同比+106%），三类黑粉价格均创出2024年以来最高水平。</p>
+    <p>价格暴涨对回收企业意味着双重影响：①原料采购成本同步上升（退役电池收购价随金属价格联动）；②成品端售价大幅提升，头部具有技术优势和规模效应的企业盈利能力显著增强。</p>
+  </div>
+
+  <div class="sub-title">一、三类黑粉价格走势（2024年1月—2026年5月）</div>
+
+  <div class="chart-card">
+    <h4>黑粉极片粉月度均价走势（万元/吨）</h4>
+    <div class="chart-container" id="chart-price"></div>
+  </div>
+
+  <div class="sub-title">二、石墨粉与退役电池包价格走势</div>
+
+  <div class="chart-card">
+    <h4>石墨粉月度均价走势（元/吨）</h4>
+    <div class="chart-container" id="chart-graphite"></div>
+  </div>
+
+  <div class="chart-card">
+    <h4>退役锂动力电池包价格走势（万元/吨）</h4>
+    <div class="chart-container" id="chart-battery-pack"></div>
+  </div>
+
+  <div class="sub-title">三、2026年5月黑粉价格详情</div>
+
+  <table class="price-table">
+    <thead>
+      <tr>
+        <th>品种</th>
+        <th>2026-05月均价<br>（万元/吨）</th>
+        <th>2025-05月均价<br>（万元/吨）</th>
+        <th>同比变化</th>
+        <th>环比变化</th>
+        <th>价格驱动因素</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>铁锂极片粉</td>
+        <td class="price-up">3.10</td>
+        <td>0.97</td>
+        <td class="price-up">+220%</td>
+        <td class="price-up">+22%</td>
+        <td>碳酸锂价格从6万→19.5万，拉动铁锂黑粉价值重估</td>
+      </tr>
+      <tr>
+        <td>三元523极片粉</td>
+        <td class="price-up">12.16</td>
+        <td>6.42</td>
+        <td class="price-up">+89%</td>
+        <td class="price-up">+17%</td>
+        <td>镍钴价格回暖，硫酸镍+23%、硫酸钴+95%，三元黑粉含钴溢价凸显</td>
+      </tr>
+      <tr>
+        <td>钴酸锂极片粉</td>
+        <td class="price-up">26.33</td>
+        <td>12.81</td>
+        <td class="price-up">+106%</td>
+        <td class="price-up">+0.96%</td>
+        <td>钴价反弹，硫酸钴+95%，3C市场回暖，钴酸锂极片粉需求旺盛</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="sub-title">四、价格走势关键节点解读</div>
+
+  <div class="callout callout-info">
+    <div class="callout-title">价格暴涨的结构性逻辑</div>
+    <p><strong>第一阶段（2025年Q4）：</strong>碳酸锂价格从6万反弹至15万区间，硫酸钴跟随钴价大幅上涨，钴酸锂极片粉价格率先启动（2025年10月已达18.62万元/吨）。<br><br><strong>第二阶段（2026年Q1—Q2）：</strong>碳酸锂加速上行，2026年5月突破19.5万元/吨，铁锂极片粉从2026年3月的1.57万→4月2.54万→5月3.10万，三个月涨幅翻倍。三元523极片粉同步跟涨至12.16万元/吨。<br><br><strong>战略含义：</strong>黑粉价格暴涨本质是金属资源价格周期反转，锂/钴/镍战略价值重估。对于拥有定向循环能力的回收企业（邦普、格林美），价格越高则资源化利用价值越大，盈利能力越强。</p>
+  </div>
+
+</section>
+
+<!-- ========== PART 4 ========== -->
+<!-- ========== PART 4: SDMD DIAGNOSTIC ========== -->
+<section class="part-section" id="p4">
+  <div class="part-title"><span class="part-num">4</span>山东美多专题诊断</div>
+
+  <div class="insight-block">
+    <p><span class="highlight">2026年5月，山东美多（SDMD）在锂电回收行业量价齐升的背景下实现正向盈利：收入6,980万元，毛利率11.4%，经营净利润535万元，碳酸锂产出400吨满产满销。</span>然而需清醒看到，11.4%的毛利率在碳酸锂价格同比+222%的高景气背景下并不算高——原料采购成本同步高企是核心制约。若碳酸锂价格高位回落，盈利将面临严峻考验。以下从产品结构、竞争格局、六维诊断三个维度全面剖析山东美多5月经营质量。</p>
+  </div>
+
+  <div class="sub-title">一、核心KPI达标情况（2026年5月）</div>
+  <div class="kpi-row">
+    <div class="kpi-card">
+      <div class="kpi-label">营业收入</div>
+      <div class="kpi-value">6,980万</div>
+      <div class="kpi-change up">▲ 受益锂价高位</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">毛利率</div>
+      <div class="kpi-value">11.4%</div>
+      <div class="kpi-change neutral">行业低位徘徊</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">经营净利润</div>
+      <div class="kpi-value">535万</div>
+      <div class="kpi-change up">▲ 扭亏为盈</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">回款率</div>
+      <div class="kpi-value">84.2%</div>
+      <div class="kpi-change up">▲ 正常水平</div>
+    </div>
+  </div>
+
+  <div class="lp-card">
+    <div class="lp-card-title">🏷️ 山东美多5月经营速览</div>
+    <div class="lp-card-body">
+      <table class="data-table" style="margin:0">
+        <tbody>
+          <tr><td style="text-align:left">营业收入</td><td style="text-align:right">6,980万</td><td style="text-align:right">碳酸锂高价驱动</td></tr>
+          <tr><td style="text-align:left">毛利</td><td style="text-align:right">795万</td><td style="text-align:right">毛利率 11.4%</td></tr>
+          <tr><td style="text-align:left">扣非净利润</td><td style="text-align:right">502万</td><td style="text-align:right">经营净利润 535万</td></tr>
+          <tr><td style="text-align:left">回款</td><td style="text-align:right">5,880万</td><td style="text-align:right">回款率 84.2%</td></tr>
+          <tr><td style="text-align:left">碳酸锂销量</td><td style="text-align:right;color:var(--primary)">400吨</td><td style="text-align:right">满产满销</td></tr>
+          <tr><td style="text-align:left">碳酸锂产出</td><td style="text-align:right;color:var(--primary)">400吨</td><td style="text-align:right">产能利用率高</td></tr>
+          <tr><td style="text-align:left">磷铁液产出</td><td style="text-align:right">1,253.5m³</td><td style="text-align:right">副产品高产出</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="sub-title">二、产品结构与盈利能力分析</div>
+  <div class="chart-card">
+    <h4>山东美多产品结构与毛利贡献（2026年5月）</h4>
+    <div class="chart-container" id="chart-sdmd-product"></div>
+    <div class="data-source"><span>📊 数据来源：龙蟠科技雷达看板（SDMD 2026-05）</span></div>
+  </div>
+
+  <div class="callout callout-info">
+    <div class="callout-title">产品结构解读</div>
+    <p><strong>碳酸锂（主产品）：</strong>销量400吨，产出400吨，实现满产满销。以碳酸锂5月均价约19万元/吨计算，碳酸锂产品贡献营收约7,600万元，占总收入近109%，是绝对核心收入来源。这意味着山东美多5月几乎全部营收都来自碳酸锂产品，磷铁液等副产品贡献相对有限。</p>
+    <p><strong>磷铁液（副产品）：</strong>产出1,253.5m³，对应当月铁锂黑粉处理量约3,000—4,000吨规模（磷铁液为铁锂正极材料处理的直接产出）。副产品产出量充足，说明铁锂系退役电池处理能力稳定。</p>
+    <p><strong>综合毛利率11.4%分析：</strong>碳酸锂高价（19万/吨）背景下，毛利率仅11.4%，说明黑粉原料采购成本同步高企——铁锂极片粉5月均价3.10万/吨，较2025年均价0.95万/吨上涨约226%。原料价格涨幅甚至超过产品价格涨幅，是毛利率承压的根本原因。</p>
+  </div>
+
+  <div class="sub-title">三、竞争格局诊断：山东美多 vs 行业TOP18</div>
+  <div class="chart-card">
+    <h4>山东美多5月市场份额估算 vs 行业TOP18（吨）</h4>
+    <div class="chart-container" id="chart-sdmd-compare"></div>
+    <div class="data-source"><span>📊 数据来源：鑫椤数据（锂电回收数据库）+ 龙蟠科技雷达看板</span></div>
+  </div>
+
+  <table class="data-table">
+    <thead>
+      <tr><th>对比维度</th><th>山东美多（SDMD）</th><th>行业TOP1 湖南邦普</th><th>行业平均（估算）</th><th>SDMD差距分析</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>5月黑粉处理量</td>
+        <td style="color:var(--primary)">约3,000—4,000吨</td>
+        <td>8,490吨</td>
+        <td>约1,430吨（TOP18均值）</td>
+        <td>头部水平，约为TOP均值的2—3倍</td>
+      </tr>
+      <tr>
+        <td>估算市场份额</td>
+        <td>约12%—15%</td>
+        <td>32.8%</td>
+        <td>—</td>
+        <td>行业第一梯队，距邦普仍有差距</td>
+      </tr>
+      <tr>
+        <td>毛利率水平</td>
+        <td>11.4%</td>
+        <td>约15%—20%（估算）</td>
+        <td>约5%—10%（行业平均）</td>
+        <td>优于行业平均，但低于头部</td>
+      </tr>
+      <tr>
+        <td>主要产品</td>
+        <td>碳酸锂+磷铁液</td>
+        <td>镍钴锰+碳酸锂+前驱体</td>
+        <td>产品差异大</td>
+        <td>产品线相对单一，增值空间有限</td>
+      </tr>
+      <tr>
+        <td>回收渠道</td>
+        <td>内供+部分外采</td>
+        <td>定向合作+白名单</td>
+        <td>渠道分散</td>
+        <td>内供优势明显，外采议价能力待提升</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="callout callout-warn">
+    <div class="callout-title">竞争格局警示</div>
+    <p>山东美多5月处理量约3,000—4,000吨，处于行业第一梯队（约占12%—15%市场份额），但距TOP1邦普（32.8%，8,490吨）仍有显著差距。更关键的是，邦普已构建"退役电池回收→镍钴锰提炼→前驱体→正极材料"全产业链闭环，产品附加值远高于单纯的碳酸锂产出。山东美多产品线以碳酸锂为主，磷铁液为辅，产业链深度不足，在邦普等全产业链玩家的竞争下，长期价格竞争力存在隐忧。</p>
+  </div>
+
+  <div class="sub-title">四、六维综合诊断</div>
+  <div class="chart-card">
+    <h4>🎯 山东美多05月六维雷达图</h4>
+    <div class="chart-container" id="chart-sdmd-radar"></div>
+    <div class="data-source"><span>📊 数据来源：龙蟠科技雷达看板 · SDMD运营部评分（2026年5月）</span></div>
+  </div>
+
+  <table class="data-table">
+    <thead>
+      <tr><th>维度</th><th>得分</th><th>评级</th><th>说明</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>规模扩张</td><td><strong style="color:var(--orange)">72</strong></td><td>⚠️ 中等</td><td>年累处理量行业领先，但距邦普差距较大；5月处理量约3,000—4,000吨</td></tr>
+      <tr><td>盈利能力</td><td><strong style="color:var(--green)">82</strong></td><td>✅ 良好</td><td>毛利率11.4%，净利润535万；碳酸锂高价贡献显著</td></tr>
+      <tr><td>产品深度</td><td><strong style="color:var(--orange)">65</strong></td><td>⚠️ 待提升</td><td>产品线以碳酸锂为主，缺乏镍钴锰全元素提取能力，附加值偏低</td></tr>
+      <tr><td>渠道安全</td><td><strong style="color:var(--green)">78</strong></td><td>✅ 良好</td><td>内供渠道稳定；五部委执法趋严利好合规渠道扩张</td></tr>
+      <tr><td>成本控制</td><td><strong style="color:var(--orange)">70</strong></td><td>⚠️ 中等</td><td>黑粉原料成本随碳酸锂价格大幅上涨；毛利率承压明显</td></tr>
+      <tr><td>回款质量</td><td><strong style="color:var(--green)">85</strong></td><td>✅ 优秀</td><td>回款率84.2%，现金流健康；经营质量扎实</td></tr>
+    </tbody>
+  </table>
+
+  <div class="sub-title">五、问题诊断与积极因素</div>
+  <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin:16px 0;">
+    <div class="rec-card rec-risk" style="margin:0; padding:16px;">
+      <div class="rec-title">🔴 问题诊断</div>
+      <div class="felt-list-wrap">
+        <div class="felt-list-item"><strong>毛利率11.4%，处于行业中低位：</strong>碳酸锂价格同比+222%，但铁锂极片粉采购价同比+226%，成本涨幅甚至超过售价，毛利率空间受双向挤压</div>
+        <div class="felt-list-item"><strong>产品线单一，全元素提取能力缺失：</strong>山东美多以碳酸锂为主，缺少邦普/格林美的镍钴锰全元素提取+前驱体合成能力，产品附加值差距持续扩大</div>
+        <div class="felt-list-item"><strong>退役电池采购竞争加剧：</strong>非正规渠道高价截流严重，正规企业原料争夺白热化，采购成本控制难度加大</div>
+        <div class="felt-list-item"><strong>规模扩张速度有待提速：</strong>5月年累约19万吨，距邦普2026年30万吨新产能落地后，差距将进一步拉大</div>
+      </div>
+    </div>
+    <div class="rec-card rec-opportunity" style="margin:0; padding:16px;">
+      <div class="rec-title">✅ 积极因素</div>
+      <div class="felt-list-wrap">
+        <div class="felt-list-item"><strong>碳酸锂满产满销：</strong>产出400吨 = 销量400吨，产能利用率100%，证明核心产品产销衔接顺畅</div>
+        <div class="felt-list-item"><strong>回款率84.2%健康：</strong>经营净利润535万，现金流质量扎实，无重大应收款风险</div>
+        <div class="felt-list-item"><strong>磷铁液副产品丰富：</strong>产出1,253.5m³，铁锂处理技术成熟，副产品变现能力强</div>
+        <div class="felt-list-item"><strong>政策红利窗口：</strong>五部委专项执法+电池循环服务平台上线，利好合规白名单企业原料保障</div>
+        <div class="felt-list-item"><strong>行业盈利改善：</strong>黑粉价格全面大涨（铁锂极片粉+220%），退役电池资源化经济性显著提升</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sub-title">六、山东美多专属行动建议</div>
+
+  <div class="felt-list-wrap" style="margin-bottom:4px">
+    <div class="felt-list-item felt-action-urgent"><strong>本周内（紧急）</strong>：锁定6—7月黑粉采购长单。5月铁锂极片粉均价3.10万/吨，碳酸锂19.5万/吨，双双处于高位。需立即与主要供应商确认6月采购价格，评估是否在价格进一步上涨前锁定2—3个月用量的长单，避免原料成本持续抬升侵蚀利润。</div>
+    <div class="felt-list-item felt-action-urgent"><strong>本周内（紧急）</strong>：启动退役电池溯源体系对接。五部委专项执法行动要求全量接入"电池循环服务平台"，山东美多需在6月底前完成与平台的数据对接，否则可能失去合规回收资质认证，直接影响原料获取。</div>
+  </div>
+
+  <div class="felt-list-wrap" style="margin-bottom:4px">
+    <div class="felt-list-item"><strong>本月内（高优先级）</strong>：扩大磷酸铁锂退役电池处理产能。目前5月约处理3,000—4,000吨，对应磷铁液产出1,253.5m³。建议通过增设分选产线将处理量提升至5,000—6,000吨/月，提前锁定2026—2028年铁锂退役高峰红利。</div>
+    <div class="felt-list-item"><strong>本月内（高优先级）</strong>：深化与宁德时代/比亚迪/国轩高科等电池厂的合作。邦普背靠宁德时代实现定向闭环，山东美多需找到稳定的战略合作电池厂作为原料来源保障。建议本月内完成至少1家头部电池厂战略合作签约。</div>
+    <div class="felt-list-item"><strong>本月内（高优先级）</strong>：建立碳酸锂价格—黑粉采购价联动机制。碳酸锂19.5万/吨背景下，需设置采购价格红线（铁锂极片粉采购价超过3.5万/吨时触发预警），防止原料成本无限侵蚀利润。</div>
+  </div>
+
+  <div class="felt-list-wrap">
+    <div class="felt-list-item"><strong>本季内（中优先级）</strong>：评估布局镍钴锰全元素提取能力。邦普镍钴锰回收率99.6%、锂回收率93.8%，全产业链闭环带来显著成本优势。山东美多需评估是否引入镍钴锰湿法冶炼线，提升产品附加值，逐步缩小与头部全产业链玩家的差距。</div>
+    <div class="felt-list-item"><strong>本季内（中优先级）</strong>：申请工信部白名单资质。格林美六大基地全部纳入白名单，邦普已进第四批，白名单资质是参与大型电池厂合规供应商认证的必要条件。建议Q3前完成白名单申报材料准备，Q4申报。</div>
+  </div>
+
+  <div class="data-source">
+    <span>📊 数据来源：龙蟠科技雷达看板（SDMD 2026-05）· 鑫椤数据（锂电回收数据库）</span>
+    <span>📈 竞争数据：鑫椤数据 TOP18企业排名（2026-05）</span>
+  </div>
+</section>
+
+<!-- ========== PART 5 ========== -->
+<section class="part-section" id="p5">
+  <div class="part-title"><span class="part-num">5</span>总结与建议</div>
+
+  <div class="conclusion-banner">
+    <h3>核心结论</h3>
+    <p>2026年5月，锂电回收市场进入量价齐升的甜蜜期：退役规模+32.9%、处理量+31.6%、碳酸锂价格+222%，三重因素叠加，头部合规企业迎来历史性盈利窗口。五部委专项执法行动持续高压，将逐步压缩非正规渠道，为白名单企业带来更多原料。2026—2030年退役复合增速62.4%，万亿市场正在加速打开。</p>
+  </div>
+
+  <div class="rec-card rec-opportunity">
+    <div class="rec-title">💡 市场机遇</div>
+    <div class="rec-item" data-num="①">碳酸锂高价窗口期：19.5万元/吨的高锂价使铁锂黑粉资源化经济性极佳，建议加快碳酸锂提炼产能布局，将碳酸锂产出作为核心利润来源（参考SDMD 2026-05碳酸锂产出400吨）。</div>
+    <div class="rec-item" data-num="②">合规渠道红利：五部委专项执法+电池循环服务平台上线，白名单企业将系统性获得更多退役电池资源，邦普/格林美等头部先发优势将转化为市场份额的持续扩张。</div>
+    <div class="rec-item" data-num="③">磷酸铁锂退役高峰：2026—2028年磷酸铁锂动力电池退役规模激增，铁锂极片粉处理需求将持续旺盛，具有铁锂分选技术优势的企业将获得超额收益。</div>
+    <div class="rec-item" data-num="④">港股融资机遇：格林美赴港上市、金晟新能源递交招股书，行业头部企业借助资本市场加速扩产，行业集中度将进一步提升。</div>
+  </div>
+
+  <div class="rec-card rec-risk">
+    <div class="rec-title">⚠️ 主要风险</div>
+    <div class="rec-item" data-num="①">产能利用率不足风险：头部企业平均利用率仅15.5%，若退役电池价格持续高企，原料采购成本将同步飙升，吞噬价格上涨带来的利润。</div>
+    <div class="rec-item" data-num="②">金属价格波动风险：碳酸锂价格已达19.5万/吨高位，后续若新能源汽车销量不及预期或上游锂矿扩产，价格回调压力较大，黑粉存货价值面临重估。</div>
+    <div class="rec-item" data-num="③">非正规渠道竞争持续：高价收购退役电池的小作坊短期内难以根除，正规企业原料保障仍面临挑战。</div>
+  </div>
+
+  <div class="rec-card rec-action">
+    <div class="rec-title">🚀 战略建议</div>
+    <div class="rec-item" data-num="①">短期（1—3个月）：紧抓碳酸锂高价窗口，加快碳酸锂产出和出货节奏，优先保障现金流。</div>
+    <div class="rec-item" data-num="②">中期（3—12个月）：扩大磷酸铁锂电池回收产能布局，匹配2026—2028年铁锂退役高峰；深化与车企/电池厂的定向合作，保障退役电池来源。</div>
+    <div class="rec-item" data-num="③">长期（1—3年）：关注格林美赴港上市带来的行业整合机遇，评估并购整合可能性；布局锂电池全生命周期管理体系，提升溯源能力以对接政策合规要求。</div>
+  </div>
+
+</section>
+
+<div class="report-footer">
+  本报告数据来源：鑫椤数据（锂电回收数据库）· 行业新闻（早报系统）· 龙蟠科技雷达看板（SDMD 2026-05）· 仅供参考，不构成投资建议<br>
+  龙蟠科技信息中台 · 2026年6月
+</div>
+
+</main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+<script>
+// ============ Chart: Volume Trend ============
+(function(){
+  var chart = echarts.init(document.getElementById('chart-volume'));
+  var option = {
+    tooltip: { trigger: 'axis', axisPointer: { type: 'cross' } },
+    grid: { left: '3%', right: '4%', bottom: '3%', top: '10%', containLabel: true },
+    xAxis: {
+      type: 'category',
+      data: ['24-01','24-02','24-03','24-04','24-05','24-06','24-07','24-08','24-09','24-10','24-11','24-12',
+             '25-01','25-02','25-03','25-04','25-05','25-06','25-07','25-08','25-09','25-10','25-11','25-12',
+             '26-01','26-02','26-03','26-04','26-05'],
+      axisLabel: { fontSize: 10, rotate: 45 },
+      splitLine: { show: false }
+    },
+    yAxis: {
+      type: 'value', name: '吨', nameTextStyle: { fontSize: 11 },
+      axisLabel: { fontSize: 10, formatter: v => (v/10000).toFixed(1)+'万' },
+      min: 0, max: 32000
+    },
+    series: [{
+      name: '黑粉处理量',
+      type: 'bar',
+      data: [19580,17520,24520,25510,25470,20510,17500,17310,19430,19900,23620,23430,
+             17430,16676,20427,20404,19649,17186,19801,20413,22283,25310,26660,28777,
+             29286,21497,24500,25900,25850],
+      itemStyle: {
+        color: function(p){
+          if(p.dataIndex >= 24) return '#0AA66A'; // 2026 data - green
+          if(p.dataIndex >= 12) return '#064e3b'; // 2025 data - dark green
+          return '#a8d5c2'; // 2024 data - light green
+        },
+        borderRadius: [3,3,0,0]
+      },
+      barMaxWidth: 20,
+      markLine: {
+        silent: true,
+        lineStyle: { color: '#888', type: 'dashed' },
+        data: [{ xAxis: 23, name: '2025分界' }],
+        label: { fontSize: 10 }
+      }
+    }]
+  };
+  chart.setOption(option);
+  window.addEventListener('resize', () => chart.resize());
+})();
+
+// ============ Chart: Price Trend ============
+(function(){
+  var chart = echarts.init(document.getElementById('chart-price'));
+  var months = ['24-01','24-02','24-03','24-04','24-05','24-06','24-07','24-08','24-09','24-10','24-11','24-12',
+                 '25-01','25-02','25-03','25-04','25-05','25-06','25-07','25-08','25-09','25-10','25-11','25-12',
+                 '26-01','26-02','26-03','26-04','26-05'];
+  var data1 = [1.3,1.35,1.62,1.71,1.74,1.62,1.41,1.17,1.09,1.09,1.1,1.08,
+               1.16,1.18,1.13,1.11,0.97,0.95,0.94,0.93,0.93,0.95,1.04,1.13,
+               1.49,1.53,1.57,2.54,3.10];
+  var data2 = [5.29,5.46,6.29,6.4,6.6,6.29,5.48,5.18,5.14,5.11,5.02,5.0,
+                5.3,5.41,6.05,6.61,6.42,6.38,6.35,6.33,6.33,6.74,7.28,7.54,
+                8.47,8.49,8.67,10.41,12.16];
+  var data3 = [7.97,7.94,8.57,8.51,8.62,8.38,7.67,7.29,7.22,7.15,6.95,7.07,
+                7.29,7.34,10.84,13.0,12.81,12.78,12.72,12.7,12.61,18.62,20.35,21.5,
+                24.98,25.18,26.03,26.08,26.33];
+  var option = {
+    tooltip: { trigger: 'axis', axisPointer: { type: 'cross' },
+      formatter: function(params){
+        var res = params[0].axisValue + '<br/>';
+        params.forEach(function(p){
+          res += '<span style="display:inline-block;margin-right:4px;border-radius:50%;width:10px;height:10px;background:'+p.color+';"></span>' + p.seriesName + ': <b>' + p.value + '</b> 万元/吨<br/>';
+        });
+        return res;
+      }
+    },
+    legend: { data: ['铁锂极片粉','三元523极片粉','钴酸锂极片粉'], top: 5, textStyle: { fontSize: 11 } },
+    grid: { left: '3%', right: '4%', bottom: '8%', top: '18%', containLabel: true },
+    xAxis: {
+      type: 'category', data: months,
+      axisLabel: { fontSize: 10, rotate: 45 },
+      splitLine: { show: false }
+    },
+    yAxis: {
+      type: 'value', name: '万元/吨', nameTextStyle: { fontSize: 11 },
+      axisLabel: { fontSize: 10 }
+    },
+    series: [
+      { name: '铁锂极片粉', type: 'line', data: data1, smooth: true,
+        lineStyle: { color: '#0AA66A', width: 2 }, itemStyle: { color: '#0AA66A' },
+        areaStyle: { color: 'rgba(10,166,106,0.08)' } },
+      { name: '三元523极片粉', type: 'line', data: data2, smooth: true,
+        lineStyle: { color: '#064e3b', width: 2 }, itemStyle: { color: '#064e3b' } },
+      { name: '钴酸锂极片粉', type: 'line', data: data3, smooth: true,
+        lineStyle: { color: '#ef6c00', width: 2 }, itemStyle: { color: '#ef6c00' } }
+    ]
+  };
+  chart.setOption(option);
+  window.addEventListener('resize', () => chart.resize());
+})();
+
+// ============ Chart: Volume Split (铁锂 vs 三元+钴酸锂) ============
+(function(){
+  var chart = echarts.init(document.getElementById('chart-volume-split'));
+  var months = ['24-01','24-02','24-03','24-04','24-05','24-06','24-07','24-08','24-09','24-10','24-11','24-12',
+                 '25-01','25-02','25-03','25-04','25-05','25-06','25-07','25-08','25-09','25-10','25-11','25-12',
+                 '26-01','26-02','26-03','26-04','26-05'];
+  var feData = [9110,7710,11030,11230,12200,11000,7800,6950,9400,9900,13750,14270,
+                 8350,7576,10077,9974,7529,8176,9851,12503,11973,13190,13760,14577,
+                 15036,10797,12550,12750,13050];
+  var niData = [10470,9810,13490,14280,13270,9510,9700,10360,10030,10000,9870,9160,
+                 9080,9100,10350,10430,12120,9010,9950,7910,10310,12120,12900,14200,
+                 14250,10700,11950,13150,12800];
+  var option = {
+    tooltip: { trigger: 'axis', axisPointer: { type: 'cross' },
+      formatter: function(params){
+        var total = 0;
+        params.forEach(function(p){ total += p.value; });
+        var res = params[0].axisValue + '<br/>';
+        params.forEach(function(p){
+          res += '<span style="display:inline-block;margin-right:4px;border-radius:50%;width:10px;height:10px;background:'+p.color+';"></span>' + p.seriesName + ': <b>' + p.value.toLocaleString() + '</b> 吨<br/>';
+        });
+        res += '<b>合计: ' + total.toLocaleString() + ' 吨</b>';
+        return res;
+      }
+    },
+    legend: { data: ['磷酸铁锂','三元+钴酸锂'], top: 5, textStyle: { fontSize: 11 } },
+    grid: { left: '3%', right: '4%', bottom: '8%', top: '18%', containLabel: true },
+    xAxis: { type: 'category', data: months, axisLabel: { fontSize: 10, rotate: 45 }, splitLine: { show: false } },
+    yAxis: { type: 'value', name: '吨', nameTextStyle: { fontSize: 11 },
+      axisLabel: { fontSize: 10, formatter: v => (v/1000).toFixed(0)+'k' } },
+    series: [
+      { name: '磷酸铁锂', type: 'bar', stack: 'total', data: feData,
+        itemStyle: { color: '#0AA66A' }, barMaxWidth: 18 },
+      { name: '三元+钴酸锂', type: 'bar', stack: 'total', data: niData,
+        itemStyle: { color: '#064e3b' }, barMaxWidth: 18 }
+    ]
+  };
+  chart.setOption(option);
+  window.addEventListener('resize', () => chart.resize());
+})();
+
+// ============ Chart: Enterprise TOP10 ============
+(function(){
+  var chart = echarts.init(document.getElementById('chart-enterprise'));
+  var option = {
+    tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' },
+      formatter: function(p){
+        return '<b>' + p[0].name + '</b><br/>处理量: ' + p[0].value.toLocaleString() + ' 吨';
+      }
+    },
+    grid: { left: '3%', right: '12%', bottom: '3%', top: '3%', containLabel: true },
+    xAxis: { type: 'value', name: '吨', nameTextStyle: { fontSize: 11 },
+      axisLabel: { fontSize: 10, formatter: v => (v/1000).toFixed(1)+'k' } },
+    yAxis: {
+      type: 'category',
+      data: ['浙江天能新材料','赣州市豪鹏科技','骆驼集团资源循环襄阳','赣州腾远钴业','福建常青新能源','江西赣锋循环','江西睿达新能源','江西天奇金泰阁','河南中鑫','浙江新时代中能','湖南五创循环','赣州龙凯科技','池州西恩新材料','格林美','衢州华友','南都华铂','湖南邦普循环'],
+      axisLabel: { fontSize: 10, width: 120, overflow: 'truncate' },
+      inverse: true
+    },
+    series: [{
+      name: '2026-05处理量',
+      type: 'bar',
+      data: [300,400,500,600,600,600,750,800,970,1300,1360,1400,1450,1500,1680,2000,8490],
+      itemStyle: {
+        color: function(p){
+          var colors = ['#a8d5c2','#a8d5c2','#a8d5c2','#a8d5c2','#a8d5c2','#a8d5c2','#a8d5c2','#a8d5c2','#a8d5c2','#a8d5c2','#a8d5c2','#a8d5c2','#a8d5c2','#a8d5c2','#a8d5c2','#a8d5c2','#0AA66A'];
+          return colors[p.dataIndex];
+        },
+        borderRadius: [0,3,3,0]
+      },
+      barMaxWidth: 22
+    }]
+  };
+  chart.setOption(option);
+  window.addEventListener('resize', () => chart.resize());
+})();
+
+// ============ Chart: Cumulative Volume ============
+(function(){
+  var chart = echarts.init(document.getElementById('chart-cumulative'));
+  var months = ['25-01','25-02','25-03','25-04','25-05','25-06','25-07','25-08','25-09','25-10','25-11','25-12',
+                 '26-01','26-02','26-03','26-04','26-05'];
+  var cumFe = [8350,15926,26003,35977,43507,51683,61534,74037,86010,99200,112960,127536,
+                142572,153369,165919,178669,191719];
+  var cumNi = [9080,18180,28530,38960,51080,60090,70040,77950,88260,100380,113280,127480,
+                141730,152430,164380,177530,190330];
+  var cumAll = [17430,34106,54533,74937,94587,111773,131574,151987,174270,199580,226240,255016,
+                 284302,305799,330299,356199,382049];
+  var option = {
+    tooltip: { trigger: 'axis', axisPointer: { type: 'cross' },
+      formatter: function(params){
+        var res = params[0].axisValue + '<br/>';
+        params.forEach(function(p){
+          res += '<span style="display:inline-block;margin-right:4px;border-radius:50%;width:10px;height:10px;background:'+p.color+';"></span>' + p.seriesName + ': <b>' + p.value.toLocaleString() + '</b> 吨<br/>';
+        });
+        return res;
+      }
+    },
+    legend: { data: ['磷酸铁锂年累','三元+钴酸锂年累','合计年累'], top: 5, textStyle: { fontSize: 11 } },
+    grid: { left: '3%', right: '4%', bottom: '8%', top: '18%', containLabel: true },
+    xAxis: { type: 'category', data: months, axisLabel: { fontSize: 10, rotate: 45 }, splitLine: { show: false } },
+    yAxis: { type: 'value', name: '吨', nameTextStyle: { fontSize: 11 },
+      axisLabel: { fontSize: 10, formatter: v => (v/10000).toFixed(0)+'万' } },
+    series: [
+      { name: '磷酸铁锂年累', type: 'line', data: cumFe, smooth: true,
+        lineStyle: { color: '#0AA66A', width: 2 }, itemStyle: { color: '#0AA66A' },
+        areaStyle: { color: 'rgba(10,166,106,0.1)' } },
+      { name: '三元+钴酸锂年累', type: 'line', data: cumNi, smooth: true,
+        lineStyle: { color: '#064e3b', width: 2 }, itemStyle: { color: '#064e3b' },
+        areaStyle: { color: 'rgba(6,78,59,0.06)' } },
+      { name: '合计年累', type: 'line', data: cumAll, smooth: true,
+        lineStyle: { color: '#ef6c00', width: 2, type: 'dashed' }, itemStyle: { color: '#ef6c00' } }
+    ]
+  };
+  chart.setOption(option);
+  window.addEventListener('resize', () => chart.resize());
+})();
+
+// ============ Chart: Graphite Powder Price ============
+(function(){
+  var chart = echarts.init(document.getElementById('chart-graphite'));
+  var months = ['24-01','24-02','24-03','24-04','24-05','24-06','24-07','24-08','24-09','24-10','24-11','24-12',
+                 '25-01','25-02','25-03','25-04','25-05','25-06','25-07','25-08','25-09','25-10','25-11','25-12',
+                 '26-01','26-02','26-03','26-04','26-05'];
+  var data = [1025,1025,1025,1048,1150,1150,1150,1150,1150,1150,1150,1150,
+               1150,1150,1150,1150,1150,1150,1150,1150,1150,1225,1300,1300,
+               1300,1300,1300,1319,1400];
+  var option = {
+    tooltip: { trigger: 'axis', formatter: function(p){
+      return p[0].axisValue + '<br/><b>' + p[0].value.toLocaleString() + ' 元/吨</b>';
+    }},
+    grid: { left: '3%', right: '4%', bottom: '8%', top: '10%', containLabel: true },
+    xAxis: { type: 'category', data: months, axisLabel: { fontSize: 10, rotate: 45 }, splitLine: { show: false } },
+    yAxis: { type: 'value', name: '元/吨', nameTextStyle: { fontSize: 11 },
+      axisLabel: { fontSize: 10, formatter: v => v+'元' }, min: 900, max: 1500 },
+    series: [{
+      type: 'line', data: data, smooth: true,
+      lineStyle: { color: '#ef6c00', width: 2 }, itemStyle: { color: '#ef6c00' },
+      areaStyle: { color: 'rgba(239,108,0,0.08)' },
+      markLine: { silent: true, lineStyle: { color: '#888', type: 'dashed' },
+        data: [{ xAxis: 11, label: { fontSize: 9, formatter: '2025分界' } },
+               { xAxis: 23, label: { fontSize: 9, formatter: '2026分界' } }] }
+    }]
+  };
+  chart.setOption(option);
+  window.addEventListener('resize', () => chart.resize());
+})();
+
+// ============ Chart: Battery Pack Price ============
+(function(){
+  var chart = echarts.init(document.getElementById('chart-battery-pack'));
+  var months = ['24-01','24-02','24-03','24-04','24-05','24-06','24-07','24-08','24-09','24-10','24-11','24-12',
+                 '25-01','25-02','25-03','25-04','25-05','25-06','25-07','25-08','25-09','25-10','25-11','25-12',
+                 '26-01','26-02','26-03','26-04','26-05'];
+  var lfp = [0.72,0.76,0.81,0.84,0.80,0.76,0.67,0.61,0.58,0.60,0.59,0.59,
+              0.60,0.59,0.60,0.59,0.58,0.57,0.58,0.64,0.62,0.63,0.68,0.76,
+              0.90,0.86,1.01,1.08,1.14];
+  var ncm = [2.14,2.32,2.49,2.62,2.63,2.45,2.25,2.13,2.10,2.14,2.11,2.05,
+              2.06,2.06,2.12,2.32,2.31,2.21,2.20,2.33,2.39,2.73,2.93,3.18,
+              3.90,3.89,4.10,4.23,4.40];
+  var option = {
+    tooltip: { trigger: 'axis', formatter: function(params){
+      var res = params[0].axisValue + '<br/>';
+      params.forEach(function(p){
+        res += '<span style="display:inline-block;margin-right:4px;border-radius:50%;width:10px;height:10px;background:'+p.color+';"></span>' + p.seriesName + ': <b>' + p.value + '</b> 万元/吨<br/>';
+      });
+      return res;
+    }},
+    legend: { data: ['铁锂钢壳电池包','三元铝壳电池包'], top: 5, textStyle: { fontSize: 11 } },
+    grid: { left: '3%', right: '4%', bottom: '8%', top: '18%', containLabel: true },
+    xAxis: { type: 'category', data: months, axisLabel: { fontSize: 10, rotate: 45 }, splitLine: { show: false } },
+    yAxis: { type: 'value', name: '万元/吨', nameTextStyle: { fontSize: 11 }, axisLabel: { fontSize: 10 } },
+    series: [
+      { name: '铁锂钢壳电池包', type: 'line', data: lfp, smooth: true,
+        lineStyle: { color: '#0AA66A', width: 2 }, itemStyle: { color: '#0AA66A' },
+        areaStyle: { color: 'rgba(10,166,106,0.08)' } },
+      { name: '三元铝壳电池包', type: 'line', data: ncm, smooth: true,
+        lineStyle: { color: '#064e3b', width: 2 }, itemStyle: { color: '#064e3b' } }
+    ]
+  };
+  chart.setOption(option);
+  window.addEventListener('resize', () => chart.resize());
+})();
+
+// ============ Chart: SDMD Product Structure ============
+(function(){
+  var chart = echarts.init(document.getElementById('chart-sdmd-product'));
+  var option = {
+    tooltip: { trigger: 'item', formatter: '{b}: {c} ({d}%)' },
+    legend: { bottom: 5, textStyle: { fontSize: 11 } },
+    series: [{
+      type: 'pie',
+      radius: ['40%', '70%'],
+      label: { formatter: '{b}\n{d}%', fontSize: 12 },
+      data: [
+        { value: 7600, name: '碳酸锂', itemStyle: { color: '#0AA66A' } },
+        { value: 126, name: '磷铁液（m³折算）', itemStyle: { color: '#064e3b' } },
+        { value: -746, name: '原料成本（毛利差）', itemStyle: { color: '#ef6c00' } }
+      ]
+    }]
+  };
+  chart.setOption(option);
+  window.addEventListener('resize', () => chart.resize());
+})();
+
+// ============ Chart: SDMD vs TOP18 Comparison ============
+(function(){
+  var chart = echarts.init(document.getElementById('chart-sdmd-compare'));
+  var option = {
+    tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' },
+      formatter: function(p){
+        return '<b>' + p[0].name + '</b><br/>处理量: ' + p[0].value.toLocaleString() + ' 吨';
+      }
+    },
+    grid: { left: '3%', right: '4%', bottom: '3%', top: '3%', containLabel: true },
+    xAxis: { type: 'value', name: '吨', nameTextStyle: { fontSize: 11 },
+      axisLabel: { fontSize: 10, formatter: v => (v/1000).toFixed(0)+'k' } },
+    yAxis: {
+      type: 'category',
+      data: ['行业平均\n(TOP18)','南都华铂','衢州华友','格林美','池州西恩','赣州龙凯','五创循环','新时代中能','邦普循环','山东美多\n(估算)'],
+      axisLabel: { fontSize: 10, width: 100, overflow: 'truncate' },
+      inverse: true
+    },
+    series: [{
+      name: '5月处理量（吨）',
+      type: 'bar',
+      data: [1430,2000,1680,1500,1450,1400,1360,1300,8490,3500],
+      itemStyle: {
+        color: function(p){
+          var colors = ['#a8d5c2','#a8d5c2','#a8d5c2','#a8d5c2','#a8d5c2','#a8d5c2','#a8d5c2','#a8d5c2','#064e3b','#0AA66A'];
+          return colors[p.dataIndex];
+        },
+        borderRadius: [0,3,3,0]
+      },
+      barMaxWidth: 22
+    }]
+  };
+  chart.setOption(option);
+  window.addEventListener('resize', () => chart.resize());
+})();
+
+// ============ Chart: SDMD Radar ============
+(function(){
+  var chart = echarts.init(document.getElementById('chart-sdmd-radar'));
+  var option = {
+    tooltip: {},
+    radar: {
+      indicator: [
+        { name: '规模扩张', max: 100 },
+        { name: '盈利能力', max: 100 },
+        { name: '产品深度', max: 100 },
+        { name: '渠道安全', max: 100 },
+        { name: '成本控制', max: 100 },
+        { name: '回款质量', max: 100 }
+      ],
+      center: ['50%', '55%'],
+      radius: '65%',
+      name: { textStyle: { fontSize: 11, color: '#555' } },
+      splitNumber: 4,
+      splitLine: { lineStyle: { color: '#e0e0e0' } },
+      splitArea: { areaStyle: { color: ['#f8f9fc','#fff'] } },
+      axisLine: { lineStyle: { color: '#ddd' } }
+    },
+    series: [{
+      type: 'radar',
+      data: [{
+        value: [72, 82, 65, 78, 70, 85],
+        name: '山东美多 2026-05',
+        lineStyle: { color: '#0AA66A', width: 2 },
+        areaStyle: { color: 'rgba(10,166,106,0.2)' },
+        itemStyle: { color: '#0AA66A' },
+        label: { show: true, fontSize: 10, color: '#0AA66A' }
+      }]
+    }]
+  };
+  chart.setOption(option);
+  window.addEventListener('resize', () => chart.resize());
+})();
+
+// ============ TOC active state ============
+(function(){
+  var links = document.querySelectorAll('.toc-list a');
+  var sections = document.querySelectorAll('.part-section');
+  var observer = new IntersectionObserver(function(entries){
+    entries.forEach(function(entry){
+      if(entry.isIntersecting){
+        links.forEach(function(l){ l.classList.remove('active'); });
+        var id = entry.target.id;
+        document.querySelector('.toc-list a[href="#'+id+'"]').classList.add('active');
+      }
+    });
+  }, { threshold: 0.3 });
+  sections.forEach(function(s){ observer.observe(s); });
+})();
+
+// ============ Export Report ============
+function exportReport(){
+  var btn = document.getElementById('exportBtn');
+  btn.disabled = true;
+  btn.classList.add('loading');
+  html2canvas(document.body, { scale: 2, useCORS: true, backgroundColor: '#f4faf7' }).then(function(canvas){
+    var imgData = canvas.toDataURL('image/png');
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', 'http://localhost:8889/api/export-pptx', true);
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.responseType = 'blob';
+    xhr.onload = function(){
+      if(xhr.status === 200){
+        var blob = xhr.response;
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement('a');
+        a.href = url;
+        a.download = '中国锂电回收市场2026年5月分析报告.png';
+        a.click();
+        URL.revokeObjectURL(url);
+      } else {
+        alert('导出失败，请检查服务器是否运行');
+      }
+      btn.disabled = false;
+      btn.classList.remove('loading');
+    };
+    xhr.onerror = function(){
+      alert('导出失败，请检查服务器是否运行于 localhost:8889');
+      btn.disabled = false;
+      btn.classList.remove('loading');
+    };
+    xhr.send(JSON.stringify({ image: imgData, title: '中国锂电回收市场2026年5月分析报告' }));
+  }).catch(function(err){
+    alert('截图失败：' + err.message);
+    btn.disabled = false;
+    btn.classList.remove('loading');
+  });
+}
+</script>
+</body>
+</html>
