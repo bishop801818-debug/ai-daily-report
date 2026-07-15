@@ -735,7 +735,13 @@ function tooltipTpl(unit) {
   return {
     callbacks: {
       label: function(ctx) {
-        var v = ctx.parsed.y !== null ? ctx.parsed.y : ctx.parsed;
+        var isHorizontal = ctx.chart && ctx.chart.options && ctx.chart.options.indexAxis === 'y';
+        var v;
+        if (isHorizontal) {
+          v = ctx.parsed.x;
+        } else {
+          v = ctx.parsed.y !== null ? ctx.parsed.y : ctx.parsed;
+        }
         var label = ctx.dataset.label || '';
         return ' ' + label + ': ' + fmt(v, unit);
       },
