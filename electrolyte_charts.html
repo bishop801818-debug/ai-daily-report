@@ -405,21 +405,21 @@
         if (lipf6.length > 0) {
             var last = lipf6[0]; // 数据降序，最新在 index 0
             document.getElementById('stat-lipf6-output').innerHTML = (toNum(last['产量'])/10000).toFixed(2) + '<span class="unit">万吨</span>';
-            document.getElementById('stat-lipf6-date').textContent = last['月份'] || last['日期'] || '—';
+            document.getElementById('stat-lipf6-date').textContent = ((last['月份'] || last['日期'] || '—')+'').split(/[ T]/)[0];
         }
         // LFP动力电解液均价
         var lfpP = getTable('电解液价格-磷酸铁锂动力型');
         if (lfpP.length > 0) {
             var last = lfpP[0]; // 数据降序，最新在 index 0
             document.getElementById('stat-lfp-price').innerHTML = toNum(last['均价']).toFixed(2) + '<span class="unit">万/吨</span>';
-            document.getElementById('stat-lfp-price-date').textContent = last['月份'] || last['日期'] || '—';
+            document.getElementById('stat-lfp-price-date').textContent = ((last['月份'] || last['日期'] || '—')+'').split(/[ T]/)[0];
         }
         // 六氟磷酸锂均价
         var lpP = getTable('六氟磷酸锂价格-主流市场');
         if (lpP.length > 0) {
             var last = lpP[0]; // 数据降序，最新在 index 0
             document.getElementById('stat-lipf6-price').innerHTML = toNum(last['均价']).toFixed(1) + '<span class="unit">万/吨</span>';
-            document.getElementById('stat-lipf6-price-date').textContent = last['月份'] || last['日期'] || '—';
+            document.getElementById('stat-lipf6-price-date').textContent = ((last['月份'] || last['日期'] || '—')+'').split(/[ T]/)[0];
         }
     })();
 
@@ -672,7 +672,8 @@
         if (lpPrice.length > 0) {
             var last = lpPrice[0]; // 数据降序，最新在 index 0
             document.getElementById('stat-raw-lipf6').innerHTML = toNum(last['均价']).toFixed(1) + '<span class="unit">万/吨</span>';
-            document.getElementById('stat-raw-lipf6-date').textContent = last['月份'] || last['日期'] || '—';
+            var lpDate = last['月份'] || last['日期'] || '—';
+            document.getElementById('stat-raw-lipf6-date').textContent = (lpDate+'').split(/[ T]/)[0];
         }
         var vcP = getTable('添加剂VC-价格');
         if (vcP.length > 0) {
@@ -680,7 +681,9 @@
         }
         var fecP = getTable('添加剂FEC-价格');
         if (fecP.length > 0) {
-            document.getElementById('stat-fec-price').innerHTML = toNum(fecP[0]['均价']).toFixed(1) + '<span class="unit">万/吨</span>';
+            var fecLast = fecP[0];
+            var fecAvg = toNum(fecLast['今日均价']) || toNum(fecLast['均价']);
+            document.getElementById('stat-fec-price').innerHTML = fecAvg.toFixed(1) + '<span class="unit">万/吨</span>';
         }
         var lifsiS = getTable('LiFSI价格-固态');
         if (lifsiS.length > 0) {
