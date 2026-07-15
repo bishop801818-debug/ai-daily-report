@@ -45,9 +45,6 @@ window.AUTH_POLICY = {
 
     // ---------- 磷酸铁锂（山东美多 sdmd）----------
     'lfp_data_v2.html':        { allowed_bus: ['sdmd'] },
-    'lfp_report.html':         { allowed_bus: ['sdmd'] },
-    'lfp_report_2026_05_v2.html': { allowed_bus: ['sdmd'] },
-    'lfp_report_2026_04.html': { allowed_bus: ['sdmd'] },
     'lfp_charts.html':         { allowed_bus: ['sdmd'] },
     'radar_detail_sdmd.html':  { allowed_bus: ['sdmd'] },
     'automotive_data_v2.html': { allowed_bus: ['sdmd'] },      // 疑似新能源/汽车线，待确认
