@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>分析报告 - 龙蟠行业数据库</title>
-    <meta name="html-version" content="20260531b">
+    <meta name="html-version" content="20260715_001">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         ::-webkit-scrollbar { width: 6px; height: 6px; }
@@ -263,6 +263,7 @@ const REPORT_LIST = [
         icon: '🔋',
         desc: '磷酸铁锂正极材料供需格局、竞争格局、价格体系、出口贸易及战略展望',
         done: true,
+        allowedBu: ['czly'], // 仅常州锂源可见
         reportHref: 'lfp_report_2026_05.html',
         dataHref: 'lfp_data_v2.html',
         chartHref: 'lfp_charts.html',
@@ -275,6 +276,7 @@ const REPORT_LIST = [
         icon: '⛏️',
         desc: '碳酸锂·氢氧化锂·锂云母·锂辉石精矿，四位一体产业链全景分析',
         done: true,
+        allowedBu: ['czly','lpsd','sdmd'], // 常州锂源、龙蟠时代、山东美多可见
         reportHref: 'carbonate_report_202605.html',
         dataHref: 'carbonate_data_v2.html',
         chartHref: 'carbonate_charts.html',
