@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>数据看板 - 锂电池回收行业数据库</title>
-<script src="recycling_embedded_data.js?v=20260630" charset="UTF-8"></script>
+<script src="embedded/recycling_embedded_data.js?v=20260630" charset="UTF-8"></script>
 <script src="./echarts.min.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
@@ -138,7 +138,7 @@ body{font-family:"Microsoft YaHei","PingFang SC",Arial,sans-serif;background:#f0
             
     // ── dynamic data loader (reads EMBEDDED_DATA at runtime) ──────────────────
     (function() {
-      var tables = window.EMBEDDED_DATA ? window.EMBEDDED_DATA.tables : [];
+      var tables = EMBEDDED_DATA ? EMBEDDED_DATA.tables : [];
       var tblMap = {};
       tables.forEach(function(t){ tblMap[t.table_name] = t.data; });
 
@@ -244,7 +244,7 @@ body{font-family:"Microsoft YaHei","PingFang SC",Arial,sans-serif;background:#f0
       window.PIE_DATA = pie;
 
       window.LATEST_MONTH = latestEntYM;
-      window.UPDATE_TIME  = window.EMBEDDED_DATA ? window.EMBEDDED_DATA.update_time : '';
+      window.UPDATE_TIME  = EMBEDDED_DATA ? EMBEDDED_DATA.update_time : '';
       window.N_COMPANIES  = entLatest.length;
 
       // price series
