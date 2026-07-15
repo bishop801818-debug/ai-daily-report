@@ -289,6 +289,7 @@ const REPORT_LIST = [
         icon: '⚡',
         desc: '三元正极材料（NCM/NCA）供需格局、竞争格局、价格体系、出口贸易及战略展望',
         done: true,
+        allowedBu: ['sjl'], // 仅三金锂电可见
         reportHref: 'ternary_report_202605.html',
         dataHref: 'ternary_data_v2.html',
         chartHref: 'ternary_charts.html',
@@ -301,6 +302,7 @@ const REPORT_LIST = [
         icon: '🧪',
         desc: '电解液及六氟磷酸锂供需格局、成本结构、竞争格局与战略展望',
         done: true,
+        allowedBu: ['felt'], // 仅法恩莱特可见
         reportHref: 'felt_report_202605.html',
         dataHref: 'electrolyte_data_v2.html',
         chartHref: 'electrolyte_charts.html',
@@ -313,6 +315,7 @@ const REPORT_LIST = [
         icon: '♻️',
         desc: '动力电池回收规模、梯次利用、再生利用，白名单企业与战略展望',
         done: true,
+        allowedBu: ['sdmd'], // 仅山东美多可见
         reportHref: 'recycling_report_2026_05.html',
         dataHref: 'recycling_data_v2.html',
         chartHref: 'recycling_charts.html',
@@ -325,6 +328,7 @@ const REPORT_LIST = [
         icon: '🔋',
         desc: '锂电池产量、产能利用率、分企业竞争格局与排产预测，五表全景分析',
         done: true,
+        allowedBu: ['czly','lpsd','sdmd','felt','sjl','dhx','lhy','kls','bych'], // 全BU可见（无专门BU数据）
         reportHref: 'lib_battery_analysis.html',
         dataHref: 'lib_battery_data_v2.html',
         chartHref: 'lib_battery_charts.html',
@@ -337,6 +341,7 @@ const REPORT_LIST = [
         icon: '🚗',
         desc: '新能源汽车销量、动力电池装车、渗透率、政策汇总与出口数据分析',
         done: true,
+        allowedBu: ['czly','lpsd','sdmd','felt','sjl','dhx','lhy','kls','bych'], // 全BU可见（无专门BU数据）
         reportHref: 'automotive_report_202605.html',
         dataHref: 'automotive_data_v2.html',
         chartHref: 'automotive_charts.html',
@@ -386,7 +391,7 @@ function buildReportCard(db) {
     }
 
     return `
-    <div class="db-card" data-db="${db.id}">
+    <div class="db-card" data-db="${db.id}" data-allowed-bu="${(db.allowedBu || []).join(',')}">
         ${overlay}
         <div class="card-top">
             <div class="card-icon-wrap">${db.icon}</div>
@@ -421,7 +426,30 @@ if (topbarRight) {
     topbarRight.textContent = `龙蟠行业数据库 · ${now.toLocaleDateString('zh-CN')}`;
 }
 </script>
+    <script src="inline_01.js"></script>
+    <script src="bu_gate.js"></script>
     <script src="assets/ai_fab_inject.js"></script>
+    <script>
+    // 数据库权限过滤：与 database_hub.html 一致
+    function applyDbFilter() {
+        var gate = window.BU_GATE;
+        if (!gate) return;
+        var deptId = gate.getCurrentDeptId();
+        if (!deptId) return;
+        var userDeptIds = gate.parseDeptIds(deptId);
+        REPORT_LIST.forEach(function(db) {
+            if (!db.allowedBu || !db.allowedBu.length) return;
+            var allowed = db.allowedBu.some(function(bu) {
+                return gate.isAllowed(bu, userDeptIds);
+            });
+            if (!allowed) {
+                var card = document.querySelector('.db-card[data-db="' + db.id + '"]');
+                if (card) card.style.display = 'none';
+            }
+        });
+    }
+    window.addEventListener('load', function() { applyDbFilter(); });
+    </script>
 
 
 </body>

@@ -89,6 +89,33 @@ body{font-family:-apple-system,'Microsoft YaHei',sans-serif;background:#f4f6fa;c
   .signal-card{padding:10px 12px}
 }
 </style>
+
+    <script src="inline_01.js"></script>
+    <script src="bu_gate.js"></script>
+    <script>
+    (function(){
+      window.addEventListener('load', function() {
+        var buMatch = location.hash.match(/#([a-z]+)/);
+        if (!buMatch) return;
+        var rawBu = buMatch[1];
+        var map = { lubricant:'lhy', kelan:'kls', dkhx:'dhx', sjld:'sjl' };
+        var buId = map[rawBu] || rawBu;
+        var deptId = (function(){
+          var m = location.search.match(/[?&]__dept=([^&]+)/);
+          if(m) return decodeURIComponent(m[1]);
+          m = location.search.match(/[?&]departmentId=([^&]+)/);
+          if(m) return decodeURIComponent(m[1]);
+          return '';
+        })();
+        if (!deptId) return;
+        var ids = (deptId||'').split(',').map(function(s){return s.trim();}).filter(Boolean);
+        if (!isAllowed || !isAllowed(buId, ids)) {
+          document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100vh;font-family:sans-serif;background:#f5f6fa"><div style="text-align:center;padding:48px;background:#fff;border-radius:16px;box-shadow:0 8px 30px rgba(0,0,0,.08)"><div style="font-size:64px;margin-bottom:12px">⛔</div><div style="font-size:22px;font-weight:700;color:#c0392b">无权限访问</div><div style="margin-top:8px;color:#888;font-size:14px">您所在的部门无权查看该内容，请联系管理员。</div></div></div>';
+        }
+      });
+    })();
+    </script>
+
 </head>
 <body>
 <div class="topbar">
