@@ -46,6 +46,7 @@ PROTECTED_FILES = {
     'industry_news_embedded.html', 'embedded/industry_news_embedded.html',
     'bu_hub.html', 'embedded/bu_hub.html',
     'toolbox.html', 'embedded/toolbox.html',
+    'strategy_coming_soon.html', 'embedded/strategy_coming_soon.html',
 }
 
 def optimize_file(html_file):
