@@ -423,5 +423,127 @@ footer { text-align: center; padding: 24px; color: var(--text-light); font-size:
   </div>
 </div>
 <script src="inline_00.js"></script>
+<script>
+(function() {
+  var C = { primary: '#1565c0', green: '#2e7d32', orange: '#ef6c00', red: '#c62828', palette: ['#1565c0','#1976d2','#0d47a1','#2e7d32','#ef6c00','#c62828','#6a1b9a','#00838f'] };
+  function baseOpt() { return { color: C.palette, tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } }, grid: { left: '3%', right: '4%', bottom: '3%', top: '10%', containLabel: true }, legend: { top: 0 } }; }
+  function makeChart(id, opt) { var dom = document.getElementById(id); if (!dom) return; var c = echarts.init(dom); c.setOption(Object.assign({}, baseOpt(), opt)); window.addEventListener('resize', function() { c.resize(); }); }
+
+  // Chart1 LFP产量
+  makeChart('chart-lfp-output', {
+    xAxis: { type: 'category', data: ['24-01','02','03','04','05','06','07','08','09','10','11','12','25-01','02','03','04','05','06','07','08','09','10','11','12','26-01','02','03','04','05'], axisLabel: { fontSize: 11 } },
+    yAxis: [{ type: 'value', name: '产量（万吨）', axisLabel: { fontSize: 11, formatter: function(v) { return (v/10000).toFixed(1)+'万'; } } }, { type: 'value', name: '开工率%', axisLabel: { fontSize: 11, formatter: function(v) { return v+'%'; } }, max: 100, splitLine: { lineStyle: { type: 'dashed' } } }],
+    series: [
+      { name: 'LFP产量', type: 'bar', data: [11.7,10.1,17.5,19.8,20.5,18.4,19.2,21.2,23.7,25.6,27.3,27.4,25.0,22.6,27.2,28.7,30.2,31.0,31.4,35.4,36.7,40.1,42.4,41.6,41.2,38.0,45.1,47.0,48.6], itemStyle: { color: '#1565c0', borderRadius: [3,3,0,0] } },
+      { name: '开工率', type: 'line', yAxisIndex: 1, data: [34,29,48,53,53,47,48,52,59,59,60,59,60,56,69,72,74,74,74,82,85,86,89,85,80,74,78,80,81], lineStyle: { color: '#ef6c00', width: 2 }, itemStyle: { color: '#ef6c00' }, smooth: true },
+      { name: '常州锂源', type: 'line', yAxisIndex: 0, data: [null,null,null,null,null,null,null,null,null,null,null,null,1.15,1.05,1.00,1.41,1.40,1.80,1.80,1.85,1.88,2.15,2.42,2.20,2.10,1.73,2.33,2.55,2.87], lineStyle: { color: '#2e7d32', width: 2, type: 'dashed' }, itemStyle: { color: '#2e7d32' }, smooth: true }
+    ]
+  });
+
+  // Chart2 分企业
+  makeChart('chart-company-output', {
+    xAxis: { type: 'value', name: '产量（吨）', axisLabel: { fontSize: 11, formatter: function(v) { return (v/1000).toFixed(0)+'k'; } } },
+    yAxis: { type: 'category', data: ['湖南裕能','万润新能','德方纳米','江西升华','常州锂源','友山科技','国轩高科','邦普循环','万华化学','融通高科'].reverse(), axisLabel: { fontSize: 11 } },
+    series: [{ name: '5月产量', type: 'bar', data: [125000,42000,37000,33000,28745,25500,19000,16000,15000,13000].reverse(), itemStyle: { color: function(p) { return p.dataIndex === 5 ? '#ef6c00' : '#1565c0'; }, borderRadius: [0,4,4,0] }, label: { show: true, position: 'right', fontSize: 11, formatter: function(p) { return (p.value/1000).toFixed(0)+'k吨'; } } }]
+  });
+
+  // Chart3 出口趋势
+  makeChart('chart-lfp-export', {
+    xAxis: { type: 'category', data: ['24-01','02','03','04','05','06','07','08','09','10','11','12','25-01','02','03','04','05','06','07','08','09','10','11','12','26-01','02','03','04','05'], axisLabel: { fontSize: 11 } },
+    yAxis: [{ type: 'value', name: '出口量（吨）', axisLabel: { fontSize: 11 } }, { type: 'value', name: '均价（万元/吨）', axisLabel: { fontSize: 11 } }],
+    series: [
+      { name: '出口量', type: 'bar', data: [133,102,143,64,177,147,164,262,538,311,334,911,1221,596,1368,1152,942,2032,2741,2000,3092,5477,7721,4029,5687,6530,7533,5898,7625], itemStyle: { color: '#1565c0', borderRadius: [3,3,0,0] } },
+      { name: '出口均价', type: 'line', yAxisIndex: 1, data: [7.4,6.0,7.0,5.8,5.9,5.2,7.2,5.0,4.7,4.6,4.3,4.4,4.4,4.0,4.2,4.5,3.9,3.9,3.8,3.8,3.7,3.7,3.6,3.5,4.3,5.0,5.7,5.3,5.9], lineStyle: { color: '#ef6c00', width: 2 }, itemStyle: { color: '#ef6c00' }, smooth: true }
+    ]
+  });
+
+  // Chart4 出口目的地
+  makeChart('chart-export-dest', {
+    xAxis: { type: 'category', data: ['美国','泰国','马来西亚','日本','越南','印尼','韩国','加拿大','台湾','波兰'] },
+    yAxis: { type: 'value', name: '出口量（吨）', axisLabel: { fontSize: 11 } },
+    series: [{ name: '5月出口量', type: 'bar', data: [3014.7,2030.6,886.0,620.6,420.0,366.0,120.2,85.2,33.9,32.0], itemStyle: { color: function(p) { return p.dataIndex === 0 ? '#ef6c00' : '#1565c0'; }, borderRadius: [4,4,0,0] }, label: { show: true, position: 'top', fontSize: 10, formatter: function(p) { return p.value.toFixed(0); } } }]
+  });
+
+  // Chart5 LFP价格
+  makeChart('chart-lfp-price', {
+    xAxis: { type: 'category', data: ['24-01','02','03','04','05','06','07','08','09','10','11','12','25-01','02','03','04','05','06','07','08','09','10','11','12','26-01','02','03','04','05'], axisLabel: { fontSize: 11 } },
+    yAxis: { type: 'value', name: '万元/吨', axisLabel: { fontSize: 11 }, min: 2 },
+    series: [
+      { name: '动力型(2.4-2.5)', type: 'line', data: [4.35,4.37,4.44,4.39,4.23,3.96,3.75,3.40,3.29,3.29,3.42,3.37,3.37,3.37,3.37,3.33,3.15,3.03,3.27,3.43,3.43,3.58,3.91,4.51,5.36,5.60,5.43,5.93,6.32], smooth: true, lineStyle: { width: 2 }, itemStyle: { color: '#1565c0' } },
+      { name: '储能型(2.4-2.5)', type: 'line', data: [3.95,3.97,4.04,3.99,4.05,3.84,3.61,3.30,3.24,3.22,3.37,3.31,3.31,3.31,3.31,3.25,3.00,2.88,3.12,3.29,3.29,3.45,3.76,4.36,5.34,5.58,5.41,5.91,6.31], smooth: true, lineStyle: { width: 2 }, itemStyle: { color: '#2e7d32' } }
+    ]
+  });
+
+  // Chart6 FP产量
+  makeChart('chart-fp-output', {
+    xAxis: { type: 'category', data: ['24-01','02','03','04','05','06','07','08','09','10','11','12','25-01','02','03','04','05','06','07','08','09','10','11','12','26-01','02','03','04','05'], axisLabel: { fontSize: 11 } },
+    yAxis: [{ type: 'value', name: '产量（万吨）', axisLabel: { fontSize: 11, formatter: function(v) { return (v/10000).toFixed(1)+'万'; } } }, { type: 'value', name: '开工率%', axisLabel: { fontSize: 11, formatter: function(v) { return v+'%'; } }, max: 100, splitLine: { lineStyle: { type: 'dashed' } } }],
+    series: [
+      { name: 'FP产量', type: 'bar', data: [9.3,7.8,13.8,16.6,17.1,15.9,15.6,17.3,20.8,21.9,23.6,23.5,23.1,21.2,25.1,26.0,25.6,25.6,26.7,29.5,30.7,33.7,34.9,35.2,33.2,32.3,38.5,39.7,41.0], itemStyle: { color: '#00838f', borderRadius: [3,3,0,0] } },
+      { name: '开工率', type: 'line', yAxisIndex: 1, data: [36,32,50,57,58,54,53,59,65,66,72,70,67,61,69,71,71,71,74,80,86,89,90,88,76,75,85,87,90], lineStyle: { color: '#ef6c00', width: 2 }, itemStyle: { color: '#ef6c00' }, smooth: true }
+    ]
+  });
+
+  // Chart7 FP价格
+  makeChart('chart-fp-price', {
+    xAxis: { type: 'category', data: ['24-01','02','03','04','05','06','07','08','09','10','11','12','25-01','02','03','04','05','06','07','08','09','10','11','12','26-01','02','03','04','05'], axisLabel: { fontSize: 11 } },
+    yAxis: { type: 'value', name: '万元/吨', axisLabel: { fontSize: 11, formatter: function(v) { return v.toFixed(2); } } },
+    series: [{ name: 'FP均价', type: 'line', data: [1.07,1.04,1.06,1.06,1.06,1.06,1.05,1.04,1.04,1.04,1.04,1.07,1.07,1.07,1.07,1.08,1.08,1.07,1.07,1.07,1.07,1.07,1.11,1.16,1.17,1.17,1.22,1.31,1.45], smooth: true, areaStyle: { color: { type: 'linear', x:0,y:0,x2:0,y2:1, colorStops: [{ offset:0, color:'rgba(0,131,143,0.3)' },{ offset:1, color:'rgba(0,131,143,0.02)' }] } }, lineStyle: { width: 2, color: '#00838f' }, itemStyle: { color: '#00838f' } }]
+  });
+
+  // Chart8 磷酸盐
+  makeChart('chart-phosphate', {
+    xAxis: { type: 'category', data: ['黄磷','磷矿石(30%品位)','磷酸(热法)','磷酸(湿法)','磷酸一铵(工业级)'] },
+    yAxis: { type: 'value', name: '万元/吨', axisLabel: { fontSize: 11 } },
+    series: [{ name: '5月价格', type: 'bar', data: [3.24,0.105,0.92,0.91,0.73], itemStyle: { color: function(p) { return ['#c62828','#1976d2','#00838f','#00838f','#2e7d32'][p.dataIndex]; }, borderRadius: [4,4,0,0] }, label: { show: true, position: 'top', fontSize: 12, formatter: function(p) { return p.value.toFixed(2); } } }]
+  });
+
+  // Chart9 碳酸锂价格
+  makeChart('chart-carbonate-price', {
+    xAxis: { type: 'category', data: ['24-01','02','03','04','05','06','07','08','09','10','11','12','25-01','02','03','04','05','06','07','08','09','10','11','12','26-01','02','03','04','05','06'], axisLabel: { fontSize: 11 } },
+    yAxis: { type: 'value', name: '万元/吨', axisLabel: { fontSize: 11 }, min: 4 },
+    series: [{ name: '碳酸锂均价', type: 'line', data: [8.73,8.70,9.78,10.13,10.20,9.34,8.46,7.36,7.17,7.12,7.37,7.31,7.33,7.28,7.21,6.98,6.30,5.83,6.40,7.50,7.18,7.35,8.36,9.82,14.10,14.05,14.59,15.35,17.49,16.44], smooth: true, lineStyle: { width: 2, color: '#c62828' }, itemStyle: { color: '#c62828' }, areaStyle: { color: { type: 'linear', x:0,y:0,x2:0,y2:1, colorStops: [{ offset:0, color:'rgba(198,40,40,0.25)' },{ offset:1, color:'rgba(198,40,40,0.02)' }] } } }]
+  });
+
+  // Chart10 碳酸锂产量
+  makeChart('chart-carbonate-output', {
+    xAxis: { type: 'category', data: ['25-01','02','03','04','05','06','07','08','09','10','11','12','26-01','02','03','04','05'], axisLabel: { fontSize: 11 } },
+    yAxis: [{ type: 'value', name: '产量（吨）', axisLabel: { fontSize: 11, formatter: function(v) { return (v/10000).toFixed(1)+'万'; } } }, { type: 'value', name: '开工率%', axisLabel: { fontSize: 11, formatter: function(v) { return v+'%'; } }, max: 100, splitLine: { lineStyle: { type: 'dashed' } } }],
+    series: [
+      { name: '碳酸锂产量', type: 'bar', data: [65415,66920,74830,74520,73490,77300,81040,84827,87127,89700,92872,97444,99100,86710,103100,107000,105310], itemStyle: { color: '#c62828', borderRadius: [3,3,0,0] } },
+      { name: '开工率', type: 'line', yAxisIndex: 1, data: [66.4,68.0,76.0,75.7,74.6,78.5,75.9,77.6,76.8,79.1,81.3,85.3,86.4,75.6,89.9,93.3,91.8], lineStyle: { color: '#ef6c00', width: 2 }, itemStyle: { color: '#ef6c00' }, smooth: true }
+    ]
+  });
+
+  // Chart11 LFP vs NCM
+  makeChart('chart-lfp-vs-ncm', {
+    xAxis: { type: 'category', data: ['25-01','02','03','04','05','06','07','08','09','10','11','12','26-01','02','03','04','05'], axisLabel: { fontSize: 11 } },
+    yAxis: { type: 'value', name: '产量（万吨）', axisLabel: { fontSize: 11, formatter: function(v) { return (v/10000).toFixed(1)+'万'; } } },
+    series: [
+      { name: 'LFP', type: 'bar', data: [25.0,22.6,27.2,28.7,30.2,31.0,31.4,35.4,36.7,40.1,42.4,41.6,41.2,38.0,45.1,47.0,48.6], itemStyle: { color: '#1565c0', borderRadius: [3,3,0,0] } },
+      { name: 'NCM', type: 'bar', data: [4.5,4.3,5.5,5.7,5.7,6.4,6.5,7.3,7.4,7.4,7.6,7.6,7.6,6.2,8.1,7.7,8.6], itemStyle: { color: '#ef6c00', borderRadius: [3,3,0,0] } }
+    ]
+  });
+
+  // Chart12 常州锂源产量
+  makeChart('chart-czly-output', {
+    xAxis: { type: 'category', data: ['25-01','02','03','04','05','06','07','08','09','10','11','12','26-01','02','03','04','05'], axisLabel: { fontSize: 11 } },
+    yAxis: { type: 'value', name: '产量（吨）', axisLabel: { fontSize: 11, formatter: function(v) { return (v/1000).toFixed(1)+'k'; } } },
+    series: [{ name: '常州锂源产量', type: 'bar', data: [11537,10500,10000,14056,14000,18000,18000,18500,18800,21500,24200,22000,21000,17303,23343,25525,28745], itemStyle: { color: '#ef6c00', borderRadius: [4,4,0,0] }, label: { show: true, position: 'top', fontSize: 11, formatter: function(p) { return (p.value/1000).toFixed(1)+'k'; } } }]
+  });
+
+  // TOC
+  var tocLinks = document.querySelectorAll('.toc-list a');
+  var sections = document.querySelectorAll('[id]');
+  window.addEventListener('scroll', function() {
+    var current = '';
+    sections.forEach(function(s) { if (s.getBoundingClientRect().top < 120) current = s.id; });
+    tocLinks.forEach(function(a) { a.classList.toggle('active', a.getAttribute('href') === '#' + current); });
+  });
+  tocLinks.forEach(function(a) {
+    a.addEventListener('click', function(e) { e.preventDefault(); var target = document.querySelector(a.getAttribute('href')); if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' }); });
+  });
+})();
+</script>
 </body>
 </html>
