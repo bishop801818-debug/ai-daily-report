@@ -774,9 +774,16 @@ def deduplicate_news(selected_items, all_items, target_count=5, similarity_thres
         if to_remove:
             removed_count += len(to_remove)
             result = [result[i] for i in range(len(result)) if i not in to_remove]
-        # 补齐到 target_count
+        # 补齐到 target_count（优先选用不同事业部，保证BU多样性）
         while len(result) < target_count and candidates:
-            result.append(candidates.pop(0))
+            existing_bus = {r.get('bu') for r in result}
+            preferred = [c for c in candidates if c.get('bu') not in existing_bus]
+            pick_from = preferred if preferred else candidates
+            if not pick_from:
+                break
+            chosen = pick_from[0]
+            candidates.remove(chosen)
+            result.append(chosen)
             added_count += 1
         # 收敛判定：无超阈值配对 或 候选已耗尽
         if not has_over_pairs(result) or not candidates:
@@ -1240,6 +1247,10 @@ def main():
     else:
         print(f"[警告] 过滤后没有剩余新闻（过滤掉 {old_count} 条），将使用未过滤数据")
     
+    # 【加固】去重补充候选池排除纯行情类新闻，防止补充时重新引入价格行情
+    non_market_items = [it for it in all_items if not is_market_price_news(it.get('title', ''))]
+    print(f"[信息] 候选池 {len(all_items)} 条，排除行情类后 {len(non_market_items)} 条用于去重补充")
+
     # 均匀抽取5条（重试机制：优先选能继承URL的新闻）
     selected_items = []
     max_retries = 3
@@ -1247,7 +1258,7 @@ def main():
         selected_items = select_news_evenly(all_items, target_count=5)
         
     # 【去重】防止不同事业部选中同一事件的新闻
-        selected_items = deduplicate_news(selected_items, all_items, target_count=5)
+        selected_items = deduplicate_news(selected_items, non_market_items, target_count=5)
         
         # 检查选中的新闻是否能继承URL（模糊匹配）
         import re
