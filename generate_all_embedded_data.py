@@ -32,14 +32,12 @@ DB_CONFIGS = [
         'js_var': 'EMBEDDED_DATA',
         'source_name': 'carbonate_all_data.json',
     },
+    # Recycling回收数据库已移除，原因同NCM：
+    #   recycling_all_data.json 由 _sync_embed_to_json 导出时表名乱码，
+    #   导致保护机制失效，JS 被静默覆盖为 11 个表（大量 0 行）
+    #   须走 import_all.py 直接读 Excel，不走自动化 JSON 流程
     {
-        'name': 'Recycling',
-        'json_path': 'D:/trae/AI Daily report/recycling_all_data.json',
-        'output_js': 'D:/trae/AI Daily report/recycling_embedded_data.js',
-        'js_var': 'EMBEDDED_DATA',
-        'source_name': 'recycling_all_data.json',
-    },
-    {
+        'name': 'Auto',
         'name': 'Auto',
         'json_path': 'D:/trae/AI Daily report/automotive_all_data.json',
         'output_js': 'D:/trae/AI Daily report/automotive_embedded_data.js',
