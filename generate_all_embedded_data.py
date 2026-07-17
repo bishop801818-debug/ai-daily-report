@@ -1,7 +1,12 @@
 """
-生成所有7个数据库的 *_embedded_data.js 文件
+生成6个数据库的 *_embedded_data.js 文件（不含NCM三元材料）
 从 *All_Data.json 文件读取数据，生成嵌入数据JS文件
 （自动化运行，无需人工放Excel到Downloads）
+
+⚠️ NCM三元材料数据库（ternary_*）不在此流程中：
+  - NCM数据来自 Excel 文件，依赖 import_all.py 直接读取
+  - ternary_all_data.json 是从 embedded_data.js 导出的中间文件，
+    存在数据丢失问题（5月数据丢失），不能作为数据源
 """
 import pandas as pd
 import json
@@ -48,13 +53,7 @@ DB_CONFIGS = [
         'js_var': 'EMBEDDED_DATA',
         'source_name': 'lfp_all_data.json',
     },
-    {
-        'name': 'NCM',
-        'json_path': 'D:/trae/AI Daily report/ternary_all_data.json',
-        'output_js': 'D:/trae/AI Daily report/ternary_embedded_data.js',
-        'js_var': 'EMBEDDED_DATA',
-        'source_name': 'ternary_all_data.json',
-    },
+    # NCM三元材料数据库已移除，原因见文件头部说明
     {
         'name': 'LIB_BATT',
         'json_path': 'D:/trae/AI Daily report/lib_battery_all_data.json',
@@ -156,14 +155,31 @@ def generate_db(db_config):
         for existing_t in existing_tables:
             existing_tname = existing_t.get('table_name', '')
             existing_t_latest = ''
+            existing_month_rows = {}  # {月份: 行数}
             for row in existing_t.get('data', []):
                 for dk in ('日期', '当前日期', '时间', '月份'):
                     v = str(row.get(dk, ''))[:7]
                     if v and v > existing_t_latest:
                         existing_t_latest = v
+                    if v:
+                        existing_month_rows[v] = existing_month_rows.get(v, 0) + 1
             new_t_latest = new_per_table.get(existing_tname, '')
             if existing_t_latest and new_t_latest and existing_t_latest > new_t_latest:
-                regressions.append((existing_tname, existing_t_latest, new_t_latest))
+                regressions.append((existing_tname, existing_t_latest, new_t_latest, '月份回退'))
+            # ── 行数保护：同一月份内 JSON 行数减少也拒绝（防止数据被静默删除）──
+            new_t = next((t for t in tables if t.get('table_name', '') == existing_tname), None)
+            if new_t and existing_t_latest:
+                new_month_rows = {}
+                for row in new_t.get('data', []):
+                    for dk in ('日期', '当前日期', '时间', '月份'):
+                        v = str(row.get(dk, ''))[:7]
+                        if v:
+                            new_month_rows[v] = new_month_rows.get(v, 0) + 1
+                existing_count = existing_month_rows.get(existing_t_latest, 0)
+                new_count = new_month_rows.get(existing_t_latest, 0)
+                if existing_count > new_count:
+                    regressions.append((existing_tname, existing_t_latest,
+                                        f'{existing_count}行→{new_count}行', '行数减少'))
 
         if regressions:
             backup_path = output_js + f'.golden_{datetime.now().strftime("%Y%m%d_%H%M%S")}'
@@ -171,9 +187,10 @@ def generate_db(db_config):
                 f.write(existing_content)
             print(f'')
             print(f'  {"="*60}')
-            print(f'  [BLOCKED] {name}: 以下 {len(regressions)} 个表会数据回退，拒绝覆盖！')
-            for tname, old_m, new_m in regressions:
-                print(f'    {tname}: 现有={old_m}  →  新JSON={new_m}  ▼')
+            print(f'  [BLOCKED] {name}: 以下 {len(regressions)} 个表数据异常，拒绝覆盖！')
+            for item in regressions:
+                tname, old_val, new_val, reason = item
+                print(f'    {tname}: {reason} | 现有={old_val}  →  新={new_val}  ▼')
             print(f'  JSON 文件: {source_name}')
             print(f'  已备份当前 JS 到: {os.path.basename(backup_path)}')
             print(f'  请更新数据源后再运行此脚本。')
