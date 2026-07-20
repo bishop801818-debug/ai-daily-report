@@ -150,6 +150,11 @@ body{font-family:"Microsoft YaHei","PingFang SC",Arial,sans-serif;background:#f0
         return [];
       }
 
+      // 兼容"当前日期"和"日期"两种字段名
+      function getDate(r) {
+        return r['当前日期'] || r['日期'] || r['时间'] || null;
+      }
+
       function parseDM(v) {
         if (!v) return null;
         var s = String(v).trim();
@@ -159,7 +164,14 @@ body{font-family:"Microsoft YaHei","PingFang SC",Arial,sans-serif;background:#f0
         m = s.match(/^(\d{2})-(\d{2})$/); if (m) return s;
         return null;
       }
-      function parseYM(v) { var d = parseDM(v); return d ? d.slice(0,7) : null; }
+      function parseYM(v) {
+        if (!v) return null;
+        var s = String(v).trim();
+        var m = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
+        if (m) return String(parseInt(m[1]) % 100).padStart(2,'0') + '-' + m[2];
+        m = s.match(/^(\d{2})-(\d{2})/); if (m) return s.slice(0,5);
+        return null;
+      }
 
       function fl(v) {
         if (v === null || v === undefined) return null;
@@ -183,7 +195,7 @@ body{font-family:"Microsoft YaHei","PingFang SC",Arial,sans-serif;background:#f0
       function extractPrice(sheetName, valKey) {
         var rows = getTable(sheetName), byDate = {};
         for (var i = 0; i < rows.length; i++) {
-          var r = rows[i], dd = parseDM(r['当前日期']);
+          var r = rows[i], dd = parseYM(getDate(r));
           if (!dd) continue;
           var v = fl(r[valKey]); if (v === null) continue;
           if (!byDate[dd]) byDate[dd] = v;
@@ -196,9 +208,9 @@ body{font-family:"Microsoft YaHei","PingFang SC",Arial,sans-serif;background:#f0
       var tNCM = getTable('黑粉处理量-三元+钴酸锂');
       var tLFP = getTable('黑粉处理量-铁锂');
 
-      var allBy  = aggMonthly(tAll, '当前日期', '总计', '同比', '环比');
-      var ncmBy  = aggMonthly(tNCM, '当前日期', '总计');
-      var lfpBy  = aggMonthly(tLFP, '当前日期', '总计');
+      var allBy  = aggMonthly(tAll, '日期', '当月总计', '同比', '环比');
+      var ncmBy  = aggMonthly(tNCM, '日期', '当月总计');
+      var lfpBy  = aggMonthly(tLFP, '日期', '当月总计');
 
       var allMonths = Object.keys(allBy).sort().reverse().slice(0,28).reverse();
 
@@ -213,12 +225,12 @@ body{font-family:"Microsoft YaHei","PingFang SC",Arial,sans-serif;background:#f0
       var tEnt = getTable('黑粉整体处理量-分企业');
       var latestEntYM = null;
       for (var i = 0; i < tEnt.length; i++) {
-        var ym = parseYM(tEnt[i]['时间']);
+        var ym = parseYM(getDate(tEnt[i]));
         if (ym && (!latestEntYM || ym > latestEntYM)) latestEntYM = ym;
       }
       var entLatest = [];
       for (var i = 0; i < tEnt.length; i++) {
-        if (parseYM(tEnt[i]['时间']) === latestEntYM) entLatest.push(tEnt[i]);
+        if (parseYM(getDate(tEnt[i])) === latestEntYM) entLatest.push(tEnt[i]);
       }
       entLatest.sort(function(a,b){
         return (fl(b['三元+钴酸锂（吨）'])||0) - (fl(a['三元+钴酸锂（吨）'])||0);
@@ -249,23 +261,23 @@ body{font-family:"Microsoft YaHei","PingFang SC",Arial,sans-serif;background:#f0
 
       // price series
       var priceSheets = [
-        ['T6',  '锂电池价格-大三元聚合物电池包',   '今日均价'],
-        ['T7',  '锂电池价格-大三元铝壳电池包',     '今日均价'],
-        ['T8',  '锂电池价格-钴酸锂铝壳电池包',     '今日均价'],
-        ['T10', '锂电池价格-加工费电池包',         '今日均价'],
-        ['T11', '锂电池价格-铁锂铝壳电池包',       '今日均价'],
-        ['T12', '极片价格-负极片',                 '今日均价'],
-        ['T15', '极片价格-三元523正极片',          '今日均价'],
-        ['T16', '极片价格-铁锂正极片',             '今日均价'],
-        ['T17', '辅料价格-铝粉',                   '今日均价'],
-        ['T18', '辅料价格-铜粉',                   '今日均价'],
-        ['T19', '黑粉价格-钴酸锂电池粉',           '今日均价'],
-        ['T20', '黑粉价格-钴酸锂极片粉',           '今日均价'],
-        ['T21', '黑粉价格-三元523电池粉',          '今日均价'],
-        ['T23', '黑粉价格-石墨粉',                 '今日均价'],
-        ['T24', '黑粉价格-磷酸铁锂电池粉加工费',   '今日均价'],
-        ['T25', '黑粉价格-铁锂极片粉',             '今日均价'],
-        ['T26', '黑粉价格-铁锂极片粉加工费',       '今日均价'],
+        ['T6',  '锂电池价格-大三元聚合物电池包',               '今日均价'],
+        ['T7',  '锂电池价格-大三元铝壳电池包',                 '今日均价'],
+        ['T8',  '锂电池价格-钴酸锂铝壳电池包',                 '今日均价'],
+        ['T10', '锂电池价格-加工费电池包',                     '今日均价'],
+        ['T11', '锂电池价格-铁锂铝壳电池包',                   '今日均价'],
+        ['T12', '极片价格-负极片 25%＞Cu＞22%',                '今日均价'],
+        ['T15', '极片价格-三元523正极片Ni≥23%;Co≥8%；Li＞5%', '今日均价'],
+        ['T16', '极片价格-铁锂正极片3.8%≥Li≥3.2%',            '今日均价'],
+        ['T17', '辅料价格-铝粉Al≥90%',                        '今日均价'],
+        ['T18', '辅料价格-铜粉Cu≥90%',                        '今日均价'],
+        ['T19', '黑粉价格-钴酸锂电池粉30%≥Co≥25%；3.8%≥Li≥3.2%',  '今日均价'],
+        ['T20', '黑粉价格-钴酸锂极片粉55%≥Co≥50%；6.3%≥Li≥5.7%',  '今日均价'],
+        ['T21', '黑粉价格-三元523电池粉17%≥Ni≥15%;7.5%≥Co≥5.5%；4%≥Li≥3.2%', '今日均价'],
+        ['T23', '黑粉价格-石墨粉',                             '今日均价'],
+        ['T24', '黑粉价格-铁锂电池粉加工费2.8%≥Li≥2.2%',       '今日均价'],
+        ['T25', '黑粉价格-铁锂极片粉4.2%≥Li＞3.6%',            '今日均价'],
+        ['T26', '黑粉价格-铁锂极片粉加工费4.2%≥Li≥3.6%',       '今日均价'],
       ];
       for (var i = 0; i < priceSheets.length; i++) {
         var p = priceSheets[i];
@@ -275,10 +287,10 @@ body{font-family:"Microsoft YaHei","PingFang SC",Arial,sans-serif;background:#f0
       }
 
       // 确保T24数据正确（直连赋值，防止循环赋值异常）
-      var _r24 = extractPrice('黑粉价格-铁锂电池粉加工费', '今日均价');
+      var _r24 = extractPrice('黑粉价格-铁锂电池粉加工费2.8%≥Li≥2.2%', '今日均价');
       window.T24_DATES = _r24.dates;
       window.T24_AVG   = _r24.vals;
-      var _r26 = extractPrice('黑粉价格-铁锂极片粉加工费', '今日均价');
+      var _r26 = extractPrice('黑粉价格-铁锂极片粉加工费4.2%≥Li≥3.6%', '今日均价');
       window.T26_DATES = _r26.dates;
       window.T26_AVG   = _r26.vals;
 

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="html-version" content="20260715_001">
+    <meta name="html-version" content="20260717_001">
     <title>政策中心 · 锂电池产业链信息中台</title>
     <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Noto+Sans+SC:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
     <style>
@@ -672,9 +672,9 @@
     "strategic_level": "地方实施性",
     "strategic_desc": "结合地方产业实际，落实中央政策要求",
     "impact_segments": [
+      "回收",
       "新能源汽车",
-      "电池制造",
-      "回收"
+      "电池制造"
     ],
     "implementation": {
       "effective_date": "即日起",
@@ -686,8 +686,8 @@
         "山东美多"
       ],
       "segments": [
-        "新能源汽车",
         "电池制造",
+        "新能源汽车",
         "回收"
       ],
       "direction": "neutral",
@@ -695,8 +695,8 @@
     },
     "key_metrics": [
       {
-        "metric": "新能源汽车销量",
-        "target": "稳步增长",
+        "metric": "动力电池产量",
+        "target": "有序增长",
         "timeline": "2026年"
       }
     ],
@@ -835,8 +835,8 @@
     "strategic_desc": "规范市场秩序，提升行业发展质量和标准水平",
     "impact_segments": [
       "储能",
-      "正极材料",
-      "电池制造"
+      "电池制造",
+      "正极材料"
     ],
     "implementation": {
       "effective_date": "即日起",
@@ -849,8 +849,8 @@
       ],
       "segments": [
         "磷酸铁锂",
-        "储能",
-        "电池制造"
+        "电池制造",
+        "储能"
       ],
       "direction": "neutral",
       "magnitude": "high"
@@ -1076,9 +1076,9 @@
     "strategic_level": "地方实施性",
     "strategic_desc": "结合地方产业实际，落实中央政策要求",
     "impact_segments": [
+      "回收",
       "新能源汽车",
-      "电池制造",
-      "回收"
+      "电池制造"
     ],
     "implementation": {
       "effective_date": "即日起",
@@ -1090,8 +1090,8 @@
         "山东美多"
       ],
       "segments": [
-        "新能源汽车",
         "电池制造",
+        "新能源汽车",
         "回收"
       ],
       "direction": "neutral",
@@ -1099,8 +1099,8 @@
     },
     "key_metrics": [
       {
-        "metric": "新能源汽车销量",
-        "target": "稳步增长",
+        "metric": "动力电池产量",
+        "target": "有序增长",
         "timeline": "2026年"
       }
     ],
@@ -1159,9 +1159,9 @@
     "strategic_level": "地方实施性",
     "strategic_desc": "结合地方产业实际，落实中央政策要求",
     "impact_segments": [
+      "回收",
       "储能",
-      "电池制造",
-      "回收"
+      "电池制造"
     ],
     "implementation": {
       "effective_date": "即日起",
@@ -1173,8 +1173,8 @@
         "山东美多"
       ],
       "segments": [
-        "储能",
         "电池制造",
+        "储能",
         "回收"
       ],
       "direction": "neutral",
@@ -1182,9 +1182,9 @@
     },
     "key_metrics": [
       {
-        "metric": "新型储能装机规模",
-        "target": "增长30%+",
-        "timeline": "2027年"
+        "metric": "动力电池产量",
+        "target": "有序增长",
+        "timeline": "2026年"
       }
     ],
     "response_guide": {
@@ -1718,8 +1718,8 @@
     "strategic_level": "产业发展性",
     "strategic_desc": "推动产业链转型升级，提升产业核心竞争力",
     "impact_segments": [
-      "电池制造",
-      "回收"
+      "回收",
+      "电池制造"
     ],
     "implementation": {
       "effective_date": "即日起",
@@ -2037,8 +2037,8 @@
     "strategic_level": "地方实施性",
     "strategic_desc": "结合地方产业实际，落实中央政策要求",
     "impact_segments": [
-      "电池制造",
-      "回收"
+      "回收",
+      "电池制造"
     ],
     "implementation": {
       "effective_date": "即日起",
@@ -2924,17 +2924,17 @@
         "法恩莱特"
       ],
       "segments": [
-        "电解液",
-        "电池制造"
+        "电池制造",
+        "电解液"
       ],
       "direction": "neutral",
       "magnitude": "high"
     },
     "key_metrics": [
       {
-        "metric": "六氟磷酸锂价格",
-        "target": "合理区间",
-        "timeline": "持续"
+        "metric": "动力电池产量",
+        "target": "有序增长",
+        "timeline": "2026年"
       }
     ],
     "response_guide": {
@@ -2992,9 +2992,9 @@
     "strategic_level": "产业发展性",
     "strategic_desc": "推动产业链转型升级，提升产业核心竞争力",
     "impact_segments": [
+      "回收",
       "储能",
-      "电解液",
-      "回收"
+      "电解液"
     ],
     "implementation": {
       "effective_date": "即日起",
@@ -3006,18 +3006,18 @@
         "法恩莱特"
       ],
       "segments": [
+        "回收",
         "电解液",
-        "储能",
-        "回收"
+        "储能"
       ],
       "direction": "neutral",
       "magnitude": "medium"
     },
     "key_metrics": [
       {
-        "metric": "六氟磷酸锂价格",
-        "target": "合理区间",
-        "timeline": "持续"
+        "metric": "退役电池回收率",
+        "target": "70%+",
+        "timeline": "2027年"
       }
     ],
     "response_guide": {
@@ -3154,9 +3154,9 @@
     "strategic_level": "产业发展性",
     "strategic_desc": "推动产业链转型升级，提升产业核心竞争力",
     "impact_segments": [
+      "回收",
       "新能源汽车",
-      "电池制造",
-      "回收"
+      "电池制造"
     ],
     "implementation": {
       "effective_date": "即日起",
@@ -3168,8 +3168,8 @@
         "山东美多"
       ],
       "segments": [
-        "新能源汽车",
         "电池制造",
+        "新能源汽车",
         "回收"
       ],
       "direction": "neutral",
@@ -3177,8 +3177,8 @@
     },
     "key_metrics": [
       {
-        "metric": "新能源汽车销量",
-        "target": "稳步增长",
+        "metric": "动力电池产量",
+        "target": "有序增长",
         "timeline": "2026年"
       }
     ],
@@ -3237,9 +3237,9 @@
     "strategic_level": "地方实施性",
     "strategic_desc": "结合地方产业实际，落实中央政策要求",
     "impact_segments": [
+      "回收",
       "新能源汽车",
-      "电池制造",
-      "回收"
+      "电池制造"
     ],
     "implementation": {
       "effective_date": "即日起",
@@ -3251,8 +3251,8 @@
         "山东美多"
       ],
       "segments": [
-        "新能源汽车",
         "电池制造",
+        "新能源汽车",
         "回收"
       ],
       "direction": "neutral",
@@ -3260,8 +3260,8 @@
     },
     "key_metrics": [
       {
-        "metric": "新能源汽车销量",
-        "target": "稳步增长",
+        "metric": "动力电池产量",
+        "target": "有序增长",
         "timeline": "2026年"
       }
     ],
@@ -3320,9 +3320,9 @@
     "strategic_level": "地方实施性",
     "strategic_desc": "结合地方产业实际，落实中央政策要求",
     "impact_segments": [
+      "回收",
       "新能源汽车",
-      "电池制造",
-      "回收"
+      "电池制造"
     ],
     "implementation": {
       "effective_date": "即日起",
@@ -3334,8 +3334,8 @@
         "山东美多"
       ],
       "segments": [
-        "新能源汽车",
         "电池制造",
+        "新能源汽车",
         "回收"
       ],
       "direction": "neutral",
@@ -3343,8 +3343,8 @@
     },
     "key_metrics": [
       {
-        "metric": "新能源汽车销量",
-        "target": "稳步增长",
+        "metric": "动力电池产量",
+        "target": "有序增长",
         "timeline": "2026年"
       }
     ],
@@ -3403,8 +3403,8 @@
     "strategic_level": "产业发展性",
     "strategic_desc": "推动产业链转型升级，提升产业核心竞争力",
     "impact_segments": [
-      "储能",
-      "回收"
+      "回收",
+      "储能"
     ],
     "implementation": {
       "effective_date": "即日起",
@@ -3485,8 +3485,8 @@
     "strategic_desc": "结合地方产业实际，落实中央政策要求",
     "impact_segments": [
       "新能源汽车",
-      "正极材料",
-      "电池制造"
+      "电池制造",
+      "正极材料"
     ],
     "implementation": {
       "effective_date": "2026年7月1日生效",
@@ -3499,8 +3499,8 @@
       ],
       "segments": [
         "磷酸铁锂",
-        "新能源汽车",
-        "电池制造"
+        "电池制造",
+        "新能源汽车"
       ],
       "direction": "neutral",
       "magnitude": "high"
@@ -3567,8 +3567,8 @@
     "strategic_level": "产业发展性",
     "strategic_desc": "推动产业链转型升级，提升产业核心竞争力",
     "impact_segments": [
-      "电池制造",
-      "回收"
+      "回收",
+      "电池制造"
     ],
     "implementation": {
       "effective_date": "即日起",
@@ -3807,9 +3807,9 @@
     "strategic_level": "地方实施性",
     "strategic_desc": "结合地方产业实际，落实中央政策要求",
     "impact_segments": [
+      "回收",
       "新能源汽车",
-      "电池制造",
-      "回收"
+      "电池制造"
     ],
     "implementation": {
       "effective_date": "2026年4月1日生效",
@@ -3821,8 +3821,8 @@
         "山东美多"
       ],
       "segments": [
-        "新能源汽车",
         "电池制造",
+        "新能源汽车",
         "回收"
       ],
       "direction": "neutral",
@@ -3830,8 +3830,8 @@
     },
     "key_metrics": [
       {
-        "metric": "新能源汽车销量",
-        "target": "稳步增长",
+        "metric": "动力电池产量",
+        "target": "有序增长",
         "timeline": "2026年"
       }
     ],
@@ -3890,8 +3890,8 @@
     "strategic_level": "产业发展性",
     "strategic_desc": "推动产业链转型升级，提升产业核心竞争力",
     "impact_segments": [
-      "电池制造",
-      "回收"
+      "回收",
+      "电池制造"
     ],
     "implementation": {
       "effective_date": "即日起",
@@ -4051,9 +4051,9 @@
     "strategic_level": "地方实施性",
     "strategic_desc": "结合地方产业实际，落实中央政策要求",
     "impact_segments": [
+      "回收",
       "新能源汽车",
-      "电池制造",
-      "回收"
+      "电池制造"
     ],
     "implementation": {
       "effective_date": "即日起",
@@ -4065,8 +4065,8 @@
         "山东美多"
       ],
       "segments": [
-        "新能源汽车",
         "电池制造",
+        "新能源汽车",
         "回收"
       ],
       "direction": "neutral",
@@ -4074,8 +4074,8 @@
     },
     "key_metrics": [
       {
-        "metric": "新能源汽车销量",
-        "target": "稳步增长",
+        "metric": "动力电池产量",
+        "target": "有序增长",
         "timeline": "2026年"
       }
     ],
@@ -4213,8 +4213,8 @@
     "strategic_level": "地方实施性",
     "strategic_desc": "结合地方产业实际，落实中央政策要求",
     "impact_segments": [
-      "电池制造",
-      "回收"
+      "回收",
+      "电池制造"
     ],
     "implementation": {
       "effective_date": "即日起",
@@ -4308,16 +4308,16 @@
         "山东美多"
       ],
       "segments": [
-        "新能源汽车",
-        "电池制造"
+        "电池制造",
+        "新能源汽车"
       ],
       "direction": "neutral",
       "magnitude": "medium"
     },
     "key_metrics": [
       {
-        "metric": "新能源汽车销量",
-        "target": "稳步增长",
+        "metric": "动力电池产量",
+        "target": "有序增长",
         "timeline": "2026年"
       }
     ],
