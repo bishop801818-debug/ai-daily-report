@@ -2,9 +2,9 @@
   "meta": {
     "description": "2026年至今累计涨跌幅",
     "data_source": "各产品源数据文件",
-    "update_time": "2026-07-17 11:58:59",
+    "update_time": "2026-07-20 11:58:00",
     "year": 2026,
-    "generated_at": "2026-07-17T11:58:59.944073",
+    "generated_at": "2026-07-20T11:58:00.287536",
     "generator_version": "20260612_v4"
   },
   "products": [
@@ -12,13 +12,13 @@
       "name": "碳酸锂期货",
       "unit": "元/吨",
       "start_date": "2026-01-05",
-      "end_date": "2026-07-16",
+      "end_date": "2026-07-17",
       "start_price": 129980.0,
-      "end_price": 150840.0,
-      "change": 20860.0,
-      "change_pct": 16.05,
+      "end_price": 149720.0,
+      "change": 19740.0,
+      "change_pct": 15.19,
       "direction": "up",
-      "data_points": 128,
+      "data_points": 129,
       "price_series": [
         {
           "date": "2026-01-05",
@@ -531,6 +531,10 @@
         {
           "date": "2026-07-16",
           "price": 150840.0
+        },
+        {
+          "date": "2026-07-17",
+          "price": 149720.0
         }
       ]
     },
@@ -1778,13 +1782,13 @@
       "name": "磷酸铁锂(动力型)",
       "unit": "元/吨",
       "start_date": "2026-01-06",
-      "end_date": "2026-07-16",
+      "end_date": "2026-07-17",
       "start_price": 44950,
-      "end_price": 58600,
-      "change": 13650,
-      "change_pct": 30.37,
+      "end_price": 58900,
+      "change": 13950,
+      "change_pct": 31.03,
       "direction": "up",
-      "data_points": 121,
+      "data_points": 122,
       "price_series": [
         {
           "date": "2026-01-06",
@@ -2269,6 +2273,10 @@
         {
           "date": "2026-07-16",
           "price": 58600
+        },
+        {
+          "date": "2026-07-17",
+          "price": 58900
         }
       ]
     },
@@ -3224,13 +3232,13 @@
       "name": "锂云母(2.0-2.5%)",
       "unit": "元/吨",
       "start_date": "2026-01-04",
-      "end_date": "2026-07-16",
+      "end_date": "2026-07-17",
       "start_price": 4100.0,
-      "end_price": 4310,
-      "change": 210.0,
-      "change_pct": 5.12,
+      "end_price": 4410,
+      "change": 310.0,
+      "change_pct": 7.56,
       "direction": "up",
-      "data_points": 92,
+      "data_points": 93,
       "price_series": [
         {
           "date": "2026-01-04",
@@ -3599,6 +3607,10 @@
         {
           "date": "2026-07-16",
           "price": 4310
+        },
+        {
+          "date": "2026-07-17",
+          "price": 4410
         }
       ]
     }
