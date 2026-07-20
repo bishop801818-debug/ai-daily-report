@@ -35,6 +35,10 @@
 # 排除大文件（>5MB，妙搭限制）
 embedded/inline_02.js
 
+# 根目录大体积嵌入式数据（由 step15 经 GitHub API 单独同步，不纳入 git 跟踪）
+# 注意：仅根目录 /*_embedded_data.js；embedded/*_embedded_data.js 仍由 git 跟踪（step15 不同步）
+/*_embedded_data.js
+
 # 工具脚本（已使用，不需要跟踪）
 batch_optimize.py
 check_large_files.py
