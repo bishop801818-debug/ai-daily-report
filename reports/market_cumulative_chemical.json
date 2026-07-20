@@ -2,9 +2,9 @@
   "meta": {
     "description": "化工板块2026年累计涨跌幅",
     "data_source": "各产品源数据文件",
-    "update_time": "2026-07-20 11:57:47",
+    "update_time": "2026-07-20 16:56:47",
     "year": 2026,
-    "generated_at": "2026-07-20T11:57:47.764949",
+    "generated_at": "2026-07-20T16:56:47.547388",
     "generator_version": "20260616_v2"
   },
   "products": [
@@ -12,13 +12,13 @@
       "name": "尿素期货",
       "unit": "元/吨",
       "start_date": "2026-01-05",
-      "end_date": "2026-07-17",
+      "end_date": "2026-07-20",
       "start_price": 1768.0,
-      "end_price": 1687.0,
-      "change": -81.0,
-      "change_pct": -4.58,
+      "end_price": 1720.0,
+      "change": -48.0,
+      "change_pct": -2.71,
       "direction": "down",
-      "data_points": 129,
+      "data_points": 130,
       "price_series": [
         {
           "date": "2026-01-05",
@@ -535,6 +535,10 @@
         {
           "date": "2026-07-17",
           "price": 1687.0
+        },
+        {
+          "date": "2026-07-20",
+          "price": 1720.0
         }
       ]
     },
@@ -544,9 +548,9 @@
       "start_date": "2026-01-02",
       "end_date": "2026-07-20",
       "start_price": 57.32,
-      "end_price": 83.61,
-      "change": 26.29,
-      "change_pct": 45.87,
+      "end_price": 81.36,
+      "change": 24.04,
+      "change_pct": 41.94,
       "direction": "up",
       "data_points": 141,
       "price_series": [
@@ -1112,7 +1116,7 @@
         },
         {
           "date": "2026-07-20",
-          "price": 83.61
+          "price": 81.36
         }
       ]
     },
@@ -1120,13 +1124,13 @@
       "name": "乙二醇",
       "unit": "元/吨",
       "start_date": "2026-01-05",
-      "end_date": "2026-07-17",
+      "end_date": "2026-07-20",
       "start_price": 3732.0,
-      "end_price": 4613.0,
-      "change": 881.0,
-      "change_pct": 23.61,
+      "end_price": 4785.0,
+      "change": 1053.0,
+      "change_pct": 28.22,
       "direction": "up",
-      "data_points": 129,
+      "data_points": 130,
       "price_series": [
         {
           "date": "2026-01-05",
@@ -1643,6 +1647,10 @@
         {
           "date": "2026-07-17",
           "price": 4613.0
+        },
+        {
+          "date": "2026-07-20",
+          "price": 4785.0
         }
       ]
     }
