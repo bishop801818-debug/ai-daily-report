@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>可视化看板 - 三元材料数据库</title>
     <meta name="html-version" content="20260530a">
-    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
-    <script src="ternary_embedded_data.js?v=20260630"></script>
+    <script src="./echarts.min.js"></script>
+    <script src="ternary_embedded_data.js?v=20260721"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Microsoft YaHei', sans-serif; background: #f5f5f5; }
@@ -981,11 +981,13 @@ window.addEventListener('resize', function() {
   }
 
   function _fetchVer(cb) {
-    var s = document.createElement('script');
-    s.src = _js + '?t=' + Date.now();
-    s.onload = function() { cb(_readVer()); s.remove(); };
-    s.onerror = function() { cb(null); s.remove(); };
-    document.head.appendChild(s);
+    fetch(_js + '?t=' + Date.now())
+      .then(function(r) { return r.text(); })
+      .then(function(txt) {
+        var m = txt.match(/update_time\s*=\s*['"]([^'"]+)['"]/);
+        cb(m ? m[1] : null);
+      })
+      .catch(function() { cb(null); });
   }
 
   function _showBanner() {

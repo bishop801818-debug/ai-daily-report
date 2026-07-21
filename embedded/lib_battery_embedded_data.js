@@ -1,5 +1,5 @@
 const EMBEDDED_DATA = {
-  "update_time": "2026-07-21 07:41:52",
+  "update_time": "2026-07-21 17:22:32",
   "source": "lib_battery_all_data.json",
   "tables": [
     {
