@@ -2513,8 +2513,8 @@ var __domContentLoadedCallbacks = [];
                         if (batTable && batTable.data && batTable.data.length > 0) {
                             const byMonth = {};
                             batTable.data.forEach(r => {
-                                const month = (r['当前日期'] || '').substring(0, 7);
-                                if (!byMonth[month] || r['当前日期'] > byMonth[month]['当前日期']) byMonth[month] = r;
+                                const month = (r['日期'] || '').substring(0, 7);
+                                if (!byMonth[month] || r['日期'] > byMonth[month]['日期']) byMonth[month] = r;
                             });
                             const months = Object.keys(byMonth).sort();
                             if (months.length >= 2) {
@@ -2527,8 +2527,8 @@ var __domContentLoadedCallbacks = [];
                                     price: latestVal * 10000,
                                     change_pct: parseFloat(mom.toFixed(2)),
                                     unit: '元/吨',
-                                    date: (latest['当前日期'] || '').split(' ')[0],
-                                    prevDate: (prev['当前日期'] || '').split(' ')[0]
+                                    date: (latest['日期'] || '').split(' ')[0],
+                                    prevDate: (prev['日期'] || '').split(' ')[0]
                                 };
                                 console.log('[初始化] ✅ 锂电池数据加载成功: price=' + (latestVal * 10000) + ', mom=' + mom + '%');
                             }

@@ -174,7 +174,9 @@
             const sorted = [...industryTotal].sort((a, b) => String(b['日期']||'').localeCompare(a['日期']||''));
             const latest = sorted[0];
             document.getElementById('statTotalOutput').innerHTML = (parseFloat(latest['产量（GWh）']) || 0).toFixed(2) + '<span class="unit">GWh</span>';
-            document.getElementById('statUtilization').innerHTML = (latest['产能利用率'] || '-').replace('%', '') + '<span class="unit">%</span>';
+            var util = latest['产能利用率'];
+            var utilDisplay = (typeof util === 'number') ? (util * 100).toFixed(2) : String(util || '-').replace('%', '');
+            document.getElementById('statUtilization').innerHTML = utilDisplay + '<span class="unit">%</span>';
         }
 
         // TOP1企业产量
@@ -239,7 +241,11 @@
         const months = sorted.map(d => getYearMonth(d['日期']));
         const output = sorted.map(d => parseFloat(d['产量（GWh）']) || 0);
         const capacity = sorted.map(d => parseFloat(d['产能（GWh）']) || 0);
-        const utilization = sorted.map(d => parseFloat(String(d['产能利用率']||'0').replace('%','')) || 0);
+        const utilization = sorted.map(d => {
+            var v = d['产能利用率'];
+            if (typeof v === 'number') return parseFloat((v * 100).toFixed(2));
+            return parseFloat(String(v||'0').replace('%','')) || 0;
+        });
         return { months, output, capacity, utilization };
     }
 
