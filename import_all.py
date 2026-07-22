@@ -48,11 +48,16 @@ def sort_records(records, date_key="日期"):
     def key(r):
         for k in [date_key, "当前日期", "时间", "月份", "数据年月"]:
             v = r.get(k, "") or ""
-            s = str(v)[:10]
-            try: return dt.strptime(s, "%Y-%m-%d")
+            s = str(v)
+            # 标准 YYYY-MM-DD 格式
+            try: return dt.strptime(s[:10], "%Y-%m-%d")
             except: pass
-            m = re.match(r"(\d{4})-(\d{2})", s)
+            # YYYY-MM 格式
+            m = re.match(r"(\d{4})-(\d{2})", s[:7])
             if m: return dt(int(m.group(1)), int(m.group(2)), 1)
+            # 中文年累格式：2026年1-6月 / 2026年1-12月
+            m2 = re.match(r"(\d{4})年\d+-(\d{1,2})月", s)
+            if m2: return dt(int(m2.group(1)), int(m2.group(2)), 1)
         return dt.min
     return sorted(records, key=key, reverse=True)
 
@@ -80,20 +85,19 @@ def read_sheet(ws):
                 obj[headers[i]] = clean_val(val)
         if obj: records.append(obj)
     for r in records:
+        # 月份字段不做 fmt_date，在下面单独处理（clean_val 会把 datetime 转成 YYYY-MM-DD HH:MM:SS）
         for k in ["日期", "当前日期", "时间", "数据年月"]:
             if k in r and r[k]: r[k] = fmt_date(r[k])
-        for k in ["月份"]:
-            if k in r and r[k]:
+        # 处理月份（clean_val 已把 datetime 转成 YYYY-MM-DD HH:MM:SS，需截断）
+        for k in list(r.keys()):
+            if k.strip() == "月份":
                 v = r[k]
-                if isinstance(v, dt):
+                # clean_val 已将 datetime 转为 "YYYY-MM-DD 00:00:00"，截断前10位
+                if isinstance(v, str) and len(str(v)) >= 10:
+                    r[k] = str(v)[:7]   # "2026-06-01 00:00:00" → "2026-06"
+                elif isinstance(v, dt):
                     r[k] = v.strftime("%Y-%m")
-                elif str(v).isdigit() and len(str(v)) >= 6:
-                    # 纯数字格式如 202606 或 20260601 → 取前6位
-                    r[k] = str(v)[:6]
-                elif re.match(r'^\d{4}-\d{2}$', str(v)):
-                    # YYYY-MM 格式
-                    r[k] = str(v)
-                # 中文格式如 "2026年1-6月" 或 "2026年6月" → 保持原样
+                # 中文格式如 "2026年1-6月" / "2026年6月" → 保持原样（不需要处理）
 
     return sort_records(records)
 
