@@ -2,9 +2,9 @@
   "meta": {
     "description": "2026年至今累计涨跌幅",
     "data_source": "各产品源数据文件",
-    "update_time": "2026-07-21 11:57:36",
+    "update_time": "2026-07-22 11:59:47",
     "year": 2026,
-    "generated_at": "2026-07-21T11:57:36.120653",
+    "generated_at": "2026-07-22T11:59:47.501631",
     "generator_version": "20260612_v4"
   },
   "products": [
@@ -12,13 +12,13 @@
       "name": "碳酸锂期货",
       "unit": "元/吨",
       "start_date": "2026-01-05",
-      "end_date": "2026-07-20",
+      "end_date": "2026-07-21",
       "start_price": 129980.0,
-      "end_price": 143820.0,
-      "change": 13840.0,
-      "change_pct": 10.65,
+      "end_price": 141340.0,
+      "change": 11360.0,
+      "change_pct": 8.74,
       "direction": "up",
-      "data_points": 130,
+      "data_points": 131,
       "price_series": [
         {
           "date": "2026-01-05",
@@ -539,6 +539,10 @@
         {
           "date": "2026-07-20",
           "price": 143820.0
+        },
+        {
+          "date": "2026-07-21",
+          "price": 141340.0
         }
       ]
     },
