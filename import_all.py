@@ -85,8 +85,16 @@ def read_sheet(ws):
         for k in ["月份"]:
             if k in r and r[k]:
                 v = r[k]
-                r[k] = (v.strftime("%Y-%m") if isinstance(v, dt)
-                        else v[:7] if len(str(v)) > 7 else v)
+                if isinstance(v, dt):
+                    r[k] = v.strftime("%Y-%m")
+                elif str(v).isdigit() and len(str(v)) >= 6:
+                    # 纯数字格式如 202606 或 20260601 → 取前6位
+                    r[k] = str(v)[:6]
+                elif re.match(r'^\d{4}-\d{2}$', str(v)):
+                    # YYYY-MM 格式
+                    r[k] = str(v)
+                # 中文格式如 "2026年1-6月" 或 "2026年6月" → 保持原样
+
     return sort_records(records)
 
 def read_density_sheet(ws):
@@ -224,7 +232,7 @@ CONFIGS = {
 
     "electrolyte": {
         "label": "🧪 电解液",
-        "excel": os.path.join(DL, "电解液行业数据库 (2).xlsx"),
+        "excel": os.path.join(DL, "电解液行业数据库.xlsx"),
         "output": os.path.join(BASE, "electrolyte_embedded_data.js"),
         "source": "电解液行业数据库.xlsx",
         "sheets": [
