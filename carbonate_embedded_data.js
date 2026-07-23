@@ -1,5 +1,5 @@
 const EMBEDDED_DATA = {
-  "update_time": "2026-07-21 17:22:32",
+  "update_time": "2026-07-23 13:56:35",
   "source": "carbonate_all_data.json",
   "tables": [
     {
