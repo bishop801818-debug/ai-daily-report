@@ -7,8 +7,8 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <meta name="html-version" content="20260722c">
-    <script src="electrolyte_embedded_data.js?v=20260722"></script>
+    <meta name="html-version" content="20260722f">
+    <script src="electrolyte_embedded_data.js?v=20260722c"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         ::-webkit-scrollbar { width: 6px; height: 6px; }
@@ -135,7 +135,7 @@
         .nav-btn-db { background: linear-gradient(135deg, #667eea, #764ba2); color: white; }
         .nav-btn-viz { background: linear-gradient(135deg, #11998e, #38ef7d); color: white; }
 
-        .content-section { display: none; animation: fadeIn 0.3s ease; }
+        .content-section { display: none; animation: fadeIn 0.3s ease; flex: none !important; width: 100% !important; box-sizing: border-box; }
         .content-section.active { display: block; }
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
@@ -227,7 +227,7 @@
 
 
             <div class="nav-section-title">📊 电解液产量</div>
-            <div class="nav-item" onclick="switchNav('电解液产量-全企业', this)">
+            <div class="nav-item" onclick="switchNav('电解液-行业整体产量', this)">
                 <div class="nav-item-icon">📊</div>
                 <span class="nav-item-text">电解液-行业整体产量</span>
             </div>
@@ -235,11 +235,11 @@
                 <div class="nav-item-icon">🏭</div>
                 <span class="nav-item-text">电解液-分企业产量横向</span>
             </div>
-            <div class="nav-item" onclick="switchNav('电解液产量-top15', this)">
+            <div class="nav-item" onclick="switchNav('电解液-top15排名', this)">
                 <div class="nav-item-icon">🏆</div>
                 <span class="nav-item-text">电解液-top15排名</span>
             </div>
-            <div class="nav-item" onclick="switchNav('电解液产量年累-top15', this)">
+            <div class="nav-item" onclick="switchNav('电解液年累-top15', this)">
                 <div class="nav-item-icon">📈</div>
                 <span class="nav-item-text">电解液-top15年累排名</span>
             </div>
@@ -277,13 +277,13 @@
                 <div class="nav-item-icon">⚡</div>
                 <span class="nav-item-text">高压电解液4.35V</span>
             </div>
-            <div class="nav-item" onclick="switchNav('电解液价格-分企业', this)">
+            <div class="nav-item" onclick="switchNav('电解液价格-分企业横向', this)">
                 <div class="nav-item-icon">💵</div>
                 <span class="nav-item-text">电解液-价格分企业</span>
             </div>
 
             <div class="nav-section-title">⚗️ 六氟磷酸锂</div>
-            <div class="nav-item" onclick="switchNav('六氟产量-全行业', this)">
+            <div class="nav-item" onclick="switchNav('六氟磷酸锂-行业总产量', this)">
                 <div class="nav-item-icon">⚗️</div>
                 <span class="nav-item-text">六氟-行业整体产量</span>
             </div>
@@ -291,15 +291,15 @@
                 <div class="nav-item-icon">🏭</div>
                 <span class="nav-item-text">六氟-分企业产量</span>
             </div>
-            <div class="nav-item" onclick="switchNav('六氟产量-top15', this)">
+            <div class="nav-item" onclick="switchNav('六氟-top15排名', this)">
                 <div class="nav-item-icon">🏆</div>
                 <span class="nav-item-text">六氟-top15排名</span>
             </div>
-            <div class="nav-item" onclick="switchNav('六氟产量年累-top15', this)">
+            <div class="nav-item" onclick="switchNav('六氟年累-top15', this)">
                 <div class="nav-item-icon">📈</div>
                 <span class="nav-item-text">六氟-top15年累</span>
             </div>
-            <div class="nav-item" onclick="switchNav('溶质价格-六氟主流市场', this)">
+            <div class="nav-item" onclick="switchNav('六氟磷酸锂价格-主流市场', this)">
                 <div class="nav-item-icon">💰</div>
                 <span class="nav-item-text">六氟-主流市场价格</span>
             </div>
@@ -307,15 +307,15 @@
                 <div class="nav-item-icon">💰</div>
                 <span class="nav-item-text">六氟-出口价格</span>
             </div>
-            <div class="nav-item" onclick="switchNav('溶质价格-LiFSI-固态', this)">
+            <div class="nav-item" onclick="switchNav('LiFSI价格-固态', this)">
                 <div class="nav-item-icon">💰</div>
                 <span class="nav-item-text">LiFSI-固态价格</span>
             </div>
-            <div class="nav-item" onclick="switchNav('溶质价格-LiFSI-液态', this)">
+            <div class="nav-item" onclick="switchNav('LiFSI价格-液态', this)">
                 <div class="nav-item-icon">💰</div>
                 <span class="nav-item-text">LiFSI-液态价格</span>
             </div>
-            <div class="nav-item" onclick="switchNav('六氟-出口', this)">
+            <div class="nav-item" onclick="switchNav('六氟磷酸锂出口-总量', this)">
                 <div class="nav-item-icon">🚢</div>
                 <span class="nav-item-text">六氟-出口总量</span>
             </div>
@@ -325,23 +325,23 @@
             </div>
 
             <div class="nav-section-title">🧬 添加剂</div>
-            <div class="nav-item" onclick="switchNav('添加剂-产量-VC', this)">
+            <div class="nav-item" onclick="switchNav('添加剂VC-产量', this)">
                 <div class="nav-item-icon">🧬</div>
                 <span class="nav-item-text">VC-行业产量</span>
             </div>
-            <div class="nav-item" onclick="switchNav('添加剂-产量-FEC', this)">
+            <div class="nav-item" onclick="switchNav('添加剂FEC-产量', this)">
                 <div class="nav-item-icon">🧬</div>
                 <span class="nav-item-text">FEC-行业产量</span>
             </div>
-            <div class="nav-item" onclick="switchNav('添加剂-价格-VC', this)">
+            <div class="nav-item" onclick="switchNav('添加剂VC-价格', this)">
                 <div class="nav-item-icon">💰</div>
                 <span class="nav-item-text">VC-市场价格</span>
             </div>
-            <div class="nav-item" onclick="switchNav('添加剂-价格-PS', this)">
+            <div class="nav-item" onclick="switchNav('添加剂PS-价格', this)">
                 <div class="nav-item-icon">💰</div>
                 <span class="nav-item-text">PS-市场价格</span>
             </div>
-            <div class="nav-item" onclick="switchNav('添加剂-价格-FEC', this)">
+            <div class="nav-item" onclick="switchNav('添加剂FEC-价格', this)">
                 <div class="nav-item-icon">💰</div>
                 <span class="nav-item-text">FEC-市场价格</span>
             </div>
@@ -390,36 +390,30 @@
                 </div>
             </div>
         </div>
-        <div class="content-section"         <div class="content-section" id="content-电解液-top15排名">
+        <div class="content-section" id="content-电解液-top15排名">
             <div class="data-card">
                 <div class="data-card-header">
                     <div class="data-card-title">电解液-top15月度排名 - 最新月份</div>
-                    <span>2026年5月</span>
+                    <span>2026年6月</span>
                 </div>
                 <div class="table-container">
                 <table class="data-table">
-                    <tbody><tr><td><span class='rank-badge top3'>1</span></td><td>广州天赐</td><td>84,500</td><td>4.3%</td><td>42.0%</td><td>0.8973</td><td>94167</td></tr><tr><td><span class='rank-badge top3'>2</span></td><td>新宙邦</td><td>43,500</td><td>13.9%</td><td>45.0%</td><td>0.8447</td><td>51500</td></tr><tr><td><span class='rank-badge top3'>3</span></td><td>比亚迪</td><td>29,000</td><td>5.5%</td><td>70.6%</td><td>0.7296</td><td>39750</td></tr><tr><td><span class='rank-badge top5'>4</span></td><td>石大胜华</td><td>16,000</td><td>11.9%</td><td>60.0%</td><td>0.384</td><td>41667</td></tr><tr><td><span class='rank-badge top5'>5</span></td><td>珠海赛纬</td><td>15,500</td><td>10.7%</td><td>55.0%</td><td>0.5239</td><td>29583</td></tr><tr><td><span class='rank-badge '>6</span></td><td>永太科技</td><td>15,000</td><td>3.4%</td><td>50.0%</td><td>1.2</td><td>12500</td></tr><tr><td><span class='rank-badge '>7</span></td><td>香河昆仑</td><td>14,500</td><td>3.6%</td><td>70.6%</td><td>0.9667</td><td>15000</td></tr><tr><td><span class='rank-badge '>8</span></td><td>中化蓝天</td><td>12,500</td><td>4.2%</td><td>66.7%</td><td>0.6</td><td>20833</td></tr><tr><td><span class='rank-badge '>9</span></td><td>威海财金</td><td>8,000</td><td>11.1%</td><td>60.0%</td><td>0.48</td><td>16667</td></tr><tr><td><span class='rank-badge '>10</span></td><td>肥东国轩</td><td>6,800</td><td>3.0%</td><td>51.1%</td><td>0.816</td><td>8333</td></tr><tr><td><span class='rank-badge '>11</span></td><td>瑞泰新材</td><td>6,500</td><td>1.6%</td><td>62.5%</td><td>0.1393</td><td>46667</td></tr><tr><td><span class='rank-badge '>12</span></td><td>法恩莱特</td><td>5,500</td><td>0.0%</td><td>57.1%</td><td>0.1886</td><td>29167</td></tr><tr><td><span class='rank-badge '>13</span></td><td>金光高科</td><td>4,000</td><td>0.0%</td><td>33.3%</td><td>0.7384</td><td>5417</td></tr><tr><td><span class='rank-badge '>14</span></td><td>航盛锂能</td><td>3,900</td><td>1.3%</td><td>56.0%</td><td>0.39</td><td>10000</td></tr><tr><td><span class='rank-badge '>15</span></td><td>联化科技</td><td>3,200</td><td>28.0%</td><td>60.0%</td><td>0.384</td><td>8333</td></tr></tbody>
-                </table>
-                <table class="data-table">
                     <thead><tr><th>序号</th><th>厂家/企业</th><th>当期产量</th><th>产量环比</th><th>产量同比</th><th>产能利用率</th><th>当期产能</th></tr></thead>
-                    <tbody><tr><td><span class='rank-badge top3'>1</span></td><td>广州天赐</td><td>84,500</td><td>4.3%</td><td>42.0%</td><td>0.8973</td><td>94167</td></tr><tr><td><span class='rank-badge top3'>2</span></td><td>新宙邦</td><td>43,500</td><td>13.9%</td><td>45.0%</td><td>0.8447</td><td>51500</td></tr><tr><td><span class='rank-badge top3'>3</span></td><td>比亚迪</td><td>29,000</td><td>5.5%</td><td>70.6%</td><td>0.7296</td><td>39750</td></tr><tr><td><span class='rank-badge top5'>4</span></td><td>石大胜华</td><td>16,000</td><td>11.9%</td><td>60.0%</td><td>0.384</td><td>41667</td></tr><tr><td><span class='rank-badge top5'>5</span></td><td>珠海赛纬</td><td>15,500</td><td>10.7%</td><td>55.0%</td><td>0.5239</td><td>29583</td></tr><tr><td><span class='rank-badge '>6</span></td><td>永太科技</td><td>15,000</td><td>3.4%</td><td>50.0%</td><td>1.2</td><td>12500</td></tr><tr><td><span class='rank-badge '>7</span></td><td>香河昆仑</td><td>14,500</td><td>3.6%</td><td>70.6%</td><td>0.9667</td><td>15000</td></tr><tr><td><span class='rank-badge '>8</span></td><td>中化蓝天</td><td>12,500</td><td>4.2%</td><td>66.7%</td><td>0.6</td><td>20833</td></tr><tr><td><span class='rank-badge '>9</span></td><td>威海财金</td><td>8,000</td><td>11.1%</td><td>60.0%</td><td>0.48</td><td>16667</td></tr><tr><td><span class='rank-badge '>10</span></td><td>肥东国轩</td><td>6,800</td><td>3.0%</td><td>51.1%</td><td>0.816</td><td>8333</td></tr><tr><td><span class='rank-badge '>11</span></td><td>瑞泰新材</td><td>6,500</td><td>1.6%</td><td>62.5%</td><td>0.1393</td><td>46667</td></tr><tr><td><span class='rank-badge '>12</span></td><td>法恩莱特</td><td>5,500</td><td>0.0%</td><td>57.1%</td><td>0.1886</td><td>29167</td></tr><tr><td><span class='rank-badge '>13</span></td><td>金光高科</td><td>4,000</td><td>0.0%</td><td>33.3%</td><td>0.7384</td><td>5417</td></tr><tr><td><span class='rank-badge '>14</span></td><td>航盛锂能</td><td>3,900</td><td>1.3%</td><td>56.0%</td><td>0.39</td><td>10000</td></tr><tr><td><span class='rank-badge '>15</span></td><td>联化科技</td><td>3,200</td><td>28.0%</td><td>60.0%</td><td>0.384</td><td>8333</td></tr></tbody>
+                    <tbody></tbody>
                 </table>
                 </div>
             </div>
         </div>
-<div class="content-section"         <div class="content-section" id="content-电解液年累-top15">
+<div class="content-section" id="content-电解液年累-top15">
             <div class="data-card">
                 <div class="data-card-header">
                     <div class="data-card-title">电解液-top15年累排名 - 最新月份</div>
-                    <span>2026年1-5月</span>
+                    <span>2026年1-6月</span>
                 </div>
                 <div class="table-container">
                 <table class="data-table">
-                    <tbody><tr><td><span class='rank-badge top3'>1</span></td><td>广州天赐</td><td>382,500</td><td>61.2%</td><td>87%</td><td>437,501</td></tr><tr><td><span class='rank-badge top3'>2</span></td><td>新宙邦</td><td>171,000</td><td>56.9%</td><td>83%</td><td>205,666</td></tr><tr><td><span class='rank-badge top3'>3</span></td><td>比亚迪</td><td>128,000</td><td>8.0%</td><td>69%</td><td>185,000</td></tr><tr><td><span class='rank-badge top5'>4</span></td><td>石大胜华</td><td>69,500</td><td>79.6%</td><td>38%</td><td>180,668</td></tr><tr><td><span class='rank-badge top5'>5</span></td><td>香河昆仑</td><td>61,400</td><td>71.1%</td><td>84%</td><td>73,000</td></tr><tr><td><span class='rank-badge '>6</span></td><td>珠海赛纬</td><td>61,400</td><td>65.9%</td><td>53%</td><td>115,166</td></tr><tr><td><span class='rank-badge '>7</span></td><td>永太科技</td><td>53,300</td><td>56.3%</td><td>87%</td><td>61,000</td></tr><tr><td><span class='rank-badge '>8</span></td><td>中化蓝天</td><td>52,200</td><td>89.1%</td><td>56%</td><td>93,332</td></tr><tr><td><span class='rank-badge '>9</span></td><td>威海财金</td><td>30,200</td><td>20.3%</td><td>53%</td><td>57,000</td></tr><tr><td><span class='rank-badge '>10</span></td><td>肥东国轩</td><td>29,500</td><td>90.3%</td><td>75%</td><td>39,332</td></tr><tr><td><span class='rank-badge '>11</span></td><td>瑞泰新材</td><td>24,400</td><td>/</td><td>13%</td><td>181,668</td></tr><tr><td><span class='rank-badge '>12</span></td><td>法恩莱特</td><td>23,300</td><td>40.0%</td><td>19%</td><td>121,668</td></tr><tr><td><span class='rank-badge '>13</span></td><td>联化科技</td><td>20,400</td><td>/</td><td>53%</td><td>38,332</td></tr><tr><td><span class='rank-badge '>14</span></td><td>航盛锂能</td><td>16,300</td><td>41.8%</td><td>55%</td><td>29,700</td></tr><tr><td><span class='rank-badge '>15</span></td><td>金光高科</td><td>10,800</td><td>61.2%</td><td>47%</td><td>23,168</td></tr></tbody>
-                </table>
-                <table class="data-table">
                     <thead><tr><th>序号</th><th>厂家/企业</th><th>YTD产量</th><th>产量同比</th><th>产能利用率</th><th>YTD产能</th></tr></thead>
-                    <tbody><tr><td><span class='rank-badge top3'>1</span></td><td>广州天赐</td><td>382,500</td><td>61.2%</td><td>87%</td><td>437,501</td></tr><tr><td><span class='rank-badge top3'>2</span></td><td>新宙邦</td><td>171,000</td><td>56.9%</td><td>83%</td><td>205,666</td></tr><tr><td><span class='rank-badge top3'>3</span></td><td>比亚迪</td><td>128,000</td><td>8.0%</td><td>69%</td><td>185,000</td></tr><tr><td><span class='rank-badge top5'>4</span></td><td>石大胜华</td><td>69,500</td><td>79.6%</td><td>38%</td><td>180,668</td></tr><tr><td><span class='rank-badge top5'>5</span></td><td>香河昆仑</td><td>61,400</td><td>71.1%</td><td>84%</td><td>73,000</td></tr><tr><td><span class='rank-badge '>6</span></td><td>珠海赛纬</td><td>61,400</td><td>65.9%</td><td>53%</td><td>115,166</td></tr><tr><td><span class='rank-badge '>7</span></td><td>永太科技</td><td>53,300</td><td>56.3%</td><td>87%</td><td>61,000</td></tr><tr><td><span class='rank-badge '>8</span></td><td>中化蓝天</td><td>52,200</td><td>89.1%</td><td>56%</td><td>93,332</td></tr><tr><td><span class='rank-badge '>9</span></td><td>威海财金</td><td>30,200</td><td>20.3%</td><td>53%</td><td>57,000</td></tr><tr><td><span class='rank-badge '>10</span></td><td>肥东国轩</td><td>29,500</td><td>90.3%</td><td>75%</td><td>39,332</td></tr><tr><td><span class='rank-badge '>11</span></td><td>瑞泰新材</td><td>24,400</td><td>/</td><td>13%</td><td>181,668</td></tr><tr><td><span class='rank-badge '>12</span></td><td>法恩莱特</td><td>23,300</td><td>40.0%</td><td>19%</td><td>121,668</td></tr><tr><td><span class='rank-badge '>13</span></td><td>联化科技</td><td>20,400</td><td>/</td><td>53%</td><td>38,332</td></tr><tr><td><span class='rank-badge '>14</span></td><td>航盛锂能</td><td>16,300</td><td>41.8%</td><td>55%</td><td>29,700</td></tr><tr><td><span class='rank-badge '>15</span></td><td>金光高科</td><td>10,800</td><td>61.2%</td><td>47%</td><td>23,168</td></tr></tbody>
+                    <tbody></tbody>
                 </table>
                 </div>
             </div>
@@ -584,7 +578,7 @@
                 </div>
             </div>
         </div>
-        <div class="content-section"         <div class="content-section" id="content-六氟-top15排名">
+        <div class="content-section" id="content-六氟-top15排名">
             <div class="data-card">
                 <div class="data-card-header">
                     <div class="data-card-title">六氟-top15月度排名 - 最新月份</div>
@@ -592,16 +586,13 @@
                 </div>
                 <div class="table-container">
                 <table class="data-table">
-                    <tbody><tr><td><span class='rank-badge top3'>1</span></td><td>天赐材料</td><td>9000</td><td>+5.9%</td><td>+26.8%</td><td>98%</td><td>9167</td></tr><tr><td><span class='rank-badge top3'>2</span></td><td>多氟多</td><td>5000</td><td>+0.0%</td><td>+35.1%</td><td>92%</td><td>5417</td></tr><tr><td><span class='rank-badge top3'>3</span></td><td>新泰新材</td><td>4000</td><td>+2.6%</td><td>+150.0%</td><td>77%</td><td>5167</td></tr><tr><td><span class='rank-badge top5'>4</span></td><td>江西石磊</td><td>2600</td><td>+0.0%</td><td>+136.4%</td><td>87%</td><td>3000</td></tr><tr><td><span class='rank-badge top5'>5</span></td><td>石大胜华</td><td>1600</td><td>+6.7%</td><td>+60.0%</td><td>53%</td><td>3000</td></tr><tr><td><span class='rank-badge '>6</span></td><td>浙江永太</td><td>1500</td><td>+25.0%</td><td>+87.5%</td><td>100%</td><td>1500</td></tr><tr><td><span class='rank-badge '>7</span></td><td>宏源药业</td><td>1200</td><td>+0.0%</td><td>+50.0%</td><td>100%</td><td>1000</td></tr><tr><td><span class='rank-badge '>8</span></td><td>珠海赛纬</td><td>900</td><td>+0.0%</td><td>/</td><td>100%</td><td>833</td></tr><tr><td><span class='rank-badge '>9</span></td><td>中蓝宏源</td><td>900</td><td>+0.0%</td><td>+125.0%</td><td>100%</td><td>750</td></tr><tr><td><span class='rank-badge '>10</span></td><td>深圳新星</td><td>800</td><td>+14.3%</td><td>/</td><td>75%</td><td>1067</td></tr><tr><td><span class='rank-badge '>11</span></td><td>贵州磷化</td><td>800</td><td>+6.7%</td><td>+433.3%</td><td>96%</td><td>833</td></tr><tr><td><span class='rank-badge '>12</span></td><td>江苏必康</td><td>800</td><td>+0.0%</td><td>+100.0%</td><td>74%</td><td>1083</td></tr><tr><td><span class='rank-badge '>13</span></td><td>龙德</td><td>700</td><td>+0.0%</td><td>+600.0%</td><td>65%</td><td>1083</td></tr><tr><td><span class='rank-badge '>14</span></td><td>立中集团</td><td>600</td><td>/</td><td>/</td><td>72%</td><td>833</td></tr><tr><td><span class='rank-badge '>15</span></td><td>金光</td><td>400</td><td>+0.0%</td><td>/</td><td>96%</td><td>417</td></tr></tbody>
-                </table>
-                <table class="data-table">
                     <thead><tr><th>序号</th><th>厂家/企业</th><th>当期产量</th><th>产量环比</th><th>产量同比</th><th>产能利用率</th><th>当期产能</th></tr></thead>
-                    <tbody><tr><td><span class='rank-badge top3'>1</span></td><td>天赐材料</td><td>9000</td><td>+5.9%</td><td>+26.8%</td><td>98%</td><td>9167</td></tr><tr><td><span class='rank-badge top3'>2</span></td><td>多氟多</td><td>5000</td><td>+0.0%</td><td>+35.1%</td><td>92%</td><td>5417</td></tr><tr><td><span class='rank-badge top3'>3</span></td><td>新泰新材</td><td>4000</td><td>+2.6%</td><td>+150.0%</td><td>77%</td><td>5167</td></tr><tr><td><span class='rank-badge top5'>4</span></td><td>江西石磊</td><td>2600</td><td>+0.0%</td><td>+136.4%</td><td>87%</td><td>3000</td></tr><tr><td><span class='rank-badge top5'>5</span></td><td>石大胜华</td><td>1600</td><td>+6.7%</td><td>+60.0%</td><td>53%</td><td>3000</td></tr><tr><td><span class='rank-badge '>6</span></td><td>浙江永太</td><td>1500</td><td>+25.0%</td><td>+87.5%</td><td>100%</td><td>1500</td></tr><tr><td><span class='rank-badge '>7</span></td><td>宏源药业</td><td>1200</td><td>+0.0%</td><td>+50.0%</td><td>100%</td><td>1000</td></tr><tr><td><span class='rank-badge '>8</span></td><td>珠海赛纬</td><td>900</td><td>+0.0%</td><td>/</td><td>100%</td><td>833</td></tr><tr><td><span class='rank-badge '>9</span></td><td>中蓝宏源</td><td>900</td><td>+0.0%</td><td>+125.0%</td><td>100%</td><td>750</td></tr><tr><td><span class='rank-badge '>10</span></td><td>深圳新星</td><td>800</td><td>+14.3%</td><td>/</td><td>75%</td><td>1067</td></tr><tr><td><span class='rank-badge '>11</span></td><td>贵州磷化</td><td>800</td><td>+6.7%</td><td>+433.3%</td><td>96%</td><td>833</td></tr><tr><td><span class='rank-badge '>12</span></td><td>江苏必康</td><td>800</td><td>+0.0%</td><td>+100.0%</td><td>74%</td><td>1083</td></tr><tr><td><span class='rank-badge '>13</span></td><td>龙德</td><td>700</td><td>+0.0%</td><td>+600.0%</td><td>65%</td><td>1083</td></tr><tr><td><span class='rank-badge '>14</span></td><td>立中集团</td><td>600</td><td>/</td><td>/</td><td>72%</td><td>833</td></tr><tr><td><span class='rank-badge '>15</span></td><td>金光</td><td>400</td><td>+0.0%</td><td>/</td><td>96%</td><td>417</td></tr></tbody>
+                    <tbody></tbody>
                 </table>
                 </div>
             </div>
         </div>
-<div class="content-section"         <div class="content-section" id="content-六氟年累-top15">
+<div class="content-section" id="content-六氟年累-top15">
             <div class="data-card">
                 <div class="data-card-header">
                     <div class="data-card-title">六氟-top15年累排名 - 最新月份</div>
@@ -609,11 +600,8 @@
                 </div>
                 <div class="table-container">
                 <table class="data-table">
-                    <tbody><tr><td><span class='rank-badge top3'>1</span></td><td>天赐材料</td><td>47500</td><td>+6.7%</td><td>86%</td><td>55002</td></tr><tr><td><span class='rank-badge top3'>2</span></td><td>多氟多</td><td>27000</td><td>+13.9%</td><td>83%</td><td>32502</td></tr><tr><td><span class='rank-badge top3'>3</span></td><td>新泰新材</td><td>22600</td><td>+56.9%</td><td>91%</td><td>24752</td></tr><tr><td><span class='rank-badge top5'>4</span></td><td>江西石磊</td><td>13000</td><td>+97.0%</td><td>76%</td><td>17000</td></tr><tr><td><span class='rank-badge top5'>5</span></td><td>石大胜华</td><td>8800</td><td>+114.6%</td><td>49%</td><td>18000</td></tr><tr><td><span class='rank-badge '>6</span></td><td>宏源药业</td><td>6800</td><td>+81.3%</td><td>105%</td><td>6500</td></tr><tr><td><span class='rank-badge '>7</span></td><td>浙江永太</td><td>5900</td><td>+28.3%</td><td>66%</td><td>9000</td></tr><tr><td><span class='rank-badge '>8</span></td><td>江苏必康</td><td>4500</td><td>+36.4%</td><td>69%</td><td>6498</td></tr><tr><td><span class='rank-badge '>9</span></td><td>中蓝宏源</td><td>4200</td><td>+50.0%</td><td>93%</td><td>4500</td></tr><tr><td><span class='rank-badge '>10</span></td><td>龙德</td><td>4100</td><td>+327.1%</td><td>63%</td><td>6498</td></tr><tr><td><span class='rank-badge '>11</span></td><td>贵州磷化</td><td>4100</td><td>+141.2%</td><td>82%</td><td>4998</td></tr><tr><td><span class='rank-badge '>12</span></td><td>深圳新星</td><td>3450</td><td>/</td><td>85%</td><td>4066</td></tr><tr><td><span class='rank-badge '>13</span></td><td>金光</td><td>2350</td><td>/</td><td>94%</td><td>2502</td></tr><tr><td><span class='rank-badge '>14</span></td><td>珠海赛纬</td><td>1800</td><td>/</td><td>108%</td><td>1666</td></tr><tr><td><span class='rank-badge '>15</span></td><td>森田化工</td><td>1400</td><td>+55.6%</td><td>70%</td><td>2000</td></tr></tbody>
-                </table>
-                <table class="data-table">
                     <thead><tr><th>序号</th><th>厂家/企业</th><th>当期产量</th><th>产量同比</th><th>产能利用率</th><th>当期产能</th></tr></thead>
-                    <tbody><tr><td><span class='rank-badge top3'>1</span></td><td>天赐材料</td><td>47500</td><td>+6.7%</td><td>86%</td><td>55002</td></tr><tr><td><span class='rank-badge top3'>2</span></td><td>多氟多</td><td>27000</td><td>+13.9%</td><td>83%</td><td>32502</td></tr><tr><td><span class='rank-badge top3'>3</span></td><td>新泰新材</td><td>22600</td><td>+56.9%</td><td>91%</td><td>24752</td></tr><tr><td><span class='rank-badge top5'>4</span></td><td>江西石磊</td><td>13000</td><td>+97.0%</td><td>76%</td><td>17000</td></tr><tr><td><span class='rank-badge top5'>5</span></td><td>石大胜华</td><td>8800</td><td>+114.6%</td><td>49%</td><td>18000</td></tr><tr><td><span class='rank-badge '>6</span></td><td>宏源药业</td><td>6800</td><td>+81.3%</td><td>105%</td><td>6500</td></tr><tr><td><span class='rank-badge '>7</span></td><td>浙江永太</td><td>5900</td><td>+28.3%</td><td>66%</td><td>9000</td></tr><tr><td><span class='rank-badge '>8</span></td><td>江苏必康</td><td>4500</td><td>+36.4%</td><td>69%</td><td>6498</td></tr><tr><td><span class='rank-badge '>9</span></td><td>中蓝宏源</td><td>4200</td><td>+50.0%</td><td>93%</td><td>4500</td></tr><tr><td><span class='rank-badge '>10</span></td><td>龙德</td><td>4100</td><td>+327.1%</td><td>63%</td><td>6498</td></tr><tr><td><span class='rank-badge '>11</span></td><td>贵州磷化</td><td>4100</td><td>+141.2%</td><td>82%</td><td>4998</td></tr><tr><td><span class='rank-badge '>12</span></td><td>深圳新星</td><td>3450</td><td>/</td><td>85%</td><td>4066</td></tr><tr><td><span class='rank-badge '>13</span></td><td>金光</td><td>2350</td><td>/</td><td>94%</td><td>2502</td></tr><tr><td><span class='rank-badge '>14</span></td><td>珠海赛纬</td><td>1800</td><td>/</td><td>108%</td><td>1666</td></tr><tr><td><span class='rank-badge '>15</span></td><td>森田化工</td><td>1400</td><td>+55.6%</td><td>70%</td><td>2000</td></tr></tbody>
+                    <tbody></tbody>
                 </table>
                 </div>
             </div>
@@ -823,6 +811,15 @@
                 // YTD年累表列名与JSON一致，无需映射
             };
 
+            // top15/月度表：只取最新月份的行
+            function filterLatestMonth(data, tableName) {
+                if (!tableName.includes('top15') && !tableName.includes('年累')) return data;
+                const sorted = sortDesc(data);
+                const latestKey = sorted[0] ? (sorted[0]['月份'] || sorted[0]['数据年月']) : null;
+                if (!latestKey) return sorted;
+                return sorted.filter(r => (r['月份'] || r['数据年月']) === latestKey);
+            }
+
             // 日期格式化：兼容 YYYY-MM-DD、YYYY-MM、YYYYMM 三种格式
             function fmtDate(val, isMonth) {
                 if (!val) return '-';
@@ -861,10 +858,12 @@
                 const rawData = allData[tableName];
                 if (!rawData || rawData.length === 0) continue;
 
+                const displayData = filterLatestMonth(rawData, tableName);
+
                 if (tableName.includes('横向')) {
                     renderHorizontalTable(table, tbody, rawData);
                 } else {
-                    renderVerticalTable(table, tbody, rawData, tableName, fieldMap, fmtDate, sortDesc);
+                    renderVerticalTable(table, tbody, displayData, tableName, fieldMap, fmtDate, sortDesc);
                 }
             }
         }
