@@ -7,8 +7,8 @@
  *   - 用户第一次浏览时体验不变（走网络+缓存），后续访问全部从缓存秒开
  */
 
-const CACHE_NAME = 'ai-daily-v8';
-const CACHE_VERSION = '20260714v2';
+const CACHE_NAME = 'ai-daily-v9';
+const CACHE_VERSION = '20260724v1';
 
 /** 归一化 URL：移除缓存破坏参数 */
 function normalizeUrl(url) {
