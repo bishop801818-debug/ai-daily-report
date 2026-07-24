@@ -8,13 +8,13 @@
     <meta http-equiv="Expires" content="0">
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <!-- 资源预加载（仅保留首屏关键资源，大文件延迟加载） -->
-    <link rel="preload" href="inline_00.js" as="script">
     <link rel="preload" href="latest_data.js?v=20260724" as="script" type="application/javascript">
     <script defer src="assets/echarts.min.js"></script>
     <script defer src="electrolyte_data.js?v=20260724"></script>
-    <script defer src="recycling_data_v3.js?v=20260724"></script>
+    <script defer src="recycling_latest.js?v=20260724_002"></script>
     <script defer src="chemical_data.js?v=20260724"></script>
-    <script defer src="portal-bundle.js?v=20260724"></script>
+    <link rel="preload" href="portal-bundle.js?v=20260724_002" as="script">
+    <script defer src="portal-bundle.js?v=20260724_002"></script>
     <script defer src="recycling_gantt.js?v=20260724"></script>
     <script defer src="latest_data.js?v=20260724"></script>
 
@@ -5948,7 +5948,6 @@
             animation-delay: calc(var(--line-i, 0) * 0.1s);
         }
     </style>
-<script defer src="inline_02.js"></script>
 
     <!-- 页面加载动画 -->
     <div class="loading-overlay" id="loadingOverlay">
@@ -7099,8 +7098,6 @@
             </div>
         </div>
     </div>
-    
-    <script defer src="inline_03.js"></script>
 <!-- ===== 3D AI 龙蟠悬浮按钮 ===== -->
 <div class="ai-float-wrap" id="aiFloatWrap" style="display:none !important;">
     <div class="ai-sphere" id="aiSphere">
@@ -7126,8 +7123,6 @@
     </svg>
 </div>
 
-<script defer src="inline_04.js"></script>
-
 </body>
 </html>
 <div id="aiChatDialog">
@@ -7152,16 +7147,6 @@
         <button class="ai-dialog-send" id="aiChatSend" title="发送">➤</button>
     </div>
 </div>
-
-<script defer src="inline_05.js"></script>
-
-    <script defer src="inline_06.js"></script>
-
-    <script defer src="inline_07.js"></script>
-
-    <script defer src="inline_08.js"></script>
-
-    <script defer src="inline_09.js"></script>
 
 
     <script src="assets/ai_fab_inject.js?v=20260724"></script>
