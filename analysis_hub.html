@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>分析报告 - 龙蟠行业数据库</title>
-    <meta name="html-version" content="20260715_001">
+    <meta name="html-version" content="20260723_002">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         ::-webkit-scrollbar { width: 6px; height: 6px; }
@@ -138,32 +138,41 @@
             border-radius: 8px;
         }
         .db-card .btn-report:hover { background: #0d7a4a; }
-        .db-card .btn-month {
-            background: #064e3b;
-            color: #fff;
-            border: none;
-            border-left: 1px solid rgba(255,255,255,0.3);
-            border-radius: 0 8px 8px 0;
-            padding: 0 10px;
-            font-size: 12px;
-            cursor: pointer;
-            min-width: 32px;
-            transition: all 0.2s;
-            font-family: inherit;
+        .db-card .btn-month-wrap {
+            flex: 1;
+            display: flex;
+            align-items: stretch;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid rgba(6, 78, 59, 0.2);
         }
-        .db-card .btn-month:hover { background: #0d7a4a; }
-        .db-card .btn-month optgroup { font-weight: 600; color: #333; }
-        .db-card .btn-month option { padding: 4px 8px; }
-        .db-card .btn-data {
+        .db-card .btn-month-label {
             background: #f0f4ff;
             color: #064e3b;
+            font-size: 13px;
+            font-weight: 600;
+            padding: 10px 12px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            white-space: nowrap;
         }
-        .db-card .btn-data:hover { background: #e0e8ff; }
-        .db-card .btn-chart {
-            background: #f5f5f5;
-            color: #666;
+        .db-card .btn-month-select {
+            background: #f0f4ff;
+            border: none;
+            border-left: 1px solid rgba(6, 78, 59, 0.15);
+            border-radius: 0;
+            padding: 10px 8px;
+            font-size: 12px;
+            color: #064e3b;
+            cursor: pointer;
+            min-width: 80px;
+            font-family: inherit;
+            outline: none;
         }
-        .db-card .btn-chart:hover { background: #eee; }
+        .db-card .btn-month-select:focus {
+            background: #e8f0ff;
+        }
         .db-card .btn.disabled {
             opacity: 0.4;
             cursor: not-allowed;
@@ -303,7 +312,8 @@ const REPORT_LIST = [
         desc: '电解液及六氟磷酸锂供需格局、成本结构、竞争格局与战略展望',
         done: true,
         allowedBu: ['felt'], // 仅法恩莱特可见
-        reportHref: 'felt_report_202605.html',
+        reportBase: 'felt_report',
+        availableMonths: ['2026-06', '2026-05', '2026-04'],
         dataHref: 'electrolyte_data_v2.html',
         chartHref: 'electrolyte_charts.html',
         tabs: '1个Tab',
@@ -357,37 +367,36 @@ function buildReportCard(db) {
 
     const overlay = db.done ? '' : '<div class="building-overlay">🚧 报告编写中</div>';
 
-    // Build report button(s)
+    // Build report button(s) — 统一风格：查看报告 + 月份选择
     let reportBtns = '';
     if (db.done) {
         if (db.availableMonths && db.availableMonths.length > 0) {
-            // Multi-month: show split button with month selector
-            const latest = db.availableMonths[0]; // sorted newest first
-            // 电解液用 felt_report_202605 格式（无下划线），其他数据库用 lfp_report_2026_04 格式（有下划线）
-            const buildHref = (m) => db.reportBase + '_' + (db.id === 'electrolyte' ? m.replace('-', '') : m.replace('-', '_')) + '.html';
+            // Multi-month: "查看报告" + month selector
+            const latest = db.availableMonths[0];
+            const buildHref = (m) => db.reportBase + '_' + (db.id === 'electrolyte' ? m.replace(/-/g, '') : m.replace('-', '_')) + '.html';
             const latestHref = buildHref(latest);
 
-            // Build month options
             const monthOptions = db.availableMonths.map(m => {
                 const label = m.replace('-', '年') + '月';
                 const href = buildHref(m);
-                const selected = m === latest ? ' selected' : '';
-                return `<option value="${href}"${selected}>${label}</option>`;
+                return `<option value="${href}"${m === latest ? ' selected' : ''}>${label}</option>`;
             }).join('');
 
             reportBtns = `
-                <a href="${latestHref}" class="btn-report" id="btn-report-${db.id}"> 查看报告</a>
-                <select class="btn-month" id="sel-month-${db.id}"
-                    onchange="document.getElementById('btn-report-${db.id}').href=this.value;"
-                    title="选择报告月份">
-                    ${monthOptions}
-                </select>`;
+                <a href="${latestHref}" class="btn-report" id="btn-report-${db.id}">查看报告</a>
+                <div class="btn-month-wrap">
+                    <span class="btn-month-label">📅 月份</span>
+                    <select class="btn-month-select" id="sel-month-${db.id}"
+                        onchange="document.getElementById('btn-report-${db.id}').href=this.value;">
+                        ${monthOptions}
+                    </select>
+                </div>`;
         } else if (db.reportHref) {
-            // Single report: simple button
-            reportBtns = `<a href="${db.reportHref}" class="btn-report" style="border-radius:8px;"> 查看报告</a>`;
+            // Single report: just the button
+            reportBtns = `<a href="${db.reportHref}" class="btn-report" style="border-radius:8px;">查看报告</a>`;
         }
     } else {
-        reportBtns = `<a href="#" class="btn-report disabled" onclick="return false;" style="border-radius:8px;"> 查看报告</a>`;
+        reportBtns = `<a href="#" class="btn-report disabled" onclick="return false;" style="border-radius:8px;">查看报告</a>`;
     }
 
     return `
@@ -411,8 +420,6 @@ function buildReportCard(db) {
         </div>
         <div class="card-actions">
             ${reportBtns}
-            ${db.dataHref ? `<a href="${db.dataHref}" class="btn-data" target="_blank">📊 查看数据</a>` : ''}
-            ${db.chartHref ? `<a href="${db.chartHref}" class="btn-chart" target="_blank">📈 查看图表</a>` : ''}
         </div>
     </div>`;
 }
@@ -426,9 +433,69 @@ if (topbarRight) {
     topbarRight.textContent = `龙蟠行业数据库 · ${now.toLocaleDateString('zh-CN')}`;
 }
 </script>
-    <script src="inline_01.js"></script>
-    <script src="bu_gate.js"></script>
-    <script src="assets/ai_fab_inject.js"></script>
+    <script>
+/* === inline_01.js (analysis_hub.html 不触发数据加载逻辑) === */
+
+/* === bu_gate.js === */
+/**
+ * bu_gate.js — BU 权限门禁（纯前端方案）
+ */
+(function() {
+'use strict';
+var BU_DEPT = {
+  hq: ['od-1768efca88fb4611b75efca7140fe16b','od-42e4ca3deb8b8ee5dfb4688df273ab91','od-f509da72f04db456af9bc9351ed649ce','od-839a5caffe1fa682e014982a1d28fcb8'],
+  czly: ['od-c8c5bc8612d60825208196a97cd0686d'],
+  lpsd: ['od-349632b3f04edaa205990f6c96e66c26'],
+  sdmd: ['od-05e668aea865f92b574f366b3d976094'],
+  felt: ['od-2e6cc0918fbe3086ebf636680997a2f2'],
+  sjl:  ['od-310bdafba6cb5bdbd3300cf326878caa'],
+  dhx:  ['od-7a313bc06887dc30349237cb0d64ce83'],
+  lhy:  ['od-8ad5942df92ef45ac8905b543fc38d2b'],
+  kls:  ['od-c36a380b50b52171d47b7a8f5c1f3a70'],
+  bych: ['od-33054981612c6dc0fbbdfbb743774d1b'],
+};
+var BU_ALIAS = { lubricant: 'lhy', kelan: 'kls', dkhx: 'dhx', sjld: 'sjl' };
+function parseDeptIds(s) { return s ? s.split(',').map(function(x){return x.trim();}).filter(Boolean) : []; }
+function isAllowed(bu, userDeptIds) {
+  if (!userDeptIds || !userDeptIds.length) return false;
+  if (userDeptIds.some(function(d){return BU_DEPT.hq.indexOf(d)>=0;})) return true;
+  var a = BU_DEPT[bu]; return !!(a && userDeptIds.some(function(d){return a.indexOf(d)>=0;}));
+}
+function getCurrentDeptId() {
+  var m = location.search.match(/[?&]__dept=([^&]+)/); if (m) return decodeURIComponent(m[1]);
+  m = location.search.match(/[?&]departmentId=([^&]+)/); if (m) return decodeURIComponent(m[1]);
+  try { return sessionStorage.getItem('_dept') || ''; } catch(e) { return ''; }
+}
+window.applyBUFilter = function(selector) {
+  var deptId = getCurrentDeptId(); if (!deptId) return;
+  var userDeptIds = parseDeptIds(deptId);
+  var container = selector ? document.querySelector(selector) : document;
+  if (!container) return;
+  var cards = container.querySelectorAll('[class*="allbu-card"], [class*="dept-card"], [id^="card-"]');
+  if (!cards.length) cards = container.children;
+  Array.prototype.forEach.call(cards, function(card) {
+    var buId = null;
+    var classes = (card.className || '').split(/\s+/);
+    for (var i=0; i<classes.length; i++) {
+      var c = classes[i];
+      var skip = ['allbu-card-loading','allbu-card','dept-card','no-auth-card'];
+      if (skip.indexOf(c)>=0) continue;
+      var internalId = BU_ALIAS[c] || c;
+      if (BU_DEPT[internalId]) { buId = internalId; break; }
+    }
+    if (!buId) {
+      var id = card.id || '';
+      for (var bu in BU_DEPT) { if (bu==='hq') continue; if (id.indexOf(bu)>=0||id.indexOf('card-'+bu)>=0){buId=bu;break;} }
+    }
+    if (!buId) buId = card.getAttribute('data-bu') || '';
+    if (!buId || buId==='hq') return;
+    if (!isAllowed(buId, userDeptIds)) { card.style.display='none'; card.classList.add('bu-gate-hidden'); }
+  });
+};
+window.BU_GATE = { isAllowed: isAllowed, getCurrentDeptId: getCurrentDeptId, parseDeptIds: parseDeptIds, BU_DEPT: BU_DEPT };
+})();
+/* === ai_fab_inject.js: 空，直接跳过 === */
+    </script>
     <script>
     // 数据库权限过滤：与 database_hub.html 一致
     function applyDbFilter() {
