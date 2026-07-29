@@ -1171,47 +1171,6 @@ window.addEventListener('DOMContentLoaded', function() {
     wrap.addEventListener('click', function(e) {
         if (e.target.closest('.ai-sphere') && !dragging) openDialog();
     });
-    /* GIF动画：页面加载后立即循环播放 */
-    (function(){
-        var gifImg = document.getElementById("gifImg");
-        if (!gifImg) return;
-        gifImg.src = "assets/dragon_anim.gif";
-
-        /* ── 悬停时GIF暂停（切换为静态抬头表情）── */
-        var GIF_SRC = "assets/dragon_anim.gif";
-        var STATIC_SRC = "assets/dragon_4combined_hover_static.png";
-        var wrap = document.getElementById("aiFloatWrap");
-        if (!wrap) return;
-
-        var isHovering = false;
-
-        wrap.addEventListener('mouseenter', function() {
-            if (isHovering) return;
-            isHovering = true;
-            // 切换为静态表情图 → GIF停止播放
-            gifImg.src = STATIC_SRC;
-        });
-
-        wrap.addEventListener('mouseleave', function() {
-            if (!isHovering) return;
-            isHovering = false;
-            // 恢复GIF → 继续循环播放
-            gifImg.src = GIF_SRC;
-        });
-
-        /* 移动端触摸：按下显示静态，松开恢复 */
-        wrap.addEventListener('touchstart', function(e) {
-            if (isHovering) return;
-            isHovering = true;
-            gifImg.src = STATIC_SRC;
-        }, {passive: true});
-
-        wrap.addEventListener('touchend', function() {
-            if (!isHovering) return;
-            isHovering = false;
-            gifImg.src = GIF_SRC;
-        });
-    })();
     document.getElementById('aiChatClose').addEventListener('click', closeDialog);
     dialog.addEventListener('click', function(e) {
         if (e.target === dialog) closeDialog();
@@ -4898,10 +4857,12 @@ const BU_LOGOS = {
                 if (!resp.ok) throw new Error('HTTP error');
                 var data = await resp.json();
 
-                // 只保留2.5%品种数据
+                // 保留5%澳洲历史数据与国内/中国现货5.0-5.5%数据
                 if (data.history) {
                     data.history = data.history.filter(function(d) {
-                        return d.grade && d.grade.indexOf('2.5%') >= 0;
+                        return (d.grade === '5%' && d.origin === '澳洲') ||
+                               (d.grade && d.grade.indexOf('5.0-5.5%') >= 0) ||
+                               (d.grade && d.grade.indexOf('5%-5.5%') >= 0);
                     });
                 }
 
@@ -4920,7 +4881,7 @@ const BU_LOGOS = {
                 var updatedEl = document.getElementById('lithiumOreChartUpdated');
 
                 if (priceEl && latest) {
-                    priceEl.textContent = latest.avg_price.toFixed(0) + ' ' + (latest.unit || '美元/吨');
+                    priceEl.textContent = latest.avg_price.toFixed(0) + ' ' + (latest.unit || '元/吨');
                 }
                 if (changeEl && data.history.length >= 2) {
                     var prev = data.history[data.history.length - 2].avg_price;
@@ -4929,7 +4890,7 @@ const BU_LOGOS = {
                     changeEl.textContent = (pct >= 0 ? '+' : '') + pct.toFixed(2) + '%';
                     changeEl.className = 'chart-latest-change ' + (pct >= 0 ? 'up' : 'down');
                 }
-                updateTicker('ticker-spod', latest.avg_price.toFixed(0) + ' ' + (latest.unit || '美元/吨'), pct);
+                updateTicker('ticker-spod', latest.avg_price.toFixed(0) + ' ' + (latest.unit || '元/吨'), pct);
                 if (updatedEl) updatedEl.textContent = 'Update: ' + data.update_time;
 
                 drawLithiumOreChart(svg, data.history);
@@ -4961,9 +4922,11 @@ const BU_LOGOS = {
             var chartW = W - PAD.left - PAD.right;
             var chartH = H - PAD.top - PAD.bottom;
 
-            // 过滤出5%澳洲的数据
+            // 保留5%澳洲历史数据与国内/中国现货5.0-5.5%数据
             var filtered = historyData.filter(function(d) {
-                return d.grade === '5%' && d.origin === '澳洲';
+                return (d.grade === '5%' && d.origin === '澳洲') ||
+                       (d.grade && d.grade.indexOf('5.0-5.5%') >= 0) ||
+                       (d.grade && d.grade.indexOf('5%-5.5%') >= 0);
             });
             if (filtered.length === 0) filtered = historyData;
 
@@ -10331,8 +10294,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 // 过滤：只保留2026-01-01及之后的数据，并按日期升序排序
                 if (data.history) {
                     data.history = data.history.filter(function(d) { return d.date >= '2026-01-01'; });
-                    // 只保留5%澳洲的数据用于图表显示
-                    data.history = data.history.filter(function(d) { return d.grade === '5%' && d.origin === '澳洲'; });
+                    // 保留5%澳洲历史数据与国内/中国现货5.0-5.5%数据，确保曲线连续
+                    data.history = data.history.filter(function(d) {
+                        return (d.grade === '5%' && d.origin === '澳洲') ||
+                               (d.grade && d.grade.indexOf('5.0-5.5%') >= 0) ||
+                               (d.grade && d.grade.indexOf('5%-5.5%') >= 0);
+                    });
                     data.history.sort(function(a, b) { return a.date.localeCompare(b.date); });
                 }
 
@@ -10351,7 +10318,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 var updatedEl = document.getElementById('lithiumOreChartUpdated');
 
                 if (priceEl && latest) {
-                    priceEl.textContent = latest.avg_price.toFixed(0) + ' ' + (latest.unit || '美元/吨');
+                    priceEl.textContent = latest.avg_price.toFixed(0) + ' ' + (latest.unit || '元/吨');
                 }
                 var pct = 0;
                 if (changeEl && data.history.length >= 2) {
@@ -10361,7 +10328,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     changeEl.textContent = (pct >= 0 ? '+' : '') + pct.toFixed(2) + '%';
                     changeEl.className = 'chart-latest-change ' + (pct >= 0 ? 'up' : 'down');
                 }
-                updateTicker('ticker-spod', latest.avg_price.toFixed(0) + ' ' + (latest.unit || '美元/吨'), pct);
+                updateTicker('ticker-spod', latest.avg_price.toFixed(0) + ' ' + (latest.unit || '元/吨'), pct);
                 if (updatedEl) updatedEl.textContent = 'Update: ' + data.update_time;
 
                 drawLithiumOreChart(svg, data.history);
@@ -10393,9 +10360,11 @@ document.addEventListener('DOMContentLoaded', function() {
             var chartW = W - PAD.left - PAD.right;
             var chartH = H - PAD.top - PAD.bottom;
 
-            // 过滤出5%澳洲的数据
+            // 保留5%澳洲历史数据与国内/中国现货5.0-5.5%数据
             var filtered = historyData.filter(function(d) {
-                return d.grade === '5%' && d.origin === '澳洲';
+                return (d.grade === '5%' && d.origin === '澳洲') ||
+                       (d.grade && d.grade.indexOf('5.0-5.5%') >= 0) ||
+                       (d.grade && d.grade.indexOf('5%-5.5%') >= 0);
             });
             if (filtered.length === 0) filtered = historyData;
 

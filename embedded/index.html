@@ -9,21 +9,21 @@
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <!-- 资源预加载（仅保留首屏关键资源，大文件延迟加载） -->
     <link rel="preload" href="inline_00.js" as="script">
-    <link rel="preload" href="latest_data.js?v=20260724" as="script" type="application/javascript">
+    <link rel="preload" href="latest_data.js?v=20260729_001" as="script" type="application/javascript">
     <script defer src="assets/echarts.min.js"></script>
-    <script defer src="electrolyte_data.js?v=20260724"></script>
-    <script defer src="recycling_data_v3.js?v=20260724"></script>
-    <script defer src="chemical_data.js?v=20260724"></script>
-    <script defer src="portal-bundle.js?v=20260724"></script>
-    <script defer src="recycling_gantt.js?v=20260724"></script>
-    <script defer src="latest_data.js?v=20260724"></script>
+    <script defer src="electrolyte_data.js?v=20260729_0917"></script>
+    <script defer src="recycling_data_v3.js?v=20260729_0917"></script>
+    <script defer src="chemical_data.js?v=20260729_0917"></script>
+    <script defer src="portal-bundle.js?v=20260729_1423"></script>
+    <script defer src="recycling_gantt.js?v=20260729_0917"></script>
+    <script defer src="latest_data.js?v=20260729_001"></script>
 
     
     <script>
       // Coze API配置现在在后端代理服务器中
       // 前端通过 http://localhost:5000/api/... 调用
     </script>
-    <title>晨会指挥中心 - 每日早报 v20260724_001</title>
+    <title>晨会指挥中心 - 每日早报 v20260729_001</title>
     <style>
         /* 防止图表旧内容闪屏：SVG默认隐藏，JS渲染完成后由JS设为visible */
         /* 使用 !important 防止被 inline style 覆盖 */
@@ -5962,14 +5962,14 @@
         <!-- Hero Banner（图片横幅） -->
         <div class="hero-banner" id="heroBanner">
             <picture>
-                <source srcset="assets/hero-banner.webp?v=20260703" type="image/webp">
-                <img class="hero-bg" src="assets/hero-banner.webp?v=202606181430" alt="龙蟠科技" loading="lazy">
+                <source srcset="assets/hero-banner.webp?v=20260729_0917" type="image/webp">
+                <img class="hero-bg" src="assets/hero-banner.webp?v=20260729_0917" alt="龙蟠科技" loading="lazy">
             </picture>
             <div class="hero-overlay"></div>
             <!-- 主导航菜单（浮于图上，毛玻璃半透明白底） -->
             <div class="main-nav-menu" id="mainNavMenu" style="background:transparent !important; backdrop-filter:none !important; -webkit-backdrop-filter:none !important; border:none !important; box-shadow:none !important;">
             <div class="main-nav-pill" id="mainNavPill"></div>
-            <div class="main-nav-item" onclick="window.location.href='policy_center_v4.html'">
+            <div class="main-nav-item" onclick="window.top.location.href='https://lopal603906.feishu.cn/page/FO5QmRKW6dZuaQalZ3xcCBxvnme/policy_center_v4.html'">
                 <span class="nav-icon">📜</span>
                 <span>政策中心</span>
                 <span class="nav-arrow">▼</span>
@@ -5988,7 +5988,7 @@
                     </div>
                 </div>
             </div>
-            <div class="main-nav-item" onclick="window.location.href='industry_news_embedded.html'">
+            <div class="main-nav-item" onclick="window.top.location.href='https://lopal603906.feishu.cn/page/FO5QmRKW6dZuaQalZ3xcCBxvnme/industry_news_embedded.html'">
                 <span class="nav-icon">📰</span>
                 <span>行业新闻</span>
                 <span class="nav-arrow">▼</span>
@@ -6011,54 +6011,54 @@
                     </div>
                 </div>
             </div>
-            <div class="main-nav-item" onclick="location.href='archive_v3.html'">
+            <div class="main-nav-item" onclick="top.location.href='https://lopal603906.feishu.cn/page/FO5QmRKW6dZuaQalZ3xcCBxvnme/archive_v3.html'">
                 <span class="nav-icon">📁</span>
                 <span>历史数据</span>
             </div>
-<div class="main-nav-item" onclick="window.location.href='database_hub.html'">
+<div class="main-nav-item" onclick="window.top.location.href='https://lopal603906.feishu.cn/page/FoJAmXHOPdn5KUadM1jc0NrQn8e/database_hub.html'">
                 <span class="nav-icon">📊</span>
                 <span>数据库</span>
                 <span class="nav-arrow">▼</span>
                 <div class="dropdown-menu">
-                    <div class="dropdown-item" onclick="event.stopPropagation(); window.location.href='lfp_data_v2.html'">
+                    <div class="dropdown-item" onclick="event.stopPropagation(); window.top.location.href='https://lopal603906.feishu.cn/page/YRAvmy0Bld3Zmta6aevcSyEnnvh/lfp_data_v2.html'">
                         <span class="nav-icon">🔋</span>
                         <span>磷酸铁锂数据库</span>
                     </div>
-                    <div class="dropdown-item" onclick="event.stopPropagation(); window.location.href='ternary_data_v2.html'">
+                    <div class="dropdown-item" onclick="event.stopPropagation(); window.top.location.href='https://lopal603906.feishu.cn/page/YRAvmy0Bld3Zmta6aevcSyEnnvh/ternary_data_v2.html'">
                         <span class="nav-icon">⚡</span>
                         <span>三元材料数据库</span>
                     </div>
-                    <div class="dropdown-item" onclick="event.stopPropagation(); window.location.href='electrolyte_data_v2.html'">
+                    <div class="dropdown-item" onclick="event.stopPropagation(); window.top.location.href='https://lopal603906.feishu.cn/page/YRAvmy0Bld3Zmta6aevcSyEnnvh/electrolyte_data_v2.html'">
                         <span class="nav-icon">🧪</span>
                         <span>电解液数据库</span>
                     </div>
-                    <div class="dropdown-item" onclick="event.stopPropagation(); window.location.href='carbonate_data_v2.html'">
+                    <div class="dropdown-item" onclick="event.stopPropagation(); window.top.location.href='https://lopal603906.feishu.cn/page/FoJAmXHOPdn5KUadM1jc0NrQn8e/carbonate_data_v2.html'">
                         <span class="nav-icon">⛏️</span>
                         <span>碳酸锂及原料数据库</span>
                     </div>
-                    <div class="dropdown-item" onclick="event.stopPropagation(); window.location.href='recycling_data_v2.html'">
+                    <div class="dropdown-item" onclick="event.stopPropagation(); window.top.location.href='https://lopal603906.feishu.cn/page/FoJAmXHOPdn5KUadM1jc0NrQn8e/recycling_data_v2.html'">
                         <span class="nav-icon">♻️</span>
                         <span>锂电池回收数据库</span>
                     </div>
-                    <div class="dropdown-item" onclick="event.stopPropagation(); window.location.href='lib_battery_data_v2.html'">
+                    <div class="dropdown-item" onclick="event.stopPropagation(); window.top.location.href='https://lopal603906.feishu.cn/page/YRAvmy0Bld3Zmta6aevcSyEnnvh/lib_battery_data_v2.html'">
                         <span class="nav-icon">🔋</span>
                         <span>锂电池行业数据库</span>
                     </div>
-                    <div class="dropdown-item" onclick="event.stopPropagation(); window.location.href='automotive_data_v2.html'">
+                    <div class="dropdown-item" onclick="event.stopPropagation(); window.top.location.href='https://lopal603906.feishu.cn/page/FO5QmRKW6dZuaQalZ3xcCBxvnme/automotive_data_v2.html'">
                         <span class="nav-icon">🚗</span>
                         <span>汽车行业数据库</span>
                     </div>
                 </div>
             </div>
-            <div class="main-nav-item" onclick="window.location.href='analysis_hub.html'">
+            <div class="main-nav-item" onclick="window.top.location.href='https://lopal603906.feishu.cn/page/FO5QmRKW6dZuaQalZ3xcCBxvnme/analysis_hub.html'">
                 <span class="nav-icon">📊</span>
                 <span>行业分析</span>
             </div>
-            <div class="main-nav-item" onclick="window.location.href='strategy_hub.html'">
+            <div class="main-nav-item" onclick="window.top.location.href='https://lopal603906.feishu.cn/page/FO5QmRKW6dZuaQalZ3xcCBxvnme/strategy_hub.html'">
                 <span class="nav-icon">🔭</span>
                 <span>竞品比对</span>
             </div>
-            <div class="main-nav-item" onclick="window.location.href='radar_hub.html'">
+            <div class="main-nav-item" onclick="window.top.location.href='https://lopal603906.feishu.cn/page/FO5QmRKW6dZuaQalZ3xcCBxvnme/radar_hub.html'">
                 <span class="nav-icon">🕸️</span>
                 <span>雷达看板</span>
             </div>
@@ -6083,11 +6083,11 @@
                     </div>
                 </div>
             </div>
-            <div class="main-nav-item" onclick="window.location.href='toolbox.html'">
+            <div class="main-nav-item" onclick="window.top.location.href='https://lopal603906.feishu.cn/page/FO5QmRKW6dZuaQalZ3xcCBxvnme/toolbox.html'">
                 <span class="nav-icon">🛠️</span>
                 <span>工具箱</span>
             </div>
-            <div class="main-nav-item" onclick="window.location.href='help.html'">
+            <div class="main-nav-item" onclick="window.top.location.href='https://lopal603906.feishu.cn/page/FO5QmRKW6dZuaQalZ3xcCBxvnme/help.html'">
                 <span class="nav-icon">❓</span>
                 <span>帮助中心</span>
             </div>
@@ -6232,7 +6232,7 @@
             <div class="hero-right" id="heroRightCharts">
                 <div class="hero-right-header">
                     <span class="hero-right-title">数据库看板</span>
-                    <span class="hero-right-more" onclick="location.href='database_hub.html'">更多 →</span>
+                    <span class="hero-right-more" onclick="top.location.href='https://lopal603906.feishu.cn/page/FoJAmXHOPdn5KUadM1jc0NrQn8e/database_hub.html'">更多 →</span>
                 </div>
                 <div class="chart-carousel" id="chartCarousel">
                     <div class="chart-slide" id="chartSlide0">
@@ -6601,10 +6601,10 @@
                             <div class="mk-chart-card" id="sec-spod">
                                 <div class="lc-futures-chart-wrapper" style="padding: 20px;">
                                     <div class="chart-header">
-                                        <div class="chart-title-centered">锂辉石精矿（5%澳洲）</div>
+                                        <div class="chart-title-centered">锂辉石精矿（5.0-5.5%）</div>
                                         <div class="chart-info-row">
                                             <div class="chart-legend-left">
-                                                <span class="chart-legend-item"><span class="chart-legend-dot" style="background:#e91e63;"></span>均价（美元/吨）</span>
+                                                <span class="chart-legend-item"><span class="chart-legend-dot" style="background:#e91e63;"></span>均价（元/吨）</span>
                                             </div>
                                             <div class="chart-price-right">
                                                 <span class="price-label">最新价：</span><span class="chart-latest-price" id="lithiumOreLatestPrice">--</span>
@@ -7164,7 +7164,7 @@
     <script defer src="inline_09.js"></script>
 
 
-    <script src="assets/ai_fab_inject.js?v=20260724"></script>
-    <script src="feishu-jsapi.js?v=20260724"></script>
+    <script src="assets/ai_fab_inject.js?v=20260729_0917"></script>
+    <script src="feishu-jsapi.js?v=20260729_0917"></script>
 </body>
 </html>

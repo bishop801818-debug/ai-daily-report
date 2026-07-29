@@ -4302,10 +4302,12 @@ const BU_LOGOS = {
                 if (!resp.ok) throw new Error('HTTP error');
                 var data = await resp.json();
 
-                // 只保留2.5%品种数据
+                // 保留5%澳洲历史数据与国内/中国现货5.0-5.5%数据
                 if (data.history) {
                     data.history = data.history.filter(function(d) {
-                        return d.grade && d.grade.indexOf('2.5%') >= 0;
+                        return (d.grade === '5%' && d.origin === '澳洲') ||
+                               (d.grade && d.grade.indexOf('5.0-5.5%') >= 0) ||
+                               (d.grade && d.grade.indexOf('5%-5.5%') >= 0);
                     });
                 }
 
@@ -4324,7 +4326,7 @@ const BU_LOGOS = {
                 var updatedEl = document.getElementById('lithiumOreChartUpdated');
 
                 if (priceEl && latest) {
-                    priceEl.textContent = latest.avg_price.toFixed(0) + ' ' + (latest.unit || '美元/吨');
+                    priceEl.textContent = latest.avg_price.toFixed(0) + ' ' + (latest.unit || '元/吨');
                 }
                 if (changeEl && data.history.length >= 2) {
                     var prev = data.history[data.history.length - 2].avg_price;
@@ -4333,7 +4335,7 @@ const BU_LOGOS = {
                     changeEl.textContent = (pct >= 0 ? '+' : '') + pct.toFixed(2) + '%';
                     changeEl.className = 'chart-latest-change ' + (pct >= 0 ? 'up' : 'down');
                 }
-                updateTicker('ticker-spod', latest.avg_price.toFixed(0) + ' ' + (latest.unit || '美元/吨'), pct);
+                updateTicker('ticker-spod', latest.avg_price.toFixed(0) + ' ' + (latest.unit || '元/吨'), pct);
                 if (updatedEl) updatedEl.textContent = 'Update: ' + data.update_time;
 
                 drawLithiumOreChart(svg, data.history);
@@ -4365,9 +4367,11 @@ const BU_LOGOS = {
             var chartW = W - PAD.left - PAD.right;
             var chartH = H - PAD.top - PAD.bottom;
 
-            // 过滤出5%澳洲的数据
+            // 保留5%澳洲历史数据与国内/中国现货5.0-5.5%数据
             var filtered = historyData.filter(function(d) {
-                return d.grade === '5%' && d.origin === '澳洲';
+                return (d.grade === '5%' && d.origin === '澳洲') ||
+                       (d.grade && d.grade.indexOf('5.0-5.5%') >= 0) ||
+                       (d.grade && d.grade.indexOf('5%-5.5%') >= 0);
             });
             if (filtered.length === 0) filtered = historyData;
 
