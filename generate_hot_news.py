@@ -210,8 +210,8 @@ def is_market_price_news(title):
     
     title_lower = title.lower()
     
-    # 1. 包含涨跌百分比（如"涨2.87%"、"跌4%"、"涨超4%"、"跌超3%"、"单日跌近3%"）
-    if re.search(r'[涨跌大](超|近|逾|约)?[\d.]+%|[单双]日[涨跌][\d.]+%', title):
+    # 1. 包含涨跌百分比（如"涨2.87%"、"跌4%"、"涨超4%"、"跌超3%"、"单日跌近3%"、"下挫超4%"）
+    if re.search(r'[涨跌大挫升降](超|近|逾|约)?[\d.]+%|[单双]日[涨跌][\d.]+%', title):
         return True
     
     # 2. 包含具体价格单位（这是行情数据的显著特征）
@@ -238,7 +238,7 @@ def is_market_price_news(title):
         return True
     
     # 7. 价格趋势描述（如"基础油价格继续下行"、"报价走高"）
-    if re.search(r'(价格|报价|价).{0,4}(继续|持续)?(下行|上行|走高|走低|走弱|走强|回落|松动|企稳|下跌|上涨|止跌|回暖)', title):
+    if re.search(r'(价格|报价|价).{0,4}(继续|持续)?(下行|上行|走高|走低|走弱|走强|回落|松动|企稳|下跌|上涨|止跌|回暖|下挫|上扬|下滑|跳涨|走跌)', title):
         return True
     
     # 8. 期货主力/收盘行情（如"收涨"、"收跌"、"收报"）
@@ -1307,6 +1307,7 @@ def main():
     # 生成输出数据
     output_data = {
         "generated_at": datetime.now().isoformat(),
+        "date": date.today().isoformat(),
         "news": enriched_items
     }
 
