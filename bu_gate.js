@@ -107,6 +107,14 @@ window.applyBUFilter = function(containerSelector) {
   }
 
   var userDeptIds = parseDeptIds(deptId);
+  // 部门ID无法识别为任何已知BU/HQ(含历史遗留假ID)→降级显示全部，避免误隐藏白屏
+  var _recognized = userDeptIds.some(function(d){
+    if (d === 'hq' || d === 'all') return true;
+    if (BU_DEPT.hq.indexOf(d) >= 0) return true;
+    for (var _b in BU_DEPT) { if (_b === 'hq') continue; if (BU_DEPT[_b].indexOf(d) >= 0) return true; }
+    return false;
+  });
+  if (!_recognized) return;
   var container = containerSelector
     ? document.querySelector(containerSelector)
     : document;
