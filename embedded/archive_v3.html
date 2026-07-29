@@ -283,6 +283,25 @@ const BU_LOGOS = {
         };
 </script>
     <script src="assets/ai_fab_inject.js"></script>
-    <script>window.addEventListener('load',function(){window.applyBUFilter&&window.applyBUFilter();});</script>
+    <script>window.addEventListener('load',function(){
+    // 自动给卡片链接添加 __dept 参数（修复：必须插入到 # 哈希之前）
+    var dept = '';
+    var m = location.search.match(/[?&]__dept=([^&]+)/);
+    if (m) dept = m[1];
+    if (dept) {
+        document.querySelectorAll('a[href^="dept-archive.html"]').forEach(function(a) {
+            var href = a.getAttribute('href');
+            if (href && href.indexOf('__dept=') < 0) {
+                var hashPos = href.indexOf('#');
+                if (hashPos >= 0) {
+                    a.setAttribute('href', href.substring(0, hashPos) + '?__dept=' + dept + href.substring(hashPos));
+                } else {
+                    a.setAttribute('href', href + '?__dept=' + dept);
+                }
+            }
+        });
+    }
+    window.applyBUFilter&&window.applyBUFilter();
+});</script>
 </body>
 </html>

@@ -296,8 +296,14 @@ const BU_LOGOS = {
         document.querySelectorAll('a[href^="dept-archive.html"]').forEach(function(a) {
             var href = a.getAttribute('href');
             if (href && href.indexOf('__dept=') < 0) {
-                var sep = href.indexOf('?') >= 0 ? '&' : '?';
-                a.setAttribute('href', href + sep + '__dept=' + dept);
+                // 关键修复：必须把 ?__dept 插入到 # 哈希片段之前，
+                // 否则变成 dept-archive.html#czly?__dept=hq 导致 buId 解析为 "czly?__dept=hq" 而非 "czly"
+                var hashPos = href.indexOf('#');
+                if (hashPos >= 0) {
+                    a.setAttribute('href', href.substring(0, hashPos) + '?__dept=' + dept + href.substring(hashPos));
+                } else {
+                    a.setAttribute('href', href + '?__dept=' + dept);
+                }
             }
         });
     }
