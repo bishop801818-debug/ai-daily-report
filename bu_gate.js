@@ -87,8 +87,8 @@ function getCurrentDeptId() {
   if (m) return decodeURIComponent(m[1]);
   m = location.search.match(/[?&]departmentId=([^&]+)/);
   if (m) return decodeURIComponent(m[1]);
-  // 从 sessionStorage 中读取（inline_01.js 中存储）
-  try { return sessionStorage.getItem('_dept') || ''; } catch(e) { return ''; }
+  // 从 sessionStorage 中读取（兼容 '_dept' 与 '__dept' 两种键名）
+  try { return sessionStorage.getItem('_dept') || sessionStorage.getItem('__dept') || ''; } catch(e) { return ''; }
 }
 
 // ============================================================
@@ -144,9 +144,9 @@ window.applyBUFilter = function(containerSelector) {
         }
       }
     }
-    // 方法3: 从 data-bu 属性识别
+    // 方法3: 从 data-bu 属性识别（经别名映射 toInternalId 转换，如 sjld→sjl）
     if (!buId) {
-      buId = card.getAttribute('data-bu') || '';
+      buId = toInternalId(card.getAttribute('data-bu') || '');
     }
     if (!buId || buId === 'hq') return;
 
