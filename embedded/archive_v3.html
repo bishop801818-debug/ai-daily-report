@@ -6,7 +6,7 @@
     <script>
     // 全局拦截：导航到HUB页面时自动追加__dept参数（管理员默认值兜底）
     (function(){
-      var ADMIN_DEPT='7593161552124923083'; // 管理员部门ID
+      var ADMIN_DEPT='hq'; // 管理员默认部门(全开令牌，isAllowed识别为hq→显示所有卡片)
       var _dept=(new URL(location.href)).searchParams.get('__dept');
       if(!_dept){ try{_dept=sessionStorage.getItem('__dept');}catch(e){} }
       if(!_dept){ _dept=ADMIN_DEPT; } // 读不到就用管理员默认值

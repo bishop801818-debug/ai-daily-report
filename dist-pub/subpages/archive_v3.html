@@ -1,8 +1,12 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <script src="inline_01.js"></script>
-    <script src="bu_gate.js?v=20260729_1615"></script>
+  <!-- auth-gate: 权限闸门（自动注入，勿删；对应 auth_policy.js + inline_auth.js） -->
+  <script src="./auth_policy.js?v=20260729_1346"></script>
+  <script src="./inline_auth.js?v=20260729_1450"></script>
+
+    <script src="./inline_01.js"></script>
+    <script src="./bu_gate.js?v=20260729_1615"></script>
     <script>
     // 全局拦截：导航到HUB页面时自动追加__dept参数（管理员默认值兜底）
     (function(){
@@ -150,9 +154,9 @@
 <body>
 
 <!--统一导航栏（shared_nav.css）-->
-<link rel="stylesheet" href="shared_nav.css?v=20260630">
+<link rel="stylesheet" href="./shared_nav.css?v=20260630">
 <div class="sub-topbar">
-    <a class="sub-topbar-home" href="index_v3.html">← 返回首页</a>
+    <a class="sub-topbar-home" href="../index_v3.html">← 返回首页</a>
     <div class="sub-topbar-title"> 历史数据</div>
     <div class="sub-topbar-nav">
         <div class="sub-nav-item" onclick="window.location.href='policy_center_v4.html'"><span> 政策中心</span></div>
@@ -282,7 +286,23 @@ const BU_LOGOS = {
             'dhx': 'assets/archive_img_18.png'
         };
 </script>
-    <script src="assets/ai_fab_inject.js"></script>
-    <script>window.addEventListener('load',function(){window.applyBUFilter&&window.applyBUFilter();});</script>
+    <script src="./assets/ai_fab_inject.js"></script>
+    <script>window.addEventListener('load',function(){
+    // 自动给卡片链接添加 __dept 参数
+    var dept = '';
+    var m = location.search.match(/[?&]__dept=([^&]+)/);
+    if (m) dept = m[1];
+    if (dept) {
+        document.querySelectorAll('a[href^="dept-archive.html"]').forEach(function(a) {
+            var href = a.getAttribute('href');
+            if (href && href.indexOf('__dept=') < 0) {
+                var sep = href.indexOf('?') >= 0 ? '&' : '?';
+                a.setAttribute('href', href + sep + '__dept=' + dept);
+            }
+        });
+    }
+    window.applyBUFilter&&window.applyBUFilter();
+});</script>
 </body>
 </html>
+
