@@ -1,0 +1,631 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <!-- auth-gate: 权限闸门（自动注入，勿删；对应 auth_policy.js + inline_auth.js） -->
+  <script src="./auth_policy.js?v=20260729_1346"></script>
+  <script src="./inline_auth.js?v=20260729_1450"></script>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>战略洞察中心</title>
+    <meta name="html-version" content="20260715_001">
+    <script src="./inline_01.js"></script>
+    <script src="./bu_gate.js?v=20260729_1615"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: "Microsoft YaHei", "PingFang SC", sans-serif; background: #f0f2f5; min-height: 100vh; }
+
+        .page-header {
+            background: linear-gradient(135deg, #064e3b 0%, #0d7a4a 100%);
+            color: white;
+            padding: 24px 40px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 12px rgba(7,82,54,0.3);
+        }
+        .page-header .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: rgba(255,255,255,0.85);
+            text-decoration: none;
+            font-size: 14px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        .page-header .back-btn:hover { color: white; }
+        .page-header h1 { font-size: 22px; font-weight: bold; margin-bottom: 4px; }
+        .page-header .date-badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            padding: 4px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            margin-top: 6px;
+        }
+
+        .container { max-width: 1100px; margin: 30px auto; padding: 0 20px; }
+
+        .section-label {
+            font-size: 13px;
+            color: #888;
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .section-label::after { content: ""; flex: 1; height: 1px; background: #ddd; }
+
+        /* 锂电系 */
+        .dept-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 36px; }
+        /* 非锂电 */
+        .dept-grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 36px; }
+
+        .dept-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            border-left: 4px solid #064e3b;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+        .dept-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(7,82,54,0.15);
+        }
+        .dept-card.lithium { border-left-color: #064e3b; }
+        .dept-card.longpan { border-left-color: #2e75b6; }
+        .dept-card.other { border-left-color: #7030a0; }
+
+        .dept-icon { width: 36px; height: 36px; margin-bottom: 10px; }
+        .dept-icon img { width: 36px; height: 36px; border-radius: 50%; object-fit: contain; background: #fff; border: 2px solid rgba(0,0,0,0.08); }
+        .dept-name { font-size: 16px; font-weight: bold; color: #064e3b; margin-bottom: 4px; }
+        .dept-tag { font-size: 11px; color: #888; margin-bottom: 14px; }
+
+        .dept-summary {
+            background: #f8f9fc;
+            border-radius: 6px;
+            padding: 10px 12px;
+            font-size: 12.5px;
+            color: #444;
+            line-height: 1.6;
+            max-height: 72px;
+            overflow: hidden;
+            position: relative;
+        }
+        .dept-summary::after {
+            content: "...";
+            position: absolute;
+            bottom: 4px;
+            right: 10px;
+            color: #888;
+            font-size: 12px;
+        }
+
+        .dept-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 12px;
+            font-size: 12px;
+            color: #aaa;
+        }
+        .dept-meta .count { color: #064e3b; font-weight: bold; }
+
+        .footer-note a { color: #064e3b; text-decoration: none; font-weight: 600; }
+        .footer-note a:hover { text-decoration: underline; }
+        .footer-note {
+            text-align: center;
+            color: #bbb;
+            font-size: 12px;
+            padding: 24px;
+            border-top: 1px solid #eee;
+            margin-top: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .dept-grid, .dept-grid-3 { grid-template-columns: 1fr; }
+        }
+const BU_META = {
+    czly: { name: '常州锂源', subtitle: '磷酸铁锂正极材料', color: '#064e3b' },
+    lpsd: { name: '龙蟠时代', subtitle: '碳酸锂', color: '#2e75b6' },
+    felt: { name: '法恩莱特', subtitle: '电解液', color: '#7b2d8b' },
+    sdmd: { name: '山东美多', subtitle: '动力电池回收', color: '#215732' },
+    sjld: { name: '三金锂电', subtitle: '三元前驱体', color: '#34495e' },
+    kls:  { name: '可兰素', subtitle: '车用尿素', color: '#d35400' },
+    lhy:  { name: '润滑油事业部', subtitle: '润滑油', color: '#c0392b' },
+    bych: { name: '铂源催化', subtitle: '氢能/催化', color: '#8e44ad' },
+    dhx:  { name: '迪克化学', subtitle: '汽车化学品', color: '#16a085' },
+};
+
+(function initRouter() {
+    var params = new URLSearchParams(location.search);
+    var buId = params.get('id') || '';
+    if (buId && BU_META[buId]) {
+        applyBUTheme(BU_META[buId]);
+        showBUStrategy(buId);
+    }
+})();
+var BU_STRATEGY_DATA = {
+    czly: {
+        update_time: '2026-05-28',
+        lm: '2026-04',
+        pm: '2026-03',
+        top10: [
+            { n: '湖南裕能', o: 120000, c: 112750, u: 106, m: 9.1 },
+            { n: '万润新能', o: 40000, c: 39000, u: 103, m: -2.4 },
+            { n: '德方纳米', o: 33000, c: 37917, u: 87, m: -5.7 },
+            { n: '江西升华', o: 30000, c: 54167, u: 55, m: -3.2 },
+            { n: '常州锂源', o: 25525, c: 33042, u: 77, m: 9.3 },
+            { n: '友山科技', o: 25000, c: 33333, u: 75, m: 0 },
+            { n: '邦普循环', o: 20000, c: 31000, u: 65, m: 33.3 },
+            { n: '国轩高科', o: 18000, c: 20000, u: 90, m: -10 },
+            { n: '万华化学', o: 14000, c: 29167, u: 48, m: -6.7 },
+            { n: '融通高科', o: 12000, c: 25417, u: 47, m: 4.3 }
+        ],
+        trend: [
+            { m: '2025-05', out: 301973, util: 74 },
+            { m: '2025-06', out: 309850, util: 74 },
+            { m: '2025-07', out: 314455, util: 74 },
+            { m: '2025-08', out: 354385, util: 82 },
+            { m: '2025-09', out: 366855, util: 85 },
+            { m: '2025-10', out: 400905, util: 87 },
+            { m: '2025-11', out: 423905, util: 90 },
+            { m: '2025-12', out: 415905, util: 85 },
+            { m: '2026-01', out: 412250, util: 68 },
+            { m: '2026-02', out: 380153, util: 63 },
+            { m: '2026-03', out: 451243, util: 78 },
+            { m: '2026-04', out: 469825, util: 80 }
+        ],
+        stat: {
+            ind_out: 469825, ind_out_pm: 380153,
+            ind_util: 80, ind_util_pm: 63,
+            exp_vol: 5898.4, exp_price: 5.3, exp_mom: -22,
+            lfp_price: 5.46, lfp_price_date: '2026-03-17'
+        }
+    }
+}
+function showBUStrategy(buId) {
+    var data = BU_STRATEGY_DATA[buId];
+    if (!data) { console.error('No strategy data for', buId); return; }
+    // Hide guide grid, show strategy page
+    var container = document.getElementById('mainContainer');
+    if (!container) { container = document.querySelector('.container'); }
+    if (!container) return;
+
+    // Build page HTML
+    var lm = data.lm;
+    var pm = data.pm;
+    var lm_label = lm.replace('-', '年') + '月';
+    var pm_label = pm.replace('-', '年') + '月';
+
+    var ind_out = data.stat.ind_out;
+    var ind_out_pm = data.stat.ind_out_pm;
+    var ind_util = data.stat.ind_util;
+    var ind_util_pm = data.stat.ind_util_pm;
+    var exp_vol = data.stat.exp_vol;
+    var exp_mom = data.stat.exp_mom;
+    var lfp_price = data.stat.lfp_price;
+    var lfp_price_date = data.stat.lfp_price_date;
+
+    var out_mom = Math.round((ind_out - ind_out_pm) / ind_out_pm * 1000) / 10;
+    var util_mom = ind_util - ind_util_pm;
+    var exp_mom_abs = Math.round(exp_mom);
+
+    var html = '<div id="bu-strategy-page" class="bu-strategy-page active">';
+
+    // Stats row
+    html += '<div class="stat-row">';
+    html += '<div class="stat-card"><div class="stat-val">' + Math.round(ind_out/100)/100 + '万吨</div><div class="stat-label">月座产量</div><div class="stat-delta ' + (out_mom >= 0 ? 'up' : 'down') + '">' + (out_mom >= 0 ? '+' : '') + out_mom + '% 环比</div></div>';
+    html += '<div class="stat-card"><div class="stat-val">' + ind_util + '%</div><div class="stat-label">产能利用率</div><div class="stat-delta ' + (util_mom >= 0 ? 'up' : 'down') + '">' + (util_mom >= 0 ? '+' : '') + util_mom + '% 环比</div></div>';
+    html += '<div class="stat-card"><div class="stat-val">' + lfp_price + '万/吨</div><div class="stat-label">铁铃均价</div><div class="stat-delta">月平均</div></div>';
+    html += '<div class="stat-card"><div class="stat-val">' + Math.round(exp_vol) + ' 吨</div><div class="stat-label">出口量</div><div class="stat-delta ' + (exp_mom_abs >= 0 ? 'down' : 'up') + '">' + (exp_mom_abs >= 0 ? '' : '+') + exp_mom_abs + '% 环比</div></div>';
+    html += '</div>';
+
+    // Tab nav
+    html += '<div class="tab-nav">';
+    html += '<button class="tab-btn active" onclick="switchTab(this, \'radar\')">雷达图</button>';
+    html += '<button class="tab-btn" onclick="switchTab(this, \'rank\')">竞对排名</button>';
+    html += '<button class="tab-btn" onclick="switchTab(this, \'trend\')">时间趋势</button>';
+    html += '</div>';
+
+    // Tab: Radar
+    html += '<div id="tab-radar" class="tab-content active">';
+    html += '<div class="chart-wrap"><div id="radar-chart" style="width:100%;height:100%"></div></div>';
+    html += '<div class="note-text">字母趋较大：表示领先优势，字数趋较小：表示实际值</div>';
+    html += '</div>';
+
+    // Tab: Rank
+    html += '<div id="tab-rank" class="tab-content">';
+    html += '<div class="section-title">按月座产量排序（单位：吨）</div>';
+    html += '<table class="rank-table"><thead><tr><th>名次</th><th>企业</th><th>月座产量</th><th>产能利用率</th><th>环比变化</th></tr></thead><tbody>';
+    var maxOut = data.top10[0].o;
+    data.top10.forEach(function(r, i) {
+        var rank_cls = i < 3 ? 'top3' : '';
+        var self_cls = r.n === '常州锈源' ? 'self-row' : '';
+        var delta_cls = r.m >= 0 ? 'up' : 'down';
+        var delta_sign = r.m >= 0 ? '+' : '';
+        html += '<tr class="' + self_cls + '">';
+        html += '<td class="rank-num ' + rank_cls + '">' + (i+1) + '</td>';
+        html += '<td>' + r.n + '</td>';
+        html += '<td class="output-val">' + r.o.toLocaleString() + '</td>';
+        html += '<td class="util">' + r.u + '%</td>';
+        html += '<td class="delta ' + delta_cls + '">' + delta_sign + r.m + '%</td>';
+        html += '</tr>';
+    });
+    html += '</tbody></table>';
+    html += '<div class="chart-wrap" style="height:280px;margin-top:16px"><div id="bar-chart" style="width:100%;height:100%"></div></div>';
+    html += '</div>';
+
+    // Tab: Trend
+    html += '<div id="tab-trend" class="tab-content">';
+    html += '<div class="chart-wrap"><div id="trend-chart" style="width:100%;height:100%"></div></div>';
+    html += '</div>';
+
+    html += '</div>'; // end bu-strategy-page
+
+    container.innerHTML = html;
+
+    // Render charts
+    renderRadar(data);
+    renderBar(data);
+    renderTrend(data);
+}
+
+function switchTab(el, tabId) {
+    document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
+    document.querySelectorAll('.tab-content').forEach(function(t) { t.classList.remove('active'); });
+    el.classList.add('active');
+    document.getElementById('tab-' + tabId).classList.add('active');
+    setTimeout(function() {
+        document.querySelectorAll('.chart-container, .chart-wrap').forEach(function(c) {
+            var chart = echarts.getInstanceByDom(c);
+            if (chart) chart.resize();
+        });
+    }, 50);
+}
+
+function renderRadar(data) {
+    var dom = document.getElementById('radar-chart');
+    if (!dom) return;
+    var chart = echarts.init(dom);
+    var top10 = data.top10;
+
+    // Build radar indicators (6 dimensions)
+    var indicator = [
+        { name: '产量规模', max: 100 },
+        { name: '产能效率', max: 100 },
+        { name: '产量环比', max: 100 },
+        { name: '按周比付', max: 100 },
+        { name: '行业排名', max: 100 },
+        { name: '全球化趋势', max: 100 }
+    ];
+
+    // Self: 常州锂源
+    var selfIdx = top10.findIndex(function(r) { return r.n === '常州锈源'; });
+    var maxOut = top10[0].o;
+
+    var selfScores = [
+        Math.round(top10[selfIdx].o / maxOut * 100),
+        Math.round(top10[selfIdx].u),
+        50, // neutral
+        50, // neutral
+        Math.round((top10.length - selfIdx) / top10.length * 100),
+        50 // neutral
+    ];
+
+    // Competitor scores (Top3 except self)
+    var compSeries = [];
+    var COMP_COLORS = ['#95a5a6', '#7f8c8d', '#566573'];
+    top10.slice(0, 4).forEach(function(r, i) {
+        if (r.n === '常州锈源') return;
+        compSeries.push({
+            value: [
+                Math.round(r.o / maxOut * 100),
+                Math.round(r.u),
+                50, 50,
+                Math.round((top10.length - i) / top10.length * 100),
+                50
+            ],
+            name: r.n,
+            lineStyle: { color: COMP_COLORS[i] || '#aaa', width: 1, type: 'dashed' },
+            itemStyle: { color: COMP_COLORS[i] || '#aaa' },
+            areaStyle: null
+        });
+    });
+
+    var option = {
+        tooltip: { trigger: 'item', confine: true },
+        legend: { top: 10, right: 10, orient: 'vertical', textStyle: { fontSize: 12 } },
+        radar: {
+            indicator: indicator,
+            radius: '65%',
+            splitNumber: 4,
+            axisName: { color: '#444', fontSize: 12 },
+            splitLine: { lineStyle: { color: '#e8ecf0' } },
+            splitArea: { areaStyle: { color: ['#fff', '#fafafa'] } }
+        },
+        series: [{
+            type: 'radar',
+            name: '常州锈源',
+            data: [{ value: selfScores, name: '常州锈源',
+                areaStyle: { opacity: 0.25 },
+                lineStyle: { color: '#064e3b', width: 2 },
+                itemStyle: { color: '#064e3b' }
+            }].concat(compSeries)
+        }]
+    };
+    chart.setOption(option);
+}
+
+function renderBar(data) {
+    var dom = document.getElementById('bar-chart');
+    if (!dom) return;
+    var chart = echarts.init(dom);
+    var top10 = data.top10;
+    var names = top10.map(function(r) { return r.n; });
+    var outputs = top10.map(function(r) { return r.o; });
+    var selfIdx = top10.findIndex(function(r) { return r.n === '常州锈源'; });
+
+    var colors = outputs.map(function(_, i) {
+        return i === selfIdx ? '#064e3b' : '#b0c4de';
+    });
+
+    var option = {
+        tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
+        grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+        xAxis: { type: 'value', axisLabel: { formatter: function(v) { return (v/10000).toFixed(0) + 'w'; } } },
+        yAxis: { type: 'category', data: names, axisLabel: { fontSize: 11 } },
+        series: [{
+            type: 'bar',
+            data: outputs,
+            itemStyle: { color: function(p) { return colors[p.dataIndex]; }, borderRadius: [0, 4, 4, 0] },
+            label: { show: true, position: 'right', formatter: function(p) { return (p.value/10000).toFixed(1) + 'w'; }, fontSize: 11 }
+        }]
+    };
+    chart.setOption(option);
+}
+
+function renderTrend(data) {
+    var dom = document.getElementById('trend-chart');
+    if (!dom) return;
+    var chart = echarts.init(dom);
+    var trend = data.trend;
+    var months = trend.map(function(r) { return r.m.slice(5); }); // MM-DD
+    var outputs = trend.map(function(r) { return r.out; });
+    var utils = trend.map(function(r) { return r.util; });
+
+    var option = {
+        tooltip: { trigger: 'axis', confine: true },
+        legend: { top: 10, data: ['产量(吨)', '产能利用率(%)'] },
+        grid: { left: '3%', right: '4%', bottom: '3%', top: '40px', containLabel: true },
+        xAxis: { type: 'category', data: months, axisLabel: { fontSize: 11, rotate: 45 } },
+        yAxis: [
+            { type: 'value', name: '产量', axisLabel: { formatter: function(v) { return (v/10000).toFixed(0) + 'w'; } } },
+            { type: 'value', name: '利用率%', max: 100, axisLabel: { fontSize: 10 } }
+        ],
+        series: [
+            {
+                name: '产量(吨)', type: 'line', smooth: true,
+                data: outputs, itemStyle: { color: '#064e3b' },
+                areaStyle: { opacity: 0.1 }
+            },
+            {
+                name: '产能利用率(%)', type: 'line', smooth: true, yAxisIndex: 1,
+                data: utils, itemStyle: { color: '#0AA66A' }
+            }
+        ]
+    };
+    chart.setOption(option);
+}
+
+// Resize listener
+window.addEventListener('resize', function() {
+    document.querySelectorAll('.chart-wrap').forEach(function(c) {
+        var chart = echarts.getInstanceByDom(c);
+        if (chart) chart.resize();
+    });
+});
+;
+function applyBUTheme(meta) {
+    document.title = meta.name + ' · 战略洞察';
+    var ph = document.querySelector('.page-header');
+    if (ph) {
+        ph.style.background = 'linear-gradient(135deg, ' + meta.color + ', ' + meta.color + 'cc)';
+        var title = ph.querySelector('h1');
+        if (title) { title.textContent = meta.name + ' · 战略洞察'; }
+        var sub = ph.querySelector('.date-badge');
+        if (sub) sub.textContent = meta.subtitle;
+    }
+    var navLinks = document.querySelectorAll('.topbar-nav a');
+    navLinks.forEach(function(a) { a.classList.remove('active'); });
+}
+
+
+
+    
+<style id="bu-strategy-styles">
+.bu-strategy-page { display: none; }
+.bu-strategy-page.active { display: block; }
+.tab-nav { display: flex; gap: 8px; margin: 20px 0 16px; border-bottom: 2px solid #e8ecf0; padding-bottom: 0; }
+.tab-btn { padding: 8px 20px; border: none; background: none; cursor: pointer; font-size: 14px; font-weight: 600; color: #666; border-bottom: 3px solid transparent; margin-bottom: -2px; transition: all 0.2s; font-family: inherit; }
+.tab-btn:hover { color: #064e3b; }
+.tab-btn.active { color: #064e3b; border-bottom-color: #064e3b; }
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+.chart-wrap { height: 380px; background: #fff; border-radius: 12px; padding: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); margin-bottom: 16px; }
+.stat-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin: 20px 0; }
+.stat-card { background: #fff; border-radius: 12px; padding: 16px; text-align: center; box-shadow: 0 1px 4px rgba(0,0,0,0.05); }
+.stat-val { font-size: 22px; font-weight: 700; color: #064e3b; }
+.stat-label { font-size: 12px; color: #999; margin-top: 4px; }
+.stat-delta { font-size: 12px; margin-top: 4px; }
+.stat-delta.up { color: #27ae60; }
+.stat-delta.down { color: #e74c3c; }
+.rank-table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.05); margin-bottom: 16px; }
+.rank-table th { background: #f5f7fa; padding: 10px 14px; text-align: left; font-size: 12px; color: #888; font-weight: 600; border-bottom: 2px solid #e8ecf0; }
+.rank-table td { padding: 10px 14px; font-size: 13px; border-bottom: 1px solid #f0f0f0; }
+.rank-table tr:last-child td { border-bottom: none; }
+.rank-table tr.self-row td { background: rgba(7,82,54,0.05); font-weight: 600; color: #064e3b; }
+.rank-num { font-weight: 700; color: #888; font-size: 14px; min-width: 28px; }
+.rank-num.top3 { color: #064e3b; font-size: 16px; }
+.output-val { font-weight: 700; color: #064e3b; }
+.delta.up { color: #27ae60; }
+.delta.down { color: #e74c3c; }
+.section-title { font-size: 15px; font-weight: 700; color: #1a1a2e; margin: 20px 0 12px; }
+.note-text { font-size: 12px; color: #aaa; text-align: center; margin-top: 8px; }
+</style>
+</style>
+<script src="./echarts.min.js"></script>
+</head>
+<body>
+
+<!--══统一导航栏（shared_nav.css）═════════════════ -->
+<link rel="stylesheet" href="./shared_nav.css?v=20260630"><div class="sub-topbar">
+    <a class="sub-topbar-home" href="../index_v3.html">← 返回首页</a>
+    <div class="sub-topbar-title"> 竞品比对</div>
+    <div class="sub-topbar-nav">
+        <!-- 政策中心 -->
+        <div class="sub-nav-item" onclick="window.location.href='policy_center_v4.html'">
+            <span> 政策中心</span>
+            
+        </div>
+        <!-- 行业新闻 -->
+        <div class="sub-nav-item" onclick="window.location.href='industry_news_embedded.html'">
+           <span> 行业新闻</span>
+            
+        </div>
+        <!-- 历史数据 -->
+        <div class="sub-nav-item" onclick="window.location.href='archive_v3.html'">
+            <span> 历史数据</span>
+        </div>
+        <!-- 数据库 -->
+        <div class="sub-nav-item" onclick="window.location.href='database_hub.html'">
+            <span> 数据库</span>
+            
+        </div>
+        <!-- 行业分析 -->
+        <div class="sub-nav-item" onclick="window.location.href='analysis_hub.html'">
+            <span> 行业分析</span>
+        </div>
+        <!-- 竞品比对 -->
+        <div class="sub-nav-item" onclick="window.location.href='strategy_hub.html'">
+            <span> 竞品比对</span>
+        </div>
+        <!-- 雷达看板 -->
+        <div class="sub-nav-item" onclick="window.location.href='radar_hub.html'">
+            <span> 雷达看板</span>
+        </div>
+    </div>
+</div>
+
+</div>
+
+<div id="mainContainer" class="container">
+    <div class="section-label"> 锂电系事业部（5BU）</div>
+    <div class="dept-grid">
+        <a class="dept-card lithium" href="strategy_dashboard.html#czly" data-bu="czly">
+            <div class="dept-icon"><img src="assets/strategy_hub_img_01.png" alt="常州锂源" /></div>
+            <div class="dept-name">常州锂源</div>
+            <div class="dept-tag">磷酸铁锂正极材料</div>
+            <div class="dept-summary">磷酸铁锂战略洞察 · 供需格局 · 竞争格局</div>
+            
+        </a>
+        <a class="dept-card lithium" href="strategy_coming_soon.html" data-bu="lpsd">
+            <div class="dept-icon"><img src="assets/strategy_hub_img_02.png" alt="龙蟠时代" /></div>
+            <div class="dept-name">龙蟠时代</div>
+            <div class="dept-tag">碳酸锂/氢氧化锂</div>
+            <div class="dept-summary">碳酸锂战略洞察 · 价格走势 · 原料供应</div>
+            
+        </a>
+        <a class="dept-card lithium" href="strategy_coming_soon.html" data-bu="sdmd">
+            <div class="dept-icon"><img src="assets/strategy_hub_img_03.png" alt="山东美多" /></div>
+            <div class="dept-name">山东美多</div>
+            <div class="dept-tag">废旧动力电池回收</div>
+            <div class="dept-summary">回收战略洞察 · 白名单 · 梯次利用</div>
+            
+        </a>
+        <a class="dept-card lithium" href="strategy_coming_soon.html" data-bu="sjld">
+            <div class="dept-icon"><img src="assets/strategy_hub_img_04.png" alt="三金锂电" /></div>
+            <div class="dept-name">三金锂电</div>
+            <div class="dept-tag">三元正极材料</div>
+            <div class="dept-summary">三元材料战略洞察 · 高镍化 · 海外市场</div>
+            
+        </a>
+        <a class="dept-card lithium" href="strategy_coming_soon.html" data-bu="felt">
+            <div class="dept-icon"><img src="assets/strategy_hub_img_05.png" alt="法恩莱特" /></div>
+            <div class="dept-name">法恩莱特</div>
+            <div class="dept-tag">电解液</div>
+            <div class="dept-summary">电解液战略洞察 · 六氟磷酸锂 · 客户结构</div>
+            
+        </a>
+    </div>
+    <div class="section-label">🏭 非锂电系事业部（4BU）</div>
+    <div class="dept-grid">
+        <a class="dept-card other" href="strategy_coming_soon.html" data-bu="lhy">
+            <div class="dept-icon"><img src="assets/strategy_hub_img_06.png" alt="润滑油" /></div>
+            <div class="dept-name">润滑油</div>
+            <div class="dept-tag">润滑油</div>
+            <div class="dept-summary">润滑油战略洞察 · 涨价潮 · 渠道布局</div>
+            
+        </a>
+        <a class="dept-card other" href="strategy_coming_soon.html" data-bu="kls">
+            <div class="dept-icon"><img src="assets/strategy_hub_img_07.png" alt="可兰素" /></div>
+            <div class="dept-name">可兰素</div>
+            <div class="dept-tag">车用尿素</div>
+            <div class="dept-summary">车用尿素战略洞察 · 政策动态 · 出口市场</div>
+            
+        </a>
+        <a class="dept-card other" href="strategy_coming_soon.html" data-bu="bych">
+            <div class="dept-icon"><img src="assets/strategy_hub_img_08.png" alt="铂源催化" /></div>
+            <div class="dept-name">铂源催化</div>
+            <div class="dept-tag">氢燃料电池催化剂</div>
+            <div class="dept-summary">氢能战略洞察 · 催化剂 · 氢能布局</div>
+            
+        </a>
+        <a class="dept-card other" href="strategy_coming_soon.html" data-bu="dhx">
+            <div class="dept-icon"><img src="assets/strategy_hub_img_09.png" alt="迪克化学" /></div>
+            <div class="dept-name">迪克化学</div>
+            <div class="dept-tag">制动液/防冻液</div>
+            <div class="dept-summary">汽车化学品战略洞察 · OEM配套 · 后市场</div>
+            
+        </a>
+    </div>
+
+</div>
+
+<div class="footer-note">
+    战略洞察中心 · 龙蟠行业数据库 · <a class="link-cta" href="analysis_hub.html">进入分析报告 →</a>
+</div>
+
+<script>
+const BU_LOGOS = {
+            'lhy': 'assets/strategy_hub_img_06.png',
+            'kls': 'assets/strategy_hub_img_07.png',
+            'czly': 'assets/strategy_hub_img_01.png',
+            'lpsd': 'assets/strategy_hub_img_02.png',
+            'sdmd': 'assets/strategy_hub_img_03.png',
+            'sjld': 'assets/strategy_hub_img_04.png',
+            'bych': 'assets/strategy_hub_img_08.png',
+            'felt': 'assets/strategy_hub_img_05.png',
+            'dhx': 'assets/strategy_hub_img_09.png'
+        };
+</script>
+    <script src="./assets/ai_fab_inject.js"></script>
+
+<script>
+// 策略Hub BU 门禁过滤 — 沿用 bu_gate.js 统一逻辑
+window.addEventListener('load', function() {
+    window.applyBUFilter && window.applyBUFilter();
+});
+</script>
+
+
+</body>
+</html>
+

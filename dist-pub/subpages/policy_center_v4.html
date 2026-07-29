@@ -1,9 +1,13 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
+  <!-- auth-gate: 权限闸门（自动注入，勿删；对应 auth_policy.js + inline_auth.js） -->
+  <script src="./auth_policy.js?v=20260729_1346"></script>
+  <script src="./inline_auth.js?v=20260729_1450"></script>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="html-version" content="20260729_001">
+    <meta name="html-version" content="20260724_001">
     <title>政策中心 · 锂电池产业链信息中台</title>
     <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Noto+Sans+SC:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
     <style>
@@ -358,11 +362,11 @@
         <!-- ====== Main ====== -->
         <div class="main-area">
             <!--统一导航栏（shared_nav.css）-->
-<link rel="stylesheet" href="shared_nav.css">
+<link rel="stylesheet" href="./shared_nav.css">
 <!--统一导航栏（shared_nav.css）-->
-<link rel="stylesheet" href="shared_nav.css">
+<link rel="stylesheet" href="./shared_nav.css">
 <div class="sub-topbar">
-    <a class="sub-topbar-home" href="index_v3.html">← 返回首页</a>
+    <a class="sub-topbar-home" href="../index_v3.html">← 返回首页</a>
     <div class="sub-topbar-title"> 政策中心</div>
     <div class="sub-topbar-nav">
         <div class="sub-nav-item" onclick="window.location.href='policy_center_v4.html'"><span> 政策中心</span></div>
@@ -1012,7 +1016,7 @@
     </script>
 
 
-    <script src="assets/ai_fab_inject.js"></script>
+    <script src="./assets/ai_fab_inject.js"></script>
 
     <!-- ===== 右下角悬浮按钮组 ===== -->
     <div id="fab-group" style="position:fixed; bottom:30px; right:30px; display:flex; flex-direction:column; gap:10px; z-index:9999;">
