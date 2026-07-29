@@ -1,12 +1,16 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
+  <!-- auth-gate: 权限闸门（自动注入，勿删；对应 auth_policy.js + inline_auth.js） -->
+  <script src="./auth_policy.js?v=20260729_1346"></script>
+  <script src="./inline_auth.js?v=20260729_1450"></script>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="html-version" content="20260729_001">
+<meta name="html-version" content="20260724_001">
 <title>事业部历史存档</title>
-<script src="inline_01.js"></script>
-<script src="bu_gate.js"></script>
+<script src="./inline_01.js"></script>
+<script src="./bu_gate.js?v=20260729_1615"></script>
 <script>
   // 每次修改此文件后，将 content 值改为今天日期（如 20260420）
   // 浏览器遇到新的 html-version 会强制重新加载，永久告别缓存问题
@@ -286,14 +290,14 @@
     <span id="topbar-title-text">事业部历史存档</span>
   </div>
   <div class="topbar-nav">
-    <a href="index_v3.html">🏠 首页</a>
+    <a href="../index_v3.html">🏠 首页</a>
     <a href="archive_v3.html">📁 历史数据</a>
   </div>
 </div>
 
 <!-- 页面标题 -->
 <div class="page-hero" id="pageHero">
-  <a class="back-link" href="index_v3.html">← 返回首页</a>
+  <a class="back-link" href="../index_v3.html">← 返回首页</a>
   <h1 id="hero-title">事业部历史存档</h1>
   <div class="bu-subtitle" id="hero-subtitle">选择一个日期查看该日早报</div>
   <div class="stats-row">
@@ -427,12 +431,15 @@ async function initPage() {
   }
   // 权限校验：非管理员访问其他 BU → 退回引导页
   // 直连 GitHub Pages（不在 iframe 中）跳过校验
+  // BU 别名映射（sjld→sjl 等）
+  var BU_ALIAS = { sjld: 'sjl', kelan: 'kls', dkhx: 'dhx', lubricant: 'lhy' };
+  var buIdForCheck = BU_ALIAS[buId] || buId;
   if (window !== window.top) {
     var gate = window.BU_GATE;
     if (gate) {
       var deptId = gate.getCurrentDeptId();
       var userDeptIds = deptId ? gate.parseDeptIds(deptId) : [];
-      if (!gate.isAllowed(buId, userDeptIds)) {
+      if (!gate.isAllowed(buIdForCheck, userDeptIds)) {
         location.hash = '';
         renderGuidePage();
         window.applyBUFilter && setTimeout(function() { window.applyBUFilter(); }, 50);
@@ -480,14 +487,14 @@ function renderGuidePage() {
 async function loadBUHistory(id) {
   try {
     /* 加载 index.json 获取可用日期列表 */
-    const respIdx = await fetch('reports/index.json?v=' + HTML_VERSION);
+    const respIdx = await fetch('../reports/index.json?v=' + HTML_VERSION);
     const idx = await respIdx.json();
     const dates = idx.available_dates || [];
 
     /* 加载最新一期获取统计信息 */
     let statsData = null;
     try {
-      const respLatest = await fetch(`reports/${dates[dates.length - 1]}.json?v=${HTML_VERSION}`);
+      const respLatest = await fetch(`../reports/${dates[dates.length - 1]}.json?v=${HTML_VERSION}`);
       statsData = await respLatest.json();
     } catch(e) {}
 
@@ -553,7 +560,7 @@ async function checkDateForBU(date, buId) {
   const month = months[d.getMonth()];
 
   try {
-    const resp = await fetch(`reports/${date}.json?v=${HTML_VERSION}`);
+    const resp = await fetch(`../reports/${date}.json?v=${HTML_VERSION}`);
     if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
     const data = await resp.json();
     // 兼容键名：data.departments 或 data.report.departments 或 data（根级就是 departments）
@@ -595,7 +602,7 @@ async function checkDateForBU(date, buId) {
 /* ── 打开报告弹窗 ── */
 async function openReportModal(date, buId, embed) {
   try {
-    const resp = await fetch(`reports/${date}.json?v=${HTML_VERSION}`);
+    const resp = await fetch(`../reports/${date}.json?v=${HTML_VERSION}`);
     const data = await resp.json();
     // 兼容键名：data.departments 或 data.report.departments
     const deptsObj = data.departments || (data.report && data.report.departments) || {};
@@ -1083,6 +1090,7 @@ initPage();
 /* 页内引导卡片点击切换 #id 时，重新初始化（哈希变化不会触发整页重载）*/
 window.addEventListener('hashchange', initPage);
 </script>
-    <script src="assets/ai_fab_inject.js"></script>
+    <script src="./assets/ai_fab_inject.js"></script>
 </body>
 </html>
+

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="html-version" content="20260724_001">
+<meta name="html-version" content="20260729_001">
 <title>事业部历史存档</title>
 <script src="inline_01.js"></script>
 <script src="bu_gate.js"></script>
@@ -494,16 +494,17 @@ async function loadBUHistory(id) {
     document.getElementById('stat-total').textContent = dates.length;
     document.getElementById('stat-latest').textContent = dates[0] || '—'; /* available_dates 从新到旧排列，取首位 */
 
-    /* 对每个日期异步检查该 BU 是否有内容（出错时标记为空，不阻塞） */
-    const dateCardResults = [];
-    for (const d of dates) {
-      try {
-        dateCardResults.push(await checkDateForBU(d, id));
-      } catch(e) {
-        dateCardResults.push({ date:d, day:new Date(d).getDate(), month:'', empty:true, _rawDate:new Date(d) });
-      }
-    }
-    const dateCards = dateCardResults;
+    /* 优化：列表页不再逐个 fetch 80+ 个大报告 json 预检。
+       原逻辑对每个日期串行下载完整报告（含全 9BU 数据、平均 180KB），
+       80 次 ≈ 13.7MB 下载 + 网关逐请求延迟，导致数十秒~数分钟白屏。
+       改为仅依据 index.json 的日期列表直接渲染，卡片默认「有内容」；
+       用户点「查看早报」时 openReportModal 才按需 fetch 当天 json，
+       无该 BU 数据时已有 alert 兜底。列表加载请求数 80+ → 1。 */
+    const monthNames = ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
+    const dateCards = dates.map(function(d) {
+      const dt = new Date(d);
+      return { date: d, day: dt.getDate(), month: monthNames[dt.getMonth()], empty: false, _rawDate: dt };
+    });
 
     /* 按日期排序（最新在前）*/
     dateCards.sort((a, b) => b._rawDate - a._rawDate);
