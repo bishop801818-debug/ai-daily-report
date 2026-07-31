@@ -4,7 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>雷达看板 - 龙蟠科技</title>
+    <!-- 雷达看板按事业部分类权限（与子页面一致）：bu_gate.js 提供 applyBUFilter，渲染后过滤非本BU卡片 -->
     <script src="bu_gate.js"></script>
+    <script>
+        // 部门 ID 持久化到 sessionStorage（与 index_v3.html 一致，解决 URL 参数丢失问题）
+        (function(){
+            var deptMatch = location.search.match(/[?&]__dept=([^&]*)/);
+            if (deptMatch && deptMatch[1]) {
+                try { sessionStorage.setItem('__dept', deptMatch[1]); } catch(e){}
+            }
+        })();
+    </script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: "Microsoft YaHei", "PingFang SC", sans-serif; background: #f0f2f5; min-height: 100vh; }
@@ -336,7 +346,7 @@ var currentCardMonth = {};
         .then(function(r) { return r.json(); })
         .then(function(logos) {
             BU_LOGOS = logos;
-            renderCards(); window.applyBUFilter && setTimeout(function() { window.applyBUFilter('#grid-main'); }, 50);
+            renderCards();
             if (focusBuId) {
                 var card = document.getElementById('card-' + focusBuId);
                 if (card) {
@@ -346,7 +356,7 @@ var currentCardMonth = {};
             }
         })
         .catch(function() {
-            renderCards(); window.applyBUFilter && setTimeout(function() { window.applyBUFilter('#grid-main'); }, 50);
+            renderCards();
             if (focusBuId) {
                 var card = document.getElementById('card-' + focusBuId);
                 if (card) {
@@ -429,21 +439,12 @@ function buildCard(buId, meta) {
         requestAnimationFrame(function(){t.style.opacity='1';});
         setTimeout(function(){t.style.opacity='0';setTimeout(function(){document.body.removeChild(t);},300);},2000);
     }
+    // 雷达看板按 BU 过滤：点击卡片进入对应事业部详情，透传 __dept 供详情页 ALLOWED_BU 判定
     window.navigateToDetail = function(buId) {
-        var isLocal = /localhost|127\.0\.0\.1/i.test(location.hostname);
-        var m = location.search.match(/[?&]__dept=([^&]+)/);
-        var deptId = m ? decodeURIComponent(m[1]) : (sessionStorage.getItem('_dept') || '');
-        // 不在 iframe 中（本地或 GitHub Pages 直连）→ 直跳本地文件，不校验 __dept
-        if (isLocal || window === window.top) {
-            var file = BU_FILES[buId] || 'radar_detail.html?id=' + buId;
-            location.assign(file);
-            return;
-        }
-        if (!deptId) { showToast('当前账号无权限'); return; }
-        var base = 'https://lopal603906.aiforce.cloud/app/app_179wsjrn4fj/sc/radar/' + buId;
-        var url = base;
-        var finalUrl = url + '?departmentId=' + encodeURIComponent(deptId) + '&__dept=' + encodeURIComponent(deptId);
-        location.assign(finalUrl);
+        var file = BU_FILES[buId] || ('radar_detail.html?id=' + buId);
+        var dm = location.search.match(/[?&]__dept=([^&]+)/);
+        if (dm) { file += (file.indexOf('?') >= 0 ? '&' : '?') + '__dept=' + encodeURIComponent(dm[1]); }
+        location.assign(file);
     }
 
     return '<div id="card-' + buId + '" class="dept-card ' + meta.category + '" style="border-left-color:' + meta.color + '">' +
@@ -475,6 +476,10 @@ function renderCards() {
 
     // 渲染完卡片后，初始化所有 ECharts 雷达图
     initAllRadars();
+    // 雷达看板按 BU 过滤：隐藏非本事业部卡片（呈现方式=过滤式，不弹窗）
+    if (window.applyBUFilter) {
+        setTimeout(function() { window.applyBUFilter('#grid-main'); }, 80);
+    }
 }
 
 // ─────────────────────────────────────────────

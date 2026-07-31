@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>权限调试</title>
+    <script src="bu_gate.js"></script>
+    <style>
+        body { font-family: Microsoft YaHei, sans-serif; padding: 20px; max-width: 800px; margin: 0 auto; }
+        .debug-info { background: #f5f5f5; padding: 15px; border-radius: 8px; margin: 10px 0; }
+        .error { color: #d32f2f; }
+        .success { color: #388e3c; }
+        button { padding: 8px 16px; margin: 5px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>权限系统诊断</h1>
+    
+    <div class="debug-info">
+        <h3>1. URL 参数检查</h3>
+        <div id="url-params"></div>
+    </div>
+    
+    <div class="debug-info">
+        <h3>2. sessionStorage 检查</h3>
+        <div id="session-storage"></div>
+    </div>
+    
+    <div class="debug-info">
+        <h3>3. getCurrentDeptId() 结果</h3>
+        <div id="dept-id"></div>
+    </div>
+    
+    <div class="debug-info">
+        <h3>4. 测试 applyBUFilter</h3>
+        <button onclick="runFilter()">运行过滤</button>
+        <button onclick="clearSession()">清除 sessionStorage</button>
+    </div>
+    
+    <div class="debug-info">
+        <h3>5. 雷达卡片信息</h3>
+        <div id="radar-cards"></div>
+    </div>
+
+    <script>
+        // 显示 URL 参数
+        var urlParams = new URLSearchParams(window.location.search);
+        var paramsDiv = document.getElementById('url-params');
+        paramsDiv.innerHTML = '<p>完整 URL: ' + window.location.href + '</p>';
+        paramsDiv.innerHTML += '<p>__dept: ' + (urlParams.get('__dept') || '<span class="error">无</span>') + '</p>';
+        paramsDiv.innerHTML += '<p>departmentId: ' + (urlParams.get('departmentId') || '<span class="error">无</span>') + '</p>';
+        
+        // 显示 sessionStorage
+        var ssDiv = document.getElementById('session-storage');
+        var _dept = '', __dept = '';
+        try {
+            _dept = sessionStorage.getItem('_dept') || 'null';
+            __dept = sessionStorage.getItem('__dept') || 'null';
+        } catch(e) {
+            ssDiv.innerHTML = '<p class="error">sessionStorage 访问失败: ' + e.message + '</p>';
+        }
+        ssDiv.innerHTML = '<p>_dept: ' + (_dept === 'null' ? '<span class="error">无</span>' : _dept) + '</p>';
+        ssDiv.innerHTML += '<p>__dept: ' + (__dept === 'null' ? '<span class="error">无</span>' : __dept) + '</p>';
+        
+        // 显示 getCurrentDeptId 结果
+        var deptId = getCurrentDeptId();
+        var deptDiv = document.getElementById('dept-id');
+        deptDiv.innerHTML = '<p>结果: <strong>' + (deptId || '<span class="error">空</span>') + '</strong></p>';
+        
+        // 雷达卡片信息（模拟）
+        var cardsDiv = document.getElementById('radar-cards');
+        var buList = ['czly', 'lpsd', 'sdmd', 'felt', 'sjl', 'dhx', 'lhy', 'kls'];
+        cardsDiv.innerHTML = '<p>预设 BU 列表: ' + buList.join(', ') + '</p>';
+        
+        function runFilter() {
+            console.log('开始测试 applyBUFilter...');
+            if (window.BU_GATE) {
+                console.log('BU_GATE 可用:', window.BU_GATE);
+                console.log('当前部门ID:', getCurrentDeptId());
+                console.log('BU_DEPT:', window.BU_GATE.BU_DEPT);
+            }
+            alert('请查看浏览器控制台 (F12) 获取详细日志');
+        }
+        
+        function clearSession() {
+            try {
+                sessionStorage.removeItem('_dept');
+                sessionStorage.removeItem('__dept');
+                alert('已清除 sessionStorage，刷新后生效');
+            } catch(e) {
+                alert('清除失败: ' + e.message);
+            }
+        }
+    </script>
+</body>
+</html>
