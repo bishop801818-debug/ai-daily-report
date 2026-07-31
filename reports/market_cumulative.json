@@ -2,9 +2,9 @@
   "meta": {
     "description": "2026年至今累计涨跌幅",
     "data_source": "各产品源数据文件",
-    "update_time": "2026-07-30 12:01:44",
+    "update_time": "2026-07-31 11:58:54",
     "year": 2026,
-    "generated_at": "2026-07-30T12:01:44.111831",
+    "generated_at": "2026-07-31T11:58:54.763701",
     "generator_version": "20260612_v4"
   },
   "products": [
@@ -12,13 +12,13 @@
       "name": "碳酸锂期货",
       "unit": "元/吨",
       "start_date": "2026-01-05",
-      "end_date": "2026-07-29",
+      "end_date": "2026-07-30",
       "start_price": 129980.0,
-      "end_price": 147400.0,
-      "change": 17420.0,
-      "change_pct": 13.4,
+      "end_price": 140460.0,
+      "change": 10480.0,
+      "change_pct": 8.06,
       "direction": "up",
-      "data_points": 137,
+      "data_points": 138,
       "price_series": [
         {
           "date": "2026-01-05",
@@ -567,6 +567,10 @@
         {
           "date": "2026-07-29",
           "price": 147400.0
+        },
+        {
+          "date": "2026-07-30",
+          "price": 140460.0
         }
       ]
     },
@@ -3420,13 +3424,13 @@
       "name": "锂云母(2.0-2.5%)",
       "unit": "元/吨",
       "start_date": "2026-01-04",
-      "end_date": "2026-07-29",
+      "end_date": "2026-07-30",
       "start_price": 4100.0,
-      "end_price": 4300,
-      "change": 200.0,
-      "change_pct": 4.88,
+      "end_price": 4275,
+      "change": 175.0,
+      "change_pct": 4.27,
       "direction": "up",
-      "data_points": 101,
+      "data_points": 102,
       "price_series": [
         {
           "date": "2026-01-04",
@@ -3831,6 +3835,10 @@
         {
           "date": "2026-07-29",
           "price": 4300
+        },
+        {
+          "date": "2026-07-30",
+          "price": 4275
         }
       ]
     }
