@@ -14,15 +14,18 @@ window.__SUBPAGE_MAP__ = {"analysis_hub.html": "analysis_hub.html", "archive_v3.
 <!-- <link rel="preload" href="inline_02.js" as="script"> 已移除 -->
 <link rel="preload" href="inline_03.min.js" as="script">
 <!-- latest_data.js 与 embedded_data.gz.js 内容相同，只需加载 embedded_data.gz.js 即可 -->
-<script>window.HTML_VERSION="20260731_001";
+<script>window.HTML_VERSION="20260803_001";
 // 部门 ID 持久化到 sessionStorage（解决 Miaoda URL 重写丢失参数的问题）
 (function(){
+  function saveDept(val) {
+    try { sessionStorage.setItem('__dept', val); sessionStorage.setItem('_dept', val); } catch(e){}
+  }
   // 1. 优先从 hash 读取（#dept=xxx，Miaoda 网关会吞 query 但保留 hash）
   var deptMatch = location.hash.match(/[#&]dept=([^&]*)/)
                 || location.search.match(/[?&]__dept=([^&]*)/)
                 || location.search.match(/[?&]departmentId=([^&]*)/);
   if (deptMatch && deptMatch[1]) {
-    try { sessionStorage.setItem('__dept', deptMatch[1]); } catch(e){}
+    saveDept(deptMatch[1]);
     return;
   }
   // 兼容门户下发的 ?tier=<BU代码>：映射为部门 ID 后落 sessionStorage
@@ -45,7 +48,7 @@ window.__SUBPAGE_MAP__ = {"analysis_hub.html": "analysis_hub.html", "archive_v3.
   var tierMatch = location.search.match(/[?&]tier=([^&]*)/);
   if (tierMatch && tierMatch[1]) {
     var mapped = TIER_DEPT[decodeURIComponent(tierMatch[1]).trim().toLowerCase()];
-    if (mapped) { try { sessionStorage.setItem('__dept', mapped); } catch(e){} }
+    if (mapped) { saveDept(mapped); }
   }
 })();
 // 导航函数（用 hash 透传部门 ID，Miaoda 网关重写 URL 时会保留 hash）
@@ -57,7 +60,7 @@ function gotoWithDept(url) {
   }
   window.top.location.href = url;
 }</script>
-<script src="embedded_data.gz.js?v=20260731_001"></script>
+<script src="embedded_data.gz.js?v=20260803_001"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
@@ -66,7 +69,7 @@ function gotoWithDept(url) {
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <!-- 资源预加载（仅保留首屏关键资源，大文件延迟加载） -->
     <script defer src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
-    <script defer src="electrolyte_data.js?v=20260731_1423"></script>
+    <script defer src="electrolyte_data.js?v=20260803_1423"></script>
     <script defer src="recycling_data_v3.js?v=20260729_1423"></script>
     <script defer src="chemical_data.js?v=20260729_1423"></script>
     <script defer src="portal-bundle.js?v=20260729_1423"></script>
