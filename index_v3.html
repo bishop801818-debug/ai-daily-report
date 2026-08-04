@@ -10,11 +10,12 @@ window.__SUBPAGE_MAP__ = {"analysis_hub.html": "analysis_hub.html", "archive_v3.
 <script src="./debug_bu_switcher.js"></script>
 
 <!-- 预加载关键资源 -->
-<link rel="preload" href="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js" as="script">
+<link rel="preload" href="./assets/echarts.5.5.0.min.js" as="script">
+<link rel="preload" href="home_dashboard.json" as="fetch">
 <!-- <link rel="preload" href="inline_02.js" as="script"> 已移除 -->
 <link rel="preload" href="inline_03.min.js" as="script">
 <!-- latest_data.js 与 embedded_data.gz.js 内容相同，只需加载 embedded_data.gz.js 即可 -->
-<script>window.HTML_VERSION="20260803_001";
+<script>window.HTML_VERSION="20260804_0942";
 // 部门 ID 持久化到 sessionStorage（解决 Miaoda URL 重写丢失参数的问题）
 (function(){
   function saveDept(val) {
@@ -60,7 +61,7 @@ function gotoWithDept(url) {
   }
   window.top.location.href = url;
 }</script>
-<script src="embedded_data.gz.js?v=20260803_001"></script>
+<script src="embedded_data.gz.js?v=20260804_001"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
@@ -68,11 +69,11 @@ function gotoWithDept(url) {
     <meta http-equiv="Expires" content="0">
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <!-- 资源预加载（仅保留首屏关键资源，大文件延迟加载） -->
-    <script defer src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+    <script defer src="./assets/echarts.5.5.0.min.js"></script>
     <script defer src="electrolyte_data.js?v=20260803_1423"></script>
     <script defer src="recycling_data_v3.js?v=20260729_1423"></script>
     <script defer src="chemical_data.js?v=20260729_1423"></script>
-    <script defer src="portal-bundle.js?v=20260729_1423"></script>
+    <script defer src="portal-bundle.js?v=20260804_0942"></script>
     <script defer src="recycling_gantt.js?v=20260729_1423"></script>
     <!-- inline_02.js 已移除：内含5月旧格式数据，会覆盖 embedded_data.gz.js 中的7月正确数据 -->
     <script defer src="inline_03.min.js"></script>

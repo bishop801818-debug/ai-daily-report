@@ -57,12 +57,19 @@ function parseDeptIds(deptStr) {
   return deptStr.split(',').map(function(s) { return s.trim(); }).filter(Boolean);
 }
 
+// 策略（2026-07-30 调整为 fail-closed）：已识别身份按 BU 收窄；
+// 未映射部门在 applyBUFilter 入口即被 __buGateDenyAll 拒绝（隐藏全部+提示）。
+// 本函数内"无部门身份/未知卡片BU→显示"仅服务于本地预览与发布校验（无 __dept 场景）。
 function isAllowed(bu, userDeptIds) {
-  if (!userDeptIds || !userDeptIds.length) return false;
-  // HQ 可见全部
+  // 无部门身份 → 显示全部（故障安全）
+  if (!userDeptIds || !userDeptIds.length) return true;
+  // hq/all 速记令牌 → 显示全部
+  if (userDeptIds.indexOf('hq') >= 0 || userDeptIds.indexOf('all') >= 0) return true;
+  // HQ 可见全部（真实OD ID）
   if (userDeptIds.some(function(d) { return BU_DEPT.hq.indexOf(d) >= 0; })) return true;
   var allowed = BU_DEPT[bu];
-  if (!allowed) return false;
+  // 未知 BU → 显示（故障安全）
+  if (!allowed) return true;
   return userDeptIds.some(function(d) { return allowed.indexOf(d) >= 0; });
 }
 
@@ -83,12 +90,63 @@ function isSkippedClass(name) {
 //  从 URL 获取当前部门 ID
 // ============================================================
 function getCurrentDeptId() {
-  var m = location.search.match(/[?&]__dept=([^&]+)/);
+  // 测试模式：管理员可用 ?__simulate_bu=czly 模拟任意事业部身份自测（仅本地/管理员用，不影响真实鉴权）
+  var sim = location.search.match(/[?&]__simulate_bu=([^&]+)/);
+  if (sim) {
+    var simBu = decodeURIComponent(sim[1]);
+    // 将模拟 BU 映射为对应部门 ID（与 BU_DEPT 一致）
+    if (BU_DEPT[simBu]) return BU_DEPT[simBu][0];
+    return simBu; // 直接传 od-xxx 也支持
+  }
+  // 调试面板（Ctrl+Shift+D）：临时模拟事业部身份，仅用于管理员自测，不影响真实鉴权
+  try {
+    var dbg = sessionStorage.getItem('__debug_bu');
+    if (dbg) return BU_DEPT[dbg] ? BU_DEPT[dbg][0] : dbg;
+  } catch (e) {}
+  var m = location.hash.match(/[#&]dept=([^&]+)/);
+  if (m) {
+    var deptId = decodeURIComponent(m[1]);
+    try { sessionStorage.setItem('__dept', deptId); } catch(e){}
+    return deptId;
+  }
+  m = location.search.match(/[?&]__dept=([^&]+)/);
   if (m) return decodeURIComponent(m[1]);
   m = location.search.match(/[?&]departmentId=([^&]+)/);
   if (m) return decodeURIComponent(m[1]);
   // 从 sessionStorage 中读取（inline_01.js 中存储）
-  try { return sessionStorage.getItem('_dept') || ''; } catch(e) { return ''; }
+  try { return sessionStorage.getItem('_dept') || sessionStorage.getItem('__dept') || ''; } catch(e) { return ''; }
+}
+
+// ============================================================
+//  fail-closed 拒绝：未映射部门 → 隐藏全部卡片并显示无权限提示
+//  （2026-07-30 应用户要求，取消"未识别降级放行"）
+// ============================================================
+function __buGateDenyAll(containerSelector, userDeptIds) {
+  var container = containerSelector ? document.querySelector(containerSelector) : document;
+  if (container) {
+    var cards = container.querySelectorAll('[class*="allbu-card"], [class*="dept-card"], [class*="bu-card"], [id^="card-"]');
+    if (!cards.length && container !== document) cards = container.children;
+    Array.prototype.forEach.call(cards, function(card) {
+      card.style.display = 'none';
+      card.classList.add('bu-gate-hidden');
+    });
+  }
+  // 显示无权限提示（只插一次），避免被误认为页面故障
+  if (!document.getElementById('bu-gate-deny-tip')) {
+    var tip = document.createElement('div');
+    tip.id = 'bu-gate-deny-tip';
+    tip.style.cssText = 'margin:60px auto;max-width:520px;padding:28px 32px;text-align:center;'
+      + 'background:#fff;border:1px solid #e5e7eb;border-radius:12px;box-shadow:0 2px 12px rgba(0,0,0,.06);'
+      + 'font-size:15px;color:#374151;line-height:1.8;';
+    tip.innerHTML = '<div style="font-size:34px;margin-bottom:8px;">&#128274;</div>'
+      + '<div style="font-weight:600;font-size:17px;margin-bottom:6px;">暂无访问权限</div>'
+      + '<div>您所在的部门尚未开通本页面的访问权限。<br>如需开通，请联系管理员。</div>';
+    var host = (containerSelector && document.querySelector(containerSelector)) || document.body;
+    if (host) host.appendChild(tip);
+  }
+  if (window.console) {
+    console.warn('[bu_gate] fail-closed 拒绝：部门未映射，已隐藏全部内容。deptIds=', userDeptIds);
+  }
 }
 
 // ============================================================
@@ -102,11 +160,22 @@ function getCurrentDeptId() {
 window.applyBUFilter = function(containerSelector) {
   var deptId = getCurrentDeptId();
   if (!deptId) {
-    // 无部门 ID → 不拦截（降级：显示所有卡片）
+    // 无部门 ID → 拒绝访问（fail-closed：隐藏所有卡片并提示无权限）
+    // 这样确保未经过首页带 __dept 参数访问的用户无法看到任何内容
+    console.log('[BU Gate] 无部门身份，拒绝访问');
+    __buGateDenyAll(containerSelector, []);
     return;
   }
 
   var userDeptIds = parseDeptIds(deptId);
+  // 2026-07-30 用户要求改为 fail-closed：部门ID无法识别为任何已知BU/HQ → 隐藏全部内容并提示无权限
+  var _recognized = userDeptIds.some(function(d){
+    if (d === 'hq' || d === 'all') return true;
+    if (BU_DEPT.hq.indexOf(d) >= 0) return true;
+    for (var _b in BU_DEPT) { if (_b === 'hq') continue; if (BU_DEPT[_b].indexOf(d) >= 0) return true; }
+    return false;
+  });
+  if (!_recognized) { __buGateDenyAll(containerSelector, userDeptIds); return; }
   var container = containerSelector
     ? document.querySelector(containerSelector)
     : document;
@@ -114,7 +183,7 @@ window.applyBUFilter = function(containerSelector) {
   if (!container) return;
 
   // 找出所有可能带 BU class 的卡片
-  var cards = container.querySelectorAll('[class*="allbu-card"], [class*="dept-card"], [id^="card-"]');
+  var cards = container.querySelectorAll('[class*="allbu-card"], [class*="dept-card"], [class*="bu-card"], [id^="card-"]');
   if (!cards.length) {
     // 后备：直接将所有子元素视为卡片
     cards = container.children;
@@ -147,6 +216,10 @@ window.applyBUFilter = function(containerSelector) {
     // 方法3: 从 data-bu 属性识别
     if (!buId) {
       buId = card.getAttribute('data-bu') || '';
+    }
+    // 方法4: 从 data-buid 属性识别（如 bu-card 元素）
+    if (!buId) {
+      buId = card.getAttribute('data-buid') || '';
     }
     if (!buId || buId === 'hq') return;
 
@@ -437,10 +510,13 @@ window.BU_GATE = {
                         try {
                             var data = JSON.parse(dataXhr.responseText);
                             console.log('[数据加载] 成功（动态），耗时: ' + (Date.now() - startTime) + 'ms');
-                            if (data && data.today) {
-                                window.__EMBEDDED__ = data;
-                                console.log('[数据加载] 数据已缓存到 window.__EMBEDDED__');
+                        if (data && data.today) {
+                            // 防止用无 .report 的动态数据覆盖已含正确 .report 的嵌入数据（embedded_data.gz.js 同步注入）
+                            if (!window.__EMBEDDED__ || !window.__EMBEDDED__.report || data.report) {
+                            window.__EMBEDDED__ = data;
+                            console.log('[数据加载] 数据已缓存到 window.__EMBEDDED__');
                             }
+                        }
                         } catch(e) {
                             console.warn('[数据加载] JSON解析失败:', e.message);
                         }
@@ -512,18 +588,20 @@ window.BU_GATE = {
 })();
 
 // ============================================================
-// __dept 导航拦截器（inline_01 2026-07-10）
-// 作用：读取 index_v3.html URL 中的 __dept 参数，自动追加到所有子页面导航链接
-// 这样 radar_hub/analysis_hub 等子页面都能通过 getDept() 读到 __dept，
-// secure-content 服务端门禁才能正确校验部门权限。
+// 部门 ID 导航拦截器（inline_01 2026-07-10 / 2026-07-31 改 hash 透传）
+// 作用：读取入口 URL 的部门 ID（hash #dept= 优先，其次 ?__dept=），
+// 自动以 #dept= hash 方式透传到所有子页面导航链接，
+// 供 bu_gate.js 做事业部级卡片门禁（妙搭网关吞 query 但保留 hash）。
 // ============================================================
 (function() {
-    // 读取 __dept 并存入 sessionStorage（跨页面持久化）
-    var deptMatch = location.search.match(/[?&]__dept=([^&]+)/);
+    // 读取部门 ID 并存入 sessionStorage（跨页面持久化，双键写入兼容新旧逻辑）
+    var deptMatch = location.hash.match(/[#&]dept=([^&]+)/)
+                 || location.search.match(/[?&]__dept=([^&]+)/);
     if (deptMatch) {
         var deptVal = decodeURIComponent(deptMatch[1]);
         sessionStorage.setItem('_dept', deptVal);
-        console.log('[导航拦截] 读取 __dept:', deptVal);
+        sessionStorage.setItem('__dept', deptVal);
+        console.log('[导航拦截] 读取部门ID:', deptVal);
     }
 
     var STORAGE_KEY = '_dept';
@@ -543,7 +621,7 @@ window.BU_GATE = {
     }
 
     function appendDept(url) {
-        var dept = sessionStorage.getItem(STORAGE_KEY) || '';
+        var dept = sessionStorage.getItem(STORAGE_KEY) || sessionStorage.getItem('__dept') || '';
         if (!dept) return url;
         var hash = '';
         var hashIdx = url.indexOf('#');
@@ -551,10 +629,9 @@ window.BU_GATE = {
             hash = url.slice(hashIdx);
             url = url.slice(0, hashIdx);
         }
-        var sep = url.indexOf('?') !== -1 ? '&' : '?';
-        // 不重复追加
-        if (url.indexOf('__dept=') !== -1) return url + hash;
-        return url + sep + '__dept=' + encodeURIComponent(dept) + hash;
+        // 不重复追加（hash 已有 dept 或 query 已有 __dept）
+        if (hash.indexOf('dept=') !== -1 || url.indexOf('__dept=') !== -1) return url + hash;
+        return url + '#dept=' + encodeURIComponent(dept) + hash;
     }
 
     // 拦截所有 onclick handler（内联 JS，如 window.location.href='xxx.html'）
@@ -908,10 +985,13 @@ window.BU_GATE = {
                         try {
                             var data = JSON.parse(dataXhr.responseText);
                             console.log('[数据加载] 成功（动态），耗时: ' + (Date.now() - startTime) + 'ms');
-                            if (data && data.today) {
-                                window.__EMBEDDED__ = data;
-                                console.log('[数据加载] 数据已缓存到 window.__EMBEDDED__');
+                        if (data && data.today) {
+                            // 防止用无 .report 的动态数据覆盖已含正确 .report 的嵌入数据（embedded_data.gz.js 同步注入）
+                            if (!window.__EMBEDDED__ || !window.__EMBEDDED__.report || data.report) {
+                            window.__EMBEDDED__ = data;
+                            console.log('[数据加载] 数据已缓存到 window.__EMBEDDED__');
                             }
+                        }
                         } catch(e) {
                             console.warn('[数据加载] JSON解析失败:', e.message);
                         }
@@ -983,18 +1063,20 @@ window.BU_GATE = {
 })();
 
 // ============================================================
-// __dept 导航拦截器（inline_01 2026-07-10）
-// 作用：读取 index_v3.html URL 中的 __dept 参数，自动追加到所有子页面导航链接
-// 这样 radar_hub/analysis_hub 等子页面都能通过 getDept() 读到 __dept，
-// secure-content 服务端门禁才能正确校验部门权限。
+// 部门 ID 导航拦截器（inline_01 2026-07-10 / 2026-07-31 改 hash 透传）
+// 作用：读取入口 URL 的部门 ID（hash #dept= 优先，其次 ?__dept=），
+// 自动以 #dept= hash 方式透传到所有子页面导航链接，
+// 供 bu_gate.js 做事业部级卡片门禁（妙搭网关吞 query 但保留 hash）。
 // ============================================================
 (function() {
-    // 读取 __dept 并存入 sessionStorage（跨页面持久化）
-    var deptMatch = location.search.match(/[?&]__dept=([^&]+)/);
+    // 读取部门 ID 并存入 sessionStorage（跨页面持久化，双键写入兼容新旧逻辑）
+    var deptMatch = location.hash.match(/[#&]dept=([^&]+)/)
+                 || location.search.match(/[?&]__dept=([^&]+)/);
     if (deptMatch) {
         var deptVal = decodeURIComponent(deptMatch[1]);
         sessionStorage.setItem('_dept', deptVal);
-        console.log('[导航拦截] 读取 __dept:', deptVal);
+        sessionStorage.setItem('__dept', deptVal);
+        console.log('[导航拦截] 读取部门ID:', deptVal);
     }
 
     var STORAGE_KEY = '_dept';
@@ -1014,7 +1096,7 @@ window.BU_GATE = {
     }
 
     function appendDept(url) {
-        var dept = sessionStorage.getItem(STORAGE_KEY) || '';
+        var dept = sessionStorage.getItem(STORAGE_KEY) || sessionStorage.getItem('__dept') || '';
         if (!dept) return url;
         var hash = '';
         var hashIdx = url.indexOf('#');
@@ -1022,10 +1104,9 @@ window.BU_GATE = {
             hash = url.slice(hashIdx);
             url = url.slice(0, hashIdx);
         }
-        var sep = url.indexOf('?') !== -1 ? '&' : '?';
-        // 不重复追加
-        if (url.indexOf('__dept=') !== -1) return url + hash;
-        return url + sep + '__dept=' + encodeURIComponent(dept) + hash;
+        // 不重复追加（hash 已有 dept 或 query 已有 __dept）
+        if (hash.indexOf('dept=') !== -1 || url.indexOf('__dept=') !== -1) return url + hash;
+        return url + '#dept=' + encodeURIComponent(dept) + hash;
     }
 
     // 拦截所有 onclick handler（内联 JS，如 window.location.href='xxx.html'）
@@ -4147,11 +4228,7 @@ const BU_LOGOS = {
                 `</div>`;
             }
             grid.innerHTML = html;
-
-            // BU 门禁过滤
-            if (typeof window.applyBUFilter === 'function') {
-                setTimeout(function() { window.applyBUFilter('#allbuGrid'); }, 50);
-            }
+            // 首页=共享门户：飞书登录即天然门禁，不做 BU 过滤（9 卡全显）。BU 权限仅在子页面生效。
         }
 
         // 从全览卡片进入单个BU轮播
@@ -11173,6 +11250,97 @@ document.addEventListener('DOMContentLoaded', function() {
         
 
         var chartInstances = [null, null, null, null];
+        // ===== A+B+C 优化：看板数据由 home_dashboard.json 预生成（几 KB），一次性拉取+缓存，轮播走内存 =====
+        var FALLBACK_DASHBOARDS = [
+            { id: 'ternary_ncm_split', tag: '三元材料·型号分布', title: '三元正极材料分型号产量占比', link: 'ternary_charts.html?v=20260630', unit: '吨', division: 'czly', chartType: 'pie', isBar: false },
+            { id: 'lsp_price', tag: '锂辉石·精矿价格', title: '锂辉石精矿价格走势', link: 'carbonate_charts.html?v=20260630', unit: '美元/吨', division: 'czly', chartType: 'line', isBar: false },
+            { id: 'electrolyte_price_lfp', tag: '电解液·LFP动力价格', title: '电解液（LFP动力型）价格走势', link: 'electrolyte_charts.html?v=20260630', unit: '万元/吨', division: 'felt', chartType: 'line', isBar: false },
+            { id: 'ternary_prod', tag: '三元正极·行业产量', title: '三元正极材料产量走势', link: 'ternary_charts.html?v=20260630', unit: '吨', division: 'czly', chartType: 'line', isBar: true }
+        ];
+        var ALL_SERIES = [];
+        var DATA_READY = false;
+
+        // 带超时的 fetch（AbortController，8s）
+        function fetchWithTimeout(url, timeoutMs) {
+            return new Promise(function(resolve, reject) {
+                var ac = new AbortController();
+                var timer = setTimeout(function() { ac.abort(); }, timeoutMs);
+                fetch(url, { signal: ac.signal })
+                    .then(function(r) { clearTimeout(timer); resolve(r); })
+                    .catch(function(e) { clearTimeout(timer); reject(e); });
+            });
+        }
+
+        // 应用预生成载荷到内存（并写入 localStorage 作为 last-good 兜底）
+        function applyDashboardPayload(payload) {
+            if (!payload || !Array.isArray(payload.dashboards) || !payload.dashboards.length) {
+                throw new Error('数据格式错误：dashboards 为空');
+            }
+            DASHBOARDS = payload.dashboards.map(function(d) {
+                return {
+                    id: d.id, tag: d.tag, title: d.title, link: d.link,
+                    unit: d.unit, division: d.division,
+                    chartType: d.chartType || 'line', isBar: !!d.isBar, insight: d.insight
+                };
+            });
+            ALL_SERIES = payload.dashboards.map(function(d) { return d.series || []; });
+            DATA_READY = true;
+            try { localStorage.setItem('home_dashboard_v1', JSON.stringify(payload)); } catch (e) {}
+        }
+
+        function getCachedPayload() {
+            try {
+                var raw = localStorage.getItem('home_dashboard_v1');
+                if (!raw) return null;
+                var p = JSON.parse(raw);
+                if (p && Array.isArray(p.dashboards) && p.dashboards.length) return p;
+            } catch (e) {}
+            return null;
+        }
+
+        // 拉取 home_dashboard.json（?v=HTML_VERSION 日内缓存；失败重试一次）
+        function fetchDashboardData() {
+            var url = 'home_dashboard.json?v=' + (window.HTML_VERSION || '');
+            function doFetch() {
+                return fetchWithTimeout(url, 8000).then(function(r) {
+                    if (!r.ok) throw new Error('HTTP ' + r.status);
+                    return r.json();
+                }).then(function(payload) { applyDashboardPayload(payload); });
+            }
+            return doFetch().catch(function(err) {
+                console.warn('[首页看板] 首次拉取失败，重试一次:', err);
+                return doFetch();
+            });
+        }
+
+        // 启动加载：网络 → localStorage last-good → 内置静态兜底
+        function bootstrapLoad(seed) {
+            updateChartInfo(null, '数据加载中…');
+            fetchDashboardData().then(function() {
+                currentChartIdx = DASHBOARDS.length ? (seed % DASHBOARDS.length) : 0;
+                loadChartData(currentChartIdx);
+                updateChartDots();
+            }).catch(function(err) {
+                console.error('[首页看板] 网络加载失败，尝试本地缓存:', err);
+                var cached = getCachedPayload();
+                if (cached) {
+                    try {
+                        applyDashboardPayload(cached);
+                        currentChartIdx = DASHBOARDS.length ? (seed % DASHBOARDS.length) : 0;
+                        loadChartData(currentChartIdx);
+                        updateChartDots();
+                        return;
+                    } catch (e) { console.error('[首页看板] 本地缓存解析失败:', e); }
+                }
+                // 最终兜底：内置静态配置（仅标题，无序列）
+                DASHBOARDS = FALLBACK_DASHBOARDS;
+                ALL_SERIES = FALLBACK_DASHBOARDS.map(function() { return []; });
+                DATA_READY = true;
+                currentChartIdx = seed % DASHBOARDS.length;
+                loadChartData(currentChartIdx);
+                updateChartDots();
+            });
+        }
         var currentChartIdx = 0;
         var chartAutoPlay = null;
 
@@ -11584,114 +11752,18 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         function loadChartData(idx) {
+            if (!DASHBOARDS.length) {
+                updateChartInfo(null, '数据加载失败：看板配置为空');
+                return;
+            }
             var db = DASHBOARDS[idx];
-
-            fetch(db.dataFile + '?t=' + Date.now())
-                .then(function(r) {
-                    if (!r.ok) throw new Error('HTTP ' + r.status);
-                    return r.json();
-                })
-                .then(function(d) {
-                    if (!d.tables || !Array.isArray(d.tables)) {
-                        throw new Error('数据格式错误：缺少tables数组');
-                    }
-                    var table = d.tables.find(function(t) {
-                        return t.table_name === db.tableName;
-                    });
-                    if (!table) {
-                        throw new Error('未找到表：' + db.tableName);
-                    }
-                    var rows = table.data || [];
-                    if (rows.length === 0) {
-                        throw new Error('表数据为空');
-                    }
-
-                    // ===== 饼图数据解析（分类/份额数据）=====
-                    if (db.chartType === 'pie') {
-                        var pieData;
-                        // 模式1: row_columns — 取最新一行，非日期列作为分类
-                        if (db.pieMode === 'row_columns') {
-                            var lastRow = rows[rows.length - 1];
-                            var excludeKeys = {};
-                            ['日期','月份','时间','date','_record_id','父记录','字段'].forEach(function(k) { excludeKeys[k] = 1; });
-                            (db.pieExcludeColumns || []).forEach(function(k) { excludeKeys[k] = 1; });
-                            pieData = [];
-                            for (var ck in lastRow) {
-                                if (!excludeKeys[ck]) {
-                                    var cv = parseFloat(String(lastRow[ck]).replace(/,/g, ''));
-                                    if (!isNaN(cv) && cv > 0) {
-                                        pieData.push({ name: ck, value: Math.round(cv * 100) / 100 });
-                                    }
-                                }
-                            }
-                        }
-                        // 模式2: filtered_rows — 按日期过滤，提取nameKey+valueKey
-                        else if (db.pieMode === 'filtered_rows') {
-                            var dateCol = db.pieDateKey || '日期';
-                            var nameCol = db.pieNameKey || 'name';
-                            var valCol = db.pieValueKey || 'value';
-                            // 找到最新日期
-                            var latestDate = '';
-                            rows.forEach(function(r) { var rd = String(r[dateCol] || ''); if (rd > latestDate) latestDate = rd; });
-                            // 过滤该日期的行
-                            var filterFn = db.pieFilter || function() { return true; };
-                            pieData = rows.filter(function(r) {
-                                return String(r[dateCol] || '') === latestDate && filterFn(r);
-                            }).map(function(r) {
-                                return { name: String(r[nameCol] || ''), value: parseFloat(String(r[valCol] || '0').replace(/,/g, '')) * (db.scale || 1) };
-                            }).filter(function(d) { return d.name && d.value > 0; });
-                        }
-                        else {
-                            throw new Error('未知饼图模式: ' + (db.pieMode || ''));
-                        }
-
-                        if (pieData.length === 0) {
-                            throw new Error('饼图数据解析后无有效数据');
-                        }
-                        // 按值降序排列
-                        pieData.sort(function(a, b) { return b.value - a.value; });
-                        renderChartSlide(pieData);
-                        updateChartInfo(pieData);
-                        return;
-                    }
-
-                    // ===== 时间序列数据解析（折线图/柱状图）=====
-                    var parsed = rows.map(function(r) {
-                        var timeVal = String(r[db.timeKey] || r['日期'] || r['月份'] || '');
-                        var numVal = findNumericField(r, db.valueKey);
-                        // 统一时间格式
-                        var label = timeVal;
-                        if (label.length === 7 && label.indexOf('-') === 4) {
-                            label = label.slice(5) + '月';
-                        } else if (label.length === 10 && label.indexOf('-') === 4) {
-                            label = label.slice(5, 7) + '/' + label.slice(8, 10);
-                        } else if (label.length > 7) {
-                            label = label.slice(5);
-                        }
-                        return { time: timeVal, label: label, value: numVal * db.scale };
-                    }).filter(function(d) { return d.value > 0; });
-
-                    // 按时间排序（从早到晚）
-                    parsed.sort(function(a, b) {
-                        return String(a.time).localeCompare(String(b.time));
-                    });
-
-                    // 取最近12条数据
-                    var data = parsed.slice(-12).map(function(d) {
-                        return [d.label, d.value];
-                    });
-
-                    if (data.length === 0) {
-                        throw new Error('解析后无有效数据');
-                    }
-
-                    renderChartSlide(data);
-                    updateChartInfo(data);
-                })
-                .catch(function(err) {
-                    console.error('数据库看板数据加载失败:', err);
-                    updateChartInfo(null, '数据加载失败：' + (err.message || '未知错误'));
-                });
+            var series = ALL_SERIES[idx] || [];
+            if (!series || series.length === 0) {
+                updateChartInfo(null, '离线数据不可用，请刷新页面');
+                return;
+            }
+            renderChartSlide(series);
+            updateChartInfo(series);
         }
 
         function moveChartCarousel(dir) {
@@ -11719,10 +11791,9 @@ document.addEventListener('DOMContentLoaded', function() {
         function init() {
             // 计算今日精选索引
             var seed = 0;
-            try { seed = getDailySeed(); } catch(e) {}
-            currentChartIdx = seed % DASHBOARDS.length;
-            loadChartData(currentChartIdx);
-            updateChartDots();
+            try { seed = getDailySeed(); } catch (e) {}
+            currentChartIdx = DASHBOARDS.length ? (seed % DASHBOARDS.length) : 0;
+            bootstrapLoad(seed);
         }
 
         window.moveChartCarousel = moveChartCarousel;
