@@ -6,16 +6,44 @@ window.__SUBPAGE_MAP__ = {"analysis_hub.html": "analysis_hub.html", "archive_v3.
 (function(){try{var m=new URLSearchParams(location.search).get('goto');if(m&&window.__SUBPAGE_MAP__[m]){location.replace(window.__SUBPAGE_MAP__[m]);}}catch(e){}})();
 </script>
 
+<!-- 回收甘特图与 ECharts 懒加载 shim：首屏不再加载，进入回收视图时按需加载 -->
+<script>
+(function(){
+  function loadScript(src){ return new Promise(function(res,rej){ var s=document.createElement('script'); s.src=src; s.onload=function(){res();}; s.onerror=function(){rej(new Error('load fail: '+src));}; document.head.appendChild(s); }); }
+  window.__recyclingAssetsReady=null;
+  window.loadRecyclingAssets=function(){
+    if(window.__recyclingAssetsReady) return window.__recyclingAssetsReady;
+    var v=window.HTML_VERSION?('?v='+window.HTML_VERSION):'';
+    window.__recyclingAssetsReady=loadScript('recycling_data_v3.js'+v)
+      .then(function(){return loadScript('recycling_gantt.js'+v);})
+      .then(function(){return loadScript('assets/echarts.5.5.0.min.js'+v);})
+      .then(function(){window.__recyclingLoaded=true;})
+      .catch(function(e){window.__recyclingAssetsReady=null;console.error('[回收] 懒加载失败',e);throw e;});
+    return window.__recyclingAssetsReady;
+  };
+  if(typeof window.renderRecyclingGantt!=='function'){
+    window.renderRecyclingGantt=function(container){
+      window.loadRecyclingAssets().then(function(){
+        if(typeof window.renderRecyclingGantt==='function'){ window.renderRecyclingGantt(container); }
+      }).catch(function(){
+        if(container&&container.innerHTML!==undefined){ container.innerHTML='<div style="padding:40px;text-align:center;color:#e74c3c;">回收数据加载失败，请刷新重试</div>'; }
+      });
+    };
+  }
+})();
+</script>
+
 <!-- 调试面板：Ctrl+Shift+D 模拟事业部视角自测（不影响真实鉴权）。defer：解析后再执行，不阻塞首屏 -->
 <script src="./debug_bu_switcher.js" defer></script>
 
 <!-- 预加载关键资源 -->
-<link rel="preload" href="./assets/echarts.5.5.0.min.js" as="script">
+<!-- ECharts 改为回收视图按需懒加载（见下方 shim），已从首屏预加载移除 -->
 <link rel="preload" href="home_dashboard.json" as="fetch">
 <!-- <link rel="preload" href="inline_02.js" as="script"> 已移除 -->
 <link rel="preload" href="inline_03.min.js" as="script">
 <!-- latest_data.js 与 embedded_data.gz.js 内容相同，只需加载 embedded_data.gz.js 即可 -->
-<script>window.HTML_VERSION="20260805_001";
+<script>window.HTML_VERSION="20260806_0921";
+    window.DATA_HASHES = /*__DATA_HASHES_JSON__*/{'carbonate_spot_price_merged.json': 'bab0d10e43a8', 'data/carbonate_spot_price_merged.json': 'bab0d10e43a8', 'data/industry_chain.json': '786f2c5c50de', 'data/lepidolite_price_history.json': '8f744975b0d0', 'data/lithium_ore_price_history.json': '2df0712e1f57', 'data/phosphate_rock_price.json': 'cba3970b2d39', 'embedded/automotive_embedded_data.js': 'afd946c5869d', 'embedded/recycling_embedded_data.js': '0656df6f944e', 'hot_news_data.json': 'a41a81f38484', 'reports/eg_futures_history.json': '9ff7422aafba', 'reports/i_futures_history.json': '1ad2ceda7a00', 'reports/index.json': '7ae667aa438e', 'reports/iron_phosphate_history.json': 'a7f711e63d28', 'reports/lc_futures_history.json': '0780962c5b97', 'reports/lfp_all_data.json': 'db74edfe9a38', 'reports/lfp_power_history.json': '6a31d65c269f', 'reports/lfp_storage_history.json': '416033aad8c1', 'reports/market_lc.json': '32a7af4e9af9', 'reports/pd_futures_history.json': '600ce6151e1e', 'reports/pt_futures_history.json': 'ddcc1fde6f40', 'reports/ur_history.json': 'de8f42a8fe63', 'reports/wti_history.json': '0f4d1f9e050f'};;;
 // 部门 ID 持久化到 sessionStorage（解决 Miaoda URL 重写丢失参数的问题）
 (function(){
   function saveDept(val) {
@@ -61,7 +89,7 @@ function gotoWithDept(url) {
   }
   window.top.location.href = url;
 }</script>
-<script src="embedded_data.gz.js?v=20260805_001"></script>
+<script src="embedded_data.gz.js?v=20260806_001"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
@@ -69,12 +97,12 @@ function gotoWithDept(url) {
     <meta http-equiv="Expires" content="0">
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <!-- 资源预加载（仅保留首屏关键资源，大文件延迟加载） -->
-    <script defer src="./assets/echarts.5.5.0.min.js"></script>
-    <script defer src="electrolyte_data.js?v=20260805_1423"></script>
-    <script defer src="recycling_data_v3.js?v=20260729_1423"></script>
+    <!-- ECharts 改为回收视图按需懒加载，已从首屏移除 -->
+    <script defer src="electrolyte_data.js?v=20260806_1423"></script>
+    <!-- 回收数据 recycling_data_v3.js 改为进入回收视图时按需懒加载 -->
     <script defer src="chemical_data.js?v=20260729_1423"></script>
-    <script defer src="portal-bundle.js?v=20260805_001"></script>
-    <script defer src="recycling_gantt.js?v=20260729_1423"></script>
+    <script defer src="portal-bundle.js?v=20260806_0900"></script>
+    <!-- 回收甘特图 recycling_gantt.js 改为按需懒加载 -->
     <!-- inline_02.js 已移除：内含5月旧格式数据，会覆盖 embedded_data.gz.js 中的7月正确数据 -->
     <script defer src="inline_03.min.js"></script>
     <script defer src="inline_04.js"></script>
