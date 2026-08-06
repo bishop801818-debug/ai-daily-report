@@ -256,8 +256,10 @@ def update_html_version():
         with open(html_file, "r", encoding="utf-8") as f:
             content = f.read()
         
-        # 替换版本参数: electrolyte_data.js?v=旧日期 -> electrolyte_data.js?v=今天日期
-        pattern = r'electrolyte_data\.js\?v=\d+'
+        # 替换版本参数: electrolyte_data.js?v=旧日期(可能带portal构建的_HHMM后缀) -> electrolyte_data.js?v=今天日期
+        # 2026-08-06 修复: 旧值可能因外部portal构建被写入 20260806_1423 形式后缀，\d+ 只能匹配前缀、
+        # 留尾导致误报“已更新”而实际残留 _1423。改用 \d+(_\d+)? 整体吞掉可选后缀。
+        pattern = r'electrolyte_data\.js\?v=\d+(_\d+)?'
         replacement = f'electrolyte_data.js?v={today_str}'
         new_content = re.sub(pattern, replacement, content)
         
