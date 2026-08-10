@@ -42,8 +42,8 @@ window.__SUBPAGE_MAP__ = {"analysis_hub.html": "analysis_hub.html", "archive_v3.
 <!-- <link rel="preload" href="inline_02.js" as="script"> 已移除 -->
 <link rel="preload" href="inline_03.min.js" as="script">
 <!-- latest_data.js 与 embedded_data.gz.js 内容相同，只需加载 embedded_data.gz.js 即可 -->
-<script>window.HTML_VERSION="20260807_0958";
-    window.DATA_HASHES = /*__DATA_HASHES_JSON__*/{'carbonate_spot_price_merged.json': 'fee4cdf93d3d', 'data/carbonate_spot_price_merged.json': 'fee4cdf93d3d', 'data/industry_chain.json': '786f2c5c50de', 'data/lepidolite_price_history.json': 'edd5842004e6', 'data/lithium_ore_price_history.json': 'dc4a762690dc', 'data/phosphate_rock_price.json': 'bc852ef4ae91', 'embedded/automotive_embedded_data.js': 'afd946c5869d', 'embedded/recycling_embedded_data.js': '0656df6f944e', 'hot_news_data.json': 'c80cf4480480', 'reports/eg_futures_history.json': 'd3ec14a329f8', 'reports/i_futures_history.json': 'a6b0754b6f92', 'reports/index.json': 'a9134fa4b010', 'reports/iron_phosphate_history.json': '2f85c634962c', 'reports/lc_futures_history.json': '77f4ac1eff0e', 'reports/lfp_all_data.json': 'db74edfe9a38', 'reports/lfp_power_history.json': '26fcefb2287e', 'reports/lfp_storage_history.json': '3bad4ba13480', 'reports/market_lc.json': 'd7897f219f9c', 'reports/pd_futures_history.json': '53f7246ec373', 'reports/pt_futures_history.json': 'ca4836d046f2', 'reports/ur_history.json': '89c14bcdacb6', 'reports/wti_history.json': 'a97f5085b6fe'};;;;
+<script>window.HTML_VERSION="20260810_001";
+    window.DATA_HASHES = /*__DATA_HASHES_JSON__*/{'carbonate_spot_price_merged.json': '711c81787991', 'data/carbonate_spot_price_merged.json': '711c81787991', 'data/industry_chain.json': '786f2c5c50de', 'data/lepidolite_price_history.json': 'a1ac36c1aac3', 'data/lithium_ore_price_history.json': '18aa7b1b52c1', 'data/phosphate_rock_price.json': '404904c7e1e1', 'embedded/automotive_embedded_data.js': 'afd946c5869d', 'embedded/recycling_embedded_data.js': '0656df6f944e', 'hot_news_data.json': '383a7a703494', 'reports/eg_futures_history.json': '518df2703258', 'reports/i_futures_history.json': '58d8c2afa629', 'reports/index.json': 'a9134fa4b010', 'reports/iron_phosphate_history.json': '4126d3427826', 'reports/lc_futures_history.json': 'e6fdd34d5131', 'reports/lfp_all_data.json': 'db74edfe9a38', 'reports/lfp_power_history.json': 'c80264e67594', 'reports/lfp_storage_history.json': '938f6bb6110b', 'reports/market_lc.json': 'f52c5fb60d37', 'reports/pd_futures_history.json': '58f40ecabc89', 'reports/pt_futures_history.json': '39014e5378a8', 'reports/ur_history.json': 'f8399e9f3b8d', 'reports/wti_history.json': 'e9e2c4f0011e'};;;;;;;;;;;
 // 部门 ID 持久化到 sessionStorage（解决 Miaoda URL 重写丢失参数的问题）
 (function(){
   function saveDept(val) {
@@ -85,11 +85,33 @@ function gotoWithDept(url) {
   var dept = '';
   try { dept = sessionStorage.getItem('__dept') || ''; } catch(e){}
   if (dept) {
-    url += '#dept=' + encodeURIComponent(dept);
+    url += (url.indexOf('#') > -1 ? '&' : '#') + 'dept=' + encodeURIComponent(dept);
   }
   window.top.location.href = url;
+}
+// 持久化门户注入的 open_id（#uid=），供雷达页门禁判定，避免 iframe 内跳转丢失
+(function(){
+  try {
+    var m = location.hash.match(/[#&]uid=([^&]+)/);
+    if (m && m[1]) sessionStorage.setItem('__uid', m[1]);
+  } catch(e){}
+})();
+function openRadar() {
+  var u = 'radar_hub.html';
+  if (window.self !== window.top) {
+    // 嵌入门户 iframe 内：仅切换 iframe 内容，保持地址栏干净。
+    // 透传 open_id（门户通过 iframe hash 注入），供雷达门禁判定。
+    var um = location.hash.match(/[#&]uid=([^&]+)/);
+    var su = '';
+    try { su = sessionStorage.getItem('__uid') || ''; } catch(e){}
+    var uid = (um && um[1]) ? um[1] : su;
+    if (uid) u += '#uid=' + uid;
+    window.location.href = u;
+  } else {
+    window.top.location.href = u;
+  }
 }</script>
-<script src="embedded_data.gz.js?v=20260807_001"></script>
+<script src="embedded_data.gz.js?v=20260810_001"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
@@ -98,10 +120,10 @@ function gotoWithDept(url) {
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <!-- 资源预加载（仅保留首屏关键资源，大文件延迟加载） -->
     <!-- ECharts 改为回收视图按需懒加载，已从首屏移除 -->
-    <script defer src="electrolyte_data.js?v=20260807"></script>
+    <script defer src="electrolyte_data.js?v=20260810"></script>
     <!-- 回收数据 recycling_data_v3.js 改为进入回收视图时按需懒加载 -->
     <script defer src="chemical_data.js?v=20260729_1423"></script>
-    <script defer src="portal-bundle.js?v=20260806_0921"></script>
+    <script defer src="portal-bundle.js?v=20260809_1252"></script>
     <!-- 回收甘特图 recycling_gantt.js 改为按需懒加载 -->
     <!-- inline_02.js 已移除：内含5月旧格式数据，会覆盖 embedded_data.gz.js 中的7月正确数据 -->
     <script defer src="inline_03.min.js"></script>
@@ -6175,7 +6197,7 @@ function gotoWithDept(url) {
                 <span class="nav-icon">🔭</span>
                 <span>竞品比对</span>
             </div>
-            <div class="main-nav-item" onclick="gotoWithDept('radar_hub.html')">
+            <div class="main-nav-item" onclick="openRadar()">
                 <span class="nav-icon">🕸️</span>
                 <span>雷达看板</span>
             </div>
