@@ -1,10 +1,14 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>雷达看板 - 龙蟠科技</title>
+<script>
 (function(){
   var RADAR_UID_WHITELIST = ['ou_78e0dba3ff382df7c11dcd07ea2255f0','ou_12015bf9c1d120116e6a01c022051130','ou_c0d1e422fada6770cb7da5069e96abbc','ou_178a5a969ca5c2d96c105d6ecbe4add0','ou_3897e64d72af1edd4637e51d1baa4d2c','ou_64217fc9e76e95ca13a26c0c4a5b665d'].concat(['7595021657568185305','7598822772604701656','7589910160420637874','7589938135119744185','7591392573697101019','7592890122870410205']);
   var RADAR_DEPT_WHITELIST = ['od-839a5caffe1fa682e014982a1d28fcb8'];
+  var RADAR_USERID_WHITELIST = ['7595021657568185305','7598822772604701656','7589910160420637874','7589938135119744185','7591392573697101019','7592890122870410205'];
   function isLocalPreview(){return location.protocol==='file:'||location.hostname==='localhost'||location.hostname==='127.0.0.1'||location.hostname==='';}
   window.RADAR_UID_DECIDED=false; window.RADAR_UID_ALLOWED=false;
   function clearDeny(){var el=document.getElementById('radar_deny_overlay'); if(el&&el.parentNode)el.parentNode.removeChild(el);}
@@ -12,7 +16,7 @@
   function decide(uid, deptIds){
     if(window.RADAR_UID_DECIDED && window.RADAR_UID_ALLOWED) return;
     var deptOk = Array.isArray(deptIds) && deptIds.some(function(d){return RADAR_DEPT_WHITELIST.indexOf(d)>=0;});
-    var allowed = (RADAR_UID_WHITELIST.indexOf(String(uid))>=0)||deptOk||isLocalPreview();
+    var allowed = (RADAR_UID_WHITELIST.indexOf(String(uid))>=0)||(RADAR_USERID_WHITELIST.indexOf(String(uid))>=0)||deptOk||isLocalPreview();
     if(window.RADAR_UID_DECIDED && !window.RADAR_UID_ALLOWED && allowed){
       window.RADAR_UID_ALLOWED = true;
       document.documentElement.style.visibility='';
@@ -28,14 +32,11 @@
   document.documentElement.style.visibility='hidden';
   var s=(window.userInfo&&(window.userInfo.open_id||window.userInfo.user_id))||window.userId||(window.__context&&window.__context.user&&window.__context.user.open_id)||'';
   if(s)decide(s);
-  window.addEventListener('message',function(e){if(e.data&&e.data.type==='RADAR_AUTH'){decide(e.data.openId, e.data.deptIds);}});
+  window.addEventListener('message',function(e){if(e.data&&e.data.type==='RADAR_AUTH'){var _u=e.data.openId;var _usr=e.data.user;if(!_u&&_usr){_u=_usr.open_id||_usr.user_id||_usr.employee_id||_usr.union_id||'';}decide(_u, e.data.deptIds);}});
   try{if(window.parent&&window.parent!==window)window.parent.postMessage({type:'RADAR_REQUEST_AUTH'},'*');}catch(_){}
   setTimeout(function(){decide('');},1500);
 })();
 </script>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>雷达看板 - 龙蟠科技</title>
     <!-- 雷达看板按事业部分类权限（与子页面一致）：bu_gate.js 提供 applyBUFilter，渲染后过滤非本BU卡片 -->
     <script src="bu_gate.js"></script>
     <script>
