@@ -42,8 +42,8 @@ window.__SUBPAGE_MAP__ = {"analysis_hub.html": "analysis_hub.html", "archive_v3.
 <!-- <link rel="preload" href="inline_02.js" as="script"> 已移除 -->
 <link rel="preload" href="inline_03.min.js" as="script">
 <!-- latest_data.js 与 embedded_data.gz.js 内容相同，只需加载 embedded_data.gz.js 即可 -->
-<script>window.HTML_VERSION="20260810_001";
-    window.DATA_HASHES = /*__DATA_HASHES_JSON__*/{'carbonate_spot_price_merged.json': '711c81787991', 'data/carbonate_spot_price_merged.json': '711c81787991', 'data/industry_chain.json': '786f2c5c50de', 'data/lepidolite_price_history.json': 'a1ac36c1aac3', 'data/lithium_ore_price_history.json': '18aa7b1b52c1', 'data/phosphate_rock_price.json': '404904c7e1e1', 'embedded/automotive_embedded_data.js': 'afd946c5869d', 'embedded/recycling_embedded_data.js': '0656df6f944e', 'hot_news_data.json': '383a7a703494', 'reports/eg_futures_history.json': '518df2703258', 'reports/i_futures_history.json': '58d8c2afa629', 'reports/index.json': 'a9134fa4b010', 'reports/iron_phosphate_history.json': '4126d3427826', 'reports/lc_futures_history.json': 'e6fdd34d5131', 'reports/lfp_all_data.json': 'db74edfe9a38', 'reports/lfp_power_history.json': 'c80264e67594', 'reports/lfp_storage_history.json': '938f6bb6110b', 'reports/market_lc.json': 'f52c5fb60d37', 'reports/pd_futures_history.json': '58f40ecabc89', 'reports/pt_futures_history.json': '39014e5378a8', 'reports/ur_history.json': 'f8399e9f3b8d', 'reports/wti_history.json': 'e9e2c4f0011e'};;;;;;;;;;;
+<script>window.HTML_VERSION="20260811_001";
+    window.DATA_HASHES = /*__DATA_HASHES_JSON__*/{'carbonate_spot_price_merged.json': 'c47fae731262', 'data/carbonate_spot_price_merged.json': 'c47fae731262', 'data/industry_chain.json': '786f2c5c50de', 'data/lepidolite_price_history.json': '190e0242a81c', 'data/lithium_ore_price_history.json': 'd376973df603', 'data/phosphate_rock_price.json': 'ec24109d6584', 'embedded/automotive_embedded_data.js': 'afd946c5869d', 'embedded/recycling_embedded_data.js': '0656df6f944e', 'hot_news_data.json': '55f5034ca797', 'reports/eg_futures_history.json': 'f10f3c91f9c9', 'reports/i_futures_history.json': '21b1e3826360', 'reports/index.json': 'aa2666c92158', 'reports/iron_phosphate_history.json': '63969132d7b6', 'reports/lc_futures_history.json': '4a45a95e7d5d', 'reports/lfp_all_data.json': 'db74edfe9a38', 'reports/lfp_power_history.json': '3acf333587ae', 'reports/lfp_storage_history.json': '9321cffc20c7', 'reports/market_lc.json': '8844a72f8665', 'reports/pd_futures_history.json': '6c6ed54c08df', 'reports/pt_futures_history.json': 'be24d42fff64', 'reports/ur_history.json': 'b7c17f359f2c', 'reports/wti_history.json': '57688850a30e'};;;;;;;;;;;;;;;;;;
 // 部门 ID 持久化到 sessionStorage（解决 Miaoda URL 重写丢失参数的问题）
 (function(){
   function saveDept(val) {
@@ -111,7 +111,7 @@ function openRadar() {
     window.top.location.href = u;
   }
 }</script>
-<script src="embedded_data.gz.js?v=20260810_001"></script>
+<script src="embedded_data.gz.js?v=20260811_001"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
@@ -120,10 +120,10 @@ function openRadar() {
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <!-- 资源预加载（仅保留首屏关键资源，大文件延迟加载） -->
     <!-- ECharts 改为回收视图按需懒加载，已从首屏移除 -->
-    <script defer src="electrolyte_data.js?v=20260810"></script>
+    <script defer src="electrolyte_data.js?v=20260811"></script>
     <!-- 回收数据 recycling_data_v3.js 改为进入回收视图时按需懒加载 -->
     <script defer src="chemical_data.js?v=20260729_1423"></script>
-    <script defer src="portal-bundle.js?v=20260809_1252"></script>
+    <script defer src="portal-bundle.js?v=20260810_2154"></script>
     <!-- 回收甘特图 recycling_gantt.js 改为按需懒加载 -->
     <!-- inline_02.js 已移除：内含5月旧格式数据，会覆盖 embedded_data.gz.js 中的7月正确数据 -->
     <script defer src="inline_03.min.js"></script>
