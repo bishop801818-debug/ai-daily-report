@@ -4,6 +4,84 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>法恩莱特 - 雷达看板</title>
+<script>
+(function(){
+  var RADAR_UID_WHITELIST = ['ou_78e0dba3ff382df7c11dcd07ea2255f0','ou_12015bf9c1d120116e6a01c022051130','ou_c0d1e422fada6770cb7da5069e96abbc','ou_178a5a969ca5c2d96c105d6ecbe4add0','ou_3897e64d72af1edd4637e51d1baa4d2c','ou_64217fc9e76e95ca13a26c0c4a5b665d','1854251564037223'].concat(['7595021657568185305','7598822772604701656','7589910160420637874','7589938135119744185','7591392573697101019','7592890122870410205']);
+  var RADAR_DEPT_WHITELIST = ['od-839a5caffe1fa682e014982a1d28fcb8'];
+  function isLocalPreview(){return location.protocol==='file:'||location.hostname==='localhost'||location.hostname==='127.0.0.1'||location.hostname==='';}
+  window.RADAR_UID_DECIDED=false; window.RADAR_UID_ALLOWED=false;
+  var AUTH_UID=''; var AUTH_DEPTS=[];
+  function getUid(){
+    var cand=[];
+    if(window.userInfo){ cand.push(window.userInfo.open_id, window.userInfo.user_id, window.userInfo.employee_id, window.userInfo.union_id, window.userInfo.uid); }
+    if(window.userId) cand.push(window.userId);
+    if(window.__context&&window.__context.user&&window.__context.user.open_id) cand.push(window.__context.user.open_id);
+    if(AUTH_UID) cand.push(AUTH_UID);
+    try{var a=localStorage.getItem('sso-user-info');if(a){var o=JSON.parse(a);if(o) cand.push(o.open_id,o.user_id,o.employee_id);}}catch(e){}
+    try{var b=localStorage.getItem('userInfo');if(b){var p=JSON.parse(b);if(p) cand.push(p.open_id,p.user_id,p.employee_id);}}catch(e){}
+    try{var q=new URLSearchParams(location.search);var u=q.get('uid')||q.get('openid');if(u)cand.push(u);}catch(e){}
+    var h=location.hash.match(/uid=([^&]+)/); if(h&&h[1]) cand.push(decodeURIComponent(h[1]));
+    for(var i=0;i<cand.length;i++){ if(cand[i]!==undefined&&cand[i]!==null&&String(cand[i]).length>0) return String(cand[i]); }
+    return '';
+  }
+  function getDeptIds(){
+    var out=[];
+    var h=location.hash.match(/dept=([^&]+)/); if(h&&h[1]) out.push(decodeURIComponent(h[1]));
+    try{var q=new URLSearchParams(location.search);var d=q.get('__dept')||q.get('departmentId')||q.get('dept');if(d)out.push(d);}catch(e){}
+    if(window.userInfo){ if(window.userInfo.department) out.push(window.userInfo.department); if(Array.isArray(window.userInfo.department_ids)) out=out.concat(window.userInfo.department_ids); if(window.userInfo.dept_id) out.push(window.userInfo.dept_id); }
+    try{var s=sessionStorage.getItem('__dept');if(s)out.push(s);}catch(e){}
+    if(AUTH_DEPTS&&AUTH_DEPTS.length) out=out.concat(AUTH_DEPTS);
+    var seen={},res=[];
+    for(var i=0;i<out.length;i++){var v=String(out[i]).trim(); if(v&&!seen[v]){seen[v]=1;res.push(v);}}
+    return res;
+  }
+  function clearDeny(){var el=document.getElementById('radar_deny_overlay'); if(el&&el.parentNode)el.parentNode.removeChild(el);}
+  function deny(){
+    var ex=document.getElementById('radar_deny_overlay'); if(ex)return;
+    function render(){
+      var el=document.getElementById('radar_deny_overlay'); if(el)return;
+      var d=document.createElement('div'); d.id='radar_deny_overlay';
+      d.style.cssText='position:fixed;inset:0;z-index:2147483647;display:flex;align-items:center;justify-content:center;background:rgba(245,246,250,.98)';
+      d.innerHTML='<div style="text-align:center;padding:48px;background:#fff;border-radius:16px;box-shadow:0 8px 30px rgba(0,0,0,.08)"><div style="font-size:64px;margin-bottom:12px">🔒</div><div style="font-size:22px;font-weight:700;color:#c0392b">您的账号暂无权限浏览</div><div style="margin-top:8px;color:#888;font-size:14px">请联系管理员申请雷达看板访问权限。</div>'+
+        '<details style="margin-top:16px;text-align:left;font-size:12px;color:#666;max-width:480px;word-break:break-all;"><summary style="cursor:pointer;color:#999">排查信息（点击展开）</summary>open_id: '+(window.userInfo&&window.userInfo.open_id||'(none)')+'<br>user_id: '+(window.userInfo&&window.userInfo.user_id||'(none)')+'<br>employee_id: '+(window.userInfo&&window.userInfo.employee_id||'(none)')+'<br>resolved_uid: '+getUid()+'</details></div>';
+      (document.body||document.documentElement).appendChild(d);
+    }
+    if(document.body)render(); else document.addEventListener('DOMContentLoaded',render);
+  }
+  var WL = RADAR_UID_WHITELIST.map(String);
+  var DWL = RADAR_DEPT_WHITELIST.map(String);
+  function isAllowedNow(){
+    var uid=getUid();
+    var depts=getDeptIds();
+    if(WL.indexOf(uid)>=0) return true;
+    if(Array.isArray(depts)&&depts.some(function(d){return DWL.indexOf(d)>=0;})) return true;
+    if(isLocalPreview()) return true;
+    return false;
+  }
+  function evaluate(){
+    if(window.RADAR_UID_DECIDED && window.RADAR_UID_ALLOWED) return;
+    if(isAllowedNow()){
+      window.RADAR_UID_DECIDED=true; window.RADAR_UID_ALLOWED=true;
+      document.documentElement.style.visibility='';
+      clearDeny();
+      return;
+    }
+    if(window.RADAR_UID_FINAL) deny();
+  }
+  document.documentElement.style.visibility='hidden';
+  evaluate();
+  window.addEventListener('message',function(e){
+    if(e.data&&e.data.type==='RADAR_AUTH'){
+      if(e.data.user){ try{ window.userInfo=Object.assign({},window.userInfo,e.data.user); }catch(_){} }
+      if(e.data.openId) AUTH_UID=String(e.data.openId);
+      if(e.data.deptIds&&e.data.deptIds.length) AUTH_DEPTS=e.data.deptIds.map(String);
+      evaluate();
+    }
+  });
+  try{if(window.parent&&window.parent!==window)window.parent.postMessage({type:'RADAR_REQUEST_AUTH'},'*');}catch(_){}
+  setTimeout(function(){ window.RADAR_UID_FINAL=true; evaluate(); },1500);
+})();
+</script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: "Microsoft YaHei", "PingFang SC", sans-serif; background: #f0f2f5; min-height: 100vh; }
@@ -914,6 +992,7 @@
         }
 
     </style>
+    <script src="bu_gate.js"></script>
 </head>
 <body>
 <div class="page-header">
@@ -992,7 +1071,7 @@
                         <span id="playIcon">▶</span>
                     </button>
                     <div class="timeline-track" id="timelineTrack"></div>
-                    <span class="timeline-label" id="timelineLabel">2026年05月</span>
+                    <span class="timeline-label" id="timelineLabel"></span>
                 </div>
             </div>
 
@@ -1025,7 +1104,7 @@
     <div id="tab-kpi" class="tab-content">
         <div class="kpi-grid" id="kpiGrid"></div>
         <div class="chart-section">
-            <div class="chart-title">5月核心KPI达标率（预算 → 挑战目标 → 实际）</div>
+            <div class="chart-title" id="kpiTitle">5月核心KPI达标率（预算 → 挑战目标 → 实际）</div>
             <div style="overflow-x:auto;">
                 <table class="data-table" id="kpiTable">
                     <thead><tr>
@@ -1103,9 +1182,10 @@
 </div>
 
 <div class="footer-note">
-    数据来源：法恩莱特2026年5月经营分析报告 · <a href="radar_hub.html">返回雷达看板</a>
+    <span id="kpiSource">数据来源：法恩莱特2026年5月经营分析报告</span> · <a href="radar_hub.html">返回雷达看板</a>
 </div>
 
+<script src="_radar_scoring_config.js"></script>
 <script src="./echarts.min.js"></script>
 <script>
 //------------------------------------------------------
@@ -1119,9 +1199,12 @@ const BU_META_FNLT = {
     accent: '#9c27b0',
 }
 
+// ── 单一配置源（同步加载，RADAR_HISTORY_FNLT 之前执行） ──
+const BU_ID_FELT = 'felt';
+const BU_WEIGHTS_FELT = BU_CONFIG[BU_ID_FELT].weights;
+// DIMS_DEF_FNLT 在下方用 config 重新计算（原版 → DIMS_DEF_FNLT_OLD）
 
-
-const DIMS_DEF_FNLT = [
+const DIMS_DEF_FNLT_OLD = [ // 已废弃，使用 BU_CONFIG
     { id: 'd1', name: '核心KPI',      kpis: ['收入达成率','利润达成率','成本控制率','回款率'], color: '#9c27b0' },
     { id: 'd2', name: '经营效益',     kpis: ['碳酸锂销量','修复LFP交付','磷铁液交付','元明粉销售'], color: '#9c27b0' },
     { id: 'd3', name: '运营效率',     kpis: ['碳酸锂投料','碳酸锂产出','磷铁液产出','加工成本'], color: '#9c27b0' },
@@ -1130,246 +1213,21 @@ const DIMS_DEF_FNLT = [
     { id: 'd6', name: '组织活力',     kpis: ['AI项目立项','企业荣誉','IATF审核问题','5S覆盖率'], color: '#9c27b0' },
 ];
 
-const RADAR_HISTORY_FNLT = {
-    '2026-04': {
-        // 2026-04实际数据（FELT法恩莱特电解液事业部）
-        dims: { d1: 20, d2: 15, d3: 47, d4: 100, d5: 71, d6: 50 },
-        kpis: {
-            d1: [20, 20, 20, 20],
-            d2: [15, 15, 15, 15],
-            d3: [47, 47, 47, 47],
-            d4: [100, 100, 100, 100],
-            d5: [71, 71, 71, 71],
-            d6: [50, 50, 50, 50],
-        },
-        _kpiComparison: {
-            title: '4月核心KPI达标率',
-            period: '2026年4月',
-            items: [
-                { name: '销量达成率(%)',   budget: 4155, target: 7795, actual: 4155, unit: '%' },
-                { name: '收入达成率(%)',   budget: 9887, target: 17053, actual: 9887, unit: '%' },
-                { name: '毛利率(%)',       budget: -2.5, target: -2.5, actual: -2.5, unit: '%' },
-                { name: '期间费用率(%)',   budget: 322, target: 366, actual: 322, unit: '%' },
-                { name: '净利率(%)',       budget: -558, target: 443, actual: -558, unit: '%' },
-                { name: '现金流达成率(%)', budget: 362, target: 461, actual: 362, unit: '%' },
-                { name: '回款率(%)',       budget: 69, target: 69, actual: 69, unit: '%' }
-            ],
-        },
-        _dimComparison_d2: {
-            title: '4月经营效益',
-            items: [
-                { name: '销量达成率(%)',   budget: 4155, target: 7795, actual: 4155, unit: '%' },
-                { name: '收入达成率(%)',   budget: 9887, target: 17053, actual: 9887, unit: '%' },
-                { name: '毛利率(%)',       budget: -2.5, target: -2.5, actual: -2.5, unit: '%' },
-                { name: '净利率(%)',       budget: -558, target: 443, actual: -558, unit: '%' }
-            ],
-        },
-        _dimComparison_d3: {
-            title: '4月运营效率',
-            items: [
-                { name: '采购量达成率(%)', budget: 4007, target: 6477, actual: 4007, unit: '%' },
-                { name: '降本率(%)',       budget: 1.85, target: 6, actual: 1.85, unit: '%' },
-                { name: '采购到货率(%)',   budget: 92, target: 92, actual: 92, unit: '%' },
-                { name: '供应商审核(家)',  budget: 0, target: 0, actual: 0, unit: '家' }
-            ],
-        },
-        _dimComparison_d4: {
-            title: '4月技术创新力',
-            format: 'mom',
-            items: [
-                { name: '新产品销量(吨)',  prev: 0,   curr: 580,  unit: '吨' },
-                { name: '采购降本(万元)',  prev: 0,   curr: 0,    unit: '万元' },
-                { name: '技术降本(%)',    prev: 1.85, curr: 1.85, unit: '%' },
-                { name: 'OEM认证(家)',    prev: 0,   curr: 0,    unit: '家' }
-            ],
-        },
-        _dimComparison_d5: {
-            title: '4月风险合规',
-            items: [
-                { name: '采购及时到货率(%)', budget: 92, target: 92, actual: 92, unit: '%' },
-                { name: '客户审核通过(家)',  budget: 0, target: 0, actual: 0, unit: '家' },
-                { name: '质量体系审核',      budget: 0, target: 0, actual: 0, unit: '项' },
-                { name: 'EHS合规整改',       budget: 0, target: 0, actual: 0, unit: '项' }
-            ],
-        },
-        _dimComparison_d6: {
-            title: '4月组织活力',
-            format: 'mom',
-            items: [
-                { name: '战略协议签订(项)', prev: 0, curr: 0, unit: '项' },
-                { name: 'AI项目立项(个)',   prev: 0, curr: 0, unit: '个' },
-                { name: '新客户开发(家)',   prev: 0, curr: 0, unit: '家' },
-                { name: '数字化项目(个)',   prev: 0, curr: 0, unit: '个' }
-            ],
-        },
-    },
-    '2026-05': {
-        // 2026-05实际数据（FELT法恩莱特电解液事业部）
-        dims: { d1: 12, d2: 8, d3: 76, d4: 100, d5: 99, d6: 60 },
-        kpis: {
-            d1: [12, 12, 12, 12],
-            d2: [8, 8, 8, 8],
-            d3: [76, 76, 76, 76],
-            d4: [100, 100, 100, 100],
-            d5: [99, 99, 99, 99],
-            d6: [60, 60, 60, 60],
-        },
-        _isCurrent: true,
-        _kpiComparison: {
-            title: '5月核心KPI达标率',
-            period: '2026年5月',
-            items: [
-                { name: '销量达成率(%)',   budget: 3500, target: 8115, actual: 3500, unit: '%' },
-                { name: '收入达成率(%)',   budget: 7758, target: 17796, actual: 7758, unit: '%' },
-                { name: '毛利率(%)',       budget: -2.7, target: -2.7, actual: -2.7, unit: '%' },
-                { name: '期间费用率(%)',   budget: 343, target: 375, actual: 343, unit: '%' },
-                { name: '净利率(%)',       budget: -540, target: 471, actual: -540, unit: '%' },
-                { name: '现金流达成率(%)', budget: 14, target: 640, actual: 14, unit: '%' },
-                { name: '回款率(%)',       budget: 66, target: 66, actual: 66, unit: '%' }
-            ],
-        },
-        _dimComparison_d2: {
-            title: '5月经营效益',
-            items: [
-                { name: '销量达成率(%)',   budget: 3500, target: 8115, actual: 3500, unit: '%' },
-                { name: '收入达成率(%)',   budget: 7758, target: 17796, actual: 7758, unit: '%' },
-                { name: '毛利率(%)',       budget: -2.7, target: -2.7, actual: -2.7, unit: '%' },
-                { name: '净利率(%)',       budget: -540, target: 471, actual: -540, unit: '%' }
-            ],
-        },
-        _dimComparison_d3: {
-            title: '5月运营效率',
-            items: [
-                { name: '采购量达成率(%)', budget: 2798, target: 5438, actual: 2798, unit: '%' },
-                { name: '降本率(%)',       budget: 9.22, target: 6, actual: 9.22, unit: '%' },
-                { name: '采购到货率(%)',   budget: 98, target: 98, actual: 98, unit: '%' },
-                { name: '供应商审核(家)',  budget: 3, target: 3, actual: 3, unit: '家' }
-            ],
-        },
-        _dimComparison_d4: {
-            title: '5月技术创新力',
-            format: 'mom',
-            items: [
-                { name: '新产品销量(吨)',  prev: 580,  curr: 615,  unit: '吨' },
-                { name: '采购降本(万元)',  prev: 0,    curr: 0,    unit: '万元' },
-                { name: '技术降本(%)',    prev: 1.85, curr: 9.22, unit: '%' },
-                { name: 'OEM认证(家)',    prev: 0,    curr: 0,    unit: '家' }
-            ],
-        },
-        _dimComparison_d5: {
-            title: '5月风险合规',
-            items: [
-                { name: '采购及时到货率(%)', budget: 98, target: 98, actual: 98, unit: '%' },
-                { name: '客户审核通过(家)',  budget: 3, target: 3, actual: 3, unit: '家' },
-                { name: '质量体系审核',      budget: 0, target: 0, actual: 0, unit: '项' },
-                { name: 'EHS合规整改',       budget: 0, target: 0, actual: 0, unit: '项' }
-            ],
-        },
-        _dimComparison_d6: {
-            title: '5月组织活力',
-            format: 'mom',
-            items: [
-                { name: '战略协议签订(项)', prev: 0, curr: 3, unit: '项' },
-                { name: 'AI项目立项(个)',   prev: 0, curr: 1, unit: '个' },
-                { name: '新客户开发(家)',   prev: 0, curr: 0, unit: '家' },
-                { name: '数字化项目(个)',   prev: 0, curr: 0, unit: '个' }
-            ],
-        },
-    },
-            // 2026年06 data (src: 6月总结与7月工作计划（法恩莱特6.28）)
-    // src pages: 4, 5, 7, 8, 9
-    // ============================================================
-            // 2026年06 data (src: 6月总结与7月工作计划（法恩莱特6.28）)
-    // src pages: 4, 5, 7, 8, 9
-    // ============================================================
-            // 2026年06 data (src: 6月总结与7月工作计划（法恩莱特6.28）)
-    // src pages: 4, 5, 7, 8, 9
-    // ============================================================
-    '2026-06': {
-        dims: { d1: 52, d2: 38, d3: 60, d4: 80, d5: 100, d6: 60 },
-        kpis: {
-            d1: [52, 67, 33, 100],
-            d2: [52, 67, 65, 96],
-            d3: [62, 84, 59, 96],
-            d4: [116, 86, 100, 54],
-            d5: [100, 100, 100, 100],
-            d6: [0, 50, 50, 0],
-        },
-        _isCurrent: true,
-        _kpiComparison: {
-            title: '6月核心KPI达成率',
-            period: '2026年6月',
-            items: [
-                {name: '销量(吨)', budget: 7968, target: 4976, actual: 4160, unit: '吨'},
-                {name: '销售收入(万元)', budget: 17500, target: 11675, actual: 9457, unit: '万元'},
-                {name: '毛利率(%)', budget: 4.86, target: 1.6, actual: 0.96, unit: '%'},
-                {name: '期间费用(万元)', budget: 377, target: 325, actual: 364, unit: '万元'},
-                {name: '净利润(万元)', budget: 459, target: -122, actual: -262, unit: '万元'},
-                {name: '经营现金流(万元)', budget: 732, target: 59, actual: 59, unit: '万元'},
-                {name: '到期回款率(%)', budget: 90.0, target: 90.0, actual: 95.8, unit: '%'}
-            ],
-        },
-        _dimComparison_d2: {
-            title: '6月经营效益',
-            format: 'mom',
-            items: [
-                {name: '电解液销量(吨)', prev: 4800, curr: 4160, unit: '吨'},
-                {name: '营业收入(万元)', prev: 12000, curr: 9457, unit: '万元'},
-                {name: '净利润(万元)', prev: -100, curr: -262, unit: '万元'},
-                {name: '回款率(%)', prev: 96.0, curr: 95.8, unit: '%'}
-            ],
-        },
-        _dimComparison_d3: {
-            title: '6月运营效率',
-            format: 'mom',
-            items: [
-                {name: '采购降本率(%)', prev: 5.0, curr: 7.39, unit: '%'},
-                {name: '目标达成率(%)', prev: 95.0, curr: 84.0, unit: '%'},
-                {name: '产能利用率(%)', prev: 85.0, curr: 62.0, unit: '%'},
-                {name: '回款率(%)', prev: 90.0, curr: 95.8, unit: '%'}
-            ],
-        },
-        _dimComparison_d4: {
-            title: '6月技术创新力',
-            format: 'mom',
-            items: [
-                {name: '新产品配方销量(吨)', prev: 300, curr: 416.5, unit: '吨'},
-                {name: '技术交流次数(次)', prev: 15, curr: 26, unit: '次'},
-                {name: '在研项目(项)', prev: 5, curr: 6, unit: '项'},
-                {name: '配方开发数量(批)', prev: 18, curr: 54, unit: '批'}
-            ],
-        },
-        _dimComparison_d5: {
-            title: '6月风险合规',
-            format: 'mom',
-            items: [
-                {name: '安全隐患整改率(%)', prev: 100, curr: 100, unit: '%'},
-                {name: '安全教育完成率(%)', prev: 100, curr: 100, unit: '%'},
-                {name: '排查隐患(起)', prev: 0, curr: 0, unit: '起'},
-                {name: '客户投诉(次)', prev: 0, curr: 0, unit: '次'}
-            ],
-        },
-        _dimComparison_d6: {
-            title: '6月组织活力',
-            format: 'mom',
-            items: [
-                {name: 'AI项目立项(项)', prev: 0, curr: 0, unit: '项'},
-                {name: '新客户开发(家)', prev: 2, curr: 3, unit: '家'},
-                {name: '人才引进(人)', prev: 2, curr: 3, unit: '人'},
-                {name: '数字化项目(项)', prev: 1, curr: 1, unit: '项'}
-            ],
-        },},
-};
+// 使用 config 重新计算 DIMS_DEF_FNLT（兼容现有代码引用）
+const DIMS_DEF_FNLT = getDimsDef(BU_ID_FELT);
+
+// RADAR_HISTORY data migrated to _radar_scoring_config.js BU_SCORE_DETAIL
+const RADAR_HISTORY_FNLT = (window.BU_SCORE_DETAIL && window.BU_SCORE_DETAIL["felt"]) || {};
 
 ;
 
 const RADAR_HISTORY_FNLT_EXTRA = {};
 
 // 当前选中月份
-var currentMonth = '2026-06';
+var currentMonth = '2026-07';
 
 // 月份列表
-var MONTHS = ['2026-04', '2026-05', '2026-06'];
+var MONTHS = ['2026-04', '2026-05', '2026-06', '2026-07'];
 
 function getMonthData(month) {
     var hist = RADAR_HISTORY_FNLT[month];
@@ -1452,9 +1310,15 @@ function renderMonthSwitcher() {
 function renderScoreOverview() {
     var data = getMonthData(currentMonth);
     if (!data) return;
+    // D1 自动计算（若标记了 _computedD1）
+    if (data._computedD1 && data.kpis && data.kpis.d1) {
+        var computedD1 = calcD1(BU_ID_FELT, data.kpis.d1);
+        if (computedD1 !== null) data.dims.d1 = computedD1;
+    }
     var dims = data.dims;
     var vals = [dims.d1, dims.d2, dims.d3, dims.d4, dims.d5, dims.d6];
-    var score = Math.round(vals.reduce(function(a, b) { return a + b; }, 0) / vals.length);
+    var wts = BU_WEIGHTS_FELT;
+    var score = Math.round(vals.reduce(function(a, b, i) { return a + b * wts[i] / 100; }, 0));
 
     document.getElementById('bigScore').textContent = score;
 
@@ -1465,7 +1329,7 @@ function renderScoreOverview() {
         var v = dims[d] || 0;
         scoreDimsEl.innerHTML +=
             '<div class="dim-item">' +
-            '<div class="dim-name">' + dimNames[i] + '</div>' +
+            '<div class="dim-name">' + dimNames[i] + '<span style="font-size:10px;color:#94a3b8"> · ' + wts[i] + '%</span></div>' +
             '<div class="dim-score" style="color:' + DIMS_DEF_FNLT[i].color + '">' + v + '</div>' +
             '<div class="dim-max">/100</div>' +
             '</div>';
@@ -1861,6 +1725,17 @@ window.addEventListener('resize', function() {
 function renderKPITable() {
     var data = getMonthData(currentMonth);
     if (!data || !data._kpiComparison) return;
+    // 动态更新标题
+    var titleEl = document.getElementById('kpiTitle');
+    var sourceEl = document.getElementById('kpiSource');
+    if (titleEl) {
+        var monthName = currentMonth.replace('-', '年') + '月';
+        var titleText = data._kpiComparison.title || (monthName + '核心KPI达标率（预算 → 挑战目标 → 实际）');
+        titleEl.textContent = titleText;
+    }
+    if (sourceEl && data.source) {
+        sourceEl.textContent = '数据来源：' + data.source;
+    }
     var tbody = document.querySelector('#kpiTable tbody');
     tbody.innerHTML = '';
 
@@ -1917,9 +1792,12 @@ function renderDimTable(dimId, data, tableId) {
 
     dimData.items.forEach(function(item) {
         var isCost = item.name.indexOf('成本') >= 0;
-        var isMom = dimData.format === 'mom';
+        // 智能格式检测：优先用 prev/curr（环比）> budget/actual（预算）> value（快照）
+        var hasMom = ('prev' in item) && ('curr' in item);
+        var hasBudget = ('budget' in item) && ('actual' in item);
 
-        if (isMom) {
+        if (hasMom) {
+            // 格式A：环比（prev / curr）
             var mom = calcMom(item.curr, item.prev);
             var status = mom >= 100 ? '↑达标' : '↓ 待改进';
             tbody.innerHTML +=
@@ -1930,17 +1808,28 @@ function renderDimTable(dimId, data, tableId) {
                 '<td style="color:' + rateColor(mom) + ';font-weight:bold">' + fmtRate(mom) + '</td>' +
                 '<td><span class="rate-badge ' + rateClass(mom) + '">' + status + '</span></td>' +
                 '</tr>';
-        } else {
-            var achv = calcAchv(item.actual, item.target, isCost);
-            var achvBudget = calcAchv(item.actual, item.budget, isCost);
+        } else if (hasBudget) {
+            // 格式B：预算（budget / actual）
+            var achv = calcAchv(item.actual, item.target || item.budget, isCost);
             tbody.innerHTML +=
                 '<tr>' +
                 '<td>' + item.name + '</td>' +
                 '<td>' + fmtNum(item.budget) + '</td>' +
-                '<td>' + fmtNum(item.target) + '</td>' +
+                '<td>' + fmtNum(item.target || item.budget) + '</td>' +
                 '<td class="val-actual">' + fmtNum(item.actual) + '</td>' +
                 '<td style="color:' + rateColor(achv) + ';font-weight:bold">' + fmtRate(achv) + '</td>' +
                 '<td><span class="rate-badge ' + rateClass(achv) + '">' + (achv >= 100 ? '达标' : achv >= 85 ? '接近' : '待改进') + '</span></td>' +
+                '</tr>';
+        } else if ('value' in item) {
+            // 格式C：快照（单一数值）
+            var valColor = '#333';
+            var valText = fmtNum(item.value) + (item.unit ? ' ' + item.unit : '');
+            tbody.innerHTML +=
+                '<tr>' +
+                '<td>' + item.name + '</td>' +
+                '<td colspan="2">' + valText + '</td>' +
+                '<td class="val-actual" style="color:' + valColor + '">' + valText + '</td>' +
+                '<td colspan="2" style="text-align:center;color:#94a3b8;font-size:12px">快照</td>' +
                 '</tr>';
         }
     });
@@ -1950,6 +1839,18 @@ function renderDimTable(dimId, data, tableId) {
 function renderAll() {
     var data = getMonthData(currentMonth);
     if (!data) return;
+
+    // ── D1 自动计算：若标记了 _computedD1，则从 kpis.d1 自动算 ──
+    if (data._computedD1 && data.kpis && data.kpis.d1) {
+        var computedD1 = calcD1(BU_ID_FELT, data.kpis.d1);
+        if (computedD1 !== null) data.dims.d1 = computedD1;
+    }
+
+    // ── KPI 校验（仅控制台警告，不阻塞渲染） ──
+    var validation = validateKpis(BU_ID_FELT, data.kpis);
+    if (!validation.valid) {
+        console.warn('[FELT] KPI 数据校验未通过:', validation.errors);
+    }
 
     renderScoreOverview();
     renderRadar();
@@ -2010,7 +1911,13 @@ function getRadarDataForInsights() {
     var month = currentMonth;
     var data = RADAR_HISTORY_FNLT[month];
     if (!data) return null;
-    
+
+    // D1 自动计算（若标记了 _computedD1）
+    if (data._computedD1 && data.kpis && data.kpis.d1) {
+        var computedD1 = calcD1(BU_ID_FELT, data.kpis.d1);
+        if (computedD1 !== null) data.dims.d1 = computedD1;
+    }
+
     var prevMonth = getPreviousMonth(month);
     var prevData = prevMonth ? RADAR_HISTORY_FNLT[prevMonth] : null;
     

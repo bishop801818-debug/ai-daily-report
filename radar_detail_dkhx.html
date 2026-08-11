@@ -4,6 +4,84 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>迪克化学 - 雷达看板</title>
+<script>
+(function(){
+  var RADAR_UID_WHITELIST = ['ou_78e0dba3ff382df7c11dcd07ea2255f0','ou_12015bf9c1d120116e6a01c022051130','ou_c0d1e422fada6770cb7da5069e96abbc','ou_178a5a969ca5c2d96c105d6ecbe4add0','ou_3897e64d72af1edd4637e51d1baa4d2c','ou_64217fc9e76e95ca13a26c0c4a5b665d','1854251564037223'].concat(['7595021657568185305','7598822772604701656','7589910160420637874','7589938135119744185','7591392573697101019','7592890122870410205']);
+  var RADAR_DEPT_WHITELIST = ['od-839a5caffe1fa682e014982a1d28fcb8'];
+  function isLocalPreview(){return location.protocol==='file:'||location.hostname==='localhost'||location.hostname==='127.0.0.1'||location.hostname==='';}
+  window.RADAR_UID_DECIDED=false; window.RADAR_UID_ALLOWED=false;
+  var AUTH_UID=''; var AUTH_DEPTS=[];
+  function getUid(){
+    var cand=[];
+    if(window.userInfo){ cand.push(window.userInfo.open_id, window.userInfo.user_id, window.userInfo.employee_id, window.userInfo.union_id, window.userInfo.uid); }
+    if(window.userId) cand.push(window.userId);
+    if(window.__context&&window.__context.user&&window.__context.user.open_id) cand.push(window.__context.user.open_id);
+    if(AUTH_UID) cand.push(AUTH_UID);
+    try{var a=localStorage.getItem('sso-user-info');if(a){var o=JSON.parse(a);if(o) cand.push(o.open_id,o.user_id,o.employee_id);}}catch(e){}
+    try{var b=localStorage.getItem('userInfo');if(b){var p=JSON.parse(b);if(p) cand.push(p.open_id,p.user_id,p.employee_id);}}catch(e){}
+    try{var q=new URLSearchParams(location.search);var u=q.get('uid')||q.get('openid');if(u)cand.push(u);}catch(e){}
+    var h=location.hash.match(/uid=([^&]+)/); if(h&&h[1]) cand.push(decodeURIComponent(h[1]));
+    for(var i=0;i<cand.length;i++){ if(cand[i]!==undefined&&cand[i]!==null&&String(cand[i]).length>0) return String(cand[i]); }
+    return '';
+  }
+  function getDeptIds(){
+    var out=[];
+    var h=location.hash.match(/dept=([^&]+)/); if(h&&h[1]) out.push(decodeURIComponent(h[1]));
+    try{var q=new URLSearchParams(location.search);var d=q.get('__dept')||q.get('departmentId')||q.get('dept');if(d)out.push(d);}catch(e){}
+    if(window.userInfo){ if(window.userInfo.department) out.push(window.userInfo.department); if(Array.isArray(window.userInfo.department_ids)) out=out.concat(window.userInfo.department_ids); if(window.userInfo.dept_id) out.push(window.userInfo.dept_id); }
+    try{var s=sessionStorage.getItem('__dept');if(s)out.push(s);}catch(e){}
+    if(AUTH_DEPTS&&AUTH_DEPTS.length) out=out.concat(AUTH_DEPTS);
+    var seen={},res=[];
+    for(var i=0;i<out.length;i++){var v=String(out[i]).trim(); if(v&&!seen[v]){seen[v]=1;res.push(v);}}
+    return res;
+  }
+  function clearDeny(){var el=document.getElementById('radar_deny_overlay'); if(el&&el.parentNode)el.parentNode.removeChild(el);}
+  function deny(){
+    var ex=document.getElementById('radar_deny_overlay'); if(ex)return;
+    function render(){
+      var el=document.getElementById('radar_deny_overlay'); if(el)return;
+      var d=document.createElement('div'); d.id='radar_deny_overlay';
+      d.style.cssText='position:fixed;inset:0;z-index:2147483647;display:flex;align-items:center;justify-content:center;background:rgba(245,246,250,.98)';
+      d.innerHTML='<div style="text-align:center;padding:48px;background:#fff;border-radius:16px;box-shadow:0 8px 30px rgba(0,0,0,.08)"><div style="font-size:64px;margin-bottom:12px">🔒</div><div style="font-size:22px;font-weight:700;color:#c0392b">您的账号暂无权限浏览</div><div style="margin-top:8px;color:#888;font-size:14px">请联系管理员申请雷达看板访问权限。</div>'+
+        '<details style="margin-top:16px;text-align:left;font-size:12px;color:#666;max-width:480px;word-break:break-all;"><summary style="cursor:pointer;color:#999">排查信息（点击展开）</summary>open_id: '+(window.userInfo&&window.userInfo.open_id||'(none)')+'<br>user_id: '+(window.userInfo&&window.userInfo.user_id||'(none)')+'<br>employee_id: '+(window.userInfo&&window.userInfo.employee_id||'(none)')+'<br>resolved_uid: '+getUid()+'</details></div>';
+      (document.body||document.documentElement).appendChild(d);
+    }
+    if(document.body)render(); else document.addEventListener('DOMContentLoaded',render);
+  }
+  var WL = RADAR_UID_WHITELIST.map(String);
+  var DWL = RADAR_DEPT_WHITELIST.map(String);
+  function isAllowedNow(){
+    var uid=getUid();
+    var depts=getDeptIds();
+    if(WL.indexOf(uid)>=0) return true;
+    if(Array.isArray(depts)&&depts.some(function(d){return DWL.indexOf(d)>=0;})) return true;
+    if(isLocalPreview()) return true;
+    return false;
+  }
+  function evaluate(){
+    if(window.RADAR_UID_DECIDED && window.RADAR_UID_ALLOWED) return;
+    if(isAllowedNow()){
+      window.RADAR_UID_DECIDED=true; window.RADAR_UID_ALLOWED=true;
+      document.documentElement.style.visibility='';
+      clearDeny();
+      return;
+    }
+    if(window.RADAR_UID_FINAL) deny();
+  }
+  document.documentElement.style.visibility='hidden';
+  evaluate();
+  window.addEventListener('message',function(e){
+    if(e.data&&e.data.type==='RADAR_AUTH'){
+      if(e.data.user){ try{ window.userInfo=Object.assign({},window.userInfo,e.data.user); }catch(_){} }
+      if(e.data.openId) AUTH_UID=String(e.data.openId);
+      if(e.data.deptIds&&e.data.deptIds.length) AUTH_DEPTS=e.data.deptIds.map(String);
+      evaluate();
+    }
+  });
+  try{if(window.parent&&window.parent!==window)window.parent.postMessage({type:'RADAR_REQUEST_AUTH'},'*');}catch(_){}
+  setTimeout(function(){ window.RADAR_UID_FINAL=true; evaluate(); },1500);
+})();
+</script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: "Microsoft YaHei", "PingFang SC", sans-serif; background: #f0f2f5; min-height: 100vh; }
@@ -915,6 +993,9 @@
 
     </style>
 
+<!-- 单一配置源（必须在 BU 变量之前引入） -->
+<script src="_radar_scoring_config.js"></script>
+
 <!-- BU 自检: DKHX -->
 <script>
 //<![CDATA[
@@ -978,6 +1059,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 // ]]>
 </script>
+    <script src="bu_gate.js"></script>
 </head>
 <body>
 <div class="page-header">
@@ -1056,7 +1138,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         <span id="playIcon">▶</span>
                     </button>
                     <div class="timeline-track" id="timelineTrack"></div>
-                    <span class="timeline-label" id="timelineLabel">2026年05月</span>
+                    <span class="timeline-label" id="timelineLabel"></span>
                 </div>
             </div>
 
@@ -1089,7 +1171,7 @@ document.addEventListener('DOMContentLoaded', function() {
     <div id="tab-kpi" class="tab-content">
         <div class="kpi-grid" id="kpiGrid"></div>
         <div class="chart-section">
-            <div class="chart-title">5月核心KPI达标率（预算 → 挑战目标 → 实际）</div>
+            <div class="chart-title" id="kpiTitle">5月核心KPI达标率（预算 → 挑战目标 → 实际）</div>
             <div style="overflow-x:auto;">
                 <table class="data-table" id="kpiTable">
                     <thead><tr>
@@ -1183,199 +1265,13 @@ const BU_META_DKHX = {
     accent: '#7986cb',
 }
 
-// 迪克化学权重配置：D1战略20% D2经营22% D3运营18% D4创新15% D5合规15% D6活力10%
-// 冷却液业务以销售收入和品类达成为核心
-const BU_WEIGHTS_DKHX = [20, 22, 18, 15, 15, 10];
+// 从单一配置源读取权重和维度定义
+const BU_ID_DKHX = 'dhx';
+const BU_WEIGHTS_DKHX = BU_CONFIG[BU_ID_DKHX].weights;
+const DIMS_DEF_DKHX = getDimsDef(BU_ID_DKHX);
 
-
-const DIMS_DEF_DKHX = [
-    { id: 'd1', name: '战略执行力',   kpis: ['收入达成率','利润达成率','毛利率','费用控制率'], color: '#7986cb' },
-    { id: 'd2', name: '经营效益',     kpis: ['冷却液销售','制动液销售','防冻液销售','其他化学品'], color: '#7986cb' },
-    { id: 'd3', name: '运营效率',     kpis: ['准时交付率','存货周转率','应收账款天数','采购降本'], color: '#7986cb' },
-    { id: 'd4', name: '技术创新力',   kpis: ['新产品开发','OEM认证','技术降本','研发费用率'], color: '#7986cb' },
-    { id: 'd5', name: '风险合规',     kpis: ['质量体系','环保合规','客户投诉率','供应商审核'], color: '#7986cb' },
-    { id: 'd6', name: '组织活力',     kpis: ['AI项目立项','新客户开发','人才引进','数字化项目'], color: '#7986cb' },
-];
-
-const RADAR_HISTORY_DKHX = {
-    // 3月: 无PDF数据(占位全0)
-    // 4月: 迪克化学4月.pdf (第4页+第11页+第13-14页)
-    // 5月: 迪克5月.pdf (第3页+第6页+第7-9页)
-    '2026-03': {
-        // 3月核心经营指标: 营收3211/3267(102%), 利润398/348(87%), 净利润率12.4%/10.7%(86%)
-        // 采购降本率: 预算10%/实际15%(成本类,达成率67%)
-        // 产品(第10页): 制动液1-3月累计3600.8t, 完成度26.6%
-        dims: { d1: 86, d2: 78, d3: 82, d4: 80, d5: 80, d6: 78 },
-        kpis: {
-            d1: [100, 87, 86, 67],
-            d2: [75, 80, 82, 75],
-            d3: [85, 80, 82, 80],
-            d4: [80, 85, 78, 78],
-            d5: [80, 85, 78, 78],
-            d6: [75, 80, 80, 78],
-        },
-        _kpiComparison: {
-            title: '3月核心KPI达成率',
-            period: '2026年3月',
-            items: [
-                { name: '销售收入(万)',   budget: 3211, target: 3211, actual: 3267, unit: '万' },
-                { name: '净利润(万)',    budget: 398,  target: 398,  actual: 348,  unit: '万' },
-                { name: '净利润率(%)',   budget: 12.4, target: 12.4, actual: 10.7,  unit: '%' },
-                { name: '采购降本率(%)', budget: 10.0, target: 10.0, actual: 15.0,  unit: '%' },
-                { name: '应收账款天数',   budget: 0,    target: 0,    actual: 0,    unit: '天' },
-            ],
-        },
-        _dimComparison_d2: {
-            title: '3月经营效益',
-            items: [
-                { name: '冷却液销售(万)',   budget: 700,  target: 700,  actual: 560,  unit: '万' },
-                { name: '制动液销售(万)',    budget: 1300, target: 1300, actual: 1040, unit: '万' },
-                { name: '防冻液销售(万)',    budget: 1800, target: 1800, actual: 1440, unit: '万' },
-                { name: '其他化学品(万)',    budget: 300,  target: 300,  actual: 227,  unit: '万' },
-            ],
-        },
-    },
-    '2026-04': {
-        // 4月核心经营指标: 营收4461.98/3851(86%), 利润519.45/380(73%), 利润率11.6%/9.9%(85%)
-        // 产品(第11页): 制动液838.7t, 防冻液2937.6t, 车清73.5t
-        dims: { d1: 86, d2: 71, d3: 85, d4: 75, d5: 85, d6: 77 },
-        kpis: {
-            d1: [86, 73, 85, 100],
-            d2: [80, 63, 74, 70],
-            d3: [85, 83, 90, 85],
-            d4: [80, 88, 55, 78],
-            d5: [88, 90, 82, 80],
-            d6: [75, 82, 75, 78],
-        },
-        _kpiComparison: {
-            title: '4月核心KPI达成率',
-            period: '2026年4月',
-            items: [
-                { name: '销售收入(万)',   budget: 4461.98, target: 4461.98, actual: 3851.00, unit: '万' },
-                { name: '净利润(万)',    budget: 519.45,  target: 519.45,  actual: 380.00,  unit: '万' },
-                { name: '毛利率(%)',     budget: 11.60,   target: 11.60,   actual: 9.90,    unit: '%' },
-                { name: '期间费用率(%)',  budget: 11.60,  target: 11.60,   actual: 9.90,    unit: '%' },
-                { name: '应收账款天数',   budget: 0,      target: 0,       actual: 0,      unit: '天' },
-            ],
-        },
-        _dimComparison_d2: {
-            title: '4月经营效益',
-            items: [
-                { name: '冷却液销售(万)',   budget: 900,  target: 900,  actual: 720,  unit: '万' },
-                { name: '制动液销售(万)',    budget: 1100, target: 1100, actual: 890,  unit: '万' },
-                { name: '防冻液销售(万)',    budget: 2200, target: 2200, actual: 1630, unit: '万' },
-                { name: '其他化学品(万)',    budget: 350,  target: 350,  actual: 245,  unit: '万' },
-            ],
-        },
-    },
-    '2026-05': {
-        // 5月核心经营指标: 营收4451.68/3556.07(80%), 利润509.21/392.24(77%), 利润率11.4%/11.0%(96%)
-        // 产品(第6页): 制动液542.2t, 防冻液2908t, 长缓蚀171.1t
-        dims: { d1: 88, d2: 78, d3: 91, d4: 80, d5: 96, d6: 78 },
-        kpis: {
-            d1: [80, 77, 96, 100],
-            d2: [75, 81, 87, 67],
-            d3: [90, 83, 100, 90],
-            d4: [80, 95, 60, 83],
-            d5: [100, 100, 85, 100],
-            d6: [80, 80, 75, 75],
-        },
-        _isCurrent: true,
-        _kpiComparison: {
-            title: '5月核心KPI达成率',
-            period: '2026年5月',
-            items: [
-                { name: '销售收入(万)',   budget: 4451.68, target: 4451.68, actual: 3556.07, unit: '万' },
-                { name: '净利润(万)',    budget: 509.21,  target: 509.21,  actual: 392.24,  unit: '万' },
-                { name: '毛利率(%)',     budget: 11.40,   target: 11.40,   actual: 11.00,   unit: '%' },
-                { name: '期间费用率(%)',  budget: 88.60,  target: 88.60,   actual: 89.00,   unit: '%' },
-                { name: '应收账款天数',   budget: 0,      target: 0,       actual: 0,      unit: '天' },
-            ],
-        },
-        _dimComparison_d2: {
-            title: '5月经营效益',
-            items: [
-                { name: '冷却液销售(万)',   budget: 1000, target: 1000, actual: 600,  unit: '万' },
-                { name: '制动液销售(万)',    budget: 1200, target: 1200, actual: 813,  unit: '万' },
-                { name: '防冻液销售(万)',    budget: 2400, target: 2400, actual: 1745, unit: '万' },
-                { name: '其他化学品(万)',    budget: 400,  target: 400,  actual: 198,  unit: '万' },
-            ],
-        },
-    },
-            // 2026年06 data (src: 2026年6月迪克工作总结&7月工作计划0627)
-    // src pages: 8, 11, 15, 16, 18
-    // ============================================================
-    '2026-06': {
-        dims: { d1: 68, d2: 72, d3: 88, d4: 85, d5: 95, d6: 82 },
-        kpis: {
-            d1: [78, 61, 79, 65],
-            d2: [70, 72, 75, 68],
-            d3: [85, 92, 80, 88],
-            d4: [88, 85, 80, 82],
-            d5: [95, 98, 100, 90],
-            d6: [85, 88, 80, 78],
-        },
-        _isCurrent: true,
-        _kpiComparison: {
-            title: '6月核心KPI达成率',
-            period: '2026年6月',
-            items: [
-                {name: '营业收入(万元)', budget: 4492, target: 4492, actual: 3507, unit: '万元'},
-                {name: '净利润额(万元)', budget: 513, target: 513, actual: 315, unit: '万元'},
-                {name: '现金流(万元)', budget: 739, target: 739, actual: 450, unit: '万元'},
-                {name: '净利润率(%)', budget: 11.4, target: 11.4, actual: 9.0, unit: '%'}
-            ],
-        },
-        _dimComparison_d2: {
-            title: '6月经营效益',
-            items: [
-                {name: '制动液销售(吨)', value: 397, unit: '吨'},
-                {name: '防冻液销售(吨)', value: 2186, unit: '吨'},
-                {name: '车清销售(吨)', value: 141, unit: '吨'},
-                {name: '海外销售增长率(%)', value: 274, unit: '%'}
-            ],
-        },
-        _dimComparison_d3: {
-            title: '6月运营效率',
-            format: 'mom',
-            items: [
-                {name: '库存周转天数(天)', prev: 69, curr: 46, unit: '天'},
-                {name: '乙二醇采购降本(万元)', prev: 0, curr: 16.3, unit: '万元'},
-                {name: 'SKU精简数量(个)', prev: 0, curr: 149, unit: '个'},
-                {name: '物流降本目标(%)', prev: 0, curr: 20, unit: '%'}
-            ],
-        },
-        _dimComparison_d4: {
-            title: '6月技术创新力',
-            format: 'mom',
-            items: [
-                {name: '新产品下线(款)', prev: 3, curr: 7, unit: '款'},
-                {name: '客户审核通过(家)', prev: 3, curr: 6, unit: '家'},
-                {name: '品牌内容发布(篇)', prev: 15, curr: 24, unit: '篇'},
-                {name: '华为中试进展', prev: 0, curr: 90, unit: '%'}
-            ],
-        },
-        _dimComparison_d5: {
-            title: '6月风险合规',
-            items: [
-                {name: '安全事故(起)', value: 0, unit: '起'},
-                {name: '诉讼案件(件)', value: 0, unit: '件'},
-                {name: '零碳工厂认证', value: 100, unit: '%'},
-                {name: '安全月活动完成率(%)', value: 300, unit: '%'}
-            ],
-        },
-        _dimComparison_d6: {
-            title: '6月组织活力',
-            format: 'mom',
-            items: [
-                {name: 'AI智能体项目(项)', prev: 0, curr: 1, unit: '项'},
-                {name: '新客户导入(家)', prev: 2, curr: 3, unit: '家'},
-                {name: '海外市场拓展(国)', prev: 3, curr: 5, unit: '国'},
-                {name: '数字化项目(项)', prev: 2, curr: 3, unit: '项'}
-            ],
-        },
-    },
-};
+// RADAR_HISTORY data migrated to _radar_scoring_config.js BU_SCORE_DETAIL
+const RADAR_HISTORY_DKHX = (window.BU_SCORE_DETAIL && window.BU_SCORE_DETAIL["dhx"]) || {};
 
 
 
@@ -1383,10 +1279,10 @@ const RADAR_HISTORY_DKHX = {
 const RADAR_HISTORY_DKHX_EXTRA = {};
 
 // 当前选中月份
-var currentMonth = '2026-06';
+var currentMonth = '2026-07';
 
 // 月份列表
-var MONTHS = ['2026-03', '2026-04', '2026-05', '2026-06'];
+var MONTHS = ['2026-03', '2026-04', '2026-05', '2026-06', '2026-07'];
 
 function getMonthData(month) {
     var hist = RADAR_HISTORY_DKHX[month];
@@ -1465,6 +1361,13 @@ function renderMonthSwitcher() {
 function renderScoreOverview() {
     var data = getMonthData(currentMonth);
     if (!data) return;
+
+    // D1 自动计算（若标记了 _computedD1）
+    if (data._computedD1 && data.kpis && data.kpis.d1) {
+        var computedD1 = calcD1(BU_ID_DKHX, data.kpis.d1);
+        if (computedD1 !== null) data.dims.d1 = computedD1;
+    }
+
     var dims = data.dims;
     var vals = [dims.d1, dims.d2, dims.d3, dims.d4, dims.d5, dims.d6];
     var wts = BU_WEIGHTS_DKHX;
@@ -1875,6 +1778,10 @@ window.addEventListener('resize', function() {
 function renderKPITable() {
     var data = getMonthData(currentMonth);
     if (!data || !data._kpiComparison) return;
+    var titleEl = document.getElementById('kpiTitle');
+    var sourceEl = document.getElementById('kpiSource');
+    if (titleEl) { var mn = currentMonth.replace('-','年')+'月'; titleEl.textContent = data._kpiComparison.title || (mn+'核心KPI达标率（预算 → 挑战目标 → 实际）'); }
+    if (sourceEl && data.source) sourceEl.textContent = '数据来源：'+data.source;
     var tbody = document.querySelector('#kpiTable tbody');
     tbody.innerHTML = '';
 
@@ -1931,9 +1838,12 @@ function renderDimTable(dimId, data, tableId) {
 
     dimData.items.forEach(function(item) {
         var isCost = item.name.indexOf('成本') >= 0;
-        var isMom = dimData.format === 'mom';
+        // 智能格式检测：优先用 prev/curr（环比）> budget/actual（预算）> value（快照）
+        var hasMom = ('prev' in item) && ('curr' in item);
+        var hasBudget = ('budget' in item) && ('actual' in item);
 
-        if (isMom) {
+        if (hasMom) {
+            // 格式A：环比（prev / curr）
             var mom = calcMom(item.curr, item.prev);
             var status = mom >= 100 ? '↑达标' : '↓ 待改进';
             tbody.innerHTML +=
@@ -1944,17 +1854,28 @@ function renderDimTable(dimId, data, tableId) {
                 '<td style="color:' + rateColor(mom) + ';font-weight:bold">' + fmtRate(mom) + '</td>' +
                 '<td><span class="rate-badge ' + rateClass(mom) + '">' + status + '</span></td>' +
                 '</tr>';
-        } else {
-            var achv = calcAchv(item.actual, item.target, isCost);
-            var achvBudget = calcAchv(item.actual, item.budget, isCost);
+        } else if (hasBudget) {
+            // 格式B：预算（budget / actual）
+            var achv = calcAchv(item.actual, item.target || item.budget, isCost);
             tbody.innerHTML +=
                 '<tr>' +
                 '<td>' + item.name + '</td>' +
                 '<td>' + fmtNum(item.budget) + '</td>' +
-                '<td>' + fmtNum(item.target) + '</td>' +
+                '<td>' + fmtNum(item.target || item.budget) + '</td>' +
                 '<td class="val-actual">' + fmtNum(item.actual) + '</td>' +
                 '<td style="color:' + rateColor(achv) + ';font-weight:bold">' + fmtRate(achv) + '</td>' +
                 '<td><span class="rate-badge ' + rateClass(achv) + '">' + (achv >= 100 ? '达标' : achv >= 85 ? '接近' : '待改进') + '</span></td>' +
+                '</tr>';
+        } else if ('value' in item) {
+            // 格式C：快照（单一数值）
+            var valColor = '#333';
+            var valText = fmtNum(item.value) + (item.unit ? ' ' + item.unit : '');
+            tbody.innerHTML +=
+                '<tr>' +
+                '<td>' + item.name + '</td>' +
+                '<td colspan="2">' + valText + '</td>' +
+                '<td class="val-actual" style="color:' + valColor + '">' + valText + '</td>' +
+                '<td colspan="2" style="text-align:center;color:#94a3b8;font-size:12px">快照</td>' +
                 '</tr>';
         }
     });
@@ -1964,6 +1885,20 @@ function renderDimTable(dimId, data, tableId) {
 function renderAll() {
     var data = getMonthData(currentMonth);
     if (!data) return;
+
+    // ── D1 自动计算：若标记了 _computedD1，则从 kpis.d1 自动算 ──
+    if (data._computedD1 && data.kpis && data.kpis.d1) {
+        var computedD1 = calcD1(BU_ID_DKHX, data.kpis.d1);
+        if (computedD1 !== null) {
+            data.dims.d1 = computedD1;
+        }
+    }
+
+    // ── KPI 校验（仅控制台警告，不阻塞渲染） ──
+    var validation = validateKpis(BU_ID_DKHX, data.kpis);
+    if (!validation.valid) {
+        console.warn('[DKHX] KPI 数据校验未通过:', validation.errors);
+    }
 
     renderScoreOverview();
     renderRadar();
@@ -2020,6 +1955,13 @@ function getPreviousMonth(month) {
 function getRadarDataForInsights() {
     var month = currentMonth;
     var data = RADAR_HISTORY_DKHX[month];
+    if (!data) return null;
+
+    // D1 自动计算（若标记了 _computedD1）
+    if (data._computedD1 && data.kpis && data.kpis.d1) {
+        var computedD1 = calcD1(BU_ID_DKHX, data.kpis.d1);
+        if (computedD1 !== null) data.dims.d1 = computedD1;
+    }
     if (!data) return null;
     
     var prevMonth = getPreviousMonth(month);

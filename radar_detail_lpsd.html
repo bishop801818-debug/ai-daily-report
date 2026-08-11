@@ -4,6 +4,84 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>龙蟠时代 - 雷达看板</title>
+<script>
+(function(){
+  var RADAR_UID_WHITELIST = ['ou_78e0dba3ff382df7c11dcd07ea2255f0','ou_12015bf9c1d120116e6a01c022051130','ou_c0d1e422fada6770cb7da5069e96abbc','ou_178a5a969ca5c2d96c105d6ecbe4add0','ou_3897e64d72af1edd4637e51d1baa4d2c','ou_64217fc9e76e95ca13a26c0c4a5b665d','1854251564037223'].concat(['7595021657568185305','7598822772604701656','7589910160420637874','7589938135119744185','7591392573697101019','7592890122870410205']);
+  var RADAR_DEPT_WHITELIST = ['od-839a5caffe1fa682e014982a1d28fcb8'];
+  function isLocalPreview(){return location.protocol==='file:'||location.hostname==='localhost'||location.hostname==='127.0.0.1'||location.hostname==='';}
+  window.RADAR_UID_DECIDED=false; window.RADAR_UID_ALLOWED=false;
+  var AUTH_UID=''; var AUTH_DEPTS=[];
+  function getUid(){
+    var cand=[];
+    if(window.userInfo){ cand.push(window.userInfo.open_id, window.userInfo.user_id, window.userInfo.employee_id, window.userInfo.union_id, window.userInfo.uid); }
+    if(window.userId) cand.push(window.userId);
+    if(window.__context&&window.__context.user&&window.__context.user.open_id) cand.push(window.__context.user.open_id);
+    if(AUTH_UID) cand.push(AUTH_UID);
+    try{var a=localStorage.getItem('sso-user-info');if(a){var o=JSON.parse(a);if(o) cand.push(o.open_id,o.user_id,o.employee_id);}}catch(e){}
+    try{var b=localStorage.getItem('userInfo');if(b){var p=JSON.parse(b);if(p) cand.push(p.open_id,p.user_id,p.employee_id);}}catch(e){}
+    try{var q=new URLSearchParams(location.search);var u=q.get('uid')||q.get('openid');if(u)cand.push(u);}catch(e){}
+    var h=location.hash.match(/uid=([^&]+)/); if(h&&h[1]) cand.push(decodeURIComponent(h[1]));
+    for(var i=0;i<cand.length;i++){ if(cand[i]!==undefined&&cand[i]!==null&&String(cand[i]).length>0) return String(cand[i]); }
+    return '';
+  }
+  function getDeptIds(){
+    var out=[];
+    var h=location.hash.match(/dept=([^&]+)/); if(h&&h[1]) out.push(decodeURIComponent(h[1]));
+    try{var q=new URLSearchParams(location.search);var d=q.get('__dept')||q.get('departmentId')||q.get('dept');if(d)out.push(d);}catch(e){}
+    if(window.userInfo){ if(window.userInfo.department) out.push(window.userInfo.department); if(Array.isArray(window.userInfo.department_ids)) out=out.concat(window.userInfo.department_ids); if(window.userInfo.dept_id) out.push(window.userInfo.dept_id); }
+    try{var s=sessionStorage.getItem('__dept');if(s)out.push(s);}catch(e){}
+    if(AUTH_DEPTS&&AUTH_DEPTS.length) out=out.concat(AUTH_DEPTS);
+    var seen={},res=[];
+    for(var i=0;i<out.length;i++){var v=String(out[i]).trim(); if(v&&!seen[v]){seen[v]=1;res.push(v);}}
+    return res;
+  }
+  function clearDeny(){var el=document.getElementById('radar_deny_overlay'); if(el&&el.parentNode)el.parentNode.removeChild(el);}
+  function deny(){
+    var ex=document.getElementById('radar_deny_overlay'); if(ex)return;
+    function render(){
+      var el=document.getElementById('radar_deny_overlay'); if(el)return;
+      var d=document.createElement('div'); d.id='radar_deny_overlay';
+      d.style.cssText='position:fixed;inset:0;z-index:2147483647;display:flex;align-items:center;justify-content:center;background:rgba(245,246,250,.98)';
+      d.innerHTML='<div style="text-align:center;padding:48px;background:#fff;border-radius:16px;box-shadow:0 8px 30px rgba(0,0,0,.08)"><div style="font-size:64px;margin-bottom:12px">🔒</div><div style="font-size:22px;font-weight:700;color:#c0392b">您的账号暂无权限浏览</div><div style="margin-top:8px;color:#888;font-size:14px">请联系管理员申请雷达看板访问权限。</div>'+
+        '<details style="margin-top:16px;text-align:left;font-size:12px;color:#666;max-width:480px;word-break:break-all;"><summary style="cursor:pointer;color:#999">排查信息（点击展开）</summary>open_id: '+(window.userInfo&&window.userInfo.open_id||'(none)')+'<br>user_id: '+(window.userInfo&&window.userInfo.user_id||'(none)')+'<br>employee_id: '+(window.userInfo&&window.userInfo.employee_id||'(none)')+'<br>resolved_uid: '+getUid()+'</details></div>';
+      (document.body||document.documentElement).appendChild(d);
+    }
+    if(document.body)render(); else document.addEventListener('DOMContentLoaded',render);
+  }
+  var WL = RADAR_UID_WHITELIST.map(String);
+  var DWL = RADAR_DEPT_WHITELIST.map(String);
+  function isAllowedNow(){
+    var uid=getUid();
+    var depts=getDeptIds();
+    if(WL.indexOf(uid)>=0) return true;
+    if(Array.isArray(depts)&&depts.some(function(d){return DWL.indexOf(d)>=0;})) return true;
+    if(isLocalPreview()) return true;
+    return false;
+  }
+  function evaluate(){
+    if(window.RADAR_UID_DECIDED && window.RADAR_UID_ALLOWED) return;
+    if(isAllowedNow()){
+      window.RADAR_UID_DECIDED=true; window.RADAR_UID_ALLOWED=true;
+      document.documentElement.style.visibility='';
+      clearDeny();
+      return;
+    }
+    if(window.RADAR_UID_FINAL) deny();
+  }
+  document.documentElement.style.visibility='hidden';
+  evaluate();
+  window.addEventListener('message',function(e){
+    if(e.data&&e.data.type==='RADAR_AUTH'){
+      if(e.data.user){ try{ window.userInfo=Object.assign({},window.userInfo,e.data.user); }catch(_){} }
+      if(e.data.openId) AUTH_UID=String(e.data.openId);
+      if(e.data.deptIds&&e.data.deptIds.length) AUTH_DEPTS=e.data.deptIds.map(String);
+      evaluate();
+    }
+  });
+  try{if(window.parent&&window.parent!==window)window.parent.postMessage({type:'RADAR_REQUEST_AUTH'},'*');}catch(_){}
+  setTimeout(function(){ window.RADAR_UID_FINAL=true; evaluate(); },1500);
+})();
+</script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: "Microsoft YaHei", "PingFang SC", sans-serif; background: #f0f2f5; min-height: 100vh; }
@@ -978,6 +1056,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 // ]]>
 </script>
+    <script src="bu_gate.js"></script>
 </head>
 <body>
 <div class="page-header">
@@ -1056,7 +1135,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         <span id="playIcon">▶</span>
                     </button>
                     <div class="timeline-track" id="timelineTrack"></div>
-                    <span class="timeline-label" id="timelineLabel">2026年05月</span>
+                    <span class="timeline-label" id="timelineLabel"></span>
                 </div>
             </div>
 
@@ -1089,7 +1168,7 @@ document.addEventListener('DOMContentLoaded', function() {
     <div id="tab-kpi" class="tab-content">
         <div class="kpi-grid" id="kpiGrid"></div>
         <div class="chart-section">
-            <div class="chart-title">5月核心KPI达标率（预算 → 挑战目标 → 实际）</div>
+            <div class="chart-title" id="kpiTitle">5月核心KPI达标率（预算 → 挑战目标 → 实际）</div>
             <div style="overflow-x:auto;">
                 <table class="data-table" id="kpiTable">
                     <thead><tr>
@@ -1183,12 +1262,20 @@ const BU_META_LPSD = {
     accent: '#2e75b6',
 }
 
+// 单一配置源
+</script>
+<script src="_radar_scoring_config.js"></script>
+<script>
+const BU_ID_LPSD = 'lpsd';
+const BU_WEIGHTS_LPSD = BU_CONFIG[BU_ID_LPSD].weights;
+const DIMS_DEF_LPSD = getDimsDef(BU_ID_LPSD);
+</script>
+
+<script>
 // 迪克化学权重配置：D1战略20% D2经营22% D3运营18% D4创新15% D5合规15% D6活力10%
 // 冷却液业务以销售收入和品类达成为核心
-const BU_WEIGHTS_LPSD = [20, 20, 18, 17, 13, 12];
-
-
-const DIMS_DEF_LPSD = [
+const BU_WEIGHTS_LPSD_OLD = [20, 20, 18, 17, 13, 12]; // 已废弃，使用 BU_CONFIG
+const DIMS_DEF_LPSD_OLD = [ // 已废弃，使用 BU_CONFIG
     { id: 'd1', name: '战略执行力',   kpis: ['收入达成率','利润达成率','毛利率','费用控制率'], color: '#2e75b6' },
     { id: 'd2', name: '经营效益',     kpis: ['碳酸锂销售','前驱体销售','库存周转','客户结构'], color: '#2e75b6' },
     { id: 'd3', name: '运营效率',     kpis: ['准时交付率','存货周转率','应收账款天数','采购降本'], color: '#2e75b6' },
@@ -1197,297 +1284,8 @@ const DIMS_DEF_LPSD = [
     { id: 'd6', name: '组织活力',     kpis: ['AI项目立项','新客户开发','人才引进','数字化项目'], color: '#2e75b6' },
 ];
 
-const RADAR_HISTORY_LPSD = {
-    // Q1数据来源: 龙蟠时代3月.pdf (Q1季度报告，第4页关键指标+第9页助燃剂+第13页收率)
-    // 注: 此PDF为Q1(1-3月)季度汇总，单月数据通过4月+5月PDF交叉验证推算
-    '2026-Q1': {
-        // Q1(1-3月)核心经营指标:
-        //   营收: 33,353万 vs 预算34,771万 (96%) — 来源: 龙蟠时代4月.pdf第5页
-        //   净利润: 786万 vs 电网目标400万 (196.5%)，含信用减值600万
-        //   毛利率: 13.0% vs 预算12.61% (103.1%)
-        //   产量: 2,660T vs 预算2,705T (98.3%) — 来源: 龙蟠时代4月.pdf第5页
-        dims: { d1: 100, d2: 98, d3: 80, d4: 80, d5: 80, d6: 70 },
-        kpis: {
-            d1: [96, 196, 103, 100],
-            d2: [98, 90, 98, 98],
-            d3: [78, 80, 82, 80],
-            d4: [80, 80, 80, 80],
-            d5: [100, 80, 80, 80],
-            d6: [70, 75, 70, 70],
-        },
-        _kpiComparison: {
-            title: 'Q1核心KPI达成率',
-            period: '2026年Q1(1-3月)',
-            items: [
-                { name: '营业收入(万)', budget: 34771, target: 34771, actual: 33353, unit: '万' },
-                { name: '净利润(万)', budget: 400, target: 400, actual: 786, unit: '万' },
-                { name: '毛利率(%)', budget: 12.61, target: 12.61, actual: 13.0, unit: '%' },
-                { name: '产量(T)', budget: 2705, target: 2705, actual: 2660, unit: 'T' },
-            ],
-        },
-        _dimComparison_d2: {
-            title: 'Q1经营效益',
-            items: [
-                { name: '碳酸锂产量(T)', budget: 2705, target: 2705, actual: 2660, unit: 'T' },
-                { name: '云母采购量(T)', budget: 0, target: 70000, actual: 55000, unit: 'T' },
-                { name: '云母收率(%)', budget: 80.34, target: 80.34, actual: 79.57, unit: '%' },
-                { name: '焙烧转化率(%)', budget: 89.0, target: 89.0, actual: 88.46, unit: '%' },
-            ],
-        },
-        _dimComparison_d3: {
-            title: 'Q1运营效率',
-            items: [
-                { name: '电单耗(kWh/T)', budget: 8200, target: 8200, actual: 8678, unit: 'kWh/T' },
-                { name: '水单耗(m³/T)', budget: 25, target: 25, actual: 29.8, unit: 'm³/T' },
-                { name: '天然气(m³/T)', budget: 2500, target: 2500, actual: 2628, unit: 'm³/T' },
-                { name: '存货周转率(次)', budget: 0, target: 6.0, actual: 4.8, unit: '次' },
-            ],
-        },
-        _dimComparison_d4: {
-            title: 'Q1技术创新力',
-            items: [
-                { name: '发明专利新增(件)', budget: 0, target: 3, actual: 3, unit: '件' },
-                { name: '实用新型专利(件)', budget: 0, target: 5, actual: 4, unit: '件' },
-                { name: '研发项目立项(项)', budget: 0, target: 2, actual: 1, unit: '项' },
-            ],
-        },
-        _dimComparison_d5: {
-            title: 'Q1风险合规',
-            items: [
-                { name: '安全事故(起)', budget: 0, target: 0, actual: 0, unit: '起' },
-                { name: '环保合规', budget: 1, target: 1, actual: 1, unit: '项' },
-                { name: '质量体系审核', budget: 1, target: 1, actual: 0, unit: '项' },
-            ],
-        },
-        _dimComparison_d6: {
-            title: 'Q1组织活力',
-            items: [
-                { name: '能源项目立项(项)', budget: 0, target: 1, actual: 1, unit: '项' },
-                { name: '新客户开发(家)', budget: 0, target: 3, actual: 1, unit: '家' },
-                { name: '人才引进(人)', budget: 0, target: 2, actual: 1, unit: '人' },
-            ],
-        },
-    },
-    // 4月数据来源: 龙蟠时代4月.pdf (第5页关键指标+第7页采购+第13页收率+第15页能耗)
-    '2026-04': {
-        // 4月核心经营指标:
-        //   营收: 33,353万 vs 预算34,771万 (96%)
-        //   净利润: 3,200万 vs 预算2,996万 (107%)
-        //   毛利率: 17.64% vs 预算12.61% (140%)
-        //   产量: 2,036T vs 预算3,482T (58%)
-        dims: { d1: 97, d2: 79, d3: 90, d4: 85, d5: 80, d6: 75 },
-        kpis: {
-            d1: [96, 107, 140, 100],
-            d2: [58, 64, 98, 99],
-            d3: [97, 69, 101, 72],
-            d4: [85, 85, 80, 90],
-            d5: [100, 85, 80, 85],
-            d6: [75, 80, 70, 75],
-        },
-        _kpiComparison: {
-            title: '4月核心KPI达成率',
-            period: '2026年4月',
-            items: [
-                { name: '营业收入(万)', budget: 34771, target: 34771, actual: 33353, unit: '万' },
-                { name: '净利润(万)', budget: 2996, target: 2996, actual: 3200, unit: '万' },
-                { name: '毛利率(%)', budget: 12.61, target: 12.61, actual: 17.64, unit: '%' },
-                { name: '产量(T)', budget: 3482, target: 3482, actual: 2036, unit: 'T' },
-            ],
-        },
-        _dimComparison_d2: {
-            title: '4月经营效益',
-            items: [
-                { name: '碳酸锂产量(T)', budget: 3482, target: 3482, actual: 2036, unit: 'T' },
-                { name: '云母采购量(T)', budget: 90000, target: 90000, actual: 58000, unit: 'T' },
-                { name: '云母收率(%)', budget: 80.34, target: 80.34, actual: 78.85, unit: '%' },
-                { name: '焙烧转化率(%)', budget: 89.0, target: 89.0, actual: 88.50, unit: '%' },
-            ],
-        },
-        _dimComparison_d3: {
-            title: '4月运营效率',
-            items: [
-                { name: '电单耗(kWh/T)', budget: 8200, target: 8200, actual: 8421, unit: 'kWh/T' },
-                { name: '水单耗(m³/T)', budget: 25, target: 25, actual: 36.1, unit: 'm³/T' },
-                { name: '天然气(m³/T)', budget: 2500, target: 2500, actual: 2466, unit: 'm³/T' },
-                { name: '存货周转率(次)', budget: 0, target: 6.0, actual: 5.0, unit: '次' },
-            ],
-        },
-        _dimComparison_d4: {
-            title: '4月技术创新力',
-            items: [
-                { name: '发明专利新增(件)', budget: 0, target: 3, actual: 4, unit: '件' },
-                { name: '实用新型专利(件)', budget: 0, target: 5, actual: 5, unit: '件' },
-                { name: '研发项目立项(项)', budget: 0, target: 2, actual: 2, unit: '项' },
-            ],
-        },
-        _dimComparison_d5: {
-            title: '4月风险合规',
-            items: [
-                { name: '安全事故(起)', budget: 0, target: 0, actual: 0, unit: '起' },
-                { name: '环保合规', budget: 1, target: 1, actual: 1, unit: '项' },
-                { name: '质量体系审核', budget: 1, target: 1, actual: 1, unit: '项' },
-            ],
-        },
-        _dimComparison_d6: {
-            title: '4月组织活力',
-            items: [
-                { name: '能源项目立项(项)', budget: 0, target: 1, actual: 1, unit: '项' },
-                { name: '新客户开发(家)', budget: 0, target: 3, actual: 2, unit: '家' },
-                { name: '人才引进(人)', budget: 0, target: 2, actual: 1, unit: '人' },
-            ],
-        },
-    },
-    // 5月数据来源: 龙蟠时代5月.pdf (第3页关键指标+第4页经营数据+第12页收率+第15-17页能耗)
-    '2026-05': {
-        // 5月核心经营指标:
-        //   营收: 22,885万 vs 预算45,101万 (51%)
-        //   净利润: 3,550万 vs 预算3,030万 (117%)
-        //   毛利率: 20.2% vs 预算13.1% (154%)
-        //   产量: 2,302T vs 预算2,164T (106%)
-        dims: { d1: 58, d2: 88, d3: 75, d4: 85, d5: 85, d6: 75 },
-        kpis: {
-            d1: [51, 117, 154, 100],
-            d2: [106, 95, 99, 90],
-            d3: [82, 78, 88, 72],
-            d4: [85, 85, 80, 90],
-            d5: [100, 85, 80, 85],
-            d6: [75, 80, 70, 75],
-        },
-        _isCurrent: true,
-        _kpiComparison: {
-            title: '5月核心KPI达成率',
-            period: '2026年5月',
-            items: [
-                { name: '营业收入(万)', budget: 45101, target: 45101, actual: 22885, unit: '万' },
-                { name: '净利润(万)', budget: 3030, target: 3030, actual: 3550, unit: '万' },
-                { name: '毛利率(%)', budget: 13.1, target: 13.1, actual: 20.2, unit: '%' },
-                { name: '产量(T)', budget: 2164, target: 2164, actual: 2302, unit: 'T' },
-                { name: '云母收率(%)', budget: 80.34, target: 80.34, actual: 79.22, unit: '%' },
-            ],
-        },
-        _dimComparison_d2: {
-            title: '5月经营效益',
-            items: [
-                { name: '碳酸锂产量(T)', budget: 2164, target: 2164, actual: 2302, unit: 'T' },
-                { name: '云母采购量(T)', budget: 50000, target: 50000, actual: 10000, unit: 'T' },
-                { name: '云母收率(%)', budget: 80.34, target: 80.34, actual: 79.22, unit: '%' },
-                { name: '焙烧转化率(%)', budget: 89.0, target: 89.0, actual: 88.26, unit: '%' },
-            ],
-        },
-        // D3 运营效率（能耗+存货周转+采购降本）
-        _dimComparison_d3: {
-            title: '5月运营效率',
-            items: [
-                { name: '电单耗(kWh/T)', budget: 0, target: 50, actual: 46, unit: 'kWh/T' },
-                { name: '气单耗(m³/T)', budget: 0, target: 200, actual: 185, unit: 'm³/T' },
-                { name: '综合能耗(kgce/T)', budget: 0, target: 68, actual: 62, unit: 'kgce/T' },
-                { name: '存货周转率(次)', budget: 0, target: 6.0, actual: 5.2, unit: '次' },
-            ],
-        },
-        // D4 技术创新力
-        _dimComparison_d4: {
-            title: '5月技术创新力',
-            items: [
-                { name: '发明专利新增(件)', budget: 0, target: 3, actual: 5, unit: '件' },
-                { name: '实用新型专利(件)', budget: 0, target: 5, actual: 6, unit: '件' },
-                { name: '研发项目立项(项)', budget: 0, target: 2, actual: 2, unit: '项' },
-            ],
-        },
-        // D5 风险合规（EHS）
-        _dimComparison_d5: {
-            title: '5月风险合规',
-            items: [
-                { name: '安全事故(起)', budget: 0, target: 0, actual: 0, unit: '起' },
-                { name: '环保合规', budget: 1, target: 1, actual: 1, unit: '项' },
-                { name: '质量体系审核', budget: 1, target: 1, actual: 1, unit: '项' },
-            ],
-        },
-        // D6 组织活力
-        _dimComparison_d6: {
-            title: '5月组织活力',
-            items: [
-                { name: '能源项目立项(项)', budget: 0, target: 1, actual: 1, unit: '项' },
-                { name: '新客户开发(家)', budget: 0, target: 3, actual: 2, unit: '家' },
-                { name: '人才引进(人)', budget: 0, target: 2, actual: 1, unit: '人' },
-            ],
-        },
-    },
-            // 2026年06 data (src: 龙蟠时代-6月总结暨7月计划报告V1)
-    // src pages: 5, 10, 11, 12, 13, 14, 15, 20, 26, 31, 32, 35, 36, 37, 38
-    // ============================================================
-    '2026-06': {
-        dims: { d1: 68, d2: 70, d3: 78, d4: 82, d5: 68, d6: 75 },
-        kpis: {
-            d1: [60, 85, 100, 100],
-            d2: [53, 100, 85, 85],
-            d3: [91, 82, 91, 83],
-            d4: [85, 85, 90, 85],
-            d5: [70, 55, 100, 100],
-            d6: [85, 80, 90, 50],
-        },
-        _isCurrent: true,
-        _kpiComparison: {
-            title: '6月核心KPI达成率',
-            period: '2026年6月',
-            items: [
-                {name: '营业收入(万元)', budget: 50305, target: 50305, actual: 29984, unit: '万元'},
-                {name: '净利润(万元)', budget: 3246, target: 3246, actual: 2754, unit: '万元'},
-                {name: '毛利率(%)', budget: 9.58, target: 9.58, actual: 11.4, unit: '%'},
-                {name: '资产负债率(%)', budget: 66, target: 66, actual: 64, unit: '%'}
-            ],
-        },
-        _dimComparison_d2: {
-            title: '6月经营效益',
-            format: 'mom',
-            items: [
-                {name: '碳酸锂产量(吨)', prev: 2302, curr: 3039, budget: 5684, actual: 3039, unit: '吨'},
-                {name: '营业收入(万元)', prev: 25139, curr: 29984, unit: '万元'},
-                {name: '毛利率(%)', prev: 23.5, curr: 11.4, unit: '%'},
-                {name: '成品结存(吨)', prev: 361, curr: 359, unit: '吨'}
-            ],
-        },
-        _dimComparison_d3: {
-            title: '6月运营效率',
-            format: 'mom',
-            items: [
-                {name: '焙烧转化率(%)', prev: 88.26, curr: 89.07, unit: '%'},
-                {name: '综合收率(%)', prev: 80.34, curr: 80.5, unit: '%'},
-                {name: '燃动加工成本(度/吨)', prev: 7986, curr: 7239, unit: '度/吨'},
-                {name: '采购降本(万元)', prev: 0, curr: 83, unit: '万元'}
-            ],
-        },
-        _dimComparison_d4: {
-            title: '6月技术创新力',
-            format: 'mom',
-            items: [
-                {name: '当月专利提交(件)', prev: 5, curr: 7, unit: '件'},
-                {name: '节能降本项目(项)', prev: 7, curr: 8, unit: '项'},
-                {name: '技改项目(项)', prev: 2, curr: 4, unit: '项'},
-                {name: '在研课题(项)', prev: 6, curr: 9, unit: '项'}
-            ],
-        },
-        _dimComparison_d5: {
-            title: '6月风险合规',
-            format: 'mom',
-            items: [
-                {name: '安全事故(起)', prev: 0, curr: 1, unit: '起'},
-                {name: '废气小时超標(条)', prev: 0, curr: 7, unit: '条'},
-                {name: '成品一次合格率(%)', prev: 100, curr: 100, unit: '%'},
-                {name: '客户投诉(次)', prev: 0, curr: 0, unit: '次'}
-            ],
-        },
-        _dimComparison_d6: {
-            title: '6月组织活力',
-            format: 'mom',
-            items: [
-                {name: 'AI项目立项(项)', prev: 5, curr: 8, unit: '项'},
-                {name: '数字化项目(项)', prev: 3, curr: 4, unit: '项'},
-                {name: '专项培训(周)', prev: 5, curr: 11, unit: '周'},
-                {name: '人员缺口(人)', prev: 0, curr: 40, unit: '人'}
-            ],
-        },
-    },
-};
+// RADAR_HISTORY data migrated to _radar_scoring_config.js BU_SCORE_DETAIL
+const RADAR_HISTORY_LPSD = (window.BU_SCORE_DETAIL && window.BU_SCORE_DETAIL["lpsd"]) || {};
 
 
 
@@ -1495,10 +1293,10 @@ const RADAR_HISTORY_LPSD = {
 const RADAR_HISTORY_LPSD_EXTRA = {};
 
 // 当前选中月份
-var currentMonth = '2026-06';
+var currentMonth = '2026-07';
 
 // 月份列表
-var MONTHS = ['2026-04', '2026-05', '2026-06'];
+var MONTHS = ['2026-04', '2026-05', '2026-06', '2026-07'];
 
 function getMonthData(month) {
     var hist = RADAR_HISTORY_LPSD[month];
@@ -1586,6 +1384,11 @@ function renderMonthSwitcher() {
 function renderScoreOverview() {
     var data = getMonthData(currentMonth);
     if (!data) return;
+    // D1 自动计算（若标记了 _computedD1）
+    if (data._computedD1 && data.kpis && data.kpis.d1) {
+        var computedD1 = calcD1(BU_ID_LPSD, data.kpis.d1);
+        if (computedD1 !== null) data.dims.d1 = computedD1;
+    }
     var dims = data.dims;
     var vals = [dims.d1, dims.d2, dims.d3, dims.d4, dims.d5, dims.d6];
     var wts = BU_WEIGHTS_LPSD;
@@ -1996,6 +1799,10 @@ window.addEventListener('resize', function() {
 function renderKPITable() {
     var data = getMonthData(currentMonth);
     if (!data || !data._kpiComparison) return;
+    var titleEl = document.getElementById('kpiTitle');
+    var sourceEl = document.getElementById('kpiSource');
+    if (titleEl) { var mn = currentMonth.replace('-','年')+'月'; titleEl.textContent = data._kpiComparison.title || (mn+'核心KPI达标率（预算 → 挑战目标 → 实际）'); }
+    if (sourceEl && data.source) sourceEl.textContent = '数据来源：'+data.source;
     var tbody = document.querySelector('#kpiTable tbody');
     tbody.innerHTML = '';
 
@@ -2052,9 +1859,12 @@ function renderDimTable(dimId, data, tableId) {
 
     dimData.items.forEach(function(item) {
         var isCost = item.name.indexOf('成本') >= 0;
-        var isMom = dimData.format === 'mom';
+        // 智能格式检测：优先用 prev/curr（环比）> budget/actual（预算）> value（快照）
+        var hasMom = ('prev' in item) && ('curr' in item);
+        var hasBudget = ('budget' in item) && ('actual' in item);
 
-        if (isMom) {
+        if (hasMom) {
+            // 格式A：环比（prev / curr）
             var mom = calcMom(item.curr, item.prev);
             var status = mom >= 100 ? '↑达标' : '↓ 待改进';
             tbody.innerHTML +=
@@ -2065,17 +1875,28 @@ function renderDimTable(dimId, data, tableId) {
                 '<td style="color:' + rateColor(mom) + ';font-weight:bold">' + fmtRate(mom) + '</td>' +
                 '<td><span class="rate-badge ' + rateClass(mom) + '">' + status + '</span></td>' +
                 '</tr>';
-        } else {
-            var achv = calcAchv(item.actual, item.target, isCost);
-            var achvBudget = calcAchv(item.actual, item.budget, isCost);
+        } else if (hasBudget) {
+            // 格式B：预算（budget / actual）
+            var achv = calcAchv(item.actual, item.target || item.budget, isCost);
             tbody.innerHTML +=
                 '<tr>' +
                 '<td>' + item.name + '</td>' +
                 '<td>' + fmtNum(item.budget) + '</td>' +
-                '<td>' + fmtNum(item.target) + '</td>' +
+                '<td>' + fmtNum(item.target || item.budget) + '</td>' +
                 '<td class="val-actual">' + fmtNum(item.actual) + '</td>' +
                 '<td style="color:' + rateColor(achv) + ';font-weight:bold">' + fmtRate(achv) + '</td>' +
                 '<td><span class="rate-badge ' + rateClass(achv) + '">' + (achv >= 100 ? '达标' : achv >= 85 ? '接近' : '待改进') + '</span></td>' +
+                '</tr>';
+        } else if ('value' in item) {
+            // 格式C：快照（单一数值）
+            var valColor = '#333';
+            var valText = fmtNum(item.value) + (item.unit ? ' ' + item.unit : '');
+            tbody.innerHTML +=
+                '<tr>' +
+                '<td>' + item.name + '</td>' +
+                '<td colspan="2">' + valText + '</td>' +
+                '<td class="val-actual" style="color:' + valColor + '">' + valText + '</td>' +
+                '<td colspan="2" style="text-align:center;color:#94a3b8;font-size:12px">快照</td>' +
                 '</tr>';
         }
     });
@@ -2085,6 +1906,18 @@ function renderDimTable(dimId, data, tableId) {
 function renderAll() {
     var data = getMonthData(currentMonth);
     if (!data) return;
+
+    // ── D1 自动计算：若标记了 _computedD1，则从 kpis.d1 自动算 ──
+    if (data._computedD1 && data.kpis && data.kpis.d1) {
+        var computedD1 = calcD1(BU_ID_LPSD, data.kpis.d1);
+        if (computedD1 !== null) data.dims.d1 = computedD1;
+    }
+
+    // ── KPI 校验（仅控制台警告，不阻塞渲染） ──
+    var validation = validateKpis(BU_ID_LPSD, data.kpis);
+    if (!validation.valid) {
+        console.warn('[LPSD] KPI 数据校验未通过:', validation.errors);
+    }
 
     renderScoreOverview();
     renderRadar();
@@ -2145,7 +1978,13 @@ function getRadarDataForInsights() {
     var month = currentMonth;
     var data = RADAR_HISTORY_LPSD[month];
     if (!data) return null;
-    
+
+    // D1 自动计算（若标记了 _computedD1）
+    if (data._computedD1 && data.kpis && data.kpis.d1) {
+        var computedD1 = calcD1(BU_ID_LPSD, data.kpis.d1);
+        if (computedD1 !== null) data.dims.d1 = computedD1;
+    }
+
     var prevMonth = getPreviousMonth(month);
     var prevData = prevMonth ? RADAR_HISTORY_LPSD[prevMonth] : null;
     

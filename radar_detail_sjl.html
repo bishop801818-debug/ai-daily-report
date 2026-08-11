@@ -4,6 +4,84 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>三金锂电 - 雷达看板</title>
+<script>
+(function(){
+  var RADAR_UID_WHITELIST = ['ou_78e0dba3ff382df7c11dcd07ea2255f0','ou_12015bf9c1d120116e6a01c022051130','ou_c0d1e422fada6770cb7da5069e96abbc','ou_178a5a969ca5c2d96c105d6ecbe4add0','ou_3897e64d72af1edd4637e51d1baa4d2c','ou_64217fc9e76e95ca13a26c0c4a5b665d','1854251564037223'].concat(['7595021657568185305','7598822772604701656','7589910160420637874','7589938135119744185','7591392573697101019','7592890122870410205']);
+  var RADAR_DEPT_WHITELIST = ['od-839a5caffe1fa682e014982a1d28fcb8'];
+  function isLocalPreview(){return location.protocol==='file:'||location.hostname==='localhost'||location.hostname==='127.0.0.1'||location.hostname==='';}
+  window.RADAR_UID_DECIDED=false; window.RADAR_UID_ALLOWED=false;
+  var AUTH_UID=''; var AUTH_DEPTS=[];
+  function getUid(){
+    var cand=[];
+    if(window.userInfo){ cand.push(window.userInfo.open_id, window.userInfo.user_id, window.userInfo.employee_id, window.userInfo.union_id, window.userInfo.uid); }
+    if(window.userId) cand.push(window.userId);
+    if(window.__context&&window.__context.user&&window.__context.user.open_id) cand.push(window.__context.user.open_id);
+    if(AUTH_UID) cand.push(AUTH_UID);
+    try{var a=localStorage.getItem('sso-user-info');if(a){var o=JSON.parse(a);if(o) cand.push(o.open_id,o.user_id,o.employee_id);}}catch(e){}
+    try{var b=localStorage.getItem('userInfo');if(b){var p=JSON.parse(b);if(p) cand.push(p.open_id,p.user_id,p.employee_id);}}catch(e){}
+    try{var q=new URLSearchParams(location.search);var u=q.get('uid')||q.get('openid');if(u)cand.push(u);}catch(e){}
+    var h=location.hash.match(/uid=([^&]+)/); if(h&&h[1]) cand.push(decodeURIComponent(h[1]));
+    for(var i=0;i<cand.length;i++){ if(cand[i]!==undefined&&cand[i]!==null&&String(cand[i]).length>0) return String(cand[i]); }
+    return '';
+  }
+  function getDeptIds(){
+    var out=[];
+    var h=location.hash.match(/dept=([^&]+)/); if(h&&h[1]) out.push(decodeURIComponent(h[1]));
+    try{var q=new URLSearchParams(location.search);var d=q.get('__dept')||q.get('departmentId')||q.get('dept');if(d)out.push(d);}catch(e){}
+    if(window.userInfo){ if(window.userInfo.department) out.push(window.userInfo.department); if(Array.isArray(window.userInfo.department_ids)) out=out.concat(window.userInfo.department_ids); if(window.userInfo.dept_id) out.push(window.userInfo.dept_id); }
+    try{var s=sessionStorage.getItem('__dept');if(s)out.push(s);}catch(e){}
+    if(AUTH_DEPTS&&AUTH_DEPTS.length) out=out.concat(AUTH_DEPTS);
+    var seen={},res=[];
+    for(var i=0;i<out.length;i++){var v=String(out[i]).trim(); if(v&&!seen[v]){seen[v]=1;res.push(v);}}
+    return res;
+  }
+  function clearDeny(){var el=document.getElementById('radar_deny_overlay'); if(el&&el.parentNode)el.parentNode.removeChild(el);}
+  function deny(){
+    var ex=document.getElementById('radar_deny_overlay'); if(ex)return;
+    function render(){
+      var el=document.getElementById('radar_deny_overlay'); if(el)return;
+      var d=document.createElement('div'); d.id='radar_deny_overlay';
+      d.style.cssText='position:fixed;inset:0;z-index:2147483647;display:flex;align-items:center;justify-content:center;background:rgba(245,246,250,.98)';
+      d.innerHTML='<div style="text-align:center;padding:48px;background:#fff;border-radius:16px;box-shadow:0 8px 30px rgba(0,0,0,.08)"><div style="font-size:64px;margin-bottom:12px">🔒</div><div style="font-size:22px;font-weight:700;color:#c0392b">您的账号暂无权限浏览</div><div style="margin-top:8px;color:#888;font-size:14px">请联系管理员申请雷达看板访问权限。</div>'+
+        '<details style="margin-top:16px;text-align:left;font-size:12px;color:#666;max-width:480px;word-break:break-all;"><summary style="cursor:pointer;color:#999">排查信息（点击展开）</summary>open_id: '+(window.userInfo&&window.userInfo.open_id||'(none)')+'<br>user_id: '+(window.userInfo&&window.userInfo.user_id||'(none)')+'<br>employee_id: '+(window.userInfo&&window.userInfo.employee_id||'(none)')+'<br>resolved_uid: '+getUid()+'</details></div>';
+      (document.body||document.documentElement).appendChild(d);
+    }
+    if(document.body)render(); else document.addEventListener('DOMContentLoaded',render);
+  }
+  var WL = RADAR_UID_WHITELIST.map(String);
+  var DWL = RADAR_DEPT_WHITELIST.map(String);
+  function isAllowedNow(){
+    var uid=getUid();
+    var depts=getDeptIds();
+    if(WL.indexOf(uid)>=0) return true;
+    if(Array.isArray(depts)&&depts.some(function(d){return DWL.indexOf(d)>=0;})) return true;
+    if(isLocalPreview()) return true;
+    return false;
+  }
+  function evaluate(){
+    if(window.RADAR_UID_DECIDED && window.RADAR_UID_ALLOWED) return;
+    if(isAllowedNow()){
+      window.RADAR_UID_DECIDED=true; window.RADAR_UID_ALLOWED=true;
+      document.documentElement.style.visibility='';
+      clearDeny();
+      return;
+    }
+    if(window.RADAR_UID_FINAL) deny();
+  }
+  document.documentElement.style.visibility='hidden';
+  evaluate();
+  window.addEventListener('message',function(e){
+    if(e.data&&e.data.type==='RADAR_AUTH'){
+      if(e.data.user){ try{ window.userInfo=Object.assign({},window.userInfo,e.data.user); }catch(_){} }
+      if(e.data.openId) AUTH_UID=String(e.data.openId);
+      if(e.data.deptIds&&e.data.deptIds.length) AUTH_DEPTS=e.data.deptIds.map(String);
+      evaluate();
+    }
+  });
+  try{if(window.parent&&window.parent!==window)window.parent.postMessage({type:'RADAR_REQUEST_AUTH'},'*');}catch(_){}
+  setTimeout(function(){ window.RADAR_UID_FINAL=true; evaluate(); },1500);
+})();
+</script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: "Microsoft YaHei", "PingFang SC", sans-serif; background: #f0f2f5; min-height: 100vh; }
@@ -914,6 +992,7 @@
         }
 
     </style>
+    <script src="bu_gate.js"></script>
 </head>
 <body>
 <div class="page-header">
@@ -992,7 +1071,7 @@
                         <span id="playIcon">▶</span>
                     </button>
                     <div class="timeline-track" id="timelineTrack"></div>
-                    <span class="timeline-label" id="timelineLabel">2026年05月</span>
+                    <span class="timeline-label" id="timelineLabel"></span>
                 </div>
             </div>
 
@@ -1025,7 +1104,7 @@
     <div id="tab-kpi" class="tab-content">
         <div class="kpi-grid" id="kpiGrid"></div>
         <div class="chart-section">
-            <div class="chart-title">5月核心KPI达标率（预算 → 挑战目标 → 实际）</div>
+            <div class="chart-title" id="kpiTitle">5月核心KPI达标率（预算 → 挑战目标 → 实际）</div>
             <div style="overflow-x:auto;">
                 <table class="data-table" id="kpiTable">
                     <thead><tr>
@@ -1376,7 +1455,6 @@ const RADAR_HISTORY_SJLD = {
             d5: [70, 50, 95, 30],
             d6: [55, 55, 65, 40],
         },
-        _isCurrent: true,
         _kpiComparison: {
             title: '6月核心KPI达成率',
             period: '2026年6月',
@@ -1436,6 +1514,87 @@ const RADAR_HISTORY_SJLD = {
             ],
         },
     },
+    '2026-07': {
+        dims: { d1: 65, d2: 46, d3: 23, d4: 28, d5: 75, d6: 45 },
+        kpis: {
+            d1: [81, 0, 80, 100],
+            d2: [80, 45, 35, 25],
+            d3: [0, 100, 50, 40],
+            d4: [0, 0, 60, 50],
+            d5: [100, 100, 99, 0],
+            d6: [80, 40, 60, 0],
+        },
+        _isCurrent: true,
+        _specialNote: '7月全线停产年度检修，产量/营收为0；竣工验收稳步推进(80%)；零安全事故；预计8月复产(订单252T)',
+        _kpiComparison: {
+            title: '7月核心KPI达成率',
+            period: '2026年7月',
+            items: [
+                {name: '产量(T)', budget: 267, target: 267, actual: 0, unit: 'T'},
+                {name: '营业收入(万元)', budget: 2654, target: 2654, actual: 0, unit: '万元'},
+                {name: '净利润(万元)', budget: -628, target: -628, actual: -507, unit: '万元'},
+                {name: '毛利率(%)', budget: -6, target: -6, actual: -14, unit: '%'},
+                {name: '资产负债率(%)', budget: 91, target: 91, actual: 73, unit: '%'},
+                {name: '主料降本率-镍(%)', budget: 5, target: 5, actual: 4, unit: '%'},
+                {name: '主料降本率-钴(%)', budget: 5, target: 5, actual: 12.6, unit: '%'}
+            ],
+        },
+        _dimComparison_d1: {
+            title: '7月核心KPI',
+            items: [
+                {name: '产量达成率(%)', value: '0', unit: '%'},
+                {name: '营收达成率(%)', value: '0', unit: '%'},
+                {name: '净利润达成率(%)', value: '81', unit: '%'},
+                {name: '资产负债率(%)', value: '73', unit: '%'}
+            ],
+        },
+        _dimComparison_d2: {
+            title: '7月基建进度',
+            items: [
+                {name: '竣工验收进度(%)', value: 80, unit: '%'},
+                {name: '正常化项目(项)', value: 1, unit: '项'},
+                {name: '机电板块进度(%)', value: 45, unit: '%'},
+                {name: '土建板块进度(%)', value: 10, unit: '%'}
+            ],
+        },
+        _dimComparison_d3: {
+            title: '7月运营准备',
+            items: [
+                {name: '前驱体发货(吨)', value: 0, unit: '吨'},
+                {name: '有毒气体排放(起)', value: 0, unit: '起'},
+                {name: '代加工达成(项)', value: 1, unit: '项'},
+                {name: '采购降本洽谈(项)', value: 2, unit: '项'}
+            ],
+        },
+        _dimComparison_d4: {
+            title: '7月客户开发与技术',
+            format: 'mom',
+            items: [
+                {name: 'Ni93样品交付(kg)', prev: 30, curr: 0, unit: 'kg'},
+                {name: 'Ni95样品交付(kg)', prev: 50, curr: 0, unit: 'kg'},
+                {name: 'BTR客户推进(阶段)', prev: 3, curr: 3, unit: '阶段'},
+                {name: '代工洽谈(家)', prev: 1, curr: 1, unit: '家'}
+            ],
+        },
+        _dimComparison_d5: {
+            title: '7月竣工验收与合规',
+            items: [
+                {name: '安全事故(起)', value: 0, unit: '起'},
+                {name: '环保违规(项)', value: 0, unit: '项'},
+                {name: '隐患整改率(%)', value: 99.2, unit: '%'},
+                {name: '新增诉讼(起)', value: 1, unit: '起'}
+            ],
+        },
+        _dimComparison_d6: {
+            title: '7月组织活力',
+            items: [
+                {name: '关键岗位到岗率(%)', value: 80, unit: '%'},
+                {name: '跨组织支援(人次)', value: 1, unit: '人次'},
+                {name: 'SAP系统上线(%)', value: 60, unit: '%'},
+                {name: 'AI创新项目(项)', value: 0, unit: '项'}
+            ],
+        },
+    },
 };
 
 
@@ -1444,10 +1603,10 @@ const RADAR_HISTORY_SJLD = {
 const RADAR_HISTORY_SJLD_EXTRA = {};
 
 // 当前选中月份
-var currentMonth = '2026-06';
+var currentMonth = '2026-07';
 
 // 月份列表
-var MONTHS = ['2026-03', '2026-04', '2026-05', '2026-06'];
+var MONTHS = ['2026-03', '2026-04', '2026-05', '2026-06', '2026-07'];
 
 function getMonthData(month) {
     var hist = RADAR_HISTORY_SJLD[month];
@@ -1945,6 +2104,10 @@ window.addEventListener('resize', function() {
 function renderKPITable() {
     var data = getMonthData(currentMonth);
     if (!data || !data._kpiComparison) return;
+    var titleEl = document.getElementById('kpiTitle');
+    var sourceEl = document.getElementById('kpiSource');
+    if (titleEl) { var mn = currentMonth.replace('-','年')+'月'; titleEl.textContent = data._kpiComparison.title || (mn+'核心KPI达标率（预算 → 挑战目标 → 实际）'); }
+    if (sourceEl && data.source) sourceEl.textContent = '数据来源：'+data.source;
     var tbody = document.querySelector('#kpiTable tbody');
     tbody.innerHTML = '';
 
@@ -2328,11 +2491,20 @@ function generateLocalInsights(data) {
                         '<p>⚠️ 预算执行滞后，可能存在项目推进缓慢或资金使用效率低的问题。</p>') +
                        '</div>';
     }
-    
+
+    // 🔔 特殊情况：在综合表现诊断前插入停产/关键背景说明
+    var specialContext = '';
+    if (current._specialNote) {
+        specialContext = '<div style="background:#fff8e1;border:1px solid #ffcc02;border-radius:8px;padding:12px 16px;margin-bottom:12px">' +
+                         '<div style="font-size:13px;color:#7d4c00;font-weight:bold;margin-bottom:6px">🔔 重要背景：7月处于停产检修期</div>' +
+                         '<div style="font-size:13px;color:#5d4037;line-height:1.6">' + current._specialNote + '</div>' +
+                         '</div>';
+    }
+
     result.summary.push({
         icon: '📊',
         title: '综合表现诊断',
-        content: trendAnalysis + benchmarkText + kpiAnalysisDetail + budgetAnalysis
+        content: specialContext + trendAnalysis + benchmarkText + kpiAnalysisDetail + budgetAnalysis
     });
     
     // === 维度分析：专业深度解读（增加对业务含义的解读）===

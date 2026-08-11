@@ -1198,376 +1198,23 @@ const BU_META_KLS = {
     accent: '#d35400',
 }
 
-// 单一配置源
-</script>
-<script src="_radar_scoring_config.js"></script>
-<script>
-const BU_ID_KLS = 'kls';
-const BU_WEIGHTS_KLS = BU_CONFIG[BU_ID_KLS].weights;
-const DIMS_DEF_KLS = getDimsDef(BU_ID_KLS);
-</script>
+// 润滑油事业部同款权重（KLS与LHY同属销售驱动型）
+// D1战略18% D2经营22% D3运营15% D4创新22% D5合规15% D6活力8%
+const BU_WEIGHTS_KLS = [18, 22, 15, 22, 15, 8];
 
-const RADAR_HISTORY_KLS = {
-    '2026-03': {
-        dims: { d1: 84, d2: 72, d3: 68, d4: 70, d5: 76, d6: 70 },
-        kpis: {
-            d1: [80, 73, 88, 94],
-            d2: [72, 72, 72, 72],
-            d3: [68, 68, 68, 68],
-            d4: [70, 70, 70, 70],
-            d5: [76, 76, 76, 76],
-            d6: [70, 70, 70, 70],
-        },
-        _kpiComparison: {
-            title: '3月核心KPI达标率',
-            period: '2026年3月',
-            items: [
-                { name: 'AdBlue销量达成率(%)',   budget: 100, target: 100, actual: 76.5, unit: '%' },
-                { name: '收入达成率(%)',          budget: 100, target: 100, actual: 79.6, unit: '%' },
-                { name: '毛利率(%)',              budget: 30.5, target: 30.5, actual: 26.9, unit: '%' },
-                { name: '期间费用率(%)',           budget: 15.2, target: 15.2, actual: 16.15, unit: '%' },
-                { name: '净利率(%)',              budget: 14.2, target: 14.2, actual: 13.0, unit: '%' },
-                { name: '渠道覆盖率(%)',           budget: 100, target: 100, actual: 0, unit: '%' },
-                { name: '回款率(%)',              budget: 100, target: 100, actual: 94, unit: '%' }
-            ],
-        },
-        _dimComparison_d2: {
-            title: '3月经营效益',
-            items: [
-                { name: 'AdBlue产量(万吨)',       budget: 3.61, target: 3.61, actual: 2.77, unit: '万吨' },
-                { name: '尿素溶液销售(万)',       budget: 0, target: 0, actual: 0, unit: '万' },
-                { name: '渠道覆盖(加油站/家)',     budget: 0, target: 0, actual: 0, unit: '家' },
-                { name: 'OEM配套(家)',           budget: 0, target: 0, actual: 0, unit: '家' }
-            ],
-        },
-        _dimComparison_d3: {
-            title: '3月运营效率',
-            items: [
-                { name: '产能利用率(%)',         budget: 80, target: 80, actual: 15.5, unit: '%' },
-                { name: '一次合格率(%)',          budget: 0, target: 0, actual: 0, unit: '%' },
-                { name: '单吨能耗(元/吨)',         budget: 37.7, target: 37.7, actual: 37.1, unit: '元/吨' },
-                { name: '配送时效(小时)',          budget: 0, target: 0, actual: 0, unit: '小时' }
-            ],
-        },
-        _dimComparison_d4: {
-            title: '3月技术创新力',
-            format: 'mom',
-            items: [
-                { name: '新产品配方数',         prev: 0,   curr: 2,    unit: '个' },
-                { name: 'OEM认证取得(家)',        prev: 0,   curr: 0,    unit: '家' },
-                { name: '国六适配型号数',         prev: 0,   curr: 0,    unit: '个' },
-                { name: '技术服务项目',           prev: 0,   curr: 3,    unit: '个' }
-            ],
-        },
-        _dimComparison_d5: {
-            title: '3月风险合规',
-            items: [
-                { name: 'ISO认证通过',           budget: 0, target: 0, actual: 0, unit: '项' },
-                { name: '环保合规',              budget: 0, target: 0, actual: 0, unit: '项' },
-                { name: '安全培训完成',              budget: 1, target: 1, actual: 1, unit: '次' },
-                { name: '客户投诉率(%)',          budget: 0, target: 0, actual: 0, unit: '%' }
-            ],
-        },
-        _dimComparison_d6: {
-            title: '3月组织活力',
-            format: 'mom',
-            items: [
-                { name: 'AI项目立项(个)',         prev: 0, curr: 1, unit: '个' },
-                { name: '新市场开拓(个)',          prev: 0, curr: 2, unit: '个' },
-                { name: '人才引进(人)',           prev: 0, curr: 0, unit: '人' },
-                { name: '数字化项目(个)',          prev: 0, curr: 2, unit: '个' }
-            ],
-        },
-    },
-    '2026-04': {
-        // 无PDF数据(占位全0) — kpis由calcKPIsFromComparison动态计算，此处不再存储
-        dims: { d1: 89, d2: 75, d3: 70, d4: 72, d5: 78, d6: 68 },
-        _kpiComparison: {
-            title: '4月核心KPI达标率',
-            period: '2026年4月',
-            items: [
-                { name: 'AdBlue销量达成率(%)',   budget: 0, target: 0, actual: 0, unit: '%' },
-                { name: '收入达成率(%)',          budget: 0, target: 0, actual: 0, unit: '%' },
-                { name: '毛利率(%)',              budget: 0, target: 0, actual: 0, unit: '%' },
-                { name: '期间费用率(%)',           budget: 0, target: 0, actual: 0, unit: '%' },
-                { name: '净利率(%)',              budget: 0, target: 0, actual: 0, unit: '%' },
-                { name: '渠道覆盖率(%)',           budget: 0, target: 0, actual: 0, unit: '%' },
-                { name: '回款率(%)',              budget: 0, target: 0, actual: 0, unit: '%' }
-            ],
-        },
-        _dimComparison_d2: {
-            title: '4月经营效益',
-            items: [
-                { name: 'AdBlue销量(万)',       budget: 0, target: 0, actual: 0, unit: '万' },
-                { name: '尿素溶液销售(万)',       budget: 0, target: 0, actual: 0, unit: '万' },
-                { name: '渠道覆盖(加油站/家)',     budget: 0, target: 0, actual: 0, unit: '家' },
-                { name: 'OEM配套(家)',           budget: 0, target: 0, actual: 0, unit: '家' }
-            ],
-        },
-        _dimComparison_d3: {
-            title: '4月运营效率',
-            items: [
-                { name: '产能利用率(%)',         budget: 0, target: 0, actual: 0, unit: '%' },
-                { name: '一次合格率(%)',          budget: 0, target: 0, actual: 0, unit: '%' },
-                { name: '生产成本(元/吨)',         budget: 0, target: 0, actual: 0, unit: '元/吨' },
-                { name: '配送时效(小时)',          budget: 0, target: 0, actual: 0, unit: '小时' }
-            ],
-        },
-        _dimComparison_d4: {
-            title: '4月技术创新力',
-            format: 'mom',
-            items: [
-                { name: '新产品配方数',         prev: 0,   curr: 0,    unit: '个' },
-                { name: 'OEM认证取得(家)',        prev: 0,   curr: 0,    unit: '家' },
-                { name: '国六适配型号数',         prev: 0,   curr: 0,    unit: '个' },
-                { name: '技术服务项目',           prev: 0,   curr: 0,    unit: '个' }
-            ],
-        },
-        _dimComparison_d5: {
-            title: '4月风险合规',
-            items: [
-                { name: 'ISO认证通过',           budget: 0, target: 0, actual: 0, unit: '项' },
-                { name: '环保合规',              budget: 0, target: 0, actual: 0, unit: '项' },
-                { name: '安全生产',              budget: 0, target: 0, actual: 0, unit: '项' },
-                { name: '客户投诉率(%)',          budget: 0, target: 0, actual: 0, unit: '%' }
-            ],
-        },
-        _dimComparison_d6: {
-            title: '4月组织活力',
-            format: 'mom',
-            items: [
-                { name: 'AI项目立项(个)',         prev: 0, curr: 0, unit: '个' },
-                { name: '新市场开拓(个)',          prev: 0, curr: 0, unit: '个' },
-                { name: '人才引进(人)',           prev: 0, curr: 0, unit: '人' },
-                { name: '数字化项目(个)',          prev: 0, curr: 0, unit: '个' }
-            ],
-        },
-    },
-    // 5月: 无PDF数据(占位全0) — kpis由calcKPIsFromComparison动态计算，此处不再存储
-    '2026-05': {
-        dims: { d1: 82, d2: 80, d3: 75, d4: 76, d5: 80, d6: 72 },
-        _kpiComparison: {
-            title: '5月核心KPI达标率',
-            period: '2026年5月',
-            items: [
-                { name: 'AdBlue销量达成率(%)',   budget: 0, target: 0, actual: 0, unit: '%' },
-                { name: '收入达成率(%)',          budget: 0, target: 0, actual: 0, unit: '%' },
-                { name: '毛利率(%)',              budget: 0, target: 0, actual: 0, unit: '%' },
-                { name: '期间费用率(%)',           budget: 0, target: 0, actual: 0, unit: '%' },
-                { name: '净利率(%)',              budget: 0, target: 0, actual: 0, unit: '%' },
-                { name: '渠道覆盖率(%)',           budget: 0, target: 0, actual: 0, unit: '%' },
-                { name: '回款率(%)',              budget: 0, target: 0, actual: 0, unit: '%' }
-            ],
-        },
-        _dimComparison_d2: {
-            title: '5月经营效益',
-            items: [
-                { name: 'AdBlue销量(万)',       budget: 0, target: 0, actual: 0, unit: '万' },
-                { name: '尿素溶液销售(万)',       budget: 0, target: 0, actual: 0, unit: '万' },
-                { name: '渠道覆盖(加油站/家)',     budget: 0, target: 0, actual: 0, unit: '家' },
-                { name: 'OEM配套(家)',           budget: 0, target: 0, actual: 0, unit: '家' }
-            ],
-        },
-        _dimComparison_d3: {
-            title: '5月运营效率',
-            items: [
-                { name: '产能利用率(%)',         budget: 0, target: 0, actual: 0, unit: '%' },
-                { name: '一次合格率(%)',          budget: 0, target: 0, actual: 0, unit: '%' },
-                { name: '生产成本(元/吨)',         budget: 0, target: 0, actual: 0, unit: '元/吨' },
-                { name: '配送时效(小时)',          budget: 0, target: 0, actual: 0, unit: '小时' }
-            ],
-        },
-        _dimComparison_d4: {
-            title: '5月技术创新力',
-            format: 'mom',
-            items: [
-                { name: '新产品配方数',           prev: 0,   curr: 0,    unit: '个' },
-                { name: 'OEM认证取得(家)',        prev: 0,   curr: 0,    unit: '家' },
-                { name: '国六适配型号数',         prev: 0,   curr: 0,    unit: '个' },
-                { name: '技术服务项目',           prev: 0,   curr: 0,    unit: '个' }
-            ],
-        },
-        _dimComparison_d5: {
-            title: '5月风险合规',
-            items: [
-                { name: 'ISO认证通过',           budget: 0, target: 0, actual: 0, unit: '项' },
-                { name: '环保合规',              budget: 0, target: 0, actual: 0, unit: '项' },
-                { name: '安全生产',              budget: 0, target: 0, actual: 0, unit: '项' },
-                { name: '客户投诉率(%)',          budget: 0, target: 0, actual: 0, unit: '%' }
-            ],
-        },
-        _dimComparison_d6: {
-            title: '5月组织活力',
-            format: 'mom',
-            items: [
-                { name: 'AI项目立项(个)',         prev: 0, curr: 0, unit: '个' },
-                { name: '新市场开拓(个)',          prev: 0, curr: 0, unit: '个' },
-                { name: '人才引进(人)',           prev: 0, curr: 0, unit: '人' },
-                { name: '数字化项目(个)',          prev: 0, curr: 0, unit: '个' }
-            ],
-        },
-    },
-    // 2026年06 data (src: 可兰素事业部6月总结及7月计划--6.26汇报版本)
-    '2026-06': {
-        dims: { d1: 75, d2: 85, d3: 83, d4: 70, d5: 75, d6: 60 },
-        kpis: {
-            d1: [69.9, 73.5, 88.6, 94.5],
-            d2: [10138.0, 91.7, 90.0, 60.0],
-            d3: [56.4, 80.0, 115.6, 80.0],
-            d4: [1.0, 80.0, 80.0, 120.0],
-            d5: [100.0, 100.0, 0.0, 100.0],
-            d6: [1.0, 80.0, 80.0, 80.0],
-        },
-        _kpiComparison: {
-            title: '6月核心KPI达标率',
-            period: '2026年6月',
-            items: [
-                { name: '收入达成率(%)',    budget: 7247,   target: 7247,   actual: 5069,  unit: '%' },
-                { name: '净利润达成率(%)',  budget: 825,    target: 825,    actual: 606,   unit: '%' },
-                { name: '毛利率(%)',        budget: 26.27,  target: 26.27,  actual: 23.27, unit: '%' },
-                { name: '期间费用率(%)',    budget: 14.16,  target: 14.16,  actual: 14.99, unit: '%' },
-                { name: '回款率(%)',        budget: 100,    target: 100,    actual: 90,    unit: '%' },
-            ],
-        },
-        _dimComparison_d2: {
-            title: '6月经营效益',
-            items: [
-                { name: '尿素溶液销售(万)', budget: 7247,  target: 603.9,  actual: 5069,   unit: '万元' },
-                { name: '一卡通网点(家)',   budget: 20000, target: 1667,   actual: 18335,  unit: '家'   },
-                { name: '加注机累计(台)',   budget: 3000,  target: 250,    actual: 2765,   unit: '台'   },
-                { name: 'OEM配套(家)',      budget: 0,     target: 0,      actual: 0,      unit: '家'   },
-            ],
-        },
-        _dimComparison_d3: {
-            title: '6月运营效率',
-            items: [
-                { name: '产能利用率(%)',  budget: 80,   target: 80,   actual: 56.4,  unit: '%'     },
-                { name: '一次合格率(%)',   budget: 100,  target: 100,  actual: 80,    unit: '%'     },
-                { name: '单吨能耗(元/吨)', budget: 37.7, target: 37.7, actual: 32.6,  unit: '元/吨' },
-                { name: '配送时效(小时)',  budget: 0,    target: 0,    actual: 0,     unit: '小时'  },
-            ],
-        },
-        _dimComparison_d4: {
-            title: '6月技术创新力 5月→6月环比',
-            format: 'mom',
-            items: [
-                { name: '新产品配方数',   prev: 0, curr: 1, unit: '个' },
-                { name: 'OEM认证取得(家)',prev: 0, curr: 0, unit: '家' },
-                { name: '国六适配型号数', prev: 0, curr: 0, unit: '个' },
-                { name: '技术服务项目',   prev: 3, curr: 5, unit: '个' },
-            ],
-        },
-        _dimComparison_d5: {
-            title: '6月风险合规',
-            items: [
-                { name: '环保合规',          budget: 1, target: 1, actual: 1, unit: '项' },
-                { name: '安全培训完成(次)',  budget: 2, target: 2, actual: 2, unit: '次' },
-                { name: '绿色工厂认证',      budget: 1, target: 1, actual: 0, unit: '项' },
-                { name: '客户投诉率(%)',     budget: 0, target: 0, actual: 0, unit: '%' },
-            ],
-        },
-        _dimComparison_d6: {
-            title: '6月组织活力 5月→6月环比',
-            format: 'mom',
-            items: [
-                { name: 'AI项目立项(个)',  prev: 0, curr: 1,  unit: '个' },
-                { name: '星推官(人)',      prev: 0, curr: 4244,unit: '人' },
-                { name: '新市场开拓(个)',  prev: 0, curr: 3,   unit: '个' },
-                { name: '数字化项目(个)',  prev: 0, curr: 6,   unit: '个' },
-            ],
-        },
-    },
-            // 2026年07 data (src: 总结计划会-可兰素事业部柏国营8.1汇报V2)
-    // D1由calcD1自动计算: 63×25%+117×30%+76×25%+78×20% = 87分
-    // ============================================================
-    '2026-07': {
-        // d1 由 calcD1(BU_ID_KLS, kpis.d1) 动态计算得出
-        kpis: {
-            d1: [63, 117, 76, 78],
-            d2: [102, 116, 108],
-            d3: [98, 100, 96],
-            d4: [100, 100, 100, 0],
-            d5: [100, 100, 100, 100],
-            d6: [56, 134, 100],
-        },
-        _computedD1: true,
-        _isCurrent: true,
-        dims: { d2: 85, d3: 80, d4: 100, d5: 100, d6: 85 },
-        _kpiComparison: {
-            title: '7月核心KPI达成率',
-            period: '2026年7月',
-            items: [
-                {name: '产量(吨)',       budget: 35584, target: 35584, actual: 22549, unit: '吨'},
-                {name: '营业收入(万元)', budget: 5438,  target: 5438,  actual: 4158,  unit: '万元'},
-                {name: '净利润(万元)',   budget: 484,   target: 484,   actual: 294,   unit: '万元'},
-                {name: '毛利率(%)',     budget: 27.3,  target: 27.3,  actual: 21.2,  unit: '%'},
-                {name: '1-7月营收(万元)', budget: 0,    target: 0,     actual: 32810, unit: '万元'},
-            ],
-        },
-        _dimComparison_d1: {
-            title: '7月核心KPI',
-            format: 'mom',
-            items: [
-                {name: '产量(吨)',          prev: 0, curr: 22549, unit: '吨'},
-                {name: '营业收入(万元)',    prev: 0, curr: 4158,  unit: '万元'},
-                {name: '净利润(万元)',      prev: 0, curr: 294,   unit: '万元'},
-                {name: '毛利率(%)',        prev: 0, curr: 21.2,  unit: '%'},
-                {name: '1-7月营收累计(万元)', prev: 0, curr: 32810, unit: '万元'},
-                {name: '1-7月营收同比(%)', prev: 0, curr: 3.4,   unit: '%'},
-            ],
-        },
-        _dimComparison_d2: {
-            title: '7月经营效益',
-            items: [
-                {name: '尿素OEE(%)',        value: 89.38, unit: '%'},
-                {name: '吨维修费降本(%)',   value: 16.4,  unit: '%'},
-                {name: '物流降本(万元)',     value: 109.34, unit: '万元'},
-                {name: '尿素采购降本(万元)', value: 15.38,  unit: '万元'},
-                {name: '纸箱套标降本(万元)', value: 6.09,   unit: '万元'},
-            ],
-        },
-        _dimComparison_d3: {
-            title: '7月运营效率',
-            items: [
-                {name: '总库存(万元)',       value: 1813,   unit: '万元'},
-                {name: '超180天库存(万元)', value: 176.95,  unit: '万元'},
-                {name: '尿素吨维修费(元)',   value: 2.49,   unit: '元/吨'},
-                {name: '尿素OEE(%)',         value: 89.38,  unit: '%'},
-                {name: '1-7月能耗降本(万元)', value: 57.59,  unit: '万元'},
-            ],
-        },
-        _dimComparison_d4: {
-            title: '7月技术创新',
-            items: [
-                {name: '来料一次合格率(%)',  value: 100,  unit: '%'},
-                {name: '成品一次合格率(%)',  value: 100,  unit: '%'},
-                {name: '市场抽检合格率(%)',  value: 100,  unit: '%'},
-                {name: '客户有效投诉(次)',   value: 1,    unit: '次'},
-                {name: 'CNAS整改推进',       value: 90,   unit: '%'},
-            ],
-        },
-        _dimComparison_d5: {
-            title: '7月风险合规',
-            items: [
-                {name: '安全事故(起)',        value: 0,  unit: '起'},
-                {name: '环保处罚(项)',        value: 0,  unit: '项'},
-                {name: '诉讼案件(件)',        value: 0,  unit: '件'},
-                {name: '隐患整改率(%)',      value: 100, unit: '%'},
-                {name: '零碳工厂',            value: 100, unit: '%'},
-            ],
-        },
-        _dimComparison_d6: {
-            title: '7月组织活力',
-            items: [
-                {name: '三大工厂网点开发(家)', value: 733,  unit: '家'},
-                {name: '网点开发完成率(%)',   value: 56,   unit: '%'},
-                {name: '电商出库(万元)',       value: 180,  unit: '万元'},
-                {name: '电商达标率(%)',        value: 134,  unit: '%'},
-                {name: '干部述职(人)',          value: 43,   unit: '人'},
-            ],
-        },
-    },
-};
+
+
+const DIMS_DEF_KLS = [
+    { id: 'd1', name: '核心KPI',      kpis: ['收入达成率','净利润达成率','毛利率达成率','费用控制率'], color: '#d35400' },
+    { id: 'd2', name: '经营效益',     kpis: ['AdBlue销量','尿素溶液销售','渠道覆盖率','OEM配套数量'], color: '#d35400' },
+    { id: 'd3', name: '运营效率',     kpis: ['产能利用率','一次合格率','生产成本','配送时效'], color: '#d35400' },
+    { id: 'd4', name: '技术创新力',   kpis: ['新产品配方数','OEM认证取得','国六适配型号','技术服务'], color: '#d35400' },
+    { id: 'd5', name: '风险合规',     kpis: ['ISO认证','环保合规','安全生产','客户投诉率'], color: '#d35400' },
+    { id: 'd6', name: '组织活力',     kpis: ['AI项目立项','新市场开拓','人才引进','数字化项目'], color: '#d35400' },
+];
+
+// RADAR_HISTORY data migrated to _radar_scoring_config.js BU_SCORE_DETAIL
+const RADAR_HISTORY_KLS = (window.BU_SCORE_DETAIL && window.BU_SCORE_DETAIL["kls"]) || {};
 
 const RADAR_HISTORY_KLS_EXTRA = {};
 
@@ -1658,13 +1305,6 @@ function renderMonthSwitcher() {
 function renderScoreOverview() {
     var data = getMonthData(currentMonth);
     if (!data) return;
-
-    // D1 自动计算（若标记了 _computedD1）
-    if (data._computedD1 && data.kpis && data.kpis.d1) {
-        var computedD1 = calcD1(BU_ID_KLS, data.kpis.d1);
-        if (computedD1 !== null) data.dims.d1 = computedD1;
-    }
-
     var dims = data.dims;
     var vals = [dims.d1, dims.d2, dims.d3, dims.d4, dims.d5, dims.d6];
     var wts = BU_WEIGHTS_KLS;
@@ -2135,12 +1775,9 @@ function renderDimTable(dimId, data, tableId) {
 
     dimData.items.forEach(function(item) {
         var isCost = item.name.indexOf('成本') >= 0;
-        // 智能格式检测：优先用 prev/curr（环比）> budget/actual（预算）> value（快照）
-        var hasMom = ('prev' in item) && ('curr' in item);
-        var hasBudget = ('budget' in item) && ('actual' in item);
+        var isMom = dimData.format === 'mom';
 
-        if (hasMom) {
-            // 格式A：环比（prev / curr）
+        if (isMom) {
             var mom = calcMom(item.curr, item.prev);
             var status = mom >= 100 ? '↑达标' : '↓ 待改进';
             tbody.innerHTML +=
@@ -2151,28 +1788,17 @@ function renderDimTable(dimId, data, tableId) {
                 '<td style="color:' + rateColor(mom) + ';font-weight:bold">' + fmtRate(mom) + '</td>' +
                 '<td><span class="rate-badge ' + rateClass(mom) + '">' + status + '</span></td>' +
                 '</tr>';
-        } else if (hasBudget) {
-            // 格式B：预算（budget / actual）
-            var achv = calcAchv(item.actual, item.target || item.budget, isCost);
+        } else {
+            var achv = calcAchv(item.actual, item.target, isCost);
+            var achvBudget = calcAchv(item.actual, item.budget, isCost);
             tbody.innerHTML +=
                 '<tr>' +
                 '<td>' + item.name + '</td>' +
                 '<td>' + fmtNum(item.budget) + '</td>' +
-                '<td>' + fmtNum(item.target || item.budget) + '</td>' +
+                '<td>' + fmtNum(item.target) + '</td>' +
                 '<td class="val-actual">' + fmtNum(item.actual) + '</td>' +
                 '<td style="color:' + rateColor(achv) + ';font-weight:bold">' + fmtRate(achv) + '</td>' +
                 '<td><span class="rate-badge ' + rateClass(achv) + '">' + (achv >= 100 ? '达标' : achv >= 85 ? '接近' : '待改进') + '</span></td>' +
-                '</tr>';
-        } else if ('value' in item) {
-            // 格式C：快照（单一数值）
-            var valColor = '#333';
-            var valText = fmtNum(item.value) + (item.unit ? ' ' + item.unit : '');
-            tbody.innerHTML +=
-                '<tr>' +
-                '<td>' + item.name + '</td>' +
-                '<td colspan="2">' + valText + '</td>' +
-                '<td class="val-actual" style="color:' + valColor + '">' + valText + '</td>' +
-                '<td colspan="2" style="text-align:center;color:#94a3b8;font-size:12px">快照</td>' +
                 '</tr>';
         }
     });
@@ -2182,18 +1808,6 @@ function renderDimTable(dimId, data, tableId) {
 function renderAll() {
     var data = getMonthData(currentMonth);
     if (!data) return;
-
-    // ── D1 自动计算：若标记了 _computedD1，则从 kpis.d1 自动算 ──
-    if (data._computedD1 && data.kpis && data.kpis.d1) {
-        var computedD1 = calcD1(BU_ID_KLS, data.kpis.d1);
-        if (computedD1 !== null) data.dims.d1 = computedD1;
-    }
-
-    // ── KPI 校验（仅控制台警告，不阻塞渲染） ──
-    var validation = validateKpis(BU_ID_KLS, data.kpis);
-    if (!validation.valid) {
-        console.warn('[KLS] KPI 数据校验未通过:', validation.errors);
-    }
 
     renderScoreOverview();
     renderRadar();
@@ -2254,16 +1868,10 @@ function getRadarDataForInsights() {
     var month = currentMonth;
     var data = RADAR_HISTORY_KLS[month];
     if (!data) return null;
-
-    // D1 自动计算（若标记了 _computedD1）
-    if (data._computedD1 && data.kpis && data.kpis.d1) {
-        var computedD1 = calcD1(BU_ID_KLS, data.kpis.d1);
-        if (computedD1 !== null) data.dims.d1 = computedD1;
-    }
-
+    
     var prevMonth = getPreviousMonth(month);
     var prevData = prevMonth ? RADAR_HISTORY_KLS[prevMonth] : null;
-
+    
     return {
         current: data,
         previous: prevData,

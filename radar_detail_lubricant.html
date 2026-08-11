@@ -4,6 +4,84 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>润滑油事业部 - 雷达看板</title>
+<script>
+(function(){
+  var RADAR_UID_WHITELIST = ['ou_78e0dba3ff382df7c11dcd07ea2255f0','ou_12015bf9c1d120116e6a01c022051130','ou_c0d1e422fada6770cb7da5069e96abbc','ou_178a5a969ca5c2d96c105d6ecbe4add0','ou_3897e64d72af1edd4637e51d1baa4d2c','ou_64217fc9e76e95ca13a26c0c4a5b665d','1854251564037223'].concat(['7595021657568185305','7598822772604701656','7589910160420637874','7589938135119744185','7591392573697101019','7592890122870410205']);
+  var RADAR_DEPT_WHITELIST = ['od-839a5caffe1fa682e014982a1d28fcb8'];
+  function isLocalPreview(){return location.protocol==='file:'||location.hostname==='localhost'||location.hostname==='127.0.0.1'||location.hostname==='';}
+  window.RADAR_UID_DECIDED=false; window.RADAR_UID_ALLOWED=false;
+  var AUTH_UID=''; var AUTH_DEPTS=[];
+  function getUid(){
+    var cand=[];
+    if(window.userInfo){ cand.push(window.userInfo.open_id, window.userInfo.user_id, window.userInfo.employee_id, window.userInfo.union_id, window.userInfo.uid); }
+    if(window.userId) cand.push(window.userId);
+    if(window.__context&&window.__context.user&&window.__context.user.open_id) cand.push(window.__context.user.open_id);
+    if(AUTH_UID) cand.push(AUTH_UID);
+    try{var a=localStorage.getItem('sso-user-info');if(a){var o=JSON.parse(a);if(o) cand.push(o.open_id,o.user_id,o.employee_id);}}catch(e){}
+    try{var b=localStorage.getItem('userInfo');if(b){var p=JSON.parse(b);if(p) cand.push(p.open_id,p.user_id,p.employee_id);}}catch(e){}
+    try{var q=new URLSearchParams(location.search);var u=q.get('uid')||q.get('openid');if(u)cand.push(u);}catch(e){}
+    var h=location.hash.match(/uid=([^&]+)/); if(h&&h[1]) cand.push(decodeURIComponent(h[1]));
+    for(var i=0;i<cand.length;i++){ if(cand[i]!==undefined&&cand[i]!==null&&String(cand[i]).length>0) return String(cand[i]); }
+    return '';
+  }
+  function getDeptIds(){
+    var out=[];
+    var h=location.hash.match(/dept=([^&]+)/); if(h&&h[1]) out.push(decodeURIComponent(h[1]));
+    try{var q=new URLSearchParams(location.search);var d=q.get('__dept')||q.get('departmentId')||q.get('dept');if(d)out.push(d);}catch(e){}
+    if(window.userInfo){ if(window.userInfo.department) out.push(window.userInfo.department); if(Array.isArray(window.userInfo.department_ids)) out=out.concat(window.userInfo.department_ids); if(window.userInfo.dept_id) out.push(window.userInfo.dept_id); }
+    try{var s=sessionStorage.getItem('__dept');if(s)out.push(s);}catch(e){}
+    if(AUTH_DEPTS&&AUTH_DEPTS.length) out=out.concat(AUTH_DEPTS);
+    var seen={},res=[];
+    for(var i=0;i<out.length;i++){var v=String(out[i]).trim(); if(v&&!seen[v]){seen[v]=1;res.push(v);}}
+    return res;
+  }
+  function clearDeny(){var el=document.getElementById('radar_deny_overlay'); if(el&&el.parentNode)el.parentNode.removeChild(el);}
+  function deny(){
+    var ex=document.getElementById('radar_deny_overlay'); if(ex)return;
+    function render(){
+      var el=document.getElementById('radar_deny_overlay'); if(el)return;
+      var d=document.createElement('div'); d.id='radar_deny_overlay';
+      d.style.cssText='position:fixed;inset:0;z-index:2147483647;display:flex;align-items:center;justify-content:center;background:rgba(245,246,250,.98)';
+      d.innerHTML='<div style="text-align:center;padding:48px;background:#fff;border-radius:16px;box-shadow:0 8px 30px rgba(0,0,0,.08)"><div style="font-size:64px;margin-bottom:12px">🔒</div><div style="font-size:22px;font-weight:700;color:#c0392b">您的账号暂无权限浏览</div><div style="margin-top:8px;color:#888;font-size:14px">请联系管理员申请雷达看板访问权限。</div>'+
+        '<details style="margin-top:16px;text-align:left;font-size:12px;color:#666;max-width:480px;word-break:break-all;"><summary style="cursor:pointer;color:#999">排查信息（点击展开）</summary>open_id: '+(window.userInfo&&window.userInfo.open_id||'(none)')+'<br>user_id: '+(window.userInfo&&window.userInfo.user_id||'(none)')+'<br>employee_id: '+(window.userInfo&&window.userInfo.employee_id||'(none)')+'<br>resolved_uid: '+getUid()+'</details></div>';
+      (document.body||document.documentElement).appendChild(d);
+    }
+    if(document.body)render(); else document.addEventListener('DOMContentLoaded',render);
+  }
+  var WL = RADAR_UID_WHITELIST.map(String);
+  var DWL = RADAR_DEPT_WHITELIST.map(String);
+  function isAllowedNow(){
+    var uid=getUid();
+    var depts=getDeptIds();
+    if(WL.indexOf(uid)>=0) return true;
+    if(Array.isArray(depts)&&depts.some(function(d){return DWL.indexOf(d)>=0;})) return true;
+    if(isLocalPreview()) return true;
+    return false;
+  }
+  function evaluate(){
+    if(window.RADAR_UID_DECIDED && window.RADAR_UID_ALLOWED) return;
+    if(isAllowedNow()){
+      window.RADAR_UID_DECIDED=true; window.RADAR_UID_ALLOWED=true;
+      document.documentElement.style.visibility='';
+      clearDeny();
+      return;
+    }
+    if(window.RADAR_UID_FINAL) deny();
+  }
+  document.documentElement.style.visibility='hidden';
+  evaluate();
+  window.addEventListener('message',function(e){
+    if(e.data&&e.data.type==='RADAR_AUTH'){
+      if(e.data.user){ try{ window.userInfo=Object.assign({},window.userInfo,e.data.user); }catch(_){} }
+      if(e.data.openId) AUTH_UID=String(e.data.openId);
+      if(e.data.deptIds&&e.data.deptIds.length) AUTH_DEPTS=e.data.deptIds.map(String);
+      evaluate();
+    }
+  });
+  try{if(window.parent&&window.parent!==window)window.parent.postMessage({type:'RADAR_REQUEST_AUTH'},'*');}catch(_){}
+  setTimeout(function(){ window.RADAR_UID_FINAL=true; evaluate(); },1500);
+})();
+</script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: "Microsoft YaHei", "PingFang SC", sans-serif; background: #f0f2f5; min-height: 100vh; }
@@ -914,7 +992,7 @@
         }
 
     </style>
-
+    <script src="bu_gate.js"></script>
 </head>
 <body>
 <div class="page-header">
@@ -993,7 +1071,7 @@
                         <span id="playIcon">▶</span>
                     </button>
                     <div class="timeline-track" id="timelineTrack"></div>
-                    <span class="timeline-label" id="timelineLabel">2026年05月</span>
+                    <span class="timeline-label" id="timelineLabel"></span>
                 </div>
             </div>
 
@@ -1026,7 +1104,7 @@
     <div id="tab-kpi" class="tab-content">
         <div class="kpi-grid" id="kpiGrid"></div>
         <div class="chart-section">
-            <div class="chart-title">5月核心KPI达标率（预算 → 挑战目标 → 实际）</div>
+            <div class="chart-title" id="kpiTitle">5月核心KPI达标率（预算 → 挑战目标 → 实际）</div>
             <div style="overflow-x:auto;">
                 <table class="data-table" id="kpiTable">
                     <thead><tr>
@@ -1133,216 +1211,8 @@ const DIMS_DEF_LHY = [
     { id: 'd6', name: '组织活力',     kpis: ['AI项目立项','新客户开发数','人才引进','数字化项目'], color: '#c0392b' },
 ];
 
-const RADAR_HISTORY_LHY = {
-    '2026-03': {
-    dims: { d1: 100, d2: 100, d3: 100, d4: 100, d5: 100, d6: 100 },
-    kpis: {
-        d1: [100.0, 100.0, 100.0, 100.0],
-        d2: [100.0, 100.0, 100.0, 100.0],
-        d3: [100.0, 100.0, 100.0, 100.0],
-        d4: [100.0, 100.0, 100.0],
-        d5: [100.0, 100.0, 100.0],
-        d6: [100.0, 100.0, 100.0],
-    },
-    // 来源：润滑油3月总结及4月计划.pdf（张炳英，2026年3月31日）
-    _kpiComparison: {
-        title: '3月核心KPI达标率',
-        period: '2026年3月',
-        items: [
-            { name: '销售收入(万)', budget: 14758, target: 14758, actual: 14769, unit: '万元' },
-            { name: '净利润(万)', budget: 1300, target: 1300, actual: 1618, unit: '万元' },
-            { name: '毛利率(%)', budget: 24.3, target: 24.3, actual: 24.3, unit: '%' },
-            { name: '期间费用率(%)', budget: 9.79, target: 9.79, actual: 8.5, unit: '%' },
-            { name: '应收账款天数', budget: 52, target: 52, actual: 51, unit: '天' },
-        ],
-    },
-    _dimComparison_d2: {
-        title: '3月品类销售达成',
-        items: [
-            { name: '冷却液(万)', budget: 50000, target: 4167, actual: 10410, unit: '万元' },
-            { name: '汽机油(万)', budget: 40000, target: 3333, actual: 9650, unit: '万元' },
-            { name: '柴机油(万)', budget: 15000, target: 1250, actual: 4272, unit: '万元' },
-            { name: '变速箱油(万)', budget: 6000, target: 500, actual: 1080, unit: '万元' },
-        ],
-    },
-    _dimComparison_d3: {
-        title: '3月运营效率指标',
-        items: [
-            { name: '海外市场(万)', budget: 10000, target: 833, actual: 2045, unit: '万元' },
-            { name: '工业油(万)', budget: 5000, target: 417, actual: 67, unit: '万元' },
-            { name: '玻璃水(万)', budget: 7000, target: 583, actual: 380, unit: '万元' },
-            { name: '应收账款天数', budget: 52, target: 52, actual: 51, unit: '天' },
-        ],
-    },
-    _dimComparison_d4: {
-        title: '3月技术创新力',
-        items: [
-            { name: '新产品配方开发', value: '四代低导三方数据已过/台架异常', unit: '项' },
-            { name: 'OEM认证', value: '沃尔沃OAT冷却液测试/解放冷却液', unit: '项' },
-            { name: '配方改进', value: 'LP48配方调整/三一等新配方', unit: '项' },
-            { name: '技术服务项目', value: '吉利/长安/岚图/江淮四代验证', unit: '项' },
-        ],
-    },
-    _dimComparison_d5: {
-        title: '3月风险合规',
-        items: [
-            { name: '质量管控计划', value: '冷却液复合包管控/一致性提升', unit: '项' },
-            { name: '海外认证推进', value: '制动液海外认证推进中', unit: '项' },
-            { name: 'AI质量检测', value: 'AI在质量检测效率提升应用', unit: '项' },
-            { name: '供应商问题', value: '0', unit: '个' },
-        ],
-    },
-    _dimComparison_d6: {
-        title: '3月组织活力',
-        items: [
-            { name: '新客户开发(家)', value: '13', unit: '家' },
-            { name: 'AI项目立项', value: '0', unit: '项' },
-            { name: '海外客户开发(家)', value: '非洲/东南亚/欧洲跨境电商', unit: '家' },
-            { name: '数字化项目(个)', value: '绿瓜灌装线筹备/溧水车间技改', unit: '个' },
-        ],
-    },
-    },
-    '2026-04': {
-    dims: { d1: 96, d2: 100, d3: 100, d4: 94, d5: 75, d6: 100 },
-    kpis: {
-        d1: [100.0, 90.0, 94.0, 100.0],
-        d2: [100.0, 100.0, 100.0, 100.0],
-        d3: [100.0, 100.0, 100.0, 100.0],
-        d4: [100.0, 100.0, 100.0, 75.0],
-        d5: [100.0, 100.0, 100.0, 0.0],
-        d6: [100.0, 100.0, 100.0, 100.0],
-    },
-    // 来源：润滑油4月总结及5月规划.pdf（张炳英，2026年4月29日）
-    _kpiComparison: {
-        title: '4月核心KPI达标率',
-        period: '2026年4月',
-        items: [
-            { name: '销售收入(万)', budget: 8530, target: 8530, actual: 11881, unit: '万元' },
-            { name: '净利润(万)', budget: 1125, target: 1125, actual: 1007, unit: '万元' },
-            { name: '毛利率(%)', budget: 24.3, target: 24.3, actual: 22.8, unit: '%' },
-            { name: '期间费用率(%)', budget: 13.67, target: 13.67, actual: 12.0, unit: '%' },
-            { name: '应收账款天数', budget: 52, target: 52, actual: 51, unit: '天' },
-        ],
-    },
-    _dimComparison_d2: {
-        title: '4月品类销售达成',
-        items: [
-            { name: '冷却液(万)', budget: 50000, target: 4167, actual: 14431, unit: '万元' },
-            { name: '汽机油(万)', budget: 40000, target: 3333, actual: 14854, unit: '万元' },
-            { name: '柴机油(万)', budget: 15000, target: 1250, actual: 5902, unit: '万元' },
-            { name: '变速箱油(万)', budget: 6000, target: 500, actual: 1630, unit: '万元' },
-        ],
-    },
-    _dimComparison_d3: {
-        title: '4月运营效率指标',
-        items: [
-            { name: '海外市场(万)', budget: 10000, target: 833, actual: 2613, unit: '万元' },
-            { name: '工业油(万)', budget: 5000, target: 417, actual: 67, unit: '万元' },
-            { name: '玻璃水(万)', budget: 7000, target: 583, actual: 585, unit: '万元' },
-            { name: '应收账款天数', budget: 52, target: 52, actual: 51, unit: '天' },
-        ],
-    },
-    _dimComparison_d4: {
-        title: '4月技术创新力',
-        items: [
-            { name: '新产品配方开发', value: '四代低导/OEM认证/LP48稳定性', unit: '项' },
-            { name: 'OEM认证', value: '沃尔沃/潍柴LP60定点', unit: '项' },
-            { name: '配方改进', value: 'LP48稳定性改进', unit: '项' },
-            { name: '技术服务项目', value: '吉利/长安/东风台架验证', unit: '项' },
-        ],
-    },
-    _dimComparison_d5: {
-        title: '4月风险合规',
-        items: [
-            { name: '质量管控计划', value: '冷却液复合包管控方案', unit: '项' },
-            { name: '海外认证推进', value: '制动液+冷却液海外认证', unit: '项' },
-            { name: 'AI质量检测', value: 'AI在质量检测效率提升应用', unit: '项' },
-            { name: '供应商问题', value: '0', unit: '个' },
-        ],
-    },
-    _dimComparison_d6: {
-        title: '4月组织活力',
-        items: [
-            { name: '新客户开发(家)', value: '15', unit: '家' },
-            { name: 'AI项目立项', value: '0', unit: '项' },
-            { name: '海外客户开发(家)', value: '非洲/东南亚/日韩', unit: '家' },
-            { name: '数字化项目(个)', value: '绿瓜灌装线安装调试', unit: '个' },
-        ],
-    },
-    },
-    '2026-05': {
-    dims: { d1: 98, d2: 98, d3: 83, d4: 85, d5: 80, d6: 65 },
-    kpis: {
-        d1: [10.0, 9.79, 9.3, 10.0],
-        d2: [10.0, 9.79, 9.3, 10.0],
-        d3: [10.0, 3.19, 10.0, 10.0],
-        d4: [10.0, 10.0, 8.0, 6.0],
-        d5: [10.0, 10.0, 7.0, 5.0],
-        d6: [8.0, 5.0, 7.0, 6.0],
-    },
-    // 来源：润滑油5月总结及6月规划.pdf（张炳英，2026年5月31日）
-    _kpiComparison: {
-        title: '5月核心KPI达标率',
-        period: '2026年5月',
-        items: [
-            { name: '销售收入(万)', budget: 10865, target: 10865, actual: 11123, unit: '万元' },
-            { name: '净利润(万)', budget: 1109, target: 1109, actual: 1086, unit: '万元' },
-            { name: '毛利率(%)', budget: 24.3, target: 24.3, actual: 22.6, unit: '%' },
-            { name: '期间费用率(%)', budget: 11.08, target: 11.08, actual: 9.8, unit: '%' },
-            { name: '应收账款天数', budget: 52, target: 52, actual: 50, unit: '天' },
-        ],
-    },
-    _dimComparison_d2: {
-        title: '5月品类销售达成',
-        items: [
-            { name: '冷却液(万)', budget: 50000, target: 4167, actual: 19591, unit: '万元' },
-            { name: '汽机油(万)', budget: 40000, target: 3333, actual: 17816, unit: '万元' },
-            { name: '柴机油(万)', budget: 15000, target: 1250, actual: 6527, unit: '万元' },
-            { name: '变速箱油(万)', budget: 6000, target: 500, actual: 1994, unit: '万元' },
-        ],
-    },
-    _dimComparison_d3: {
-        title: '5月运营效率指标',
-        items: [
-            { name: '海外市场(万)', budget: 10000, target: 833, actual: 4015, unit: '万元' },
-            { name: '工业油(万)', budget: 5000, target: 417, actual: 133, unit: '万元' },
-            { name: '玻璃水(万)', budget: 7000, target: 583, actual: 788, unit: '万元' },
-            { name: '应收账款天数', budget: 52, target: 52, actual: 50, unit: '天' },
-        ],
-    },
-    _dimComparison_d4: {
-        title: '5月技术创新力 4月→5月环比',
-        format: 'mom',
-        items: [
-            { name: '新产品销量(吨)', prev: 580, curr: 615, unit: '吨' },
-            { name: '采购降本(万)', prev: 168.91, curr: 678.23, unit: '万元' },
-            { name: '技术服务项目(个)', prev: 0, curr: 4, unit: '个' },
-            { name: 'OEM认证(项)', prev: 0, curr: 1, unit: '项' },
-        ],
-    },
-    _dimComparison_d5: {
-        title: '5月风险合规 4月→5月环比',
-        format: 'mom',
-        items: [
-            { name: '采购及时到货率(%)', prev: 92, curr: 98, unit: '%' },
-            { name: '客户审核通过(家)', prev: 1, curr: 3, unit: '家' },
-            { name: '质量体系认证推进', prev: 0, curr: 1, unit: '项' },
-            { name: '供应商渠道问题(个)', prev: 0, curr: 1, unit: '个' },
-        ],
-    },
-    _dimComparison_d6: {
-        title: '5月组织活力 4月→5月环比',
-        format: 'mom',
-        items: [
-            { name: '新客户开发(家)', prev: 0, curr: 10, unit: '家' },
-            { name: 'AI项目立项(项)', prev: 0, curr: 0, unit: '项' },
-            { name: '海外客户开发(家)', prev: 0, curr: 2, unit: '家' },
-            { name: '数字化项目(个)', prev: 0, curr: 1, unit: '个' },
-        ],
-    },
-    _isCurrent: true,
-    },
-};
+// RADAR_HISTORY data migrated to _radar_scoring_config.js BU_SCORE_DETAIL
+const RADAR_HISTORY_LHY = (window.BU_SCORE_DETAIL && window.BU_SCORE_DETAIL["lhy"]) || {};
 
 
 const RADAR_HISTORY_LHY_EXTRA = {};
@@ -1845,6 +1715,10 @@ window.addEventListener('resize', function() {
 function renderKPITable() {
     var data = getMonthData(currentMonth);
     if (!data || !data._kpiComparison) return;
+    var titleEl = document.getElementById('kpiTitle');
+    var sourceEl = document.getElementById('kpiSource');
+    if (titleEl) { var mn = currentMonth.replace('-','年')+'月'; titleEl.textContent = data._kpiComparison.title || (mn+'核心KPI达标率（预算 → 挑战目标 → 实际）'); }
+    if (sourceEl && data.source) sourceEl.textContent = '数据来源：'+data.source;
     var tbody = document.querySelector('#kpiTable tbody');
     tbody.innerHTML = '';
 
