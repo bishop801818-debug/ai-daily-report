@@ -72,14 +72,20 @@
   evaluate();
   window.addEventListener('message',function(e){
     if(e.data&&e.data.type==='RADAR_AUTH'){
+      window.__radar_auth_received=true; window.__radar_auth_empty=false;
       if(e.data.user){ try{ window.userInfo=Object.assign({},window.userInfo,e.data.user); }catch(_){} }
-      if(e.data.openId) AUTH_UID=String(e.data.openId);
+      if(e.data.openId){ AUTH_UID=String(e.data.openId); if(window.__radar_auth_lock_timer){clearTimeout(window.__radar_auth_lock_timer); window.__radar_auth_lock_timer=null;} }
+      else { window.__radar_auth_empty=true; }
       if(e.data.deptIds&&e.data.deptIds.length) AUTH_DEPTS=e.data.deptIds.map(String);
       evaluate();
     }
   });
   try{if(window.parent&&window.parent!==window)window.parent.postMessage({type:'RADAR_REQUEST_AUTH'},'*');}catch(_){}
-  setTimeout(function(){ window.RADAR_UID_FINAL=true; evaluate(); },1500);
+  window.__radar_auth_lock_timer=setTimeout(function(){
+      if(!window.__radar_auth_received){ window.RADAR_UID_FINAL=true; evaluate(); }
+      else if(window.__radar_auth_empty){ window.__radar_auth_lock_timer=setTimeout(function(){ window.RADAR_UID_FINAL=true; evaluate(); },4000); }
+      else { window.RADAR_UID_FINAL=true; evaluate(); }
+    },1500);
 })();
 </script>
     <style>
