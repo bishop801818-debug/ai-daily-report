@@ -5,6 +5,26 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- __dept 导航拦截器：拦截 database_hub 子页面内所有导航，追加 __dept 参数 -->
     <script src="bu_gate.js"></script>
+    <script>
+    // 导航到子页面时自动追加__dept参数（兼容hash #dept= 被网关吞query场景）
+    (function(){
+      var _dept='';
+      var m = location.hash.match(/[#&]dept=([^&]+)/);
+      if(m) _dept = decodeURIComponent(m[1]);
+      if(!_dept){ try{_dept=(new URL(location.href)).searchParams.get('__dept');}catch(e){} }
+      if(!_dept){ try{_dept=sessionStorage.getItem('__dept')||sessionStorage.getItem('_dept');}catch(e){} }
+      if(_dept){ try{sessionStorage.setItem('__dept',_dept);}catch(e){} }
+      window.__goto=function(url){
+        if(!url)return;
+        var d=_dept|| (sessionStorage.getItem('__dept')||sessionStorage.getItem('_dept')||'');
+        var t=(url.split('?')[0].split('#')[0]).split('/').pop();
+        if(d){
+          var s=url.indexOf('?')>-1?'&':'?';
+          window.location.href=url+s+'__dept='+encodeURIComponent(d)+'#dept='+encodeURIComponent(d);
+        }else{window.location.href=url;}
+      };
+    })();
+    </script>
     <script src="inline_01.js"></script>
     <title>数据库 - 龙蟠科技行业数据库</title>
     <meta name="html-version" content="20260424a">
@@ -348,13 +368,13 @@
     <a class="sub-topbar-home" href="index_v3.html">← 返回首页</a>
     <div class="sub-topbar-title"> 数据库</div>
     <div class="sub-topbar-nav">
-        <div class="sub-nav-item" onclick="window.location.href='policy_center_v4.html'"><span> 政策中心</span></div>
-        <div class="sub-nav-item" onclick="window.location.href='industry_news_embedded.html'"><span> 行业新闻</span></div>
-        <div class="sub-nav-item" onclick="window.location.href='archive_v3.html'"><span> 历史数据</span></div>
-        <div class="sub-nav-item" onclick="window.location.href='database_hub.html'"><span> 数据库</span></div>
-        <div class="sub-nav-item" onclick="window.location.href='analysis_hub.html'"><span> 行业分析</span></div>
-        <div class="sub-nav-item" onclick="window.location.href='strategy_hub.html'"><span> 竞品比对</span></div>
-        <div class="sub-nav-item" onclick="window.location.href='radar_hub.html'"><span> 雷达看板</span></div>
+        <div class="sub-nav-item" onclick="__goto('policy_center_v4.html')"><span> 政策中心</span></div>
+        <div class="sub-nav-item" onclick="__goto('industry_news_embedded.html')"><span> 行业新闻</span></div>
+        <div class="sub-nav-item" onclick="__goto('archive_v3.html')"><span> 历史数据</span></div>
+        <div class="sub-nav-item" onclick="__goto('database_hub.html')"><span> 数据库</span></div>
+        <div class="sub-nav-item" onclick="__goto('analysis_hub.html')"><span> 行业分析</span></div>
+        <div class="sub-nav-item" onclick="__goto('strategy_hub.html')"><span> 竞品比对</span></div>
+        <div class="sub-nav-item" onclick="__goto('radar_hub.html')"><span> 雷达看板</span></div>
     </div>
 </div>
 <div class="main-content">
@@ -381,7 +401,8 @@ const DB_LIST = [
         charts: 'lfp_charts.html?v=20260629',
         data: 'lfp_data_v2.html',
         reportMonths: [
-            { label: '2026年5月', href: 'lfp_report_2026_05.html', current: true }
+            { label: '2026年6月', href: 'lfp_report_2026_06.html', current: true },
+            { label: '2026年5月', href: 'lfp_report_2026_05.html', current: false }
         ]
     },
     {
@@ -418,8 +439,9 @@ const DB_LIST = [
         charts: 'electrolyte_charts.html?v=20260629',
         data: 'electrolyte_data_v2.html',
         reportMonths: [
-            { label: '2026年4月', href: 'felt_report_202604.html', current: false },
-            { label: '2026年5月', href: 'felt_report_202605.html', current: true }
+            { label: '2026年6月', href: 'felt_report_202606.html', current: true },
+            { label: '2026年5月', href: 'felt_report_202605.html', current: false },
+            { label: '2026年4月', href: 'felt_report_202604.html', current: false }
         ]
     },
     {
@@ -437,7 +459,8 @@ const DB_LIST = [
         charts: 'carbonate_charts.html?v=20260629',
         data: 'carbonate_data_v2.html',
         reportMonths: [
-            { label: '2026年5月', href: 'carbonate_report_202605.html', current: true }
+            { label: '2026年6月', href: 'carbonate_report_2026_06.html', current: true },
+            { label: '2026年5月', href: 'carbonate_report_2026_05.html', current: false }
         ]
     },
     {
@@ -453,7 +476,8 @@ const DB_LIST = [
         data: 'recycling_data_v2.html',
         charts: 'recycling_charts.html?v=20260629',
         reportMonths: [
-            { label: '2026年5月', href: 'recycling_report_2026_05.html', current: true }
+            { label: '2026年6月', href: 'recycling_report_2026_06.html', current: true },
+            { label: '2026年5月', href: 'recycling_report_2026_05.html', current: false }
         ]
     },
     {
@@ -462,14 +486,14 @@ const DB_LIST = [
         icon: '🔋',
         desc: '锂电池产量、产能、分企业数据、电池排产预测等全维度数据',
         hasData: true,
-        tableCount: 5,
-        updateDate: '2026-05-09',
+        tableCount: 11,
+        updateDate: '2026-07-31',
         allowedBu: ['czly','lpsd','sdmd','felt','sjl','dhx','lhy','kls','bych'], // 除hq外全员可见
-        tables: ['行业产量（分规格）', '行业产量产能', '分企业产量（分规格）', '分企业产量产能', '电池排产预测'],
-        charts: 'lib_battery_charts.html?v=20260629',
-        analysis: 'lib_battery_analysis.html',
+        tables: ['行业产量（分规格）', '行业产量产能', '分企业产量（分规格）', '分企业产量产能', '行业销量', '锂电池出口', '装机量', '装机量-分企业', '装机量-分企业-LFP', '装机量-分企业-三元', '电池排产预测'],
+        charts: 'lib_battery_charts.html',
+        analysis: 'lib_battery_report_2026_06.html',
         reportMonths: [
-            { label: '2026年5月', href: 'lib_battery_analysis.html', current: true }
+            { label: '2026年6月', href: 'lib_battery_report_2026_06.html', current: true }
         ]
     },
     {
@@ -489,7 +513,8 @@ const DB_LIST = [
         charts: 'automotive_charts.html?v=20260629',
         data: 'automotive_data_v2.html',
         reportMonths: [
-            { label: '2026年5月', href: 'automotive_report_202605.html', current: true }
+            { label: '2026年6月', href: 'automotive_report_202606.html', current: true },
+            { label: '2026年5月', href: 'automotive_report_202605.html', current: false }
         ]
     }
 ];
@@ -613,10 +638,27 @@ function renderAllPanels() {
 
 /** 数据库权限过滤：根据 allowedBu 和用户部门隐藏无权卡片 */
 function applyDbFilter() {
+    // 本地调试环境跳过权限检查
+    if (location.hostname === 'localhost' || location.hostname === '127.0.0.1' || window.__BU_GATE_ALLOW_ANON === true) {
+        console.log('[本地调试] 跳过权限检查');
+        return;
+    }
     var gate = window.BU_GATE;
     if (!gate) return;
     var deptId = gate.getCurrentDeptId();
-    if (!deptId) return;
+    if (!deptId) {
+      // 2026-08-09 fail-closed：无部门ID（直链/参数丢失/会话异常）不再全员放行，杜绝越权泄露
+      document.documentElement.style.visibility = 'hidden';
+      if (!document.getElementById('bu-gate-deny-tip')) {
+        var _tip = document.createElement('div');
+        _tip.id = 'bu-gate-deny-tip';
+        _tip.style.cssText = 'position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:#f0f2f5;z-index:99999;';
+        _tip.innerHTML = '<div style="margin:auto;max-width:520px;padding:28px 32px;text-align:center;background:#fff;border:1px solid #e5e7eb;border-radius:12px;box-shadow:0 2px 12px rgba(0,0,0,.06);font-size:15px;color:#374151;line-height:1.8;"><div style="font-size:34px;margin-bottom:8px;">🔒</div><div style="font-weight:600;font-size:17px;margin-bottom:6px;">无权限查看</div><div>您所在的部门尚未开通本页面的访问权限。<br>如需开通，请联系管理员。</div></div>';
+        (document.body || document.documentElement).appendChild(_tip);
+      }
+      document.documentElement.style.visibility = 'visible';
+      return;
+    }
     var userDeptIds = gate.parseDeptIds(deptId);
     DB_LIST.forEach(function(db) {
         if (!db.allowedBu || !db.allowedBu.length) return;
@@ -683,19 +725,30 @@ updateTopbarTime();
 <!-- BU 过滤脚本：按部门隐藏无权访问的数据库卡片 -->
 <script>
 (function() {
-    // 部门ID → BU代码映射（与 secure-content BU_DEPT 一致）
+    // 部门ID → BU代码映射（与 bu_gate.js BU_DEPT 单一事实源一致，2026-07-31 修正）
     var DEPT_TO_BU = {
-        'od-8ad5942df92ef45ac8905b543fc38d2b': 'hq',
-        '7593161552124923083': 'hq',
+        // 总部 (hq)
+        'od-1768efca88fb4611b75efca7140fe16b': 'hq',
+        'od-42e4ca3deb8b8ee5dfb4688df273ab91': 'hq',
+        'od-f509da72f04db456af9bc9351ed649ce': 'hq',
+        'od-839a5caffe1fa682e014982a1d28fcb8': 'hq',
+        // 常州锂源 (czly)
         'od-c8c5bc8612d60825208196a97cd0686d': 'czly',
+        // 龙蟠时代 (lpsd)
         'od-349632b3f04edaa205990f6c96e66c26': 'lpsd',
-        'od-c36a380b50b52171d47b7a8f5c1f3a70': 'lpsd',
+        // 山东美多 (sdmd)
         'od-05e668aea865f92b574f366b3d976094': 'sdmd',
+        // 法恩莱特 (felt)
         'od-2e6cc0918fbe3086ebf636680997a2f2': 'felt',
+        // 三金锂电 (sjl)
         'od-310bdafba6cb5bdbd3300cf326878caa': 'sjl',
+        // 迪克化学 (dhx)
         'od-7a313bc06887dc30349237cb0d64ce83': 'dhx',
-        'od-280342e9ed0ad39d203d5462b337451c': 'lhy',
-        'od-c90e5fd524dfde6467bd59b867cfed8c': 'kls',
+        // 润滑油 (lhy)
+        'od-8ad5942df92ef45ac8905b543fc38d2b': 'lhy',
+        // 可兰素 (kls)
+        'od-c36a380b50b52171d47b7a8f5c1f3a70': 'kls',
+        // 铂源催化 (bych)
         'od-33054981612c6dc0fbbdfbb743774d1b': 'bych'
     };
 
@@ -703,9 +756,10 @@ updateTopbarTime();
         // 优先读取模拟身份（调试面板设置）
         var simDept = sessionStorage.getItem('_sim_dept');
         if (simDept) return DEPT_TO_BU[simDept] || null;
-        // 否则读真实身份
-        var m = location.search.match(/[?&]__dept=([^&]+)/);
-        var deptId = m ? decodeURIComponent(m[1]) : (sessionStorage.getItem('_dept') || '');
+        // 否则读真实身份（优先 hash #dept=，其次 query __dept，最后 sessionStorage 双键）
+        var m = location.hash.match(/[#&]dept=([^&]+)/)
+              || location.search.match(/[?&]__dept=([^&]+)/);
+        var deptId = m ? decodeURIComponent(m[1]) : (sessionStorage.getItem('_dept') || sessionStorage.getItem('__dept') || '');
         return DEPT_TO_BU[deptId] || null;
     }
 

@@ -7,6 +7,48 @@
     <meta name="html-version" content="20260715_001">
     <script src="inline_01.js"></script>
     <script src="bu_gate.js"></script>
+    <script>
+        // 部门 ID 持久化到 sessionStorage（与雷达看板一致，解决点击卡片跳转后部门参数丢失问题）
+        (function(){
+            var deptMatch = location.search.match(/[?&]__dept=([^&]*)/);
+            if (deptMatch && deptMatch[1]) {
+                try { sessionStorage.setItem('__dept', deptMatch[1]); } catch(e){}
+            }
+        })();
+    </script>
+    <script>
+(function(){
+  var STRATEGY_UID_WHITELIST = ['ou_78e0dba3ff382df7c11dcd07ea2255f0','ou_12015bf9c1d120116e6a01c022051130','ou_c0d1e422fada6770cb7da5069e96abbc','ou_178a5a969ca5c2d96c105d6ecbe4add0','ou_3897e64d72af1edd4637e51d1baa4d2c','ou_64217fc9e76e95ca13a26c0c4a5b665d','7595021657568185305','7598822772604701656','7589910160420637874','7589938135119744185','7591392573697101019','7592890122870410205','1854251564037223'];
+  var STRATEGY_DEPT_WHITELIST = ['od-839a5caffe1fa682e014982a1d28fcb8'];
+  function isLocalPreview(){return location.protocol==='file:'||location.hostname==='localhost'||location.hostname==='127.0.0.1'||location.hostname==='';}
+  window.STRATEGY_UID_DECIDED=false; window.STRATEGY_UID_ALLOWED=false;
+  function clearDeny(){var el=document.getElementById('strategy_deny_overlay'); if(el&&el.parentNode)el.parentNode.removeChild(el);}
+  function deny(){var ex=document.getElementById('strategy_deny_overlay'); if(ex)return; function render(){var el=document.getElementById('strategy_deny_overlay'); if(el)return; var d=document.createElement('div'); d.id='strategy_deny_overlay'; d.style.cssText='position:fixed;inset:0;z-index:2147483647;display:flex;align-items:center;justify-content:center;background:rgba(245,246,250,.98)'; d.innerHTML='<div style="text-align:center;padding:48px;background:#fff;border-radius:16px;box-shadow:0 8px 30px rgba(0,0,0,.08)"><div style="font-size:64px;margin-bottom:12px">🔒</div><div style="font-size:22px;font-weight:700;color:#c0392b">您的账号暂无权限浏览</div><div style="margin-top:8px;color:#888;font-size:14px">请联系管理员申请竞品比对访问权限。</div>' + '<details style="margin-top:16px;text-align:left;font-size:12px;color:#666;max-width:480px;word-break:break-all;"><summary style="cursor:pointer;color:#999">排查信息（点击展开）</summary>open_id: '+(window.userInfo&&window.userInfo.open_id||'(none)')+'<br>user_id: '+(window.userInfo&&window.userInfo.user_id||'(none)')+'<br>employee_id: '+(window.userInfo&&window.userInfo.employee_id||'(none)')+'</details></div>'; (document.body||document.documentElement).appendChild(d);} if(document.body)render(); else document.addEventListener('DOMContentLoaded',render);}
+  function decide(uid, deptIds){
+    if(window.STRATEGY_UID_DECIDED && window.STRATEGY_UID_ALLOWED) return;
+    var deptOk = Array.isArray(deptIds) && deptIds.some(function(d){return STRATEGY_DEPT_WHITELIST.indexOf(d)>=0;});
+    var allowed = (STRATEGY_UID_WHITELIST.indexOf(uid)>=0)||deptOk||isLocalPreview();
+    if(window.STRATEGY_UID_DECIDED && !window.STRATEGY_UID_ALLOWED && allowed){
+      window.STRATEGY_UID_ALLOWED = true;
+      document.documentElement.style.visibility='';
+      clearDeny();
+      return;
+    }
+    if(window.STRATEGY_UID_DECIDED) return;
+    window.STRATEGY_UID_DECIDED = true;
+    window.STRATEGY_UID_ALLOWED = allowed;
+    document.documentElement.style.visibility='';
+    if(!window.STRATEGY_UID_ALLOWED) deny();
+  }
+  document.documentElement.style.visibility='hidden';
+  var s=(window.userInfo&&(window.userInfo.open_id||window.userInfo.user_id))||window.userId||(window.__context&&window.__context.user&&window.__context.user.open_id)||'';
+  if(s)decide(s);
+  window.__strategyDecide = decide;
+  window.addEventListener('message',function(e){if(e.data&&e.data.type==='RADAR_AUTH'){try{if(e.data.deptIds&&e.data.deptIds[0])sessionStorage.setItem('__dept',e.data.deptIds[0]);}catch(_){}decide(e.data.openId, e.data.deptIds);}});
+  try{if(window.parent&&window.parent!==window)window.parent.postMessage({type:'RADAR_REQUEST_AUTH'},'*');}catch(_){}
+  setTimeout(function(){decide('');},1500);
+})();
+    </script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: "Microsoft YaHei", "PingFang SC", sans-serif; background: #f0f2f5; min-height: 100vh; }
@@ -525,7 +567,7 @@ function applyBUTheme(meta) {
 <div id="mainContainer" class="container">
     <div class="section-label"> 锂电系事业部（5BU）</div>
     <div class="dept-grid">
-        <a class="dept-card lithium" href="strategy_dashboard.html#czly" data-bu="czly">
+        <a class="dept-card lithium" href="strategy_dashboard.html#czly" data-bu="czly" onclick="var dm=location.search.match(/[?&]__dept=([^&]+)/)||location.hash.match(/[#&]dept=([^&]+)/);var dep=dm?dm[1]:(sessionStorage.getItem('__dept')||'');this.href='strategy_dashboard.html'+(location.search||'')+(dep?'#czly&dept='+encodeURIComponent(dep):'#czly');">
             <div class="dept-icon"><img src="assets/strategy_hub_img_01.png" alt="常州锂源" /></div>
             <div class="dept-name">常州锂源</div>
             <div class="dept-tag">磷酸铁锂正极材料</div>
@@ -561,7 +603,7 @@ function applyBUTheme(meta) {
             
         </a>
     </div>
-    <div class="section-label">🏭 非锂电系事业部（4BU）</div>
+    <div class="section-label">🏭 新材料事业部（4BU）</div>
     <div class="dept-grid">
         <a class="dept-card other" href="strategy_coming_soon.html" data-bu="lhy">
             <div class="dept-icon"><img src="assets/strategy_hub_img_06.png" alt="润滑油" /></div>
@@ -615,12 +657,43 @@ const BU_LOGOS = {
     <script src="assets/ai_fab_inject.js"></script>
 
 <script>
-// 策略Hub BU 门禁过滤 — 沿用 bu_gate.js 统一逻辑
+// 策略Hub BU 门禁过滤 — 白名单命中则显示全部，跳过部门过滤；否则维持原部门过滤（与 radar_hub 一致）
 window.addEventListener('load', function() {
+    if (window.STRATEGY_UID_DECIDED ? window.STRATEGY_UID_ALLOWED : true) {
+        return;
+    }
     window.applyBUFilter && window.applyBUFilter();
 });
 </script>
 
 
+<script>
+// 让所有跳「开发中」页的卡片带上部门参数，避免 iframe 往返后部门丢失（不依赖 sessionStorage）
+(function(){
+  function getDep(){
+    var m = location.search.match(/[?&]__dept=([^&]+)/) || location.hash.match(/[#&]dept=([^&]+)/);
+    if(m) return m[1];
+    try { var s = sessionStorage.getItem('__dept'); if(s) return s; } catch(e){}
+    return '';
+  }
+  function decorate(){
+    var dep = getDep();
+    if(!dep) return;
+    var cards = document.querySelectorAll('.dept-card');
+    for(var i=0;i<cards.length;i++){
+      var a = cards[i];
+      var href = (a.getAttribute('href')||'');
+      if(href.indexOf('coming_soon')>=0 && !a.__deptPatched){
+        a.__deptPatched = true;
+        a.addEventListener('click', function(e){
+          e.preventDefault();
+          window.location.href = 'strategy_coming_soon.html?__dept=' + encodeURIComponent(dep) + '#dept=' + encodeURIComponent(dep);
+        });
+      }
+    }
+  }
+  if(document.readyState!=='loading') decorate(); else document.addEventListener('DOMContentLoaded', decorate);
+})();
+</script>
 </body>
 </html>

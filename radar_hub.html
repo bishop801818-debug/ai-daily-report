@@ -3,21 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>雷达看板 - 龙蟠科技</title>
+    <title>
 <script>
 (function(){
-  var RADAR_UID_WHITELIST = ['ou_78e0dba3ff382df7c11dcd07ea2255f0','ou_12015bf9c1d120116e6a01c022051130','ou_c0d1e422fada6770cb7da5069e96abbc','ou_178a5a969ca5c2d96c105d6ecbe4add0','ou_3897e64d72af1edd4637e51d1baa4d2c','ou_64217fc9e76e95ca13a26c0c4a5b665d'].concat(['7595021657568185305','7598822772604701656','7589910160420637874','7589938135119744185','7591392573697101019','7592890122870410205']);
+  var RADAR_UID_WHITELIST = ['ou_78e0dba3ff382df7c11dcd07ea2255f0','ou_12015bf9c1d120116e6a01c022051130','ou_c0d1e422fada6770cb7da5069e96abbc','ou_178a5a969ca5c2d96c105d6ecbe4add0','ou_3897e64d72af1edd4637e51d1baa4d2c','ou_64217fc9e76e95ca13a26c0c4a5b665d'];
   var RADAR_DEPT_WHITELIST = ['od-839a5caffe1fa682e014982a1d28fcb8'];
-  var RADAR_USERID_WHITELIST = ['7595021657568185305','7598822772604701656','7589910160420637874','7589938135119744185','7591392573697101019','7592890122870410205'];
   function isLocalPreview(){return location.protocol==='file:'||location.hostname==='localhost'||location.hostname==='127.0.0.1'||location.hostname==='';}
   window.RADAR_UID_DECIDED=false; window.RADAR_UID_ALLOWED=false;
   function clearDeny(){var el=document.getElementById('radar_deny_overlay'); if(el&&el.parentNode)el.parentNode.removeChild(el);}
-  function deny(){var ex=document.getElementById('radar_deny_overlay'); if(ex)return; function render(){var el=document.getElementById('radar_deny_overlay'); if(el)return; var _hu=(location.hash.match(/uid=([^&]+)/)||[])[1]; if(_hu)_hu=decodeURIComponent(_hu); var d=document.createElement('div'); d.id='radar_deny_overlay'; d.style.cssText='position:fixed;inset:0;z-index:2147483647;display:flex;align-items:center;justify-content:center;background:rgba(245,246,250,.98)'; d.innerHTML='<div style="text-align:center;padding:48px;background:#fff;border-radius:16px;box-shadow:0 8px 30px rgba(0,0,0,.08)"><div style="font-size:64px;margin-bottom:12px">\uD83D\uDD12</div><div style="font-size:22px;font-weight:700;color:#c0392b">您的账号暂无权限浏览</div><div style="margin-top:8px;color:#888;font-size:14px">请联系管理员申请雷达看板访问权限。</div>' + '<details style="margin-top:16px;text-align:left;font-size:12px;color:#666;max-width:480px;word-break:break-all;"><summary style="cursor:pointer;color:#999">排查信息（点击展开）</summary>href: '+location.href+'<br>hash: '+location.hash+'<br>url_uid: '+(_hu||'(none)')+'<br>resolved_uid: '+(window.__radar_resolved_uid||'(none)')+'<br>auth_received: '+(window.__radar_auth_received?'yes':'no')+'<br>open_id: '+(window.userInfo&&window.userInfo.open_id||'(none)')+'<br>user_id: '+(window.userInfo&&window.userInfo.user_id||'(none)')+'<br>employee_id: '+(window.userInfo&&window.userInfo.employee_id||'(none)')+'</details></div>'; (document.body||document.documentElement).appendChild(d);} if(document.body)render(); else document.addEventListener('DOMContentLoaded',render);}
+  function deny(){var ex=document.getElementById('radar_deny_overlay'); if(ex)return; function render(){var el=document.getElementById('radar_deny_overlay'); if(el)return; var d=document.createElement('div'); d.id='radar_deny_overlay'; d.style.cssText='position:fixed;inset:0;z-index:2147483647;display:flex;align-items:center;justify-content:center;background:rgba(245,246,250,.98)'; d.innerHTML='<div style="text-align:center;padding:48px;background:#fff;border-radius:16px;box-shadow:0 8px 30px rgba(0,0,0,.08)"><div style="font-size:64px;margin-bottom:12px">\uD83D\uDD12</div><div style="font-size:22px;font-weight:700;color:#c0392b">您的账号暂无权限浏览</div><div style="margin-top:8px;color:#888;font-size:14px">请联系管理员申请雷达看板访问权限。</div></div>'; (document.body||document.documentElement).appendChild(d);} if(document.body)render(); else document.addEventListener('DOMContentLoaded',render);}
   function decide(uid, deptIds){
-    window.__radar_resolved_uid = String(uid || '');
+    // 已放行则保持（幂等）
     if(window.RADAR_UID_DECIDED && window.RADAR_UID_ALLOWED) return;
     var deptOk = Array.isArray(deptIds) && deptIds.some(function(d){return RADAR_DEPT_WHITELIST.indexOf(d)>=0;});
-    var allowed = (RADAR_UID_WHITELIST.indexOf(String(uid))>=0)||(RADAR_USERID_WHITELIST.indexOf(String(uid))>=0)||deptOk||isLocalPreview();
+    var allowed = (RADAR_UID_WHITELIST.indexOf(uid)>=0)||deptOk||isLocalPreview();
+    // 之前若被拒（如首帧部门尚未补齐），本次部门命中则覆盖放行
     if(window.RADAR_UID_DECIDED && !window.RADAR_UID_ALLOWED && allowed){
       window.RADAR_UID_ALLOWED = true;
       document.documentElement.style.visibility='';
@@ -31,15 +31,13 @@
     if(!window.RADAR_UID_ALLOWED) deny();
   }
   document.documentElement.style.visibility='hidden';
-  var _hu=(location.hash.match(/uid=([^&]+)/)||[])[1]; if(_hu)_hu=decodeURIComponent(_hu);
-  var s=_hu||(window.userInfo&&(window.userInfo.open_id||window.userInfo.user_id))||window.userId||(window.__context&&window.__context.user&&window.__context.user.open_id)||'';
+  var s=(window.userInfo&&(window.userInfo.user_id||window.userInfo.open_id))||window.userId||(window.__context&&window.__context.user&&window.__context.user.open_id)||'';
   if(s)decide(s);
-  window.addEventListener('message',function(e){if(e.data&&e.data.type==='RADAR_AUTH'){window.__radar_auth_received=true;window.__radar_auth_empty=false;var _u=e.data.openId;var _usr=e.data.user;if(!_u&&_usr){_u=_usr.open_id||_usr.user_id||_usr.employee_id||_usr.union_id||'';}if(_u){if(window.__radar_auth_lock_timer){clearTimeout(window.__radar_auth_lock_timer);window.__radar_auth_lock_timer=null;}decide(_u,e.data.deptIds);}else{window.__radar_auth_empty=true;}}});
+  window.addEventListener('message',function(e){if(e.data&&e.data.type==='RADAR_AUTH'){decide(e.data.openId, e.data.deptIds);}});
   try{if(window.parent&&window.parent!==window)window.parent.postMessage({type:'RADAR_REQUEST_AUTH'},'*');}catch(_){}
-  window.__radar_auth_lock_timer=setTimeout(function(){if(!window.__radar_auth_received){decide('');}else if(window.__radar_auth_empty){window.__radar_auth_lock_timer=setTimeout(function(){decide('');},4000);}},1500);
+  setTimeout(function(){decide('');},1500);
 })();
-</script>
-    <!-- 雷达看板按事业部分类权限（与子页面一致）：bu_gate.js 提供 applyBUFilter，渲染后过滤非本BU卡片 -->
+</script>雷达看板 - 龙蟠科技</title>
     <script src="bu_gate.js"></script>
     <script>
         // 部门 ID 持久化到 sessionStorage（与 index_v3.html 一致，解决 URL 参数丢失问题）
@@ -264,48 +262,23 @@
     数据仅供参考 · <a href="index_v3.html">返回首页</a>
 </div>
 
+<script src="_radar_scoring_config.js"></script>
 <script src="./echarts.min.js"></script>
 <script>
 // ─────────────────────────────────────────────
-// BU 元数据
+// BU 元数据（由 BU_CONFIG 统一驱动）
 // ─────────────────────────────────────────────
-var BU_META = {
-    // 第一排（对齐显示）
-    sdmd: { name: '山东美多', subtitle: '动力电池回收', category: 'lithium', color: '#215732' },
-    kls:  { name: '可兰素', subtitle: '车用尿素', category: 'lithium', color: '#d35400', bu_dims: { d1: 75.0, d2: 85.4, d3: 83.0, d4: 70.2, d5: 75.0, d6: 60.3 } },
-    lhy:  { name: '润滑油', subtitle: '润滑油 · 冷却液 · 海外市场', category: 'lithium', color: '#c0392b' },
-    dhx:  { name: '迪克化学', subtitle: '汽车化学品 · 冷却液 · 制动液', category: 'lithium', color: '#7986cb' },
-    // 第二排
-    czly: { name: '常州锂源', subtitle: '磷酸铁锂正极材料', category: 'lithium', color: '#064e3b' },
-    lpsd: { name: '龙蟠时代', subtitle: '碳酸锂', category: 'lithium', color: '#2e75b6' },
-    felt: { name: '法恩莱特', subtitle: '电解液', category: 'lithium', color: '#7b2d8b' },
-    sjld: { name: '三金锂电', subtitle: '三元前驱体', category: 'lithium', color: '#34495e' },
-};
-
-// 差异化权重配置（与 radar_detail 保持一致）
-var BU_WEIGHTS = {
-    sdmd: [18, 18, 20, 15, 18, 11],
-    felt: [15, 20, 22, 18, 15, 10],
-    lhy:  [18, 22, 15, 22, 15, 8],
-    sjld: [15, 18, 15, 17, 25, 10],
-    dhx:  [20, 22, 18, 15, 15, 10],
-    lpsd: [20, 20, 18, 17, 13, 12],
-    kls:  [18, 22, 15, 22, 15, 8],
-    czly: [20, 20, 18, 17, 13, 12],
-};
-var DEFAULT_WEIGHTS = [20, 20, 18, 17, 13, 12];
-
-// 六维 dims 数据（与 radar_detail 一致）
-var BU_DIMS = {
-    sdmd: { d1: 76, d2: 74, d3: 78, d4: 89, d5: 74, d6: 100 },
-    kls:  { d1: 75.0, d2: 85.4, d3: 83.0, d4: 70.2, d5: 75.0, d6: 60.3 },
-    lhy: { d1: 81, d2: 100, d3: 92, d4: 90, d5: 100, d6: 85 },
-    dhx:  { d1: 68, d2: 72, d3: 88, d4: 85, d5: 95, d6: 82 },
-    czly: { d1: 62, d2: 82, d3: 86, d4: 52, d5: 90, d6: 52 },
-    lpsd: { d1: 68, d2: 70, d3: 78, d4: 82, d5: 68, d6: 75 },
-    felt: { d1: 52, d2: 38, d3: 60, d4: 80, d5: 100, d6: 60 },
-    sjld: { d1: 58, d2: 45, d3: 52, d4: 72, d5: 55, d6: 52 },
-};
+var BU_META = {};
+Object.keys(BU_CONFIG).forEach(function(buId) {
+    var cfg = BU_CONFIG[buId];
+    BU_META[buId] = {
+        name: cfg.name,
+        subtitle: cfg.subtitle || '',
+        category: cfg.category || 'lithium',
+        color: cfg.color,
+        // bu_dims 和 _isCurrent 由 BU_HISTORY 最新月份提供（见下方 BU_HISTORY 定义）
+    };
+});
 
 // 标记当前月份BU（★）
 var BU_IS_CURRENT = { sdmd: true, felt: true, lhy: true, sjld: true, dhx: true, lpsd: true, kls: true, czly: true };
@@ -323,47 +296,54 @@ var BU_HISTORY = {
         '2026-04': { d1: 73, d2: 44, d3: 75, d4: 55, d5: 99, d6: 56 },
         '2026-05': { d1: 86, d2: 95, d3: 88, d4: 47, d5: 95, d6: 45 },
         '2026-06': { d1: 62, d2: 82, d3: 86, d4: 52, d5: 90, d6: 52 },
+        '2026-07': { d1: 62, d2: 75, d3: 74, d4: 55, d5: 98, d6: 68 },
     },
     sdmd: {
         '2026-03': { d1: 100, d2: 100, d3: 92, d4: 87, d5: 85, d6: 78 },
         '2026-04': { d1: 100, d2: 88, d3: 90, d4: 100, d5: 78, d6: 75 },
         '2026-05': { d1: 90,  d2: 90,  d3: 82, d4: 80,  d5: 90, d6: 78 },
         '2026-06': { d1: 76, d2: 74, d3: 78, d4: 89, d5: 74, d6: 100 },
+        '2026-07': { d1: 54, d2: 71, d3: 68, d4: 80, d5: 93, d6: 93 },
     },
     felt: {
         '2026-04': { d1: 20, d2: 15, d3: 47, d4: 100, d5: 71, d6: 50 },
         '2026-05': { d1: 12, d2: 8, d3: 76, d4: 100, d5: 99, d6: 60 },
         '2026-06': { d1: 52, d2: 38, d3: 60, d4: 80, d5: 100, d6: 60 },
+        '2026-07': { d1: 52, d2: 52, d3: 60, d4: 85, d5: 95, d6: 50 },
     },
     lhy: {
         '2026-03': { d1: 100, d2: 100, d3: 100, d4: 100, d5: 100, d6: 100 }, // 2026-03实际数据（润滑油3月.pdf）
         '2026-04': { d1: 96, d2: 100, d3: 100, d4: 94, d5: 75, d6: 100 }, // 2026-04实际数据（润滑油4月.pdf）
         '2026-05': { d1: 98, d2: 98, d3: 83, d4: 85, d5: 80, d6: 65 }, // 2026-05实际数据（润滑油5月.pdf）
         '2026-06': { d1: 81, d2: 100, d3: 92, d4: 90, d5: 100, d6: 85 },
+        '2026-07': { d1: 92, d2: 88, d3: 90, d4: 68, d5: 83, d6: 82 },
     },
     sjld: {
         '2026-03': { d1: 85, d2: 1, d3: 15, d4: 56, d5: 1, d6: 32 }, // 2026-03实际数据（基建期）
         '2026-04': { d1: 80, d2: 14, d3: 48, d4: 56, d5: 40, d6: 55 }, // 2026-04实际数据（基建期）
         '2026-05': { d1: 95, d2: 46, d3: 61, d4: 70, d5: 57, d6: 48 }, // 2026-05实际数据（基建期）
         '2026-06': { d1: 58, d2: 45, d3: 52, d4: 72, d5: 55, d6: 52 },
+        '2026-07': { d1: 65, d2: 46, d3: 23, d4: 28, d5: 75, d6: 45 },
     },
     dhx: {
         '2026-03': { d1: 86, d2: 78, d3: 82, d4: 80, d5: 80, d6: 78 }, // 3月PDF数据
         '2026-04': { d1: 86, d2: 71, d3: 85, d4: 75, d5: 85, d6: 77 }, // 4月PDF数据
         '2026-05': { d1: 88, d2: 78, d3: 91, d4: 80, d5: 96, d6: 78 }, // 5月PDF数据
         '2026-06': { d1: 68, d2: 72, d3: 88, d4: 85, d5: 95, d6: 82 },
+        '2026-07': { d1: 87, d2: 85, d3: 83, d4: 85, d5: 97, d6: 88 },
     },
     lpsd: {
-        '2026-Q1': { d1: 100, d2: 98, d3: 80, d4: 80, d5: 80, d6: 70 }, // 龙蟠时代Q1季度报告(1-3月)
         '2026-04': { d1: 97, d2: 79, d3: 90, d4: 85, d5: 80, d6: 75 }, // 龙蟠时代4月.pdf真实数据
         '2026-05': { d1: 58, d2: 88, d3: 75, d4: 85, d5: 85, d6: 75 }, // 龙蟠时代5月.pdf真实数据
         '2026-06': { d1: 68, d2: 70, d3: 78, d4: 82, d5: 68, d6: 75 },
+        '2026-07': { d1: 88, d2: 61, d3: 81, d4: 95, d5: 100, d6: 91 },
     },
     kls: {
         '2026-03': { d1: 84, d2: 72, d3: 68, d4: 70, d5: 76, d6: 70 },
         '2026-04': { d1: 89, d2: 75, d3: 70, d4: 72, d5: 78, d6: 68 },
         '2026-05': { d1: 82, d2: 80, d3: 75, d4: 76, d5: 80, d6: 72 },
-        '2026-06': { d1: 75.0, d2: 85.4, d3: 83.0, d4: 70.2, d5: 75.0, d6: 60.3 },
+        '2026-06': { d1: 75, d2: 85, d3: 83, d4: 70, d5: 75, d6: 60 },
+        '2026-07': { d1: 87, d2: 85, d3: 80, d4: 100, d5: 100, d6: 85 },
     },};
 
 // 从 URL 参数读取 ?id=sjld 或 ?id=dkhx，自动滚动并高亮对应卡片
@@ -377,6 +357,17 @@ var currentCardMonth = {};
 // 加载 logo
 // ─────────────────────────────────────────────
 (function loadLogos() {
+    if (window.RADAR_UID_DECIDED && !window.RADAR_UID_ALLOWED) {
+        (function(){
+            var debug = /[#&]debug=1/.test(location.hash);
+            var diag = '';
+            if (debug) {
+                diag = '<div style="margin-top:20px;text-align:left;font-size:12px;color:#666;max-width:680px;"><pre style="white-space:pre-wrap;word-break:break-all;">hash: ' + location.hash + '\nsearch: ' + location.search + '\nuid from url: ' + ((location.hash.match(/[#&]uid=([^&]+)/) || [,''])[1] || '(none)') + '\nwindow.userId: ' + (typeof window.userId !== 'undefined' ? window.userId : '(undefined)') + '\nwindow.userInfo.user_id: ' + ((window.userInfo && window.userInfo.user_id) || '(none)') + '\nwindow.userInfo.open_id: ' + ((window.userInfo && window.userInfo.open_id) || '(none)') + '\nwindow.__context.userId: ' + ((window.__context && window.__context.userId) || '(none)') + '\nwindow.__context.user.open_id: ' + ((window.__context && window.__context.user && window.__context.user.open_id) || '(none)') + '</pre></div>';
+            }
+            document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100vh;background:#f5f6fa"><div style="text-align:center;padding:48px;background:#fff;border-radius:16px;box-shadow:0 8px 30px rgba(0,0,0,.08)"><div style="font-size:64px;margin-bottom:12px">🔒</div><div style="font-size:22px;font-weight:700;color:#c0392b">您的账号暂无权限浏览</div><div style="margin-top:8px;color:#888;font-size:14px">请联系管理员申请雷达看板访问权限。</div>' + diag + '</div></div>';
+        })();
+        return;
+    }
     fetch('bu_logos.json')
         .then(function(r) { return r.json(); })
         .then(function(logos) {
@@ -406,23 +397,26 @@ var currentCardMonth = {};
 // 工具函数
 // ─────────────────────────────────────────────
 function getScore(buId, dims) {
-    var vals = DIM_IDS.map(function(d) { return dims[d] || 0; });
-    var wts = BU_WEIGHTS[buId] || DEFAULT_WEIGHTS;
-    return Math.round(vals.reduce(function(a, b, i) { return a + b * wts[i] / 100; }, 0));
+    return calcTotalScore(buId, dims);
 }
 
 // ─────────────────────────────────────────────
 // 渲染卡片 HTML（雷达图容器使用真实 ECharts div）
 // ─────────────────────────────────────────────
 function buildCard(buId, meta) {
-    // 多月份BU：取当前选中月份的数据；单月份BU：用BU_DIMS
+    // 多月份BU：取当前选中月份的数据；单月份BU：从BU_HISTORY取最新月份
     var history = BU_HISTORY[buId];
     if (history) {
         var months = Object.keys(history).sort();
         if (!currentCardMonth[buId]) currentCardMonth[buId] = months[months.length - 1];
     }
     var activeMonth = currentCardMonth[buId];
-    var dims = activeMonth && history ? (history[activeMonth] || BU_DIMS[buId]) : (BU_DIMS[buId] || { d1: 0, d2: 0, d3: 0, d4: 0, d5: 0, d6: 0 });
+    var dims = history && history[activeMonth]
+        ? history[activeMonth]
+        : (BU_HISTORY[buId] ? (function() {
+            var allMonths = Object.keys(BU_HISTORY[buId]).sort();
+            return BU_HISTORY[buId][allMonths[allMonths.length - 1]];
+          })() : { d1: 0, d2: 0, d3: 0, d4: 0, d5: 0, d6: 0 });
     var score = getScore(buId, dims);
     var logo = BU_LOGOS[buId] || '';
     var logoHTML = logo
@@ -474,11 +468,26 @@ function buildCard(buId, meta) {
         requestAnimationFrame(function(){t.style.opacity='1';});
         setTimeout(function(){t.style.opacity='0';setTimeout(function(){document.body.removeChild(t);},300);},2000);
     }
-    // 雷达看板按 BU 过滤：点击卡片进入对应事业部详情，透传 __dept 供详情页 ALLOWED_BU 判定
+    // 雷达看板按 BU 过滤：点击卡片进入对应事业部详情，透传部门 ID（hash 方式）供详情页判定
     window.navigateToDetail = function(buId) {
         var file = BU_FILES[buId] || ('radar_detail.html?id=' + buId);
-        var dm = location.search.match(/[?&]__dept=([^&]+)/);
-        if (dm) { file += (file.indexOf('?') >= 0 ? '&' : '?') + '__dept=' + encodeURIComponent(dm[1]); }
+        var dm = location.hash.match(/[#&]dept=([^&]+)/)
+              || location.search.match(/[?&]__dept=([^&]+)/);
+        var deptId = dm ? decodeURIComponent(dm[1]) : '';
+        if (!deptId) { try { deptId = sessionStorage.getItem('__dept') || sessionStorage.getItem('_dept') || ''; } catch(e){} }
+        var km = location.hash.match(/[#&]key=([^&]+)/)
+              || location.search.match(/[?&]key=([^&]+)/);
+        var um = location.hash.match(/[#&]uid=([^&]+)/)
+              || location.search.match(/[?&]uid=([^&]+)/);
+        var key = km ? decodeURIComponent(km[1]) : '';
+        var uid = um ? decodeURIComponent(um[1]) : '';
+        var hashParts = [];
+        if (deptId) hashParts.push('dept=' + encodeURIComponent(deptId));
+        if (key) hashParts.push('key=' + encodeURIComponent(key));
+        if (uid) hashParts.push('uid=' + encodeURIComponent(uid));
+        if (hashParts.length) {
+            file = file.split('#')[0] + '#' + hashParts.join('&');
+        }
         location.assign(file);
     }
 
@@ -511,7 +520,10 @@ function renderCards() {
 
     // 渲染完卡片后，初始化所有 ECharts 雷达图
     initAllRadars();
-    // 雷达看板按 BU 过滤：隐藏非本事业部卡片（呈现方式=过滤式，不弹窗）
+    // 门禁命中（密钥/uid白名单/本地）：显示全部，跳过部门过滤；否则维持原部门过滤
+    if (window.RADAR_UID_DECIDED ? window.RADAR_UID_ALLOWED : true) {
+        return;
+    }
     if (window.applyBUFilter) {
         setTimeout(function() { window.applyBUFilter('#grid-main'); }, 80);
     }
@@ -533,7 +545,12 @@ function renderMiniRadar(buId) {
     var meta = BU_META[buId];
     var history = BU_HISTORY[buId];
     var activeMonth = currentCardMonth[buId];
-    var dims = (activeMonth && history) ? (history[activeMonth] || BU_DIMS[buId]) : (BU_DIMS[buId] || { d1: 0, d2: 0, d3: 0, d4: 0, d5: 0, d6: 0 });
+    var dims = history && history[activeMonth]
+        ? history[activeMonth]
+        : (history ? (function() {
+            var allMonths = Object.keys(history).sort();
+            return history[allMonths[allMonths.length - 1]];
+          })() : { d1: 0, d2: 0, d3: 0, d4: 0, d5: 0, d6: 0 });
     var vals = DIM_IDS.map(function(d) { return dims[d] || 0; });
 
     var chart = echarts.init(dom, null, { renderer: 'canvas', width: dom.clientWidth || 280, height: 145 });
@@ -680,7 +697,12 @@ function switchCardMonth(buId, month) {
 
     // 更新维度分数显示
     var history = BU_HISTORY[buId];
-    var dims = history && history[month] ? history[month] : BU_DIMS[buId];
+    var dims = history && history[month]
+        ? history[month]
+        : (history ? (function() {
+            var allMonths = Object.keys(history).sort();
+            return history[allMonths[allMonths.length - 1]];
+          })() : { d1: 0, d2: 0, d3: 0, d4: 0, d5: 0, d6: 0 });
     if (dims) {
         var card2 = document.getElementById('radar-' + buId);
         if (card2 && card2.closest) {

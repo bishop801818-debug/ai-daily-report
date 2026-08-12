@@ -12,6 +12,25 @@
  *   <script>applyBUFilter();</script>
  */
 
+// ============================================================
+//  本地开发自动放行（不影响妙搭线上）：
+//  仅当运行在本地环境（localhost / 127.0.0.1 / file:// 直接双击）
+//  时，自动置 __BU_GATE_ALLOW_ANON=true，跳过所有权限门禁，方便
+//  本地预览/编辑。线上域名（如 *.aiforce.cloud）不触发，门禁保持
+//  fail-closed 生效。妙搭发布时此文件原样上传，线上不受影响。
+// ============================================================
+(function () {
+  try {
+    var _h = location.hostname;
+    if (_h === 'localhost' || _h === '127.0.0.1' || location.protocol === 'file:') {
+      window.__BU_GATE_ALLOW_ANON = true;
+      if (window.console) {
+        console.warn('[bu_gate] 本地环境自动放行（hostname=' + _h + '），权限门禁已跳过');
+      }
+    }
+  } catch (e) {}
+})();
+
 (function() {
 'use strict';
 
@@ -97,14 +116,25 @@ function isSkippedClass(name) {
 }
 
 // ============================================================
-//  从 URL 或 sessionStorage 获取当前部门 ID
+//  从 URL、hash 或 sessionStorage 获取当前部门 ID
 // ============================================================
 function getCurrentDeptId() {
   // ====== 调试日志 ======
   if (window.console) {
-    console.log('[bu_gate] getCurrentDeptId, location.search=', location.search);
+    console.log('[bu_gate] getCurrentDeptId, location.search=', location.search, 'location.hash=', location.hash);
   }
-  var m = location.search.match(/[?&]__dept=([^&]+)/);
+  // 1. 优先从 hash 读取（#dept=xxx，Miaoda 网关重写 URL 时会吞 query，但 hash 保留）
+  var m = location.hash.match(/[#&]dept=([^&]+)/);
+  if (m) {
+    var deptId = decodeURIComponent(m[1]);
+    // 自动保存到 sessionStorage（解决页面刷新后丢失问题）
+    try { sessionStorage.setItem('__dept', deptId); } catch(e){}
+    if (window.console) {
+      console.log('[bu_gate] 从hash读取dept=', deptId);
+    }
+    return deptId;
+  }
+  m = location.search.match(/[?&]__dept=([^&]+)/);
   if (m) {
     var deptId = decodeURIComponent(m[1]);
     // 自动保存到 sessionStorage（解决页面刷新后丢失问题）
@@ -116,7 +146,26 @@ function getCurrentDeptId() {
     return deptId;
   }
   m = location.search.match(/[?&]departmentId=([^&]+)/);
-  if (m) return decodeURIComponent(m[1]);
+  if (m) {
+    var deptId2 = decodeURIComponent(m[1]);
+    try { sessionStorage.setItem('__dept', deptId2); } catch(e){}
+    if (window.console) { console.log('[bu_gate] 从URL读取departmentId=', deptId2); }
+    return deptId2;
+  }
+  // 兼容门户下发的 ?tier=<BU代码>（如 tier=felt / tier=HQ），映射为部门 ID
+  m = location.search.match(/[?&]tier=([^&]+)/);
+  if (m) {
+    var tier = decodeURIComponent(m[1]).trim();
+    var tierKey = tier.toLowerCase();
+    var mappedId = (tierKey === 'hq' || tierKey === 'all')
+      ? 'hq'
+      : (BU_DEPT[toInternalId(tierKey)] && BU_DEPT[toInternalId(tierKey)][0]);
+    if (mappedId) {
+      try { sessionStorage.setItem('__dept', mappedId); } catch(e){}
+      if (window.console) { console.log('[bu_gate] 从URL读取tier=', tier, '→ deptId=', mappedId); }
+      return mappedId;
+    }
+  }
   // 从 sessionStorage 中读取（兼容 '_dept' 与 '__dept' 两种键名）
   var _dept, __dept;
   try {
@@ -152,7 +201,7 @@ function __buGateDenyAll(containerSelector, userDeptIds) {
       + 'background:#fff;border:1px solid #e5e7eb;border-radius:12px;box-shadow:0 2px 12px rgba(0,0,0,.06);'
       + 'font-size:15px;color:#374151;line-height:1.8;';
     tip.innerHTML = '<div style="font-size:34px;margin-bottom:8px;">&#128274;</div>'
-      + '<div style="font-weight:600;font-size:17px;margin-bottom:6px;">暂无访问权限</div>'
+      + '<div style="font-weight:600;font-size:17px;margin-bottom:6px;">无权限查看</div>'
       + '<div>您所在的部门尚未开通本页面的访问权限。<br>如需开通，请联系管理员。</div>';
     var host = (containerSelector && document.querySelector(containerSelector)) || document.body;
     if (host) host.appendChild(tip);
@@ -178,10 +227,17 @@ window.applyBUFilter = function(containerSelector) {
   }
   // ====== 调试结束 ======
   if (!deptId) {
-    // 无部门 ID → 不拦截（降级：显示所有卡片）
-    if (window.console) {
-      console.warn('[bu_gate] 无部门ID，过滤未执行，显示全部卡片');
+    // 2026-07-31 改为 fail-closed：无部门 ID（直接输入子页 URL、参数丢失等）
+    // 一律拒绝，避免"未带参数即可看到全部内容"的越权泄露。
+    // 本地预览可在页面加载前设置 window.__BU_GATE_ALLOW_ANON = true 临时放行。
+    if (window.__BU_GATE_ALLOW_ANON === true) {
+      if (window.console) { console.warn('[bu_gate] 本地预览模式放行（__BU_GATE_ALLOW_ANON）'); }
+      return;
     }
+    if (window.console) {
+      console.warn('[bu_gate] fail-closed：未取得部门ID，已隐藏全部内容');
+    }
+    __buGateDenyAll(containerSelector, []);
     return;
   }
 
@@ -264,16 +320,41 @@ window.applyBUFilter = function(containerSelector) {
   //  此时自动回退为“显示全部”——无论 isAllowed 将来怎么写错，
   //  页面都不可能再因门禁逻辑而变空白。
   // ============================================================
+  // 2026-07-31 修正：原"自愈"逻辑在整页被隐藏时回退为显示全部，
+  // 等价于对无权部门开放全量内容（越权泄露）。现改为显示无权限提示。
   if (total > 0 && hiddenCount === total) {
-    Array.prototype.forEach.call(cards, function(card) {
-      card.style.display = '';
-      card.classList.remove('bu-gate-hidden');
-    });
+    __buGateDenyAll(containerSelector, userDeptIds);
     if (window.console) {
-      console.warn('[bu_gate] 自愈触发：过滤后整页 0 可见，已回退显示全部，避免白屏。deptIds=', userDeptIds);
+      console.warn('[bu_gate] 过滤后 0 可见 → 显示无权限提示（不再回退显示全部）。deptIds=', userDeptIds);
     }
   }
+
+  // 过滤完成后，为同源链接续传部门参数，保证子页刷新/新开标签仍受门禁
+  try { __buGatePropagate(deptId); } catch (e) {}
 };
+
+// ============================================================
+//  参数续传：把 __dept 附加到本页所有同源链接上
+//  （解决 index_v3 → radar_hub → radar_detail 跳转后参数丢失，
+//    以及新标签页打开时 sessionStorage 不共享的问题）
+// ============================================================
+function __buGatePropagate(deptId) {
+  if (!deptId) return;
+  var links = document.querySelectorAll('a[href]');
+  Array.prototype.forEach.call(links, function(a) {
+    var href = a.getAttribute('href') || '';
+    if (!href || href.charAt(0) === '#') return;
+    if (/^(javascript:|mailto:|tel:|data:)/i.test(href)) return;
+    // 仅处理同源链接
+    if (/^https?:\/\//i.test(href) && href.indexOf(location.origin) !== 0) return;
+    if (href.indexOf('__dept=') >= 0) return;
+    var hashIdx = href.indexOf('#');
+    var hash = hashIdx >= 0 ? href.slice(hashIdx) : '';
+    var base = hashIdx >= 0 ? href.slice(0, hashIdx) : href;
+    var sep = base.indexOf('?') >= 0 ? '&' : '?';
+    a.setAttribute('href', base + sep + '__dept=' + encodeURIComponent(deptId) + hash);
+  });
+}
 
 // ============================================================
 //  工具函数：暴露给页面使用的 API
@@ -282,8 +363,20 @@ window.applyBUFilter = function(containerSelector) {
     isAllowed: isAllowed,
     getCurrentDeptId: getCurrentDeptId,
     parseDeptIds: parseDeptIds,
+    propagate: __buGatePropagate,
+    denyAll: __buGateDenyAll,
     BU_DEPT: BU_DEPT,
   };
+
+  // 页面就绪后自动续传一次参数（即使该页未调用 applyBUFilter）
+  (function autoPropagate() {
+    var run = function() { try { __buGatePropagate(getCurrentDeptId()); } catch (e) {} };
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', run);
+    } else {
+      run();
+    }
+  })();
 
   // 兼容旧 report 页对裸 isAllowed / getCurrentDeptId 的引用
   // （这些页面用 `return isAllowed && isAllowed(bu, ids)` 调用；若不暴露裸函数，

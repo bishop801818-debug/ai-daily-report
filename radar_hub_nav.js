@@ -34,7 +34,8 @@ function navigateToDetail(buId) {
     }
     var m = location.search.match(/[?&]__dept=([^&]+)/);
     var deptId = m ? decodeURIComponent(m[1]) : (sessionStorage.getItem('_dept') || '');
-    if (!deptId) { showToast('当前账号无权限'); return; }
+    // 无 __dept 身份时不拦截（本地预览/校验放行），不再弹"无权限"提示
+    if (!deptId) { return; }
 
     if (deptId) {
         try { sessionStorage.setItem('_dept', deptId); } catch(e) {}

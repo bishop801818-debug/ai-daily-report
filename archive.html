@@ -127,6 +127,7 @@
             .dept-grid, .dept-grid-3 { grid-template-columns: 1fr; }
         }
     </style>
+    <script src="bu_gate.js"></script>
 </head>
 <body>
 
@@ -141,7 +142,7 @@
     <!-- 锂电系 5BU -->
     <div class="section-label">🔋 锂电系事业部（5BU）</div>
     <div class="dept-grid">
-        <a class="dept-card lithium" href="dept-archive.html?id=czly">
+        <a class="dept-card lithium" data-bu="czly" href="dept-archive.html?id=czly">
             <div class="dept-icon">🔋</div>
             <div class="dept-name">常州锂源</div>
             <div class="dept-tag">磷酸铁锂正极材料</div>
@@ -152,7 +153,7 @@
             </div>
         </a>
 
-        <a class="dept-card lithium" href="dept-archive.html?id=sdmd">
+        <a class="dept-card lithium" data-bu="sdmd" href="dept-archive.html?id=sdmd">
             <div class="dept-icon">♻️</div>
             <div class="dept-name">山东美多</div>
             <div class="dept-tag">动力电池回收</div>
@@ -163,7 +164,7 @@
             </div>
         </a>
 
-        <a class="dept-card lithium" href="dept-archive.html?id=sjld">
+        <a class="dept-card lithium" data-bu="sjld" href="dept-archive.html?id=sjld">
             <div class="dept-icon">🧪</div>
             <div class="dept-name">三金锂电</div>
             <div class="dept-tag">三元前驱体</div>
@@ -176,7 +177,7 @@
     </div>
 
     <div class="dept-grid">
-        <a class="dept-card longpan" href="dept-archive.html?id=lpsd">
+        <a class="dept-card longpan" data-bu="lpsd" href="dept-archive.html?id=lpsd">
             <div class="dept-icon">🔋</div>
             <div class="dept-name">龙蟠时代</div>
             <div class="dept-tag">磷酸铁锂正极材料</div>
@@ -187,7 +188,7 @@
             </div>
         </a>
 
-        <a class="dept-card longpan" href="dept-archive.html?id=felt">
+        <a class="dept-card longpan" data-bu="felt" href="dept-archive.html?id=felt">
             <div class="dept-icon">⚗️</div>
             <div class="dept-name">法恩莱特</div>
             <div class="dept-tag">电解液</div>
@@ -198,7 +199,7 @@
             </div>
         </a>
 
-        <a class="dept-card longpan" href="dept-archive.html?id=kls">
+        <a class="dept-card longpan" data-bu="kls" href="dept-archive.html?id=kls">
             <div class="dept-icon">🚛</div>
             <div class="dept-name">可兰素</div>
             <div class="dept-tag">车用尿素</div>
@@ -213,7 +214,7 @@
     <!-- 非锂电系 4BU -->
     <div class="section-label">🏭 非锂电系事业部（4BU）</div>
     <div class="dept-grid-3">
-        <a class="dept-card other" href="dept-archive.html?id=lhy">
+        <a class="dept-card other" data-bu="lhy" href="dept-archive.html?id=lhy">
             <div class="dept-icon">🛢️</div>
             <div class="dept-name">润滑油</div>
             <div class="dept-tag">润滑油</div>
@@ -224,7 +225,7 @@
             </div>
         </a>
 
-        <a class="dept-card other" href="dept-archive.html?id=dhx">
+        <a class="dept-card other" data-bu="dhx" href="dept-archive.html?id=dhx">
             <div class="dept-icon">🧬</div>
             <div class="dept-name">迪克化学</div>
             <div class="dept-tag">制动液 / 防冻液</div>
@@ -235,7 +236,7 @@
             </div>
         </a>
 
-        <a class="dept-card other" href="dept-archive.html?id=bych">
+        <a class="dept-card other" data-bu="bych" href="dept-archive.html?id=bych">
             <div class="dept-icon">⚛️</div>
             <div class="dept-name">铂源催化</div>
             <div class="dept-tag">铂族催化剂</div>
@@ -254,5 +255,15 @@
 </div>
 
     <script src="assets/ai_fab_inject.js"></script>
+
+  <script>
+  window.addEventListener('load', function() {
+    var _t = 0;
+    (function _r() {
+      if (window.applyBUFilter) { window.applyBUFilter(); return; }
+      if (++_t < 30) setTimeout(_r, 200);
+    })();
+  });
+  </script>
 </body>
 </html>

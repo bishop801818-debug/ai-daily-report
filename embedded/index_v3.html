@@ -1,20 +1,53 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
+  <!-- auth-gate: 权限闸门（自动注入，勿删；对应 auth_policy.js + inline_auth.js） -->
+  <script src="./auth_policy.js?v=20260729_1346"></script>
+  <script src="./inline_auth.js?v=20260729_1450"></script>
+  <script>
+function navigateTo(path) {
+  var dept = '';
+  // 1. 优先从 hash #dept= 读取（妙搭网关会吞 query，但保留 hash）
+  var m = location.hash.match(/[#&]dept=([^&]+)/);
+  if (m) dept = '&__dept=' + m[1];
+  // 2. 兼容 query __dept=
+  if (!dept) {
+    m = location.search.match(/[?&]__dept=([^&]+)/);
+    if (m) dept = '&__dept=' + m[1];
+  }
+  // 3. 兜底：从 sessionStorage 读取（页面刷新/同源跳转后）
+  if (!dept) {
+    try {
+      var saved = sessionStorage.getItem('__dept') || sessionStorage.getItem('_dept');
+      if (saved) dept = '&__dept=' + saved;
+    } catch(e) {}
+  }
+  var sep = path.includes('?') ? '&' : '?';
+  var url = path + (dept ? sep + dept.substring(1) : '');
+  // 4. 同时把 #dept= 也带上，子页 bu_gate.js 优先读 hash，网关吞 query 仍能识别
+  if (dept) url += '#dept=' + dept.substring(8);
+  location.href = url;
+}
+</script>
+
 <script>
-window.__SUBPAGE_MAP__ = {"analysis_hub.html": "analysis_hub.html", "archive_v3.html": "archive_v3.html", "automotive_charts.html": "automotive_charts.html", "automotive_data_v2.html": "automotive_data_v2.html", "help.html": "help.html", "industry_news_embedded.html": "industry_news_embedded.html", "policy_center_v4.html": "policy_center_v4.html", "radar_hub.html": "radar_hub.html", "strategy_coming_soon.html": "strategy_coming_soon.html", "strategy_hub.html": "strategy_hub.html", "toolbox.html": "toolbox.html", "electrolyte_charts.html": "electrolyte_charts.html", "electrolyte_data_v2.html": "electrolyte_data_v2.html", "lfp_charts.html": "lfp_charts.html", "lfp_data_v2.html": "lfp_data_v2.html", "lib_battery_charts.html": "lib_battery_charts.html", "lib_battery_data_v2.html": "lib_battery_data_v2.html", "ternary_charts.html": "ternary_charts.html", "ternary_data_v2.html": "ternary_data_v2.html", "carbonate_charts.html": "carbonate_charts.html", "carbonate_data_v2.html": "carbonate_data_v2.html", "database_hub.html": "database_hub.html", "recycling_charts.html": "recycling_charts.html", "recycling_data_v2.html": "recycling_data_v2.html"};
+window.__SUBPAGE_MAP__ = {"analysis_hub.html": "./analysis_hub.html", "archive_v3.html": "./archive_v3.html", "automotive_charts.html": "./automotive_charts.html", "automotive_data_v2.html": "./automotive_data_v2.html", "help.html": "./help.html", "industry_news_embedded.html": "./industry_news_embedded.html", "policy_center_v4.html": "./policy_center_v4.html", "radar_hub.html": "./radar_hub.html", "strategy_coming_soon.html": "./strategy_coming_soon.html", "strategy_hub.html": "./strategy_hub.html", "toolbox.html": "./toolbox.html", "electrolyte_charts.html": "./electrolyte_charts.html", "electrolyte_data_v2.html": "./electrolyte_data_v2.html", "lfp_charts.html": "./lfp_charts.html", "lfp_data_v2.html": "./lfp_data_v2.html", "lib_battery_charts.html": "./lib_battery_charts.html", "lib_battery_data_v2.html": "./lib_battery_data_v2.html", "ternary_charts.html": "./ternary_charts.html", "ternary_data_v2.html": "./ternary_data_v2.html", "carbonate_charts.html": "./carbonate_charts.html", "carbonate_data_v2.html": "./carbonate_data_v2.html", "database_hub.html": "./database_hub.html", "recycling_charts.html": "./recycling_charts.html", "recycling_data_v2.html": "./recycling_data_v2.html"};
 (function(){try{var m=new URLSearchParams(location.search).get('goto');if(m&&window.__SUBPAGE_MAP__[m]){location.replace(window.__SUBPAGE_MAP__[m]);}}catch(e){}})();
 </script>
 
 
 
 <!-- 预加载关键资源 -->
-<link rel="preload" href="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js" as="script">
-<link rel="preload" href="inline_02.js" as="script">
+<link rel="preload" href="assets/echarts.min.js" as="script">
 <link rel="preload" href="inline_03.min.js" as="script">
 <link rel="preload" href="latest_data.js" as="script">
-<script>window.HTML_VERSION="20260729_001"</script>
-<script src="embedded_data.gz.js?v=20260729_001"></script>
+    <link rel="preload" href="bu_logos.json" as="fetch" crossorigin>
+    <link rel="preload" href="hot_news_data.json" as="fetch" crossorigin>
+    <link rel="preload" href="data/industry_chain.json" as="fetch" crossorigin>
+    <link rel="preload" href="data/lithium_ore_price_history.json" as="fetch" crossorigin>
+    <link rel="preload" href="data/lepidolite_price_history.json" as="fetch" crossorigin>
+<script>window.HTML_VERSION="20260812_1158"</script>
+<script src="embedded_data.gz.js?v=20260812_001"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
@@ -22,14 +55,15 @@ window.__SUBPAGE_MAP__ = {"analysis_hub.html": "analysis_hub.html", "archive_v3.
     <meta http-equiv="Expires" content="0">
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <!-- 资源预加载（仅保留首屏关键资源，大文件延迟加载） -->
-    <script defer src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
-    <script defer src="electrolyte_data.js?v=20260729_0917"></script>
-    <script defer src="recycling_data_v3.js?v=20260729_0917"></script>
-    <script defer src="chemical_data.js?v=20260729_0917"></script>
-    <script defer src="portal-bundle.js?v=20260729_1423"></script>
-    <script defer src="recycling_gantt.js?v=20260729_0917"></script>
-    <script defer src="inline_02.js"></script>
-    <script defer src="inline_03.min.js"></script>
+    <script defer src="assets/echarts.min.js"></script>
+    <script defer src="electrolyte_data.js?v=20260729_1346"></script>
+    <script defer src="recycling_data_v3.js?v=20260729_1346"></script>
+    <script defer src="chemical_data.js?v=20260729_1346"></script>
+    <script src="_radar_scoring_config.js?v=20260811_1600"></script>
+    <script src="reports/radar_history.js?v=20260811_2300"></script>
+    <script defer src="portal-bundle.js?v=20260812_1300"></script>
+    <script defer src="recycling_gantt.js?v=20260729_1346"></script>
+    <script defer src="inline_03.min.js?v=20260812_1158"></script>
     <script defer src="inline_04.js"></script>
     <script defer src="inline_05.js"></script>
     <script defer src="inline_06.js"></script>
@@ -148,6 +182,12 @@ window.__SUBPAGE_MAP__ = {"analysis_hub.html": "analysis_hub.html", "archive_v3.
             text-shadow: 0 1px 3px rgba(255,255,255,0.35);
             padding: 7px 14px;
             font-size: 14px;
+            outline: none;
+        }
+        .hero-banner > .main-nav-menu .main-nav-item:focus,
+        .hero-banner > .main-nav-menu .main-nav-item:active {
+            outline: none;
+            box-shadow: none;
         }
 
         .hero-banner > .main-nav-menu .main-nav-item:hover {
@@ -4011,7 +4051,8 @@ window.__SUBPAGE_MAP__ = {"analysis_hub.html": "analysis_hub.html", "archive_v3.
             --panel-muted: rgba(7,83,54,0.4);
             --panel-accent: var(--text-main);
         }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }a:focus,a:focus-visible{outline:none!important;box-shadow:none!important;}
+        a:focus, a:focus-visible { outline: none !important; box-shadow: none !important; }
         body {
             font-family: 'Noto Sans SC', 'Microsoft YaHei', 'PingFang SC', Arial, sans-serif;
             min-height: 100vh;
@@ -4428,6 +4469,10 @@ window.__SUBPAGE_MAP__ = {"analysis_hub.html": "analysis_hub.html", "archive_v3.
             display: flex; align-items: center; justify-content: center; gap: 5px;
             padding: 9px 10px; border-radius: 8px; font-size: 0.72rem; font-weight: 600;
             cursor: pointer; text-decoration: none; transition: all 0.2s; border: 1px solid;
+            outline: none; box-shadow: none;
+        }
+        .hexa-action-btn:focus, .hexa-action-btn:focus-visible, .hexa-action-btn:active {
+            outline: none; box-shadow: none;
         }
         .hexa-action-pri { background: var(--line-green); border-color: rgba(7,83,54,0.15); color: var(--text-main); }
         .hexa-action-pri:hover { background: rgba(7,83,54,0.12); }
@@ -5975,103 +6020,103 @@ window.__SUBPAGE_MAP__ = {"analysis_hub.html": "analysis_hub.html", "archive_v3.
         <!-- Hero Banner（图片横幅） -->
         <div class="hero-banner" id="heroBanner">
             <picture>
-                <source srcset="assets/hero-banner.webp?v=20260729_0917" type="image/webp">
-                <img class="hero-bg" src="assets/hero-banner.webp?v=20260729_0917" alt="龙蟠科技" loading="lazy">
+                <source srcset="assets/hero-banner.webp?v=20260729_1346" type="image/webp">
+                <img class="hero-bg" src="assets/hero-banner.webp?v=20260729_1346" alt="龙蟠科技" loading="lazy">
             </picture>
             <div class="hero-overlay"></div>
             <!-- 主导航菜单（浮于图上，毛玻璃半透明白底） -->
             <div class="main-nav-menu" id="mainNavMenu" style="background:transparent !important; backdrop-filter:none !important; -webkit-backdrop-filter:none !important; border:none !important; box-shadow:none !important;">
             <div class="main-nav-pill" id="mainNavPill"></div>
-            <div class="main-nav-item" onclick="window.top.location.href='policy_center_v4.html'">
+            <div class="main-nav-item" onclick="navigateTo('./policy_center_v4.html')">
                 <span class="nav-icon">📜</span>
                 <span>政策中心</span>
                 <span class="nav-arrow">▼</span>
                 <div class="dropdown-menu">
-                    <div class="dropdown-item" onclick="event.stopPropagation(); window.top.location.href='policy_center_v4.html'">
+                    <div class="dropdown-item" onclick="event.stopPropagation(); navigateTo('./policy_center_v4.html')">
                         <span class="nav-icon">🏛️</span>
                         <span>国家政策</span>
                     </div>
-                    <div class="dropdown-item" onclick="event.stopPropagation(); window.top.location.href='policy_center_v4.html'">
+                    <div class="dropdown-item" onclick="event.stopPropagation(); navigateTo('./policy_center_v4.html')">
                         <span class="nav-icon">📍</span>
                         <span>地方政策</span>
                     </div>
-                    <div class="dropdown-item" onclick="event.stopPropagation(); window.top.location.href='policy_center_v4.html'">
+                    <div class="dropdown-item" onclick="event.stopPropagation(); navigateTo('./policy_center_v4.html')">
                         <span class="nav-icon">🌍</span>
                         <span>国际政策</span>
                     </div>
                 </div>
             </div>
-            <div class="main-nav-item" onclick="window.top.location.href='industry_news_embedded.html'">
+            <div class="main-nav-item" onclick="navigateTo('./industry_news_embedded.html')">
                 <span class="nav-icon">📰</span>
                 <span>行业新闻</span>
                 <span class="nav-arrow">▼</span>
                 <div class="dropdown-menu">
-                    <div class="dropdown-item" onclick="event.stopPropagation(); window.top.location.href='industry_news_embedded.html'">
+                    <div class="dropdown-item" onclick="event.stopPropagation(); navigateTo('./industry_news_embedded.html')">
                         <span class="nav-icon">🌐</span>
                         <span>宏观新闻</span>
                     </div>
-                    <div class="dropdown-item" onclick="event.stopPropagation(); window.top.location.href='industry_news_embedded.html'">
+                    <div class="dropdown-item" onclick="event.stopPropagation(); navigateTo('./industry_news_embedded.html')">
                         <span class="nav-icon">📰</span>
                         <span>行业新闻</span>
                     </div>
-                    <div class="dropdown-item" onclick="event.stopPropagation(); window.top.location.href='industry_news_embedded.html'">
+                    <div class="dropdown-item" onclick="event.stopPropagation(); navigateTo('./industry_news_embedded.html')">
                         <span class="nav-icon">🏢</span>
                         <span>企业动态</span>
                     </div>
-                    <div class="dropdown-item" onclick="event.stopPropagation(); window.top.location.href='industry_news_embedded.html'">
+                    <div class="dropdown-item" onclick="event.stopPropagation(); navigateTo('./industry_news_embedded.html')">
                         <span class="nav-icon">🔬</span>
                         <span>技术产品</span>
                     </div>
                 </div>
             </div>
-            <div class="main-nav-item" onclick="top.location.href='archive_v3.html'">
+            <div class="main-nav-item" onclick="navigateTo('./archive_v3.html')">
                 <span class="nav-icon">📁</span>
                 <span>历史数据</span>
             </div>
-<div class="main-nav-item" onclick="window.top.location.href='database_hub.html'">
+<div class="main-nav-item" onclick="navigateTo('./database_hub.html')">
                 <span class="nav-icon">📊</span>
                 <span>数据库</span>
                 <span class="nav-arrow">▼</span>
                 <div class="dropdown-menu">
-                    <div class="dropdown-item" onclick="event.stopPropagation(); window.top.location.href='lfp_data_v2.html'">
+                    <div class="dropdown-item" onclick="event.stopPropagation(); navigateTo('./lfp_data_v2.html')">
                         <span class="nav-icon">🔋</span>
                         <span>磷酸铁锂数据库</span>
                     </div>
-                    <div class="dropdown-item" onclick="event.stopPropagation(); window.top.location.href='ternary_data_v2.html'">
+                    <div class="dropdown-item" onclick="event.stopPropagation(); navigateTo('./ternary_data_v2.html')">
                         <span class="nav-icon">⚡</span>
                         <span>三元材料数据库</span>
                     </div>
-                    <div class="dropdown-item" onclick="event.stopPropagation(); window.top.location.href='electrolyte_data_v2.html'">
+                    <div class="dropdown-item" onclick="event.stopPropagation(); navigateTo('./electrolyte_data_v2.html')">
                         <span class="nav-icon">🧪</span>
                         <span>电解液数据库</span>
                     </div>
-                    <div class="dropdown-item" onclick="event.stopPropagation(); window.top.location.href='carbonate_data_v2.html'">
+                    <div class="dropdown-item" onclick="event.stopPropagation(); navigateTo('./carbonate_data_v2.html')">
                         <span class="nav-icon">⛏️</span>
                         <span>碳酸锂及原料数据库</span>
                     </div>
-                    <div class="dropdown-item" onclick="event.stopPropagation(); window.top.location.href='recycling_data_v2.html'">
+                    <div class="dropdown-item" onclick="event.stopPropagation(); navigateTo('./recycling_data_v2.html')">
                         <span class="nav-icon">♻️</span>
                         <span>锂电池回收数据库</span>
                     </div>
-                    <div class="dropdown-item" onclick="event.stopPropagation(); window.top.location.href='lib_battery_data_v2.html'">
+                    <div class="dropdown-item" onclick="event.stopPropagation(); navigateTo('./lib_battery_data_v2.html')">
                         <span class="nav-icon">🔋</span>
                         <span>锂电池行业数据库</span>
                     </div>
-                    <div class="dropdown-item" onclick="event.stopPropagation(); window.top.location.href='automotive_data_v2.html'">
+                    <div class="dropdown-item" onclick="event.stopPropagation(); navigateTo('./automotive_data_v2.html')">
                         <span class="nav-icon">🚗</span>
                         <span>汽车行业数据库</span>
                     </div>
                 </div>
             </div>
-            <div class="main-nav-item" onclick="window.top.location.href='analysis_hub.html'">
+            <div class="main-nav-item" onclick="navigateTo('./analysis_hub.html')">
                 <span class="nav-icon">📊</span>
                 <span>行业分析</span>
             </div>
-            <div class="main-nav-item" onclick="window.top.location.href='strategy_hub.html'">
+            <div class="main-nav-item" onclick="navigateTo('./strategy_hub.html')">
                 <span class="nav-icon">🔭</span>
                 <span>竞品比对</span>
             </div>
-            <div class="main-nav-item" onclick="window.top.location.href='radar_hub.html'">
+            <div class="main-nav-item" onclick="navigateTo('./radar_hub.html')">
                 <span class="nav-icon">🕸️</span>
                 <span>雷达看板</span>
             </div>
@@ -6096,11 +6141,11 @@ window.__SUBPAGE_MAP__ = {"analysis_hub.html": "analysis_hub.html", "archive_v3.
                     </div>
                 </div>
             </div>
-            <div class="main-nav-item" onclick="window.top.location.href='toolbox.html'">
+            <div class="main-nav-item" onclick="navigateTo('./toolbox.html')">
                 <span class="nav-icon">🛠️</span>
                 <span>工具箱</span>
             </div>
-            <div class="main-nav-item" onclick="window.top.location.href='help.html'">
+            <div class="main-nav-item" onclick="navigateTo('./help.html')">
                 <span class="nav-icon">❓</span>
                 <span>帮助中心</span>
             </div>
@@ -6245,7 +6290,7 @@ window.__SUBPAGE_MAP__ = {"analysis_hub.html": "analysis_hub.html", "archive_v3.
             <div class="hero-right" id="heroRightCharts">
                 <div class="hero-right-header">
                     <span class="hero-right-title">数据库看板</span>
-                    <span class="hero-right-more" onclick="top.location.href='database_hub.html'">更多 →</span>
+                    <span class="hero-right-more" onclick="navigateTo('./database_hub.html')">更多 →</span>
                 </div>
                 <div class="chart-carousel" id="chartCarousel">
                     <div class="chart-slide" id="chartSlide0">
@@ -6614,10 +6659,10 @@ window.__SUBPAGE_MAP__ = {"analysis_hub.html": "analysis_hub.html", "archive_v3.
                             <div class="mk-chart-card" id="sec-spod">
                                 <div class="lc-futures-chart-wrapper" style="padding: 20px;">
                                     <div class="chart-header">
-                                        <div class="chart-title-centered">锂辉石精矿（5.0-5.5%）</div>
+                                        <div class="chart-title-centered">锂辉石精矿（5%澳洲）</div>
                                         <div class="chart-info-row">
                                             <div class="chart-legend-left">
-                                                <span class="chart-legend-item"><span class="chart-legend-dot" style="background:#e91e63;"></span>均价（元/吨）</span>
+                                                <span class="chart-legend-item"><span class="chart-legend-dot" style="background:#e91e63;"></span>均价（美元/吨）</span>
                                             </div>
                                             <div class="chart-price-right">
                                                 <span class="price-label">最新价：</span><span class="chart-latest-price" id="lithiumOreLatestPrice">--</span>
@@ -7120,9 +7165,6 @@ window.__SUBPAGE_MAP__ = {"analysis_hub.html": "analysis_hub.html", "archive_v3.
              src="data/images/embedded_img_010.png"
              alt="AI助手"
              style="border-radius:50%;pointer-events:none">
-        <div class="media-layer" id="gifLayer" style="position:absolute;top:0;left:0;width:80px;height:80px;border-radius:50%;overflow:hidden;opacity:0;pointer-events:none;transition:opacity 0.3s ease;z-index:2;">
-            <img id="gifImg" src="" alt="动画" style="width:100%;height:100%;object-fit:cover;display:block;">
-        </div>
     </div>
     <div class="ai-sphere-shadow"></div>
     <!-- 悬停气泡 -->
@@ -7170,7 +7212,7 @@ window.__SUBPAGE_MAP__ = {"analysis_hub.html": "analysis_hub.html", "archive_v3.
     
     
 
-    <script src="assets/ai_fab_inject.js?v=20260729_0917"></script>
-    <script src="feishu-jsapi.js?v=20260729_0917"></script>
+    <script src="assets/ai_fab_inject.js?v=20260729_1346"></script>
+    <script src="feishu-jsapi.js?v=20260729_1346"></script>
 </body>
 </html>

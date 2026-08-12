@@ -151,27 +151,40 @@
             color: #064e3b;
             font-size: 13px;
             font-weight: 600;
-            padding: 10px 12px;
+            padding: 10px 8px 10px 12px;
             display: flex;
             align-items: center;
-            gap: 4px;
             white-space: nowrap;
+            flex-shrink: 0;
         }
         .db-card .btn-month-select {
             background: #f0f4ff;
             border: none;
             border-left: 1px solid rgba(6, 78, 59, 0.15);
             border-radius: 0;
-            padding: 10px 8px;
+            padding: 10px 4px;
             font-size: 12px;
             color: #064e3b;
             cursor: pointer;
-            min-width: 80px;
+            min-width: 60px;
             font-family: inherit;
             outline: none;
+            flex: 1;
+            -webkit-appearance: none;
+            appearance: none;
+            padding-right: 0;
         }
         .db-card .btn-month-select:focus {
             background: #e8f0ff;
+        }
+        .db-card .btn-month-arrow {
+            background: #f0f4ff;
+            color: #064e3b;
+            padding: 10px 10px 10px 4px;
+            font-size: 10px;
+            display: flex;
+            align-items: center;
+            flex-shrink: 0;
         }
         .db-card .btn.disabled {
             opacity: 0.4;
@@ -239,6 +252,28 @@
             font-weight: 600;
         }
     </style>
+    <script src="bu_gate.js"></script>
+    <script>
+    // 导航到HUB页面时自动追加__dept参数（兼容hash #dept= 被网关吞query场景）
+    (function(){
+      var _dept='';
+      var m = location.hash.match(/[#&]dept=([^&]+)/);
+      if(m) _dept = decodeURIComponent(m[1]);
+      if(!_dept){ try{_dept=(new URL(location.href)).searchParams.get('__dept');}catch(e){} }
+      if(!_dept){ try{_dept=sessionStorage.getItem('__dept')||sessionStorage.getItem('_dept');}catch(e){} }
+      if(_dept){ try{sessionStorage.setItem('__dept',_dept);}catch(e){} }
+      var HUB_PAGES=['radar_hub.html','strategy_hub.html','archive_v3.html','analysis_hub.html','database_hub.html'];
+      window.__goto=function(url){
+        if(!url)return;
+        var d=_dept|| (sessionStorage.getItem('__dept')||sessionStorage.getItem('_dept')||'');
+        var t=(url.split('?')[0].split('#')[0]).split('/').pop();
+        if(HUB_PAGES.indexOf(t)>-1 && d){
+          var s=url.indexOf('?')>-1?'&':'?';
+          window.location.href=url+s+'__dept='+encodeURIComponent(d)+'#dept='+encodeURIComponent(d);
+        }else{window.location.href=url;}
+      };
+    })();
+    </script>
 </head>
 <body>
 
@@ -273,7 +308,8 @@ const REPORT_LIST = [
         desc: '磷酸铁锂正极材料供需格局、竞争格局、价格体系、出口贸易及战略展望',
         done: true,
         allowedBu: ['czly'], // 仅常州锂源可见
-        reportHref: 'lfp_report_2026_05.html',
+        reportBase: 'lfp_report',
+        availableMonths: ['2026-06', '2026-05'],
         dataHref: 'lfp_data_v2.html',
         chartHref: 'lfp_charts.html',
         tabs: '6个Tab',
@@ -286,7 +322,8 @@ const REPORT_LIST = [
         desc: '碳酸锂·氢氧化锂·锂云母·锂辉石精矿，四位一体产业链全景分析',
         done: true,
         allowedBu: ['czly','lpsd','sdmd'], // 常州锂源、龙蟠时代、山东美多可见
-        reportHref: 'carbonate_report_202605.html',
+        reportBase: 'carbonate_report',
+        availableMonths: ['2026-06', '2026-05'],
         dataHref: 'carbonate_data_v2.html',
         chartHref: 'carbonate_charts.html',
         tabs: '6个Tab',
@@ -326,7 +363,8 @@ const REPORT_LIST = [
         desc: '动力电池回收规模、梯次利用、再生利用，白名单企业与战略展望',
         done: true,
         allowedBu: ['sdmd'], // 仅山东美多可见
-        reportHref: 'recycling_report_2026_05.html',
+        reportBase: 'recycling_report',
+        availableMonths: ['2026-06', '2026-05'],
         dataHref: 'recycling_data_v2.html',
         chartHref: 'recycling_charts.html',
         tabs: '4个Tab',
@@ -339,11 +377,11 @@ const REPORT_LIST = [
         desc: '锂电池产量、产能利用率、分企业竞争格局与排产预测，五表全景分析',
         done: true,
         allowedBu: ['czly','lpsd','sdmd','felt','sjl','dhx','lhy','kls','bych'], // 全BU可见（无专门BU数据）
-        reportHref: 'lib_battery_analysis.html',
+        reportHref: 'lib_battery_report_2026_06.html',
         dataHref: 'lib_battery_data_v2.html',
         chartHref: 'lib_battery_charts.html',
         tabs: '5个Tab',
-        charts: '5个图表',
+        charts: '8个图表',
     },
     {
         id: 'automotive',
@@ -352,7 +390,8 @@ const REPORT_LIST = [
         desc: '新能源汽车销量、动力电池装车、渗透率、政策汇总与出口数据分析',
         done: true,
         allowedBu: ['czly','lpsd','sdmd','felt','sjl','dhx','lhy','kls','bych'], // 全BU可见（无专门BU数据）
-        reportHref: 'automotive_report_202605.html',
+        reportBase: 'automotive_report',
+        availableMonths: ['2026-06', '2026-05'],
         dataHref: 'automotive_data_v2.html',
         chartHref: 'automotive_charts.html',
         tabs: '7个Part',
@@ -377,7 +416,7 @@ function buildReportCard(db) {
             const latestHref = buildHref(latest);
 
             const monthOptions = db.availableMonths.map(m => {
-                const label = m.replace('-', '年') + '月';
+                const label = m.split('-')[1] + '月';
                 const href = buildHref(m);
                 return `<option value="${href}"${m === latest ? ' selected' : ''}>${label}</option>`;
             }).join('');
@@ -385,11 +424,12 @@ function buildReportCard(db) {
             reportBtns = `
                 <a href="${latestHref}" class="btn-report" id="btn-report-${db.id}">查看报告</a>
                 <div class="btn-month-wrap">
-                    <span class="btn-month-label">📅 月份</span>
+                    <span class="btn-month-label">月份</span>
                     <select class="btn-month-select" id="sel-month-${db.id}"
                         onchange="document.getElementById('btn-report-${db.id}').href=this.value;">
                         ${monthOptions}
                     </select>
+                    <span class="btn-month-arrow">&#9660;</span>
                 </div>`;
         } else if (db.reportHref) {
             // Single report: just the button
@@ -436,73 +476,32 @@ if (topbarRight) {
     <script>
 /* === inline_01.js (analysis_hub.html 不触发数据加载逻辑) === */
 
-/* === bu_gate.js === */
-/**
- * bu_gate.js — BU 权限门禁（纯前端方案）
- */
-(function() {
-'use strict';
-var BU_DEPT = {
-  hq: ['od-1768efca88fb4611b75efca7140fe16b','od-42e4ca3deb8b8ee5dfb4688df273ab91','od-f509da72f04db456af9bc9351ed649ce','od-839a5caffe1fa682e014982a1d28fcb8'],
-  czly: ['od-c8c5bc8612d60825208196a97cd0686d'],
-  lpsd: ['od-349632b3f04edaa205990f6c96e66c26'],
-  sdmd: ['od-05e668aea865f92b574f366b3d976094'],
-  felt: ['od-2e6cc0918fbe3086ebf636680997a2f2'],
-  sjl:  ['od-310bdafba6cb5bdbd3300cf326878caa'],
-  dhx:  ['od-7a313bc06887dc30349237cb0d64ce83'],
-  lhy:  ['od-8ad5942df92ef45ac8905b543fc38d2b'],
-  kls:  ['od-c36a380b50b52171d47b7a8f5c1f3a70'],
-  bych: ['od-33054981612c6dc0fbbdfbb743774d1b'],
-};
-var BU_ALIAS = { lubricant: 'lhy', kelan: 'kls', dkhx: 'dhx', sjld: 'sjl' };
-function parseDeptIds(s) { return s ? s.split(',').map(function(x){return x.trim();}).filter(Boolean) : []; }
-function isAllowed(bu, userDeptIds) {
-  if (!userDeptIds || !userDeptIds.length) return false;
-  if (userDeptIds.some(function(d){return BU_DEPT.hq.indexOf(d)>=0;})) return true;
-  var a = BU_DEPT[bu]; return !!(a && userDeptIds.some(function(d){return a.indexOf(d)>=0;}));
-}
-function getCurrentDeptId() {
-  var m = location.search.match(/[?&]__dept=([^&]+)/); if (m) return decodeURIComponent(m[1]);
-  m = location.search.match(/[?&]departmentId=([^&]+)/); if (m) return decodeURIComponent(m[1]);
-  try { return sessionStorage.getItem('_dept') || ''; } catch(e) { return ''; }
-}
-window.applyBUFilter = function(selector) {
-  var deptId = getCurrentDeptId(); if (!deptId) return;
-  var userDeptIds = parseDeptIds(deptId);
-  var container = selector ? document.querySelector(selector) : document;
-  if (!container) return;
-  var cards = container.querySelectorAll('[class*="allbu-card"], [class*="dept-card"], [id^="card-"]');
-  if (!cards.length) cards = container.children;
-  Array.prototype.forEach.call(cards, function(card) {
-    var buId = null;
-    var classes = (card.className || '').split(/\s+/);
-    for (var i=0; i<classes.length; i++) {
-      var c = classes[i];
-      var skip = ['allbu-card-loading','allbu-card','dept-card','no-auth-card'];
-      if (skip.indexOf(c)>=0) continue;
-      var internalId = BU_ALIAS[c] || c;
-      if (BU_DEPT[internalId]) { buId = internalId; break; }
-    }
-    if (!buId) {
-      var id = card.id || '';
-      for (var bu in BU_DEPT) { if (bu==='hq') continue; if (id.indexOf(bu)>=0||id.indexOf('card-'+bu)>=0){buId=bu;break;} }
-    }
-    if (!buId) buId = card.getAttribute('data-bu') || '';
-    if (!buId || buId==='hq') return;
-    if (!isAllowed(buId, userDeptIds)) { card.style.display='none'; card.classList.add('bu-gate-hidden'); }
-  });
-};
-window.BU_GATE = { isAllowed: isAllowed, getCurrentDeptId: getCurrentDeptId, parseDeptIds: parseDeptIds, BU_DEPT: BU_DEPT };
-})();
 /* === ai_fab_inject.js: 空，直接跳过 === */
     </script>
     <script>
     // 数据库权限过滤：与 database_hub.html 一致
     function applyDbFilter() {
+        // 本地调试环境跳过权限检查
+        if (location.hostname === 'localhost' || location.hostname === '127.0.0.1' || window.__BU_GATE_ALLOW_ANON === true) {
+            console.log('[本地调试] 跳过权限检查');
+            return;
+        }
         var gate = window.BU_GATE;
         if (!gate) return;
         var deptId = gate.getCurrentDeptId();
-        if (!deptId) return;
+        if (!deptId) {
+          // 2026-08-09 fail-closed：无部门ID不再全员放行，杜绝越权泄露
+          document.documentElement.style.visibility = 'hidden';
+          if (!document.getElementById('bu-gate-deny-tip')) {
+            var _tip = document.createElement('div');
+            _tip.id = 'bu-gate-deny-tip';
+            _tip.style.cssText = 'position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:#f0f2f5;z-index:99999;';
+            _tip.innerHTML = '<div style="margin:auto;max-width:520px;padding:28px 32px;text-align:center;background:#fff;border:1px solid #e5e7eb;border-radius:12px;box-shadow:0 2px 12px rgba(0,0,0,.06);font-size:15px;color:#374151;line-height:1.8;"><div style="font-size:34px;margin-bottom:8px;">🔒</div><div style="font-weight:600;font-size:17px;margin-bottom:6px;">无权限查看</div><div>您所在的部门尚未开通本页面的访问权限。<br>如需开通，请联系管理员。</div></div>';
+            (document.body || document.documentElement).appendChild(_tip);
+          }
+          document.documentElement.style.visibility = 'visible';
+          return;
+        }
         var userDeptIds = gate.parseDeptIds(deptId);
         REPORT_LIST.forEach(function(db) {
             if (!db.allowedBu || !db.allowedBu.length) return;
