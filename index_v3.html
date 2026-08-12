@@ -1,117 +1,53 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
+  <!-- auth-gate: 权限闸门（自动注入，勿删；对应 auth_policy.js + inline_auth.js） -->
+  <script src="./auth_policy.js?v=20260729_1346"></script>
+  <script src="./inline_auth.js?v=20260729_1450"></script>
+  <script>
+function navigateTo(path) {
+  var dept = '';
+  // 1. 优先从 hash #dept= 读取（妙搭网关会吞 query，但保留 hash）
+  var m = location.hash.match(/[#&]dept=([^&]+)/);
+  if (m) dept = '&__dept=' + m[1];
+  // 2. 兼容 query __dept=
+  if (!dept) {
+    m = location.search.match(/[?&]__dept=([^&]+)/);
+    if (m) dept = '&__dept=' + m[1];
+  }
+  // 3. 兜底：从 sessionStorage 读取（页面刷新/同源跳转后）
+  if (!dept) {
+    try {
+      var saved = sessionStorage.getItem('__dept') || sessionStorage.getItem('_dept');
+      if (saved) dept = '&__dept=' + saved;
+    } catch(e) {}
+  }
+  var sep = path.includes('?') ? '&' : '?';
+  var url = path + (dept ? sep + dept.substring(1) : '');
+  // 4. 同时把 #dept= 也带上，子页 bu_gate.js 优先读 hash，网关吞 query 仍能识别
+  if (dept) url += '#dept=' + dept.substring(8);
+  location.href = url;
+}
+</script>
+
 <script>
-window.__SUBPAGE_MAP__ = {"analysis_hub.html": "analysis_hub.html", "archive_v3.html": "archive_v3.html", "automotive_charts.html?v=20260730": "automotive_charts.html?v=20260730", "automotive_data_v2.html": "automotive_data_v2.html", "help.html": "help.html", "industry_news_embedded.html": "industry_news_embedded.html", "policy_center_v4.html": "policy_center_v4.html", "radar_hub.html": "radar_hub.html", "strategy_coming_soon.html": "strategy_coming_soon.html", "strategy_hub.html": "strategy_hub.html", "toolbox.html": "toolbox.html", "electrolyte_charts.html?v=20260730": "electrolyte_charts.html?v=20260730", "electrolyte_data_v2.html": "electrolyte_data_v2.html", "lfp_charts.html?v=20260730": "lfp_charts.html?v=20260730", "lfp_data_v2.html": "lfp_data_v2.html", "lib_battery_charts.html?v=20260730": "lib_battery_charts.html?v=20260730", "lib_battery_data_v2.html": "lib_battery_data_v2.html", "ternary_charts.html?v=20260730": "ternary_charts.html?v=20260730", "ternary_data_v2.html": "ternary_data_v2.html", "carbonate_charts.html?v=20260730": "carbonate_charts.html?v=20260730", "carbonate_data_v2.html": "carbonate_data_v2.html", "database_hub.html": "database_hub.html", "recycling_charts.html?v=20260730": "recycling_charts.html?v=20260730", "recycling_data_v2.html": "recycling_data_v2.html"};
+window.__SUBPAGE_MAP__ = {"analysis_hub.html": "./analysis_hub.html", "archive_v3.html": "./archive_v3.html", "automotive_charts.html": "./automotive_charts.html", "automotive_data_v2.html": "./automotive_data_v2.html", "help.html": "./help.html", "industry_news_embedded.html": "./industry_news_embedded.html", "policy_center_v4.html": "./policy_center_v4.html", "radar_hub.html": "./radar_hub.html", "strategy_coming_soon.html": "./strategy_coming_soon.html", "strategy_hub.html": "./strategy_hub.html", "toolbox.html": "./toolbox.html", "electrolyte_charts.html": "./electrolyte_charts.html", "electrolyte_data_v2.html": "./electrolyte_data_v2.html", "lfp_charts.html": "./lfp_charts.html", "lfp_data_v2.html": "./lfp_data_v2.html", "lib_battery_charts.html": "./lib_battery_charts.html", "lib_battery_data_v2.html": "./lib_battery_data_v2.html", "ternary_charts.html": "./ternary_charts.html", "ternary_data_v2.html": "./ternary_data_v2.html", "carbonate_charts.html": "./carbonate_charts.html", "carbonate_data_v2.html": "./carbonate_data_v2.html", "database_hub.html": "./database_hub.html", "recycling_charts.html": "./recycling_charts.html", "recycling_data_v2.html": "./recycling_data_v2.html"};
 (function(){try{var m=new URLSearchParams(location.search).get('goto');if(m&&window.__SUBPAGE_MAP__[m]){location.replace(window.__SUBPAGE_MAP__[m]);}}catch(e){}})();
 </script>
 
-<!-- 回收甘特图与 ECharts 懒加载 shim：首屏不再加载，进入回收视图时按需加载 -->
-<script>
-(function(){
-  function loadScript(src){ return new Promise(function(res,rej){ var s=document.createElement('script'); s.src=src; s.onload=function(){res();}; s.onerror=function(){rej(new Error('load fail: '+src));}; document.head.appendChild(s); }); }
-  window.__recyclingAssetsReady=null;
-  window.loadRecyclingAssets=function(){
-    if(window.__recyclingAssetsReady) return window.__recyclingAssetsReady;
-    var v=window.HTML_VERSION?('?v='+window.HTML_VERSION):'';
-    window.__recyclingAssetsReady=loadScript('recycling_data_v3.js'+v)
-      .then(function(){return loadScript('recycling_gantt.js'+v);})
-      .then(function(){return loadScript('assets/echarts.5.5.0.min.js'+v);})
-      .then(function(){window.__recyclingLoaded=true;})
-      .catch(function(e){window.__recyclingAssetsReady=null;console.error('[回收] 懒加载失败',e);throw e;});
-    return window.__recyclingAssetsReady;
-  };
-  if(typeof window.renderRecyclingGantt!=='function'){
-    window.renderRecyclingGantt=function(container){
-      window.loadRecyclingAssets().then(function(){
-        if(typeof window.renderRecyclingGantt==='function'){ window.renderRecyclingGantt(container); }
-      }).catch(function(){
-        if(container&&container.innerHTML!==undefined){ container.innerHTML='<div style="padding:40px;text-align:center;color:#e74c3c;">回收数据加载失败，请刷新重试</div>'; }
-      });
-    };
-  }
-})();
-</script>
 
-<!-- 调试面板：Ctrl+Shift+D 模拟事业部视角自测（不影响真实鉴权）。defer：解析后再执行，不阻塞首屏 -->
-<script src="./debug_bu_switcher.js" defer></script>
 
 <!-- 预加载关键资源 -->
-<!-- ECharts 改为回收视图按需懒加载（见下方 shim），已从首屏预加载移除 -->
-<link rel="preload" href="home_dashboard.json" as="fetch">
-<!-- <link rel="preload" href="inline_02.js" as="script"> 已移除 -->
-<link rel="preload" href="inline_03.min.js?v=20260811_1600" as="script">
-<!-- latest_data.js 与 embedded_data.gz.js 内容相同，只需加载 embedded_data.gz.js 即可 -->
-<script>window.HTML_VERSION="20260811_1203";
-    window.DATA_HASHES = /*__DATA_HASHES_JSON__*/{'carbonate_spot_price_merged.json': 'c47fae731262', 'data/carbonate_spot_price_merged.json': 'c47fae731262', 'data/industry_chain.json': '786f2c5c50de', 'data/lepidolite_price_history.json': '190e0242a81c', 'data/lithium_ore_price_history.json': 'd376973df603', 'data/phosphate_rock_price.json': 'ec24109d6584', 'embedded/automotive_embedded_data.js': 'afd946c5869d', 'embedded/recycling_embedded_data.js': '0656df6f944e', 'hot_news_data.json': 'f0babd9b2304', 'reports/eg_futures_history.json': '3dd56ffba2b5', 'reports/i_futures_history.json': '1a440191a2a6', 'reports/index.json': 'eab4bc31d81f', 'reports/iron_phosphate_history.json': '63969132d7b6', 'reports/lc_futures_history.json': 'b5d7c22c4e35', 'reports/lfp_all_data.json': 'db74edfe9a38', 'reports/lfp_power_history.json': '3acf333587ae', 'reports/lfp_storage_history.json': '9321cffc20c7', 'reports/market_lc.json': 'eec56d4dacbf', 'reports/pd_futures_history.json': 'ab966033958b', 'reports/pt_futures_history.json': 'e787a4afc7c0', 'reports/ur_history.json': '1fca9f492486', 'reports/wti_history.json': '43bcac454ab3'};;;;;;;;;;;;;;;;;;;;
-// 部门 ID 持久化到 sessionStorage（解决 Miaoda URL 重写丢失参数的问题）
-(function(){
-  function saveDept(val) {
-    try { sessionStorage.setItem('__dept', val); sessionStorage.setItem('_dept', val); } catch(e){}
-  }
-  // 1. 优先从 hash 读取（#dept=xxx，Miaoda 网关会吞 query 但保留 hash）
-  var deptMatch = location.hash.match(/[#&]dept=([^&]*)/)
-                || location.search.match(/[?&]__dept=([^&]*)/)
-                || location.search.match(/[?&]departmentId=([^&]*)/);
-  if (deptMatch && deptMatch[1]) {
-    saveDept(deptMatch[1]);
-    return;
-  }
-  // 兼容门户下发的 ?tier=<BU代码>：映射为部门 ID 后落 sessionStorage
-  var TIER_DEPT = {
-    hq:'hq', all:'hq',
-    czly:'od-c8c5bc8612d60825208196a97cd0686d',
-    lpsd:'od-349632b3f04edaa205990f6c96e66c26',
-    sdmd:'od-05e668aea865f92b574f366b3d976094',
-    felt:'od-2e6cc0918fbe3086ebf636680997a2f2',
-    sjl:'od-310bdafba6cb5bdbd3300cf326878caa',
-    sjld:'od-310bdafba6cb5bdbd3300cf326878caa',
-    dhx:'od-7a313bc06887dc30349237cb0d64ce83',
-    dkhx:'od-7a313bc06887dc30349237cb0d64ce83',
-    lhy:'od-8ad5942df92ef45ac8905b543fc38d2b',
-    lubricant:'od-8ad5942df92ef45ac8905b543fc38d2b',
-    kls:'od-c36a380b50b52171d47b7a8f5c1f3a70',
-    kelan:'od-c36a380b50b52171d47b7a8f5c1f3a70',
-    bych:'od-33054981612c6dc0fbbdfbb743774d1b'
-  };
-  var tierMatch = location.search.match(/[?&]tier=([^&]*)/);
-  if (tierMatch && tierMatch[1]) {
-    var mapped = TIER_DEPT[decodeURIComponent(tierMatch[1]).trim().toLowerCase()];
-    if (mapped) { saveDept(mapped); }
-  }
-})();
-// 导航函数（用 hash 透传部门 ID，Miaoda 网关重写 URL 时会保留 hash）
-function gotoWithDept(url) {
-  var dept = '';
-  try { dept = sessionStorage.getItem('__dept') || ''; } catch(e){}
-  if (dept) {
-    url += (url.indexOf('#') > -1 ? '&' : '#') + 'dept=' + encodeURIComponent(dept);
-  }
-  window.top.location.href = url;
-}
-// 持久化门户注入的 open_id（#uid=），供雷达页门禁判定，避免 iframe 内跳转丢失
-(function(){
-  try {
-    var m = location.hash.match(/[#&]uid=([^&]+)/);
-    if (m && m[1]) sessionStorage.setItem('__uid', m[1]);
-  } catch(e){}
-})();
-function openRadar() {
-  var u = 'radar_hub.html';
-  if (window.self !== window.top) {
-    // 嵌入门户 iframe 内：仅切换 iframe 内容，保持地址栏干净。
-    // 透传 open_id（门户通过 iframe hash 注入），供雷达门禁判定。
-    var um = location.hash.match(/[#&]uid=([^&]+)/);
-    var su = '';
-    try { su = sessionStorage.getItem('__uid') || ''; } catch(e){}
-    var uid = (um && um[1]) ? um[1] : su;
-    if (uid) u += '#uid=' + uid;
-    window.location.href = u;
-  } else {
-    window.top.location.href = u;
-  }
-}</script>
-<script src="embedded_data.gz.js?v=20260811_001"></script>
+<link rel="preload" href="assets/echarts.min.js" as="script">
+<link rel="preload" href="inline_03.min.js" as="script">
+<link rel="preload" href="latest_data.js" as="script">
+    <link rel="preload" href="bu_logos.json" as="fetch" crossorigin>
+    <link rel="preload" href="hot_news_data.json" as="fetch" crossorigin>
+    <link rel="preload" href="data/industry_chain.json" as="fetch" crossorigin>
+    <link rel="preload" href="data/lithium_ore_price_history.json" as="fetch" crossorigin>
+    <link rel="preload" href="data/lepidolite_price_history.json" as="fetch" crossorigin>
+<script>window.HTML_VERSION="20260812_1158"</script>
+<script src="embedded_data.gz.js?v=20260812_001"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
@@ -119,29 +55,21 @@ function openRadar() {
     <meta http-equiv="Expires" content="0">
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <!-- 资源预加载（仅保留首屏关键资源，大文件延迟加载） -->
-    <!-- ECharts 改为回收视图按需懒加载，已从首屏移除 -->
-    <script defer src="electrolyte_data.js?v=20260811"></script>
-    <!-- 回收数据 recycling_data_v3.js 改为进入回收视图时按需懒加载 -->
-    <script defer src="chemical_data.js?v=20260729_1423"></script>
+    <script defer src="assets/echarts.min.js"></script>
+    <script defer src="electrolyte_data.js?v=20260729_1346"></script>
+    <script defer src="recycling_data_v3.js?v=20260729_1346"></script>
+    <script defer src="chemical_data.js?v=20260729_1346"></script>
     <script src="_radar_scoring_config.js?v=20260811_1600"></script>
-    <script defer src="portal-bundle.js?v=20260811_1600"></script>
-    <!-- 回收甘特图 recycling_gantt.js 改为按需懒加载 -->
-    <!-- inline_02.js 已移除：内含5月旧格式数据，会覆盖 embedded_data.gz.js 中的7月正确数据 -->
-    <script defer src="inline_03.min.js?v=20260811_1237"></script>
-    <script defer src="inline_04.js?v=20260811_1600"></script>
-    <script defer src="inline_05.js?v=20260811_1600"></script>
-    <script defer src="inline_06.js?v=20260811_1600"></script>
-    <script defer src="inline_07.js?v=20260811_1600"></script>
-    <script defer src="inline_08.js?v=20260811_1600"></script>
-    <script defer src="inline_09.js?v=20260811_1600"></script>
-    <script>
-      // 首页 9 卡门户：首屏加载完成后渲染（renderAllBuOverview 读已缓存的 dynamicReportData）
-      document.addEventListener('DOMContentLoaded', function() {
-        setTimeout(function() {
-          if (typeof window.renderAllBuOverview === 'function') window.renderAllBuOverview();
-        }, 300);
-      });
-    </script>
+    <script src="reports/radar_history.js?v=20260811_2300"></script>
+    <script defer src="portal-bundle.js?v=20260812_1200"></script>
+    <script defer src="recycling_gantt.js?v=20260729_1346"></script>
+    <script defer src="inline_03.min.js?v=20260812_1158"></script>
+    <script defer src="inline_04.js"></script>
+    <script defer src="inline_05.js"></script>
+    <script defer src="inline_06.js"></script>
+    <script defer src="inline_07.js"></script>
+    <script defer src="inline_08.js"></script>
+    <script defer src="inline_09.js"></script>
     <!-- title 移到这里在脚本之后也是允许的，因为 defer 脚本是异步加载，不会阻塞 -->
 
     <style>
@@ -254,6 +182,12 @@ function openRadar() {
             text-shadow: 0 1px 3px rgba(255,255,255,0.35);
             padding: 7px 14px;
             font-size: 14px;
+            outline: none;
+        }
+        .hero-banner > .main-nav-menu .main-nav-item:focus,
+        .hero-banner > .main-nav-menu .main-nav-item:active {
+            outline: none;
+            box-shadow: none;
         }
 
         .hero-banner > .main-nav-menu .main-nav-item:hover {
@@ -4117,7 +4051,8 @@ function openRadar() {
             --panel-muted: rgba(7,83,54,0.4);
             --panel-accent: var(--text-main);
         }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }a:focus,a:focus-visible{outline:none!important;box-shadow:none!important;}
+        a:focus, a:focus-visible { outline: none !important; box-shadow: none !important; }
         body {
             font-family: 'Noto Sans SC', 'Microsoft YaHei', 'PingFang SC', Arial, sans-serif;
             min-height: 100vh;
@@ -4534,6 +4469,10 @@ function openRadar() {
             display: flex; align-items: center; justify-content: center; gap: 5px;
             padding: 9px 10px; border-radius: 8px; font-size: 0.72rem; font-weight: 600;
             cursor: pointer; text-decoration: none; transition: all 0.2s; border: 1px solid;
+            outline: none; box-shadow: none;
+        }
+        .hexa-action-btn:focus, .hexa-action-btn:focus-visible, .hexa-action-btn:active {
+            outline: none; box-shadow: none;
         }
         .hexa-action-pri { background: var(--line-green); border-color: rgba(7,83,54,0.15); color: var(--text-main); }
         .hexa-action-pri:hover { background: rgba(7,83,54,0.12); }
@@ -4658,7 +4597,7 @@ function openRadar() {
         body.report-modal-open .top-nav-bar,
         body.report-modal-open .hero-banner { filter:blur(4px) brightness(0.7); pointer-events:none; transition:filter 0.3s; }
         body.panel-open .main-nav-menu { filter:blur(4px) brightness(0.7); pointer-events:none; transition:filter 0.3s; }
-        .report-modal-content { background:var(--bg-mint); border-radius:14px; border:1px solid rgba(7,83,54,0.12); width:960px; max-width:97vw; max-height:92vh; display:flex; flex-direction:column; box-shadow:0 12px 40px rgba(15,30,60,0.15); overflow:hidden; position:relative; }
+        .report-modal-content { background:var(--bg-mint); border-radius:14px; border:1px solid rgba(7,83,54,0.12); width:960px; max-width:97vw; max-height:92vh; display:flex; flex-direction:column; box-shadow:0 12px 40px rgba(15,30,60,0.15); overflow:hidden; }
         .report-modal-header { display:flex; align-items:center; justify-content:space-between; padding:14px 20px; background:var(--text-main); color:#fff; flex-shrink:0; position:relative; z-index:10; }
         .report-modal-header-left { display:flex; align-items:baseline; gap:16px; }
         .report-modal-title { font-size:18px; font-weight:600; color:#fff; }
@@ -4678,27 +4617,6 @@ function openRadar() {
         .report-modal-body.font-large    { font-size:17px; line-height:1.8; }
         .report-modal-body.font-extra-large { font-size:19px; line-height:1.85; }
         .report-modal-body .report-no-data { text-align:center; padding:60px; color:#888; }
-        .modal-back-to-top {
-            position:absolute; right:20px; bottom:16px;
-            width:38px; height:38px;
-            background:linear-gradient(135deg,#0AA66A 0%,#0d7a4a 100%);
-            color:#fff; border:none; border-radius:50%;
-            font-size:18px; cursor:pointer;
-            display:flex; align-items:center; justify-content:center;
-            opacity:0; visibility:hidden;
-            transform:translateY(10px);
-            transition:all 0.3s ease;
-            z-index:20;
-            box-shadow:0 4px 16px rgba(10,166,106,0.4);
-        }
-        .modal-back-to-top.visible {
-            opacity:1; visibility:visible;
-            transform:translateY(0);
-        }
-        .modal-back-to-top:hover {
-            transform:translateY(-3px);
-            box-shadow:0 6px 24px rgba(10,166,106,0.5);
-        }
         .sec-card { margin-bottom:12px; border-radius:8px; overflow:hidden; border:1px solid rgba(220,238,230,0.5); background:rgba(248,255,251,0.88); }
         .sec-card-hd { display:flex; align-items:center; justify-content:space-between; padding:9px 16px; cursor:pointer; font-size:14px; font-weight:600; color:var(--text-main); background:var(--bg-mint); user-select:none; transition:background 0.2s; }
         .sec-card-hd:hover { background:var(--bg-mint); }
@@ -6102,103 +6020,103 @@ function openRadar() {
         <!-- Hero Banner（图片横幅） -->
         <div class="hero-banner" id="heroBanner">
             <picture>
-                <source srcset="assets/hero-banner.webp?v=20260729_1423" type="image/webp">
-                <img class="hero-bg" src="assets/hero-banner.webp?v=20260729_1423" alt="龙蟠科技" loading="lazy">
+                <source srcset="assets/hero-banner.webp?v=20260729_1346" type="image/webp">
+                <img class="hero-bg" src="assets/hero-banner.webp?v=20260729_1346" alt="龙蟠科技" loading="lazy">
             </picture>
             <div class="hero-overlay"></div>
             <!-- 主导航菜单（浮于图上，毛玻璃半透明白底） -->
             <div class="main-nav-menu" id="mainNavMenu" style="background:transparent !important; backdrop-filter:none !important; -webkit-backdrop-filter:none !important; border:none !important; box-shadow:none !important;">
             <div class="main-nav-pill" id="mainNavPill"></div>
-            <div class="main-nav-item" onclick="window.top.location.href='policy_center_v4.html'">
+            <div class="main-nav-item" onclick="navigateTo('./policy_center_v4.html')">
                 <span class="nav-icon">📜</span>
                 <span>政策中心</span>
                 <span class="nav-arrow">▼</span>
                 <div class="dropdown-menu">
-                    <div class="dropdown-item" onclick="event.stopPropagation(); window.top.location.href='policy_center_v4.html'">
+                    <div class="dropdown-item" onclick="event.stopPropagation(); navigateTo('./policy_center_v4.html')">
                         <span class="nav-icon">🏛️</span>
                         <span>国家政策</span>
                     </div>
-                    <div class="dropdown-item" onclick="event.stopPropagation(); window.top.location.href='policy_center_v4.html'">
+                    <div class="dropdown-item" onclick="event.stopPropagation(); navigateTo('./policy_center_v4.html')">
                         <span class="nav-icon">📍</span>
                         <span>地方政策</span>
                     </div>
-                    <div class="dropdown-item" onclick="event.stopPropagation(); window.top.location.href='policy_center_v4.html'">
+                    <div class="dropdown-item" onclick="event.stopPropagation(); navigateTo('./policy_center_v4.html')">
                         <span class="nav-icon">🌍</span>
                         <span>国际政策</span>
                     </div>
                 </div>
             </div>
-            <div class="main-nav-item" onclick="window.top.location.href='industry_news_embedded.html'">
+            <div class="main-nav-item" onclick="navigateTo('./industry_news_embedded.html')">
                 <span class="nav-icon">📰</span>
                 <span>行业新闻</span>
                 <span class="nav-arrow">▼</span>
                 <div class="dropdown-menu">
-                    <div class="dropdown-item" onclick="event.stopPropagation(); window.top.location.href='industry_news_embedded.html'">
+                    <div class="dropdown-item" onclick="event.stopPropagation(); navigateTo('./industry_news_embedded.html')">
                         <span class="nav-icon">🌐</span>
                         <span>宏观新闻</span>
                     </div>
-                    <div class="dropdown-item" onclick="event.stopPropagation(); window.top.location.href='industry_news_embedded.html'">
+                    <div class="dropdown-item" onclick="event.stopPropagation(); navigateTo('./industry_news_embedded.html')">
                         <span class="nav-icon">📰</span>
                         <span>行业新闻</span>
                     </div>
-                    <div class="dropdown-item" onclick="event.stopPropagation(); window.top.location.href='industry_news_embedded.html'">
+                    <div class="dropdown-item" onclick="event.stopPropagation(); navigateTo('./industry_news_embedded.html')">
                         <span class="nav-icon">🏢</span>
                         <span>企业动态</span>
                     </div>
-                    <div class="dropdown-item" onclick="event.stopPropagation(); window.top.location.href='industry_news_embedded.html'">
+                    <div class="dropdown-item" onclick="event.stopPropagation(); navigateTo('./industry_news_embedded.html')">
                         <span class="nav-icon">🔬</span>
                         <span>技术产品</span>
                     </div>
                 </div>
             </div>
-            <div class="main-nav-item" onclick="top.location.href='archive_v3.html'">
+            <div class="main-nav-item" onclick="navigateTo('./archive_v3.html')">
                 <span class="nav-icon">📁</span>
                 <span>历史数据</span>
             </div>
-<div class="main-nav-item" onclick="gotoWithDept('database_hub.html')">
+<div class="main-nav-item" onclick="navigateTo('./database_hub.html')">
                 <span class="nav-icon">📊</span>
                 <span>数据库</span>
                 <span class="nav-arrow">▼</span>
                 <div class="dropdown-menu">
-                    <div class="dropdown-item" onclick="event.stopPropagation(); gotoWithDept('lfp_data_v2.html')">
+                    <div class="dropdown-item" onclick="event.stopPropagation(); navigateTo('./lfp_data_v2.html')">
                         <span class="nav-icon">🔋</span>
                         <span>磷酸铁锂数据库</span>
                     </div>
-                    <div class="dropdown-item" onclick="event.stopPropagation(); gotoWithDept('ternary_data_v2.html')">
+                    <div class="dropdown-item" onclick="event.stopPropagation(); navigateTo('./ternary_data_v2.html')">
                         <span class="nav-icon">⚡</span>
                         <span>三元材料数据库</span>
                     </div>
-                    <div class="dropdown-item" onclick="event.stopPropagation(); gotoWithDept('electrolyte_data_v2.html')">
+                    <div class="dropdown-item" onclick="event.stopPropagation(); navigateTo('./electrolyte_data_v2.html')">
                         <span class="nav-icon">🧪</span>
                         <span>电解液数据库</span>
                     </div>
-                    <div class="dropdown-item" onclick="event.stopPropagation(); gotoWithDept('carbonate_data_v2.html')">
+                    <div class="dropdown-item" onclick="event.stopPropagation(); navigateTo('./carbonate_data_v2.html')">
                         <span class="nav-icon">⛏️</span>
                         <span>碳酸锂及原料数据库</span>
                     </div>
-                    <div class="dropdown-item" onclick="event.stopPropagation(); gotoWithDept('recycling_data_v2.html')">
+                    <div class="dropdown-item" onclick="event.stopPropagation(); navigateTo('./recycling_data_v2.html')">
                         <span class="nav-icon">♻️</span>
                         <span>锂电池回收数据库</span>
                     </div>
-                    <div class="dropdown-item" onclick="event.stopPropagation(); window.top.location.href='lib_battery_data_v2.html'">
+                    <div class="dropdown-item" onclick="event.stopPropagation(); navigateTo('./lib_battery_data_v2.html')">
                         <span class="nav-icon">🔋</span>
                         <span>锂电池行业数据库</span>
                     </div>
-                    <div class="dropdown-item" onclick="event.stopPropagation(); window.top.location.href='automotive_data_v2.html'">
+                    <div class="dropdown-item" onclick="event.stopPropagation(); navigateTo('./automotive_data_v2.html')">
                         <span class="nav-icon">🚗</span>
                         <span>汽车行业数据库</span>
                     </div>
                 </div>
             </div>
-            <div class="main-nav-item" onclick="window.top.location.href='analysis_hub.html'">
+            <div class="main-nav-item" onclick="navigateTo('./analysis_hub.html')">
                 <span class="nav-icon">📊</span>
                 <span>行业分析</span>
             </div>
-            <div class="main-nav-item" onclick="window.top.location.href='strategy_hub.html'">
+            <div class="main-nav-item" onclick="navigateTo('./strategy_hub.html')">
                 <span class="nav-icon">🔭</span>
                 <span>竞品比对</span>
             </div>
-            <div class="main-nav-item" onclick="openRadar()">
+            <div class="main-nav-item" onclick="navigateTo('./radar_hub.html')">
                 <span class="nav-icon">🕸️</span>
                 <span>雷达看板</span>
             </div>
@@ -6223,11 +6141,11 @@ function openRadar() {
                     </div>
                 </div>
             </div>
-            <div class="main-nav-item" onclick="window.top.location.href='toolbox.html'">
+            <div class="main-nav-item" onclick="navigateTo('./toolbox.html')">
                 <span class="nav-icon">🛠️</span>
                 <span>工具箱</span>
             </div>
-            <div class="main-nav-item" onclick="window.top.location.href='help.html'">
+            <div class="main-nav-item" onclick="navigateTo('./help.html')">
                 <span class="nav-icon">❓</span>
                 <span>帮助中心</span>
             </div>
@@ -6372,7 +6290,7 @@ function openRadar() {
             <div class="hero-right" id="heroRightCharts">
                 <div class="hero-right-header">
                     <span class="hero-right-title">数据库看板</span>
-                    <span class="hero-right-more" onclick="top.location.href='database_hub.html'">更多 →</span>
+                    <span class="hero-right-more" onclick="navigateTo('./database_hub.html')">更多 →</span>
                 </div>
                 <div class="chart-carousel" id="chartCarousel">
                     <div class="chart-slide" id="chartSlide0">
@@ -6488,7 +6406,6 @@ function openRadar() {
         <div class="report-modal-body font-medium" id="modalBody">
             <div class="report-no-data">&#128234; 正在加载...</div>
         </div>
-        <button class="modal-back-to-top" id="modalBackToTop" onclick="document.getElementById('modalBody').scrollTo({top:0,behavior:'smooth'})" aria-label="回到顶部">↑</button>
     </div>
 </div>
 
@@ -6742,10 +6659,10 @@ function openRadar() {
                             <div class="mk-chart-card" id="sec-spod">
                                 <div class="lc-futures-chart-wrapper" style="padding: 20px;">
                                     <div class="chart-header">
-                                        <div class="chart-title-centered">锂辉石精矿（5.0-5.5%）</div>
+                                        <div class="chart-title-centered">锂辉石精矿（5%澳洲）</div>
                                         <div class="chart-info-row">
                                             <div class="chart-legend-left">
-                                                <span class="chart-legend-item"><span class="chart-legend-dot" style="background:#e91e63;"></span>均价（元/吨）</span>
+                                                <span class="chart-legend-item"><span class="chart-legend-dot" style="background:#e91e63;"></span>均价（美元/吨）</span>
                                             </div>
                                             <div class="chart-price-right">
                                                 <span class="price-label">最新价：</span><span class="chart-latest-price" id="lithiumOreLatestPrice">--</span>
@@ -7248,9 +7165,6 @@ function openRadar() {
              src="data/images/embedded_img_010.png"
              alt="AI助手"
              style="border-radius:50%;pointer-events:none">
-        <div class="media-layer" id="gifLayer" style="position:absolute;top:0;left:0;width:80px;height:80px;border-radius:50%;overflow:hidden;opacity:0;pointer-events:none;transition:opacity 0.3s ease;z-index:2;">
-            <img id="gifImg" src="" alt="动画" style="width:100%;height:100%;object-fit:cover;display:block;">
-        </div>
     </div>
     <div class="ai-sphere-shadow"></div>
     <!-- 悬停气泡 -->
@@ -7298,6 +7212,7 @@ function openRadar() {
     
     
 
-    <script src="assets/ai_fab_inject.js?v=20260729_1423"></script>
+    <script src="assets/ai_fab_inject.js?v=20260729_1346"></script>
+    <script src="feishu-jsapi.js?v=20260729_1346"></script>
 </body>
 </html>

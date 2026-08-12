@@ -4,21 +4,28 @@
     <script src="inline_01.js"></script>
     <script src="bu_gate.js?v=20260729_1615"></script>
     <script>
-    // 全局拦截：导航到HUB页面时自动追加__dept参数（管理员默认值兜底）
+    // 全局拦截：导航到HUB页面时自动追加__dept参数
+    // 安全约束：线上无部门时严禁默认放行（不得回退为 hq 全开令牌），
+    //          否则 fail-closed 门禁形同虚设、任何人直链可见全部事业部。
+    //          本地预览由 bu_gate.js 的 localhost 后门(__BU_GATE_ALLOW_ANON)放行，无需此处兜底。
     (function(){
-      var ADMIN_DEPT='hq'; // 管理员默认部门(全开令牌，isAllowed识别为hq→显示所有卡片)
-      var _dept=(new URL(location.href)).searchParams.get('__dept');
-      if(!_dept){ try{_dept=sessionStorage.getItem('__dept');}catch(e){} }
-      if(!_dept){ _dept=ADMIN_DEPT; } // 读不到就用管理员默认值
+      var _dept='';
+      // 1. 优先从 hash #dept= 读取（妙搭网关会吞 query，但保留 hash）
+      var m = location.hash.match(/[#&]dept=([^&]+)/);
+      if(m) _dept = decodeURIComponent(m[1]);
+      // 2. 兼容 query __dept=
+      if(!_dept){ try{_dept=(new URL(location.href)).searchParams.get('__dept');}catch(e){} }
+      // 3. 兜底 sessionStorage
+      if(!_dept){ try{_dept=sessionStorage.getItem('__dept')||sessionStorage.getItem('_dept');}catch(e){} }
       if(_dept){ try{sessionStorage.setItem('__dept',_dept);}catch(e){} }
-      var HUB_PAGES=['radar_hub.html','strategy_hub.html','archive_v3.html'];
+      var HUB_PAGES=['radar_hub.html','strategy_hub.html','archive_v3.html','analysis_hub.html','database_hub.html'];
       window.__goto=function(url){
         if(!url)return;
-        var d=_dept||sessionStorage.getItem('__dept')||ADMIN_DEPT;
+        var d=_dept|| (sessionStorage.getItem('__dept')||sessionStorage.getItem('_dept')||'');
         var t=(url.split('?')[0].split('#')[0]).split('/').pop();
-        if(HUB_PAGES.indexOf(t)>-1){
+        if(HUB_PAGES.indexOf(t)>-1 && d){
           var s=url.indexOf('?')>-1?'&':'?';
-          window.location.href=url+s+'__dept='+encodeURIComponent(d);
+          window.location.href=url+s+'__dept='+encodeURIComponent(d)+'#dept='+encodeURIComponent(d);
         }else{window.location.href=url;}
       };
     })();
@@ -219,7 +226,7 @@
             </div>
         </a>
     </div>
-    <div class="section-label">🏭 非锂电系事业部（4BU）</div>
+    <div class="section-label">🏭 新材料事业部（4BU）</div>
     <div class="dept-grid">
         <a class="dept-card other" href="dept-archive.html#lhy" data-bu="lhy">
             <div class="dept-icon"><img src="assets/archive_img_06.png" alt="润滑油" /></div>
