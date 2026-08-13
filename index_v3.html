@@ -46,8 +46,8 @@ window.__SUBPAGE_MAP__ = {"analysis_hub.html": "./analysis_hub.html", "archive_v
     <link rel="preload" href="data/industry_chain.json" as="fetch" crossorigin>
     <link rel="preload" href="data/lithium_ore_price_history.json" as="fetch" crossorigin>
     <link rel="preload" href="data/lepidolite_price_history.json" as="fetch" crossorigin>
-<script>window.HTML_VERSION="20260812_1345"</script>
-<script src="embedded_data.gz.js?v=20260812_001"></script>
+<script>window.HTML_VERSION="20260813_1057"</script>
+<script src="embedded_data.gz.js?v=20260813_001"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
@@ -56,12 +56,20 @@ window.__SUBPAGE_MAP__ = {"analysis_hub.html": "./analysis_hub.html", "archive_v
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <!-- 资源预加载（仅保留首屏关键资源，大文件延迟加载） -->
     <script defer src="assets/echarts.min.js"></script>
-    <script defer src="electrolyte_data.js?v=20260812"></script>
+    <script defer src="electrolyte_data.js?v=20260813"></script>
     <script defer src="recycling_data_v3.js?v=20260729_1346"></script>
     <script defer src="chemical_data.js?v=20260729_1346"></script>
     <script src="_radar_scoring_config.js?v=20260811_1600"></script>
     <script src="reports/radar_history.js?v=20260811_2300"></script>
-    <script defer src="portal-bundle.js?v=20260812_1300"></script>
+    <style>
+    /* 清除所有 outline 阴影（UA stylesheet outline: 3px 必须用 shorthand 覆盖） */
+    * { outline: 0px !important; outline-width: 0px !important; box-shadow: none !important; }
+    *::before, *::after { outline: 0px !important; outline-width: 0px !important; box-shadow: none !important; }
+    .hexa-actions, .hexa-action-btn, .mk-category-panel, .mk-category-panel.active {
+        outline: 0px !important; outline-width: 0px !important; box-shadow: none !important;
+    }
+    </style>
+    <script defer src="portal-bundle.js?v=20260813_0930"></script>
     <script defer src="recycling_gantt.js?v=20260729_1346"></script>
     <script defer src="inline_03.min.js?v=20260812_1158"></script>
     <script defer src="inline_04.js"></script>
@@ -4051,8 +4059,8 @@ window.__SUBPAGE_MAP__ = {"analysis_hub.html": "./analysis_hub.html", "archive_v
             --panel-muted: rgba(7,83,54,0.4);
             --panel-accent: var(--text-main);
         }
-        * { margin: 0; padding: 0; box-sizing: border-box; }a:focus,a:focus-visible{outline:none!important;box-shadow:none!important;}
-        a:focus, a:focus-visible { outline: none !important; box-shadow: none !important; }
+        * { margin: 0; padding: 0; box-sizing: border-box; outline: 0px !important; }a:focus,a:focus-visible{outline:0px!important;box-shadow:none!important;}
+        a:focus, a:focus-visible { outline: none !important; outline-width: 0 !important; box-shadow: none !important; }
         body {
             font-family: 'Noto Sans SC', 'Microsoft YaHei', 'PingFang SC', Arial, sans-serif;
             min-height: 100vh;
@@ -6006,6 +6014,25 @@ window.__SUBPAGE_MAP__ = {"analysis_hub.html": "./analysis_hub.html", "archive_v
             animation: lineReveal 1.5s cubic-bezier(0.25,0.46,0.45,0.94) forwards;
             animation-delay: calc(var(--line-i, 0) * 0.1s);
         }
+    /* ===== 小屏响应式适配 (修复妙搭 iframe 双滚动条/横向溢出) 2026-08-12 ===== */
+    /* 兜底: 截断任何意外横向溢出, 避免外层滚动条叠加形成双滚动条 */
+    html, body { overflow-x: hidden; }
+
+    @media screen and (max-width: 1400px) {
+        body { padding: 20px; }
+        .container { max-width: 100%; }
+    }
+    @media screen and (max-width: 1200px) {
+        body { padding: 16px; }
+        /* spot-pair 固定双列 → 单列, 防止窄屏横向溢出 */
+        .mk-chart-grid.spot-pair-layout { grid-template-columns: 1fr; }
+        .mk-chart-grid { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+    }
+    @media screen and (max-width: 900px) {
+        body { padding: 12px; }
+        .category-tab-group { flex-wrap: wrap; }
+    }
+
     </style>
 
     <!-- 页面加载动画 -->
@@ -6153,11 +6180,6 @@ window.__SUBPAGE_MAP__ = {"analysis_hub.html": "./analysis_hub.html", "archive_v
 
             <!-- Hero 文字内容（浮于图左下） -->
             <div class="hero-content">
-                <div class="hero-brand-line">
-                    <img class="hero-logo-img" src="assets/lopal-logo.png" alt="Lopal" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-flex';">
-                    <span class="hero-logo-icon-fallback" style="display:none;">L</span>
-                    <span>Lopal 龙蟠科技</span>
-                </div>
                 <h1 class="hero-title">龙蟠科技</h1>
                 <h2 class="hero-subtitle">AI <strong>战略信息</strong>中台</h2>
             </div>

@@ -7,14 +7,26 @@
   <script>
 function navigateTo(path) {
   var dept = '';
-  var m = location.search.match(/[?&]__dept=([^&]+)/);
+  // 1. 优先从 hash #dept= 读取（妙搭网关会吞 query，但保留 hash）
+  var m = location.hash.match(/[#&]dept=([^&]+)/);
   if (m) dept = '&__dept=' + m[1];
-  else {
-    m = location.search.match(/__dept=([^&]+)/);
+  // 2. 兼容 query __dept=
+  if (!dept) {
+    m = location.search.match(/[?&]__dept=([^&]+)/);
     if (m) dept = '&__dept=' + m[1];
   }
+  // 3. 兜底：从 sessionStorage 读取（页面刷新/同源跳转后）
+  if (!dept) {
+    try {
+      var saved = sessionStorage.getItem('__dept') || sessionStorage.getItem('_dept');
+      if (saved) dept = '&__dept=' + saved;
+    } catch(e) {}
+  }
   var sep = path.includes('?') ? '&' : '?';
-  location.href = path + (dept ? sep + dept.substring(1) : '');
+  var url = path + (dept ? sep + dept.substring(1) : '');
+  // 4. 同时把 #dept= 也带上，子页 bu_gate.js 优先读 hash，网关吞 query 仍能识别
+  if (dept) url += '#dept=' + dept.substring(8);
+  location.href = url;
 }
 </script>
 
@@ -34,8 +46,8 @@ window.__SUBPAGE_MAP__ = {"analysis_hub.html": "./analysis_hub.html", "archive_v
     <link rel="preload" href="data/industry_chain.json" as="fetch" crossorigin>
     <link rel="preload" href="data/lithium_ore_price_history.json" as="fetch" crossorigin>
     <link rel="preload" href="data/lepidolite_price_history.json" as="fetch" crossorigin>
-<script>window.HTML_VERSION="20260812_1136"</script>
-<script src="embedded_data.gz.js?v=20260812_001"></script>
+<script>window.HTML_VERSION="20260813_001"</script>
+<script src="embedded_data.gz.js?v=20260813_001"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
@@ -44,7 +56,7 @@ window.__SUBPAGE_MAP__ = {"analysis_hub.html": "./analysis_hub.html", "archive_v
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <!-- 资源预加载（仅保留首屏关键资源，大文件延迟加载） -->
     <script defer src="assets/echarts.min.js"></script>
-    <script defer src="electrolyte_data.js?v=20260812"></script>
+    <script defer src="electrolyte_data.js?v=20260813"></script>
     <script defer src="recycling_data_v3.js?v=20260729_1346"></script>
     <script defer src="chemical_data.js?v=20260729_1346"></script>
     <script src="_radar_scoring_config.js?v=20260811_1600"></script>
@@ -5994,6 +6006,25 @@ window.__SUBPAGE_MAP__ = {"analysis_hub.html": "./analysis_hub.html", "archive_v
             animation: lineReveal 1.5s cubic-bezier(0.25,0.46,0.45,0.94) forwards;
             animation-delay: calc(var(--line-i, 0) * 0.1s);
         }
+    /* ===== 小屏响应式适配 (修复妙搭 iframe 双滚动条/横向溢出) 2026-08-12 ===== */
+    /* 兜底: 截断任何意外横向溢出, 避免外层滚动条叠加形成双滚动条 */
+    html, body { overflow-x: hidden; }
+
+    @media screen and (max-width: 1400px) {
+        body { padding: 20px; }
+        .container { max-width: 100%; }
+    }
+    @media screen and (max-width: 1200px) {
+        body { padding: 16px; }
+        /* spot-pair 固定双列 → 单列, 防止窄屏横向溢出 */
+        .mk-chart-grid.spot-pair-layout { grid-template-columns: 1fr; }
+        .mk-chart-grid { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+    }
+    @media screen and (max-width: 900px) {
+        body { padding: 12px; }
+        .category-tab-group { flex-wrap: wrap; }
+    }
+
     </style>
 
     <!-- 页面加载动画 -->
@@ -6141,11 +6172,6 @@ window.__SUBPAGE_MAP__ = {"analysis_hub.html": "./analysis_hub.html", "archive_v
 
             <!-- Hero 文字内容（浮于图左下） -->
             <div class="hero-content">
-                <div class="hero-brand-line">
-                    <img class="hero-logo-img" src="assets/lopal-logo.png" alt="Lopal" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-flex';">
-                    <span class="hero-logo-icon-fallback" style="display:none;">L</span>
-                    <span>Lopal 龙蟠科技</span>
-                </div>
                 <h1 class="hero-title">龙蟠科技</h1>
                 <h2 class="hero-subtitle">AI <strong>战略信息</strong>中台</h2>
             </div>
