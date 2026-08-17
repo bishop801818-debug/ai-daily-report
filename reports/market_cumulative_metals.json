@@ -2,9 +2,9 @@
   "meta": {
     "description": "有色金属2026年累计涨跌幅",
     "data_source": "各产品源数据文件",
-    "update_time": "2026-08-14 11:58:34",
+    "update_time": "2026-08-17 11:59:37",
     "year": 2026,
-    "generated_at": "2026-08-14T11:58:34.271596",
+    "generated_at": "2026-08-17T11:59:37.191296",
     "generator_version": "20260616_v2"
   },
   "products": [
@@ -12,13 +12,13 @@
       "name": "铂期货主力",
       "unit": "元/克",
       "start_date": "2026-01-05",
-      "end_date": "2026-08-13",
+      "end_date": "2026-08-14",
       "start_price": 583.95,
-      "end_price": 430.7,
-      "change": -153.25,
-      "change_pct": -26.24,
+      "end_price": 425.15,
+      "change": -158.8,
+      "change_pct": -27.19,
       "direction": "down",
-      "data_points": 148,
+      "data_points": 149,
       "price_series": [
         {
           "date": "2026-01-05",
@@ -611,6 +611,10 @@
         {
           "date": "2026-08-13",
           "price": 430.7
+        },
+        {
+          "date": "2026-08-14",
+          "price": 425.15
         }
       ]
     },
@@ -618,13 +622,13 @@
       "name": "钯期货主力",
       "unit": "元/克",
       "start_date": "2026-01-05",
-      "end_date": "2026-08-13",
+      "end_date": "2026-08-14",
       "start_price": 452.85,
-      "end_price": 320.95,
-      "change": -131.9,
-      "change_pct": -29.13,
+      "end_price": 313.9,
+      "change": -138.95,
+      "change_pct": -30.68,
       "direction": "down",
-      "data_points": 148,
+      "data_points": 149,
       "price_series": [
         {
           "date": "2026-01-05",
@@ -1217,6 +1221,10 @@
         {
           "date": "2026-08-13",
           "price": 320.95
+        },
+        {
+          "date": "2026-08-14",
+          "price": 313.9
         }
       ]
     },
@@ -1224,13 +1232,13 @@
       "name": "铁矿石",
       "unit": "元/吨",
       "start_date": "2026-01-05",
-      "end_date": "2026-08-13",
+      "end_date": "2026-08-14",
       "start_price": 797.0,
-      "end_price": 705.0,
-      "change": -92.0,
-      "change_pct": -11.54,
+      "end_price": 710.5,
+      "change": -86.5,
+      "change_pct": -10.85,
       "direction": "down",
-      "data_points": 148,
+      "data_points": 149,
       "price_series": [
         {
           "date": "2026-01-05",
@@ -1823,6 +1831,10 @@
         {
           "date": "2026-08-13",
           "price": 705.0
+        },
+        {
+          "date": "2026-08-14",
+          "price": 710.5
         }
       ]
     }
