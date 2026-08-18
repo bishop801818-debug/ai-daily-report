@@ -1,21 +1,21 @@
 {
   "symbol": "碳酸锂期货主连",
-  "contract": "LC2608",
-  "update_time": "2026-08-17 11:59:32",
+  "contract": "LC2609",
+  "update_time": "2026-08-18 11:58:35",
   "source": "AkShare-广期所",
   "start_date": "2026-01-05",
-  "end_date": "2026-08-14",
-  "data_points": 149,
+  "end_date": "2026-08-17",
+  "data_points": 150,
   "min_price": 129980.0,
   "max_price": 201220.0,
   "latest": {
-    "date": "2026-08-14",
-    "open": 152040.0,
-    "high": 153800.0,
-    "low": 151520.0,
-    "close": 153800.0,
-    "volume": 494,
-    "contract": "LC2608"
+    "date": "2026-08-17",
+    "open": 154300.0,
+    "high": 155220.0,
+    "low": 150520.0,
+    "close": 152860.0,
+    "volume": 73064,
+    "contract": "LC2609"
   },
   "history": [
     {
@@ -1507,6 +1507,16 @@
       "volume": 494,
       "settle": 142460.0,
       "contract": "LC2608"
+    },
+    {
+      "date": "2026-08-17",
+      "open": 154300.0,
+      "high": 155220.0,
+      "low": 150520.0,
+      "close": 152860.0,
+      "volume": 73064,
+      "settle": 153100.0,
+      "contract": "LC2609"
     }
   ]
 }
