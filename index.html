@@ -46,8 +46,8 @@ window.__SUBPAGE_MAP__ = {"analysis_hub.html": "./analysis_hub.html", "archive_v
     <link rel="preload" href="data/industry_chain.json" as="fetch" crossorigin>
     <link rel="preload" href="data/lithium_ore_price_history.json" as="fetch" crossorigin>
     <link rel="preload" href="data/lepidolite_price_history.json" as="fetch" crossorigin>
-<script>window.HTML_VERSION="20260825_0953"</script>
-<script src="embedded_data.gz.js?v=20260825_001"></script>
+<script>window.HTML_VERSION="20260826_001"</script>
+<script src="embedded_data.gz.js?v=20260826_001"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
@@ -56,8 +56,8 @@ window.__SUBPAGE_MAP__ = {"analysis_hub.html": "./analysis_hub.html", "archive_v
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <!-- 资源预加载（仅保留首屏关键资源，大文件延迟加载） -->
     <script defer src="assets/echarts.min.js"></script>
-    <script defer src="electrolyte_data.js?v=20260825"></script>
-    <script defer src="recycling_data_v3.js?v=20260729_1346"></script>
+    <script defer src="electrolyte_data.js?v=20260826"></script>
+    <script defer src="recycling_data_v3.js?v=20260825"></script>
     <script defer src="chemical_data.js?v=20260729_1346"></script>
     <script src="_radar_scoring_config.js?v=20260811_1600"></script>
     <script src="reports/radar_history.js?v=20260811_2300"></script>
@@ -69,7 +69,7 @@ window.__SUBPAGE_MAP__ = {"analysis_hub.html": "./analysis_hub.html", "archive_v
         outline: 0px !important; outline-width: 0px !important; box-shadow: none !important;
     }
     </style>
-    <script defer src="portal-bundle.js?v=20260824_1935"></script>
+    <script defer src="portal-bundle.js?v=20260826_1214"></script>
     <script defer src="recycling_gantt.js?v=20260729_1346"></script>
     <script defer src="inline_03.min.js?v=20260812_1158"></script>
     <script defer src="inline_04.js"></script>
@@ -6036,20 +6036,21 @@ window.__SUBPAGE_MAP__ = {"analysis_hub.html": "./analysis_hub.html", "archive_v
     }
     @media screen and (max-width: 768px) {
         /* 窄屏下调整导航栏和标题，防止遮挡 */
+        .hero-banner {
+            height: 200px;
+        }
+        .hero-content {
+            display: none;
+        }
         .hero-banner > .main-nav-menu {
             padding: 8px 12px 8px 8px;
             gap: 1px;
+            position: relative;
+            background: rgba(255,255,255,0.9) !important;
         }
         .hero-banner > .main-nav-menu .main-nav-item {
             padding: 5px 8px;
             font-size: 12px;
-        }
-        .hero-title {
-            font-size: 28px !important;
-            letter-spacing: 1px;
-        }
-        .hero-subtitle {
-            font-size: 16px !important;
         }
     }
 
