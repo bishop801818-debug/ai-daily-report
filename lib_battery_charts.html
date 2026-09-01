@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>可视化看板 - 锂电池行业数据</title>
+    <script src="./echarts.min.js"></script>
+    <script src="lib_battery_embedded_data.js?v=20260831_2000"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Microsoft YaHei', sans-serif; background: #f5f5f5; }
+
+        /* 顶部导航 */
+        .topbar { background: #fff; padding: 15px 30px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
+        .topbar h1 { color: #1e3c72; font-size: 20px; }
+        .topbar a { color: #666; text-decoration: none; margin-left: 20px; font-size: 14px; }
+
+        /* 标签导航 */
+        .tab-nav { background: #fff; padding: 0 30px; display: flex; gap: 5px; border-bottom: 1px solid #eee; }
+        .tab-btn { padding: 12px 20px; background: none; border: none; cursor: pointer; font-size: 14px; color: #666; border-bottom: 2px solid transparent; transition: all 0.2s; }
+        .tab-btn:hover { color: #1e3c72; }
+        .tab-btn.active { color: #1e3c72; border-bottom-color: #1e3c72; font-weight: 600; }
+
+        /* 主内容 */
+        .main-content { padding: 20px 30px; }
+
+        /* 统计卡片 */
+        .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 20px; }
+        .stat-card { background: #fff; border-radius: 12px; padding: 16px 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); display: flex; align-items: center; gap: 16px; }
+        .stat-icon { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px; }
+        .stat-icon.blue { background: rgba(30,60,114,0.1); }
+        .stat-icon.green { background: rgba(76,175,80,0.1); }
+        .stat-icon.orange { background: rgba(255,152,0,0.1); }
+        .stat-icon.purple { background: rgba(156,39,176,0.1); }
+        .stat-icon.red { background: rgba(231,76,60,0.1); }
+        .stat-info .label { color: #888; font-size: 12px; margin-bottom: 4px; }
+        .stat-info .value { color: #1e3c72; font-size: 24px; font-weight: 600; }
+        .stat-info .unit { font-size: 14px; color: #999; font-weight: normal; }
+
+        /* 图表网格 */
+        .chart-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+        .chart-card { background: #fff; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+        .chart-card.full { grid-column: span 2; }
+        .chart-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid #f0f0f0; }
+        .chart-title { font-size: 15px; font-weight: 600; color: #333; }
+        .chart-subtitle { font-size: 12px; color: #999; margin-top: 4px; }
+        .chart-meta { font-size: 12px; color: #999; }
+        .chart-container { width: 100%; height: 300px; }
+        .chart-card.full .chart-container { height: 280px; }
+
+        /* Tab内容隐藏 */
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        /* 更新信息 */
+        .update-info { background: #f8f9fa; padding: 10px 15px; border-radius: 8px; margin-bottom: 20px; font-size: 13px; color: #666; }
+        .update-info span { color: #1e3c72; font-weight: 500; }
+
+        @media (max-width: 1200px) {
+            .stats-row { grid-template-columns: repeat(2, 1fr); }
+            .chart-grid { grid-template-columns: 1fr; }
+            .chart-card.full { grid-column: span 1; }
+        }
+    </style>
+    <script src="bu_gate.js"></script>
+    <script>
+    (function(){
+      var ALLOWED_BU = ['czly','lpsd','sdmd','felt','sjl','dhx','lhy','kls','bych'];
+      window.addEventListener('load', function() {
+        var deptId = (function(){
+          var m = location.search.match(/[?&]__dept=([^&]+)/);
+          if(m) return decodeURIComponent(m[1]);
+          m = location.search.match(/[?&]departmentId=([^&]+)/);
+          if(m) return decodeURIComponent(m[1]);
+          m = location.hash.match(/[#&]dept=([^&]+)/);
+          if(m) return decodeURIComponent(m[1]);
+          return '';
+        })();
+        if (!deptId) return;
+        var ids = (deptId||'').split(',').map(function(s){return s.trim();}).filter(Boolean);
+        var hasAccess = ALLOWED_BU.some(function(bu) {
+          return isAllowed && isAllowed(bu, ids);
+        });
+        if (!hasAccess) {
+          document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100vh;font-family:sans-serif;background:#f5f6fa"><div style="text-align:center;padding:48px;background:#fff;border-radius:16px;box-shadow:0 8px 30px rgba(0,0,0,.08)"><div style="font-size:64px;margin-bottom:12px">⛔</div><div style="font-size:22px;font-weight:700;color:#c0392b">无权限访问</div><div style="margin-top:8px;color:#888;font-size:14px">您所在的部门无权查看该内容，请联系管理员。</div></div></div>';
+        }
+      });
+    })();
+    </script>
+</head>
+<body>
+    <div class="topbar">
+        <h1>📊 锂电池可视化看板</h1>
+        <div><a href="index_v3.html">🏠 首页</a><a href="database_hub.html">📂 数据库</a><a href="lib_battery_data_v2.html">📋 数据表格</a><a href="lib_battery_charts.html">📊 可视化看板</a></div>
+    </div>
+
+    <!-- 分类Tab导航 -->
+    <div class="tab-nav">
+        <button class="tab-btn active" onclick="switchTab('overview')">📈 概览</button>
+        <button class="tab-btn" onclick="switchTab('production')">🏭 产量</button>
+        <button class="tab-btn" onclick="switchTab('forecast')">🔮 排产预测</button>
+        <button class="tab-btn" onclick="switchTab('sales')">🚚 销量与出口</button>
+        <button class="tab-btn" onclick="switchTab('install')">⚡ 装机量</button>
+    </div>
+
+    <div class="main-content">
+        <div class="update-info">
+            📅 数据来源：<span id="dataSource">锂电池行业数据库</span> | 更新时间：<span id="updateTime">-</span>
+        </div>
+
+        <!-- Tab1: 概览 -->
+        <div class="tab-content active" id="tab-overview">
+            <div class="stats-row" id="overviewStats">
+                <div class="stat-card">
+                    <div class="stat-icon blue">🔋</div>
+                    <div class="stat-info"><div class="label">最新月度产量</div><div class="value" id="statTotalOutput">-<span class="unit">GWh</span></div></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon green">⚡</div>
+                    <div class="stat-info"><div class="label">产能利用率</div><div class="value" id="statUtilization">-<span class="unit">%</span></div></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon orange">🏭</div>
+                    <div class="stat-info"><div class="label">TOP1企业产量</div><div class="value" id="statTopCompany">-<span class="unit">GWh</span></div></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon purple">📊</div>
+                    <div class="stat-info"><div class="label">铁锂排产预测</div><div class="value" id="statLfpForecast">-<span class="unit">GWh</span></div></div>
+                </div>
+            </div>
+            <div class="chart-grid">
+                <div class="chart-card full"><div class="chart-header"><div class="chart-title">锂电池行业产量走势</div><div class="chart-meta">分规格趋势</div></div><div class="chart-container" id="c1"></div></div>
+                <div class="chart-card"><div class="chart-header"><div class="chart-title">产能利用率趋势</div></div><div class="chart-container" id="c2"></div></div>
+                <div class="chart-card"><div class="chart-header"><div class="chart-title">企业产量TOP10</div></div><div class="chart-container" id="c3"></div></div>
+                <div class="chart-card full"><div class="chart-header"><div class="chart-title">分规格产量对比</div></div><div class="chart-container" id="c4"></div></div>
+            </div>
+        </div>
+
+        <!-- Tab2: 产量 -->
+        <div class="tab-content" id="tab-production">
+            <div class="chart-grid">
+                <div class="chart-card full"><div class="chart-header"><div class="chart-title">锂电池月度产量趋势</div><div class="chart-subtitle">数据来源: 锂电池行业产量（分规格）</div></div><div class="chart-container" id="p1"></div></div>
+                <div class="chart-card full"><div class="chart-header"><div class="chart-title">产能与产量对比</div></div><div class="chart-container" id="p2"></div></div>
+                <div class="chart-card full"><div class="chart-header"><div class="chart-title">分企业产量排名（TOP15）</div></div><div class="chart-container" id="p3"></div></div>
+            </div>
+        </div>
+
+        <!-- Tab3: 排产预测 -->
+        <div class="tab-content" id="tab-forecast">
+            <div class="chart-grid">
+                <div class="chart-card full"><div class="chart-header"><div class="chart-title">电池排产预测趋势</div><div class="chart-subtitle">分类型排产预测</div></div><div class="chart-container" id="f1"></div></div>
+                <div class="chart-card"><div class="chart-header"><div class="chart-title">企业铁锂排产TOP10</div></div><div class="chart-container" id="f2"></div></div>
+                <div class="chart-card"><div class="chart-header"><div class="chart-title">企业三元排产TOP10</div></div><div class="chart-container" id="f3"></div></div>
+                <div class="chart-card full"><div class="chart-header"><div class="chart-title">价格预测趋势</div></div><div class="chart-container" id="f4"></div></div>
+            </div>
+        </div>
+
+        <!-- Tab4: 销量与出口 -->
+        <div class="tab-content" id="tab-sales">
+            <div class="chart-grid">
+                <div class="chart-card full"><div class="chart-header"><div class="chart-title">锂电池行业销量走势</div><div class="chart-subtitle">按品类分组月度趋势</div></div><div class="chart-container" id="s1"></div></div>
+                <div class="chart-card"><div class="chart-header"><div class="chart-title">分品类出口走势</div><div class="chart-subtitle">三元/LFP出口量趋势</div></div><div class="chart-container" id="s2"></div></div>
+                <div class="chart-card"><div class="chart-header"><div class="chart-title">企业销量TOP10</div><div class="chart-subtitle">最新月度销量排名</div></div><div class="chart-container" id="s3"></div></div>
+            </div>
+        </div>
+
+        <!-- Tab5: 装机量 -->
+        <div class="tab-content" id="tab-install">
+            <div class="chart-grid">
+                <div class="chart-card full"><div class="chart-header"><div class="chart-title">动力电池装车量月度走势</div><div class="chart-subtitle">总体/铁锂/三元趋势</div></div><div class="chart-container" id="i1"></div></div>
+                <div class="chart-card"><div class="chart-header"><div class="chart-title">铁锂与三元占比</div><div class="chart-subtitle">最新月度装车结构</div></div><div class="chart-container" id="i2"></div></div>
+                <div class="chart-card"><div class="chart-header"><div class="chart-title">装车量分企业TOP10</div><div class="chart-subtitle">按装车量排名</div></div><div class="chart-container" id="i3"></div></div>
+                <div class="chart-card full"><div class="chart-header"><div class="chart-title">LFP装车量分企业TOP10</div><div class="chart-subtitle">铁锂路线企业排名</div></div><div class="chart-container" id="i4"></div></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    var COLORS = ['#1e3c72', '#e74c3c', '#4facfe', '#667eea', '#f59e0b', '#10b981', '#ef4444', '#3b82f6', '#8b5cf6', '#14b8a6'];
+    var C = { primary: '#1e3c72', secondary: '#e74c3c', accent: '#4facfe', border: '#e0e0e0', text: '#333', textLight: '#666' };
+
+    // 数据存储
+    var allData = {};
+    var chartInstances = {};
+
+    // 格式化日期
+    function formatDate(dateStr) {
+        if (!dateStr) return '';
+        return String(dateStr).split(' ')[0];
+    }
+
+    // 提取年月
+    function getYearMonth(dateStr) {
+        const d = formatDate(dateStr);
+        return d.substring(0, 7);
+    }
+
+    // 加载数据
+    async function loadData() {
+        try {
+            let data;
+            if (typeof EMBEDDED_DATA !== 'undefined' && EMBEDDED_DATA.tables) {
+                data = EMBEDDED_DATA;
+            } else {
+                const resp = await fetch('lib_battery_all_data.json');
+                if (!resp.ok) throw new Error('HTTP ' + resp.status);
+                data = await resp.json();
+            }
+            document.getElementById('updateTime').textContent = data.update_time || '-';
+            data.tables.forEach(t => {
+                allData[t.table_name] = t.data;
+            });
+            updateStats();
+            initAllCharts();
+        } catch(e) {
+            document.getElementById('updateTime').textContent = '数据加载失败';
+            console.error('Failed to load data:', e);
+        }
+    }
+
+    // 更新统计卡片
+    function updateStats() {
+        // 最新月度产量
+        const industryTotal = allData['锂电池行业产量产能（不分规格）'] || [];
+        if (industryTotal.length > 0) {
+            const sorted = [...industryTotal].sort((a, b) => String(b['日期']||'').localeCompare(a['日期']||''));
+            const latest = sorted[0];
+            document.getElementById('statTotalOutput').innerHTML = (parseFloat(latest['产量（GWh）']) || 0).toFixed(2) + '<span class="unit">GWh</span>';
+            var util = latest['产能利用率'];
+            var utilDisplay = (typeof util === 'number') ? (util * 100).toFixed(2) : String(util || '-').replace('%', '');
+            document.getElementById('statUtilization').innerHTML = utilDisplay + '<span class="unit">%</span>';
+        }
+
+        // TOP1企业产量
+        const companyTotal = allData['锂电池分企业产量产能（不分规格）'] || [];
+        if (companyTotal.length > 0) {
+            const sorted = [...companyTotal].sort((a, b) => String(b['日期']||'').localeCompare(a['日期']||''));
+            const latestDate = formatDate(sorted[0]['日期']);
+            const latestData = sorted.filter(d => formatDate(d['日期']) === latestDate);
+            latestData.sort((a, b) => (parseFloat(b['产量（GWh）']||0) - parseFloat(a['产量（GWh）']||0)));
+            if (latestData.length > 0) {
+                document.getElementById('statTopCompany').innerHTML = (parseFloat(latestData[0]['产量（GWh）']) || 0).toFixed(2) + '<span class="unit">GWh</span>';
+            }
+        }
+
+        // 铁锂排产预测
+        const forecast = allData['电池排产预测'] || [];
+        if (forecast.length > 0) {
+            const sorted = [...forecast].sort((a, b) => String(b['日期']||'').localeCompare(a['日期']||''));
+            const latest = sorted[0];
+            const totalLfp = sorted
+                .filter(d => formatDate(d['日期']) === formatDate(latest['日期']))
+                .reduce((sum, d) => sum + (parseFloat(d['铁锂排产（GWh）']) || 0), 0);
+            document.getElementById('statLfpForecast').innerHTML = totalLfp.toFixed(2) + '<span class="unit">GWh</span>';
+        }
+    }
+
+    // 初始化图表
+    function initChart(id, opt) {
+        var chartDom = document.getElementById(id);
+        if (!chartDom) return;
+        var chart = echarts.init(chartDom);
+        chart.setOption(opt);
+        chartInstances[id] = chart;
+        return chart;
+    }
+
+    // 处理行业产量数据（分规格）
+    function processIndustrySpecData() {
+        const data = allData['锂电池行业产量（分规格）'] || [];
+        const dateMap = {};
+        data.forEach(d => {
+            const ym = getYearMonth(d['日期']);
+            if (!dateMap[ym]) dateMap[ym] = { '铁锂及其它动力': 0, '三元及数码': 0 };
+            const spec = d['规格'] || '';
+            const output = parseFloat(d['产量（GWh）']) || 0;
+            if (spec.includes('铁锂')) {
+                dateMap[ym]['铁锂及其它动力'] += output;
+            } else if (spec.includes('三元') || spec.includes('数码')) {
+                dateMap[ym]['三元及数码'] += output;
+            }
+        });
+        const months = Object.keys(dateMap).sort();
+        const lfpData = months.map(m => dateMap[m]['铁锂及其它动力'].toFixed(2));
+        const ternaryData = months.map(m => dateMap[m]['三元及数码'].toFixed(2));
+        return { months, lfpData, ternaryData };
+    }
+
+    // 处理行业产量产能数据
+    function processIndustryTotalData() {
+        const data = allData['锂电池行业产量产能（不分规格）'] || [];
+        const sorted = [...data].sort((a, b) => String(a['日期']||'').localeCompare(b['日期']||''));
+        const months = sorted.map(d => getYearMonth(d['日期']));
+        const output = sorted.map(d => parseFloat(d['产量（GWh）']) || 0);
+        const capacity = sorted.map(d => parseFloat(d['产能（GWh）']) || 0);
+        const utilization = sorted.map(d => {
+            var v = d['产能利用率'];
+            if (typeof v === 'number') return parseFloat((v * 100).toFixed(2));
+            return parseFloat(String(v||'0').replace('%','')) || 0;
+        });
+        return { months, output, capacity, utilization };
+    }
+
+    // 处理企业产量数据
+    function processCompanyData() {
+        const data = allData['锂电池分企业产量产能（不分规格）'] || [];
+        const sorted = [...data].sort((a, b) => String(b['日期']||'').localeCompare(a['日期']||''));
+        if (sorted.length === 0) return { names: [], values: [] };
+        const latestDate = formatDate(sorted[0]['日期']);
+        const latestData = sorted.filter(d => formatDate(d['日期']) === latestDate);
+        latestData.sort((a, b) => (parseFloat(b['产量（GWh）']||0) - parseFloat(a['产量（GWh）']||0)));
+        const top10 = latestData.slice(0, 10);
+        return {
+            names: top10.map(d => d['企业名称'] || '未知'),
+            values: top10.map(d => parseFloat(d['产量（GWh）']) || 0)
+        };
+    }
+
+    // 处理排产预测数据
+    function processForecastData() {
+        const data = allData['电池排产预测'] || [];
+        const dateMap = {};
+        data.forEach(d => {
+            const ym = getYearMonth(d['日期']);
+            if (!dateMap[ym]) dateMap[ym] = { lfp: 0, ternary: 0, lco: 0, lfpPrice: 0, ternaryPrice: 0, count: 0 };
+            dateMap[ym].lfp += parseFloat(d['铁锂排产（GWh）']) || 0;
+            dateMap[ym].ternary += parseFloat(d['三元排产（GWh）']) || 0;
+            dateMap[ym].lco += parseFloat(d['钴酸锂排产（GWh）']) || 0;
+            dateMap[ym].lfpPrice += parseFloat(d['铁锂价格预测（元/wh）']) || 0;
+            dateMap[ym].ternaryPrice += parseFloat(d['三元价格预测（元/wh）']) || 0;
+            dateMap[ym].count++;
+        });
+        const months = Object.keys(dateMap).sort();
+        return {
+            months,
+            lfp: months.map(m => dateMap[m].lfp.toFixed(2)),
+            ternary: months.map(m => dateMap[m].ternary.toFixed(2)),
+            lco: months.map(m => dateMap[m].lco.toFixed(2)),
+            lfpPrice: months.map(m => (dateMap[m].lfpPrice / dateMap[m].count).toFixed(3)),
+            ternaryPrice: months.map(m => (dateMap[m].ternaryPrice / dateMap[m].count).toFixed(3))
+        };
+    }
+
+    // 处理销量数据（按企业分组）
+    function processSales() {
+        const data = allData['锂电池行业销量'] || [];
+        const dateMap = {};
+        data.forEach(d => {
+            const ym = getYearMonth(d['日期']);
+            if (!dateMap[ym]) dateMap[ym] = {};
+            const co = d['规格'] || '其他';
+            dateMap[ym][co] = parseFloat(d['销量（GWh）']) || 0;
+        });
+        const months = Object.keys(dateMap).sort();
+        const allCos = new Set();
+        data.forEach(d => allCos.add(d['规格'] || '其他'));
+        const coList = [...allCos];
+        const series = coList.map(co => ({
+            name: co,
+            data: months.map(m => (dateMap[m][co] || 0).toFixed(2))
+        }));
+        return { months, series, coList };
+    }
+
+    // 处理企业销量排名
+    function processSalesCompany() {
+        const data = allData['锂电池行业销量'] || [];
+        const sorted = [...data].sort((a, b) => String(b['日期']||'').localeCompare(a['日期']||''));
+        if (sorted.length === 0) return { names: [], values: [] };
+        const latestDate = formatDate(sorted[0]['日期']);
+        const latestData = sorted.filter(d => formatDate(d['日期']) === latestDate);
+        latestData.sort((a, b) => (parseFloat(b['销量（GWh）']||0) - parseFloat(a['销量（GWh）']||0)));
+        const top10 = latestData.slice(0, 10);
+        return {
+            names: top10.map(d => d['规格'] || '未知'),
+            values: top10.map(d => parseFloat(d['销量（GWh）']) || 0)
+        };
+    }
+
+    // 处理出口数据（按品类分组）
+    function processExport() {
+        const data = allData['锂电池出口'] || [];
+        const dateMap = {};
+        data.forEach(d => {
+            const ym = getYearMonth(d['日期']);
+            if (!dateMap[ym]) dateMap[ym] = {};
+            const co = d['规格'] || '其他';
+            dateMap[ym][co] = parseFloat(d['出口量']) || 0;
+        });
+        const months = Object.keys(dateMap).sort();
+        const allCos = new Set();
+        data.forEach(d => allCos.add(d['规格'] || '其他'));
+        const coList = [...allCos];
+        const series = coList.map(co => ({
+            name: co,
+            data: months.map(m => (dateMap[m][co] || 0).toFixed(2))
+        }));
+        return { months, series, coList };
+    }
+
+    // 处理装机量数据（不分企业）
+    function processInstall() {
+        const data = allData['锂电池装机量'] || [];
+        const sorted = [...data].sort((a, b) => String(a['日期']||'').localeCompare(b['日期']||''));
+        const months = sorted.map(d => getYearMonth(d['日期']));
+        const total = sorted.map(d => parseFloat(d['动力电池装车量']) || 0);
+        const lfp = sorted.map(d => parseFloat(d['铁锂装车量']) || 0);
+        const ncm = sorted.map(d => parseFloat(d['三元装车量']) || 0);
+        return { months, total, lfp, ncm };
+    }
+
+    // 处理装机量分企业数据
+    function processInstallCompany() {
+        const data = allData['锂电池装机量-分企业'] || [];
+        const sorted = [...data].sort((a, b) => String(b['日期']||'').localeCompare(a['日期']||''));
+        if (sorted.length === 0) return { names: [], values: [] };
+        const latestDate = formatDate(sorted[0]['日期']);
+        const latestData = sorted.filter(d => formatDate(d['日期']) === latestDate);
+        latestData.sort((a, b) => (parseFloat(b['总装车量\n(GWh)']||0) - parseFloat(a['总装车量\n(GWh)']||0)));
+        const top10 = latestData.slice(0, 10);
+        return {
+            names: top10.map(d => (d['企业名称']||'未知').replace(/\s+/g,'')),
+            values: top10.map(d => parseFloat(d['总装车量\n(GWh)']) || 0)
+        };
+    }
+
+    // 处理LFP装机量分企业数据
+    function processInstallLfp() {
+        const data = allData['锂电池装机量-分企业-LFP'] || [];
+        const sorted = [...data].sort((a, b) => String(b['日期']||'').localeCompare(a['日期']||''));
+        if (sorted.length === 0) return { names: [], values: [] };
+        const latestDate = formatDate(sorted[0]['日期']);
+        const latestData = sorted.filter(d => formatDate(d['日期']) === latestDate);
+        latestData.sort((a, b) => (parseFloat(b['LFP装车量\n(GWh)']||0) - parseFloat(a['LFP装车量\n(GWh)']||0)));
+        const top10 = latestData.slice(0, 10);
+        return {
+            names: top10.map(d => (d['企业名称']||'未知').replace(/\s+/g,'')),
+            values: top10.map(d => parseFloat(d['LFP装车量\n(GWh)']) || 0)
+        };
+    }
+
+    // 处理企业排产数据
+    function processCompanyForecast() {
+        const data = allData['电池排产预测'] || [];
+        const sorted = [...data].sort((a, b) => String(b['日期']||'').localeCompare(a['日期']||''));
+        if (sorted.length === 0) return { lfp: { names: [], values: [] }, ternary: { names: [], values: [] } };
+        const latestDate = formatDate(sorted[0]['日期']);
+        const latestData = sorted.filter(d => formatDate(d['日期']) === latestDate);
+        latestData.sort((a, b) => (parseFloat(b['铁锂排产（GWh）']||0) - parseFloat(a['铁锂排产（GWh）']||0)));
+        const top10Lfp = latestData.slice(0, 10);
+        latestData.sort((a, b) => (parseFloat(b['三元排产（GWh）']||0) - parseFloat(a['三元排产（GWh）']||0)));
+        const top10Ternary = latestData.slice(0, 10);
+        return {
+            lfp: {
+                names: top10Lfp.map(d => d['企业名称'] || '未知'),
+                values: top10Lfp.map(d => parseFloat(d['铁锂排产（GWh）']) || 0)
+            },
+            ternary: {
+                names: top10Ternary.map(d => d['企业名称'] || '未知'),
+                values: top10Ternary.map(d => parseFloat(d['三元排产（GWh）']) || 0)
+            }
+        };
+    }
+
+    // 初始化所有图表
+    function initAllCharts() {
+        const specData = processIndustrySpecData();
+        const totalData = processIndustryTotalData();
+        const companyData = processCompanyData();
+        const forecastData = processForecastData();
+        const companyForecast = processCompanyForecast();
+        const salesData = processSales();
+        const salesCompany = processSalesCompany();
+        const exportData = processExport();
+        const installData = processInstall();
+        const installCompany = processInstallCompany();
+        const installLfp = processInstallLfp();
+
+        // ========== 概览Tab ==========
+        // 行业产量走势
+        initChart('c1', {
+            tooltip: { trigger: 'axis' },
+            legend: { data: ['铁锂及其它动力', '三元及数码'], top: 5 },
+            grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+            xAxis: { type: 'category', data: specData.months, axisLabel: { color: C.textLight } },
+            yAxis: { type: 'value', name: 'GWh', axisLabel: { color: C.textLight }, splitLine: { lineStyle: { color: C.border } } },
+            series: [
+                { name: '铁锂及其它动力', type: 'line', data: specData.lfpData, smooth: true,
+                  lineStyle: { color: C.primary, width: 3 }, itemStyle: { color: C.primary },
+                  areaStyle: { color: { type: 'linear', x: 0, y: 0, x2: 0, y2: 1, colorStops: [{ offset: 0, color: 'rgba(30,60,114,0.2)' }, { offset: 1, color: 'rgba(30,60,114,0.02)' }] } },
+                  label: { show: true, position: 'top', formatter: '{c}', fontSize: 9, color: C.primary } },
+                { name: '三元及数码', type: 'line', data: specData.ternaryData, smooth: true,
+                  lineStyle: { color: C.secondary, width: 3 }, itemStyle: { color: C.secondary },
+                  areaStyle: { color: { type: 'linear', x: 0, y: 0, x2: 0, y2: 1, colorStops: [{ offset: 0, color: 'rgba(231,76,60,0.2)' }, { offset: 1, color: 'rgba(231,76,60,0.02)' }] } },
+                  label: { show: true, position: 'bottom', formatter: '{c}', fontSize: 9, color: C.secondary } }
+            ]
+        });
+
+        // 产能利用率趋势
+        initChart('c2', {
+            tooltip: { trigger: 'axis', formatter: '{b}: {c}%' },
+            grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+            xAxis: { type: 'category', data: totalData.months, axisLabel: { color: C.textLight } },
+            yAxis: { type: 'value', name: '%', min: 0, max: 100, axisLabel: { color: C.textLight }, splitLine: { lineStyle: { color: C.border } } },
+            series: [{ type: 'line', data: totalData.utilization, smooth: true, lineStyle: { color: C.primary, width: 3 },
+                areaStyle: { color: { type: 'linear', x: 0, y: 0, x2: 0, y2: 1, colorStops: [{ offset: 0, color: 'rgba(30,60,114,0.2)' }, { offset: 1, color: 'rgba(30,60,114,0.02)' }] } },
+                label: { show: true, position: 'top', formatter: '{c}%', fontSize: 9, color: C.primary, fontWeight: 'bold' } }]
+        });
+
+        // 企业产量TOP10
+        initChart('c3', {
+            tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' }, formatter: '{b}: {c}GWh' },
+            grid: { left: '3%', right: '15%', bottom: '3%', containLabel: true },
+            xAxis: { type: 'value', axisLabel: { formatter: '{value}GWh' }, splitLine: { lineStyle: { color: C.border } } },
+            yAxis: { type: 'category', data: companyData.names.reverse(), axisLabel: { color: C.text, fontSize: 11 } },
+            series: [{ type: 'bar', data: companyData.values.reverse(), itemStyle: { color: function(p){return COLORS[p.dataIndex % COLORS.length];}, borderRadius: [0,4,4,0] },
+                label: { show: true, position: 'right', formatter: '{c}GWh', fontSize: 10, color: C.textLight } }]
+        });
+
+        // 分规格产量对比（堆叠柱状图）
+        initChart('c4', {
+            tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
+            legend: { data: ['铁锂及其它动力', '三元及数码'], top: 5 },
+            grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+            xAxis: { type: 'category', data: specData.months, axisLabel: { color: C.textLight } },
+            yAxis: { type: 'value', name: 'GWh', axisLabel: { color: C.textLight }, splitLine: { lineStyle: { color: C.border } } },
+            series: [
+                { name: '铁锂及其它动力', type: 'bar', stack: 'total', data: specData.lfpData, itemStyle: { color: C.primary, borderRadius: [0,0,0,0] } },
+                { name: '三元及数码', type: 'bar', stack: 'total', data: specData.ternaryData, itemStyle: { color: C.secondary, borderRadius: [4,4,0,0] },
+                  label: { show: true, position: 'top', formatter: function(p){var idx = p.dataIndex; return (parseFloat(specData.lfpData[idx])+parseFloat(specData.ternaryData[idx])).toFixed(1);}, fontSize: 10, color: C.textLight } }
+            ]
+        });
+
+        // ========== 产量Tab ==========
+        // 月度产量趋势
+        initChart('p1', {
+            tooltip: { trigger: 'axis' },
+            legend: { data: ['铁锂及其它动力', '三元及数码'], top: 5 },
+            grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+            xAxis: { type: 'category', data: specData.months, axisLabel: { color: C.textLight } },
+            yAxis: { type: 'value', name: 'GWh', axisLabel: { color: C.textLight }, splitLine: { lineStyle: { color: C.border } } },
+            series: [
+                { name: '铁锂及其它动力', type: 'bar', data: specData.lfpData, itemStyle: { color: C.primary, borderRadius: [4,4,0,0] },
+                  label: { show: true, position: 'top', formatter: '{c}', fontSize: 9, color: C.textLight } },
+                { name: '三元及数码', type: 'bar', data: specData.ternaryData, itemStyle: { color: C.secondary, borderRadius: [4,4,0,0] },
+                  label: { show: true, position: 'top', formatter: '{c}', fontSize: 9, color: C.textLight } }
+            ]
+        });
+
+        // 产能与产量对比
+        initChart('p2', {
+            tooltip: { trigger: 'axis' },
+            legend: { data: ['产量', '产能'], top: 5 },
+            grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+            xAxis: { type: 'category', data: totalData.months, axisLabel: { color: C.textLight } },
+            yAxis: { type: 'value', name: 'GWh', axisLabel: { color: C.textLight }, splitLine: { lineStyle: { color: C.border } } },
+            series: [
+                { name: '产量', type: 'bar', data: totalData.output, itemStyle: { color: C.primary, borderRadius: [4,4,0,0] },
+                  label: { show: true, position: 'top', formatter: '{c}', fontSize: 9, color: C.textLight } },
+                { name: '产能', type: 'line', data: totalData.capacity, smooth: true, lineStyle: { color: C.secondary, width: 3 }, itemStyle: { color: C.secondary },
+                  label: { show: true, position: 'bottom', formatter: '{c}', fontSize: 9, color: C.secondary } }
+            ]
+        });
+
+        // 分企业产量排名
+        initChart('p3', {
+            tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
+            grid: { left: '3%', right: '10%', bottom: '3%', containLabel: true },
+            xAxis: { type: 'value', name: 'GWh', axisLabel: { color: C.textLight }, splitLine: { lineStyle: { color: C.border } } },
+            yAxis: { type: 'category', data: companyData.names.slice(0, 15).reverse(), axisLabel: { color: C.text, fontSize: 10 } },
+            series: [{ type: 'bar', data: companyData.values.slice(0, 15).reverse(), itemStyle: { color: function(p){return p.dataIndex >= 12 ? C.secondary : C.primary;}, borderRadius: [0,4,4,0] },
+                label: { show: true, position: 'right', formatter: '{c}GWh', fontSize: 9, color: C.textLight } }]
+        });
+
+        // ========== 排产预测Tab ==========
+        // 排产预测趋势
+        initChart('f1', {
+            tooltip: { trigger: 'axis' },
+            legend: { data: ['铁锂排产', '三元排产', '钴酸锂排产'], top: 5 },
+            grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+            xAxis: { type: 'category', data: forecastData.months, axisLabel: { color: C.textLight } },
+            yAxis: { type: 'value', name: 'GWh', axisLabel: { color: C.textLight }, splitLine: { lineStyle: { color: C.border } } },
+            series: [
+                { name: '铁锂排产', type: 'line', data: forecastData.lfp, smooth: true,
+                  lineStyle: { color: C.primary, width: 3 }, itemStyle: { color: C.primary },
+                  areaStyle: { color: { type: 'linear', x: 0, y: 0, x2: 0, y2: 1, colorStops: [{ offset: 0, color: 'rgba(30,60,114,0.2)' }, { offset: 1, color: 'rgba(30,60,114,0.02)' }] } },
+                  label: { show: true, position: 'top', formatter: '{c}', fontSize: 9, color: C.primary } },
+                { name: '三元排产', type: 'line', data: forecastData.ternary, smooth: true,
+                  lineStyle: { color: C.secondary, width: 3 }, itemStyle: { color: C.secondary },
+                  areaStyle: { color: { type: 'linear', x: 0, y: 0, x2: 0, y2: 1, colorStops: [{ offset: 0, color: 'rgba(231,76,60,0.2)' }, { offset: 1, color: 'rgba(231,76,60,0.02)' }] } },
+                  label: { show: true, position: 'bottom', formatter: '{c}', fontSize: 9, color: C.secondary } },
+                { name: '钴酸锂排产', type: 'line', data: forecastData.lco, smooth: true,
+                  lineStyle: { color: C.accent, width: 3 }, itemStyle: { color: C.accent },
+                  label: { show: true, position: 'top', formatter: '{c}', fontSize: 9, color: C.accent } }
+            ]
+        });
+
+        // 企业铁锂排产TOP10
+        initChart('f2', {
+            tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' }, formatter: '{b}: {c}GWh' },
+            grid: { left: '3%', right: '15%', bottom: '3%', containLabel: true },
+            xAxis: { type: 'value', axisLabel: { formatter: '{value}GWh' }, splitLine: { lineStyle: { color: C.border } } },
+            yAxis: { type: 'category', data: companyForecast.lfp.names.reverse(), axisLabel: { color: C.text, fontSize: 11 } },
+            series: [{ type: 'bar', data: companyForecast.lfp.values.reverse(), itemStyle: { color: C.primary, borderRadius: [0,4,4,0] },
+                label: { show: true, position: 'right', formatter: '{c}GWh', fontSize: 10, color: C.textLight } }]
+        });
+
+        // 企业三元排产TOP10
+        initChart('f3', {
+            tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' }, formatter: '{b}: {c}GWh' },
+            grid: { left: '3%', right: '15%', bottom: '3%', containLabel: true },
+            xAxis: { type: 'value', axisLabel: { formatter: '{value}GWh' }, splitLine: { lineStyle: { color: C.border } } },
+            yAxis: { type: 'category', data: companyForecast.ternary.names.reverse(), axisLabel: { color: C.text, fontSize: 11 } },
+            series: [{ type: 'bar', data: companyForecast.ternary.values.reverse(), itemStyle: { color: C.secondary, borderRadius: [0,4,4,0] },
+                label: { show: true, position: 'right', formatter: '{c}GWh', fontSize: 10, color: C.textLight } }]
+        });
+
+        // 价格预测趋势
+        initChart('f4', {
+            tooltip: { trigger: 'axis' },
+            legend: { data: ['铁锂价格预测', '三元价格预测'], top: 5 },
+            grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+            xAxis: { type: 'category', data: forecastData.months, axisLabel: { color: C.textLight } },
+            yAxis: { type: 'value', name: '元/wh', axisLabel: { color: C.textLight }, splitLine: { lineStyle: { color: C.border } } },
+            series: [
+                { name: '铁锂价格预测', type: 'line', data: forecastData.lfpPrice, smooth: true,
+                  lineStyle: { color: C.primary, width: 3 }, itemStyle: { color: C.primary },
+                  label: { show: true, position: 'top', formatter: '{c}', fontSize: 9, color: C.primary } },
+                { name: '三元价格预测', type: 'line', data: forecastData.ternaryPrice, smooth: true,
+                  lineStyle: { color: C.secondary, width: 3 }, itemStyle: { color: C.secondary },
+                  label: { show: true, position: 'bottom', formatter: '{c}', fontSize: 9, color: C.secondary } }
+            ]
+        });
+
+        // ========== 销量与出口Tab ==========
+        // 销量走势（按企业分组柱状图）
+        initChart('s1', {
+            tooltip: { trigger: 'axis' },
+            legend: { data: salesData.coList, top: 5 },
+            grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+            xAxis: { type: 'category', data: salesData.months, axisLabel: { color: C.textLight } },
+            yAxis: { type: 'value', name: 'GWh', axisLabel: { color: C.textLight }, splitLine: { lineStyle: { color: C.border } } },
+            series: salesData.series.map((s, i) => ({
+                name: s.name, type: 'bar',
+                data: s.data,
+                itemStyle: { color: COLORS[i % COLORS.length], borderRadius: [4,4,0,0] },
+                label: { show: false }
+            }))
+        });
+
+        // 出口走势（折线图）
+        initChart('s2', {
+            tooltip: { trigger: 'axis' },
+            legend: { data: exportData.coList, top: 5 },
+            grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+            xAxis: { type: 'category', data: exportData.months, axisLabel: { color: C.textLight } },
+            yAxis: { type: 'value', name: 'GWh', axisLabel: { color: C.textLight }, splitLine: { lineStyle: { color: C.border } } },
+            series: exportData.series.map((s, i) => ({
+                name: s.name, type: 'line', smooth: true,
+                data: s.data,
+                lineStyle: { color: COLORS[i % COLORS.length], width: 2 },
+                itemStyle: { color: COLORS[i % COLORS.length] },
+                label: { show: false }
+            }))
+        });
+
+        // 企业销量TOP10
+        initChart('s3', {
+            tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' }, formatter: '{b}: {c}GWh' },
+            grid: { left: '3%', right: '15%', bottom: '3%', containLabel: true },
+            xAxis: { type: 'value', axisLabel: { formatter: '{value}GWh' }, splitLine: { lineStyle: { color: C.border } } },
+            yAxis: { type: 'category', data: salesCompany.names.reverse(), axisLabel: { color: C.text, fontSize: 11 } },
+            series: [{ type: 'bar', data: salesCompany.values.reverse(), itemStyle: { color: C.primary, borderRadius: [0,4,4,0] },
+                label: { show: true, position: 'right', formatter: '{c}GWh', fontSize: 10, color: C.textLight } }]
+        });
+
+        // ========== 装机量Tab ==========
+        // 装机量走势
+        initChart('i1', {
+            tooltip: { trigger: 'axis' },
+            legend: { data: ['总装机量', '铁锂', '三元'], top: 5 },
+            grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+            xAxis: { type: 'category', data: installData.months, axisLabel: { color: C.textLight } },
+            yAxis: { type: 'value', name: 'GWh', axisLabel: { color: C.textLight }, splitLine: { lineStyle: { color: C.border } } },
+            series: [
+                { name: '总装机量', type: 'line', data: installData.total, smooth: true,
+                  lineStyle: { color: COLORS[0], width: 3 }, itemStyle: { color: COLORS[0] },
+                  areaStyle: { color: { type: 'linear', x: 0, y: 0, x2: 0, y2: 1, colorStops: [{ offset: 0, color: 'rgba(30,60,114,0.2)' }, { offset: 1, color: 'rgba(30,60,114,0.02)' }] } },
+                  label: { show: true, position: 'top', formatter: '{c}', fontSize: 9, color: COLORS[0] } },
+                { name: '铁锂', type: 'line', data: installData.lfp, smooth: true,
+                  lineStyle: { color: COLORS[4], width: 2 }, itemStyle: { color: COLORS[4] },
+                  label: { show: true, position: 'bottom', formatter: '{c}', fontSize: 9, color: COLORS[4] } },
+                { name: '三元', type: 'line', data: installData.ncm, smooth: true,
+                  lineStyle: { color: COLORS[1], width: 2 }, itemStyle: { color: COLORS[1] },
+                  label: { show: true, position: 'top', formatter: '{c}', fontSize: 9, color: COLORS[1] } }
+            ]
+        });
+
+        // 铁锂/三元占比饼图
+        initChart('i2', function() {
+            if (installData.months.length === 0) return {};
+            const last = installData.months.length - 1;
+            const lfpVal = parseFloat(installData.lfp[last]) || 0;
+            const ncmVal = parseFloat(installData.ncm[last]) || 0;
+            return {
+                tooltip: { trigger: 'item', formatter: '{b}: {c}GWh ({d}%)' },
+                legend: { orient: 'vertical', right: '5%', top: 'center' },
+                series: [{
+                    type: 'pie',
+                    radius: ['40%', '70%'],
+                    center: ['40%', '50%'],
+                    data: [
+                        { value: lfpVal, name: '铁锂' },
+                        { value: ncmVal, name: '三元' }
+                    ],
+                    itemStyle: { borderRadius: 6, borderColor: '#fff', borderWidth: 2 },
+                    label: { formatter: '{b}\n{c}GWh\n{d}%', fontSize: 12, color: C.text }
+                }]
+            };
+        }());
+
+        // 装机量分企业TOP10
+        initChart('i3', {
+            tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' }, formatter: '{b}: {c}GWh' },
+            grid: { left: '3%', right: '15%', bottom: '3%', containLabel: true },
+            xAxis: { type: 'value', axisLabel: { formatter: '{value}GWh' }, splitLine: { lineStyle: { color: C.border } } },
+            yAxis: { type: 'category', data: installCompany.names.reverse(), axisLabel: { color: C.text, fontSize: 11 } },
+            series: [{ type: 'bar', data: installCompany.values.reverse(), itemStyle: { color: C.primary, borderRadius: [0,4,4,0] },
+                label: { show: true, position: 'right', formatter: '{c}GWh', fontSize: 10, color: C.textLight } }]
+        });
+
+        // LFP装机量分企业TOP10
+        initChart('i4', {
+            tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' }, formatter: '{b}: {c}GWh' },
+            grid: { left: '3%', right: '15%', bottom: '3%', containLabel: true },
+            xAxis: { type: 'value', axisLabel: { formatter: '{value}GWh' }, splitLine: { lineStyle: { color: C.border } } },
+            yAxis: { type: 'category', data: installLfp.names.reverse(), axisLabel: { color: C.text, fontSize: 11 } },
+            series: [{ type: 'bar', data: installLfp.values.reverse(), itemStyle: { color: COLORS[4], borderRadius: [0,4,4,0] },
+                label: { show: true, position: 'right', formatter: '{c}GWh', fontSize: 10, color: C.textLight } }]
+        });
+    }
+
+    // Tab切换
+    function switchTab(tab) {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+        event.target.classList.add('active');
+        document.getElementById('tab-' + tab).classList.add('active');
+        setTimeout(function(){ Object.values(chartInstances).forEach(c => c.resize()); }, 100);
+    }
+
+    window.addEventListener('resize', function(){ Object.values(chartInstances).forEach(c => c.resize()); });
+
+    // 启动
+    loadData();
+    </script>
+    <script src="assets/ai_fab_inject.js"></script>
+
+<!-- __AUTO_REFRESH__ -->
+<script>
+(function() {
+  var _js = "lib_battery_embedded_data.js";
+  var _lastVer = null;
+
+  function _readVer() {
+    try { return (window[_js.replace('.js','').replace(/-/g,'_').replace(/ /g,'')] || {}).update_time || null; }
+    catch(e) { return null; }
+  }
+
+  function _fetchVer(cb) {
+    fetch(_js + '?t=' + Date.now())
+      .then(function(r) { return r.text(); })
+      .then(function(txt) {
+        var m = txt.match(/update_time\s*=\s*['"]([^'"]+)['"]/);
+        cb(m ? m[1] : null);
+      })
+      .catch(function() { cb(null); });
+  }
+
+  function _showBanner() {
+    if (document.getElementById('__ar_banner__')) return;
+    var b = document.createElement('div');
+    b.id = '__ar_banner__';
+    b.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:99999;background:#1a73e8;color:#fff;'
+      + 'text-align:center;padding:10px 20px;font-size:14px;font-family:sans-serif;'
+      + 'display:flex;align-items:center;justify-content:center;gap:16px;box-shadow:0 2px 8px rgba(0,0,0,0.2);';
+    b.innerHTML = '\uD83D\uDCCA 数据已更新至新版本 &nbsp;'
+      + '<button onclick="location.reload()" style="background:#fff;color:#1a73e8;border:none;'
+      + 'padding:5px 14px;border-radius:4px;cursor:pointer;font-size:13px;font-weight:bold;">刷新页面</button>'
+      + '<button onclick="this.parentElement.style.display=\'none\'" style="background:rgba(255,255,255,0.2);'
+      + 'color:#fff;border:1px solid rgba(255,255,255,0.6);padding:5px 12px;border-radius:4px;'
+      + 'cursor:pointer;font-size:13px;">稍后</button>';
+    document.body.appendChild(b);
+  }
+
+  _lastVer = _readVer();
+
+  // 每 60 秒检测一次
+  setInterval(function() {
+    _fetchVer(function(ver) {
+      if (ver && ver !== _lastVer) {
+        _lastVer = ver;
+        _showBanner();
+      }
+    });
+  }, 60000);
+})();
+</script>
+</body>
+</html>
