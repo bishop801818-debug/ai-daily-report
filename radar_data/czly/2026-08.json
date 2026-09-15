@@ -1,0 +1,81 @@
+{
+    "bu_id": "czly",
+    "bu_code": "CZLY",
+    "bu_name": "常州锂源",
+    "month": "2026-08",
+    "source": "常州锂源8月总结及9月计划.pdf",
+    "source_pages": [5, 8, 9, 13, 15, 27, 36, 38, 41, 52, 63],
+    "_isCurrent": true,
+    "dims": { "d1": 60, "d2": 70, "d3": 74, "d4": 75, "d5": 98, "d6": 80 },
+    "kpis": {
+        "d1": [81, 72, 100, 95],
+        "d2": [94, 89, 71, 68],
+        "d3": [93, 100, 73, 239],
+        "d4": [75, 2, 10, 13],
+        "d5": [100, 99.5, 100, 100],
+        "d6": [80, 10, 1, 16]
+    },
+    "_kpiComparison": {
+        "title": "8月核心KPI达成率",
+        "period": "2026年8月",
+        "items": [
+            { "name": "产量(万吨)",     "budget": 5.41,  "target": 5.41,  "actual": 4.40,  "unit": "万吨" },
+            { "name": "发货量(万吨)",   "budget": 5.30,  "target": 5.30,  "actual": 3.83,  "unit": "万吨" },
+            { "name": "产销率(%)",      "budget": 100,   "target": 100,   "actual": 89,    "unit": "%"    },
+            { "name": "一次合格率(%)", "budget": 99.38, "target": 99.38, "actual": 99.83, "unit": "%"    },
+            { "name": "客户投诉(次)",   "budget": 0,     "target": 0,     "actual": 2,     "unit": "次"   }
+        ]
+    },
+    "_dimComparison_d2": {
+        "title": "8月各基地净产出概览",
+        "items": [
+            { "name": "江苏基地净产出(吨)", "budget": 2823, "target": 2823, "actual": 2658, "unit": "吨" },
+            { "name": "天津基地净产出(吨)", "budget": 252, "target": 252, "actual": 302, "unit": "吨" },
+            { "name": "四川基地净产出(吨)", "budget": 14000, "target": 14000, "actual": 12430, "unit": "吨" },
+            { "name": "山东基地净产出(吨)", "budget": 13021, "target": 13021, "actual": 9190, "unit": "吨" },
+            { "name": "湖北基地净产出(吨)", "budget": 11062, "target": 11062, "actual": 7573, "unit": "吨" },
+            { "name": "印尼基地净产出(吨)", "budget": 12022, "target": 12022, "actual": 11093, "unit": "吨" },
+            { "name": "合计净产出(吨)", "budget": 53180, "target": 53180, "actual": 43246, "unit": "吨" }
+        ]
+    },
+    "_dimComparison_d3": {
+        "title": "8月运营效率",
+        "format": "mom",
+        "items": [
+            { "name": "整体产能利用率(%)", "prev": 98, "curr": 93, "unit": "%" },
+            { "name": "产品一次合格率(%)", "prev": 99.83, "curr": 99.83, "unit": "%" },
+            { "name": "OEE(%)", "prev": 71.95, "curr": 73.31, "unit": "%" },
+            { "name": "单吨物流成本(元)", "prev": 272, "curr": 239, "unit": "元" }
+        ]
+    },
+    "_dimComparison_d4": {
+        "title": "8月技术创新与市场",
+        "format": "mom",
+        "items": [
+            { "name": "8月销量(吨)", "prev": 31949, "curr": 38900, "unit": "吨" },
+            { "name": "行业产量排名", "prev": 2, "curr": 2, "unit": "名" },
+            { "name": "新客户开发(家)", "prev": 0, "curr": 10, "unit": "家" },
+            { "name": "核心长协签订(份)", "prev": 0, "curr": 1, "unit": "份" }
+        ]
+    },
+    "_dimComparison_d5": {
+        "title": "8月安全环保合规",
+        "format": "mom",
+        "items": [
+            { "name": "可记录工伤事故(起)", "prev": 0, "curr": 0, "unit": "起" },
+            { "name": "隐患整改率(%)", "prev": 99.5, "curr": 99.5, "unit": "%" },
+            { "name": "环保处罚(项)", "prev": 0, "curr": 0, "unit": "项" },
+            { "name": "职业健康体检率(%)", "prev": 100, "curr": 100, "unit": "%" }
+        ]
+    },
+    "_dimComparison_d6": {
+        "title": "8月组织活力",
+        "format": "mom",
+        "items": [
+            { "name": "新客户开发(家)", "prev": 0, "curr": 10, "unit": "家" },
+            { "name": "长协签订(份)", "prev": 0, "curr": 1, "unit": "份" },
+            { "name": "在研项目(项)", "prev": 10, "curr": 13, "unit": "项" },
+            { "name": "次月核心计划(项)", "prev": 0, "curr": 16, "unit": "项" }
+        ]
+    }
+}

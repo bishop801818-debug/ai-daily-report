@@ -1,0 +1,105 @@
+{
+  "month": "2026-08",
+  "bu_id": "dhx",
+  "bu_code": "DHX",
+  "bu_name": "迪克化学",
+  "source": "迪克化学8月总结暨9月计划汇报（朱磊，2026年9月1日）",
+  "source_pages": [3, 5, 6, 7, 8, 12, 16, 18, 19, 25, 26, 28, 29, 35, 37],
+  "_isCurrent": true,
+  "_computedD1": false,
+  "_kpiComparison": {
+    "title": "8月核心KPI达成率",
+    "period": "2026年8月",
+    "items": [
+      {"name": "营业收入(万元)", "budget": 3956, "target": 3956, "actual": 2807, "unit": "万元"},
+      {"name": "毛利率(%)", "budget": 23, "target": 23, "actual": 23, "unit": "%"},
+      {"name": "净利润(万元)", "budget": 458, "target": 458, "actual": 320, "unit": "万元"},
+      {"name": "净利润率(%)", "budget": 11.6, "target": 11.6, "actual": 11.4, "unit": "%"},
+      {"name": "现金流(万元)", "budget": 661, "target": 661, "actual": -56, "unit": "万元"},
+      {"name": "1-8月累计营收(万元)", "budget": 0, "target": 0, "actual": 28326, "unit": "万元"}
+    ]
+  },
+  "_dimComparison_d1": {
+    "title": "8月核心KPI",
+    "format": "mom",
+    "items": [
+      {"name": "营业收入(万元)", "prev": 0, "curr": 2807, "unit": "万元"},
+      {"name": "净利润(万元)", "prev": 0, "curr": 320, "unit": "万元"},
+      {"name": "毛利率(%)", "prev": 0, "curr": 23.0, "unit": "%"},
+      {"name": "净利润率(%)", "prev": 0, "curr": 11.4, "unit": "%"},
+      {"name": "1-8月累计营收(万元)", "prev": 0, "curr": 28326, "unit": "万元"},
+      {"name": "1-8月营收同比(%)", "prev": 0, "curr": 12, "unit": "%"}
+    ]
+  },
+  "_dimComparison_d2": {
+    "title": "8月经营效益",
+    "format": "snapshot",
+    "items": [
+      {"name": "毛利率(%)", "value": 23.0, "unit": "%"},
+      {"name": "单吨制费(元)", "value": 280, "unit": "元"},
+      {"name": "净利润率(%)", "value": 11.4, "unit": "%"},
+      {"name": "营收同比(%)", "value": -12, "unit": "%"},
+      {"name": "节能降耗(元/吨)", "value": 25.22, "unit": "元/吨"}
+    ]
+  },
+  "_dimComparison_d3": {
+    "title": "8月运营效率",
+    "format": "snapshot",
+    "items": [
+      {"name": "周转天数(天)", "value": 37, "unit": "天"},
+      {"name": "物流费用率(%)", "value": 4.6, "unit": "%"},
+      {"name": "超期库存(万元)", "value": 86, "unit": "万元"},
+      {"name": "客户质量投诉(次)", "value": 0, "unit": "次"},
+      {"name": "AGV增购批准(台)", "value": 8, "unit": "台"}
+    ]
+  },
+  "_dimComparison_d4": {
+    "title": "8月技术创新",
+    "format": "snapshot",
+    "items": [
+      {"name": "华为去离子冷却液中试", "value": 100, "unit": "%"},
+      {"name": "TEEC-ITS高潜热验收", "value": 100, "unit": "%"},
+      {"name": "数据中心冷却液测试", "value": 90, "unit": "%"},
+      {"name": "SGS共建联合实验室", "value": 85, "unit": "%"},
+      {"name": "研发降本(万元)", "value": 372, "unit": "万元"}
+    ]
+  },
+  "_dimComparison_d5": {
+    "title": "8月风险合规",
+    "format": "snapshot",
+    "items": [
+      {"name": "安全事故(起)", "value": 0, "unit": "起"},
+      {"name": "环保违规(项)", "value": 0, "unit": "项"},
+      {"name": "诉讼案件(件)", "value": 0, "unit": "件"},
+      {"name": "零碳工厂认定", "value": 100, "unit": "%"},
+      {"name": "体系审核通过", "value": 100, "unit": "%"}
+    ]
+  },
+  "_dimComparison_d6": {
+    "title": "8月组织活力",
+    "format": "snapshot",
+    "items": [
+      {"name": "液冷销售团队搭建", "value": 85, "unit": "%"},
+      {"name": "印尼ODI备案", "value": 100, "unit": "%"},
+      {"name": "华为转训", "value": 90, "unit": "%"},
+      {"name": "龙小迪智能体二期", "value": 90, "unit": "%"},
+      {"name": "省级智能工厂/高企复审", "value": 100, "unit": "%"}
+    ]
+  },
+  "dims": {
+    "d1": 72,
+    "d2": 83,
+    "d3": 85,
+    "d4": 90,
+    "d5": 96,
+    "d6": 88
+  },
+  "kpis": {
+    "d1": [71, 100, 70, 98],
+    "d2": [100, 95, 98, 85],
+    "d3": [94, 92, 98, 100],
+    "d4": [100, 100, 90, 85],
+    "d5": [100, 100, 100, 100],
+    "d6": [85, 100, 90, 90]
+  }
+}

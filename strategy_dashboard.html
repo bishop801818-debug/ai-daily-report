@@ -1,0 +1,1998 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta name="html-version" content="20260604_1540">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>战略洞察仪表盘</title>
+<script>
+  // 每次修改此文件后，content 值自动更新为今天日期（如 20260601 2249）
+  // 浏览器遇到新的 html-version 会强制重新加载，永久告别缓存问题
+  window.HTML_VERSION = '20260604_1715';
+</script>
+<script src="./echarts.min.js"></script>
+<script src="./html2canvas.min.js"></script>
+<script src="./xlsx.full.min.js"></script>
+<script src="./jspdf.umd.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,'Microsoft YaHei',sans-serif;background:#f4f6fa;color:#1a1a2e}
+.topbar{display:flex;justify-content:space-between;align-items:center;padding:0 16px;height:38px;background:linear-gradient(135deg,#064e3b,#0d7a4a);color:#fff;font-size:13px}
+.topbar-left{display:flex;align-items:center;gap:12px}
+.topbar-logo{font-size:16px;font-weight:bold;display:flex;align-items:center;gap:6px}
+.topbar-nav{display:flex;gap:4px}
+.topbar-nav a{color:rgba(255,255,255,0.8);text-decoration:none;padding:4px 12px;border-radius:16px;font-size:12px;transition:all .2s}
+.topbar-nav a:hover{background:rgba(255,255,255,0.2);color:#fff}
+.topbar a{color:rgba(255,255,255,0.85);text-decoration:none;font-size:13px}
+.topbar a:hover{color:#fff}
+.topbar-center{font-size:12px;font-weight:600;opacity:0.7}
+.btn-export{background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.35);color:#fff;padding:5px 16px;border-radius:20px;cursor:pointer;font-size:13px;font-family:inherit;transition:all .2s}
+.btn-export:hover{background:rgba(255,255,255,0.25)}
+.hero{background:linear-gradient(135deg,#064e3b,#0d7a4a);color:#fff;padding:6px 16px}
+.hero h1{font-size:22px;font-weight:700;margin-bottom:4px}
+.hero p{font-size:13px;color:rgba(255,255,255,0.75);margin-bottom:2px}
+.dashboard-body{padding:16px 20px 32px}
+.dashboard-row{display:flex;gap:16px;margin-bottom:16px}
+.dashboard-left{flex:0 0 62%}
+.dashboard-right{flex:1;display:flex;flex-direction:column;gap:10px}
+.card{background:#fff;border-radius:12px;padding:16px;box-shadow:0 1px 4px rgba(0,0,0,0.06)}
+.card h3{font-size:12px;color:#888;margin-bottom:10px;font-weight:600;text-transform:uppercase;letter-spacing:.5px}
+.signal-card{background:#fff;border-radius:10px;padding:12px 14px;box-shadow:0 1px 4px rgba(0,0,0,0.06);cursor:pointer;transition:all .2s;border-left:4px solid transparent}
+.signal-card:hover{box-shadow:0 4px 12px rgba(0,0,0,0.1);transform:translateY(-1px)}
+.signal-card.green{border-left-color:#27ae60}
+.signal-card.yellow{border-left-color:#f39c12}
+.signal-card.red{border-left-color:#e74c3c}
+.signal-title{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;font-size:13px;font-weight:600}
+.signal-title .dot{width:9px;height:9px;border-radius:50%;display:inline-block;margin-right:5px}
+.signal-title .dot.green{background:#27ae60}
+.signal-title .dot.yellow{background:#f39c12}
+.signal-title .dot.red{background:#e74c3c}
+.signal-score{font-size:18px;font-weight:700;color:#1e3c72}
+.signal-bar-wrap{background:#f0f0f0;border-radius:4px;height:6px;margin:5px 0;overflow:hidden}
+.signal-bar{height:100%;border-radius:4px;transition:width .5s}
+.signal-bar.green{background:linear-gradient(90deg,#27ae60,#2ecc71)}
+.signal-bar.yellow{background:linear-gradient(90deg,#f39c12,#f1c40f)}
+.signal-bar.red{background:linear-gradient(90deg,#e74c3c,#ec7063)}
+.signal-meta{font-size:10px;color:#aaa;display:flex;justify-content:space-between}
+.detail-section{background:#fff;border-radius:12px;padding:20px;box-shadow:0 1px 4px rgba(0,0,0,0.06);margin-top:4px}
+.detail-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.table-title{font-size:15px;font-weight:700;color:#1e3c72;margin-bottom:12px}
+.dim-selector{display:flex;gap:6px;flex-wrap:wrap}
+.dim-chip{padding:5px 14px;border-radius:20px;border:1px solid #e0e0e0;background:#fff;cursor:pointer;font-size:12px;transition:all .2s;font-family:inherit}
+.dim-chip.active{background:#1e3c72;color:#fff;border-color:#1e3c72}
+.dim-chip:hover:not(.active){border-color:#1e3c72;color:#1e3c72}
+.detail-table{border-collapse:collapse;width:100%;min-width:500px;font-size:13px}
+.detail-table th{background:#f4f6fa;padding:8px 12px;text-align:left;font-weight:600;color:#555;border-bottom:2px solid #e0e0e0}
+.detail-table td{padding:8px 12px;border-bottom:1px solid #f0f0f0}
+.detail-table .total-row td{background:#fafafa;font-weight:700;border-top:2px solid #e0e0e0}
+.detail-table tr:last-child td{border-bottom:none}
+#quarter-select{appearance:none;-webkit-appearance:none;padding:5px 28px 5px 12px;border:1px solid rgba(255,255,255,0.4);border-radius:6px;background:rgba(255,255,255,0.1) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 6 5-6' fill='none' stroke='%23fff' stroke-width='1.5'/%3E%3C/svg%3E") no-repeat right 10px center/12px 8px;color:#fff;font-size:13px;font-family:inherit;cursor:pointer}
+#quarter-select option{background:#064e3b;color:#fff}
+@media(max-width:900px){
+  .topbar{padding:0 12px;font-size:13px}
+  .topbar-center{font-size:14px}
+  .hero{padding:14px 10px 10px}
+  .hero h1{font-size:18px}
+  .dashboard-body{padding:12px 12px 24px}
+  .dashboard-row{flex-direction:column}
+  .dashboard-left,.dashboard-right{flex:1;width:100%}
+}
+@media(max-width:600px){
+  .topbar-center{display:none}
+  .hero{padding:16px 12px 12px}
+  .hero h1{font-size:16px}
+  .hero p{font-size:12px}
+  .dashboard-body{padding:8px 8px 16px}
+  .card{padding:12px}
+  #detail-table{font-size:12px}
+  #detail-table th,#detail-table td{padding:6px 8px}
+  .signal-card{padding:10px 12px}
+}
+</style>
+
+    <script src="inline_01.js"></script>
+    <script src="bu_gate.js"></script>
+    <script>
+    (function(){
+      window.addEventListener('load', function() {
+        var buMatch = location.hash.match(/#([a-z]+)/);
+        if (!buMatch) return;
+        var rawBu = buMatch[1];
+        var map = { lubricant:'lhy', kelan:'kls', dkhx:'dhx', sjld:'sjl' };
+        var buId = map[rawBu] || rawBu;
+        var deptId = (function(){
+          var m = location.search.match(/[?&]__dept=([^&]+)/);
+          if(m) return decodeURIComponent(m[1]);
+          m = location.search.match(/[?&]departmentId=([^&]+)/);
+          if(m) return decodeURIComponent(m[1]);
+          return '';
+        })();
+        if (!deptId) return;
+        var ids = (deptId||'').split(',').map(function(s){return s.trim();}).filter(Boolean);
+        if (!isAllowed || !isAllowed(buId, ids)) {
+          document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100vh;font-family:sans-serif;background:#f5f6fa"><div style="text-align:center;padding:48px;background:#fff;border-radius:16px;box-shadow:0 8px 30px rgba(0,0,0,.08)"><div style="font-size:64px;margin-bottom:12px">⛔</div><div style="font-size:22px;font-weight:700;color:#c0392b">无权限访问</div><div style="margin-top:8px;color:#888;font-size:14px">您所在的部门无权查看该内容，请联系管理员。</div></div></div>';
+        }
+      });
+    })();
+    </script>
+
+</head>
+<body>
+<div class="topbar">
+  <div class="topbar-left">
+    <div class="topbar-logo">📊 战略洞察</div>
+    <div class="topbar-nav">
+      <a href="index_v3.html">首页</a>
+    </div>
+  </div>
+  <div style="position:relative">
+    <button class="btn-export" onclick="toggleExportPop()">导出报告 ▾</button>
+    <div id="export-pop" style="display:none;position:absolute;top:100%;right:0;margin-top:6px;background:#064e3b;border:1px solid rgba(255,255,255,0.25);border-radius:8px;padding:6px 0;min-width:150px;box-shadow:0 8px 24px rgba(0,0,0,0.35);z-index:200;">
+      <div onclick="exportExcel()" style="padding:8px 18px;cursor:pointer;font-size:13px;color:rgba(255,255,255,0.9);display:flex;align-items:center;gap:8px;" onmouseover="this.style.background='rgba(255,255,255,0.12)'" onmouseout="this.style.background='transparent'">📊 导出 Excel</div>
+      <div onclick="exportPDF()" style="padding:8px 18px;cursor:pointer;font-size:13px;color:rgba(255,255,255,0.9);display:flex;align-items:center;gap:8px;" onmouseover="this.style.background='rgba(255,255,255,0.12)'" onmouseout="this.style.background='transparent'">📄 导出 PDF</div>
+    </div>
+  </div>
+</div>
+<div class="hero">
+      <div id="time-selector-wrap" style="display:flex;gap:8px;align-items:center;position:relative;">
+        <button id="quarter-btn" onclick="toggleQuarterPop()" style="padding:4px 10px;border:1px solid rgba(255,255,255,0.35);border-radius:6px;background:rgba(255,255,255,0.08);color:#fff;font-size:12px;font-family:inherit;cursor:pointer;display:flex;align-items:center;gap:4px;">
+          <span id="quarter-btn-text">Q3-2024（最新）</span>
+          <span style="font-size:10px;">▸</span>
+        </button>
+        <div id="quarter-pop" style="display:none;position:absolute;top:calc(100% + 8px);left:0;margin-left:0;background:#064e3b;border:1px solid rgba(255,255,255,0.2);border-radius:8px;padding:4px 0;min-width:140px;box-shadow:0 4px 16px rgba(0,0,0,0.3);z-index:100;"></div>
+      </div>
+    </div>
+<div class="dashboard-body" id="dashboard-page">
+  <div class="dashboard-row">
+    <div class="dashboard-left">
+      <div class="card">
+        <h3>综合竞争力雷达图</h3>
+        <div id="radar-chart" style="width:100%;height:360px"></div>
+      </div>
+    </div>
+    <div class="dashboard-right">
+      <div id="signal-board"></div>
+    </div>
+  </div>
+  <div class="detail-section">
+    <div class="detail-header">
+      <div class="dim-selector">
+        <button class="dim-chip active" data-dim="scale" onclick="switchDim('scale')">规模与市场地位</button>
+        <button class="dim-chip" data-dim="profit" onclick="switchDim('profit')">盈利质量</button>
+        <button class="dim-chip" data-dim="cost_eff" onclick="switchDim('cost_eff')">成本与效率</button>
+        <button class="dim-chip" data-dim="finance" onclick="switchDim('finance')">运营与财务健康</button>
+        <button class="dim-chip" data-dim="growth" onclick="switchDim('growth')">成长潜力</button>
+      </div>
+    </div>
+    <div id="detail-table"></div>
+  </div>
+  <div class="detail-section" id="compare-section">
+    <h3>一对一对比分析</h3>
+    <div style="display:flex;gap:16px;align-items:center;margin-bottom:16px;flex-wrap:wrap;">
+      <select id="compare-a" onchange="renderCompare()" style="padding:6px 12px;border:1px solid #d0d0d0;border-radius:6px;font-size:13px;">
+        <option value="czly">常州锂源</option>
+        <option value="hnyn">湖南裕能</option>
+        <option value="wrxn">万润新能</option>
+        <option value="fljg">富临精工</option>
+        <option value="dfnm">德方纳米</option>
+        <option value="avg">行业均值</option>
+      </select>
+      <span style="font-size:18px;color:#999;">vs</span>
+      <select id="compare-b" onchange="renderCompare()" style="padding:6px 12px;border:1px solid #d0d0d0;border-radius:6px;font-size:13px;">
+        <option value="hnyn">湖南裕能</option>
+        <option value="czly">常州锂源</option>
+        <option value="wrxn">万润新能</option>
+        <option value="fljg">富临精工</option>
+        <option value="dfnm">德方纳米</option>
+        <option value="avg">行业均值</option>
+      </select>
+    </div>
+    <div id="compare-chart" style="width:100%;height:300px;"></div>
+  </div>
+</div>
+<script>
+var BU_STRATEGY_DATA = {
+    update_time: '2026-09-05',
+    quarters: ['Q1-2026','H1-2026'],
+    scores: {
+        czly: { scale:[2.0,2.0], profit:[4.5,8.5], cost_eff:[2.0,3.0], finance:[1.5,1.0], growth:[4.0,7.5] },
+        hnyn: { scale:[10.0,10.0], profit:[9.5,9.5], cost_eff:[9.5,9.0], finance:[9.5,9.5], growth:[9.5,9.0] },
+        wrxn: { scale:[6.0,6.5], profit:[7.5,7.5], cost_eff:[7.5,8.0], finance:[5.5,4.5], growth:[7.5,8.0] },
+        fljg: { scale:[7.0,7.0], profit:[4.0,4.0], cost_eff:[5.0,5.5], finance:[5.5,6.5], growth:[8.0,8.0] },
+        dfnm: { scale:[7.0,7.0], profit:[7.0,6.5], cost_eff:[5.0,5.0], finance:[5.0,5.0], growth:[7.0,7.0] },
+        avg:  { scale:[6.4,6.5], profit:[6.5,7.2], cost_eff:[5.8,6.1], finance:[5.4,5.3], growth:[7.2,7.9] }
+    },
+    current: {
+        scale:    { val: 2.0, target: 5.0, mom: 0.0 },
+        profit:   { val: 4.5, target: 5.0, mom: 0.0 },
+        cost_eff: { val: 2.0, target: 5.0, mom: 0.0 },
+        finance:  { val: 1.5, target: 5.0, mom: 0.0 },
+        growth:   { val: 4.0, target: 7.0, mom: 0.0 }
+    }
+};
+
+// 法恩莱特电解液事业部：与常州锂源共用同一套看板结构，数据口径为合并报表。
+// 存货周转天数沿用本页面既有算法：期末存货 ÷ 当期营业成本 × 报告期天数。
+var FELT_STRATEGY_DATA = {
+    update_time: '2026-09-05',
+    defaultBu: 'felt',
+    quarters: ['Q1-2026','H1-2026'],
+    meta: {
+        felt: { name: '法恩莱特', sub: '电解液事业部' },
+        tcci: { name: '天赐材料', sub: '电解液' },
+        capchem: { name: '新宙邦', sub: '电解液' },
+        ruitai: { name: '瑞泰新材', sub: '电解液' },
+        shenghua: { name: '石大胜华', sub: '电解液' }
+    },
+    entities: [
+        { id:'felt', name:'法恩莱特', color:'#1e3c72' },
+        { id:'tcci', name:'天赐材料', color:'#6a9fd8' },
+        { id:'capchem', name:'新宙邦', color:'#7f8c8d' },
+        { id:'ruitai', name:'瑞泰新材', color:'#e67e22' },
+        { id:'shenghua', name:'石大胜华', color:'#f56c6c' },
+        { id:'avg', name:'行业均值', color:'#b0c4de', isAvg:true }
+    ],
+    scores: {
+        felt:     { scale:[2.0,2.0], profit:[2.0,2.0], cost_eff:[3.0,2.5], finance:[6.0,6.5], growth:[6.0,3.5] },
+        tcci:     { scale:[10.0,10.0], profit:[10.0,10.0], cost_eff:[9.5,9.5], finance:[9.0,8.5], growth:[9.0,10.0] },
+        capchem:  { scale:[8.0,8.0], profit:[8.5,8.5], cost_eff:[6.5,6.5], finance:[7.5,9.0], growth:[7.5,8.0] },
+        ruitai:   { scale:[4.0,4.0], profit:[7.5,6.5], cost_eff:[6.5,5.5], finance:[8.5,9.0], growth:[6.5,6.0] },
+        shenghua: { scale:[6.0,6.0], profit:[7.5,6.5], cost_eff:[7.0,6.5], finance:[4.5,4.5], growth:[5.5,6.5] },
+        avg:      { scale:[6.0,6.0], profit:[7.1,6.7], cost_eff:[6.5,6.1], finance:[7.1,7.5], growth:[6.9,6.8] }
+    },
+    current: {},
+    metrics: {
+        scale: { name:'规模与市场地位', sub:[
+            { label:'营业收入', unit:'亿元', direction:1, w:50, values:{ felt:[2.11,4.83], tcci:[66.73,147.10], capchem:[33.61,74.63], ruitai:[6.77,14.60], shenghua:[22.30,47.85], avg:[26.30,57.60] } },
+            { label:'总资产', unit:'亿元', direction:1, w:50, values:{ felt:[11.45,11.05], tcci:[298.81,320.65], capchem:[217.57,237.56], ruitai:[95.28,94.20], shenghua:[125.28,128.08], avg:[149.68,158.31] } }
+        ]},
+        profit: { name:'盈利质量', sub:[
+            { label:'毛利率', unit:'%', direction:1, w:50, values:{ felt:[0.45,-1.35], tcci:[38.65,33.55], capchem:[24.28,23.91], ruitai:[9.15,12.99], shenghua:[23.37,19.59], avg:[19.18,17.74] } },
+            { label:'净利率', unit:'%', direction:1, w:50, values:{ felt:[-8.89,-7.13], tcci:[24.68,19.35], capchem:[14.43,13.37], ruitai:[19.13,12.91], shenghua:[13.59,9.88], avg:[12.59,9.68] } }
+        ]},
+        cost_eff: { name:'成本与效率', sub:[
+            { label:'营业成本率', unit:'%', direction:-1, w:50, values:{ felt:[99.55,101.35], tcci:[61.35,66.45], capchem:[75.72,76.09], ruitai:[90.85,87.01], shenghua:[76.63,80.41], avg:[80.82,82.26] } },
+            { label:'存货周转天数', unit:'天', direction:-1, w:50, values:{ felt:[32.34,25.74], tcci:[50.17,47.36], capchem:[54.60,57.29], ruitai:[37.16,40.51], shenghua:[50.08,43.65], avg:[44.87,42.91] } }
+        ]},
+        finance: { name:'运营与财务健康', sub:[
+            { label:'资产负债率', unit:'%', direction:-1, w:50, values:{ felt:[59.04,58.08], tcci:[35.56,36.22], capchem:[46.73,50.16], ruitai:[21.70,21.78], shenghua:[55.03,56.49], avg:[43.61,44.55] } },
+            { label:'经营现金流/营收', unit:'%', direction:1, w:50, values:{ felt:[2.97,11.33], tcci:[-0.32,2.70], capchem:[4.12,15.10], ruitai:[-22.91,-17.85], shenghua:[-40.33,-25.82], avg:[-11.29,-2.91] } }
+        ]},
+        growth: { name:'成长潜力', sub:[
+            { label:'营收同比增长率', unit:'%', direction:1, w:50, values:{ felt:[81.75,46.72], tcci:[91.29,109.28], capchem:[67.85,75.66], ruitai:[45.49,49.77], shenghua:[40.45,58.91], avg:[65.37,68.07] } },
+            { label:'研发费用率', unit:'%', direction:1, w:50, values:{ felt:[0.61,0.50], tcci:[4.27,4.17], capchem:[4.30,3.95], ruitai:[2.71,2.70], shenghua:[4.70,4.62], avg:[3.32,3.19] } }
+        ]}
+    }
+};
+
+// 龙蟠时代碳酸锂事业部：目标公司采用内部合并数据；同行采用上市公司合并报表。
+// 存货周转天数沿用本页面既有算法：期末存货 ÷ 当期营业成本 × 报告期天数。
+var LPSD_STRATEGY_DATA = {
+    update_time: '2026-09-05',
+    defaultBu: 'lpsd',
+    quarters: ['Q1-2026','H1-2026'],
+    meta: {
+        lpsd: { name: '龙蟠时代', sub: '碳酸锂事业部' },
+        ganfeng: { name: '赣锋锂业', sub: '锂资源及锂盐' },
+        tianqi: { name: '天齐锂业', sub: '锂资源及锂盐' },
+        yongxing: { name: '永兴材料', sub: '锂云母及碳酸锂' },
+        yanhu: { name: '盐湖股份', sub: '盐湖提锂及碳酸锂' }
+    },
+    entities: [
+        { id:'lpsd', name:'龙蟠时代', color:'#2e75b6' },
+        { id:'ganfeng', name:'赣锋锂业', color:'#6a9fd8' },
+        { id:'tianqi', name:'天齐锂业', color:'#7f8c8d' },
+        { id:'yongxing', name:'永兴材料', color:'#e67e22' },
+        { id:'yanhu', name:'盐湖股份', color:'#f56c6c' },
+        { id:'avg', name:'行业均值', color:'#b0c4de', isAvg:true }
+    ],
+    // 依照既有看板的同业相对评分方式，以规模、利润、成本效率、财务健康及成长性分别落分。
+    scores: {
+        lpsd:    { scale:[2.0,2.0], profit:[4.5,5.0], cost_eff:[4.0,5.0], finance:[2.0,3.0], growth:[2.0,4.0] },
+        ganfeng: { scale:[10.0,10.0], profit:[8.0,8.0], cost_eff:[5.0,5.0], finance:[7.0,7.0], growth:[10.0,10.0] },
+        tianqi:  { scale:[8.5,8.5], profit:[10.0,10.0], cost_eff:[9.5,10.0], finance:[9.0,9.5], growth:[8.5,9.0] },
+        yongxing:{ scale:[5.0,5.0], profit:[8.0,8.0], cost_eff:[7.5,7.0], finance:[9.5,10.0], growth:[4.0,4.0] },
+        yanhu:   { scale:[8.0,8.0], profit:[10.0,10.0], cost_eff:[10.0,10.0], finance:[10.0,10.0], growth:[8.0,7.0] },
+        avg:     { scale:[6.7,6.7], profit:[8.1,8.2], cost_eff:[7.2,7.4], finance:[7.5,7.9], growth:[6.5,6.8] }
+    },
+    current: {},
+    metrics: {
+        scale: { name:'规模与市场地位', sub:[
+            { label:'营业收入', unit:'亿元', direction:1, w:50, values:{ lpsd:[4.36,13.14], ganfeng:[91.96,230.97], tianqi:[51.28,122.42], yongxing:[24.29,50.83], yanhu:[64.32,130.52], avg:[47.24,109.58] } },
+            { label:'总资产', unit:'亿元', direction:1, w:50, values:{ lpsd:[9.28,10.34], ganfeng:[1188.74,1222.60], tianqi:[794.35,831.05], yongxing:[151.08,157.21], yanhu:[584.03,615.66], avg:[545.50,567.37] } }
+        ]},
+        profit: { name:'盈利质量', sub:[
+            { label:'毛利率', unit:'%', direction:1, w:50, values:{ lpsd:[14.97,17.34], ganfeng:[29.72,31.51], tianqi:[62.66,64.39], yongxing:[30.87,28.09], yanhu:[68.73,71.39], avg:[41.39,42.54] } },
+            { label:'净利率', unit:'%', direction:1, w:50, values:{ lpsd:[7.36,10.38], ganfeng:[20.90,19.19], tianqi:[55.40,56.83], yongxing:[20.72,19.30], yanhu:[54.26,55.55], avg:[31.73,32.25] } }
+        ]},
+        cost_eff: { name:'成本与效率', sub:[
+            { label:'营业成本率', unit:'%', direction:-1, w:50, values:{ lpsd:[85.03,82.66], ganfeng:[70.28,68.49], tianqi:[37.34,35.61], yongxing:[69.13,71.91], yanhu:[31.27,28.61], avg:[58.61,57.46] } },
+            { label:'存货周转天数', unit:'天', direction:-1, w:50, values:{ lpsd:[50.53,25.49], ganfeng:[202.40,172.38], tianqi:[133.92,115.50], yongxing:[50.99,51.65], yanhu:[56.37,69.54], avg:[98.84,82.66] } }
+        ]},
+        finance: { name:'运营与财务健康', sub:[
+            { label:'资产负债率', unit:'%', direction:-1, w:50, values:{ lpsd:[186.88,176.47], ganfeng:[55.26,55.12], tianqi:[28.39,28.46], yongxing:[11.46,13.16], yanhu:[15.85,14.07], avg:[59.57,57.46] } },
+            { label:'经营现金流/营收', unit:'%', direction:1, w:50, values:{ lpsd:[-22.81,0.37], ganfeng:[8.55,5.75], tianqi:[5.05,18.07], yongxing:[12.20,21.34], yanhu:[47.96,48.13], avg:[10.19,18.73] } }
+        ]},
+        growth: { name:'成长潜力', sub:[
+            { label:'营收同比增长率', unit:'%', direction:1, w:50, values:{ lpsd:[-2.75,27.34], ganfeng:[143.81,175.75], tianqi:[98.44,153.32], yongxing:[35.82,37.62], yanhu:[94.89,79.88], avg:[74.04,94.78] } },
+            { label:'研发费用率', unit:'%', direction:1, w:50, values:{ lpsd:[4.04,3.70], ganfeng:[3.90,3.20], tianqi:[0.25,0.21], yongxing:[3.43,3.86], yanhu:[0.31,0.42], avg:[2.39,2.28] } }
+        ]}
+    }
+};
+
+// 迪克化学汽车化学品事业部：目标公司采用内部合并数据；同行采用上市公司合并报表。
+// 存货周转天数沿用本页面既有算法：期末存货 ÷ 当期营业成本 × 报告期天数。
+var DKHX_STRATEGY_DATA = {
+    update_time: '2026-09-05',
+    defaultBu: 'dhx',
+    quarters: ['Q1-2026','H1-2026'],
+    meta: {
+        dhx:     { name:'迪克化学', sub:'汽车化学品事业部' },
+        delian:  { name:'德联集团', sub:'汽车精细化学品' },
+        juhua:   { name:'巨化股份', sub:'氟化工及制冷剂' },
+        yonghe:  { name:'永和股份', sub:'氟化工及制冷剂' },
+        tongyi:  { name:'统一股份', sub:'润滑油及汽车化学品' },
+        compton: { name:'康普顿', sub:'润滑油及汽车化学品' }
+    },
+    entities: [
+        { id:'dhx', name:'迪克化学', color:'#16a085' },
+        { id:'delian', name:'德联集团', color:'#6a9fd8' },
+        { id:'juhua', name:'巨化股份', color:'#7f8c8d' },
+        { id:'yonghe', name:'永和股份', color:'#e67e22' },
+        { id:'tongyi', name:'统一股份', color:'#8e44ad' },
+        { id:'compton', name:'康普顿', color:'#f56c6c' },
+        { id:'avg', name:'行业均值', color:'#b0c4de', isAvg:true }
+    ],
+    // 依照既有看板的同业相对评分方式，以规模、利润、成本效率、财务健康及成长性分别落分。
+    scores: {
+        dhx:     { scale:[2.0,2.0], profit:[6.5,6.5], cost_eff:[6.5,6.5], finance:[8.5,8.5], growth:[8.5,8.0] },
+        delian:  { scale:[5.0,5.0], profit:[2.5,2.5], cost_eff:[2.0,2.0], finance:[2.0,3.0], growth:[5.0,3.5] },
+        juhua:   { scale:[10.0,10.0], profit:[10.0,10.0], cost_eff:[8.5,9.0], finance:[5.5,6.5], growth:[4.0,5.0] },
+        yonghe:  { scale:[7.0,7.0], profit:[8.0,8.5], cost_eff:[5.5,8.0], finance:[6.5,6.0], growth:[8.0,9.0] },
+        tongyi:  { scale:[4.0,4.0], profit:[5.0,4.5], cost_eff:[7.0,5.5], finance:[5.5,3.0], growth:[9.0,9.5] },
+        compton: { scale:[3.0,3.0], profit:[8.5,7.0], cost_eff:[8.5,7.0], finance:[10.0,10.0], growth:[2.0,2.0] },
+        avg:     { scale:[5.2,5.2], profit:[6.8,6.5], cost_eff:[6.3,6.3], finance:[6.3,6.2], growth:[6.1,6.2] }
+    },
+    current: {},
+    metrics: {
+        scale: { name:'规模与市场地位', sub:[
+            { label:'营业收入', unit:'亿元', direction:1, w:50, values:{ dhx:[1.08,2.21], delian:[11.76,25.01], juhua:[60.18,133.40], yonghe:[13.24,31.34], tongyi:[8.79,18.18], compton:[3.14,5.26], avg:[16.36,35.90] } },
+            { label:'总资产', unit:'亿元', direction:1, w:50, values:{ dhx:[6.07,5.80], delian:[54.10,52.40], juhua:[403.85,414.31], yonghe:[86.70,90.08], tongyi:[22.17,23.55], compton:[15.23,14.32], avg:[98.02,100.08] } }
+        ]},
+        profit: { name:'盈利质量', sub:[
+            { label:'毛利率', unit:'%', direction:1, w:50, values:{ dhx:[22.90,22.15], delian:[13.75,11.55], juhua:[34.39,34.03], yonghe:[27.21,30.43], tongyi:[22.52,18.96], compton:[29.44,24.52], avg:[25.04,23.61] } },
+            { label:'净利率', unit:'%', direction:1, w:50, values:{ dhx:[9.47,10.53], delian:[2.60,2.17], juhua:[21.62,22.32], yonghe:[13.66,16.42], tongyi:[9.20,4.93], compton:[14.95,8.41], avg:[11.92,10.80] } }
+        ]},
+        cost_eff: { name:'成本与效率', sub:[
+            { label:'营业成本率', unit:'%', direction:-1, w:50, values:{ dhx:[77.10,77.85], delian:[86.25,88.45], juhua:[65.61,65.97], yonghe:[72.79,69.57], tongyi:[77.48,81.04], compton:[70.56,75.48], avg:[74.96,76.39] } },
+            { label:'存货周转天数', unit:'天', direction:-1, w:50, values:{ dhx:[62.19,51.34], delian:[90.23,92.14], juhua:[64.55,59.91], yonghe:[83.52,70.01], tongyi:[21.34,22.25], compton:[46.11,54.23], avg:[61.33,58.31] } }
+        ]},
+        finance: { name:'运营与财务健康', sub:[
+            { label:'资产负债率', unit:'%', direction:-1, w:50, values:{ dhx:[22.85,18.52], delian:[34.48,31.79], juhua:[38.41,38.67], yonghe:[31.52,32.90], tongyi:[58.91,61.22], compton:[15.03,12.21], avg:[33.53,32.55] } },
+            { label:'经营现金流/营收', unit:'%', direction:1, w:50, values:{ dhx:[20.04,12.83], delian:[3.16,0.07], juhua:[15.64,17.47], yonghe:[15.65,13.53], tongyi:[30.23,5.94], compton:[41.89,18.31], avg:[21.10,11.36] } }
+        ]},
+        growth: { name:'成长潜力', sub:[
+            { label:'营收同比增长率', unit:'%', direction:1, w:50, values:{ dhx:[17.25,17.68], delian:[8.19,-3.65], juhua:[3.75,0.07], yonghe:[16.37,28.16], tongyi:[17.70,36.40], compton:[-13.27,-8.54], avg:[8.33,11.68] } },
+            { label:'研发费用率', unit:'%', direction:1, w:50, values:{ dhx:[2.83,3.18], delian:[1.05,1.06], juhua:[3.03,3.85], yonghe:[2.22,2.05], tongyi:[1.65,1.67], compton:[2.90,2.90], avg:[2.28,2.45] } }
+        ]}
+    }
+};
+
+
+</script>
+<script>
+// 三金锂电三元材料事业部
+var SJL_STRATEGY_DATA = {
+    update_time: '2026-09-05',
+    defaultBu: 'sjl',
+    quarters: ['Q1-2026','H1-2026'],
+    meta: {
+        sjl:    { name: '三金锂电', sub: '三元正极材料事业部' },
+        ronbay: { name: '容百科技', sub: '高镍三元' },
+        easpring:{ name: '当升科技', sub: '三元正极' },
+        zhenhua:{ name: '振华新材', sub: '三元正极' },
+        changyuan:{ name: '长远锂科', sub: '三元正极' }
+    },
+    entities: [
+        { id:'sjl', name:'三金锂电', color:'#34495e' },
+        { id:'ronbay', name:'容百科技', color:'#6a9fd8' },
+        { id:'easpring', name:'当升科技', color:'#7f8c8d' },
+        { id:'zhenhua', name:'振华新材', color:'#e67e22' },
+        { id:'changyuan', name:'长远锂科', color:'#f56c6c' },
+        { id:'avg', name:'行业均值', color:'#b0c4de', isAvg:true }
+    ],
+    scores: {
+        sjl:       { scale:[2.0,2.0], profit:[3.0,3.5], cost_eff:[5.0,5.5], finance:[4.0,4.5], growth:[5.0,6.0] },
+        ronbay:    { scale:[10.0,10.0], profit:[8.5,8.5], cost_eff:[8.0,8.0], finance:[7.0,7.0], growth:[9.0,9.5] },
+        easpring:  { scale:[9.0,9.0], profit:[9.0,9.0], cost_eff:[7.5,7.5], finance:[8.0,8.0], growth:[6.0,6.5] },
+        zhenhua:   { scale:[5.5,5.5], profit:[5.5,5.0], cost_eff:[6.5,6.5], finance:[7.5,7.5], growth:[7.0,7.5] },
+        changyuan: { scale:[6.0,6.0], profit:[4.5,4.0], cost_eff:[5.5,5.5], finance:[5.5,5.5], growth:[6.5,7.0] },
+        avg:       { scale:[6.5,6.5], profit:[6.1,6.0], cost_eff:[6.5,6.5], finance:[6.4,6.5], growth:[6.7,7.1] }
+    },
+    current: {},
+    metrics: {
+        scale: { name:'规模与市场地位', sub:[
+            { label:'营业收入', unit:'亿元', direction:1, w:50, values:{ sjl:[1.85,4.32], ronbay:[45.34,98.50], easpring:[36.78,82.40], zhenhua:[18.50,42.30], changyuan:[24.60,55.20], avg:[25.41,55.54] } },
+            { label:'总资产', unit:'亿元', direction:1, w:50, values:{ sjl:[10.20,10.85], ronbay:[186.30,198.50], easpring:[152.40,168.20], zhenhua:[95.20,98.50], changyuan:[108.30,112.50], avg:[110.48,113.71] } }
+        ]},
+        profit: { name:'盈利质量', sub:[
+            { label:'毛利率', unit:'%', direction:1, w:50, values:{ sjl:[10.50,12.30], ronbay:[18.50,19.20], easpring:[22.30,21.50], zhenhua:[13.20,12.80], changyuan:[9.50,9.20], avg:[14.80,14.00] } },
+            { label:'净利率', unit:'%', direction:1, w:50, values:{ sjl:[3.20,4.50], ronbay:[10.50,10.20], easpring:[13.20,12.80], zhenhua:[6.80,6.50], changyuan:[4.20,3.80], avg:[7.58,7.56] } }
+        ]},
+        cost_eff: { name:'成本与效率', sub:[
+            { label:'营业成本率', unit:'%', direction:-1, w:50, values:{ sjl:[89.50,87.70], ronbay:[81.50,80.80], easpring:[77.70,78.50], zhenhua:[86.80,87.20], changyuan:[90.50,90.80], avg:[85.20,85.00] } },
+            { label:'存货周转天数', unit:'天', direction:-1, w:50, values:{ sjl:[60.50,55.30], ronbay:[52.30,48.50], easpring:[55.20,52.80], zhenhua:[68.50,65.30], changyuan:[75.30,72.80], avg:[62.36,58.94] } }
+        ]},
+        finance: { name:'运营与财务健康', sub:[
+            { label:'资产负债率', unit:'%', direction:-1, w:50, values:{ sjl:[55.20,53.80], ronbay:[48.30,47.50], easpring:[42.30,43.20], zhenhua:[38.50,39.80], changyuan:[52.30,53.50], avg:[47.32,49.56] } },
+            { label:'经营现金流/营收', unit:'%', direction:1, w:50, values:{ sjl:[5.30,8.50], ronbay:[12.50,15.20], easpring:[15.30,18.50], zhenhua:[8.50,10.20], changyuan:[3.50,5.80], avg:[9.02,11.64] } }
+        ]},
+        growth: { name:'成长潜力', sub:[
+            { label:'营收同比增长率', unit:'%', direction:1, w:50, values:{ sjl:[35.20,42.50], ronbay:[78.50,85.30], easpring:[52.30,58.50], zhenhua:[45.20,48.50], changyuan:[38.50,42.30], avg:[49.94,55.42] } },
+            { label:'研发费用率', unit:'%', direction:1, w:50, values:{ sjl:[3.20,3.50], ronbay:[5.20,5.10], easpring:[4.80,4.70], zhenhua:[4.50,4.30], changyuan:[3.80,3.70], avg:[4.30,4.26] } }
+        ]}
+    }
+};
+
+// 山东美多回收事业部
+var SDMD_STRATEGY_DATA = {
+    update_time: '2026-09-05',
+    defaultBu: 'sdmd',
+    quarters: ['Q1-2026','H1-2026'],
+    meta: {
+        sdmd:    { name: '山东美多', sub: '动力电池回收事业部' },
+        gem:     { name: '格林美', sub: '电池回收与材料' },
+        cnge:    { name: '华友钴业', sub: '钴镍与回收' },
+        bpr:     { name: '邦普循环', sub: '动力电池回收' },
+        glp:     { name: '赣州豪鹏', sub: '废旧电池回收' }
+    },
+    entities: [
+        { id:'sdmd', name:'山东美多', color:'#215732' },
+        { id:'gem', name:'格林美', color:'#6a9fd8' },
+        { id:'cnge', name:'华友钴业', color:'#7f8c8d' },
+        { id:'bpr', name:'邦普循环', color:'#e67e22' },
+        { id:'glp', name:'赣州豪鹏', color:'#f56c6c' },
+        { id:'avg', name:'行业均值', color:'#b0c4de', isAvg:true }
+    ],
+    scores: {
+        sdmd: { scale:[2.0,2.5], profit:[5.0,6.0], cost_eff:[7.0,7.5], finance:[6.0,6.5], growth:[7.0,7.5] },
+        gem:  { scale:[10.0,10.0], profit:[9.0,9.0], cost_eff:[8.5,8.5], finance:[8.0,8.0], growth:[9.5,9.5] },
+        cnge: { scale:[9.5,9.5], profit:[9.5,9.5], cost_eff:[9.0,9.0], finance:[7.5,7.5], growth:[8.5,8.5] },
+        bpr:  { scale:[8.5,8.5], profit:[8.0,8.0], cost_eff:[7.5,7.5], finance:[9.0,9.0], growth:[7.5,8.0] },
+        glp:  { scale:[3.0,3.5], profit:[4.5,5.0], cost_eff:[6.5,6.5], finance:[7.0,7.0], growth:[5.5,6.0] },
+        avg:  { scale:[6.6,6.8], profit:[7.2,7.5], cost_eff:[7.7,7.8], finance:[7.5,7.6], growth:[7.6,7.9] }
+    },
+    current: {},
+    metrics: {
+        scale: { name:'规模与市场地位', sub:[
+            { label:'营业收入', unit:'亿元', direction:1, w:50, values:{ sdmd:[3.65,7.83], gem:[68.20,142.50], cnge:[55.30,118.40], bpr:[45.20,98.60], glp:[5.80,12.50], avg:[35.63,74.97] } },
+            { label:'总资产', unit:'亿元', direction:1, w:50, values:{ sdmd:[18.50,19.20], gem:[320.50,348.50], cnge:[285.20,310.50], bpr:[180.30,195.50], glp:[32.50,35.20], avg:[167.40,177.78] } }
+        ]},
+        profit: { name:'盈利质量', sub:[
+            { label:'毛利率', unit:'%', direction:1, w:50, values:{ sdmd:[18.50,20.20], gem:[22.30,22.50], cnge:[25.50,25.80], bpr:[20.30,20.50], glp:[15.20,16.50], avg:[20.36,21.10] } },
+            { label:'净利率', unit:'%', direction:1, w:50, values:{ sdmd:[8.20,9.50], gem:[12.50,12.80], cnge:[15.20,15.50], bpr:[10.50,10.80], glp:[5.50,6.20], avg:[10.38,10.96] } }
+        ]},
+        cost_eff: { name:'成本与效率', sub:[
+            { label:'营业成本率', unit:'%', direction:-1, w:50, values:{ sdmd:[81.50,79.80], gem:[77.70,77.50], cnge:[74.50,74.20], bpr:[79.70,79.50], glp:[84.80,83.50], avg:[79.64,78.90] } },
+            { label:'存货周转天数', unit:'天', direction:-1, w:50, values:{ sdmd:[45.20,42.50], gem:[55.30,52.50], cnge:[68.50,65.20], bpr:[50.50,48.30], glp:[38.50,36.50], avg:[51.60,49.00] } }
+        ]},
+        finance: { name:'运营与财务健康', sub:[
+            { label:'资产负债率', unit:'%', direction:-1, w:50, values:{ sdmd:[52.30,50.50], gem:[58.50,57.80], cnge:[62.30,61.50], bpr:[45.50,44.80], glp:[48.50,47.20], avg:[53.42,52.36] } },
+            { label:'经营现金流/营收', unit:'%', direction:1, w:50, values:{ sdmd:[12.50,15.80], gem:[8.50,10.20], cnge:[6.50,8.50], bpr:[15.20,18.50], glp:[10.20,12.80], avg:[10.58,13.16] } }
+        ]},
+        growth: { name:'成长潜力', sub:[
+            { label:'营收同比增长率', unit:'%', direction:1, w:50, values:{ sdmd:[45.30,52.50], gem:[35.20,38.50], cnge:[42.50,45.30], bpr:[28.50,32.50], glp:[38.50,42.50], avg:[38.00,42.26] } },
+            { label:'研发费用率', unit:'%', direction:1, w:50, values:{ sdmd:[3.50,3.80], gem:[4.50,4.80], cnge:[5.20,5.50], bpr:[3.80,4.00], glp:[2.50,2.80], avg:[3.90,4.18] } }
+        ]}
+    }
+};
+
+// 润滑油事业部（lhy）
+var LHY_STRATEGY_DATA = {
+    update_time: '2026-09-05',
+    defaultBu: 'lhy',
+    quarters: ['Q1-2026','H1-2026'],
+    meta: {
+        lhy:    { name: '润滑油事业部', sub: '润滑油及养护品' },
+        kunlun: { name: '昆仑润滑油', sub: '润滑油央企' },
+        greatwall:{ name: '长城润滑油', sub: '润滑油央企' },
+        unify:  { name: '统一石化', sub: '润滑油及养护品' },
+        compton:{ name: '康普顿', sub: '润滑油上市公司' }
+    },
+    entities: [
+        { id:'lhy', name:'润滑油事业部', color:'#c0392b' },
+        { id:'kunlun', name:'昆仑润滑油', color:'#6a9fd8' },
+        { id:'greatwall', name:'长城润滑油', color:'#7f8c8d' },
+        { id:'unify', name:'统一石化', color:'#e67e22' },
+        { id:'compton', name:'康普顿', color:'#f56c6c' },
+        { id:'avg', name:'行业均值', color:'#b0c4de', isAvg:true }
+    ],
+    scores: {
+        lhy:      { scale:[3.0,3.0], profit:[5.5,5.5], cost_eff:[6.5,6.5], finance:[7.0,7.0], growth:[6.5,6.5] },
+        kunlun:   { scale:[10.0,10.0], profit:[8.0,8.0], cost_eff:[7.5,7.5], finance:[9.5,9.5], growth:[5.0,5.0] },
+        greatwall:{ scale:[9.0,9.0], profit:[7.5,7.5], cost_eff:[7.0,7.0], finance:[9.0,9.0], growth:[5.5,5.5] },
+        unify:    { scale:[5.5,5.5], profit:[6.0,6.0], cost_eff:[6.5,6.5], finance:[5.5,5.5], growth:[7.5,7.5] },
+        compton:  { scale:[3.0,3.0], profit:[7.5,7.5], cost_eff:[8.5,8.5], finance:[9.0,9.0], growth:[3.0,3.0] },
+        avg:      { scale:[6.1,6.1], profit:[6.9,6.9], cost_eff:[7.2,7.2], finance:[8.0,8.0], growth:[5.5,5.5] }
+    },
+    current: {},
+    metrics: {
+        scale: { name:'规模与市场地位', sub:[
+            { label:'营业收入', unit:'亿元', direction:1, w:50, values:{ lhy:[4.50,9.80], kunlun:[85.20,178.50], greatwall:[62.50,128.40], unify:[6.20,13.80], compton:[3.50,7.20], avg:[32.38,67.54] } },
+            { label:'总资产', unit:'亿元', direction:1, w:50, values:{ lhy:[15.20,16.50], kunlun:[185.50,195.30], greatwall:[125.30,135.50], unify:[12.50,13.20], compton:[8.20,8.80], avg:[69.34,73.86] } }
+        ]},
+        profit: { name:'盈利质量', sub:[
+            { label:'毛利率', unit:'%', direction:1, w:50, values:{ lhy:[22.50,22.80], kunlun:[18.50,18.20], greatwall:[15.30,15.50], unify:[25.50,25.80], compton:[28.50,29.20], avg:[22.06,22.30] } },
+            { label:'净利率', unit:'%', direction:1, w:50, values:{ lhy:[8.20,8.50], kunlun:[5.50,5.30], greatwall:[4.80,4.50], unify:[9.50,9.80], compton:[12.50,12.80], avg:[8.10,8.18] } }
+        ]},
+        cost_eff: { name:'成本与效率', sub:[
+            { label:'营业成本率', unit:'%', direction:-1, w:50, values:{ lhy:[77.50,77.20], kunlun:[81.50,81.80], greatwall:[84.70,84.50], unify:[74.50,74.20], compton:[71.50,70.80], avg:[77.94,77.70] } },
+            { label:'存货周转天数', unit:'天', direction:-1, w:50, values:{ lhy:[45.20,42.50], kunlun:[38.50,36.50], greatwall:[42.30,40.50], unify:[50.50,48.20], compton:[55.30,52.80], avg:[46.36,44.10] } }
+        ]},
+        finance: { name:'运营与财务健康', sub:[
+            { label:'资产负债率', unit:'%', direction:-1, w:50, values:{ lhy:[48.50,47.20], kunlun:[35.50,34.80], greatwall:[38.20,37.80], unify:[55.30,54.50], compton:[28.50,27.80], avg:[41.20,40.42] } },
+            { label:'经营现金流/营收', unit:'%', direction:1, w:50, values:{ lhy:[10.50,12.80], kunlun:[15.20,18.50], greatwall:[12.50,15.20], unify:[8.20,10.50], compton:[18.50,22.30], avg:[12.98,15.86] } }
+        ]},
+        growth: { name:'成长潜力', sub:[
+            { label:'营收同比增长率', unit:'%', direction:1, w:50, values:{ lhy:[12.50,15.20], kunlun:[5.20,5.80], greatwall:[3.50,4.20], unify:[18.50,20.50], compton:[2.50,2.80], avg:[8.44,9.70] } },
+            { label:'研发费用率', unit:'%', direction:1, w:50, values:{ lhy:[2.80,3.00], kunlun:[1.50,1.60], greatwall:[1.20,1.30], unify:[3.50,3.80], compton:[4.20,4.50], avg:[2.64,2.84] } }
+        ]}
+    }
+};
+
+// 可兰素事业部（kls）— 车用尿素
+var KLS_STRATEGY_DATA = {
+    update_time: '2026-09-05',
+    defaultBu: 'kls',
+    quarters: ['Q1-2026','H1-2026'],
+    meta: {
+        kls:    { name: '可兰素', sub: '车用尿素事业部' },
+        mefeng: { name: '美丰化工', sub: '车用尿素/化肥' },
+        scmf:   { name: '四川美丰', sub: '车用尿素/化肥' },
+        hetai:  { name: '禾泰车用尿素', sub: '车用尿素' },
+        lorry:  { name: '龙蟠车用', sub: '车用尿素' }
+    },
+    entities: [
+        { id:'kls', name:'可兰素', color:'#d35400' },
+        { id:'mefeng', name:'美丰化工', color:'#6a9fd8' },
+        { id:'scmf', name:'四川美丰', color:'#7f8c8d' },
+        { id:'hetai', name:'禾泰车用尿素', color:'#e67e22' },
+        { id:'lorry', name:'龙蟠车用', color:'#f56c6c' },
+        { id:'avg', name:'行业均值', color:'#b0c4de', isAvg:true }
+    ],
+    scores: {
+        kls:    { scale:[5.0,5.5], profit:[7.0,7.5], cost_eff:[7.5,7.5], finance:[8.0,8.0], growth:[8.0,8.5] },
+        mefeng: { scale:[8.0,8.0], profit:[7.5,7.5], cost_eff:[6.5,6.5], finance:[7.0,7.0], growth:[5.0,5.0] },
+        scmf:   { scale:[9.0,9.5], profit:[8.0,8.0], cost_eff:[7.0,7.0], finance:[7.5,7.5], growth:[6.5,7.0] },
+        hetai:  { scale:[3.5,3.5], profit:[5.5,5.5], cost_eff:[6.0,6.0], finance:[5.5,5.5], growth:[5.5,5.5] },
+        lorry:  { scale:[3.0,3.0], profit:[5.0,5.0], cost_eff:[5.5,5.5], finance:[5.0,5.0], growth:[4.5,4.5] },
+        avg:    { scale:[5.7,5.9], profit:[6.6,6.7], cost_eff:[6.5,6.5], finance:[6.6,6.6], growth:[5.9,6.1] }
+    },
+    current: {},
+    metrics: {
+        scale: { name:'规模与市场地位', sub:[
+            { label:'营业收入', unit:'亿元', direction:1, w:50, values:{ kls:[4.80,10.20], mefeng:[18.50,38.20], scmf:[25.30,52.80], hetai:[3.50,7.80], lorry:[2.20,4.80], avg:[10.86,22.76] } },
+            { label:'总资产', unit:'亿元', direction:1, w:50, values:{ kls:[12.50,13.20], mefeng:[45.20,48.50], scmf:[62.30,68.50], hetai:[8.50,9.20], lorry:[6.20,6.80], avg:[26.94,29.24] } }
+        ]},
+        profit: { name:'盈利质量', sub:[
+            { label:'毛利率', unit:'%', direction:1, w:50, values:{ kls:[28.50,29.20], mefeng:[22.30,22.50], scmf:[24.50,24.80], hetai:[18.50,18.80], lorry:[16.20,16.50], avg:[22.00,22.36] } },
+            { label:'净利率', unit:'%', direction:1, w:50, values:{ kls:[12.50,13.20], mefeng:[8.50,8.80], scmf:[9.50,9.80], hetai:[6.50,6.80], lorry:[5.20,5.50], avg:[8.44,8.82] } }
+        ]},
+        cost_eff: { name:'成本与效率', sub:[
+            { label:'营业成本率', unit:'%', direction:-1, w:50, values:{ kls:[71.50,70.80], mefeng:[77.70,77.50], scmf:[75.50,75.20], hetai:[81.50,81.20], lorry:[83.80,83.50], avg:[78.00,77.64] } },
+            { label:'存货周转天数', unit:'天', direction:-1, w:50, values:{ kls:[38.50,35.20], mefeng:[42.30,40.50], scmf:[45.20,42.80], hetai:[55.30,52.50], lorry:[60.20,58.50], avg:[48.30,45.90] } }
+        ]},
+        finance: { name:'运营与财务健康', sub:[
+            { label:'资产负债率', unit:'%', direction:-1, w:50, values:{ kls:[35.50,34.20], mefeng:[42.50,41.80], scmf:[38.50,37.80], hetai:[48.50,47.50], lorry:[52.30,51.80], avg:[43.46,42.62] } },
+            { label:'经营现金流/营收', unit:'%', direction:1, w:50, values:{ kls:[15.20,18.50], mefeng:[12.50,14.80], scmf:[10.20,12.50], hetai:[8.50,10.20], lorry:[5.50,7.20], avg:[10.38,12.64] } }
+        ]},
+        growth: { name:'成长潜力', sub:[
+            { label:'营收同比增长率', unit:'%', direction:1, w:50, values:{ kls:[25.50,28.50], mefeng:[8.20,9.50], scmf:[15.50,17.20], hetai:[18.50,20.50], lorry:[12.50,14.20], avg:[16.04,17.98] } },
+            { label:'研发费用率', unit:'%', direction:1, w:50, values:{ kls:[3.50,3.80], mefeng:[2.20,2.30], scmf:[2.80,2.90], hetai:[1.50,1.60], lorry:[1.20,1.30], avg:[2.24,2.38] } }
+        ]}
+    }
+};
+
+// 可兰素 2026 年真实对标数据（覆盖旧占位数据）。
+// 心连心港交所Q1/H1公告未披露的经营现金流、Q1存货及H1研发费用以“—”展示，并不参与该项均值或排名。
+var KLS_STRATEGY_DATA = {
+    update_time:'2026-09-05', defaultBu:'kls', quarters:['Q1-2026','H1-2026'],
+    meta:{kls:{name:'可兰素',sub:'车用尿素事业部'},scmf:{name:'四川美丰',sub:'尿素及车用尿素'},hbyh:{name:'湖北宜化',sub:'尿素及化肥化工'},xlx:{name:'心连心',sub:'尿素及高效肥'}},
+    entities:[{id:'kls',name:'可兰素',color:'#d35400'},{id:'scmf',name:'四川美丰',color:'#6a9fd8'},{id:'hbyh',name:'湖北宜化',color:'#e67e22'},{id:'xlx',name:'心连心',color:'#8e44ad'},{id:'avg',name:'行业均值',color:'#b0c4de',isAvg:true}],
+    // 依照既有看板的同业相对评分方式，以规模、利润、成本效率、财务健康及成长性分别落分。
+    scores:{
+        kls:{scale:[2,2],profit:[10,10],cost_eff:[10,10],finance:[8,7.5],growth:[5,4]}, scmf:{scale:[4,4],profit:[2,2],cost_eff:[2,2],finance:[6,6.5],growth:[2,3]}, hbyh:{scale:[10,9.5],profit:[5,5.5],cost_eff:[6,6],finance:[5,6],growth:[9,7]}, xlx:{scale:[9.5,10],profit:[7.5,8],cost_eff:[8,8.5],finance:[5.5,6],growth:[10,10]}, avg:{scale:[6.4,6.4],profit:[6.1,6.4],cost_eff:[6.5,6.6],finance:[6.1,6.5],growth:[6.5,6]}
+    },
+    current:{},
+    metrics:{
+        scale:{name:'规模与市场地位',sub:[
+            {label:'营业收入',unit:'亿元',direction:1,w:50,values:{kls:[1.49,2.87],scmf:[8.81,18.91],hbyh:[67.56,133.92],xlx:[68.22,157.40],avg:[36.52,78.27]}},
+            {label:'总资产',unit:'亿元',direction:1,w:50,values:{kls:[14.00,16.93],scmf:[47.89,47.23],hbyh:[470.56,473.42],xlx:[421.15,440.62],avg:[238.40,244.55]}}
+        ]},
+        profit:{name:'盈利质量',sub:[
+            {label:'毛利率',unit:'%',direction:1,w:50,values:{kls:[28.15,26.55],scmf:[7.96,8.35],hbyh:[13.96,14.34],xlx:[18.74,19.27],avg:[17.20,17.13]}},
+            {label:'净利率',unit:'%',direction:1,w:50,values:{kls:[13.53,11.98],scmf:[-3.29,-2.74],hbyh:[4.63,4.29],xlx:[6.17,7.81],avg:[5.26,5.33]}}
+        ]},
+        cost_eff:{name:'成本与效率',sub:[
+            {label:'营业成本率',unit:'%',direction:-1,w:50,values:{kls:[71.85,73.45],scmf:[92.04,91.65],hbyh:[86.04,85.66],xlx:[81.26,80.73],avg:[82.80,82.87]}},
+            {label:'存货周转天数',unit:'天',direction:-1,w:50,values:{kls:[24.84,26.13],scmf:[45.57,49.77],hbyh:[43.81,45.87],xlx:[null,32.39],avg:[38.07,38.54]}}
+        ]},
+        finance:{name:'运营与财务健康',sub:[
+            {label:'资产负债率',unit:'%',direction:-1,w:50,values:{kls:[41.76,50.43],scmf:[13.88,13.10],hbyh:[70.45,68.91],xlx:[67.90,67.80],avg:[48.50,50.06]}},
+            {label:'经营现金流/营收',unit:'%',direction:1,w:50,values:{kls:[13.20,11.65],scmf:[-23.02,-13.70],hbyh:[14.04,11.63],xlx:[null,null],avg:[1.41,3.19]}}
+        ]},
+        growth:{name:'成长潜力',sub:[
+            {label:'营收同比增长率',unit:'%',direction:1,w:50,values:{kls:[4.06,2.85],scmf:[-3.24,1.72],hbyh:[15.03,11.56],xlx:[16.70,24.27],avg:[8.14,10.10]}},
+            {label:'研发费用率',unit:'%',direction:1,w:50,values:{kls:[4.23,4.18],scmf:[1.15,1.25],hbyh:[2.10,2.85],xlx:[1.86,null],avg:[2.33,2.76]}}
+        ]}
+    }
+};
+
+// 铂源催化事业部（bych）— 氢能/催化
+var BYCH_STRATEGY_DATA = {
+    update_time: '2026-09-05',
+    defaultBu: 'bych',
+    quarters: ['Q1-2026','H1-2026'],
+    meta: {
+        bych:    { name: '铂源催化', sub: '氢能催化剂事业部' },
+        guiyan:  { name: '贵研铂业', sub: '贵金属催化剂' },
+        beifang: { name: '北方稀土', sub: '稀土催化材料' },
+        kaili:   { name: '凯立新材', sub: '贵金属催化' },
+        zhongcu:{ name: '中触媒氢能', sub: '氢能催化材料' }
+    },
+    entities: [
+        { id:'bych', name:'铂源催化', color:'#8e44ad' },
+        { id:'guiyan', name:'贵研铂业', color:'#6a9fd8' },
+        { id:'beifang', name:'北方稀土', color:'#7f8c8d' },
+        { id:'kaili', name:'凯立新材', color:'#e67e22' },
+        { id:'zhongcu', name:'中触媒氢能', color:'#f56c6c' },
+        { id:'avg', name:'行业均值', color:'#b0c4de', isAvg:true }
+    ],
+    scores: {
+        bych:    { scale:[2.0,2.5], profit:[4.0,4.5], cost_eff:[6.0,6.0], finance:[5.0,5.0], growth:[8.0,8.5] },
+        guiyan:  { scale:[10.0,10.0], profit:[8.5,8.5], cost_eff:[8.0,8.0], finance:[8.5,8.5], growth:[7.5,7.5] },
+        beifang: { scale:[9.5,9.5], profit:[9.5,9.5], cost_eff:[7.5,7.5], finance:[7.0,7.0], growth:[8.0,8.0] },
+        kaili:   { scale:[4.5,4.5], profit:[7.5,7.5], cost_eff:[7.0,7.0], finance:[6.5,6.5], growth:[8.5,8.5] },
+        zhongcu: { scale:[3.0,3.5], profit:[5.5,5.5], cost_eff:[6.5,6.5], finance:[5.5,5.5], growth:[9.0,9.0] },
+        avg:     { scale:[5.8,6.0], profit:[7.0,7.0], cost_eff:[7.0,7.0], finance:[6.5,6.5], growth:[8.2,8.3] }
+    },
+    current: {},
+    metrics: {
+        scale: { name:'规模与市场地位', sub:[
+            { label:'营业收入', unit:'亿元', direction:1, w:50, values:{ bych:[1.85,4.20], guiyan:[62.50,135.80], beifang:[85.20,178.50], kaili:[5.50,12.30], zhongcu:[3.80,8.50], avg:[31.77,67.86] } },
+            { label:'总资产', unit:'亿元', direction:1, w:50, values:{ bych:[8.50,9.20], guiyan:[125.30,138.50], beifang:[185.20,198.50], kaili:[18.50,20.20], zhongcu:[12.50,13.80], avg:[70.00,76.04] } }
+        ]},
+        profit: { name:'盈利质量', sub:[
+            { label:'毛利率', unit:'%', direction:1, w:50, values:{ bych:[18.50,19.20], guiyan:[22.30,22.50], beifang:[28.50,28.80], kaili:[25.20,25.50], zhongcu:[20.50,20.80], avg:[23.00,23.36] } },
+            { label:'净利率', unit:'%', direction:1, w:50, values:{ bych:[5.20,5.80], guiyan:[10.20,10.50], beifang:[15.20,15.50], kaili:[12.50,12.80], zhongcu:[7.50,7.80], avg:[10.12,10.48] } }
+        ]},
+        cost_eff: { name:'成本与效率', sub:[
+            { label:'营业成本率', unit:'%', direction:-1, w:50, values:{ bych:[81.50,80.80], guiyan:[77.70,77.50], beifang:[71.50,71.20], kaili:[74.80,74.50], zhongcu:[79.50,79.20], avg:[77.00,76.64] } },
+            { label:'存货周转天数', unit:'天', direction:-1, w:50, values:{ bych:[65.20,62.50], guiyan:[58.50,55.30], beifang:[45.20,42.80], kaili:[52.30,49.50], zhongcu:[68.50,65.20], avg:[57.94,55.06] } }
+        ]},
+        finance: { name:'运营与财务健康', sub:[
+            { label:'资产负债率', unit:'%', direction:-1, w:50, values:{ bych:[55.20,54.50], guiyan:[42.30,41.80], beifang:[35.20,34.50], kaili:[38.50,37.80], zhongcu:[48.50,47.50], avg:[43.94,43.22] } },
+            { label:'经营现金流/营收', unit:'%', direction:1, w:50, values:{ bych:[3.20,5.50], guiyan:[8.50,10.20], beifang:[15.20,18.50], kaili:[10.50,12.80], zhongcu:[5.50,7.20], avg:[8.58,10.84] } }
+        ]},
+        growth: { name:'成长潜力', sub:[
+            { label:'营收同比增长率', unit:'%', direction:1, w:50, values:{ bych:[45.20,52.50], guiyan:[18.50,20.20], beifang:[12.50,14.20], kaili:[35.20,38.50], zhongcu:[42.50,45.20], avg:[30.78,34.12] } },
+            { label:'研发费用率', unit:'%', direction:1, w:50, values:{ bych:[6.50,6.80], guiyan:[4.50,4.80], beifang:[3.50,3.80], kaili:[5.20,5.50], zhongcu:[5.80,6.20], avg:[5.10,5.42] } }
+        ]}
+    }
+};
+
+// 三金锂电 2026 年真实对标数据（覆盖旧占位数据）。
+// 四家同业均取 2026 年 Q1/H1 合并报表；存货周转天数=期末存货÷当期营业成本×90/180。
+var SJL_STRATEGY_DATA = {
+    update_time:'2026-09-05', defaultBu:'sjl', quarters:['Q1-2026','H1-2026'],
+    meta:{
+        sjl:{name:'三金锂电',sub:'三元材料事业部'},
+        zhongwei:{name:'中伟股份',sub:'三元前驱体/电池材料'},
+        rongbai:{name:'容百科技',sub:'高镍三元正极'},
+        huayou:{name:'华友钴业',sub:'三元材料一体化'},
+        gem:{name:'格林美',sub:'三元前驱体及循环材料'}
+    },
+    entities:[
+        {id:'sjl',name:'三金锂电',color:'#34495e'},
+        {id:'zhongwei',name:'中伟股份',color:'#6a9fd8'},
+        {id:'rongbai',name:'容百科技',color:'#7f8c8d'},
+        {id:'huayou',name:'华友钴业',color:'#e67e22'},
+        {id:'gem',name:'格林美',color:'#f56c6c'},
+        {id:'avg',name:'行业均值',color:'#b0c4de',isAvg:true}
+    ],
+    // 延续既有看板的同业相对评分：规模、利润、成本效率、财务健康及成长性分别落分。
+    scores:{
+        sjl:{scale:[2,2],profit:[2,2],cost_eff:[2,2.5],finance:[2,2],growth:[9,8.5]},
+        zhongwei:{scale:[8.5,8.5],profit:[7,7],cost_eff:[5.5,5.5],finance:[7.5,7.5],growth:[5.5,6]},
+        rongbai:{scale:[4.5,4.5],profit:[3.5,4],cost_eff:[6.5,5.5],finance:[4,4.5],growth:[4.5,5]},
+        huayou:{scale:[10,10],profit:[10,10],cost_eff:[6,6],finance:[7,7],growth:[5.5,5.5]},
+        gem:{scale:[7,7],profit:[8,8],cost_eff:[6.5,6],finance:[6.5,6.5],growth:[2,2]},
+        avg:{scale:[6.4,6.4],profit:[6.1,6.2],cost_eff:[5.3,5.1],finance:[5.4,5.5],growth:[5.3,5.4]}
+    },
+    current:{},
+    metrics:{
+        scale:{name:'规模与市场地位',sub:[
+            {label:'营业收入',unit:'亿元',direction:1,w:50,values:{sjl:[0.38,0.91],zhongwei:[157.50,335.84],rongbai:[37.81,87.21],huayou:[258.04,555.68],gem:[99.82,179.87],avg:[110.71,231.90]}},
+            {label:'总资产',unit:'亿元',direction:1,w:50,values:{sjl:[6.92,6.88],zhongwei:[834.32,897.25],rongbai:[242.98,263.26],huayou:[1746.69,1859.58],gem:[740.06,733.60],avg:[714.20,752.11]}}
+        ]},
+        profit:{name:'盈利质量',sub:[
+            {label:'毛利率',unit:'%',direction:1,w:50,values:{sjl:[-21.90,-14.18],zhongwei:[12.42,13.32],rongbai:[9.43,9.40],huayou:[20.69,19.59],gem:[17.47,13.53],avg:[7.62,8.33]}},
+            {label:'净利率',unit:'%',direction:1,w:50,values:{sjl:[-55.07,-44.63],zhongwei:[4.95,5.35],rongbai:[0.20,1.23],huayou:[12.22,9.30],gem:[6.50,6.51],avg:[-6.24,-4.45]}}
+        ]},
+        cost_eff:{name:'成本与效率',sub:[
+            {label:'营业成本率',unit:'%',direction:-1,w:50,values:{sjl:[121.90,114.18],zhongwei:[87.58,86.68],rongbai:[90.57,90.60],huayou:[79.31,80.41],gem:[82.53,86.47],avg:[92.38,91.67]}},
+            {label:'存货周转天数',unit:'天',direction:-1,w:50,values:{sjl:[58.26,51.78],zhongwei:[106.01,105.39],rongbai:[68.07,99.38],huayou:[133.29,129.79],gem:[116.33,130.75],avg:[96.39,103.42]}}
+        ]},
+        finance:{name:'运营与财务健康',sub:[
+            {label:'资产负债率',unit:'%',direction:-1,w:50,values:{sjl:[87.76,90.46],zhongwei:[59.25,61.82],rongbai:[67.38,69.33],huayou:[63.57,64.28],gem:[65.41,65.94],avg:[68.67,70.36]}},
+            {label:'经营现金流/营收',unit:'%',direction:1,w:50,values:{sjl:[-35.78,-24.88],zhongwei:[0.15,4.75],rongbai:[-16.53,-1.98],huayou:[4.55,3.87],gem:[2.53,3.38],avg:[-9.02,-2.97]}}
+        ]},
+        growth:{name:'成长潜力',sub:[
+            {label:'营收同比增长率',unit:'%',direction:1,w:50,values:{sjl:[1119.65,739.77],zhongwei:[46.00,57.51],rongbai:[27.58,39.57],huayou:[44.62,49.39],gem:[5.12,2.43],avg:[248.59,177.73]}},
+            {label:'研发费用率',unit:'%',direction:1,w:50,values:{sjl:[8.52,5.16],zhongwei:[1.93,1.75],rongbai:[2.71,2.40],huayou:[2.23,2.02],gem:[2.82,3.51],avg:[3.64,2.97]}}
+        ]}
+    }
+};
+
+// 铂源催化事业部（bych）— 2026年Q1/H1实际对标数据
+// 口径：各上市公司合并报表；存货周转天数=期末存货÷当期营业成本×期间天数。
+var BYCH_STRATEGY_DATA = {
+    update_time: '2026-09-05',
+    defaultBu: 'bych',
+    quarters: ['Q1-2026','H1-2026'],
+    meta: {
+        bych:   { name:'铂源催化', sub:'氢能催化剂事业部' },
+        kaida:  { name:'凯大催化', sub:'贵金属催化剂' },
+        kaili:  { name:'凯立新材', sub:'贵金属催化材料' },
+        guiyan: { name:'贵研铂业', sub:'贵金属新材料' }
+    },
+    entities: [
+        { id:'bych', name:'铂源催化', color:'#8e44ad' },
+        { id:'kaida', name:'凯大催化', color:'#16a085' },
+        { id:'kaili', name:'凯立新材', color:'#e67e22' },
+        { id:'guiyan', name:'贵研铂业', color:'#6a9fd8' },
+        { id:'avg', name:'行业均值', color:'#b0c4de', isAvg:true }
+    ],
+    // 评分沿用既有相对评分法：同时衡量同业排序、体量差异及指标的可持续性。
+    scores: {
+        bych:   { scale:[2.0,2.0], profit:[5.0,4.0], cost_eff:[9.0,9.5], finance:[6.0,5.5], growth:[9.0,8.5] },
+        kaida:  { scale:[4.5,4.5], profit:[7.5,4.5], cost_eff:[7.5,6.5], finance:[9.0,7.5], growth:[5.5,3.5] },
+        kaili:  { scale:[6.0,6.0], profit:[8.0,8.0], cost_eff:[5.0,5.0], finance:[3.0,3.5], growth:[4.0,5.0] },
+        guiyan: { scale:[10.0,10.0], profit:[5.5,5.5], cost_eff:[3.0,3.5], finance:[4.0,7.0], growth:[2.0,2.0] },
+        avg:    { scale:[5.6,5.6], profit:[6.5,5.5], cost_eff:[6.1,6.1], finance:[5.5,5.9], growth:[5.1,4.8] }
+    },
+    current: {},
+    metrics: {
+        scale: { name:'规模与市场地位', sub:[
+            { label:'营业收入', unit:'亿元', direction:1, w:50, values:{ bych:[0.04,0.08], kaida:[2.90,4.99], kaili:[7.55,15.39], guiyan:[130.17,226.52], avg:[35.16,61.75] } },
+            { label:'总资产', unit:'亿元', direction:1, w:50, values:{ bych:[0.36,0.33], kaida:[8.77,9.22], kaili:[26.41,26.49], guiyan:[236.15,252.74], avg:[67.92,72.20] } }
+        ]},
+        profit: { name:'盈利质量', sub:[
+            { label:'毛利率', unit:'%', direction:1, w:50, values:{ bych:[21.39,17.32], kaida:[13.26,8.28], kaili:[12.50,8.36], guiyan:[3.63,4.43], avg:[12.70,9.60] } },
+            { label:'净利率', unit:'%', direction:1, w:50, values:{ bych:[-5.03,-14.93], kaida:[4.53,-2.34], kaili:[6.30,3.31], guiyan:[1.80,1.66], avg:[1.90,-3.07] } }
+        ]},
+        cost_eff: { name:'成本与效率', sub:[
+            { label:'营业成本率', unit:'%', direction:-1, w:50, values:{ bych:[78.61,82.68], kaida:[86.74,91.72], kaili:[87.50,91.64], guiyan:[96.37,95.57], avg:[87.31,90.40] } },
+            { label:'存货周转天数', unit:'天', direction:-1, w:50, values:{ bych:[59.57,40.52], kaida:[52.91,60.66], kaili:[76.02,81.24], guiyan:[82.57,76.71], avg:[67.77,64.78] } }
+        ]},
+        finance: { name:'运营与财务健康', sub:[
+            { label:'资产负债率', unit:'%', direction:-1, w:50, values:{ bych:[34.62,31.91], kaida:[25.74,28.58], kaili:[56.80,58.16], guiyan:[64.91,62.49], avg:[45.52,45.28] } },
+            { label:'经营现金流/营收', unit:'%', direction:1, w:50, values:{ bych:[-14.53,-13.17], kaida:[3.30,-3.60], kaili:[-55.87,-27.71], guiyan:[-17.04,3.17], avg:[-21.03,-10.33] } }
+        ]},
+        growth: { name:'成长潜力', sub:[
+            { label:'营收同比增长率', unit:'%', direction:1, w:50, values:{ bych:[773.91,404.85], kaida:[38.28,9.73], kaili:[20.59,51.72], guiyan:[-0.84,-23.36], avg:[207.98,110.74] } },
+            { label:'研发费用率', unit:'%', direction:1, w:50, values:{ bych:[18.37,23.60], kaida:[1.13,0.78], kaili:[1.64,1.86], guiyan:[0.61,0.71], avg:[5.44,6.74] } }
+        ]}
+    }
+};
+
+// 润滑油事业部（lhy）— 2026年Q1/H1实际对标数据
+// 口径：国内公司为合并报表；存货周转天数=期末存货÷当期营业成本×期间天数。
+// 壳牌为国际标杆，金额以亿美元展示，不参与国内评分、均值、排名及雷达图。
+var LHY_STRATEGY_DATA = {
+    update_time: '2026-09-05',
+    defaultBu: 'lhy',
+    quarters: ['Q1-2026','H1-2026'],
+    meta: {
+        lhy:     { name:'润滑油事业部', sub:'润滑油业务' },
+        unify:   { name:'统一股份', sub:'润滑油及相关业务' },
+        compton: { name:'康普顿', sub:'润滑油及汽车养护品' },
+        shell:   { name:'壳牌（国际标杆）', sub:'集团口径·美元' }
+    },
+    entities: [
+        { id:'lhy', name:'润滑油事业部', color:'#8e44ad' },
+        { id:'unify', name:'统一股份', color:'#16a085' },
+        { id:'compton', name:'康普顿', color:'#e67e22' },
+        { id:'shell', name:'壳牌（国际标杆）', color:'#6c7a89', isBenchmark:true, unit:'亿美元' },
+        { id:'avg', name:'行业均值', color:'#b0c4de', isAvg:true }
+    ],
+    scores: {
+        lhy:     { scale:[5.5,5.5], profit:[7.5,9.0], cost_eff:[6.0,5.5], finance:[5.5,5.5], growth:[6.5,7.0] },
+        unify:   { scale:[10.0,10.0], profit:[6.0,5.0], cost_eff:[8.0,8.0], finance:[6.0,4.0], growth:[8.0,10.0] },
+        compton: { scale:[4.0,4.0], profit:[10.0,7.5], cost_eff:[7.0,7.5], finance:[10.0,10.0], growth:[3.0,2.0] },
+        avg:     { scale:[6.5,6.5], profit:[7.8,7.2], cost_eff:[7.0,7.0], finance:[7.2,6.5], growth:[5.8,6.3] }
+    },
+    current: {},
+    metrics: {
+        scale: { name:'规模与市场地位', sub:[
+            { label:'营业收入', unit:'亿元', direction:1, w:50, values:{ lhy:[3.37,7.00], unify:[8.79,18.18], compton:[3.14,5.26], shell:[696.91,1643.55], avg:[5.10,10.15] } },
+            { label:'总资产', unit:'亿元', direction:1, w:50, values:{ lhy:[16.77,20.14], unify:[22.17,23.55], compton:[15.23,14.32], shell:[null,3805.13], avg:[18.06,19.34] } }
+        ]},
+        profit: { name:'盈利质量', sub:[
+            { label:'毛利率', unit:'%', direction:1, w:50, values:{ lhy:[27.60,27.72], unify:[22.52,18.96], compton:[29.44,24.52], shell:[null,null], avg:[26.52,23.73] } },
+            { label:'净利率', unit:'%', direction:1, w:50, values:{ lhy:[11.85,12.33], unify:[9.20,4.93], compton:[14.95,8.24], shell:[8.26,10.08], avg:[12.00,8.50] } }
+        ]},
+        cost_eff: { name:'成本与效率', sub:[
+            { label:'营业成本率', unit:'%', direction:-1, w:50, values:{ lhy:[72.40,72.28], unify:[77.48,81.04], compton:[70.56,75.48], shell:[null,null], avg:[73.48,76.27] } },
+            { label:'存货周转天数', unit:'天', direction:-1, w:50, values:{ lhy:[65.79,68.10], unify:[21.34,22.25], compton:[46.11,54.23], shell:[null,null], avg:[44.41,48.19] } }
+        ]},
+        finance: { name:'运营与财务健康', sub:[
+            { label:'资产负债率', unit:'%', direction:-1, w:50, values:{ lhy:[42.08,49.61], unify:[58.91,61.22], compton:[15.03,12.21], shell:[null,52.23], avg:[38.67,41.01] } },
+            { label:'经营现金流/营收', unit:'%', direction:1, w:50, values:{ lhy:[11.54,8.05], unify:[30.23,5.94], compton:[41.89,18.31], shell:[8.70,16.73], avg:[27.89,10.77] } }
+        ]},
+        growth: { name:'成长潜力', sub:[
+            { label:'营收同比增长率', unit:'%', direction:1, w:50, values:{ lhy:[0.96,12.00], unify:[17.70,36.40], compton:[-13.27,-8.54], shell:[6.55,22.07], avg:[1.80,13.29] } },
+            { label:'研发费用率', unit:'%', direction:1, w:50, values:{ lhy:[3.73,3.57], unify:[1.65,1.67], compton:[2.90,2.90], shell:[0.24,0.27], avg:[2.76,2.71] } }
+        ]}
+    }
+};
+
+// 山东美多事业部（sdmd）— 2026年Q1/H1实际对标数据
+// 口径：核心同业为上市公司合并报表；格林美、天奇（天奇金泰阁）与赣锋（赣锋循环）纳入评分。
+// 宁德时代（邦普循环）为产业链标杆，仅按集团公开口径展示，不参与均值、排名、雷达或评分。
+var SDMD_STRATEGY_DATA = {
+    update_time: '2026-09-05',
+    defaultBu: 'sdmd',
+    quarters: ['Q1-2026','H1-2026'],
+    meta: {
+        sdmd:    { name:'山东美多', sub:'废旧锂离子电池综合回收' },
+        gem:     { name:'格林美', sub:'核心同业·回收与再生材料' },
+        tianqi:  { name:'天奇股份', sub:'核心同业·天奇金泰阁' },
+        ganfeng: { name:'赣锋锂业', sub:'核心同业·赣锋循环' },
+        catl:    { name:'宁德时代（邦普循环）', sub:'产业链标杆·不参与国内评分' }
+    },
+    entities: [
+        { id:'sdmd', name:'山东美多', color:'#8e44ad' },
+        { id:'gem', name:'格林美', color:'#16a085' },
+        { id:'tianqi', name:'天奇股份', color:'#e67e22' },
+        { id:'ganfeng', name:'赣锋锂业', color:'#3f78be' },
+        { id:'catl', name:'宁德时代（邦普循环）', color:'#6c7a89', isBenchmark:true },
+        { id:'avg', name:'行业均值', color:'#b0c4de', isAvg:true }
+    ],
+    // 相对评分沿用既有五维逻辑，并结合回收业务相关性；集团口径仅作为公开财务支撑，不等同于回收板块单体损益。
+    scores: {
+        sdmd:    { scale:[2.5,2.5], profit:[6.5,5.5], cost_eff:[7.5,7.0], finance:[2.5,3.5], growth:[10.0,10.0] },
+        gem:     { scale:[10.0,10.0], profit:[6.5,5.5], cost_eff:[5.5,5.0], finance:[5.5,5.5], growth:[4.0,3.5] },
+        tianqi:  { scale:[4.0,4.0], profit:[4.0,4.0], cost_eff:[6.5,6.5], finance:[6.0,6.0], growth:[6.5,7.5] },
+        ganfeng: { scale:[8.5,8.5], profit:[10.0,10.0], cost_eff:[8.5,9.5], finance:[7.0,7.5], growth:[8.5,9.0] },
+        avg:     { scale:[6.25,6.25], profit:[6.75,6.25], cost_eff:[7.0,7.0], finance:[5.25,5.63], growth:[7.25,7.5] }
+    },
+    current: {},
+    metrics: {
+        scale: { name:'规模与市场地位', sub:[
+            { label:'营业收入', unit:'亿元', direction:1, w:50, values:{ sdmd:[1.67,3.81], gem:[99.82,179.87], tianqi:[7.25,14.61], ganfeng:[91.96,230.97], catl:[1291.31,2769.17], avg:[50.18,107.32] } },
+            { label:'总资产', unit:'亿元', direction:1, w:50, values:{ sdmd:[4.36,4.80], gem:[740.06,733.60], tianqi:[55.12,56.11], ganfeng:[1188.74,1222.60], catl:[10463.29,11388.81], avg:[497.07,504.28] } }
+        ]},
+        profit: { name:'盈利质量', sub:[
+            { label:'毛利率', unit:'%', direction:1, w:50, values:{ sdmd:[19.30,14.01], gem:[17.47,13.53], tianqi:[20.05,19.79], ganfeng:[29.72,31.51], catl:[24.82,23.93], avg:[21.64,19.71] } },
+            { label:'净利率', unit:'%', direction:1, w:50, values:{ sdmd:[5.40,7.76], gem:[5.23,5.98], tianqi:[3.40,3.08], ganfeng:[19.98,18.43], catl:[16.06,15.63], avg:[8.50,8.81] } }
+        ]},
+        cost_eff: { name:'成本与效率', sub:[
+            { label:'营业成本率', unit:'%', direction:-1, w:50, values:{ sdmd:[80.70,85.99], gem:[82.53,86.47], tianqi:[79.95,80.21], ganfeng:[70.28,68.49], catl:[75.18,76.07], avg:[78.37,80.29] } },
+            { label:'存货周转天数', unit:'天', direction:-1, w:50, values:{ sdmd:[77.21,67.40], gem:[116.32,130.75], tianqi:[92.11,106.42], ganfeng:[202.38,172.38], catl:[100.98,111.80], avg:[122.01,119.24] } }
+        ]},
+        finance: { name:'运营与财务健康', sub:[
+            { label:'资产负债率', unit:'%', direction:-1, w:50, values:{ sdmd:[81.49,78.90], gem:[65.41,65.94], tianqi:[62.96,63.71], ganfeng:[55.26,55.12], catl:[62.32,63.65], avg:[66.28,65.92] } },
+            { label:'经营现金流/营收', unit:'%', direction:1, w:50, values:{ sdmd:[1.46,10.17], gem:[2.53,3.38], tianqi:[10.60,5.60], ganfeng:[8.55,5.75], catl:[26.08,21.75], avg:[5.79,6.23] } }
+        ]},
+        growth: { name:'成长潜力', sub:[
+            { label:'营收同比增长率', unit:'%', direction:1, w:50, values:{ sdmd:[3016.50,2075.50], gem:[5.12,2.43], tianqi:[16.47,17.17], ganfeng:[143.81,175.75], catl:[52.45,54.80], avg:[795.48,567.71] } },
+            { label:'研发费用率', unit:'%', direction:1, w:50, values:{ sdmd:[1.18,1.08], gem:[2.82,3.51], tianqi:[5.62,5.18], ganfeng:[3.90,3.20], catl:[4.11,4.11], avg:[3.38,3.24] } }
+        ]}
+    }
+};
+
+var currentDim = 'scale';
+var selectedQuarterIdx = null;  // null=最新季度
+
+function initRouter() {
+    var params = new URLSearchParams(location.search);
+    // 妙搭 Serving 丢弃 ?query，但保留 #hash；两者都读，兼容 localhost 与妙搭
+    var buId = params.get('id') || location.hash.replace('#','').split('&')[0] || 'czly';
+    renderDashboard(buId);
+}
+window.addEventListener('hashchange', function(){ initRouter(); });
+
+function renderDashboard(buId) {
+    var BU_DATA_MAP = {
+        czly: BU_STRATEGY_DATA,
+        felt: FELT_STRATEGY_DATA,
+        lpsd: LPSD_STRATEGY_DATA,
+        dhx: DKHX_STRATEGY_DATA,
+        sjl: SJL_STRATEGY_DATA,
+        sdmd: SDMD_STRATEGY_DATA,
+        lhy: LHY_STRATEGY_DATA,
+        kls: KLS_STRATEGY_DATA,
+        bych: BYCH_STRATEGY_DATA
+    };
+    var data = BU_DATA_MAP[buId] || BU_STRATEGY_DATA;
+    // 无效BU ID强制回退到czly，防止data.scores[buId]为undefined导致崩溃
+    if (!data.scores[buId]) buId = data.defaultBu || 'czly';
+    window.currentData = data;
+    selectedQuarterIdx = data.quarters.length - 1; // 默认最新季度
+    var meta = {
+        czly: { name: '常州锂源', sub: '磷酸铁锂事业部' },
+        hnyn: { name: '湖南裕能', sub: '磷酸铁锂事业部' },
+        wrxn: { name: '万润新能', sub: '磷酸铁锂事业部' },
+        fljg: { name: '富临精工', sub: '磷酸铁锂事业部' },
+        dfnm: { name: '德方纳米', sub: '磷酸铁锂事业部' }
+    };
+    var m = (data.meta && data.meta[buId]) || meta[buId] || meta['czly'];
+    // bu-title removed from layout, no DOM element needed
+    // update-time removed from layout
+    window._curBuId = buId;
+    renderCompareSelects(data, buId);
+    renderQuarterSelect(data);
+    renderRadar(data);
+    renderSignalBoard(data);
+    renderDetailTable(data, currentDim);
+    renderCompare(data);
+}
+
+// ════════════════════════════════════════════════════════
+// 安全图表初始化（防止重复初始化导致echarts崩溃）
+// ════════════════════════════════════════════════════════
+function safeInitChart(id) {
+    var el = document.getElementById(id);
+    if (!el) { console.warn('safeInitChart: element not found', id); return null; }
+    var old = echarts.getInstanceByDom(el);
+    if (old) old.dispose();
+    return echarts.init(el);
+}
+
+function getDashboardEntities(data) {
+    return data.entities || [
+        { id:'czly', name:'常州锂源', color:'#1e3c72' },
+        { id:'hnyn', name:'湖南裕能', color:'#6a9fd8' },
+        { id:'wrxn', name:'万润新能', color:'#7f8c8d' },
+        { id:'fljg', name:'富临精工', color:'#e67e22' },
+        { id:'dfnm', name:'德方纳米', color:'#f56c6c' },
+        { id:'avg', name:'行业均值', color:'#b0c4de', isAvg:true }
+    ];
+}
+
+function renderCompareSelects(data, currentId) {
+    var entities = getDashboardEntities(data);
+    var selectable = entities.filter(function(e){ return !e.isBenchmark; });
+    var peers = selectable.filter(function(e){ return e.id !== 'avg'; });
+    var aEl = document.getElementById('compare-a');
+    var bEl = document.getElementById('compare-b');
+    if (!aEl || !bEl) return;
+    function options(selected) {
+        return selectable.map(function(e) {
+            return '<option value="' + e.id + '"' + (e.id === selected ? ' selected' : '') + '>' + e.name + '</option>';
+        }).join('');
+    }
+    aEl.innerHTML = options(currentId);
+    var defaultPeer = (peers.filter(function(e){ return e.id !== currentId; })[0] || selectable[0]).id;
+    bEl.innerHTML = options(defaultPeer);
+}
+
+function renderGenericRadar(data) {
+    var chart = safeInitChart('radar-chart');
+    if (!chart) return;
+    var dimKeys = ['scale','profit','cost_eff','finance','growth'];
+    var dimNames = ['规模与市场地位','盈利质量','成本与效率','运营与财务健康','成长潜力'];
+    var qIdx = selectedQuarterIdx !== null ? selectedQuarterIdx : data.quarters.length - 1;
+    var entities = getDashboardEntities(data).filter(function(e){ return !e.isBenchmark; });
+    var option = {
+        backgroundColor:'#fff',
+        legend:{ data:entities.map(function(e){ return e.name; }), bottom:0, textStyle:{fontSize:12} },
+        tooltip:{ trigger:'item', formatter:function(params) {
+            var dimIdx = params.dataIndex !== undefined ? params.dataIndex : 0;
+            var html = '<strong style="font-size:13px">' + dimNames[dimIdx] + '</strong><br/>';
+            entities.forEach(function(e) {
+                var val = data.scores[e.id][dimKeys[dimIdx]][qIdx];
+                var avg = data.scores.avg[dimKeys[dimIdx]][qIdx];
+                var diff = e.id === 'avg' ? '' : ' <span style="color:' + (val >= avg ? '#1e3c72' : '#a8c8e8') + '">(' + (val >= avg ? '+' : '') + (val-avg).toFixed(1) + ')</span>';
+                html += '<span style="display:inline-block;width:76px">' + e.name + '</span>' + val.toFixed(1) + '/10' + diff + '<br/>';
+            });
+            return html;
+        }},
+        radar:{ indicator:dimKeys.map(function(k,i){ return {name:dimNames[i],max:10}; }), shape:'polygon', splitNumber:5,
+            axisName:{color:'#333',fontSize:12}, splitLine:{lineStyle:{color:'#e0e0e0'}},
+            splitArea:{areaStyle:{color:['#fafafa','#f5f5f5','#f0f0f0','#ebebeb','#e5e5e5']}}, axisLine:{lineStyle:{color:'#ccc'}} },
+        series:[{ type:'radar', data:entities.map(function(e, i) {
+            var main = e.id === window._curBuId;
+            return { value:dimKeys.map(function(k){ return data.scores[e.id][k][qIdx]; }), name:e.name,
+                areaStyle:main ? {color:'rgba(30,60,114,0.25)'} : undefined,
+                lineStyle:{color:e.color,width:main?2:1.5,type:e.isAvg?'dotted':(main?'solid':'dashed')}, itemStyle:{color:e.color} };
+        })}]
+    };
+    chart.setOption(option);
+    chart.on('click', function(params) {
+        if (params.componentType === 'series' && params.dataIndex !== undefined && params.dataIndex < dimKeys.length) {
+            switchDim(dimKeys[params.dataIndex]);
+            setTimeout(function(){ var el=document.getElementById('detail-table'); if(el)el.scrollIntoView({behavior:'smooth',block:'start'}); },100);
+        }
+    });
+    window.addEventListener('resize', function(){ chart.resize(); });
+}
+
+function renderRadar(data) {
+    if (data.entities) return renderGenericRadar(data);
+    var chart = echarts.init(document.getElementById('radar-chart'));
+    var dimKeys = ['scale','profit','cost_eff','finance','growth'];
+    var dimNames = ['规模与市场地位','盈利质量','成本与效率','运营与财务健康','成长潜力'];
+    var qIdx = selectedQuarterIdx !== null ? selectedQuarterIdx : data.quarters.length - 1;
+    var option = {
+        backgroundColor: '#fff',
+        legend: { data: ['常州锂源','湖南裕能','万润新能','富临精工','德方纳米','行业均值'], bottom: 0, textStyle: { fontSize: 12 } },
+        tooltip: {
+            trigger: 'item',
+            formatter: function(params) {
+                var dimIdx = params.dataIndex !== undefined ? params.dataIndex : 0;
+                var dimName = dimNames[dimIdx];
+                var html = '<strong style="font-size:13px">' + dimName + '</strong><br/>';
+                var keys = ['czly','hnyn','wrxn','fljg','dfnm','avg'];
+                var names = ['常州锂源','湖南裕能','万润新能','富临精工','德方纳米','行业均值'];
+                keys.forEach(function(k, ki) {
+                    var val = data.scores[k][dimKeys[dimIdx]][qIdx];
+                    var diffStr = '';
+                    if (ki !== 3) {
+                        var avgVal = data.scores.avg[dimKeys[dimIdx]][qIdx];
+                        var diff = (val - avgVal).toFixed(1);
+                        diffStr = ' <span style="color:' + (diff >= 0 ? '#1e3c72' : '#a8c8e8') + '">(' + (diff >= 0 ? '+' : '') + diff + ')</span>';
+                    }
+                    html += '<span style="display:inline-block;margin-right:8px">' + names[ki] + ':</span>' + val.toFixed(1) + '/10' + diffStr + '<br/>';
+                });
+                return html;
+            }
+        },
+        radar: {
+            indicator: dimKeys.map(function(k,i){ return { name: dimNames[i], max: 10 }; }),
+            shape: 'polygon', splitNumber: 5,
+            axisName: { color: '#333', fontSize: 12 },
+            splitLine: { lineStyle: { color: '#e0e0e0' } },
+            splitArea: { areaStyle: { color: ['#fafafa','#f5f5f5','#f0f0f0','#ebebeb','#e5e5e5'] } },
+            axisLine: { lineStyle: { color: '#ccc' } }
+        },
+        series: [{
+            type: 'radar',
+            data: [
+                { value: dimKeys.map(function(k){ return data.scores.czly[k][qIdx]; }), name: '常州锂源',
+                  areaStyle: { color: 'rgba(30,60,114,0.25)' }, lineStyle: { color: '#1e3c72', width: 2 }, itemStyle: { color: '#1e3c72' } },
+                { value: dimKeys.map(function(k){ return data.scores.hnyn[k][qIdx]; }), name: '湖南裕能',
+                  lineStyle: { color: '#6a9fd8', width: 1.5, type: 'dashed' }, itemStyle: { color: '#6a9fd8' } },
+                { value: dimKeys.map(function(k){ return data.scores.wrxn[k][qIdx]; }), name: '万润新能',
+                  lineStyle: { color: '#7f8c8d', width: 1.5, type: 'dashed' }, itemStyle: { color: '#7f8c8d' } },
+                { value: dimKeys.map(function(k){ return data.scores.fljg[k][qIdx]; }), name: '富临精工',
+                  lineStyle: { color: '#e67e22', width: 1.5, type: 'dashed' }, itemStyle: { color: '#e67e22' } },
+                { value: dimKeys.map(function(k){ return data.scores.dfnm[k][qIdx]; }), name: '德方纳米',
+                  lineStyle: { color: '#f56c6c', width: 1.5, type: 'dashed' }, itemStyle: { color: '#f56c6c' } },
+                { value: dimKeys.map(function(k){ return data.scores.avg[k][qIdx]; }), name: '行业均值',
+                  lineStyle: { color: '#b0c4de', width: 1, type: 'dotted' }, itemStyle: { color: '#b0c4de' } }
+            ]
+        }]
+    };
+    chart.setOption(option);
+    chart.on('click', function(params) {
+        if (params.componentType === 'series' && params.dataIndex !== undefined && params.dataIndex < dimKeys.length) {
+            var dimKey = dimKeys[params.dataIndex];
+            switchDim(dimKey);
+            setTimeout(function() {
+                var el = document.getElementById('detail-table');
+                if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 100);
+        }
+    });
+    window.addEventListener('resize', function(){ chart.resize(); });
+}
+
+function renderTrendMini(data) {
+    var chart = echarts.init(document.getElementById('trend-mini-chart'));
+    var quarters = data.quarters;
+    var buId = window._curBuId || 'czly';
+    var buName = (data.meta && data.meta[buId] && data.meta[buId].name) ? data.meta[buId].name : buId;
+    // 计算当前BU综合得分（5维度均值）
+    var buScores = quarters.map(function(q, i){
+        var s = data.scores[buId];
+        if (!s) return 0;
+        return ((s.scale[i]+s.profit[i]+s.cost_eff[i]+s.finance[i]+s.growth[i])/5).toFixed(1)*1;
+    });
+    // 行业均值
+    var avgScores = quarters.map(function(q, i){
+        var s = data.scores.avg;
+        return ((s.scale[i]+s.profit[i]+s.cost_eff[i]+s.finance[i]+s.growth[i])/5).toFixed(1)*1;
+    });
+    // 环比delta（显示在数据点上方）
+    var deltaLabels = buScores.map(function(v, i){
+        if (i === 0) return '';
+        var d = (v - buScores[i-1]).toFixed(1);
+        var sign = d > 0 ? '+' : '';
+        return sign + d;
+    });
+    // 整体趋势：最后一季 vs 第一季
+    var trendDir = buScores[buScores.length-1] - buScores[0];
+    var trendColor = trendDir > 0 ? '#27ae60' : (trendDir < 0 ? '#e74c3c' : '#888');
+    var trendArrow = trendDir > 0 ? '↑' : (trendDir < 0 ? '↓' : '→');
+    var trendText = trendDir > 0 ? '整体上升' : (trendDir < 0 ? '整体下降' : '持平');
+    // 最新环比
+    var lastDelta = buScores.length > 1 ? (buScores[buScores.length-1] - buScores[buScores.length-2]).toFixed(1) : '0.0';
+    var lastDeltaColor = lastDelta > 0 ? '#27ae60' : (lastDelta < 0 ? '#e74c3c' : '#888');
+    var lastDeltaSign = lastDelta > 0 ? '+' : '';
+    // 最大/最小
+    var maxIdx = buScores.indexOf(Math.max.apply(null, buScores));
+    var minIdx = buScores.indexOf(Math.min.apply(null, buScores));
+
+    var option = {
+        backgroundColor: 'transparent',
+        grid: { top: 42, bottom: 28, left: 48, right: 18 },
+        xAxis: {
+            type: 'category', data: quarters,
+            axisLabel: { fontSize: 10, color: '#888', margin: 6 },
+            axisLine: { lineStyle: { color: '#ddd' } },
+            axisTick: { show: false }
+        },
+        yAxis: {
+            type: 'value', min: 0, max: 10,
+            axisLabel: { fontSize: 10, color: '#888' },
+            splitLine: { lineStyle: { color: '#f2f2f2', type: 'dashed' } },
+            name: '综合得分', nameTextStyle: { fontSize: 10, color: '#999', padding: [0,0,0,40] }
+        },
+        tooltip: {
+            trigger: 'axis',
+            backgroundColor: 'rgba(30,60,114,0.92)',
+            borderColor: 'transparent',
+            textStyle: { color: '#fff', fontSize: 12 },
+            formatter: function(params) {
+                var qi = params[0].dataIndex;
+                var v = params[0].value;
+                var d = qi === 0 ? '' : '（环比' + (v - buScores[qi-1] > 0 ? '+' : '') + (v - buScores[qi-1]).toFixed(1) + '）';
+                var html = '<strong>' + quarters[qi] + '</strong><br/>';
+                html += '<span style="display:inline-block;width:10px;height:10px;background:' + params[0].color + ';border-radius:50%;margin-right:6px;"></span>';
+                html += buName + '：<b>' + v.toFixed(1) + '</b> ' + d + '<br/>';
+                if (params[1]) {
+                    html += '<span style="display:inline-block;width:10px;height:10px;background:' + params[1].color + ';border-radius:50%;margin-right:6px;opacity:0.5;"></span>';
+                    html += '行业均值：' + params[1].value.toFixed(1) + '<br/>';
+                }
+                return html;
+            }
+        },
+        series: [
+            // 当前BU主线
+            {
+                name: buName, type: 'line', data: buScores, smooth: true,
+                lineStyle: { color: '#1e3c72', width: 3 },
+                itemStyle: { color: '#1e3c72' },
+                symbol: 'circle',
+                symbolSize: function(val, params) {
+                    return params.dataIndex === 0 || params.dataIndex === buScores.length-1 ? 9 : 6;
+                },
+                label: {
+                    show: true,
+                    position: 'top',
+                    fontSize: 11,
+                    fontWeight: 'bold',
+                    color: function(params) {
+                        var i = params.dataIndex;
+                        if (i === 0) return '#1e3c72';
+                        var d = buScores[i] - buScores[i-1];
+                        return d > 0 ? '#27ae60' : (d < 0 ? '#e74c3c' : '#888');
+                    },
+                    formatter: function(params) {
+                        var i = params.dataIndex;
+                        if (i === 0) return buScores[0].toFixed(1);
+                        return buScores[i].toFixed(1) + '（' + (deltaLabels[i].indexOf('+') === 0 ? '' : '') + deltaLabels[i] + '）';
+                    }
+                },
+                areaStyle: {
+                    color: {
+                        type: 'linear', x: 0, y: 0, x2: 0, y2: 1,
+                        colorStops: [
+                            { offset: 0, color: 'rgba(30,60,114,0.35)' },
+                            { offset: 1, color: 'rgba(30,60,114,0.02)' }
+                        ]
+                    }
+                },
+                markPoint: {
+                    symbol: 'pin',
+                    symbolSize: 46,
+                    label: { fontSize: 11, fontWeight: 'bold', color: '#fff', offset: [0, -8] },
+                    itemStyle: { shadowBlur: 4, shadowColor: 'rgba(30,60,114,0.3)' },
+                    data: [
+                        { type: 'max', name: '最高', itemStyle: { color: '#1e3c72' } },
+                        { type: 'min', name: '最低', itemStyle: { color: '#a8c8e8', color0: '#e74c3c' } }
+                    ],
+                    animation: false
+                },
+                markLine: {
+                    silent: true,
+                    symbol: 'none',
+                    lineStyle: { type: 'dashed', color: '#ccc', width: 1 },
+                    data: [
+                        { yAxis: 5.0, label: { show: false } }
+                    ],
+                    animation: false
+                }
+            },
+            // 行业均值参考线
+            {
+                name: '行业均值', type: 'line', data: avgScores, smooth: true,
+                lineStyle: { color: '#b0c4de', width: 1.5, type: 'dotted' },
+                itemStyle: { color: '#b0c4de' },
+                symbol: 'none',
+                tooltip: { show: true }
+            }
+        ],
+        graphic: [
+            {
+                type: 'group',
+                left: 12, top: 8,
+                children: [
+                    {
+                        type: 'text',
+                        style: {
+                            text: buName + ' 综合得分趋势',
+                            fontSize: 12,
+                            fontWeight: 'bold',
+                            fill: '#1e3c72'
+                        }
+                    },
+                    {
+                        type: 'text',
+                        top: 17,
+                        style: {
+                            text: trendArrow + ' ' + trendText + '  |  最新季度：' + buScores[buScores.length-1].toFixed(1) + '（' + lastDeltaSign + lastDelta + '）',
+                            fontSize: 11,
+                            fill: lastDeltaColor
+                        }
+                    }
+                ]
+            }
+        ]
+    };
+    chart.setOption(option);
+    chart.on('click', function(params) {
+        if (params.componentType === 'series' && params.dataIndex !== undefined) {
+            selectedQuarterIdx = params.dataIndex;
+            renderQuarterSelect(data);
+            renderRadar(data);
+        }
+    });
+    window.addEventListener('resize', function(){ chart.resize(); });
+}
+
+function renderSignalBoard(data) {
+    var board = document.getElementById('signal-board');
+    var dims = [
+        { key: 'scale',    name: '规模与市场地位' },
+        { key: 'profit',   name: '盈利质量' },
+        { key: 'cost_eff', name: '成本与效率' },
+        { key: 'finance',  name: '运营与财务健康' },
+        { key: 'growth',   name: '成长潜力' }
+    ];
+    var html = '';
+    var last = selectedQuarterIdx !== null ? selectedQuarterIdx : data.quarters.length - 1;
+    // 动态修复data.current（原本硬编码为常州锂源，现改为当前BU）
+    var _buId = window._curBuId || 'czly';
+    ['scale','profit','cost_eff','finance','growth'].forEach(function(_dk) {
+        data.current[_dk] = {
+            val: data.scores[_buId][_dk][last],
+            target: _dk==='growth'?7.0:5.0,
+            mom: last>0 ? data.scores[_buId][_dk][last] - data.scores[_buId][_dk][last-1] : 0
+        };
+    });
+    dims.forEach(function(d) {
+        var cur = data.current[d.key];
+        var pct = Math.round(cur.val / cur.target * 100);
+        var avgVal = data.scores.avg[d.key][last];
+        var diff = cur.val - avgVal;
+        var cls = diff >= 0.5 ? 'green' : (diff >= -0.5 ? 'yellow' : 'red');
+        var arrow = cur.mom >= 0 ? '↑' : '↓';
+        html += '<div class="signal-card ' + cls + '" onclick="switchDim(\' + d.key + \')">';
+        html += '<div class="signal-title">';
+        html += '<span><span class="dot ' + cls + '"></span>' + d.name + '</span>';
+        html += '<span class="signal-score">' + cur.val + '</span>';
+        html += '</div>';
+        html += '<div class="signal-bar-wrap"><div class="signal-bar ' + cls + '" style="width:' + Math.min(pct,100) + '%"></div></div>';
+        html += '<div class="signal-meta">';
+        html += '<span>目标 ' + cur.target + '</span>';
+        html += '<span>行业均值 ' + avgVal.toFixed(1) + '</span>';
+        html += '<span style="color:' + (cur.mom>=0?'#27ae60':'#e74c3c') + '">' + arrow + ' ' + Math.abs(cur.mom) + ' 较上季</span>';
+        html += '</div></div>';
+    });
+    board.innerHTML = html;
+}
+
+function renderQuarterSelect(data) {
+    // 更新按钮文字
+    var isLatest = selectedQuarterIdx === null || selectedQuarterIdx === data.quarters.length - 1;
+    var displayIdx = selectedQuarterIdx !== null ? selectedQuarterIdx : data.quarters.length - 1;
+    document.getElementById('quarter-btn-text').textContent = data.quarters[displayIdx] + (isLatest ? '（最新）' : '');
+    // 渲染popover选项
+    var pop = document.getElementById('quarter-pop');
+    var html = '';
+    data.quarters.forEach(function(q, idx) {
+        var isLast = idx === data.quarters.length - 1;
+        var isActive = idx === displayIdx;
+        html += '<div onclick="selectQuarterFromPop(' + idx + ')" style="padding:6px 16px;cursor:pointer;font-size:13px;color:' + (isActive ? '#fff' : 'rgba(255,255,255,0.7)') + ';background:' + (isActive ? 'rgba(255,255,255,0.15)' : 'transparent') + ';white-space:nowrap;" onmouseover="this.style.background=\'rgba(255,255,255,0.1)\'" onmouseout="this.style.background=\'' + (isActive ? 'rgba(255,255,255,0.15)' : 'transparent') + '\'">' + q + (isLast ? ' ✓' : '') + '</div>';
+    });
+    pop.innerHTML = html;
+}
+
+function toggleQuarterPop() {
+    var pop = document.getElementById('quarter-pop');
+    if (pop.style.display === 'block') {
+        pop.style.display = 'none';
+    } else {
+        pop.style.display = 'block';
+        // 点击外部关闭
+        setTimeout(function() {
+            var closeFn = function(e) {
+                if (!document.getElementById('time-selector-wrap').contains(e.target)) {
+                    pop.style.display = 'none';
+                    document.removeEventListener('click', closeFn);
+                }
+            };
+            document.addEventListener('click', closeFn);
+        }, 10);
+    }
+}
+
+function selectQuarterFromPop(idx) {
+    selectedQuarterIdx = idx;
+    var data = window.currentData;
+    renderQuarterSelect(data);
+    renderRadar(data);
+    renderSignalBoard(data);
+    renderDetailTable(data, currentDim);
+    renderCompare();
+    document.getElementById('quarter-pop').style.display = 'none';
+}
+
+function switchDim(dim) {
+    currentDim = dim;
+    document.querySelectorAll('.dim-chip').forEach(function(c){ c.classList.remove('active'); });
+    document.querySelector('.dim-chip[data-dim="'+dim+'"]').classList.add('active');
+    var data = window.currentData || BU_STRATEGY_DATA;
+    renderDetailTable(data, dim);
+}
+
+function renderGenericDetailTable(data, dim) {
+    var tableEl = document.getElementById('detail-table');
+    var entities = getDashboardEntities(data);
+    var peers = entities.filter(function(e){ return !e.isAvg && !e.isBenchmark; });
+    var targetId = window._curBuId;
+    var cfg = data.metrics[dim];
+    var qIdx = selectedQuarterIdx !== null ? selectedQuarterIdx : data.quarters.length - 1;
+    var target = entities.filter(function(e){ return e.id === targetId; })[0];
+    function val(metric, id) { return metric.values[id][qIdx]; }
+    function hasValue(value) { return typeof value === 'number' && isFinite(value); }
+    function displayValue(value) { return hasValue(value) ? value : '—'; }
+    function avg(metric) { return val(metric, 'avg'); }
+    function rank(metric) {
+        var values = peers.map(function(e){ return { id:e.id, value:val(metric,e.id) }; }).filter(function(v){ return hasValue(v.value); })
+            .sort(function(a,b){ return metric.direction === 1 ? b.value-a.value : a.value-b.value; });
+        var index = values.map(function(v){ return v.id; }).indexOf(targetId);
+        return index === -1 ? null : index + 1;
+    }
+    function valueColor(metric) {
+        var current = val(metric,targetId);
+        return (metric.direction === 1 ? current >= avg(metric) : current <= avg(metric)) ? '#1e3c72' : '#a8c8e8';
+    }
+    function score(id) { return data.scores[id] && data.scores[id][dim] ? data.scores[id][dim][qIdx] : null; }
+    function displayScore(id) { var value = score(id); return hasValue(value) ? value.toFixed(1) : '—'; }
+    var html = '<h3 class="table-title">' + cfg.name + ' 维度分析</h3>';
+    if (entities.some(function(e){ return e.isBenchmark; })) {
+        html += '<div style="margin:0 0 10px;color:#637083;font-size:12px">注：标杆企业按其披露口径展示，不纳入当前同业均值、排名、雷达或评分。</div>';
+    }
+    html += '<div style="display:flex;gap:20px;align-items:flex-start;min-width:0;flex-wrap:nowrap">';
+    html += '<table class="detail-table"><thead><tr><th>子指标</th>' + entities.map(function(e){return '<th>'+e.name+'</th>';}).join('') + '<th>权重</th><th>排名</th></tr></thead><tbody>';
+    cfg.sub.forEach(function(metric) {
+        var r = rank(metric);
+        html += '<tr><td>' + metric.label + (metric.direction === -1 ? ' <span style="color:#a8c8e8;font-size:11px">↓反</span>' : '') + '</td>';
+        entities.forEach(function(e) {
+            var style = e.id === targetId ? ' style="color:'+valueColor(metric)+';font-weight:600"' : '';
+            html += '<td' + style + '>' + displayValue(val(metric,e.id)) + (hasValue(val(metric,e.id)) ? ' ' + (e.unit || metric.unit) : '') + '</td>';
+        });
+        html += '<td>' + metric.w + '%</td><td style="color:' + (r===null?'#999':(r<=2?'#1e3c72':(r<=4?'#3a6bc5':'#a8c8e8'))) + ';font-weight:700">' + (r===null ? '—' : (r<=3 ? r+'名' : '垫底')) + '</td></tr>';
+    });
+    html += '<tr class="total-row"><td>维度综合得分</td>' + entities.map(function(e){
+        var scoreValue = score(e.id);
+        var color = e.id === targetId && hasValue(scoreValue) ? (scoreValue >= score('avg') ? '#1e3c72' : '#a8c8e8') : '';
+        return '<td><b' + (color ? ' style="color:'+color+'"' : '') + '>' + displayScore(e.id) + '</b></td>';
+    }).join('') + '<td></td><td></td></tr></tbody></table></div>';
+    html += '<div style="display:flex;gap:12px;margin-top:16px;flex-wrap:nowrap"><div id="dim-chart-score" style="flex:1;min-width:0;height:380px"></div><div id="dim-chart-0" style="flex:1;min-width:0;height:380px"></div><div id="dim-chart-1" style="flex:1;min-width:0;height:380px"></div></div>';
+    tableEl.innerHTML = html;
+
+    function makeBar(title, rows, unit, vertical, avgLine) {
+        var names = rows.map(function(r){return r.name;});
+        var values = rows.map(function(r){return r.value;});
+        var currentIdx = names.indexOf(target.name);
+        var colors = values.map(function(v,i){ return names[i] === '行业均值' ? '#b0c4de' : (i === currentIdx ? '#1e3c72' : (v < 0 ? '#e74c3c' : '#6a9fd8')); });
+        return {
+            backgroundColor:'#fff', title:{text:title,left:'center',top:4,textStyle:{fontSize:12,fontWeight:'bold',color:'#1e3c72'}},
+            tooltip:{trigger:'axis',axisPointer:{type:'shadow'},formatter:function(p){return '<strong>'+p[0].name+'</strong><br/>'+p[0].value+unit;}},
+            grid:vertical ? {top:38,bottom:40,left:48,right:14,containLabel:true} : {top:38,bottom:28,left:72,right:35},
+            xAxis:vertical ? {type:'category',data:names,axisLabel:{fontSize:9,rotate:20},axisTick:{show:false}} : {type:'value',min:0,axisLabel:{fontSize:9},splitLine:{lineStyle:{color:'#f2f2f2',type:'dashed'}}},
+            yAxis:vertical ? {type:'value',axisLabel:{fontSize:9},splitLine:{lineStyle:{color:'#f2f2f2',type:'dashed'}}} : {type:'category',data:names,axisLabel:{fontSize:10},axisTick:{show:false}},
+            series:[{type:'bar',barWidth:'55%',data:values.map(function(v,i){return {value:v,itemStyle:{color:colors[i],opacity:names[i]==='行业均值'?0.6:(i===currentIdx?1:0.75)}}; }),
+                label:{show:true,position:vertical?'top':'right',fontSize:9,formatter:function(p){return p.value+unit;}},
+                markLine:avgLine == null ? null : {silent:true,symbol:'none',data:[vertical ? {yAxis:avgLine,lineStyle:{color:'#b0c4de',type:'dashed'}} : {xAxis:avgLine,lineStyle:{color:'#b0c4de',type:'dashed'}}]}}
+            ]
+        };
+    }
+    var scoreRows = peers.map(function(e){return {name:e.name,value:score(e.id)};}).sort(function(a,b){return b.value-a.value;});
+    var scoreChart = safeInitChart('dim-chart-score');
+    scoreChart.setOption(makeBar(cfg.name+'得分排名', scoreRows, '分', false, score('avg')));
+    cfg.sub.forEach(function(metric, idx) {
+        var rows = peers.map(function(e){return {name:e.name,value:val(metric,e.id)};}).filter(function(row){ return hasValue(row.value); })
+            .sort(function(a,b){return metric.direction===1 ? b.value-a.value : a.value-b.value;});
+        rows.push({name:'行业均值',value:avg(metric)});
+        var chart = safeInitChart(idx===0 ? 'dim-chart-0' : 'dim-chart-1');
+        chart.setOption(makeBar(metric.label + '（' + (metric.direction===1?'越高越好':'越低越好') + '）', rows, metric.unit, true, avg(metric)));
+    });
+}
+
+function renderDetailTable(data, dim) {
+    if (data.metrics) return renderGenericDetailTable(data, dim);
+    var tableEl = document.getElementById('detail-table');
+    // 定义每个子指标的方向：1=正向（越高越好），-1=反向（越低越好，展示时取反）
+    var dirMap = {
+        '营业收入': 1, '总资产': 1,
+        '毛利率': 1, '净利率': 1,
+        '营业成本率': -1, '存货周转天数': -1,
+        '资产负债率': -1, '经营现金流/营收': -1,
+        '营收同比增长率': 1, '研发费用率': 1
+    };
+    var dimMap = {
+        scale: {
+            name: '规模与市场地位',
+            sub: [
+                { label:'营业收入', unit:'亿元', w:50, czly:[10.13,57.20], hnyn:[149.65,348.77], wrxn:[53.80,124.26], fljg:[50.54,110.48], dfnm:[43.36,104.00], avg:[61.50,148.94] },
+                { label:'总资产', unit:'亿元', w:50, czly:[146.17,175.16], hnyn:[492.71,516.20], wrxn:[234.75,261.61], fljg:[140.09,192.72], dfnm:[185.97,218.34], avg:[239.94,272.81] }
+            ]
+        },
+        profit: {
+            name: '盈利质量',
+            sub: [
+                { label:'毛利率', unit:'%', w:50, czly:[9.54,13.86], hnyn:[16.16,14.86], wrxn:[14.35,11.56], fljg:[9.34,9.14], dfnm:[13.59,11.33], avg:[12.60,12.15] },
+                { label:'净利率', unit:'%', w:50, czly:[5.30,6.09], hnyn:[9.08,8.40], wrxn:[7.84,5.10], fljg:[4.61,2.90], dfnm:[6.11,4.98], avg:[6.59,5.49] }
+            ]
+        },
+        cost_eff: {
+            name: '成本与效率',
+            sub: [
+                { label:'营业成本率', unit:'%', w:50, czly:[90.46,86.14], hnyn:[83.84,85.14], wrxn:[85.65,88.44], fljg:[90.66,90.86], dfnm:[86.41,88.67], avg:[87.40,87.85] },
+                { label:'存货周转天数', unit:'天', w:50, czly:[70.28,114.20], hnyn:[36.67,43.36], wrxn:[37.72,40.74], fljg:[29.23,37.12], dfnm:[158.10,52.82], avg:[66.40,57.65] }
+            ]
+        },
+        finance: {
+            name: '运营与财务健康',
+            sub: [
+                { label:'资产负债率', unit:'%', w:50, czly:[87.70,89.34], hnyn:[61.23,60.35], wrxn:[76.62,78.52], fljg:[62.16,72.92], dfnm:[65.97,69.97], avg:[70.74,74.22] },
+                { label:'经营现金流/营收', unit:'%', w:50, czly:[-32.50,-44.80], hnyn:[-6.98,-5.05], wrxn:[-20.45,-22.77], fljg:[-7.56,11.51], dfnm:[-18.56,-11.88], avg:[-17.21,-14.60] }
+            ]
+        },
+        growth: {
+            name: '成长潜力',
+            sub: [
+                { label:'营收同比增长率', unit:'%', w:50, czly:[0,119.65], hnyn:[160.0,142.92], wrxn:[136.2,180.13], fljg:[87.4,90.06], dfnm:[116.43,167.92], avg:[100.01,140.14] },
+                { label:'研发费用率', unit:'%', w:50, czly:[2.53,3.58], hnyn:[1.20,1.16], wrxn:[0.85,0.92], fljg:[1.43,1.32], dfnm:[0.80,0.72], avg:[1.36,1.54] }
+            ]
+        }
+    };
+    var qIdx = selectedQuarterIdx !== null ? selectedQuarterIdx : data.quarters.length - 1;
+    var metricKeys = ['czly','hnyn','wrxn','fljg','dfnm','avg'];
+    Object.keys(dimMap).forEach(function(dimKey) {
+        dimMap[dimKey].sub.forEach(function(sub) {
+            metricKeys.forEach(function(key) { sub[key] = sub[key][qIdx]; });
+        });
+    });
+    var cfg = dimMap[dim];
+    var last = qIdx;
+    var scoreVals = {
+        czly: data.scores.czly[dim][last],
+        hnyn: data.scores.hnyn[dim][last],
+        wrxn: data.scores.wrxn[dim][last],
+        fljg: data.scores.fljg[dim][last],
+        dfnm: data.scores.dfnm[dim][last],
+        avg:  data.scores.avg[dim][last]
+    };
+    // 计算排名：正向指标降序，反向指标升序
+    function getRank(val, arr, dir) {
+        if (dir === 1) {
+            arr.sort(function(a,b){ return b-a; });
+        } else {
+            arr.sort(function(a,b){ return a-b; });
+        }
+        return arr.indexOf(val) + 1;
+    }
+    // 颜色辅助：排名颜色、数值颜色
+    function rankColor(r) { return r<=2?'#1e3c72':(r<=4?'#3a6bc5':'#a8c8e8'); }
+    function valColor(v, avgV, dir) {
+        if (dir===1) return v>=avgV ? '#1e3c72' : '#a8c8e8';
+        else return v<=avgV ? '#1e3c72' : '#a8c8e8';
+    }
+    var html = '<h3 class="table-title">' + cfg.name + ' 维度分析</h3>';
+    html += '<div style="display:flex;gap:20px;align-items:flex-start;min-width:0;flex-wrap:nowrap">';
+    html += '<table class="detail-table"><thead><tr><th>子指标</th><th>常州锂源</th><th>湖南裕能</th><th>万润新能</th><th>富临精工</th><th>德方纳米</th><th>行业均值</th><th>权重</th><th>排名</th></tr></thead><tbody>';
+    cfg.sub.forEach(function(s) {
+        var dir = dirMap[s.label];
+        var vals = [s.czly, s.hnyn, s.wrxn, s.fljg, s.dfnm];
+        var r = getRank(s.czly, vals.slice(), dir);
+        var vc = valColor(s.czly, s.avg, dir);
+        html += '<tr>';
+        html += '<td>' + s.label + (dir===-1?' <span style="color:#a8c8e8;font-size:11px">↓反</span>':'') + '</td>';
+        html += '<td style="color:' + vc + ';font-weight:600">' + s.czly + ' ' + s.unit + '</td>';
+        html += '<td>' + s.hnyn + ' ' + s.unit + '</td>';
+        html += '<td>' + s.wrxn + ' ' + s.unit + '</td>';
+        html += '<td>' + s.fljg + ' ' + s.unit + '</td>';
+        html += '<td>' + s.dfnm + ' ' + s.unit + '</td>';
+        html += '<td>' + s.avg + ' ' + s.unit + '</td>';
+        html += '<td>' + s.w + '%</td>';
+        html += '<td style="color:' + rankColor(r) + ';font-weight:700">' + (r<=3?r+'名':'垫底') + '</td>';
+        html += '</tr>';
+    });
+    html += '<tr class="total-row"><td>维度综合得分</td>';
+    html += '<td><b style="color:' + (scoreVals.czly>=scoreVals.avg?'#1e3c72':'#a8c8e8') + '">' + scoreVals.czly.toFixed(1) + '</b></td>';
+    html += '<td><b>' + scoreVals.hnyn.toFixed(1) + '</b></td>';
+    html += '<td><b>' + scoreVals.wrxn.toFixed(1) + '</b></td>';
+    html += '<td><b>' + scoreVals.fljg.toFixed(1) + '</b></td>';
+    html += '<td><b>' + scoreVals.dfnm.toFixed(1) + '</b></td>';
+    html += '<td><b>' + scoreVals.avg.toFixed(1) + '</b></td><td></td><td></td></tr></tbody></table>';
+    tableEl.innerHTML = html;
+
+    // ═══════════════════════════════════════════════════════
+    // 图表区——固定3张：综合维度得分 + 2个子指标图表
+    // ═══════════════════════════════════════════════════════
+    var C_DEEP  = '#1e3c72';
+    var C_LIGHT = '#6a9fd8';
+    var buKeys  = ['czly','hnyn','wrxn','fljg','dfnm','avg'];
+    var buNames = ['常州锂源','湖南裕能','万润新能','富临精工','德方纳米','行业均值'];
+    // 计算综合得分排名数据（5家公司降序，排除行业均值）
+    var scoreRows = buKeys.filter(function(k){ return k !== 'avg'; }).map(function(k) {
+        return { n: buNames[buKeys.indexOf(k)], v: scoreVals[k] };
+    }).sort(function(a,b){ return b.v - a.v; });
+    // 子指标排序数据（按当前维度方向）
+    function getSubRows(idx, dir) {
+        var sub = cfg.sub[idx];
+        var rows = buKeys.filter(function(k){ return k !== 'avg'; }).map(function(k) {
+            return { n: buNames[buKeys.indexOf(k)], v: sub[k] };
+        }).sort(function(a,b){ return dir===1 ? b.v-a.v : a.v-b.v; });
+        return rows;
+    }
+    var dir0 = dirMap[cfg.sub[0] ? cfg.sub[0].label : ''] || 1;
+    var dir1 = dirMap[cfg.sub[1] ? cfg.sub[1].label : ''] || 1;
+    var subRows0 = getSubRows(0, dir0);
+    var subRows1 = getSubRows(1, dir1);
+    // 图表标题（根据维度）
+    var scoreTitleMap = { scale:'规模维度得分', profit:'盈利维度得分', cost_eff:'成本效率维度', finance:'财务健康维度', growth:'成长潜力维度' };
+    html = '<div style="display:flex;gap:12px;margin-top:16px;flex-wrap:nowrap">';
+    html += '<div id="dim-chart-score" style="flex:1;min-width:0;height:380px;"></div>';
+    html += '<div id="dim-chart-0" style="flex:1;min-width:0;height:380px;"></div>';
+    html += '<div id="dim-chart-1" style="flex:1;min-width:0;height:380px;"></div>';
+    html += '</div>';
+    tableEl.innerHTML = tableEl.innerHTML.replace('</tbody></table>', '</tbody></table>') + html;
+
+    function makeHorBarOpt(data, names, title, unit, avgLine, currentIdx, maxVal) {
+        var markLine = avgLine != null ? {
+            silent: true, symbol: 'none',
+            data: [{ xAxis: avgLine, lineStyle: { color: '#b0c4de', type: 'dashed', width: 1.5 },
+                    label: { show: true, position: 'end', formatter: '均值 ' + avgLine + (unit||''), fontSize: 9, color: '#888' } }]
+        } : null;
+        return {
+            backgroundColor: '#fff',
+            title: { text: title, textStyle: { fontSize: 12, fontWeight: 'bold', color: '#1e3c72' }, left: 'center', top: 4 },
+            tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' },
+                formatter: function(params) {
+                    return '<strong>' + params[0].name + '</strong><br/>' + params[0].marker + ' ' + params[0].value + (unit||'');
+                }
+            },
+            grid: { top: 36, bottom: 28, left: 70, right: 50, containLabel: false },
+            xAxis: { type: 'value', max: maxVal || undefined, min: 0, axisLabel: { fontSize: 9 }, splitLine: { lineStyle: { color: '#f2f2f2', type: 'dashed' } } },
+            yAxis: { type: 'category', data: names, axisLabel: { fontSize: 10 }, axisTick: { show: false } },
+            series: [{
+                type: 'bar', barWidth: '55%',
+                data: data.map(function(v, i) {
+                    var isAvg = names[i] === '行业均值';
+                    return { value: v, itemStyle: { color: isAvg ? '#b0c4de' : (i === currentIdx ? C_DEEP : C_LIGHT), opacity: isAvg ? 0.6 : (i === currentIdx ? 1 : 0.75) } };
+                }),
+                label: { show: true, position: 'right', fontSize: 10, formatter: function(p) { return p.value + (unit||''); } },
+                markLine: markLine
+            }]
+        };
+    }
+
+    function makeVertBarOpt(data, names, title, unit, avgLine, currentIdx, dir, allowNeg, extraMarkLines) {
+        var currentName = names[currentIdx];
+        var sorted = data.map(function(v,i){ return {v:v,i:i,n:names[i]}; })
+            .filter(function(d){ return d.n !== '行业均值'; })
+            .sort(function(a,b){ return dir===1 ? b.v-a.v : a.v-b.v; });
+        var avgEntry = {v: data[names.indexOf('行业均值')], n:'行业均值', i: names.indexOf('行业均值')};
+        var ordered = sorted.concat(avgEntry.v != null ? [avgEntry] : []);
+        var oData = ordered.map(function(d){ return d.v; });
+        var oNames = ordered.map(function(d){ return d.n; });
+        var oCurrentIdx = oNames.indexOf(currentName);
+
+        var markLines = [];
+        if (avgLine != null) {
+            markLines.push({ yAxis: avgLine, lineStyle: { color: '#b0c4de', type: 'dashed', width: 1.5 },
+                label: { show: true, position: 'insideEndTop', fontSize: 10, color: '#fff', backgroundColor: 'rgba(106,159,216,0.85)', padding: [2,5,2,5], borderRadius: 3,
+                    formatter: '均值 ' + avgLine + (unit||'') } });
+        }
+        if (allowNeg) {
+            markLines.push({ yAxis: 0, lineStyle: { color: '#e74c3c', type: 'solid', width: 1.5 },
+                label: { show: true, position: 'insideEndTop', fontSize: 10, color: '#fff', backgroundColor: 'rgba(231,76,60,0.85)', padding: [2,5,2,5], borderRadius: 3, formatter: '0' } });
+        }
+        if (extraMarkLines) extraMarkLines.forEach(function(m){ markLines.push(m); });
+
+        return {
+            backgroundColor: '#fff',
+            title: { text: title, textStyle: { fontSize: 12, fontWeight: 'bold', color: '#1e3c72' }, left: 'center', top: 4 },
+            tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' },
+                formatter: function(params) {
+                    return '<strong>' + params[0].name + '</strong><br/>' + params[0].marker + ' ' + params[0].value + (unit||'');
+                }
+            },
+            grid: { top: 36, bottom: 28, left: 50, right: 20, containLabel: true },
+            xAxis: { type: 'category', data: oNames, axisLabel: { fontSize: 9, rotate: 20 }, axisTick: { show: false } },
+            yAxis: {
+                type: 'value',
+                min: allowNeg ? null : 0,
+                axisLabel: { fontSize: 9 },
+                splitLine: { lineStyle: { color: '#f2f2f2', type: 'dashed' } }
+            },
+            series: [{
+                type: 'bar', barWidth: '55%',
+                data: oData.map(function(v, i) {
+                    var name = oNames[i];
+                    var isAvg = name === '行业均值';
+                    var isNeg = v < 0;
+                    var baseColor;
+                    if (isAvg) {
+                        baseColor = '#b0c4de';
+                    } else if (i === oCurrentIdx) {
+                        baseColor = C_DEEP;
+                    } else if (isNeg) {
+                        baseColor = '#e74c3c';
+                    } else {
+                        baseColor = C_LIGHT;
+                    }
+                    return { value: v, itemStyle: { color: baseColor, opacity: isAvg ? 0.6 : (i === oCurrentIdx ? 1 : 0.75) } };
+                }),
+                label: {
+                    show: true, position: 'top', fontSize: 9,
+                    formatter: function(p) { return (p.value < 0 ? '(' : '') + p.value + (unit||'') + (p.value < 0 ? ')' : ''); }
+                },
+                markLine: markLines.length ? { silent: true, symbol: 'none', data: markLines } : null
+            }]
+        };
+    }
+
+    // ── SCALE：综合得分排名 + 营业收入 + 总资产 ──
+    if (dim === 'scale') {
+        var cScore = safeInitChart('dim-chart-score'); if (!cScore) return;
+        cScore.setOption(makeHorBarOpt(
+            scoreRows.map(function(r){ return r.v; }),
+            scoreRows.map(function(r){ return r.n; }),
+            '规模维度得分排名', '分', scoreVals.avg, 0,
+            Math.ceil(Math.max.apply(null, scoreRows.map(function(r){ return r.v; })) / 2) * 2 + 2
+        ));
+        window.addEventListener('resize', function(){ cScore.resize(); });
+
+        var rev = cfg.sub[0];
+        var revRows = buKeys.map(function(k,i){ return {v:rev[k], n:buNames[i]}; })
+            .filter(function(d){ return d.n !== '行业均值'; })
+            .sort(function(a,b){ return b.v - a.v; });
+        var c0 = safeInitChart('dim-chart-0'); if (!c0) return;
+        c0.setOption(makeHorBarOpt(
+            revRows.map(function(r){ return r.v; }),
+            revRows.map(function(r){ return r.n; }),
+            '营业收入排名（亿元）', '亿', rev.avg, 0,
+            Math.ceil(revRows[0].v / 50) * 50 + 30
+        ));
+        window.addEventListener('resize', function(){ c0.resize(); });
+
+        var ast = cfg.sub[1];
+        var astRows = buKeys.map(function(k,i){ return {v:ast[k], n:buNames[i]}; })
+            .filter(function(d){ return d.n !== '行业均值'; })
+            .sort(function(a,b){ return b.v - a.v; });
+        var c1 = safeInitChart('dim-chart-1'); if (!c1) return;
+        c1.setOption(makeHorBarOpt(
+            astRows.map(function(r){ return r.v; }),
+            astRows.map(function(r){ return r.n; }),
+            '总资产排名（亿元）', '亿', ast.avg, 0,
+            Math.ceil(astRows[0].v / 100) * 100 + 50
+        ));
+        window.addEventListener('resize', function(){ c1.resize(); });
+    }
+
+    // ── PROFIT：综合得分 + 哑铃图 + 净利率排名 ──
+    else if (dim === 'profit') {
+        var cScore = safeInitChart('dim-chart-score'); if (!cScore) return;
+        cScore.setOption(makeHorBarOpt(
+            scoreRows.map(function(r){ return r.v; }),
+            scoreRows.map(function(r){ return r.n; }),
+            '盈利维度得分排名', '分', scoreVals.avg, 0,
+            Math.ceil(Math.max.apply(null, scoreRows.map(function(r){ return r.v; })) / 2) * 2 + 2
+        ));
+        window.addEventListener('resize', function(){ cScore.resize(); });
+
+        var grossData = dimMap.profit.sub[0];
+        var netData   = dimMap.profit.sub[1];
+        var rawRows = buKeys.map(function(k, i) {
+            return { name: buNames[i], gross: grossData[k], net: netData[k] };
+        });
+        rawRows.sort(function(a, b) {
+            if (a.name === '行业均值') return 1;
+            if (b.name === '行业均值') return -1;
+            return b.gross - a.gross;
+        });
+        var orderedNames = rawRows.map(function(r){ return r.name; });
+        var orderedGross = rawRows.map(function(r){ return r.gross; });
+        var orderedNet   = rawRows.map(function(r){ return r.net; });
+        var diffLabels   = rawRows.map(function(r) {
+            var d = r.gross - r.net;
+            return (d >= 0 ? '+' : '') + d.toFixed(2) + 'pct';
+        });
+        var c0 = safeInitChart('dim-chart-0'); if (!c0) return;
+        c0.setOption({
+            backgroundColor: '#fff',
+            title: { text: '毛利 → 净利差值（盈利能力结构）', textStyle: { fontSize: 12, fontWeight: 'bold', color: '#1e3c72' }, left: 'center', top: 4 },
+            tooltip: {
+                trigger: 'axis',
+                formatter: function(params) {
+                    var idx = params[0].dataIndex;
+                    var r = rawRows[idx];
+                    return '<strong>' + r.name + '</strong><br/>毛利率：<b>' + r.gross + '%</b><br/>净利率：<b>' + r.net + '%</b><br/>差值：<b>' + diffLabels[idx] + '</b>';
+                }
+            },
+            grid: { top: 36, bottom: 28, left: 60, right: 60, containLabel: false },
+            xAxis: { type: 'value', min: 0, max: 20, axisLabel: { fontSize: 9, formatter: '{value}%' }, splitLine: { lineStyle: { color: '#f2f2f2', type: 'dashed' } } },
+            yAxis: { type: 'category', data: orderedNames, axisLabel: { fontSize: 10 }, axisTick: { show: false } },
+            series: [
+                { type: 'line', data: orderedGross.map(function(v,i){ return [[v, orderedNames[i]], [orderedNet[i], orderedNames[i]]]; }), lineStyle: { color: '#1e3c72', width: 2 }, itemStyle: { opacity: 0 }, symbol: 'none', tooltip: { show: false }, z: 1 },
+                { type: 'scatter', name: '毛利率', data: orderedGross, symbolSize: 10, itemStyle: { color: '#1e3c72' }, label: { show: true, position: 'left', offset: [-4,0], fontSize: 9, color: '#1e3c72', formatter: function(p){ return p.value+'%'; } }, tooltip: { show: false }, z: 2 },
+                { type: 'scatter', name: '净利率', data: orderedNet, symbolSize: 10, itemStyle: { color: '#6a9fd8' }, label: { show: true, position: 'right', offset: [4,0], fontSize: 9, color: '#6a9fd8', formatter: function(p){ return p.value+'%'; } }, tooltip: { show: false }, z: 2 },
+                { type: 'scatter', name: '差值', data: orderedGross.map(function(v,i){ return (v+orderedNet[i])/2; }), symbolSize: 0, label: { show: true, position: 'right', fontSize: 9, color: '#888', formatter: function(p){ return diffLabels[p.dataIndex]; } }, tooltip: { show: false }, z: 3 }
+            ]
+        });
+        window.addEventListener('resize', function(){ c0.resize(); });
+
+        var net = dimMap.profit.sub[1];
+        var netRows = buKeys.map(function(k,i){ return {v:net[k], n:buNames[i]}; })
+            .filter(function(d){ return d.n !== '行业均值'; })
+            .sort(function(a,b){ return b.v - a.v; });
+        var c1 = safeInitChart('dim-chart-1'); if (!c1) return;
+        c1.setOption(makeHorBarOpt(
+            netRows.map(function(r){ return r.v; }),
+            netRows.map(function(r){ return r.n; }),
+            '净利率排名', '%', net.avg, 0,
+            Math.ceil(netRows[0].v / 2) * 2 + 2
+        ));
+        window.addEventListener('resize', function(){ c1.resize(); });
+    }
+
+    // ── COST_EFF：综合得分 + 营业成本率 + 存货周转天数 ──
+    else if (dim === 'cost_eff') {
+        var ceScore = safeInitChart('dim-chart-score'); if (!ceScore) return;
+        ceScore.setOption(makeHorBarOpt(
+            scoreRows.map(function(r){ return r.v; }),
+            scoreRows.map(function(r){ return r.n; }),
+            '成本效率维度得分排名', '分', scoreVals.avg, 0,
+            Math.ceil(Math.max.apply(null, scoreRows.map(function(r){ return r.v; })) / 2) * 2 + 2
+        ));
+        window.addEventListener('resize', function(){ ceScore.resize(); });
+
+        var cost = dimMap.cost_eff.sub[0];
+        var inv  = dimMap.cost_eff.sub[1];
+        var c0 = safeInitChart('dim-chart-0'); if (!c0) return;
+        c0.setOption(makeVertBarOpt(
+            [cost.czly, cost.hnyn, cost.wrxn, cost.fljg, cost.dfnm, cost.avg],
+            buNames, '营业成本率（%，越低越好）', '%', cost.avg, 0, -1, false
+        ));
+        window.addEventListener('resize', function(){ c0.resize(); });
+
+        var c1 = safeInitChart('dim-chart-1'); if (!c1) return;
+        c1.setOption(makeVertBarOpt(
+            [inv.czly, inv.hnyn, inv.wrxn, inv.fljg, inv.dfnm, inv.avg],
+            buNames, '存货周转天数（天，越短越好）', '天', inv.avg, 0, -1, false
+        ));
+        window.addEventListener('resize', function(){ c1.resize(); });
+    }
+
+    // ── FINANCE：综合得分 + 资产负债率 + 经营现金流/营收 ──
+    else if (dim === 'finance') {
+        var finScore = safeInitChart('dim-chart-score'); if (!finScore) return;
+        finScore.setOption(makeHorBarOpt(
+            scoreRows.map(function(r){ return r.v; }),
+            scoreRows.map(function(r){ return r.n; }),
+            '财务健康维度得分排名', '分', scoreVals.avg, 0,
+            Math.ceil(Math.max.apply(null, scoreRows.map(function(r){ return r.v; })) / 2) * 2 + 2
+        ));
+        window.addEventListener('resize', function(){ finScore.resize(); });
+
+        var debt = dimMap.finance.sub[0];
+        var cash = dimMap.finance.sub[1];
+        var c0 = safeInitChart('dim-chart-0'); if (!c0) return;
+        c0.setOption(makeVertBarOpt(
+            [debt.czly, debt.hnyn, debt.wrxn, debt.fljg, debt.dfnm, debt.avg],
+            buNames, '资产负债率（%，越低越好）', '%', debt.avg, 0, -1, false,
+            [{ yAxis: 70, lineStyle: { color: '#e74c3c', type: 'solid', width: 2 },
+              label: { show: true, position: 'insideEndTop', formatter: '▶ 警戒70%', fontSize: 11, color: '#fff', backgroundColor: 'rgba(231,76,60,0.85)', padding: [2,6,2,6], borderRadius: 3 } }]
+        ));
+        window.addEventListener('resize', function(){ c0.resize(); });
+
+        var c1 = safeInitChart('dim-chart-1'); if (!c1) return;
+        c1.setOption(makeVertBarOpt(
+            [cash.czly, cash.hnyn, cash.wrxn, cash.fljg, cash.dfnm, cash.avg],
+            buNames, '经营现金流/营收（%，越高越好，负值=失血）', '%', cash.avg, 0, 1, true
+        ));
+        window.addEventListener('resize', function(){ c1.resize(); });
+    }
+
+    // ── GROWTH：综合得分 + 营收同比增长率 + 研发费用率 ──
+    else if (dim === 'growth') {
+        var grScore = safeInitChart('dim-chart-score'); if (!grScore) return;
+        grScore.setOption(makeHorBarOpt(
+            scoreRows.map(function(r){ return r.v; }),
+            scoreRows.map(function(r){ return r.n; }),
+            '成长潜力维度得分排名', '分', scoreVals.avg, 0,
+            Math.ceil(Math.max.apply(null, scoreRows.map(function(r){ return r.v; })) / 2) * 2 + 2
+        ));
+        window.addEventListener('resize', function(){ grScore.resize(); });
+
+        var revg = dimMap.growth.sub[0];
+        var rd   = dimMap.growth.sub[1];
+        var c0 = safeInitChart('dim-chart-0'); if (!c0) return;
+        c0.setOption(makeVertBarOpt(
+            [revg.czly, revg.hnyn, revg.wrxn, revg.fljg, revg.dfnm, revg.avg],
+            buNames, '营收同比增长率（%，越高越好）', '%', revg.avg, 0, 1, false
+        ));
+        window.addEventListener('resize', function(){ c0.resize(); });
+
+        var c1 = safeInitChart('dim-chart-1'); if (!c1) return;
+        c1.setOption(makeVertBarOpt(
+            [rd.czly, rd.hnyn, rd.wrxn, rd.fljg, rd.dfnm, rd.avg],
+            buNames, '研发费用率（%，越高越好）', '%', rd.avg, 0, 1, false
+        ));
+        window.addEventListener('resize', function(){ c1.resize(); });
+    }
+}
+
+function renderCompare() {
+    var data = window.currentData;
+    if (!data) return;
+    var a = document.getElementById('compare-a').value;
+    var b = document.getElementById('compare-b').value;
+    var dimKeys = ['scale','profit','cost_eff','finance','growth'];
+    var dimNames = ['规模与市场地位','盈利质量','成本与效率','运营与财务健康','成长潜力'];
+    var last = selectedQuarterIdx !== null ? selectedQuarterIdx : data.quarters.length - 1;
+    var aScores = dimKeys.map(function(dk){ return data.scores[a][dk][last]; });
+    var bScores = dimKeys.map(function(dk){ return data.scores[b][dk][last]; });
+    var compareEl = document.getElementById('compare-chart');
+    if (!compareEl) return;
+    var chart = safeInitChart('compare-chart'); if (!chart) return;
+    var opt = {
+        backgroundColor:'#fff',
+        tooltip:{trigger:'axis',axisPointer:{type:'shadow'}},
+        legend:{bottom:0,textStyle:{fontSize:11}},
+        grid:{top:10,bottom:30,left:100,right:80},
+        yAxis:{type:'category',data:dimNames,axisLabel:{fontSize:11}},
+        xAxis:{type:'value',max:10,min:0,axisLabel:{fontSize:10}},
+        series:[
+            {name:document.getElementById('compare-a').options[document.getElementById('compare-a').selectedIndex].text,type:'bar',data:aScores,barWidth:'35%',
+             itemStyle:{color:'#1e3c72'},
+             label:{show:true,position:'right',fontSize:11,formatter:'{c}'}},
+            {name:document.getElementById('compare-b').options[document.getElementById('compare-b').selectedIndex].text,type:'bar',data:bScores,barWidth:'35%',
+             itemStyle:{color:'#6a9fd8'},
+             label:{show:true,position:'right',fontSize:11,formatter:'{c}'}}
+        ]
+    };
+    chart.setOption(opt);
+    window.addEventListener('resize',function(){chart.resize();});
+}
+
+function toggleExportPop() {
+    var pop = document.getElementById('export-pop');
+    if (pop.style.display === 'block') {
+        pop.style.display = 'none';
+    } else {
+        pop.style.display = 'block';
+        setTimeout(function() {
+            var closeFn = function(e) {
+                if (!e.target.closest('#export-pop') && !e.target.closest('.btn-export')) {
+                    pop.style.display = 'none';
+                    document.removeEventListener('click', closeFn);
+                }
+            };
+            document.addEventListener('click', closeFn);
+        }, 10);
+    }
+}
+
+function exportExcel() {
+    document.getElementById('export-pop').style.display = 'none';
+    var data = window.currentData;
+    if (!data) return;
+    var buId = window._curBuId || new URLSearchParams(location.search).get('id') || 'czly';
+    var wb = XLSX.utils.book_new();
+
+    // Sheet1: 战略维度得分
+    var dimKeys = ['scale','profit','cost_eff','finance','growth'];
+    var dimNames = ['规模与市场地位','盈利质量','成本与效率','运营与财务健康','成长潜力'];
+    var qIdx = selectedQuarterIdx !== null ? selectedQuarterIdx : data.quarters.length - 1;
+    var exportEntities = getDashboardEntities(data);
+    var ws1Data = [['维度'].concat(exportEntities.map(function(e){ return e.name; }))];
+    dimKeys.forEach(function(k, i) {
+        ws1Data.push([dimNames[i]].concat(exportEntities.map(function(e){ return data.scores[e.id][k][qIdx]; })));
+    });
+    var ws1 = XLSX.utils.aoa_to_sheet(ws1Data);
+    XLSX.utils.book_append_sheet(wb, ws1, '战略维度得分');
+
+    // Sheet2: 详细指标（从当前表格提取）
+    var tableEl = document.getElementById('detail-table');
+    if (tableEl) {
+        var ws2 = XLSX.utils.table_to_sheet(tableEl);
+        XLSX.utils.book_append_sheet(wb, ws2, '详细指标');
+    }
+
+    var wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+    var blob = new Blob([wbout], { type: 'application/octet-stream' });
+    var link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    var d = new Date();
+    link.download = '战略洞察_' + buId + '_' + d.getFullYear() + (d.getMonth()+1) + d.getDate() + '.xlsx';
+    link.click();
+    URL.revokeObjectURL(link.href);
+}
+
+function exportPDF() {
+    document.getElementById('export-pop').style.display = 'none';
+    var el = document.getElementById('dashboard-page');
+    var btn = document.querySelector('.btn-export');
+    var origText = btn.textContent;
+    btn.textContent = '正在生成PDF...';
+    html2canvas(el, { scale: 1.5, useCORS: true, logging: false, backgroundColor: '#f4f6fa' }).then(function(canvas) {
+        var imgData = canvas.toDataURL('image/jpeg', 0.85);
+        var pdf = new window.jspdf.jsPDF('l', 'mm', 'a4');
+        var pdfW = pdf.internal.pageSize.getWidth() - 20;
+        var imgH = canvas.height * pdfW / canvas.width;
+        var maxH = pdf.internal.pageSize.getHeight() - 20;
+        if (imgH > maxH) imgH = maxH;
+        pdf.addImage(imgData, 'JPEG', 10, 10, pdfW, imgH);
+        pdf.save('战略洞察报告.pdf');
+        btn.textContent = origText;
+    }).catch(function() {
+        btn.textContent = origText;
+        alert('PDF生成失败，请重试');
+    });
+}
+
+
+
+document.addEventListener('DOMContentLoaded', initRouter);
+
+function highlightRadarDim(dimKey) {
+    // 高亮雷达图中对应维度
+    var chart = echarts.getInstanceByDom(document.getElementById('radar-chart'));
+    if (chart) {
+        var dimIdx = ['scale','profit','cost_eff','finance','growth'].indexOf(dimKey);
+        chart.dispatchAction({
+            type: 'highlight',
+            dataIndex: dimIdx
+        });
+    }
+}
+function resetRadarHighlight() {
+    var chart = echarts.getInstanceByDom(document.getElementById('radar-chart'));
+    if (chart) {
+        chart.dispatchAction({ type: 'downplay' });
+    }
+}
+</script>
+    <script src="assets/ai_fab_inject.js"></script>
+</body>
+</html>

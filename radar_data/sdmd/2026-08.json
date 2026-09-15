@@ -1,0 +1,87 @@
+{
+  "month": "2026-08",
+  "bu_id": "sdmd",
+  "bu_code": "SDMD",
+  "bu_name": "山东美多",
+  "source": "山东美多8月总结暨9月计划汇报（马兰，2026年9月1日）",
+  "source_pages": [4, 5, 7, 9, 11, 12, 14, 16, 17, 18, 21, 22, 26, 53, 58],
+  "_isCurrent": true,
+  "_kpiComparison": {
+    "title": "8月核心KPI达成率",
+    "period": "2026年8月",
+    "items": [
+      {"name": "碳酸锂产量(T)", "budget": 330, "target": 330, "actual": 350, "unit": "T"},
+      {"name": "营业收入(万元)", "budget": 4323, "target": 4323, "actual": 296, "unit": "万元"},
+      {"name": "毛利率(%)", "budget": 10.62, "target": 10.62, "actual": 11.34, "unit": "%"},
+      {"name": "净利润(万元)", "budget": 288, "target": 288, "actual": -119, "unit": "万元"},
+      {"name": "资产负债率(%)", "budget": 68.25, "target": 68.25, "actual": 75.0, "unit": "%"},
+      {"name": "产品一次合格率(%)", "budget": 99.38, "target": 100.0, "actual": 100.0, "unit": "%"}
+    ]
+  },
+  "_dimComparison_d2": {
+    "title": "8月产品交付达成",
+    "format": "mom",
+    "items": [
+      {"name": "碳酸锂产量(T)", "prev": 337.5, "curr": 350, "unit": "T"},
+      {"name": "磷铁液产出(m³)", "prev": 2380, "curr": 3200, "unit": "m³"},
+      {"name": "磷铁液交付达成率(%)", "prev": 40, "curr": 71, "unit": "%"},
+      {"name": "碳酸锂达成率(%)", "prev": 102.3, "curr": 106.1, "unit": "%"}
+    ]
+  },
+  "_dimComparison_d3": {
+    "title": "8月生产效率达成",
+    "format": "mom",
+    "items": [
+      {"name": "碳酸锂产出(T)", "prev": 337.5, "curr": 350, "unit": "T"},
+      {"name": "OEE(%)", "prev": 90.7, "curr": 91.0, "unit": "%"},
+      {"name": "设备故障率(%)", "prev": 1.8, "curr": 2.0, "unit": "%"},
+      {"name": "采购降本(万元)", "prev": 32.81, "curr": 34.24, "unit": "万元"}
+    ]
+  },
+  "_dimComparison_d4": {
+    "title": "8月技术创新力",
+    "format": "mom",
+    "items": [
+      {"name": "在研课题(项)", "prev": 8, "curr": 6, "unit": "项"},
+      {"name": "MCU降本(万元/年)", "prev": 55.5, "curr": 67, "unit": "万元/年"},
+      {"name": "技改完成率(%)", "prev": 93, "curr": 100, "unit": "%"},
+      {"name": "专利实质审查(项)", "prev": 0, "curr": 8, "unit": "项"}
+    ]
+  },
+  "_dimComparison_d5": {
+    "title": "8月安全环保合规",
+    "format": "mom",
+    "items": [
+      {"name": "安全事故(起)", "prev": 0, "curr": 0, "unit": "起"},
+      {"name": "环保违规(项)", "prev": 0, "curr": 0, "unit": "项"},
+      {"name": "隐患整改率(%)", "prev": 93.25, "curr": 94.84, "unit": "%"},
+      {"name": "新增诉讼(件)", "prev": 1, "curr": 0, "unit": "件"}
+    ]
+  },
+  "_dimComparison_d6": {
+    "title": "8月组织活力",
+    "format": "mom",
+    "items": [
+      {"name": "AI项目立项(个)", "prev": 72, "curr": 72, "unit": "个"},
+      {"name": "重点人才引进(人)", "prev": 2, "curr": 1, "unit": "人"},
+      {"name": "管培生校招(人)", "prev": 0, "curr": 9, "unit": "人"},
+      {"name": "安全培训覆盖(人次)", "prev": 0, "curr": 566, "unit": "人次"}
+    ]
+  },
+  "dims": {
+    "d1": 55,
+    "d2": 75,
+    "d3": 75,
+    "d4": 88,
+    "d5": 95,
+    "d6": 80
+  },
+  "kpis": {
+    "d1": [110, 0, 95, 80],
+    "d2": [110, 100, 30, 80],
+    "d3": [90, 110, 30, 95],
+    "d4": [80, 110, 120, 110],
+    "d5": [95, 110, 110, 100],
+    "d6": [100, 60, 80, 80]
+  }
+}
