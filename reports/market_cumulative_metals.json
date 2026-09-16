@@ -2,9 +2,9 @@
   "meta": {
     "description": "有色金属2026年累计涨跌幅",
     "data_source": "各产品源数据文件",
-    "update_time": "2026-09-15 16:24:29",
+    "update_time": "2026-09-16 12:03:15",
     "year": 2026,
-    "generated_at": "2026-09-15T16:24:29.807609",
+    "generated_at": "2026-09-16T12:03:15.079277",
     "generator_version": "20260616_v2"
   },
   "products": [
@@ -1408,13 +1408,13 @@
       "name": "铁矿石",
       "unit": "元/吨",
       "start_date": "2026-01-05",
-      "end_date": "2026-09-14",
+      "end_date": "2026-09-15",
       "start_price": 797.0,
-      "end_price": 708.5,
-      "change": -88.5,
-      "change_pct": -11.1,
+      "end_price": 707.5,
+      "change": -89.5,
+      "change_pct": -11.23,
       "direction": "down",
-      "data_points": 170,
+      "data_points": 171,
       "price_series": [
         {
           "date": "2026-01-05",
@@ -2095,6 +2095,10 @@
         {
           "date": "2026-09-14",
           "price": 708.5
+        },
+        {
+          "date": "2026-09-15",
+          "price": 707.5
         }
       ]
     }
