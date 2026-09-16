@@ -46,8 +46,8 @@ window.__SUBPAGE_MAP__ = {"analysis_hub.html": "./analysis_hub.html", "archive_v
     <link rel="preload" href="data/industry_chain.json" as="fetch" crossorigin>
     <link rel="preload" href="data/lithium_ore_price_history.json" as="fetch" crossorigin>
     <link rel="preload" href="data/lepidolite_price_history.json" as="fetch" crossorigin>
-<script>window.HTML_VERSION="20260915_001"</script>
-<script src="embedded_data.gz.js?v=20260915_001"></script>
+<script>window.HTML_VERSION="20260916_001"</script>
+<script src="embedded_data.gz.js?v=20260916_001"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
@@ -56,7 +56,7 @@ window.__SUBPAGE_MAP__ = {"analysis_hub.html": "./analysis_hub.html", "archive_v
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <!-- 资源预加载（仅保留首屏关键资源，大文件延迟加载） -->
     <script defer src="assets/echarts.min.js"></script>
-    <script defer src="electrolyte_data.js?v=20260915"></script>
+    <script defer src="electrolyte_data.js?v=20260916"></script>
     <script defer src="recycling_data_v3.js?v=20260831_1518"></script>
     <script defer src="chemical_data.js?v=20260831_1518"></script>
     <script src="_radar_scoring_config.js?v=20260831_1518"></script>
@@ -247,12 +247,14 @@ window.__SUBPAGE_MAP__ = {"analysis_hub.html": "./analysis_hub.html", "archive_v
             font-weight: bold;
         }
 
-        /* ── Hero 文字内容（浮于图左上方，与导航栏平行） ── */
+        /* ── Hero 文字内容（浮于图中部，水平居中，位于 Lopal 蓝底 logo 上方 + 顶部导航栏下方） ── */
         .hero-content {
             position: absolute;
-            left: 36px; top: 8px;
+            left: 50%; top: 140px;
+            transform: translateX(-50%);
             z-index: 10;
             max-width: 520px;
+            text-align: center;
         }
         .hero-brand-line {
             display: flex; align-items: center; gap: 10px;
@@ -282,11 +284,12 @@ window.__SUBPAGE_MAP__ = {"analysis_hub.html": "./analysis_hub.html", "archive_v
             letter-spacing: 3px;
         }
         .hero-subtitle {
-            font-size: 26px; font-weight: 500;
-            color: rgb(7,82,54);
+            font-size: 32px; font-weight: 600;
+            color: #ffffff;
             margin: 0;
             line-height: 1.25;
-            letter-spacing: 1px;
+            letter-spacing: 2px;
+            text-shadow: 0 2px 8px rgba(0,0,0,0.45);
         }
         .hero-subtitle strong {
             font-weight: 700;
@@ -6207,7 +6210,6 @@ window.__SUBPAGE_MAP__ = {"analysis_hub.html": "./analysis_hub.html", "archive_v
 
             <!-- Hero 文字内容（浮于图左下） -->
             <div class="hero-content">
-                <h1 class="hero-title">龙蟠科技</h1>
                 <h2 class="hero-subtitle">AI <strong>战略信息</strong>中台</h2>
             </div>
 
