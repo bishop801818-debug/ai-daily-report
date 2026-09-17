@@ -46,8 +46,8 @@ window.__SUBPAGE_MAP__ = {"analysis_hub.html": "./analysis_hub.html", "archive_v
     <link rel="preload" href="data/industry_chain.json" as="fetch" crossorigin>
     <link rel="preload" href="data/lithium_ore_price_history.json" as="fetch" crossorigin>
     <link rel="preload" href="data/lepidolite_price_history.json" as="fetch" crossorigin>
-<script>window.HTML_VERSION="20260916_001"</script>
-<script src="embedded_data.gz.js?v=20260916_001"></script>
+<script>window.HTML_VERSION="20260917_1551"</script>
+<script src="embedded_data.gz.js?v=20260917_001"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
@@ -56,7 +56,7 @@ window.__SUBPAGE_MAP__ = {"analysis_hub.html": "./analysis_hub.html", "archive_v
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <!-- 资源预加载（仅保留首屏关键资源，大文件延迟加载） -->
     <script defer src="assets/echarts.min.js"></script>
-    <script defer src="electrolyte_data.js?v=20260916"></script>
+    <script defer src="electrolyte_data.js?v=20260917"></script>
     <script defer src="recycling_data_v3.js?v=20260831_1518"></script>
     <script defer src="chemical_data.js?v=20260831_1518"></script>
     <script src="_radar_scoring_config.js?v=20260831_1518"></script>
@@ -247,10 +247,10 @@ window.__SUBPAGE_MAP__ = {"analysis_hub.html": "./analysis_hub.html", "archive_v
             font-weight: bold;
         }
 
-        /* ── Hero 文字内容（浮于图中部，水平居中，位于 Lopal 蓝底 logo 上方 + 顶部导航栏下方） ── */
+        /* ── Hero 文字内容（浮于图底部，水平居中，紧贴 Lopal 龙蟠科技 logo 上方） ── */
         .hero-content {
             position: absolute;
-            left: 50%; top: 140px;
+            left: 50%; bottom: 56px;
             transform: translateX(-50%);
             z-index: 10;
             max-width: 520px;
@@ -285,11 +285,23 @@ window.__SUBPAGE_MAP__ = {"analysis_hub.html": "./analysis_hub.html", "archive_v
         }
         .hero-subtitle {
             font-size: 32px; font-weight: 600;
-            color: #ffffff;
+            color: transparent;
             margin: 0;
             line-height: 1.25;
             letter-spacing: 2px;
-            text-shadow: 0 2px 8px rgba(0,0,0,0.45);
+            padding: 6px 22px;
+            white-space: nowrap;
+            /* G 方案：字身由「提亮后的 hero 底图」裁切填充，字带画面纹理，融入背景 */
+            background-image:
+                linear-gradient(rgba(244,255,251,0.84), rgba(244,255,251,0.84)),
+                url("assets/hero-banner.webp");
+            background-size: 1369px 300px, 1369px 300px;
+            background-position: center center, center center;
+            background-repeat: no-repeat, no-repeat;
+            -webkit-background-clip: text; background-clip: text;
+            -webkit-text-stroke: 1.15px rgba(0,45,28,0.62);
+            filter: drop-shadow(0 2px 9px rgba(0,25,15,0.55));
+            display: inline-block;
         }
         .hero-subtitle strong {
             font-weight: 700;
