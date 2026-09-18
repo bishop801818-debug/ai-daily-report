@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta name="html-version" content="20260604_1540">
+  <meta name="html-version" content="20260917_1500">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>战略洞察仪表盘</title>
@@ -94,30 +94,118 @@ body{font-family:-apple-system,'Microsoft YaHei',sans-serif;background:#f4f6fa;c
     <script src="bu_gate.js"></script>
     <script>
     (function(){
+      // 集团领导白名单（与 D:/_pub_wsjrn4fj 后端 groupLeaderUsers 同步；
+      //   妙搭壳侧应在 iframe URL 注入 ?__user=<userId>，本单边先加读分支）
+      window.__GROUP_LEADER_IDS__ = window.__GROUP_LEADER_IDS__ || ['7595021657568185305', '1854251564037223'];
+      function isGroupLeader(){
+        // 既读 query 也读 hash（与 __dept 一致口径）
+        var u=''; try{ u = new URLSearchParams(location.search).get('__user')||''; }catch(e){}
+        if (!u) { try{ u = new URLSearchParams(location.hash.split(/\#/).filter(Boolean)[0]).get('__user')||''; }catch(e){} }
+        return u && (window.__GROUP_LEADER_IDS__||[]).indexOf(u.trim()) >= 0;
+      }
+      // 创作者调试入口：URL 加 ?__leader=1 直接放行（与 auth_policy.js 的 ?__simulate_bu 同款思路）
+      function isDebugLeader(){
+        try {
+          if (new URLSearchParams(location.search).get('__leader') === '1') return true;
+          if (new URLSearchParams(location.hash.split(/\#/).filter(Boolean)[0]).get('__leader') === '1') return true;
+        } catch(e){}
+        return false;
+      }
       window.addEventListener('load', function() {
         var buMatch = location.hash.match(/#([a-z]+)/);
         if (!buMatch) return;
+        // ⚠️ 2026-09-17 13:05 收紧：仅「财务对标」（#xxx&_fin=1）路径触发拦截；
+        // 其他事业部入口（#lpsd/#sdmd/...）继续开放，零影响。
+        if (location.hash.indexOf('_fin=1') < 0) return;
+        // 2026-09-17 15:00 修：本拦截器此前未读本地预览开关。
+        // bu_gate.js 在 localhost/127.0.0.1/file: 下会置 __BU_GATE_ALLOW_ANON=true，
+        // expand 页 guard 读了它（本地放行），本文件没读 → 本地打开同样 403，
+        // 造成「本地预览被拦、线上却因别的原因表现不同」的错位。现与 guard 对齐。
+        if (window.__BU_GATE_ALLOW_ANON) return;
+        // 集团领导白名单穿透（独立于部门判断）
+        if (isGroupLeader()) return;
+        // 创作者调试入口（?__leader=1）
+        if (isDebugLeader()) return;
         var rawBu = buMatch[1];
         var map = { lubricant:'lhy', kelan:'kls', dkhx:'dhx', sjld:'sjl' };
         var buId = map[rawBu] || rawBu;
+        // 2026-09-17 15:00 修（主因）：原实现只读 location.search（'?' 段），
+        // 而 expand 页注入 iframe 时把 __dept 拼在 hash 里（'#czly&_fin=1&__dept=xxx'）
+        // → 线上恒取不到身份 → 落 !deptId 分支 403 → 常州锂源本部门同事也被挡。
+        // 现改为 query + hash 双读；hash 按 '#' 切段，兼容 '#__user=x#czly&_fin=1&__dept=y'。
         var deptId = (function(){
-          var m = location.search.match(/[?&]__dept=([^&]+)/);
-          if(m) return decodeURIComponent(m[1]);
-          m = location.search.match(/[?&]departmentId=([^&]+)/);
-          if(m) return decodeURIComponent(m[1]);
+          function pick(src){
+            var m = src.match(/[?&]__dept=([^&]+)/);
+            if(m) return decodeURIComponent(m[1]);
+            m = src.match(/[?&]departmentId=([^&]+)/);
+            if(m) return decodeURIComponent(m[1]);
+            return '';
+          }
+          var v = pick(location.search);
+          if (v) return v;
+          var segs = location.hash.split(/\#/).filter(Boolean);
+          for (var i = 0; i < segs.length; i++) {
+            v = pick('?' + segs[i]);
+            if (v) return v;
+          }
+          // 2026-09-17 15:20 兜底：URL 完全不带身份时（expand 页「打开正式财务页」同标签跳转、
+          // 用户手敲地址、刷新后参数丢失），复用 bu_gate.js 的完整解析 ——
+          // 含 hash #dept=、?tier=<BU 代码>、以及 sessionStorage（妙搭壳注入身份时已写入）。
+          try {
+            if (typeof window.getCurrentDeptId === 'function') {
+              v = window.getCurrentDeptId();
+              if (v) return v;
+            }
+          } catch(e){}
           return '';
         })();
-        if (!deptId) return;
+        if (!deptId) {
+          // 无身份：iframe 内嵌场景下也视为拒绝（仅本路径生效）
+          document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100vh;font-family:sans-serif;background:#f5f6fa"><div style="text-align:center;padding:48px;background:#fff;border-radius:16px;box-shadow:0 8px 30px rgba(0,0,0,.08)"><div style="font-size:64px;margin-bottom:12px">⛔</div><div style="font-size:22px;font-weight:700;color:#c0392b">财务对标 · 无权限访问</div><div style="margin-top:8px;color:#888;font-size:14px">本模块仅向常州锂源事业部 + 集团领导开放，请通过妙搭首页进入。</div></div></div>';
+          return;
+        }
         var ids = (deptId||'').split(',').map(function(s){return s.trim();}).filter(Boolean);
+        // 2026-09-17 15:00 修：bu_gate.isAllowed(bu, ids) 期望的是 od-* 部门 ID，
+        // 而妙搭壳 / expand 页注入的往往是 'czly' 这类 BU 速记令牌 →
+        // 'czly' 不在 BU_DEPT['czly'] 的 od 数组里 → isAllowed 恒 false → 403。
+        // 与 expand 页 guard 对齐：命中 本 BU 代号 / czly / hq / all 直接放行。
+        if (ids.indexOf(buId) >= 0 || ids.indexOf('czly') >= 0 || ids.indexOf('hq') >= 0 || ids.indexOf('all') >= 0) return;
         if (!isAllowed || !isAllowed(buId, ids)) {
-          document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100vh;font-family:sans-serif;background:#f5f6fa"><div style="text-align:center;padding:48px;background:#fff;border-radius:16px;box-shadow:0 8px 30px rgba(0,0,0,.08)"><div style="font-size:64px;margin-bottom:12px">⛔</div><div style="font-size:22px;font-weight:700;color:#c0392b">无权限访问</div><div style="margin-top:8px;color:#888;font-size:14px">您所在的部门无权查看该内容，请联系管理员。</div></div></div>';
+          document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100vh;font-family:sans-serif;background:#f5f6fa"><div style="text-align:center;padding:48px;background:#fff;border-radius:16px;box-shadow:0 8px 30px rgba(0,0,0,.08)"><div style="font-size:64px;margin-bottom:12px">⛔</div><div style="font-size:22px;font-weight:700;color:#c0392b">财务对标 · 无权限访问</div><div style="margin-top:8px;color:#888;font-size:14px">您所在的部门无权查看该内容，请联系管理员。</div></div></div>';
         }
       });
     })();
     </script>
 
+<!-- ===== czly 事业部新版「竞品监测中心」承载层（仅 #czly 生效，其余事业部零影响） ===== -->
+<style id="czlyShellCss">
+#czlyShellLayer{display:none}
+html.czly-shell #czlyShellLayer{display:block;position:fixed;inset:0;width:100vw;height:100vh;z-index:99999;background:#f4f6f5}
+html.czly-shell #czlyShellLayer iframe{display:block;width:100%;height:100%;border:0;background:#f4f6f5}
+html.czly-shell{overflow:hidden}
+#lpsdShellLayer{display:none}
+html.lpsd-shell #lpsdShellLayer{display:block;position:fixed;inset:0;width:100vw;height:100vh;z-index:99999;background:#f4f6f5}
+html.lpsd-shell #lpsdShellLayer iframe{display:block;width:100%;height:100%;border:0;background:#f4f6f5}
+html.lpsd-shell{overflow:hidden}
+</style>
+<script>
+(function(){
+  // hash 形如 #czly 或 #czly&_fin=1；_fin=1 表示「纯财务页」模式（供新版界面的财务模块 iframe 内嵌）
+  var segs=(location.hash||'').replace(/^#/,'').split('&');
+  var key=segs[0]||'czly';
+  var map={lubricant:'lhy',kelan:'kls',dkhx:'dhx',sjld:'sjl'};
+  key=map[key]||key;
+  var isFin=segs.indexOf('_fin=1')!==-1;
+  window.__CZLY_SHELL__=(key==='czly'&&!isFin);
+  if(window.__CZLY_SHELL__) document.documentElement.classList.add('czly-shell');
+  window.__LPSD_SHELL__=(key==='lpsd'&&!isFin);
+  if(window.__LPSD_SHELL__) document.documentElement.classList.add('lpsd-shell');
+})();
+</script>
 </head>
 <body>
+<div id="czlyShellLayer"><iframe id="czlyShellFrame" title="竞品监测中心"></iframe></div>
+<div id="lpsdShellLayer"><iframe id="lpsdShellFrame" title="龙蟠时代竞品监测中心"></iframe></div>
 <div class="topbar">
   <div class="topbar-left">
     <div class="topbar-logo">📊 战略洞察</div>
@@ -1994,5 +2082,54 @@ function resetRadarHighlight() {
 }
 </script>
     <script src="assets/ai_fab_inject.js"></script>
+<script>
+(function(){
+  // 仅 #czly 时按需加载新版界面 iframe（其他事业部不会加载，避免任何多余动作）
+  if(!window.__CZLY_SHELL__) return;
+  var f=document.getElementById('czlyShellFrame');
+  if(!f) return;
+  // 兜底：目标页缺失/加载失败时撤掉遮罩，避免「整页空白」（2026-09-17 加固，防 09-16 同类故障重演）
+  f.addEventListener('load', function(){
+    try{
+      var d=f.contentDocument;
+      if(!d || !d.body || d.body.innerHTML.replace(/\s/g,'').length < 40){
+        document.documentElement.classList.remove('czly-shell');
+      }
+    }catch(e){}
+  });
+  if(f.getAttribute('src')) return;
+  // 透传壳页已注入的部门身份（妙搭环境从 ?__dept= 或 #__dept= 来；本地无身份时仅 #czly）
+  var dept='';
+  try{ dept = (new URLSearchParams(location.search).get('__dept')||'').trim(); }catch(e){}
+  if(!dept){
+    try{ dept = (new URLSearchParams(location.hash.split(/\#/).filter(Boolean)[0]).get('__dept')||'').trim(); }catch(e){}
+  }
+  var hash = dept ? ('#czly&__dept=' + encodeURIComponent(dept)) : '#czly';
+  f.src='strategy_dashboard_expand.html' + hash;
+})();
+
+(function(){
+  // 仅 #lpsd 时按需加载龙蟠时代（锂盐）竞品监测中心 iframe（与 czly 承载层并行、互不干扰）
+  if(!window.__LPSD_SHELL__) return;
+  var f=document.getElementById('lpsdShellFrame');
+  if(!f) return;
+  f.addEventListener('load', function(){
+    try{
+      var d=f.contentDocument;
+      if(!d || !d.body || d.body.innerHTML.replace(/\s/g,'').length < 40){
+        document.documentElement.classList.remove('lpsd-shell');
+      }
+    }catch(e){}
+  });
+  if(f.getAttribute('src')) return;
+  var dept='';
+  try{ dept = (new URLSearchParams(location.search).get('__dept')||'').trim(); }catch(e){}
+  if(!dept){
+    try{ dept = (new URLSearchParams(location.hash.split(/\#/).filter(Boolean)[0]).get('__dept')||'').trim(); }catch(e){}
+  }
+  var hash = dept ? ('#lpsd&__dept=' + encodeURIComponent(dept)) : '#lpsd';
+  f.src='strategy_dashboard_expand_lpsd.html' + hash;
+})();
+</script>
 </body>
 </html>

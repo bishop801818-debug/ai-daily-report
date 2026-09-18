@@ -7,7 +7,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <meta name="html-version" content="20260831_2235">
+    <meta name="html-version" content="20260715">
 <style>
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: #f1f1f1; }
@@ -214,6 +214,31 @@
             .main-content { margin-left: var(--sidebar-collapsed); }
         }
     </style>
+    <script src="bu_gate.js"></script>
+    <script>
+    (function(){
+      var ALLOWED_BU = ['sjl'];
+      window.addEventListener('load', function() {
+        var deptId = (function(){
+          var m = location.search.match(/[?&]__dept=([^&]+)/);
+          if(m) return decodeURIComponent(m[1]);
+          m = location.search.match(/[?&]departmentId=([^&]+)/);
+          if(m) return decodeURIComponent(m[1]);
+          m = location.hash.match(/[#&]dept=([^&]+)/);
+          if(m) return decodeURIComponent(m[1]);
+          return '';
+        })();
+        if (!deptId) return;
+        var ids = (deptId||'').split(',').map(function(s){return s.trim();}).filter(Boolean);
+        var hasAccess = ALLOWED_BU.some(function(bu) {
+          return isAllowed && isAllowed(bu, ids);
+        });
+        if (!hasAccess) {
+          document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100vh;font-family:sans-serif;background:#f5f6fa"><div style="text-align:center;padding:48px;background:#fff;border-radius:16px;box-shadow:0 8px 30px rgba(0,0,0,.08)"><div style="font-size:64px;margin-bottom:12px">⛔</div><div style="font-size:22px;font-weight:700;color:#c0392b">无权限访问</div><div style="margin-top:8px;color:#888;font-size:14px">您所在的部门无权查看该内容，请联系管理员。</div></div></div>';
+        }
+      });
+    })();
+    </script>
 </head>
 <body>
     <nav class="sidebar" id="sidebar">
@@ -255,8 +280,7 @@
             </div>
         </div>
         <div id="contentArea"></div>
-    <script src="ternary_embedded_data.js?v=20260831_2235"></script>
-</main>
+    </main>
 
 <script>
 // === TAB CONFIGURATION ===
@@ -313,11 +337,16 @@ const GROUP_ICONS = { '三元正极':'🔋', '三元前驱体':'⚗️', '关键
 
 // === UTILITY FUNCTIONS ===
 function num(v) { const n = parseFloat(v); return isNaN(n) ? 0 : n; }
-function pct(v) {
+function pct(v, fieldName) {
     if (v == null || v === '') return '-';
     let s = String(v);
     // 去掉 " 00:00:00" 和 "T00:00:00" 时间后缀（日期字段）
     s = s.replace(/ ?00:00:00$/, '').replace(/T00:00:00$/, '');
+    // 含环比/同比的字段：乘100后追加%，保留两位小数
+    if ((fieldName && (fieldName.includes('同比') || fieldName.includes('环比'))) && !s.includes('%')) {
+        const n = parseFloat(v);
+        if (!isNaN(n)) s = (n * 100).toFixed(2) + '%';
+    }
     return s;
 }
 function fmtNum(v) { const n = num(v); return n ? n.toLocaleString() : '-'; }
@@ -431,7 +460,7 @@ function renderIndustryTable(cfg, data) {
     const headers = getHeaders(data);
     renderTableHeader(cfg.id, headers);
     let html = sorted.slice(0, 24).map(d =>
-        `<tr>${headers.map(h => `<td>${pct(d[h])}</td>`).join('')}</tr>`
+        `<tr>${headers.map(h => `<td>${pct(d[h], h)}</td>`).join('')}</tr>`
     ).join('');
     document.getElementById(cfg.id + '-body').innerHTML = html || '<tr><td class="loading">暂无数据</td></tr>';
 }
@@ -486,7 +515,7 @@ function renderCompanyTable(cfg, data) {
     latest.sort((a,b) => num(b['产量']) - num(a['产量']));
     let html = latest.slice(0, 50).map((d, i) =>
         `<tr><td><span class="rank-badge ${i<3?'top3':''}">${i+1}</span></td>
-            ${headers.map(h => `<td>${pct(d[h])}</td>`).join('')}</tr>`
+            ${headers.map(h => `<td>${pct(d[h], h)}</td>`).join('')}</tr>`
     ).join('');
     document.getElementById(cfg.id + '-body').innerHTML = html || '<tr><td class="loading">暂无数据</td></tr>';
 }
@@ -504,7 +533,7 @@ function renderTradeTotalTable(cfg, data) {
         return String(mb).localeCompare(String(ma));
     });
     let html = sorted.map(d =>
-        `<tr>${headers.map(h => `<td>${pct(d[h])}</td>`).join('')}</tr>`
+        `<tr>${headers.map(h => `<td>${pct(d[h], h)}</td>`).join('')}</tr>`
     ).join('');
     document.getElementById(cfg.id + '-body').innerHTML = html || '<tr><td class="loading">暂无数据</td></tr>';
 }
@@ -518,8 +547,15 @@ function renderTradePartnerTable(cfg, data) {
     }
     const headers = getHeaders(data);
     renderTableHeader(cfg.id, headers);
-    let html = data.slice(0, 200).map(d =>
-        `<tr>${headers.map(h => `<td>${pct(d[h])}</td>`).join('')}</tr>`
+    // Sort by date descending (newest first), matching renderTradeTotalTable logic
+    const dateCol = headers.find(h => h.includes('日期'));
+    const sorted = [...data].sort((a, b) => {
+        const da = dateCol ? (a[dateCol] || '') : '';
+        const db = dateCol ? (b[dateCol] || '') : '';
+        return String(db).localeCompare(String(da));
+    });
+    let html = sorted.slice(0, 300).map(d =>
+        `<tr>${headers.map(h => `<td>${pct(d[h], h)}</td>`).join('')}</tr>`
     ).join('');
     document.getElementById(cfg.id + '-body').innerHTML = html || '<tr><td class="loading">暂无数据</td></tr>';
 }
@@ -553,7 +589,7 @@ function renderSpotPriceTable(cfg, data) {
         renderTableHeader(cfg.id, headers);
         const sorted = [...data].sort((a,b) => String(b[dateCol]||'').localeCompare(a[dateCol]||''));
         let html = sorted.slice(0, 30).map(d =>
-            `<tr>${headers.map(h => `<td>${pct(d[h])}</td>`).join('')}</tr>`
+            `<tr>${headers.map(h => `<td>${pct(d[h], h)}</td>`).join('')}</tr>`
         ).join('');
         document.getElementById(cfg.id + '-body').innerHTML = html;
         return;
@@ -594,7 +630,7 @@ function renderConfigTable(cfg) {
             document.getElementById(cfg.id + '-metrics').style.display = 'none';
             renderTableHeader(cfg.id, getHeaders(data));
             document.getElementById(cfg.id + '-body').innerHTML =
-                data.map(d => `<tr>${getHeaders(data).map(h => `<td>${pct(d[h])}</td>`).join('')}</tr>`).join('');
+                data.map(d => `<tr>${getHeaders(data).map(h => `<td>${pct(d[h], h)}</td>`).join('')}</tr>`).join('');
     }
 }
 

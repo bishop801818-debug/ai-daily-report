@@ -6,7 +6,7 @@
     <title>可视化看板 - 三元材料数据库</title>
     <meta name="html-version" content="20260530a">
     <script src="./echarts.min.js"></script>
-    <script src="ternary_embedded_data.js?v=20260831_2000"></script>
+    <script src="./embedded/ternary_embedded_data.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Microsoft YaHei', sans-serif; background: #f5f5f5; }
@@ -58,6 +58,31 @@
             .chart-card.full { grid-column: span 1; }
         }
     </style>
+    <script src="bu_gate.js"></script>
+    <script>
+    (function(){
+      var ALLOWED_BU = ['sjl'];
+      window.addEventListener('load', function() {
+        var deptId = (function(){
+          var m = location.search.match(/[?&]__dept=([^&]+)/);
+          if(m) return decodeURIComponent(m[1]);
+          m = location.search.match(/[?&]departmentId=([^&]+)/);
+          if(m) return decodeURIComponent(m[1]);
+          m = location.hash.match(/[#&]dept=([^&]+)/);
+          if(m) return decodeURIComponent(m[1]);
+          return '';
+        })();
+        if (!deptId) return;
+        var ids = (deptId||'').split(',').map(function(s){return s.trim();}).filter(Boolean);
+        var hasAccess = ALLOWED_BU.some(function(bu) {
+          return isAllowed && isAllowed(bu, ids);
+        });
+        if (!hasAccess) {
+          document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100vh;font-family:sans-serif;background:#f5f6fa"><div style="text-align:center;padding:48px;background:#fff;border-radius:16px;box-shadow:0 8px 30px rgba(0,0,0,.08)"><div style="font-size:64px;margin-bottom:12px">⛔</div><div style="font-size:22px;font-weight:700;color:#c0392b">无权限访问</div><div style="margin-top:8px;color:#888;font-size:14px">您所在的部门无权查看该内容，请联系管理员。</div></div></div>';
+        }
+      });
+    })();
+    </script>
 </head>
 <body>
     <div class="topbar">
@@ -616,8 +641,8 @@ document.getElementById('data-time').textContent = EMBEDDED_DATA.update_time || 
         });
         if (selectedModels.length === 0 && priceModels.length > 0) selectedModels = priceModels.slice(0, 4);
 
-        var priceData = getLastNDays(ncmPrice, 90).reverse();
-        var priceLabels = makeDateLabels(priceData, 7, '当前日期');
+        var priceData = getLastNDays(ncmPrice, 365).reverse();
+        var priceLabels = makeDateLabels(priceData, 14, '当前日期');
         var priceSeries = selectedModels.map(function(m, i) {
             return {
                 name: m.name,
@@ -768,8 +793,8 @@ document.getElementById('data-time').textContent = EMBEDDED_DATA.update_time || 
         });
         if (selectedModels.length===0 && priceModels.length>0) selectedModels = priceModels.slice(0,3);
 
-        var priceData = getLastNDays(prePrice, 90).reverse();
-        var priceLabels = makeDateLabels(priceData, 7, '当前日期');
+        var priceData = getLastNDays(prePrice, 365).reverse();
+        var priceLabels = makeDateLabels(priceData, 14, '当前日期');
         var priceSeries = selectedModels.map(function(m, i) {
             return {
                 name: m.name,
@@ -860,8 +885,8 @@ document.getElementById('data-time').textContent = EMBEDDED_DATA.update_time || 
     // rw1: Raw material prices multi-line
     if (rawPrice.length) {
         var rpModels = getPriceModels(rawPrice);
-        var rpData = getLastNDays(rawPrice, 90).reverse();
-        var rpLabels = makeDateLabels(rpData, 7, '当前日期');
+        var rpData = getLastNDays(rawPrice, 365).reverse();
+        var rpLabels = makeDateLabels(rpData, 14, '当前日期');
         var rpSeries = rpModels.map(function(m, i) {
             return {
                 name: m.name,
@@ -881,7 +906,7 @@ document.getElementById('data-time').textContent = EMBEDDED_DATA.update_time || 
 
     // rw2: Cobalt sulfate price band
     if (rawPrice.length) {
-        var coData = getLastNDays(rawPrice, 90).reverse();
+        var coData = getLastNDays(rawPrice, 365).reverse();
         var coLabels = makeDateLabels(coData, 7, '当前日期');
         var coModel = getPriceModels(rawPrice).find(function(m){ return m.name.indexOf('钴')>=0; });
         if (coModel) {
@@ -903,8 +928,8 @@ document.getElementById('data-time').textContent = EMBEDDED_DATA.update_time || 
     if (rawPrice.length) {
         var niModel = getPriceModels(rawPrice).find(function(m){ return m.name.indexOf('镍')>=0; });
         if (niModel) {
-            var niData = getLastNDays(rawPrice, 90).reverse();
-            var niLabels = makeDateLabels(niData, 7, '当前日期');
+            var niData = getLastNDays(rawPrice, 365).reverse();
+            var niLabels = makeDateLabels(niData, 14, '当前日期');
             initChart('rw3', {
                 tooltip: { trigger: 'axis' },
                 grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
@@ -945,8 +970,8 @@ document.getElementById('data-time').textContent = EMBEDDED_DATA.update_time || 
         var coPM = getPriceModels(coPrice);
         if (coPM.length) {
             var m = coPM[0];
-            var cpData = getLastNDays(coPrice, 90).reverse();
-            var cpLabels = makeDateLabels(cpData, 7, '当前日期');
+            var cpData = getLastNDays(coPrice, 365).reverse();
+            var cpLabels = makeDateLabels(cpData, 14, '当前日期');
             initChart('rw5', {
                 tooltip: { trigger: 'axis' },
                 grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },

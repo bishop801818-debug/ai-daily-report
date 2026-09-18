@@ -93,7 +93,8 @@ _EXCLUDE_HTML = [
     r"^_",                    # 临时/备份前缀：_test_cors / _tmp_* / _verify_render
     r"^\.",                    # 点前缀隐藏文件：.qa_diag_*.html / .qa_verify_all*.html 等 QA 诊断页（2026-09-07 修复：此前漏打包导致校验卡 76/80）
     r"backup", r"bak\b", r"corrupted", r"_fixed", r"fixed\d",
-    r"_min\b", r"async", r"_simple", r"_git_backup", r"recovery",
+    r"_min\b", r"\.min\b",       # 2026-09-18 新增：index_v3.min.html 为无人引用的死页（含语法错 JS，1.5MB），按原 .min 意图排除
+    r"async", r"_simple", r"_git_backup", r"recovery",
     r"test", r"csrf", r"error-logs", r"smm_page_content",
     r"feishu-callback", r"iframe_wrapper", r"index_radar",
     r"^debug_bing_",           # Bing 搜索调试页（文件名含中文，URL-encode 后被 qa_server.js 404 卡发布，2026-09-03 新增排除；其他 debug_* 如 debug_permission.html 留在 gated_baseline 不动）
@@ -103,6 +104,13 @@ _EXCLUDE_HTML = [
 _EXCLUDE_RE = [re.compile(p, re.I) for p in _EXCLUDE_HTML]
 def is_excluded_html(fname):
     return fname.endswith(".html") and any(rx.search(fname) for rx in _EXCLUDE_RE)
+
+# ---------- 发布包 reports/ 保留窗口 ----------
+# 与 data_manifest.json 的 reports_recent_days 保持同口径（2026-09-16 起统一为 30）。
+# 背景下：dist 是跨次构建持续累积的目录，旧日报只增不减，会持续吃掉妙搭 20MB 包预算。
+# 口径：包内只保留最近 N 个「每日主报」+ 全部常驻数据文件；更早的日报仍留在 ROOT，
+#       本地脚本（build_competitor_feed.py 等）照常能读到，不影响竞品台历史。
+PACKAGE_REPORT_DAYS = 30
 
 def log(m): print(f"[{datetime.now().strftime('%H:%M:%S')}] {m}")
 
@@ -593,6 +601,27 @@ def main():
         else:
             log(f"⚠️  缺失源文件：{src}")
 
+    # 4.36 复制竞品监测台数据文件（strategy_dashboard_expand.html / _lpsd.html 必需）
+    # 这两页以根相对路径 fetch('competitor_feed_xx.json') 等文件；不进包则线上 404、页面数据全空。
+    # ⚠️ 2026-09-17 15:52：引用写在 JS 单引号里（fetch('x.json')），copy_referenced_resources()
+    #    的双引号正则 (?:src|href)="..." 扫不到，因此**必须在此显式声明**，不可依赖「被引用即自动入包」。
+    # 数据源权威 = 根目录（由 competitor_crawl/ 采集链路写入），故置于 app 根目录。
+    competitor_data = [
+        ("company_profiles_czly.json", "常州锂源"),
+        ("competitor_feed_czly.json", "常州锂源"),
+        ("price_feed_czly.json", "常州锂源"),
+        ("company_profiles_lpsd.json", "龙蟠时代"),
+        ("competitor_feed_lpsd.json", "龙蟠时代"),
+        ("price_feed_lpsd.json", "龙蟠时代"),
+    ]
+    for fname, bu_name in competitor_data:
+        src = BASE + "/" + fname
+        if os.path.exists(src):
+            shutil.copy2(src, DST + "/" + fname)
+            log(f"✅ {fname} ({bu_name}竞品监测台)")
+        else:
+            log(f"⚠️  缺失源文件：{src}  ← {bu_name}竞品页将出现空数据")
+
     # 4.4 复制 generated-images/ 目录（热点新闻配图）
     # 只复制当天的热点新闻图片，避免历史图片体积过大
     today = datetime.now().strftime("%Y%m%d")
@@ -606,16 +635,16 @@ def main():
                 shutil.copy2(src, dst)
         log("✅ generated-images/ (今日热点新闻配图)")
 
-    # 5. 复制最新7天报告 + index.json
+    # 5. 复制最新 N 天报告 + index.json（N = PACKAGE_REPORT_DAYS）
     os.makedirs(DST + "/reports", exist_ok=True)
-    # 5.1 复制 reports/index.json（报告索引文件）
+    # 5.1 复制 reports/index.json（报告索引文件；最终由 5.3 按包内实际残留重写）
     idx_src = BASE + "/reports/index.json"
     if os.path.exists(idx_src):
         shutil.copy2(idx_src, DST + "/reports/index.json")
         log("✅ reports/index.json")
     try:
         with open(BASE + "/reports/index.json", "r", encoding="utf-8") as fp:
-            dates = json.load(fp).get("available_dates", [])[:7]
+            dates = json.load(fp).get("available_dates", [])[:PACKAGE_REPORT_DAYS]
             for d in dates:
                 src = BASE + "/reports/" + d + ".json"
                 if os.path.exists(src):
@@ -625,18 +654,38 @@ def main():
         log(f"⚠️  复制报告失败：{e}")
 
     # 5.2 复制 reports/ 下所有非日报的历史数据文件（关键！Serving 模式必须包含）
+    #     ⚠️ 必须排除 B 类 BU 分报（YYYY-MM-DD-<bu>.json）：包内零消费者（无任何页面/
+    #        脚本构造该文件名），仅 build_competitor_feed.py 在 ROOT 本地构建时读
+    #        `-czly.json`。历史上曾累积 486+ 个 / 1.8MB 无谓吃包预算。
     import re
     date_pattern = re.compile(r'^\d{4}-\d{2}-\d{2}\.json$')
+    bu_pattern = re.compile(r'^\d{4}-\d{2}-\d{2}-.+\.json$')
     extra_count = 0
     for fname in sorted(os.listdir(BASE + "/reports")):
-        if fname.endswith('.json') and not date_pattern.match(fname) and fname != 'index.json':
-            src = BASE + "/reports/" + fname
-            dst_path = DST + "/reports/" + fname
-            if not os.path.exists(dst_path):  # 避免重复复制
-                shutil.copy2(src, dst_path)
-                extra_count += 1
+        if not fname.endswith('.json') or fname == 'index.json':
+            continue
+        if date_pattern.match(fname) or bu_pattern.match(fname):
+            continue  # A 类由 5.1 控制；B 类不进包
+        src = BASE + "/reports/" + fname
+        dst_path = DST + "/reports/" + fname
+        if not os.path.exists(dst_path):  # 避免重复复制
+            shutil.copy2(src, dst_path)
+            extra_count += 1
     if extra_count > 0:
         log(f"✅ reports/ 历史数据文件（{extra_count}个）：市场累计涨跌幅、期货历史等")
+
+    # 5.3 reports/ 收敛（根治「只增不减」堆积）
+    #     dist 跨次构建持续累积：旧 A 类与历史 B 类不会被 5.1/5.2 清掉。统一交给
+    #     prune_package_reports.py 裁到「最近 N 个 A 类 + 全部 D 类」，并按包内实际
+    #     残留重写 index.json，避免归档页列出 404 日期。
+    _pr = subprocess.run(
+        f'cd "{BASE}" && "{sys.executable}" "{BASE}/prune_package_reports.py" '
+        f'--pkg "{DST}" --keep {PACKAGE_REPORT_DAYS}',
+        shell=True, capture_output=True, encoding='utf-8', errors='ignore', timeout=300)
+    for _line in (_pr.stdout or "").strip().splitlines():
+        log("  " + _line)
+    if _pr.returncode != 0:
+        log(f"⚠️  reports 收敛失败（returncode={_pr.returncode}），包体积可能偏大")
 
     # 6. 发布到妙搭
     # 体积安全网：发布前校验打包体积，防止超过妙搭 20MB 硬上限

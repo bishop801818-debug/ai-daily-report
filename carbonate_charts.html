@@ -6,6 +6,7 @@
     <title>可视化看板 - 碳酸锂及原料数据库</title>
     <meta name="html-version" content="20260423a">
     <script src="./echarts.min.js"></script>
+    <script src="./embedded/carbonate_embedded_data.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Microsoft YaHei', sans-serif; background: #f5f5f5; }
@@ -53,6 +54,31 @@
             .chart-card.full { grid-column: span 1; }
         }
     </style>
+    <script src="bu_gate.js"></script>
+    <script>
+    (function(){
+      var ALLOWED_BU = ['czly','lpsd','sdmd'];
+      window.addEventListener('load', function() {
+        var deptId = (function(){
+          var m = location.search.match(/[?&]__dept=([^&]+)/);
+          if(m) return decodeURIComponent(m[1]);
+          m = location.search.match(/[?&]departmentId=([^&]+)/);
+          if(m) return decodeURIComponent(m[1]);
+          m = location.hash.match(/[#&]dept=([^&]+)/);
+          if(m) return decodeURIComponent(m[1]);
+          return '';
+        })();
+        if (!deptId) return;
+        var ids = (deptId||'').split(',').map(function(s){return s.trim();}).filter(Boolean);
+        var hasAccess = ALLOWED_BU.some(function(bu) {
+          return isAllowed && isAllowed(bu, ids);
+        });
+        if (!hasAccess) {
+          document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100vh;font-family:sans-serif;background:#f5f6fa"><div style="text-align:center;padding:48px;background:#fff;border-radius:16px;box-shadow:0 8px 30px rgba(0,0,0,.08)"><div style="font-size:64px;margin-bottom:12px">⛔</div><div style="font-size:22px;font-weight:700;color:#c0392b">无权限访问</div><div style="margin-top:8px;color:#888;font-size:14px">您所在的部门无权查看该内容，请联系管理员。</div></div></div>';
+        }
+      });
+    })();
+    </script>
 </head>
 <body>
     <div class="topbar">
@@ -282,7 +308,6 @@
 
     </div>
 
-<script src="carbonate_embedded_data.js?v=20260831_1830"></script>
 <script>
 var COLORS = ['#1e3c72','#4a6fa5','#4facfe','#667eea','#764ba2','#f59e0b','#10b981','#ef4444','#3b82f6','#8b5cf6'];
 var C = { primary: '#1e3c72', secondary: '#4a6fa5', accent: '#4facfe', border: '#e0e0e0', text: '#333', textLight: '#666' };
@@ -319,7 +344,7 @@ function num(v) { var n = parseFloat(String(v).replace(/,/g,'')); return isNaN(n
     window.lcOutput = lcRows.map(function(r){ return num(r['产量（吨）']); });
     window.lcUtil   = lcRows.map(function(r){
         var p = num(r['产量（吨）']), c = num(r['产能（吨）']);
-        return (c > 0 ? (p/c*100) : null);
+        return (c > 0 ? parseFloat((p/c*100).toFixed(1)) : null);
     });
 
     // 氢氧化锂行业总产量（最新12月，升序）
@@ -332,7 +357,7 @@ function num(v) { var n = parseFloat(String(v).replace(/,/g,'')); return isNaN(n
     window.lcExpPrice = lcExpRows.map(function(r){ return num(r['出口均价（万元/吨）']); });
 
     // 碳酸锂日度价格（电池级99.5%矿石，最新30天，降序取）
-    var lcDailyRows = getTable('碳酸锂—价格').filter(function(r){ return r['规格'] && r['规格'].indexOf('电池级99.5%')>-1; }).slice(0,30).reverse();
+    var lcDailyRows = getTable('碳酸锂-价格').filter(function(r){ return r['规格'] && r['规格'].indexOf('电池级99.5%')>-1; }).slice(0,30).reverse();
     window.lcDailyDates = lcDailyRows.map(function(r){ return toYYMMDD(r['日期']); });
     window.lcDailyAvg   = lcDailyRows.map(function(r){ return num(r['均价（万元/吨）']); });
 
@@ -342,7 +367,7 @@ function num(v) { var n = parseFloat(String(v).replace(/,/g,'')); return isNaN(n
     window.lspAvg   = lspRows.map(function(r){ return num(r['均价（美元/吨）']); });
 
     // 锂云母价格（1.8%品位）
-    var lymRows = getTable('锂云母—价格').filter(function(r){ return r['规格'] && r['规格'].indexOf('1.8')>-1; }).slice(0,30).reverse();
+    var lymRows = getTable('锂云母-价格').filter(function(r){ return r['规格'] && r['规格'].indexOf('1.8')>-1; }).slice(0,30).reverse();
     window.lymDates = lymRows.map(function(r){ return toYYMMDD(r['日期']); });
     window.lymAvg   = lymRows.map(function(r){ return num(r['均价（万元/吨）']); });
 
@@ -362,7 +387,7 @@ function num(v) { var n = parseFloat(String(v).replace(/,/g,'')); return isNaN(n
     window.lcCompOutput = lcComp.map(function(r){ return num(r['产量（吨）']); });
 
     // 氢氧化锂分企业产量TOP（最新月份）
-    var lhComp = getTable('氢氧化锂—分企业产量').slice(0, 12);
+    var lhComp = getTable('氢氧化锂-分企业产量').slice(0, 12);
     window.lhCompNames  = lhComp.map(function(r){ return r['企业名称'] || ''; });
     window.lhCompOutput = lhComp.map(function(r){ return num(r['产量（吨）']); });
 

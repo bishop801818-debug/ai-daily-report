@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>汽车行业可视化看板</title>
     <script src="./echarts.min.js"></script>
+    <script src="./automotive_embedded_data.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Microsoft YaHei', sans-serif; background: #f5f5f5; }
@@ -60,6 +61,31 @@
             .stats-row { grid-template-columns: repeat(2, 1fr); }
         }
     </style>
+    <script src="bu_gate.js"></script>
+    <script>
+    (function(){
+      var ALLOWED_BU = ['czly','lpsd','sdmd','felt','sjl','dhx','lhy','kls','bych'];
+      window.addEventListener('load', function() {
+        var deptId = (function(){
+          var m = location.search.match(/[?&]__dept=([^&]+)/);
+          if(m) return decodeURIComponent(m[1]);
+          m = location.search.match(/[?&]departmentId=([^&]+)/);
+          if(m) return decodeURIComponent(m[1]);
+          m = location.hash.match(/[#&]dept=([^&]+)/);
+          if(m) return decodeURIComponent(m[1]);
+          return '';
+        })();
+        if (!deptId) return;
+        var ids = (deptId||'').split(',').map(function(s){return s.trim();}).filter(Boolean);
+        var hasAccess = ALLOWED_BU.some(function(bu) {
+          return isAllowed && isAllowed(bu, ids);
+        });
+        if (!hasAccess) {
+          document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100vh;font-family:sans-serif;background:#f5f6fa"><div style="text-align:center;padding:48px;background:#fff;border-radius:16px;box-shadow:0 8px 30px rgba(0,0,0,.08)"><div style="font-size:64px;margin-bottom:12px">⛔</div><div style="font-size:22px;font-weight:700;color:#c0392b">无权限访问</div><div style="margin-top:8px;color:#888;font-size:14px">您所在的部门无权查看该内容，请联系管理员。</div></div></div>';
+        }
+      });
+    })();
+    </script>
 </head>
 <body>
     <div class="topbar">
@@ -196,7 +222,6 @@
         数据来源: 汽车行业数据库 | automotive_embedded_data.js | <span id="dataMonth2">加载中...</span>
     </div>
 
-    <script src="automotive_embedded_data.js?v=20260831_1830"></script>
     <script>
     var COLORS = ['#1e3c72','#4a6fa5','#4facfe','#f59e0b','#10b981','#ef4444','#3b82f6','#8b5cf6','#ec4899','#06b6d4'];
     var C = { primary: '#1e3c72', secondary: '#4a6fa5', accent: '#4facfe', border: '#e0e0e0', text: '#333', textLight: '#666' };
@@ -221,8 +246,8 @@
         window.CHINA_MONTHS = chinaRows.map(function(r){ return toYY(r['日期']); });
         window.CHINA_SALES  = chinaRows.map(function(r){ return num(r['本期销量（万辆）']); });
 
-        // 新能源汽车销量-国内乘用车零售（最新24个月，升序）
-        var nevRows = getTable('新能源汽车销量-国内乘用车零售').slice(0, 24).reverse();
+        // 新能源汽车销量-中国市场（最新24个月，升序）
+        var nevRows = getTable('新能源汽车销量-中国市场').slice(0, 24).reverse();
         window.NEV_MONTHS = nevRows.map(function(r){ return toYY(r['日期']); });
         window.NEV_SALES   = nevRows.map(function(r){ return num(r['本期销量（万辆）']); });
 
@@ -263,7 +288,7 @@
         // 乘用车出口车企TOP10
         var expOemRows = getTable('新能源汽车销量-乘用车出口分车企').slice(0, 10);
         window.EXP_OEM_NAMES = expOemRows.map(function(r){ return r['整车厂'] || ''; });
-        window.EXP_OEM_SALES = expOemRows.map(function(r){ return num(r['销量（万辆）']); });
+        window.EXP_OEM_SALES = expOemRows.map(function(r){ return num(r['出口量（万辆）']); });
 
         // 中重卡/轻卡（交强险）
         var zcRows = getTable('汽车销量-中国商用车中重卡').filter(function(r){ return r['整车厂'] && r['整车厂']!=='保险总量'; }).sort(function(a,b){return (num(b['交强险（万台）'])||0)-(num(a['交强险（万台）'])||0);}).slice(0, 5);
@@ -280,7 +305,7 @@
 
         // 统计数字
         var c0 = (getTable('汽车销量-中国市场'))[0] || {};
-        var n0 = (getTable('新能源汽车销量-国内乘用车零售'))[0] || {};
+        var n0 = (getTable('新能源汽车销量-中国市场'))[0] || {};
         window.STAT_MONTH = toYY(c0['日期']) || '—';
         window.STAT_CHINA = num(c0['本期销量（万辆）']) || 0;
         window.STAT_NEV   = num(n0['本期销量（万辆）']) || 0;
@@ -395,7 +420,7 @@
     (function(){
         var namesRev = BRAND_NAMES.slice().reverse(), salesRev = BRAND_SALES.slice().reverse();
         initChart('c5', {
-            tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' }, formatter: function(p) { return p.name + ': ' + p.value + '万辆'; } },
+            tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' }, formatter: function(p) { var d = Array.isArray(p) ? p[0] : p; return (d.name||'') + ': ' + (d.value||'') + '万辆'; } },
             grid: { left: '3%', right: '15%', bottom: '3%', containLabel: true },
             xAxis: { type: 'value', axisLabel: { formatter: '{value}万' }, splitLine: { lineStyle: { color: C.border } } },
             yAxis: { type: 'category', data: namesRev, axisLabel: { color: C.text, fontSize: 11 } },
@@ -425,7 +450,7 @@
     (function(){
         var namesRev = CV_NAMES.slice().reverse(), salesRev = CV_SALES.slice().reverse();
         initChart('c7', {
-            tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' }, formatter: function(p) { return p.name + ': ' + p.value + '万辆'; } },
+            tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' }, formatter: function(p) { var d = Array.isArray(p) ? p[0] : p; return (d.name||'') + ': ' + (d.value||'') + '万辆'; } },
             grid: { left: '3%', right: '15%', bottom: '3%', containLabel: true },
             xAxis: { type: 'value', axisLabel: { formatter: '{value}万' }, splitLine: { lineStyle: { color: C.border } } },
             yAxis: { type: 'category', data: namesRev, axisLabel: { color: C.text, fontSize: 11 } },
@@ -441,7 +466,7 @@
     (function(){
         var namesRev = ZC_NAMES.slice().reverse(), salesRev = ZC_VOL.slice().reverse();
         initChart('c8', {
-            tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' }, formatter: function(p) { return p.name + ': ' + p.value + '万台'; } },
+            tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' }, formatter: function(p) { var d = Array.isArray(p) ? p[0] : p; return (d.name||'') + ': ' + (d.value||'') + '万台'; } },
             grid: { left: '3%', right: '15%', bottom: '3%', containLabel: true },
             xAxis: { type: 'value', axisLabel: { formatter: '{value}万' }, splitLine: { lineStyle: { color: C.border } } },
             yAxis: { type: 'category', data: namesRev, axisLabel: { color: C.text, fontSize: 11 } },
@@ -457,7 +482,7 @@
     (function(){
         var namesRev = QC_NAMES.slice().reverse(), salesRev = QC_VOL.slice().reverse();
         initChart('c9', {
-            tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' }, formatter: function(p) { return p.name + ': ' + p.value + '万台'; } },
+            tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' }, formatter: function(p) { var d = Array.isArray(p) ? p[0] : p; return (d.name||'') + ': ' + (d.value||'') + '万台'; } },
             grid: { left: '3%', right: '15%', bottom: '3%', containLabel: true },
             xAxis: { type: 'value', axisLabel: { formatter: '{value}万' }, splitLine: { lineStyle: { color: C.border } } },
             yAxis: { type: 'category', data: namesRev, axisLabel: { color: C.text, fontSize: 11 } },
@@ -486,7 +511,7 @@
     (function(){
         var namesRev = EXP_OEM_NAMES.slice().reverse(), salesRev = EXP_OEM_SALES.slice().reverse();
         initChart('c11', {
-            tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' }, formatter: function(p) { return p.name + ': ' + p.value + '万辆'; } },
+            tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' }, formatter: function(p) { var d = Array.isArray(p) ? p[0] : p; return (d.name||'') + ': ' + (d.value||'') + '万辆'; } },
             grid: { left: '3%', right: '15%', bottom: '3%', containLabel: true },
             xAxis: { type: 'value', axisLabel: { formatter: '{value}万' }, splitLine: { lineStyle: { color: C.border } } },
             yAxis: { type: 'category', data: namesRev, axisLabel: { color: C.text, fontSize: 11 } },
@@ -551,7 +576,7 @@
 <!-- __AUTO_REFRESH__ -->
 <script>
 (function() {
-  var _js = "automotive_embedded_data.js?v=20260831_1830";
+  var _js = "automotive_embedded_data.js?v=20260903a";
   var _lastVer = null;
 
   function _readVer() {

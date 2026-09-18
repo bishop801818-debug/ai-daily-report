@@ -243,7 +243,7 @@ window.BU_GATE = {
 
 })();
 
-      window.HTML_VERSION="20260903_1759"; // 版本号（2026-07-14早报更新）
+      window.HTML_VERSION="20260918_0926"; // 版本号（2026-07-14早报更新）
 
       /* ========== 全局 fetch 去重（防止并发重复请求同一资源）========== */
       (function() {
@@ -715,7 +715,7 @@ window.BU_GATE = {
 
 /* ============== inline_00.js ============== */
 
-      window.HTML_VERSION="20260903_1759"; // 版本号（2026-07-24早报更新）
+      window.HTML_VERSION="20260918_0926"; // 版本号（2026-07-24早报更新）
 
       /* ========== 全局 fetch 去重（防止并发重复请求同一资源）========== */
       (function() {
@@ -3752,8 +3752,8 @@ function updatePageData(chainConfig, marketData) {
                 'fpChart': 'renderFpChart',
                 'lithiumOreChart': 'renderLithiumOreChart',
                 'lepidoliteChart': 'renderLepidoliteChart',
-                'wtiFuturesChart': 'renderWtiFuturesChart',
-                'urFuturesChart': 'renderUrFuturesChart',
+                'wtiFuturesChart': 'renderWTIChart',
+                'urFuturesChart': 'renderUreaChart',
             };
             const renderFnName = renderMap[targetSvgId];
             if (renderFnName && typeof window[renderFnName] === 'function') {
@@ -9393,6 +9393,7 @@ function switchCategory(category) {
                 renderPTChart();
                 renderPDChart();
                 renderIChart();
+                renderPhosphateChart();
             } else if (tries2 < 15) {
                 setTimeout(tryRender2, 150);
             }
@@ -12123,9 +12124,9 @@ document.addEventListener('DOMContentLoaded', function() {
                         'phosphateChart': 'renderPhosphateChart',
                         'ptFuturesChart': 'renderPTChart',
                         'pdFuturesChart': 'renderPDChart',
-                        'urFuturesChart': 'renderUrFuturesChart',
-                        'wtiFuturesChart': 'renderWtiFuturesChart',
-                        'egFuturesChart': 'renderEgFuturesChart',
+                        'urFuturesChart': 'renderUreaChart',
+                        'wtiFuturesChart': 'renderWTIChart',
+                        'egFuturesChart': 'renderEGChart',
                     };
                     const renderFnName = renderMap[targetSvgId];
                     if (renderFnName && typeof window[renderFnName] === 'function') {
@@ -12151,9 +12152,9 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
-    // 隐藏有色金属和化工板块的图表网格（初始只显示甘特图）
-    document.querySelectorAll('#panel-energy .mk-chart-grid').forEach(grid => { grid.style.display = 'none'; });
-    document.querySelectorAll('#panel-chemical .mk-chart-grid').forEach(grid => { grid.style.display = 'none'; });
+    // 修正：不再隐藏能源/化工板块的图表网格，确保切换板块时各品种折线图正常显示（原逻辑强制 display:none 导致 SVG 宽度为 0、图表永不渲染）
+    // document.querySelectorAll('#panel-energy .mk-chart-grid').forEach(grid => { grid.style.display = 'none'; });
+    // document.querySelectorAll('#panel-chemical .mk-chart-grid').forEach(grid => { grid.style.display = 'none'; });
     
     // 初始化时调用
     renderSectorGantt('chemical', 'gantt-chart-container-chemical', 'market_cumulative_chemical.json');

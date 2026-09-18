@@ -3,15 +3,56 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>
+    <title>雷达看板 - 龙蟠科技</title>
 <script>
 (function(){
-  var RADAR_UID_WHITELIST = ['ou_78e0dba3ff382df7c11dcd07ea2255f0','ou_12015bf9c1d120116e6a01c022051130','ou_c0d1e422fada6770cb7da5069e96abbc','ou_178a5a969ca5c2d96c105d6ecbe4add0','ou_3897e64d72af1edd4637e51d1baa4d2c','ou_64217fc9e76e95ca13a26c0c4a5b665d'];
+  // ⚠️ 2026-09-17 19:00 与 strategy_hub.html 对齐（此前本页只有 6 条 ou_，比 strategy_hub 少 7 条数字 id）。
+  // 背景：妙搭壳回传身份走 HomePage.tsx 的 getFeishuOpenId()，它优先取 ou_ 开头的 open_id，
+  //       但**取不到时会回退成数字 user_id**。若只登记 ou_，一旦壳走回退分支，本页会把所有人
+  //       （含集团领导本人）判为无权 —— 实测确认过该场景（tools/dev/_verify_radar_gate_chain.py）。
+  //       故同时接受两种 ID 形态，使门禁不依赖"壳最终发哪种 ID"。
+  var RADAR_UID_WHITELIST = ['ou_78e0dba3ff382df7c11dcd07ea2255f0','ou_12015bf9c1d120116e6a01c022051130','ou_c0d1e422fada6770cb7da5069e96abbc','ou_178a5a969ca5c2d96c105d6ecbe4add0','ou_3897e64d72af1edd4637e51d1baa4d2c','ou_64217fc9e76e95ca13a26c0c4a5b665d','7595021657568185305','7598822772604701656','7589910160420637874','7589938135119744185','7591392573697101019','7592890122870410205','1854251564037223'];
   var RADAR_DEPT_WHITELIST = ['od-839a5caffe1fa682e014982a1d28fcb8'];
   function isLocalPreview(){return location.protocol==='file:'||location.hostname==='localhost'||location.hostname==='127.0.0.1'||location.hostname==='';}
   window.RADAR_UID_DECIDED=false; window.RADAR_UID_ALLOWED=false;
   function clearDeny(){var el=document.getElementById('radar_deny_overlay'); if(el&&el.parentNode)el.parentNode.removeChild(el);}
   function deny(){var ex=document.getElementById('radar_deny_overlay'); if(ex)return; function render(){var el=document.getElementById('radar_deny_overlay'); if(el)return; var d=document.createElement('div'); d.id='radar_deny_overlay'; d.style.cssText='position:fixed;inset:0;z-index:2147483647;display:flex;align-items:center;justify-content:center;background:rgba(245,246,250,.98)'; d.innerHTML='<div style="text-align:center;padding:48px;background:#fff;border-radius:16px;box-shadow:0 8px 30px rgba(0,0,0,.08)"><div style="font-size:64px;margin-bottom:12px">\uD83D\uDD12</div><div style="font-size:22px;font-weight:700;color:#c0392b">您的账号暂无权限浏览</div><div style="margin-top:8px;color:#888;font-size:14px">请联系管理员申请雷达看板访问权限。</div></div>'; (document.body||document.documentElement).appendChild(d);} if(document.body)render(); else document.addEventListener('DOMContentLoaded',render);}
+  // ⚠️ 2026-09-17 影子模式（RADAR_GATE_SHADOW = true）
+  // 背景：本页门禁此前因 <title> 未闭合而被整块吞掉、从未执行；本次修好结构后，
+  //       若直接启用会立刻拦截所有拿不到身份的人（本页身份依赖妙搭壳 postMessage 回传，
+  //       壳是否真的回传尚未在线上验证）——那会把「能用但漏」变成「谁都进不去」。
+  // 因此先跑影子模式：判定结果照常计算并写入 window.RADAR_UID_DECIDED / RADAR_UID_ALLOWED，
+  //       仅不真正拦截。待线上确认身份链路可用后，把下面这行改为 false 即启用。
+  var RADAR_GATE_SHADOW = true;
+  function radarGateDeny(uid, deptIds){
+    if(!RADAR_GATE_SHADOW){ deny(); return; }
+    try{
+      console.warn('[radar-gate][shadow] 判定为无权（未拦截）: uid=' + (uid || '(空)')
+        + ' dept=' + ((deptIds && deptIds.length) ? deptIds.join(',') : '(空)'));
+    }catch(_){}
+  }
+  // 线上自检角标：仅在 URL 带 __gate_probe=1（query 或 hash 均可，兼容妙搭网关吞 query）时显示。
+  // 用途：让作者本人一眼看到「妙搭壳到底回传了什么 ID」——这是决定白名单是否有效的唯一关键信息。
+  // 对普通访问者零影响（不带参数时不创建任何节点）。
+  function esc1(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'})[c];});}
+  function radarProbeBadge(uid, deptIds, allowed){
+    try{
+      var notRequested=(location.search+'&'+(location.hash||'')).indexOf('gate_probe=1')<0;
+      if(notRequested) return;
+      var el=document.getElementById('radar_gate_probe');
+      if(!el){
+        el=document.createElement('div'); el.id='radar_gate_probe';
+        el.style.cssText='position:fixed;right:12px;bottom:12px;z-index:2147483646;background:#0f172a;color:#e2e8f0;font:12px/1.7 Consolas,Menlo,monospace;padding:10px 14px;border-radius:8px;max-width:560px;word-break:break-all;box-shadow:0 6px 24px rgba(0,0,0,.35)';
+        (document.body||document.documentElement).appendChild(el);
+      }
+      el.innerHTML='<b>\uD83D\uDD0D 雷达门禁自检</b><br>'
+        +'影子模式(未拦截): <b>'+(RADAR_GATE_SHADOW?'是':'否')+'</b><br>'
+        +'本次判定: <b style="color:'+(allowed?'#4ade80':'#f87171')+'">'+(allowed?'允许':'拒绝')+'</b><br>'
+        +'收到 openId: '+esc1(uid||'(空)')+'<br>'
+        +'收到 deptIds: '+esc1((Array.isArray(deptIds)&&deptIds.length)?deptIds.join(','):'(空)')+'<br>'
+        +'hostname: '+esc1(location.hostname);
+    }catch(_){}
+  }
   function decide(uid, deptIds){
     // 已放行则保持（幂等）
     if(window.RADAR_UID_DECIDED && window.RADAR_UID_ALLOWED) return;
@@ -22,15 +63,19 @@
       window.RADAR_UID_ALLOWED = true;
       document.documentElement.style.visibility='';
       clearDeny();
+      radarProbeBadge(uid, deptIds, true);
       return;
     }
     if(window.RADAR_UID_DECIDED) return;
     window.RADAR_UID_DECIDED = true;
     window.RADAR_UID_ALLOWED = allowed;
     document.documentElement.style.visibility='';
-    if(!window.RADAR_UID_ALLOWED) deny();
+    if(!window.RADAR_UID_ALLOWED) radarGateDeny(uid, deptIds);
+    radarProbeBadge(uid, deptIds, window.RADAR_UID_ALLOWED);
   }
-  document.documentElement.style.visibility='hidden';
+  // 影子模式不预隐藏页面：原逻辑是「先藏、判定后再决定是否显示」，
+  // 一旦某条路径下 decide 未触发就会整页空白。当前只跑影子模式，故不隐藏。
+  // document.documentElement.style.visibility='hidden';
   var s=(window.userInfo&&(window.userInfo.user_id||window.userInfo.open_id))||window.userId||(window.__context&&window.__context.user&&window.__context.user.open_id)||'';
   if(s)decide(s);
   window.addEventListener('message',function(e){if(e.data&&e.data.type==='RADAR_AUTH'){decide(e.data.openId, e.data.deptIds);}});
@@ -47,11 +92,9 @@
     }
   },1500);
 })();
-</script>雷达看板 - 龙蟠科技</title>
+</script>
     <script src="bu_gate.js"></script>
     <script>
-        // 本地预览模式：允许匿名访问雷达看板（不触发部门过滤隐藏）
-        window.__BU_GATE_ALLOW_ANON = true;
         // 部门 ID 持久化到 sessionStorage（与 index_v3.html 一致，解决 URL 参数丢失问题）
         (function(){
             var deptMatch = location.search.match(/[?&]__dept=([^&]*)/);

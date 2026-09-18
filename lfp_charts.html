@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>可视化看板 - 铁锂行业数据</title>
     <script src="./echarts.min.js"></script>
+    <script src="./lfp_embedded_data.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Microsoft YaHei', sans-serif; background: #f5f5f5; }
@@ -56,6 +57,31 @@
             .chart-card.full { grid-column: span 1; }
         }
     </style>
+    <script src="bu_gate.js"></script>
+    <script>
+    (function(){
+      var ALLOWED_BU = ['czly'];
+      window.addEventListener('load', function() {
+        var deptId = (function(){
+          var m = location.search.match(/[?&]__dept=([^&]+)/);
+          if(m) return decodeURIComponent(m[1]);
+          m = location.search.match(/[?&]departmentId=([^&]+)/);
+          if(m) return decodeURIComponent(m[1]);
+          m = location.hash.match(/[#&]dept=([^&]+)/);
+          if(m) return decodeURIComponent(m[1]);
+          return '';
+        })();
+        if (!deptId) return;
+        var ids = (deptId||'').split(',').map(function(s){return s.trim();}).filter(Boolean);
+        var hasAccess = ALLOWED_BU.some(function(bu) {
+          return isAllowed && isAllowed(bu, ids);
+        });
+        if (!hasAccess) {
+          document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100vh;font-family:sans-serif;background:#f5f6fa"><div style="text-align:center;padding:48px;background:#fff;border-radius:16px;box-shadow:0 8px 30px rgba(0,0,0,.08)"><div style="font-size:64px;margin-bottom:12px">⛔</div><div style="font-size:22px;font-weight:700;color:#c0392b">无权限访问</div><div style="margin-top:8px;color:#888;font-size:14px">您所在的部门无权查看该内容，请联系管理员。</div></div></div>';
+        }
+      });
+    })();
+    </script>
 </head>
 <body>
     <div class="topbar">
@@ -128,7 +154,6 @@
         </div>
     </div>
     
-    <script src="lfp_embedded_data.js?v=20260831_2250"></script>
     <script>
     var COLORS = ['#1e3c72', '#4a6fa5', '#4facfe', '#667eea', '#764ba2', '#f59e0b', '#10b981', '#ef4444', '#3b82f6', '#8b5cf6'];
     var C = { primary: '#1e3c72', secondary: '#4a6fa5', accent: '#4facfe', border: '#e0e0e0', text: '#333', textLight: '#666' };
@@ -159,12 +184,39 @@
 
         // FP行业整体产量（最新12月，升序）
         var fpRows = getTable('FP-行业整体产量').slice(0,12).reverse();
+        window.FP_MONTHS = fpRows.map(function(r){ return toYY(r['月份']); });
         window.FP_OUTPUT = fpRows.map(function(r){ return num(r['产量（吨）']); });
 
-        // 分企业TOP10（最新月份）
-        var top10 = getTable('LFP-分企业产量').slice(0,10);
+        // 分企业TOP10（最新月份，按产量降序）
+        var allComp = getTable('LFP-分企业产量');
+        // 按月份分组，取最新月份
+        var byMonthLFP = {};
+        allComp.forEach(function(r){
+            var mo = r['月份'] || '';
+            if (!byMonthLFP[mo]) byMonthLFP[mo] = [];
+            byMonthLFP[mo].push(r);
+        });
+        var latestLFPMonth = Object.keys(byMonthLFP).sort().reverse()[0] || '';
+        var top10 = (byMonthLFP[latestLFPMonth] || allComp.slice(0,10)).sort(function(a,b){
+            return (num(b['产量'])||0) - (num(a['产量'])||0);
+        }).slice(0,10);
         window.TOP10_NAMES  = top10.map(function(r){ return r['企业名称'] || ''; });
         window.TOP10_OUTPUT = top10.map(function(r){ return num(r['产量']); });
+
+        // FP分企业TOP10（最新月份）
+        var allCompFP = getTable('FP-分企业产量');
+        var byMonthFP = {};
+        allCompFP.forEach(function(r){
+            var mo = r['月份'] || '';
+            if (!byMonthFP[mo]) byMonthFP[mo] = [];
+            byMonthFP[mo].push(r);
+        });
+        var latestFPMonth = Object.keys(byMonthFP).sort().reverse()[0] || '';
+        var top10fp = (byMonthFP[latestFPMonth] || allCompFP.slice(0,10)).sort(function(a,b){
+            return (num(b['产量'])||0) - (num(a['产量'])||0);
+        }).slice(0,10);
+        window.TOP10FP_NAMES  = top10fp.map(function(r){ return r['企业名称'] || ''; });
+        window.TOP10FP_OUTPUT = top10fp.map(function(r){ return num(r['产量']); });
 
         // 出口月度（最新12月，升序）
         var expRows = getTable('LFP-出口量').slice(0,12).reverse();
@@ -178,8 +230,8 @@
         var byWeek = {};
         lfpPriceRaw.forEach(function(r){
             var dStr = String(r['日期']||'').slice(0,10);
-            var avg = parseFloat(r['均价（万元/吨）']);
-            if (!dStr || isNaN(avg)) return;
+            var avg = num(r['均价（万元/吨）']);
+            if (!dStr || avg === null) return;
             var dt = new Date(dStr.replace(/-/g,'/'));
             if (isNaN(dt)) return;
             var iso = dt.getISOWeek ? dt.getISOWeek() : getISOWeek(dt);
@@ -197,13 +249,12 @@
         }
         var weekKeys = Object.keys(byWeek).sort().slice(-14);
         window.X1_AVG   = weekKeys.map(function(k){ var v=byWeek[k]; return Math.round((v.reduce(function(a,b){return a+b;},0)/v.length)*100)/100; });
-        // 横轴显示每周的周一（MM-DD格式，如 "06-22"）
+        // 横轴显示每周的周一（MM-DD格式）
         window.X1_DATES = weekKeys.map(function(k){
             var parts = k.split('-W');
             if (parts.length < 2) return k;
-            var y = parseInt(parts[0]) + 2000, w = parseInt(parts[1]);
-            // ISO week first Monday
-            var jan4 = new Date(y, 0, 4); // Jan 4 is always in ISO week 1
+            var y = parseInt(parts[0]), w = parseInt(parts[1]);
+            var jan4 = new Date(y, 0, 4);
             var monday = new Date(jan4);
             monday.setDate(monday.getDate() - (jan4.getDay() + 6) % 7 + (w - 1) * 7);
             var mo = String(monday.getMonth()+1).padStart(2,'0');
@@ -211,19 +262,22 @@
             return mo + '-' + da;
         });
 
-        // x2: 磷矿石30%品位 → 月度均价，最新12月
+        // x2: 磷酸盐 → 月度均价，取所有规格最新12个月
         var phosphateRaw = getTable('磷酸盐价格数据') || [];
         var byMonthPhos = {};
         phosphateRaw.forEach(function(r){
-            if (String(r['规格']||'') !== '磷矿石30%品位') return;
             var dStr = String(r['日期']||'').slice(0,7);
-            var avg = parseFloat(r['今日均价（万元/吨）']);
-            if (!dStr || isNaN(avg)) return;
-            byMonthPhos[dStr] = avg;
+            var avg = num(r['今日均价（万元/吨）']);
+            if (!dStr || avg === null) return;
+            if (!byMonthPhos[dStr]) byMonthPhos[dStr] = [];
+            byMonthPhos[dStr].push(avg);
         });
         var phosKeys = Object.keys(byMonthPhos).sort().slice(-12);
         window.X2_DATES = phosKeys.map(function(m){ return m.replace(/^(\d{4})-(\d{2})$/,function(_,y,mo){ return (y-2000)+'-'+mo; }); });
-        window.X2_AVG   = phosKeys.map(function(m){ return byMonthPhos[m]; });
+        window.X2_AVG   = phosKeys.map(function(m){
+            var arr = byMonthPhos[m];
+            return Math.round((arr.reduce(function(a,b){return a+b;},0)/arr.length)*100)/100;
+        });
 
         // x3: 非磷原料最新价格 → 取最新日期各规格均价
         var nonPhosRaw = getTable('非磷原料价格数据') || [];
@@ -231,26 +285,63 @@
         nonPhosRaw.forEach(function(r){
             var dStr = String(r['日期']||'').slice(0,10);
             var spec = String(r['规格']||'');
-            var avg = parseFloat(r['今日均价']);
-            if (!dStr || !spec || isNaN(avg)) return;
+            var avg = num(r['今日均价']);
+            if (!dStr || !spec || avg === null) return;
             if (!byDateNP[dStr]) byDateNP[dStr] = {};
             byDateNP[dStr][spec] = avg;
         });
-        var latestDateNP = Object.keys(byDateNP).sort().reverse()[0];
+        var latestDateNP = Object.keys(byDateNP).sort().reverse()[0] || '';
         var npLatest = byDateNP[latestDateNP] || {};
-        // 取前5个有代表性的规格
         var npSpecs = Object.keys(npLatest);
-        // 选择：硫酸98%、硫酸铵、硫酸亚铁、铁粉电池用、液氨优等品
-        var priority = ['硫酸98%','硫酸铵','硫酸亚铁FeSO\u2084\u00b77H\u2082O\u226590%','铁粉电池用','液氨优等品','双氧水27.5%','硝酸68%','液碱32%','氢氧化钡98%','铁块纯铁','氧化铁红电极铁'];
+        var priority = ['硫酸98%','硫酸铵','硫酸亚铁','铁粉电池用','液氨优等品','双氧水27.5%','硝酸68%','液碱32%','氢氧化钡98%','铁块纯铁','氧化铁红'];
         var chosen = [];
         priority.forEach(function(p){ if (npLatest[p] !== undefined) chosen.push({spec:p, val:npLatest[p]}); });
-        npSpecs.slice(0,3).forEach(function(s){ if (!chosen.find(function(c){return c.spec===s;})) chosen.push({spec:s,val:npLatest[s]}); });
+        npSpecs.slice(0,5).forEach(function(s){ if (!chosen.find(function(c){return c.spec===s;})) chosen.push({spec:s,val:npLatest[s]}); });
+        chosen = chosen.slice(0,8);
         window.X3_SPECS = chosen.map(function(c){ return c.spec; });
-        // 转换为万元/吨（除以10000），铁粉等大数值需要，小数值直接用
-        window.X3_VALS = chosen.map(function(c){
+        window.X3_VALS  = chosen.map(function(c){
             var v = c.val;
             return (v >= 100 ? Math.round(v/100)/100 : Math.round(v*100)/100);
         });
+
+        // e2: 出口贸易伙伴TOP10（按出口量降序）
+        var partnerRaw = getTable('LFP-出口贸易伙伴') || [];
+        var partnerSum = {};
+        partnerRaw.forEach(function(r){
+            var p = r['贸易伙伴名称'] || '';
+            var v = num(r['出口量（吨）']) || 0;
+            if (!p) return;
+            partnerSum[p] = (partnerSum[p]||0) + v;
+        });
+        var partnerSorted = Object.keys(partnerSum).sort(function(a,b){ return partnerSum[b]-partnerSum[a]; }).slice(0,10);
+        // 降序[largest→smallest]，yAxis.reverse() → smallest→largest（图表从上到下）
+        window.PARTNER_NAMES = partnerSorted.slice().reverse();
+        window.PARTNER_VOL   = partnerSorted.slice().reverse().map(function(p){ return Math.round(partnerSum[p]); });
+
+        // e3: 核心客户采购量（LFP竞对销量，取最新月份）
+        var compRaw = getTable('LFP竞对销量') || [];
+        var byMonthComp = {};
+        compRaw.forEach(function(r){
+            var mo = r['月份'] || '';
+            if (!byMonthComp[mo]) byMonthComp[mo] = [];
+            byMonthComp[mo].push(r);
+        });
+        var latestCompMonth = Object.keys(byMonthComp).sort().reverse()[0] || '';
+        var compRows = byMonthComp[latestCompMonth] || compRaw.slice(0,10);
+        // 排除"合计"行，按销量降序
+        var customers = compRows.filter(function(r){ return r['企业名称'] && r['企业名称'].indexOf('合计')<0; })
+            .sort(function(a,b){
+                var va = Object.keys(a).filter(function(k){ return !['企业名称','月份'].includes(k); })
+                    .reduce(function(s,k){ return s+(num(a[k])||0); }, 0);
+                var vb = Object.keys(b).filter(function(k){ return !['企业名称','月份'].includes(k); })
+                    .reduce(function(s,k){ return s+(num(b[k])||0); }, 0);
+                return vb - va;
+            }).slice(0,10);
+        window.CUSTOMER_NAMES = customers.map(function(r){ return r['企业名称']||''; }).reverse();
+        window.CUSTOMER_VOL   = customers.map(function(r){
+            return Object.keys(r).filter(function(k){ return !['企业名称','月份'].includes(k); })
+                .reduce(function(s,k){ return s+(num(r[k])||0); }, 0);
+        }).reverse();
 
         // 动态更新 stat cards
         var l0 = lfpRows[0] || {};
@@ -268,8 +359,10 @@
             setS('s1', '产能利用率', Math.round(p/c*100), '%');
         }
         if (e0) {
-            setS('s2', '月出口量', num(e0['出口量（吨）'])/10000, '万吨');
-            setS('s3', '出口均价', num(e0['出口均价（万元/吨）']) || '—', '万元/吨');
+            var ev = num(e0['出口量（吨）']);
+            var ep = num(e0['出口均价（万元/吨）']);
+            setS('s2', '月出口量', ev ? (ev/10000).toFixed(2) : '—', '万吨');
+            setS('s3', '出口均价', ep ? ep.toFixed(2) : '—', '万元/吨');
         }
     })();
 
@@ -318,7 +411,7 @@
 
     initChart('p2', {
         tooltip: { trigger: 'axis' }, grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
-        xAxis: { type: 'category', data: LFP_MONTHS, axisLabel: { color: C.textLight } },
+        xAxis: { type: 'category', data: (window.FP_MONTHS||[]), axisLabel: { color: C.textLight } },
         yAxis: { type: 'value', name: '万吨', axisLabel: { color: C.textLight }, splitLine: { lineStyle: { color: C.border } } },
         series: [{ type: 'bar', data: FP_OUTPUT, itemStyle: { color: C.secondary, borderRadius: [4,4,0,0] },
             label: { show: true, position: 'top', formatter: '{c}万', fontSize: 9, color: C.textLight } }]
@@ -340,13 +433,13 @@
     initChart('p4', {
         tooltip: { trigger: 'item', formatter: '{b}: {c}万吨 ({d}%)' },
         legend: { orient: 'vertical', right: 10, top: 'center', textStyle: { fontSize: 11 } },
-        series: [{ 
-            type: 'pie', 
-            radius: ['30%', '65%'], 
+        series: [{
+            type: 'pie',
+            radius: ['30%', '65%'],
             center: ['40%', '50%'],
-            data: TOP10_NAMES.slice(0,5).map((n,i)=>({name:n + ' ' + (TOP10_OUTPUT[i]*0.8).toFixed(1) + '万吨', value:TOP10_OUTPUT[i]*0.8})), 
-            label: { show: true, formatter: '{b}', fontSize: 10, color: '#333' }, 
-            itemStyle: { color: function(p){return COLORS[p.dataIndex % COLORS.length];} } 
+            data: (window.TOP10FP_NAMES||[]).map(function(n,i){ return {name:n+' '+(window.TOP10FP_OUTPUT[i]/10000).toFixed(1)+'万吨', value:window.TOP10FP_OUTPUT[i]}; }),
+            label: { show: true, formatter: '{b}', fontSize: 10, color: '#333' },
+            itemStyle: { color: function(p){return COLORS[p.dataIndex % COLORS.length];} }
         }]
     });
     
@@ -391,19 +484,23 @@
     });
 
     initChart('e2', {
-        tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } }, grid: { left: '3%', right: '15%', bottom: '3%', containLabel: true },
-        xAxis: { type: 'value', splitLine: { lineStyle: { color: C.border } } },
-        yAxis: { type: 'category', data: ['德国','日本','印尼','巴西','印度','中国台湾','韩国','波兰','越南','加拿大'].reverse(), axisLabel: { color: C.text } },
-        series: [{ type: 'bar', data: [65,75,80,85,96,96,96,942,968,976].reverse(), itemStyle: { color: function(p){return p.dataIndex<3?C.primary:C.secondary}, borderRadius: [0,4,4,0] },
-            label: { show: true, position: 'right', formatter: '{c}吨', fontSize: 9, color: C.textLight } }]
+        tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' }, formatter: function(p){ return p.name + ': ' + (p.value/1000).toFixed(1) + '吨'; } },
+        grid: { left: '3%', right: '15%', bottom: '3%', containLabel: true },
+        xAxis: { type: 'value', splitLine: { lineStyle: { color: C.border } }, axisLabel: { formatter: function(v){ return (v/1000).toFixed(0)+'k'; } } },
+        yAxis: { type: 'category', data: (window.PARTNER_NAMES||[]), axisLabel: { color: C.text, fontSize: 11 } },
+        series: [{ type: 'bar', data: (window.PARTNER_VOL||[]),
+            itemStyle: { color: function(p){return p.dataIndex<3?C.primary:C.secondary}, borderRadius: [0,4,4,0] },
+            label: { show: true, position: 'right', formatter: function(p){ return (p.value/1000).toFixed(0)+'k'; }, fontSize: 9, color: C.textLight } }]
     });
 
     initChart('e3', {
-        tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } }, grid: { left: '3%', right: '15%', bottom: '3%', containLabel: true },
-        xAxis: { type: 'value', splitLine: { lineStyle: { color: C.border } } },
-        yAxis: { type: 'category', data: ['吉利','蜂巢','天合','国轩','欣旺达','海辰','远景','亿纬','BYD','CATL'].reverse(), axisLabel: { color: C.text } },
-        series: [{ type: 'bar', data: [1500,2500,3500,3500,5000,5000,7000,10000,12000,25000].reverse(), itemStyle: { color: function(p){return p.dataIndex<3?C.primary:C.secondary}, borderRadius: [0,4,4,0] },
-            label: { show: true, position: 'right', formatter: '{c}吨', fontSize: 9, color: C.textLight } }]
+        tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' }, formatter: function(p){ return p.name + ': ' + (p.value/10000).toFixed(2) + '万吨'; } },
+        grid: { left: '3%', right: '15%', bottom: '3%', containLabel: true },
+        xAxis: { type: 'value', splitLine: { lineStyle: { color: C.border } }, axisLabel: { formatter: function(v){ return (v/10000).toFixed(1)+'万'; } } },
+        yAxis: { type: 'category', data: (window.CUSTOMER_NAMES||[]), axisLabel: { color: C.text, fontSize: 11 } },
+        series: [{ type: 'bar', data: (window.CUSTOMER_VOL||[]),
+            itemStyle: { color: function(p){return p.dataIndex<3?C.primary:C.secondary}, borderRadius: [0,4,4,0] },
+            label: { show: true, position: 'right', formatter: function(p){ return (p.value/10000).toFixed(2)+'万'; }, fontSize: 9, color: C.textLight } }]
     });
     
     // Tab切换
