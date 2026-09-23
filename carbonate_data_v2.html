@@ -7,7 +7,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <meta name="html-version" content="20260917_171300">
+    <meta name="html-version" content="20260922_172640">
 <style>
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: #f1f1f1; }
@@ -756,12 +756,12 @@ function updateBadge(tableName, count) {
         '碳酸锂-分企业产量': 'badge-lc-company',
         '碳酸锂-出口量': 'badge-lc-export',
         '碳酸锂-出口贸易伙伴': 'badge-lc-export-partner',
-        '碳酸锂-价格': 'badge-lc-price',
-        '氢氧化锂-分企业产量': 'badge-lh-company',
+        '碳酸锂—价格': 'badge-lc-price',
+        '氢氧化锂—分企业产量': 'badge-lh-company',
         '氢氧化锂-出口贸易伙伴': 'badge-lh-export-partner',
-        '锂云母-价格': 'badge-lym-price',
+        '锂云母—价格': 'badge-lym-price',
         '氢氧化锂-价格': 'badge-lh-price',
-        '锂云母-价格': 'badge-lym-price',
+        '锂云母—价格': 'badge-lym-price',
         '锂辉石精矿-价格': 'badge-lsp-price',
         '碳酸锂-进口量': 'badge-lc-import',
         '碳酸锂-进口贸易伙伴': 'badge-lc-import-partner',
@@ -770,7 +770,7 @@ function updateBadge(tableName, count) {
         '锂辉石-进口量': 'badge-li-import',
         '锂辉石-进口贸易伙伴': 'badge-li-import-partner',
         '锂辉石-出口量': 'badge-li-export',
-        '锂辉石-出口贸易伙伴': 'badge-li-export-partner',
+        '锂辉石—出口贸易伙伴': 'badge-li-export-partner',
     };
     const id = map[tableName];
     if (!id) return;
@@ -869,7 +869,7 @@ function renderLcExportPartner() {
 
 // 碳酸锂现货价
 function renderLcPrice() {
-    const data = allData['碳酸锂-价格'] || [];
+    const data = allData['碳酸锂—价格'] || [];
     if (!data.length) { document.getElementById('lc-price-body').innerHTML='<tr><td colspan="5" class="loading">暂无数据</td></tr>'; return; }
     const grouped = {};
     data.forEach(d => { const dt = fmtDate(d['日期']); if(!grouped[dt]) grouped[dt]=[]; grouped[dt].push(d); });
@@ -928,7 +928,7 @@ function renderLhIndustry() {
 
 // 氢氧化锂分企业产量
 function renderLhCompany() {
-    const data = allData['氢氧化锂-分企业产量'] || [];
+    const data = allData['氢氧化锂—分企业产量'] || [];
     const sorted = [...data].sort((a,b) => String(b['月份']||'').localeCompare(a['月份']||''));
     const latestMonth = sorted[0] ? sorted[0]['月份'] : '';
     const latest = sorted.filter(d => d['月份'] === latestMonth);
@@ -1038,7 +1038,7 @@ function renderLiExport() {
 
 // 锂辉石出口贸易伙伴
 function renderLiExportPartner() {
-    const data = allData['锂辉石-出口贸易伙伴'] || [];
+    const data = allData['锂辉石—出口贸易伙伴'] || [];
     const sorted = [...data].sort((a,b) => String(b['月份']||'').localeCompare(a['月份']||''));
     let html = sorted.slice(0,200).map(d =>
         `<tr><td>${pct(d['月份'])}</td><td>${d['贸易伙伴名称']||'-'}</td><td>${pct(d['出口量（吨）'])}</td>
@@ -1049,7 +1049,7 @@ function renderLiExportPartner() {
 
 // 锂云母价格
 function renderLymPrice() {
-    const data = allData['锂云母-价格'] || [];
+    const data = allData['锂云母—价格'] || [];
     if (!data.length) { document.getElementById('lym-price-body').innerHTML='<tr><td colspan="5" class="loading">暂无数据</td></tr>'; return; }
     const grouped = {};
     data.forEach(d => { const dt = fmtDate(d['日期']); if(!grouped[dt]) grouped[dt]=[]; grouped[dt].push(d); });
