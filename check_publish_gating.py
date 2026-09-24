@@ -14,9 +14,14 @@ check_publish_gating.py —— 发布前门禁完整性校验（轻量只读）
   A1 基准外置：门禁页清单从硬编码常量 GATED_PAGES 改为外部数据文件 gated_baseline.json。
       更新清单 = 改数据文件（diff 清晰、不碰逻辑代码），不再手改源码。
   A2 反向扫描：正向核对清单后，再扫整个发布包，找出「带门禁标记但不在清单里的页」，
-      堵住「新增门禁页未登记 → 被静默漏检」的洞。默认仅 warn（不卡发布），
-      可加 --reverse-fail 加严为失败退出（建议先 warn 跑稳再开）。
-  A3 一键刷新：--refresh-baseline 重扫权威源（默认 dist-miaoda）、默认仅打印 diff
+      堵住「新增门禁页未登记 → 被静默漏检」的洞。
+      ⚠️ 2026-09-18 起：默认仍是 warn，但【两条发布链已固定传 --reverse-fail】——
+      validate_and_publish.sh 与 auto_miaoda_daily_test.py 均以加严模式调用，
+      即发布包里出现未登记门禁页会直接中止发布（fail-closed）。
+      背景：strategy_dashboard_expand_felt.html 曾长期「带门禁却未登记」，warn 模式下
+      它的门禁即使被改坏也不会被拦下。
+      手工执行、仅做巡检时可不加参数看 warn 全貌。
+  A3 一键刷新：--refresh-baseline 重扫权威源（默认 dist-miaoda-test）、默认仅打印 diff
      （新增/删除/保留）；需配合 --yes 才真正写 gated_baseline.json（2026-09-04 增强，
      防止默默覆盖历史基线）。
 
@@ -32,7 +37,7 @@ check_publish_gating.py —— 发布前门禁完整性校验（轻量只读）
                                 [--baseline-json <file>]      # 外置基准 JSON 路径（默认 gated_baseline.json）
                                 [--reverse-fail]              # 反向扫描发现未登记门禁页时失败退出
                                 [--refresh-baseline]          # 重扫权威源：先打印 diff，需 --yes 才真正写 JSON
-                                [--refresh-src <dir>]         # refresh 扫描源（默认 dist-miaoda）
+                                [--refresh-src <dir>]         # refresh 扫描源（默认 dist-miaoda-test）
                                 [--yes]                       # 配合 --refresh-baseline 使用，确认覆盖 JSON
 
 退出码：
@@ -252,7 +257,9 @@ def main():
     ap.add_argument('--baseline-json', default=BASELINE_JSON,
                     help=f'外置基准 JSON 路径（默认 {BASELINE_JSON}）')
     ap.add_argument('--reverse-fail', action='store_true',
-                    help='反向扫描发现未登记门禁页时失败退出（默认仅 warn）')
+                    help='反向扫描发现未登记门禁页时失败退出（默认仅 warn）。'
+                         '⚠️ 两条发布链（validate_and_publish.sh / auto_miaoda_daily_test.py）'
+                         '已固定开启本开关；手工巡检可省略。')
     ap.add_argument('--refresh-baseline', action='store_true',
                     help='重扫权威源并打印 diff（新增/删除/保留）。需配合 --yes 才真正写 gated_baseline.json。')
     ap.add_argument('--refresh-src', default=DEFAULT_REFRESH_SRC,
@@ -338,7 +345,8 @@ def main():
             print("❌ --reverse-fail 已开启 → 视为校验失败，中止发布。")
             print("   （若确属合理新增页，请先 --refresh-baseline 登记，或评估后移除 --reverse-fail）")
         else:
-            print("   （当前默认仅提醒、不卡发布；确认无误后可 --reverse-fail 加严，或用 --refresh-baseline 登记）")
+            print("   （手工巡检模式：仅提醒、不卡。⚠️ 两条发布链已固定开启 --reverse-fail，")
+            print("     故未登记门禁页在真实发布时会被中止；确认无误后请用 --refresh-baseline 登记）")
 
     # —— 退出码 ——
     if missing or stripped:

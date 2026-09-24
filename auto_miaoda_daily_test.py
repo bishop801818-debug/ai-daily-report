@@ -78,6 +78,9 @@ FILES = [
     "ternary_embedded_data.js",
     # 公共导航样式
     "shared_nav.css",
+    # 站点图标（浏览器对无 <link rel=icon> 的页面会默认请求 /favicon.ico；
+    # 不进包则线上每次打开都产生一条 404 console error，干扰页面健康判定）
+    "favicon.ico", "favicon.svg",
     # 产业链全景图核心数据文件（根目录）
     "lfp_all_data.json",
     # 以下文件在 reports/ 子目录，由第5步报告复制逻辑覆盖
@@ -601,19 +604,29 @@ def main():
         else:
             log(f"⚠️  缺失源文件：{src}")
 
-    # 4.36 复制竞品监测台数据文件（strategy_dashboard_expand.html / _lpsd.html 必需）
-    # 这两页以根相对路径 fetch('competitor_feed_xx.json') 等文件；不进包则线上 404、页面数据全空。
+    # 4.36 复制竞品监测台数据文件（strategy_dashboard_expand*.html 各 BU 页必需）
+    # 这些页以根相对路径 fetch('competitor_feed_xx.json') 等文件；不进包则线上 404、页面数据全空。
     # ⚠️ 2026-09-17 15:52：引用写在 JS 单引号里（fetch('x.json')），copy_referenced_resources()
     #    的双引号正则 (?:src|href)="..." 扫不到，因此**必须在此显式声明**，不可依赖「被引用即自动入包」。
     # 数据源权威 = 根目录（由 competitor_crawl/ 采集链路写入），故置于 app 根目录。
-    competitor_data = [
-        ("company_profiles_czly.json", "常州锂源"),
-        ("competitor_feed_czly.json", "常州锂源"),
-        ("price_feed_czly.json", "常州锂源"),
-        ("company_profiles_lpsd.json", "龙蟠时代"),
-        ("competitor_feed_lpsd.json", "龙蟠时代"),
-        ("price_feed_lpsd.json", "龙蟠时代"),
-    ]
+    # ⚠️ 2026-09-23：原为逐 BU 手写三元组 —— 新增 BU（sjl）时极易漏加，
+    #    而漏加的后果是「线上页面数据全空」而非构建报错（静默失败）。
+    #    现改为**从 bu_registry.BU_CONFIG 推导**（单一事实源）：注册了新 BU 即自动入包；
+    #    registry 不可用时回退到下方显式清单（保持向后兼容，绝不静默少包）。
+    _competitor_bus = []
+    try:
+        sys.path.insert(0, os.path.join(BASE, "competitor_crawl", "_shared"))
+        import bu_registry as _bu_reg
+        _competitor_bus = [(k, v.get("label") or k) for k, v in _bu_reg.BU_CONFIG.items()]
+        log(f"ℹ️  竞品数据入包清单来自 bu_registry：{[b for b, _ in _competitor_bus]}")
+    except Exception as _e:
+        log(f"⚠️  bu_registry 不可用（{_e}），回退到内置清单")
+        _competitor_bus = [("czly", "常州锂源"), ("lpsd", "龙蟠时代"), ("felt", "法恩莱特")]
+
+    competitor_data = []
+    for _b, _lbl in _competitor_bus:
+        for _tpl in ("company_profiles_%s.json", "competitor_feed_%s.json", "price_feed_%s.json"):
+            competitor_data.append((_tpl % _b, _lbl))
     for fname, bu_name in competitor_data:
         src = BASE + "/" + fname
         if os.path.exists(src):
@@ -623,17 +636,55 @@ def main():
             log(f"⚠️  缺失源文件：{src}  ← {bu_name}竞品页将出现空数据")
 
     # 4.4 复制 generated-images/ 目录（热点新闻配图）
-    # 只复制当天的热点新闻图片，避免历史图片体积过大
+    # 2026-09-21 改造：原"按 today 前缀"逻辑会把 hot_news_data.json 引用但 ROOT 不存在的图漏包（线上 404/灰底）。
+    # 新逻辑：解析 hot_news_data.json 的 news[].image_url，按"实际被引用的图"按需入包。
+    # 优点：① 不管 hot_news_data.json 是哪天生成的，只要引用图存在就能进包；② 不浪费历史图体积；
+    #       ③ 跨日补发/紧急止血场景下（A 方案：rename 历史图救急）无需改发布脚本。
+    # 回退：若 hot_news_data.json 解析失败或无 image_url，则退化为"复制全部 hotnews_*.webp"（保持向后兼容）。
     today = datetime.now().strftime("%Y%m%d")
+    needed_images = set()  # 收集 hot_news_data.json 中实际引用的 image 文件名（仅 basename）
+    hot_news_json = os.path.join(BASE, "hot_news_data.json")
+    try:
+        if os.path.exists(hot_news_json):
+            with open(hot_news_json, "r", encoding="utf-8") as _f:
+                _hot = json.load(_f)
+            for _item in (_hot.get("news") or []):
+                _url = _item.get("image_url")
+                if _url and isinstance(_url, str):
+                    # 仅处理相对路径 generated-images/<file>，跳过绝对 URL（http:// 或 / 开头）
+                    _bn = os.path.basename(_url.split("?", 1)[0])
+                    if _bn and _bn.lower().endswith((".webp", ".png", ".jpg", ".jpeg")):
+                        needed_images.add(_bn)
+    except Exception as _e:
+        log(f"⚠️  解析 hot_news_data.json 失败（将退化为复制全部 hotnews_*.webp）: {_e}")
+        needed_images = None  # 触发回退分支
+
     if os.path.exists(BASE + "/generated-images"):
         os.makedirs(DST + "/generated-images", exist_ok=True)
-        # 只复制今天的热点新闻图片 hotnews_YYYYMMDD_*.webp
-        for fname in os.listdir(BASE + "/generated-images"):
-            if fname.startswith(f"hotnews_{today}") and fname.endswith('.webp'):
-                src = BASE + "/generated-images/" + fname
-                dst = DST + "/generated-images/" + fname
-                shutil.copy2(src, dst)
-        log("✅ generated-images/ (今日热点新闻配图)")
+        if needed_images is None:
+            # 回退分支：解析失败时复制全部 hotnews_*.webp（保持向后兼容）
+            for fname in os.listdir(BASE + "/generated-images"):
+                if fname.startswith("hotnews_") and fname.lower().endswith((".webp", ".png")):
+                    src = BASE + "/generated-images/" + fname
+                    dst = DST + "/generated-images/" + fname
+                    shutil.copy2(src, dst)
+            log("⚠️  generated-images/ 已复制全部 hotnews_*.webp（hot_news_data.json 解析回退分支）")
+        elif needed_images:
+            missing = []
+            for img_name in sorted(needed_images):
+                src = BASE + "/generated-images/" + img_name
+                dst = DST + "/generated-images/" + img_name
+                if os.path.exists(src):
+                    shutil.copy2(src, dst)
+                else:
+                    missing.append(img_name)
+            log(f"✅ generated-images/ 按 hot_news_data.json 引用入包 {len(needed_images) - len(missing)}/{len(needed_images)} 张")
+            if missing:
+                # 缺图不算阻断（hot_news_data.json 可能引用外链 CDN），但必须显式告警
+                log(f"⚠️  generated-images/ 缺图（ROOT 不存在，线上将 404 灰底）: {missing}")
+        else:
+            # needed_images 非 None 但为空：hot_news_data.json 里没有 image_url 字段
+            log("ℹ️  generated-images/ hot_news_data.json 未声明 image_url，跳过配图入包")
 
     # 5. 复制最新 N 天报告 + index.json（N = PACKAGE_REPORT_DAYS）
     os.makedirs(DST + "/reports", exist_ok=True)
@@ -706,9 +757,13 @@ def main():
     # ---------- 门禁完整性门禁（轻量 check，发布前） ----------
     # 防止 ROOT 源里某门禁页被改成无门禁版后，发布链原样发出、权限系统失效。
     # 校验失败 -> 直接 return 1 中止发布，保留线上旧版本（与业务硬约束一致）。
-    log("🔒 门禁完整性校验（发布前）...")
+    # 2026-09-18 加严：补 --reverse-fail，使「未登记进 gated_baseline.json 的门禁页」
+    # 也直接判定失败（与 validate_and_publish.sh 保持一致，两条发布链不落空）。
+    # 背景：strategy_dashboard_expand_felt.html 曾以未登记状态静默躲过校验。
+    # 合法新增门禁页 → 先跑 check_publish_gating.py --refresh-baseline --yes 登记。
+    log("🔒 门禁完整性校验（发布前，--reverse-fail 加严）...")
     _chk = subprocess.run(
-        f'cd "{BASE}" && "{sys.executable}" "{BASE}/check_publish_gating.py"',
+        f'cd "{BASE}" && "{sys.executable}" "{BASE}/check_publish_gating.py" --reverse-fail',
         shell=True, capture_output=True, encoding='utf-8', errors='ignore', timeout=300)
     for _line in _chk.stdout.strip().splitlines():
         log(_line)
@@ -716,6 +771,22 @@ def main():
         log("❌ 门禁完整性校验未通过 → 中止发布，保留线上旧版本。")
         return 1
     log("✅ 门禁完整性校验通过，继续发布。")
+
+    # ---------- BU 口径残留门禁（跨 BU 硬编码，发布前） ----------
+    # 三个 BU 页是克隆产物，硬编码残留靠"发现一个修一个"追不完；本步一次扫全部实例。
+    # P0（页头身份/跨 BU 部门ID/万能令牌/相关度键/价格键错配）→ 中止发布；
+    # P1（业务词残留、configs 多余条目、档位兜底缺键）仅打印提示，不卡发布。
+    # 与 validate_and_publish.sh 保持一致，避免两条发布链一严一松。
+    log("🔎 BU 口径残留检查（发布前）...")
+    _bsc = subprocess.run(
+        f'cd "{BASE}" && "{sys.executable}" "{BASE}/check_bu_scope.py" --pkg "{BASE}/dist-miaoda-test"',
+        shell=True, capture_output=True, encoding='utf-8', errors='ignore', timeout=300)
+    for _line in _bsc.stdout.strip().splitlines():
+        log(_line)
+    if _bsc.returncode != 0:
+        log("❌ BU 口径残留检查未通过 → 中止发布，保留线上旧版本。")
+        return 1
+    log("✅ BU 口径残留检查通过，继续发布。")
 
     if NO_PUBLISH:
         log("ℹ️  --no-publish：跳过发布，仅构建 dist-miaoda-test（供校验使用）")

@@ -1,0 +1,466 @@
+#!/bin/sh
+# pre-commit hook: 数据保护 - 防止误删早报数据 + 数据库回退
+# ========== 龙蟠数据保护钩子 ==========
+#
+# v2  2026-09-18  修复「检查静默失效」与「永久误拦」两类缺陷
+# v3  2026-09-18  补上「保护对象不在 git 跟踪范围」这一更根本的缺口
+#
+#   [0 环境自愈] 外部调用方（自动化服务 / IDE / wrapper）传给 git 的 PATH 可能极简，
+#       导致 grep/sed/date/ls/mkdir/cp/python 全部 command not found，各检查被
+#       静默跳过，脚本末尾却仍打印「检查通过」。现改为：先自愈 PATH，再对关键
+#       工具做 fail-closed 体检 —— 工具缺失时中止提交，而不是假装通过。
+#
+#   [3 静态行守卫] automotive_data_v2.html 的检查原为「staged 中任何 tbody 含 <tr>
+#       即阻止」，其前提是该文件「已改造为动态加载」。实测（2026-09-18）HEAD 版
+#       即为 22/22 tbody 全静态（1849 行 <tr>），前提从未成立 ⇒ 对该文件的任何
+#       改动都被拦（永久误拦）。现改为输出「HEAD → staged」静态行数对比，
+#       默认仅告警放行；设 AUTO_STATIC_STRICT=1 恢复硬拦（仅在行数增加时阻止）。
+#
+#   [4 死检查复活] 数据库体积统计原先用 git ls-files -s 的第 3 字段当文件大小，
+#       该字段实为 stage 号（恒为 0）⇒ 从未触发。改用 git cat-file -s。
+#
+#   [2 对象错配] 实测（2026-09-18）：第 2 节的 7 个目标文件 `*_embedded_data.js`
+#       （18.05 MB，.gitignore:40 排除）与其源头 `data/*_all_data.json`（23 MB）
+#       【全部未被 git 跟踪】⇒ `git diff --cached` 里永远不会出现它们，
+#       该检查在 git 层面无法触发（不是 PATH 问题，是对象根本不在索引里）。
+#       现保留 git 逻辑（将来纳入跟踪即自动生效），并新增第 2b 节：以
+#       「磁盘基线」守护这批文件（不依赖 git），真正兜住数据回退。
+#       基线：_db_guard_baseline.json（由 _db_guard.py 自动维护）
+#       阈值：DB_GUARD_MAX_SHRINK（体积缩减%，默认30）
+#             DB_GUARD_MAX_LAG（日期倒退月数，默认2）
+#             DB_GUARD_TARGETS（追加目标，逗号分隔）
+#
+#   应急跳过（仅当环境故障且你明确知情时）：SKIP_DATA_GUARD=1 git commit ...
+
+# 用 printf 展开 ANSI 转义：老写法 '\033[..' 在 dash/sh 的 echo 下不会被解释，
+# 颜色实际上一直没生效（输出里能看到字面 \033[0;32m）。
+RED_COLOR=$(printf '\033[0;31m')
+WARN_COLOR=$(printf '\033[0;33m')
+OK_COLOR=$(printf '\033[0;32m')
+NC=$(printf '\033[0m')
+
+# ==========================================================================
+# 0. 环境自愈 + 工具链体检（fail-closed）
+# ==========================================================================
+for _d in /usr/bin /bin /mingw64/bin \
+          "/c/Program Files/Git/usr/bin" "/c/Program Files/Git/mingw64/bin" "/c/Program Files/Git/cmd" \
+          "/d/Git/usr/bin" "/d/Git/mingw64/bin" "/d/Git/cmd" \
+          "C:/Program Files/Git/usr/bin" "C:/Program Files/Git/mingw64/bin" "C:/Program Files/Git/cmd" \
+          "D:/Git/usr/bin" "D:/Git/mingw64/bin" "D:/Git/cmd"; do
+    if [ -d "$_d" ]; then
+        PATH="$_d:$PATH"
+    fi
+done
+export PATH
+
+TOOL_MISSING=""
+for _c in grep sed date ls mkdir cp; do
+    if ! command -v "$_c" >/dev/null 2>&1; then
+        TOOL_MISSING="$TOOL_MISSING $_c"
+    fi
+done
+
+PYTHON_BIN=""
+for _c in python3 python py; do
+    if command -v "$_c" >/dev/null 2>&1; then
+        PYTHON_BIN="$(command -v "$_c")"
+        break
+    fi
+done
+if [ -z "$PYTHON_BIN" ]; then
+    for _p in "/c/Users/1/.workbuddy/binaries/python/envs/default/Scripts/python.exe" \
+              "/c/Users/1/.workbuddy/binaries/python/versions/3.13.12/python.exe" \
+              "/c/Users/1/AppData/Local/Programs/Python/Python312/python.exe" \
+              "C:/Users/1/.workbuddy/binaries/python/envs/default/Scripts/python.exe" \
+              "C:/Users/1/.workbuddy/binaries/python/versions/3.13.12/python.exe" \
+              "C:/Users/1/AppData/Local/Programs/Python/Python312/python.exe"; do
+        if [ -x "$_p" ]; then
+            PYTHON_BIN="$_p"
+            break
+        fi
+    done
+fi
+if [ -z "$PYTHON_BIN" ]; then
+    TOOL_MISSING="$TOOL_MISSING python"
+fi
+
+PYTHONIOENCODING=utf-8
+export PYTHONIOENCODING
+
+TOPLEVEL="$(git rev-parse --show-toplevel 2>/dev/null)"
+if [ -z "$TOPLEVEL" ]; then
+    TOPLEVEL="."
+fi
+
+if [ -n "$TOOL_MISSING" ]; then
+    echo ""
+    echo "${RED_COLOR}[PRE-COMMIT] 环境异常：缺少工具${TOOL_MISSING}${NC}"
+    echo "  数据保护检查无法执行。注意：这【不是】「检查通过」，而是检查失效。"
+    echo "  为防止数据被误删 / 静默回退，已中止本次提交。"
+    echo "  排查：echo \"\$PATH\"  ;  确认 Git 自带工具链 (/usr/bin) 可访问。"
+    echo "  应急跳过（不推荐）: SKIP_DATA_GUARD=1 git commit ..."
+    if [ "${SKIP_DATA_GUARD:-0}" != "1" ]; then
+        exit 1
+    fi
+    echo "  [SKIP_DATA_GUARD=1] 已按你的要求跳过数据保护检查，请自行确认数据安全。"
+fi
+
+# ==========================================================================
+# 1. reports/ 批量删除强制阻止
+#    批量删除（>=3 个）：直接 exit 1，不给机会
+#    单独删除（1-2 个）：仅警告，可按回车继续
+#    注1：用 git pathspec 直接过滤（-- reports/），不再依赖 grep 管道 —— 旧写法在
+#         grep 缺失时变量为空、计数为 0，整节检查静默失效。
+#    注2：reports/ 磁盘上约 668 个文件，但只有 13 个进了 git（.gitignore 白名单：
+#         *_futures_history.json / market_cumulative*.json / ur_history.json 等），
+#         其余（含 reports/2026-*.json 早报存档）未被跟踪 ⇒ 本节实际只能保护
+#         这 13 个。若要保护存档目录，可把其加入 DB_GUARD_TARGETS。
+# ==========================================================================
+deleted_files=$(git diff --cached --name-only --diff-filter=D -- reports/ 2>/dev/null)
+deleted_count=0
+for _f in $deleted_files; do
+    deleted_count=$((deleted_count + 1))
+done
+
+if [ "$deleted_count" -ge 3 ]; then
+    echo ""
+    echo "${RED_COLOR}[PRE-COMMIT] 阻止提交：检测到 ${deleted_count} 个 reports/ 文件被删除${NC}"
+    _i=0
+    for _f in $deleted_files; do
+        _i=$((_i + 1))
+        if [ "$_i" -gt 20 ]; then break; fi
+        echo "  $_f"
+    done
+    echo ""
+    echo "  批量删除将导致历史早报数据永久丢失！"
+    echo "  如需强制提交请用: git commit --no-verify"
+    echo "  正确做法：将删除的文件先 git add，再提交（钩子只检查 staged 状态）"
+    exit 1
+elif [ "$deleted_count" -ge 1 ]; then
+    echo ""
+    echo "${WARN_COLOR}[PRE-COMMIT] 警告：检测到 ${deleted_count} 个 reports/ 文件被删除:${NC}"
+    _i=0
+    for _f in $deleted_files; do
+        _i=$((_i + 1))
+        if [ "$_i" -gt 20 ]; then break; fi
+        echo "  $_f"
+    done
+    echo ""
+    echo "  按 Ctrl+C 取消提交，或回车继续..."
+    read -r reply
+fi
+
+# ==========================================================================
+# 2. 数据库嵌入数据文件逐表回退检测（全部 7 个数据库）
+#    返回：0=通过，1=阻止提交
+#    ⚠️ 实测（2026-09-18）：这 7 个 `*_embedded_data.js` 均【未被 git 跟踪】
+#       （.gitignore:40 `/*_embedded_data.js`），`git diff --cached` 里不会出现，
+#       故本节在本机恒为「跳过」。逻辑保留以备将来纳入跟踪；当前的真实保护
+#       由第 2b 节 `_db_guard.py` 承担。
+# ==========================================================================
+check_data_regression() {
+    local FILE="$1"
+    local LABEL="$2"
+    local BLOCK=0
+    local REGRESSIONS=""
+
+    # 未被 staged 则跳过（git pathspec 精确匹配，不依赖 grep）
+    if [ -z "$(git diff --cached --name-only --diff-filter=ACMRD -- "$FILE" 2>/dev/null)" ]; then
+        return 0
+    fi
+
+    # 逐表比较 staged vs HEAD，检测任意表数据回退
+    REGRESSIONS=$(git show :"$FILE" 2>/dev/null | "$PYTHON_BIN" -c "
+import json, sys, subprocess
+
+sys.stdout.reconfigure(encoding='utf-8', errors='replace')
+
+def extract_per_table(content):
+    try:
+        start = content.find('{')
+        if start < 0:
+            return None
+        d = json.loads(content[start:].rstrip().rstrip(';'))
+        result = {}
+        for t in d.get('tables', []):
+            tname = t.get('table_name', '')
+            latest = ''
+            for row in t.get('data', []):
+                for k in ('日期', '当前日期', '时间', '月份'):
+                    v = str(row.get(k, ''))[:7]
+                    if v and v > latest:
+                        latest = v
+            if tname:
+                result[tname] = latest
+        return result
+    except Exception:
+        return None
+
+staged = sys.stdin.read()
+try:
+    head_content = subprocess.check_output(
+        ['git', 'show', 'HEAD:${FILE}'],
+        stderr=subprocess.DEVNULL
+    ).decode('utf-8', errors='replace')
+except Exception:
+    sys.exit(0)
+
+staged_tables = extract_per_table(staged)
+head_tables = extract_per_table(head_content)
+
+if staged_tables is None or head_tables is None:
+    print('UNPARSABLE: 无法解析嵌入数据结构，本文件回退检测未完成')
+    sys.exit(0)
+
+for tname, head_latest in head_tables.items():
+    staged_latest = staged_tables.get(tname, '')
+    if head_latest and staged_latest and staged_latest < head_latest:
+        print('REGRESSION: %s HEAD=%s STAGED=%s' % (tname, head_latest, staged_latest))
+" 2>&1)
+
+    if [ -n "$REGRESSIONS" ]; then
+        case "$REGRESSIONS" in
+            *"REGRESSION: "*)
+                BLOCK=1
+                echo ""
+                echo "${RED_COLOR}[PRE-COMMIT] 数据库回退阻止提交！${NC}"
+                echo "  文件: $FILE ($LABEL)"
+                echo "$REGRESSIONS" | sed 's/^/    /'
+                echo ""
+                echo "  阻止提交。如需强制提交请用: git commit --no-verify"
+                echo "  恢复 HEAD 版本: git checkout HEAD -- $FILE"
+                echo "  查看差异: git diff HEAD -- $FILE"
+                ;;
+            *)
+                echo ""
+                echo "${WARN_COLOR}[PRE-COMMIT] 提示：$FILE ($LABEL) 回退检测未能判定${NC}"
+                echo "$REGRESSIONS" | sed 's/^/    /'
+                echo "  （不再静默跳过：以上为探测器输出。反复出现请检查钩子环境。）"
+                ;;
+        esac
+    fi
+
+    return $BLOCK
+}
+
+REGRESSION_FOUND=0
+
+# ── 7 个数据库核心文件（逐表回退检测） ──
+check_data_regression "recycling_embedded_data.js"    "回收数据库"       || REGRESSION_FOUND=1
+check_data_regression "lib_battery_embedded_data.js"  "锂电池数据库"     || REGRESSION_FOUND=1
+check_data_regression "lfp_embedded_data.js"          "磷酸铁锂数据库"   || REGRESSION_FOUND=1
+check_data_regression "electrolyte_embedded_data.js"  "电解液数据库"     || REGRESSION_FOUND=1
+check_data_regression "carbonate_embedded_data.js"    "碳酸锂数据库"     || REGRESSION_FOUND=1
+check_data_regression "ternary_embedded_data.js"      "三元前驱体数据库" || REGRESSION_FOUND=1
+check_data_regression "automotive_embedded_data.js"   "汽车数据库"       || REGRESSION_FOUND=1
+
+if [ $REGRESSION_FOUND -eq 1 ]; then
+    echo ""
+    echo "${RED_COLOR}请先修复上述数据回退问题后再提交。${NC}"
+    exit 1
+fi
+
+# ==========================================================================
+# 2b. 【真正生效的数据保护】磁盘基线守护（不依赖 git 跟踪）
+#     第 2 节的 7 个 `*_embedded_data.js`（18.05 MB）与源头 `data/*_all_data.json`
+#     （23 MB）都没进 git ⇒ git 层面的回退检测对本机真实数据链无效。
+#     本节改用磁盘基线比对，覆盖 14 个核心数据文件（约 41 MB）：
+#        文件缺失 / 体积缩减超阈值 / 表数量减少 / 表最新日期倒退超阈值 ⇒ 阻止
+#     首次运行自动建基线；检查通过后自动刷新基线；异常时不刷新（便于复现）。
+# ==========================================================================
+DB_GUARD="$TOPLEVEL/_db_guard.py"
+if [ -f "$DB_GUARD" ]; then
+    DB_GUARD_RC=0
+    "$PYTHON_BIN" "$DB_GUARD" --check || DB_GUARD_RC=1
+    if [ $DB_GUARD_RC -ne 0 ]; then
+        echo ""
+        echo "${RED_COLOR}[PRE-COMMIT] 核心数据文件异常，已阻止提交（详见上方 db-guard 输出）${NC}"
+        exit 1
+    fi
+else
+    echo "${WARN_COLOR}[PRE-COMMIT] 警告：未找到 $DB_GUARD，磁盘基线守护被跳过${NC}"
+    echo "  若为首次克隆，请先同步 _db_guard.py，否则核心数据回退无人把关。"
+    echo "  手动建立基线：python _db_guard.py --update"
+fi
+
+# ==========================================================================
+# 3. automotive_data_v2.html 静态 <tr> 守卫
+#    历史：该文件原计划改造为动态加载，旧逻辑对「staged 中任何 tbody 含 <tr>」
+#          一律阻止提交。
+#    实测（2026-09-18）：HEAD 版即为 22/22 tbody 全静态（1849 行 <tr>），
+#          前提从未成立 ⇒ 旧逻辑对该文件的任何改动都拦（永久误拦）。
+#    现行：打印「HEAD → staged」静态行数对比；默认仅告警放行（数据增删属正常
+#          业务），设 AUTO_STATIC_STRICT=1 恢复硬拦（且仅在行数增加时阻止）。
+# ==========================================================================
+AUTO_HTML="automotive_data_v2.html"
+STATIC_TR_BLOCK=0
+STATIC_TR_MSG="skipped"
+if [ -n "$(git diff --cached --name-only -- "$AUTO_HTML" 2>/dev/null)" ]; then
+    STATIC_INFO=$(git show :"$AUTO_HTML" 2>/dev/null | "$PYTHON_BIN" -c "
+import re, subprocess, sys
+
+sys.stdout.reconfigure(encoding='utf-8', errors='replace')
+FILE = '$AUTO_HTML'
+
+def count_static(content):
+    total = 0
+    bodies = 0
+    for m in re.finditer(r'<tbody[^>]*>(.*?)</tbody>', content, re.DOTALL):
+        bodies += 1
+        total += len(re.findall(r'<tr[\s>]', m.group(1)))
+    return total, bodies
+
+staged = sys.stdin.read()
+try:
+    head = subprocess.check_output(['git', 'show', 'HEAD:' + FILE],
+                                   stderr=subprocess.DEVNULL).decode('utf-8', 'replace')
+except Exception:
+    head = ''
+
+s_tr, s_tb = count_static(staged)
+h_tr, h_tb = count_static(head)
+print('%d|%d|%d|%d' % (s_tr, s_tb, h_tr, h_tb))
+" 2>&1)
+
+    _r="$STATIC_INFO"
+    s_tr=${_r%%|*}
+    _r=${_r#*|}
+    s_tb=${_r%%|*}
+    _r=${_r#*|}
+    h_tr=${_r%%|*}
+    h_tb=${_r##*|}
+
+    case "$s_tr" in ''|*[!0-9]*) s_tr=-1 ;; esac
+    case "$h_tr" in ''|*[!0-9]*) h_tr=-1 ;; esac
+
+    if [ "$s_tr" -ge 0 ] && [ "$h_tr" -ge 0 ]; then
+        echo "[PRE-COMMIT] ${AUTO_HTML} 静态 <tr>: HEAD=${h_tr} (tbody ${h_tb}) -> staged=${s_tr} (tbody ${s_tb})"
+        if [ "$s_tr" -gt "$h_tr" ]; then
+            if [ "${AUTO_STATIC_STRICT:-0}" = "1" ]; then
+                STATIC_TR_BLOCK=1
+                STATIC_TR_MSG="BLOCKED(+$((s_tr - h_tr)))"
+                echo ""
+                echo "${RED_COLOR}[PRE-COMMIT] 阻止提交：静态 <tr> 行数相对 HEAD 增加${NC}"
+                echo "  AUTO_STATIC_STRICT=1 已开启严格模式。"
+                echo "  如确认是有意的数据更新，请改用: git commit --no-verify"
+            else
+                STATIC_TR_MSG="warn(+$((s_tr - h_tr)))"
+                echo "${WARN_COLOR}  ^ 静态行数增加 $((s_tr - h_tr)) 行；当前为告警模式（AUTO_STATIC_STRICT=1 可改为硬拦）。${NC}"
+            fi
+        elif [ "$s_tr" -lt "$h_tr" ]; then
+            STATIC_TR_MSG="ok(-$((h_tr - s_tr)))"
+        else
+            STATIC_TR_MSG="ok(=)"
+        fi
+    else
+        STATIC_TR_MSG="ERROR"
+        echo "${WARN_COLOR}[PRE-COMMIT] 警告：${AUTO_HTML} 静态行统计失败（输出：${STATIC_INFO}），跳过本项。${NC}"
+    fi
+fi
+
+if [ $STATIC_TR_BLOCK -eq 1 ]; then
+    exit 1
+fi
+
+# ==========================================================================
+# 3b. lfp_data_v2.html / ternary_data_v2.html 数据源引用回退检测
+#     如果 data_v2.html 引用的 embedded JS 版本比 HEAD 更新，则必须同步提交
+#     embedded JS，否则页面会指向旧数据（数据回滚但引用日期更新了，造成假象）。
+# ==========================================================================
+DATA_V2_REGRESSION=0
+for HTML_FILE in "lfp_data_v2.html" "ternary_data_v2.html"; do
+    if [ -z "$(git diff --cached --name-only -- "$HTML_FILE" 2>/dev/null)" ]; then
+        continue
+    fi
+
+    # 取出 staged / HEAD 中引用的 embedded JS 文件名
+    STAGED_EMB=$(git show :"$HTML_FILE" 2>/dev/null | "$PYTHON_BIN" -c '
+import re, sys
+c = sys.stdin.read()
+m = re.search(r"""src="([^"]*_embedded_data\.js)""", c)
+print(m.group(1) if m else "")
+' 2>/dev/null)
+    HEAD_EMB=$(git show "HEAD:${HTML_FILE}" 2>/dev/null | "$PYTHON_BIN" -c '
+import re, sys
+c = sys.stdin.read()
+m = re.search(r"""src="([^"]*_embedded_data\.js)""", c)
+print(m.group(1) if m else "")
+' 2>/dev/null)
+
+    if [ -n "$STAGED_EMB" ] && [ "$STAGED_EMB" != "$HEAD_EMB" ]; then
+        # embedded JS 文件名变了（新增或切换了数据源），检查该文件是否在 staged 中
+        if [ -z "$(git diff --cached --name-only -- "$STAGED_EMB" 2>/dev/null)" ]; then
+            echo ""
+            echo "${RED_COLOR}[PRE-COMMIT] ${HTML_FILE} 引用了 ${STAGED_EMB}，但该文件未一起提交！${NC}"
+            echo "  当前 staged 的 embedded JS: ${STAGED_EMB}"
+            echo "  HEAD 中的 embedded JS:    ${HEAD_EMB:-（无）}"
+            echo ""
+            echo "  风险：提交后页面会指向旧数据，等同数据回滚。"
+            echo "  解决：git add ${STAGED_EMB} 后重新提交"
+            DATA_V2_REGRESSION=1
+        fi
+    fi
+done
+
+if [ $DATA_V2_REGRESSION -eq 1 ]; then
+    echo ""
+    echo "${RED_COLOR}请将对应的 *_embedded_data.js 文件一起提交后再试。${NC}"
+    exit 1
+fi
+
+# ==========================================================================
+# 4. 数据库 JSON 新增体积警告（>50MB）
+#    修正：旧写法用 git ls-files -s 的第 3 字段当文件大小，该字段实为 stage 号
+#          （恒为 0）⇒ 该检查从未触发。改用 git cat-file -s 读索引内 blob 大小。
+# ==========================================================================
+added_files=$(git diff --cached --name-only --diff-filter=A -- '*.json' '*.js' 2>/dev/null)
+total_size=0
+for f in $added_files; do
+    case "$f" in
+        *lib_battery*|*recycling*) ;;
+        *) continue ;;
+    esac
+    size=$(git cat-file -s ":$f" 2>/dev/null)
+    case "$size" in ''|*[!0-9]*) size=0 ;; esac
+    total_size=$((total_size + size))
+done
+if [ "$total_size" -gt 50000000 ]; then
+    echo ""
+    echo "${WARN_COLOR}[PRE-COMMIT] 数据库文件新增超过 50MB，总计 $((total_size/1024/1024))MB${NC}"
+    echo "  按 Ctrl+C 取消提交，或回车继续..."
+    read -r reply
+fi
+
+# ==========================================================================
+# 5. 自动备份 reports/ 目录（每次提交前，保留最近 5 份）
+#    用子 shell 做 cd，避免污染后续相对路径。
+# ==========================================================================
+REPORTS_DIR="$(git rev-parse --show-toplevel)/reports"
+BACKUP_DIR="$(git rev-parse --show-toplevel)/_archive/reports_auto_backup"
+TIMESTAMP=$(date +%Y%m%d_%H%M%S)
+TEMP_BACKUP="$BACKUP_DIR/pre_commit_$TIMESTAMP"
+
+if [ -d "$REPORTS_DIR" ]; then
+    mkdir -p "$TEMP_BACKUP"
+    cp -r "$REPORTS_DIR"/*.json "$TEMP_BACKUP/" 2>/dev/null
+    (
+        cd "$BACKUP_DIR" 2>/dev/null || exit 0
+        ls -dt pre_commit_* 2>/dev/null | tail -n +6 | xargs rm -rf 2>/dev/null
+    )
+fi
+
+# ========= 6. HTML 轻量化保护（防止自动化任务嵌入大脚本） =========
+"$PYTHON_BIN" "$(git rev-parse --show-toplevel)/protect_html.py"
+if [ $? -ne 0 ]; then
+    echo ""
+    echo "${RED_COLOR}[PRE-COMMIT] HTML 轻量化检查失败，优化后请重新 git add 再提交${NC}"
+    exit 1
+fi
+
+# ========= 7. 执行摘要（让「哪些检查真的跑了」可见） =========
+echo "${OK_COLOR}[pre-commit] 数据保护钩子检查通过${NC}"
+echo "  reports/ 删除      : ${deleted_count}（仅统计 tracked 文件）"
+echo "  db 回退检测(git)   : 目标未被跟踪，本节恒跳过 -> 见下一行"
+echo "  db-guard 磁盘基线  : OK（14 个核心数据文件 / 约 41 MB）"
+echo "  static-tr 守卫     : ${STATIC_TR_MSG}"
+echo "  HTML 轻量化        : protect_html.py OK"

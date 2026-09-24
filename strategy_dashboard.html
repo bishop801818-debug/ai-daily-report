@@ -129,6 +129,14 @@ body{font-family:-apple-system,'Microsoft YaHei',sans-serif;background:#f4f6fa;c
         var rawBu = buMatch[1];
         var map = { lubricant:'lhy', kelan:'kls', dkhx:'dhx', sjld:'sjl' };
         var buId = map[rawBu] || rawBu;
+        // 2026-09-18 修（czly 口径残留）：拒绝文案原写死「常州锂源事业部」，
+        // 导致 lpsd/felt 同事被拒时看到别的事业部名。改为按当前 BU 取名。
+        var GATE_BU_NAME = {
+          czly:'常州锂源事业部', lpsd:'龙蟠时代事业部', sdmd:'山东美多事业部',
+          sjld:'三金锂电事业部', felt:'法恩莱特事业部', dhx:'迪克化学事业部',
+          lhy:'润滑油事业部', kls:'可兰素事业部', bych:'铂源催化事业部'
+        };
+        var buName = GATE_BU_NAME[buId] || '本事业部';
         // 2026-09-17 15:00 修（主因）：原实现只读 location.search（'?' 段），
         // 而 expand 页注入 iframe 时把 __dept 拼在 hash 里（'#czly&_fin=1&__dept=xxx'）
         // → 线上恒取不到身份 → 落 !deptId 分支 403 → 常州锂源本部门同事也被挡。
@@ -161,15 +169,20 @@ body{font-family:-apple-system,'Microsoft YaHei',sans-serif;background:#f4f6fa;c
         })();
         if (!deptId) {
           // 无身份：iframe 内嵌场景下也视为拒绝（仅本路径生效）
-          document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100vh;font-family:sans-serif;background:#f5f6fa"><div style="text-align:center;padding:48px;background:#fff;border-radius:16px;box-shadow:0 8px 30px rgba(0,0,0,.08)"><div style="font-size:64px;margin-bottom:12px">⛔</div><div style="font-size:22px;font-weight:700;color:#c0392b">财务对标 · 无权限访问</div><div style="margin-top:8px;color:#888;font-size:14px">本模块仅向常州锂源事业部 + 集团领导开放，请通过妙搭首页进入。</div></div></div>';
+          document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100vh;font-family:sans-serif;background:#f5f6fa"><div style="text-align:center;padding:48px;background:#fff;border-radius:16px;box-shadow:0 8px 30px rgba(0,0,0,.08)"><div style="font-size:64px;margin-bottom:12px">⛔</div><div style="font-size:22px;font-weight:700;color:#c0392b">财务对标 · 无权限访问</div><div style="margin-top:8px;color:#888;font-size:14px">本模块仅向' + buName + ' + 集团领导开放，请通过妙搭首页进入。</div></div></div>';
           return;
         }
         var ids = (deptId||'').split(',').map(function(s){return s.trim();}).filter(Boolean);
         // 2026-09-17 15:00 修：bu_gate.isAllowed(bu, ids) 期望的是 od-* 部门 ID，
         // 而妙搭壳 / expand 页注入的往往是 'czly' 这类 BU 速记令牌 →
         // 'czly' 不在 BU_DEPT['czly'] 的 od 数组里 → isAllowed 恒 false → 403。
-        // 与 expand 页 guard 对齐：命中 本 BU 代号 / czly / hq / all 直接放行。
-        if (ids.indexOf(buId) >= 0 || ids.indexOf('czly') >= 0 || ids.indexOf('hq') >= 0 || ids.indexOf('all') >= 0) return;
+        // 与 expand 页 guard 对齐：命中 本 BU 代号 / hq / all 直接放行
+        // （本 BU 代号用 buId 动态判定，不写死某一个 BU）。
+        // 2026-09-18 修（czly 口径残留）：删掉硬编码 'czly' ——
+        // 原写法使 'czly' 令牌成为跨 BU 万能钥匙：`#felt&_fin=1&__dept=czly`
+        // 会绕过下方 isAllowed('felt', ids) 直接放行（越权口子）。
+        // 本 BU 速记令牌已由 ids.indexOf(buId) 覆盖，无需额外写死。
+        if (ids.indexOf(buId) >= 0 || ids.indexOf('hq') >= 0 || ids.indexOf('all') >= 0) return;
         if (!isAllowed || !isAllowed(buId, ids)) {
           document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100vh;font-family:sans-serif;background:#f5f6fa"><div style="text-align:center;padding:48px;background:#fff;border-radius:16px;box-shadow:0 8px 30px rgba(0,0,0,.08)"><div style="font-size:64px;margin-bottom:12px">⛔</div><div style="font-size:22px;font-weight:700;color:#c0392b">财务对标 · 无权限访问</div><div style="margin-top:8px;color:#888;font-size:14px">您所在的部门无权查看该内容，请联系管理员。</div></div></div>';
         }
@@ -187,6 +200,18 @@ html.czly-shell{overflow:hidden}
 html.lpsd-shell #lpsdShellLayer{display:block;position:fixed;inset:0;width:100vw;height:100vh;z-index:99999;background:#f4f6f5}
 html.lpsd-shell #lpsdShellLayer iframe{display:block;width:100%;height:100%;border:0;background:#f4f6f5}
 html.lpsd-shell{overflow:hidden}
+#feltShellLayer{display:none}
+html.felt-shell #feltShellLayer{display:block;position:fixed;inset:0;width:100vw;height:100vh;z-index:99999;background:#f4f6f5}
+html.felt-shell #feltShellLayer iframe{display:block;width:100%;height:100%;border:0;background:#f4f6f5}
+html.felt-shell{overflow:hidden}
+#sjlShellLayer{display:none}
+html.sjl-shell #sjlShellLayer{display:block;position:fixed;inset:0;width:100vw;height:100vh;z-index:99999;background:#f4f6f5}
+html.sjl-shell #sjlShellLayer iframe{display:block;width:100%;height:100%;border:0;background:#f4f6f5}
+html.sjl-shell{overflow:hidden}
+#klsShellLayer{display:none}
+html.kls-shell #klsShellLayer{display:block;position:fixed;inset:0;width:100vw;height:100vh;z-index:99999;background:#f4f6f5}
+html.kls-shell #klsShellLayer iframe{display:block;width:100%;height:100%;border:0;background:#f4f6f5}
+html.kls-shell{overflow:hidden}
 </style>
 <script>
 (function(){
@@ -200,12 +225,21 @@ html.lpsd-shell{overflow:hidden}
   if(window.__CZLY_SHELL__) document.documentElement.classList.add('czly-shell');
   window.__LPSD_SHELL__=(key==='lpsd'&&!isFin);
   if(window.__LPSD_SHELL__) document.documentElement.classList.add('lpsd-shell');
+  window.__FELT_SHELL__=(key==='felt'&&!isFin);
+  if(window.__FELT_SHELL__) document.documentElement.classList.add('felt-shell');
+  window.__SJL_SHELL__=(key==='sjl'&&!isFin);
+  if(window.__SJL_SHELL__) document.documentElement.classList.add('sjl-shell');
+  window.__KLS_SHELL__=(key==='kls'&&!isFin);
+  if(window.__KLS_SHELL__) document.documentElement.classList.add('kls-shell');
 })();
 </script>
 </head>
 <body>
 <div id="czlyShellLayer"><iframe id="czlyShellFrame" title="竞品监测中心"></iframe></div>
 <div id="lpsdShellLayer"><iframe id="lpsdShellFrame" title="龙蟠时代竞品监测中心"></iframe></div>
+<div id="feltShellLayer"><iframe id="feltShellFrame" title="法恩莱特竞品监测中心"></iframe></div>
+<div id="sjlShellLayer"><iframe id="sjlShellFrame" title="三金锂电竞品监测中心"></iframe></div>
+<div id="klsShellLayer"><iframe id="klsShellFrame" title="可兰素竞品监测中心"></iframe></div>
 <div class="topbar">
   <div class="topbar-left">
     <div class="topbar-logo">📊 战略洞察</div>
@@ -2129,6 +2163,75 @@ function resetRadarHighlight() {
   }
   var hash = dept ? ('#lpsd&__dept=' + encodeURIComponent(dept)) : '#lpsd';
   f.src='strategy_dashboard_expand_lpsd.html' + hash;
+})();
+
+(function(){
+  // 仅 #felt 时按需加载法恩莱特（电解液）竞品监测中心 iframe（与 czly/lpsd 承载层并行、互不干扰）
+  if(!window.__FELT_SHELL__) return;
+  var f=document.getElementById('feltShellFrame');
+  if(!f) return;
+  f.addEventListener('load', function(){
+    try{
+      var d=f.contentDocument;
+      if(!d || !d.body || d.body.innerHTML.replace(/\s/g,'').length < 40){
+        document.documentElement.classList.remove('felt-shell');
+      }
+    }catch(e){}
+  });
+  if(f.getAttribute('src')) return;
+  var dept='';
+  try{ dept = (new URLSearchParams(location.search).get('__dept')||'').trim(); }catch(e){}
+  if(!dept){
+    try{ dept = (new URLSearchParams(location.hash.split(/\#/).filter(Boolean)[0]).get('__dept')||'').trim(); }catch(e){}
+  }
+  var hash = dept ? ('#felt&__dept=' + encodeURIComponent(dept)) : '#felt';
+  f.src='strategy_dashboard_expand_felt.html' + hash;
+})();
+
+(function(){
+  // 仅 #sjl（含别名 #sjld）时按需加载三金锂电（三元正极）竞品监测中心 iframe（与 czly/lpsd/felt 承载层并行、互不干扰）
+  if(!window.__SJL_SHELL__) return;
+  var f=document.getElementById('sjlShellFrame');
+  if(!f) return;
+  f.addEventListener('load', function(){
+    try{
+      var d=f.contentDocument;
+      if(!d || !d.body || d.body.innerHTML.replace(/\s/g,'').length < 40){
+        document.documentElement.classList.remove('sjl-shell');
+      }
+    }catch(e){}
+  });
+  if(f.getAttribute('src')) return;
+  var dept='';
+  try{ dept = (new URLSearchParams(location.search).get('__dept')||'').trim(); }catch(e){}
+  if(!dept){
+    try{ dept = (new URLSearchParams(location.hash.split(/\#/).filter(Boolean)[0]).get('__dept')||'').trim(); }catch(e){}
+  }
+  var hash = dept ? ('#sjl&__dept=' + encodeURIComponent(dept)) : '#sjl';
+  f.src='strategy_dashboard_expand_sjl.html' + hash;
+})();
+
+(function(){
+  // 仅 #kls（含别名 #kelan）时按需加载可兰素（车用尿素）竞品监测中心 iframe（与 czly/lpsd/felt/sjl 承载层并行、互不干扰）
+  if(!window.__KLS_SHELL__) return;
+  var f=document.getElementById('klsShellFrame');
+  if(!f) return;
+  f.addEventListener('load', function(){
+    try{
+      var d=f.contentDocument;
+      if(!d || !d.body || d.body.innerHTML.replace(/\s/g,'').length < 40){
+        document.documentElement.classList.remove('kls-shell');
+      }
+    }catch(e){}
+  });
+  if(f.getAttribute('src')) return;
+  var dept='';
+  try{ dept = (new URLSearchParams(location.search).get('__dept')||'').trim(); }catch(e){}
+  if(!dept){
+    try{ dept = (new URLSearchParams(location.hash.split(/\#/).filter(Boolean)[0]).get('__dept')||'').trim(); }catch(e){}
+  }
+  var hash = dept ? ('#kls&__dept=' + encodeURIComponent(dept)) : '#kls';
+  f.src='strategy_dashboard_expand_kls.html' + hash;
 })();
 </script>
 </body>

@@ -1,21 +1,21 @@
 {
   "symbol": "磷酸铁锂动力型",
   "contract": "LFP-动力",
-  "update_time": "2026-09-17 17:02:43",
+  "update_time": "2026-09-24 09:07:02",
   "source": "我的钢铁网(Mysteel)",
   "start_date": "2026-01-06",
-  "end_date": "2026-09-17",
-  "data_points": 166,
+  "end_date": "2026-09-23",
+  "data_points": 171,
   "min_price": 44950,
   "max_price": 68375,
   "latest": {
-    "date": "2026-09-17",
-    "close": 53100,
-    "high": 54500,
-    "low": 51700,
-    "open": 52800,
-    "change": 300,
-    "change_pct": 0.57
+    "date": "2026-09-23",
+    "close": 53600,
+    "high": 55000,
+    "low": 52200,
+    "open": 53850,
+    "change": -250,
+    "change_pct": -0.46
   },
   "history": [
     {
@@ -1511,6 +1511,51 @@
       "open": 52800,
       "change": 300,
       "change_pct": 0.57
+    },
+    {
+      "date": "2026-09-18",
+      "close": 53650,
+      "high": 55100,
+      "low": 52200,
+      "open": 53100,
+      "change": 550,
+      "change_pct": 1.04
+    },
+    {
+      "date": "2026-09-20",
+      "close": 53650,
+      "high": 55100,
+      "low": 52200,
+      "open": 53650,
+      "change": 0,
+      "change_pct": 0.0
+    },
+    {
+      "date": "2026-09-21",
+      "close": 53650,
+      "high": 55100,
+      "low": 52200,
+      "open": 53650,
+      "change": 0,
+      "change_pct": 0.0
+    },
+    {
+      "date": "2026-09-22",
+      "close": 53850,
+      "high": 55300,
+      "low": 52400,
+      "open": 53650,
+      "change": 200,
+      "change_pct": 0.37
+    },
+    {
+      "date": "2026-09-23",
+      "close": 53600,
+      "high": 55000,
+      "low": 52200,
+      "open": 53850,
+      "change": -250,
+      "change_pct": -0.46
     }
   ]
 }

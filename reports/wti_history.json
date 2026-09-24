@@ -1,58 +1,22 @@
 {
   "symbol": "WTI原油期货主连",
   "contract": "CL00Y",
-  "update_time": "2026-09-17 17:07:53",
+  "update_time": "2026-09-23 12:05:40",
   "source": "AkShare-NYMEX",
-  "start_date": "1996-09-17",
-  "end_date": "2026-09-17",
+  "start_date": "1996-09-23",
+  "end_date": "2026-09-23",
   "data_points": 7691,
   "min_price": 10.72,
   "max_price": 145.33,
   "latest": {
-    "date": "2026-09-17",
-    "open": 97.53,
-    "high": 97.73,
-    "low": 95.87,
-    "close": 96.5,
+    "date": "2026-09-23",
+    "open": 89.86,
+    "high": 90.38,
+    "low": 89.04,
+    "close": 89.35,
     "volume": 0
   },
   "history": [
-    {
-      "date": "1996-09-17",
-      "open": 23.35,
-      "close": 23.31,
-      "high": 23.73,
-      "low": 22.97,
-      "volume": 0,
-      "amount": 0.0
-    },
-    {
-      "date": "1996-09-18",
-      "open": 23.75,
-      "close": 23.89,
-      "high": 23.93,
-      "low": 23.37,
-      "volume": 0,
-      "amount": 0.0
-    },
-    {
-      "date": "1996-09-19",
-      "open": 23.8,
-      "close": 23.54,
-      "high": 23.85,
-      "low": 23.15,
-      "volume": 0,
-      "amount": 0.0
-    },
-    {
-      "date": "1996-09-20",
-      "open": 23.5,
-      "close": 23.63,
-      "high": 23.8,
-      "low": 23.26,
-      "volume": 0,
-      "amount": 0.0
-    },
     {
       "date": "1996-09-23",
       "open": 23.31,
@@ -69230,9 +69194,45 @@
     {
       "date": "2026-09-17",
       "open": 97.53,
-      "close": 96.5,
+      "close": 96.53,
       "high": 97.73,
-      "low": 95.87,
+      "low": 94.64,
+      "volume": 0,
+      "amount": 0.0
+    },
+    {
+      "date": "2026-09-18",
+      "open": 96.48,
+      "close": 95.47,
+      "high": 98.01,
+      "low": 94.83,
+      "volume": 0,
+      "amount": 0.0
+    },
+    {
+      "date": "2026-09-21",
+      "open": 95.47,
+      "close": 91.96,
+      "high": 97.22,
+      "low": 91.19,
+      "volume": 0,
+      "amount": 0.0
+    },
+    {
+      "date": "2026-09-22",
+      "open": 91.96,
+      "close": 89.86,
+      "high": 93.84,
+      "low": 88.67,
+      "volume": 0,
+      "amount": 0.0
+    },
+    {
+      "date": "2026-09-23",
+      "open": 89.86,
+      "close": 89.35,
+      "high": 90.38,
+      "low": 89.04,
       "volume": 0,
       "amount": 0.0
     }
