@@ -6,6 +6,7 @@
   <script src="./inline_auth.js?v=20260831_1518"></script>
   <script>
 function navigateTo(path) {
+  /* __FIN_20260926__ */
   var dept = '';
   // 1. 优先从 hash #dept= 读取（妙搭网关会吞 query，但保留 hash）
   var m = location.hash.match(/[#&]dept=([^&]+)/);
@@ -22,10 +23,32 @@ function navigateTo(path) {
       if (saved) dept = '&__dept=' + saved;
     } catch(e) {}
   }
+    // 2026-09-26 修：__user 与 __dept 同链路传递。此前只带 __dept，
+  // 导致 strategy_hub / strategy_dashboard / expand 页读不到身份，04 财务对标恒灰。
+  var user = '';
+  var mu = location.hash.match(/[#&]__user=([^&]+)/);
+  if (mu) user = '&__user=' + mu[1];
+  if (!user) {
+    m = location.search.match(/[?&]__user=([^&]+)/);
+    if (m) user = '&__user=' + m[1];
+  }
+  if (!user) {
+    try { var su = sessionStorage.getItem('__user'); if (su) user = '&__user=' + su; } catch(e) {}
+  }
+  var mo = location.hash.match(/[#&]__user_ou=([^&]+)/);
+  if (!mo) { m = location.search.match(/[?&]__user_ou=([^&]+)/); if (m) mo = m; }
+  var ou = mo ? '&__user_ou=' + mo[1] : '';
+  var qs = (dept ? dept.substring(1) : '') + (user ? user.substring(1) : '') + (ou ? ou.substring(1) : '');
   var sep = path.includes('?') ? '&' : '?';
-  var url = path + (dept ? sep + dept.substring(1) : '');
-  // 4. 同时把 #dept= 也带上，子页 bu_gate.js 优先读 hash，网关吞 query 仍能识别
-  if (dept) url += '#dept=' + dept.substring(8);
+  var url = path + (qs ? sep + qs : '');
+  // 4. 同时把 #dept= / #__user= 也带上，子页 bu_gate.js 优先读 hash，网关吞 query 仍能识别
+  if (qs) {
+    var hashParts = [];
+    if (dept) hashParts.push('dept=' + dept.substring(8));
+    if (user) hashParts.push('__user=' + user.substring(8));
+    if (ou) hashParts.push('__user_ou=' + ou.substring(8));
+    url += '#' + hashParts.join('&');
+  }
   location.href = url;
 }
 </script>
@@ -46,7 +69,7 @@ window.__SUBPAGE_MAP__ = {"analysis_hub.html": "./analysis_hub.html", "archive_v
     <link rel="preload" href="data/industry_chain.json" as="fetch" crossorigin>
     <link rel="preload" href="data/lithium_ore_price_history.json" as="fetch" crossorigin>
     <link rel="preload" href="data/lepidolite_price_history.json" as="fetch" crossorigin>
-<script>window.HTML_VERSION="20260924_1517"</script>
+<script>window.HTML_VERSION="20260927_1414"</script>
 <script src="embedded_data.gz.js?v=20260924_001"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -252,7 +275,11 @@ window.__SUBPAGE_MAP__ = {"analysis_hub.html": "./analysis_hub.html", "archive_v
             position: absolute;
             left: 50%; bottom: 56px;
             transform: translateX(-50%);
-            z-index: 10;
+            /* 2026-09-27 修：标题恒置于 hero 内容层最底（仅高于 .hero-overlay 的 z-index:1）。
+               此前与 .hero-banner > .main-nav-menu 同为 z-index:10，且 .hero-content 在 DOM 中位于其之后，
+               同级同值时后者胜出 ⇒ 标题压住「数据库」下拉菜单（下拉菜单 z-index:9999 被父级
+               .main-nav-menu 的 z-index:10 层叠上下文封顶，无法自救）。 */
+            z-index: 2;
             max-width: 520px;
             text-align: center;
         }
