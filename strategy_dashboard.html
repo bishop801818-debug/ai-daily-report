@@ -173,6 +173,14 @@ body{font-family:-apple-system,'Microsoft YaHei',sans-serif;background:#f4f6fa;c
           return;
         }
         var ids = (deptId||'').split(',').map(function(s){return s.trim();}).filter(Boolean);
+        // 2026-09-28 收紧：bu_gate.isAllowed(bu, []) 按「故障安全」设计恒 true（注释：杜绝白屏）——
+        // 这导致 iframe 嵌入场景（expand 页 L531 拼接的 URL 往往不带 __dept）下，
+        // 「无身份」走到 isAllowed 时反而全放行，让全公司人看到财务对标（09-28 复现漏洞）。
+        // 与 L170 `if (!deptId)` 兜底保持对称：无身份 = 直接拒绝，不让 isAllowed 兜底生效。
+        if (!ids.length) {
+          document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100vh;font-family:sans-serif;background:#f5f6fa"><div style="text-align:center;padding:48px;background:#fff;border-radius:16px;box-shadow:0 8px 30px rgba(0,0,0,.08)"><div style="font-size:64px;margin-bottom:12px">⛔</div><div style="font-size:22px;font-weight:700;color:#c0392b">财务对标 · 无权限访问</div><div style="margin-top:8px;color:#888;font-size:14px">未识别到您的部门身份，请通过妙搭首页进入（首页会自动带入部门信息）。</div></div></div>';
+          return;
+        }
         // 2026-09-17 15:00 修：bu_gate.isAllowed(bu, ids) 期望的是 od-* 部门 ID，
         // 而妙搭壳 / expand 页注入的往往是 'czly' 这类 BU 速记令牌 →
         // 'czly' 不在 BU_DEPT['czly'] 的 od 数组里 → isAllowed 恒 false → 403。
@@ -212,6 +220,22 @@ html.sjl-shell{overflow:hidden}
 html.kls-shell #klsShellLayer{display:block;position:fixed;inset:0;width:100vw;height:100vh;z-index:99999;background:#f4f6f5}
 html.kls-shell #klsShellLayer iframe{display:block;width:100%;height:100%;border:0;background:#f4f6f5}
 html.kls-shell{overflow:hidden}
+#sdmdShellLayer{display:none}
+html.sdmd-shell #sdmdShellLayer{display:block;position:fixed;inset:0;width:100vw;height:100vh;z-index:99999;background:#f4f6f5}
+html.sdmd-shell #sdmdShellLayer iframe{display:block;width:100%;height:100%;border:0;background:#f4f6f5}
+html.sdmd-shell{overflow:hidden}
+#lhyShellLayer{display:none}
+html.lhy-shell #lhyShellLayer{display:block;position:fixed;inset:0;width:100vw;height:100vh;z-index:99999;background:#f4f6f5}
+html.lhy-shell #lhyShellLayer iframe{display:block;width:100%;height:100%;border:0;background:#f4f6f5}
+html.lhy-shell{overflow:hidden}
+#dhxShellLayer{display:none}
+html.dhx-shell #dhxShellLayer{display:block;position:fixed;inset:0;width:100vw;height:100vh;z-index:99999;background:#f4f6f5}
+html.dhx-shell #dhxShellLayer iframe{display:block;width:100%;height:100%;border:0;background:#f4f6f5}
+html.dhx-shell{overflow:hidden}
+#bychShellLayer{display:none}
+html.bych-shell #bychShellLayer{display:block;position:fixed;inset:0;width:100vw;height:100vh;z-index:99999;background:#f4f6f5}
+html.bych-shell #bychShellLayer iframe{display:block;width:100%;height:100%;border:0;background:#f4f6f5}
+html.bych-shell{overflow:hidden}
 </style>
 <script>
 (function(){
@@ -231,6 +255,14 @@ html.kls-shell{overflow:hidden}
   if(window.__SJL_SHELL__) document.documentElement.classList.add('sjl-shell');
   window.__KLS_SHELL__=(key==='kls'&&!isFin);
   if(window.__KLS_SHELL__) document.documentElement.classList.add('kls-shell');
+  window.__SDMD_SHELL__=(key==='sdmd'&&!isFin);
+  if(window.__SDMD_SHELL__) document.documentElement.classList.add('sdmd-shell');
+  window.__LHY_SHELL__=(key==='lhy'&&!isFin);
+  if(window.__LHY_SHELL__) document.documentElement.classList.add('lhy-shell');
+  window.__DHX_SHELL__=(key==='dhx'&&!isFin);
+  if(window.__DHX_SHELL__) document.documentElement.classList.add('dhx-shell');
+  window.__BYCH_SHELL__=(key==='bych'&&!isFin);
+  if(window.__BYCH_SHELL__) document.documentElement.classList.add('bych-shell');
 })();
 </script>
 </head>
@@ -240,6 +272,10 @@ html.kls-shell{overflow:hidden}
 <div id="feltShellLayer"><iframe id="feltShellFrame" title="法恩莱特竞品监测中心"></iframe></div>
 <div id="sjlShellLayer"><iframe id="sjlShellFrame" title="三金锂电竞品监测中心"></iframe></div>
 <div id="klsShellLayer"><iframe id="klsShellFrame" title="可兰素竞品监测中心"></iframe></div>
+<div id="sdmdShellLayer"><iframe id="sdmdShellFrame" title="山东美多竞品监测中心"></iframe></div>
+<div id="lhyShellLayer"><iframe id="lhyShellFrame" title="龙蟠润滑油竞品监测中心"></iframe></div>
+<div id="dhxShellLayer"><iframe id="dhxShellFrame" title="迪克化学竞品监测中心"></iframe></div>
+<div id="bychShellLayer"><iframe id="bychShellFrame" title="铂源催化竞品监测中心"></iframe></div>
 <div class="topbar">
   <div class="topbar-left">
     <div class="topbar-logo">📊 战略洞察</div>
@@ -922,7 +958,7 @@ var LHY_STRATEGY_DATA = {
         shell:   { name:'壳牌（国际标杆）', sub:'集团口径·美元' }
     },
     entities: [
-        { id:'lhy', name:'润滑油事业部', color:'#8e44ad' },
+        { id:'lhy', name:'润滑油事业部', color:'#0e7490' },
         { id:'unify', name:'统一股份', color:'#16a085' },
         { id:'compton', name:'康普顿', color:'#e67e22' },
         { id:'shell', name:'壳牌（国际标杆）', color:'#6c7a89', isBenchmark:true, unit:'亿美元' },
@@ -2138,7 +2174,12 @@ function resetRadarHighlight() {
   if(!dept){
     try{ dept = (new URLSearchParams(location.hash.split(/\#/).filter(Boolean)[0]).get('__dept')||'').trim(); }catch(e){}
   }
-  var hash = dept ? ('#czly&__dept=' + encodeURIComponent(dept)) : '#czly';
+  var usr='';
+  try{ usr = (new URLSearchParams(location.search).get('__user')||'').trim(); }catch(e){}
+  if(!usr){ try{ var _segs=location.hash.split(/\#/).filter(Boolean); for(var _i=0;_i<_segs.length;_i++){ usr=(new URLSearchParams('?'+_segs[_i]).get('__user')||'').trim(); if(usr) break; } }catch(e){} }
+  /* __FIN_20260926__ */
+var hash = dept ? ('#czly&__dept=' + encodeURIComponent(dept)) : '#czly';
+  if(usr) hash += '&__user=' + encodeURIComponent(usr);
   f.src='strategy_dashboard_expand.html' + hash;
 })();
 
@@ -2161,7 +2202,11 @@ function resetRadarHighlight() {
   if(!dept){
     try{ dept = (new URLSearchParams(location.hash.split(/\#/).filter(Boolean)[0]).get('__dept')||'').trim(); }catch(e){}
   }
+  var usr='';
+  try{ usr = (new URLSearchParams(location.search).get('__user')||'').trim(); }catch(e){}
+  if(!usr){ try{ var _segs=location.hash.split(/\#/).filter(Boolean); for(var _i=0;_i<_segs.length;_i++){ usr=(new URLSearchParams('?'+_segs[_i]).get('__user')||'').trim(); if(usr) break; } }catch(e){} }
   var hash = dept ? ('#lpsd&__dept=' + encodeURIComponent(dept)) : '#lpsd';
+  if(usr) hash += '&__user=' + encodeURIComponent(usr);
   f.src='strategy_dashboard_expand_lpsd.html' + hash;
 })();
 
@@ -2184,7 +2229,11 @@ function resetRadarHighlight() {
   if(!dept){
     try{ dept = (new URLSearchParams(location.hash.split(/\#/).filter(Boolean)[0]).get('__dept')||'').trim(); }catch(e){}
   }
+  var usr='';
+  try{ usr = (new URLSearchParams(location.search).get('__user')||'').trim(); }catch(e){}
+  if(!usr){ try{ var _segs=location.hash.split(/\#/).filter(Boolean); for(var _i=0;_i<_segs.length;_i++){ usr=(new URLSearchParams('?'+_segs[_i]).get('__user')||'').trim(); if(usr) break; } }catch(e){} }
   var hash = dept ? ('#felt&__dept=' + encodeURIComponent(dept)) : '#felt';
+  if(usr) hash += '&__user=' + encodeURIComponent(usr);
   f.src='strategy_dashboard_expand_felt.html' + hash;
 })();
 
@@ -2207,7 +2256,11 @@ function resetRadarHighlight() {
   if(!dept){
     try{ dept = (new URLSearchParams(location.hash.split(/\#/).filter(Boolean)[0]).get('__dept')||'').trim(); }catch(e){}
   }
+  var usr='';
+  try{ usr = (new URLSearchParams(location.search).get('__user')||'').trim(); }catch(e){}
+  if(!usr){ try{ var _segs=location.hash.split(/\#/).filter(Boolean); for(var _i=0;_i<_segs.length;_i++){ usr=(new URLSearchParams('?'+_segs[_i]).get('__user')||'').trim(); if(usr) break; } }catch(e){} }
   var hash = dept ? ('#sjl&__dept=' + encodeURIComponent(dept)) : '#sjl';
+  if(usr) hash += '&__user=' + encodeURIComponent(usr);
   f.src='strategy_dashboard_expand_sjl.html' + hash;
 })();
 
@@ -2230,8 +2283,120 @@ function resetRadarHighlight() {
   if(!dept){
     try{ dept = (new URLSearchParams(location.hash.split(/\#/).filter(Boolean)[0]).get('__dept')||'').trim(); }catch(e){}
   }
+  var usr='';
+  try{ usr = (new URLSearchParams(location.search).get('__user')||'').trim(); }catch(e){}
+  if(!usr){ try{ var _segs=location.hash.split(/\#/).filter(Boolean); for(var _i=0;_i<_segs.length;_i++){ usr=(new URLSearchParams('?'+_segs[_i]).get('__user')||'').trim(); if(usr) break; } }catch(e){} }
   var hash = dept ? ('#kls&__dept=' + encodeURIComponent(dept)) : '#kls';
+  if(usr) hash += '&__user=' + encodeURIComponent(usr);
   f.src='strategy_dashboard_expand_kls.html' + hash;
+})();
+
+(function(){
+  // 仅 #sdmd 时按需加载山东美多（锂电池回收）竞品监测中心 iframe（与 czly/lpsd/felt/sjl/kls 承载层并行、互不干扰）
+  if(!window.__SDMD_SHELL__) return;
+  var f=document.getElementById('sdmdShellFrame');
+  if(!f) return;
+  f.addEventListener('load', function(){
+    try{
+      var d=f.contentDocument;
+      if(!d || !d.body || d.body.innerHTML.replace(/\s/g,'').length < 40){
+        document.documentElement.classList.remove('sdmd-shell');
+      }
+    }catch(e){}
+  });
+  if(f.getAttribute('src')) return;
+  var dept='';
+  try{ dept = (new URLSearchParams(location.search).get('__dept')||'').trim(); }catch(e){}
+  if(!dept){
+    try{ dept = (new URLSearchParams(location.hash.split(/\#/).filter(Boolean)[0]).get('__dept')||'').trim(); }catch(e){}
+  }
+  var usr='';
+  try{ usr = (new URLSearchParams(location.search).get('__user')||'').trim(); }catch(e){}
+  if(!usr){ try{ var _segs=location.hash.split(/\#/).filter(Boolean); for(var _i=0;_i<_segs.length;_i++){ usr=(new URLSearchParams('?'+_segs[_i]).get('__user')||'').trim(); if(usr) break; } }catch(e){} }
+  var hash = dept ? ('#sdmd&__dept=' + encodeURIComponent(dept)) : '#sdmd';
+  if(usr) hash += '&__user=' + encodeURIComponent(usr);
+  f.src='strategy_dashboard_expand_sdmd.html' + hash;
+})();
+
+(function(){
+  // 仅 #lhy 时按需加载龙蟠润滑油（润滑油事业部）竞品监测中心 iframe（与 czly/lpsd/felt/sjl/kls/sdmd 承载层并行、互不干扰）
+  if(!window.__LHY_SHELL__) return;
+  var f=document.getElementById('lhyShellFrame');
+  if(!f) return;
+  f.addEventListener('load', function(){
+    try{
+      var d=f.contentDocument;
+      if(!d || !d.body || d.body.innerHTML.replace(/\s/g,'').length < 40){
+        document.documentElement.classList.remove('lhy-shell');
+      }
+    }catch(e){}
+  });
+  if(f.getAttribute('src')) return;
+  var dept='';
+  try{ dept = (new URLSearchParams(location.search).get('__dept')||'').trim(); }catch(e){}
+  if(!dept){
+    try{ dept = (new URLSearchParams(location.hash.split(/\#/).filter(Boolean)[0]).get('__dept')||'').trim(); }catch(e){}
+  }
+  var usr='';
+  try{ usr = (new URLSearchParams(location.search).get('__user')||'').trim(); }catch(e){}
+  if(!usr){ try{ var _segs=location.hash.split(/\#/).filter(Boolean); for(var _i=0;_i<_segs.length;_i++){ usr=(new URLSearchParams('?'+_segs[_i]).get('__user')||'').trim(); if(usr) break; } }catch(e){} }
+  var hash = dept ? ('#lhy&__dept=' + encodeURIComponent(dept)) : '#lhy';
+  if(usr) hash += '&__user=' + encodeURIComponent(usr);
+  f.src='strategy_dashboard_expand_lhy.html' + hash;
+})();
+
+(function(){
+  // 仅 #dhx 时按需加载迪克化学（汽车化学品事业部）竞品监测中心 iframe（与 czly/lpsd/felt/sjl/kls/sdmd/lhy 承载层并行、互不干扰）
+  if(!window.__DHX_SHELL__) return;
+  var f=document.getElementById('dhxShellFrame');
+  if(!f) return;
+  f.addEventListener('load', function(){
+    try{
+      var d=f.contentDocument;
+      if(!d || !d.body || d.body.innerHTML.replace(/\s/g,'').length < 40){
+        document.documentElement.classList.remove('dhx-shell');
+      }
+    }catch(e){}
+  });
+  if(f.getAttribute('src')) return;
+  var dept='';
+  try{ dept = (new URLSearchParams(location.search).get('__dept')||'').trim(); }catch(e){}
+  if(!dept){
+    try{ dept = (new URLSearchParams(location.hash.split(/\#/).filter(Boolean)[0]).get('__dept')||'').trim(); }catch(e){}
+  }
+  var usr='';
+  try{ usr = (new URLSearchParams(location.search).get('__user')||'').trim(); }catch(e){}
+  if(!usr){ try{ var _segs=location.hash.split(/\#/).filter(Boolean); for(var _i=0;_i<_segs.length;_i++){ usr=(new URLSearchParams('?'+_segs[_i]).get('__user')||'').trim(); if(usr) break; } }catch(e){} }
+  var hash = dept ? ('#dhx&__dept=' + encodeURIComponent(dept)) : '#dhx';
+  if(usr) hash += '&__user=' + encodeURIComponent(usr);
+  f.src='strategy_dashboard_expand_dhx.html' + hash;
+})();
+
+(function(){
+  // 仅 #bych 时按需加载铂源催化（贵金属催化/氢能材料事业部）竞品监测中心 iframe
+  if(!window.__BYCH_SHELL__) return;
+  var f=document.getElementById('bychShellFrame');
+  if(!f) return;
+  f.addEventListener('load', function(){
+    try{
+      var d=f.contentDocument;
+      if(!d || !d.body || d.body.innerHTML.replace(/\s/g,'').length < 40){
+        document.documentElement.classList.remove('bych-shell');
+      }
+    }catch(e){}
+  });
+  if(f.getAttribute('src')) return;
+  var dept='';
+  try{ dept = (new URLSearchParams(location.search).get('__dept')||'').trim(); }catch(e){}
+  if(!dept){
+    try{ dept = (new URLSearchParams(location.hash.split(/\#/).filter(Boolean)[0]).get('__dept')||'').trim(); }catch(e){}
+  }
+  var usr='';
+  try{ usr = (new URLSearchParams(location.search).get('__user')||'').trim(); }catch(e){}
+  if(!usr){ try{ var _segs=location.hash.split(/\#/).filter(Boolean); for(var _i=0;_i<_segs.length;_i++){ usr=(new URLSearchParams('?'+_segs[_i]).get('__user')||'').trim(); if(usr) break; } }catch(e){} }
+  var hash = dept ? ('#bych&__dept=' + encodeURIComponent(dept)) : '#bych';
+  if(usr) hash += '&__user=' + encodeURIComponent(usr);
+  f.src='strategy_dashboard_expand_bych.html' + hash;
 })();
 </script>
 </body>

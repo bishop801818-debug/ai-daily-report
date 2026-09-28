@@ -1,0 +1,1160 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>事业部竞品综合页 · 扩展测试</title>
+<script src="bu_gate.js"></script>
+<script>
+/* tab 04「财务对标」专属门禁（2026-09-17 13:05 + 13:57 集团领导白名单）：
+ * 1. 其他 6 个 tab（动态/技术/项目/档案/雷达/价格）——全员可见，不拦截。
+ * 2. tab 04 财务对标——限 czly + 集团 HQ（bu_gate.js 内置穿透）；其他 BU/无身份 → 整页替换为 403。
+ * 3. ROOT 直访/无 __dept 也走"无身份"分支，一致拦截。
+ * 4. 本地环境（bu_gate.js 自动放行）——跳过鉴权定义，但保留 tab04 显示（即本地预览也能看到）。
+ * 5. 集团领导白名单（B 方案 2026-09-17 13:57）：妙搭壳侧应在 iframe URL 注入 ?__user=<userId>。
+ *    前端读 window.__GROUP_LEADER_IDS（白名单值，2 个 userId），命中即放行 —— 不依赖部门 od。
+ *    该方案是治本方案，但需妙搭壳侧配合注入 userId；本单边仅加读分支，待注入即生效。*/
+(function(){
+  // 集团领导白名单——与 D:/_pub_wsjrn4fj/server/modules/iframe-config/page-assignment.seed.ts:75 同步
+  // 等同后端 groupLeaderUsers 默认值；如后端调整需同步本数组。
+  window.__GROUP_LEADER_IDS__ = window.__GROUP_LEADER_IDS__ || ['7595021657568185305', '1854251564037223'];
+
+  function getIds(){
+    var raw = '';
+    try { raw = new URLSearchParams(location.search).get('__dept') || ''; } catch(e){}
+    if (!raw) {
+      try { raw = new URLSearchParams(location.hash.split(/\#/).filter(Boolean)[0]).get('__dept') || ''; } catch(e){}
+    }
+    return raw.split(',').map(function(s){return s.trim();}).filter(Boolean);
+  }
+  function getCurrentUserId(){
+    // 妙搭壳注入的 userId（?__user= 或 #__user=）；未注入返回空字符串
+    var u = '';
+    try { u = new URLSearchParams(location.search).get('__user') || ''; } catch(e){}
+    if (!u) {
+      try { u = new URLSearchParams(location.hash.split(/\#/).filter(Boolean)[0]).get('__user') || ''; } catch(e){}
+    }
+    return u.trim();
+  }
+  function isGroupLeader(){
+    var uid = getCurrentUserId();
+    if (!uid) return false;
+    var ids = window.__GROUP_LEADER_IDS__ || [];
+    return ids.indexOf(uid) >= 0;
+  }
+  // 2026-09-24 升级：denyFinance 增加 reason 参数；403 卡片附带"当前缺什么"的诊断块，
+  // 方便找妙搭壳侧排查"为什么看不到"时甩证据（截图即知）。
+  function denyFinance(reason){
+    // 收集当前 URL 注入情况（仅诊断用，不上传）
+    var q = (function(){ try { return new URLSearchParams(location.search); } catch(e){ return new URLSearchParams(); }})();
+    var hRaw = (location.hash || '').split(/#/).filter(Boolean)[0] || '';
+    var h = (function(){ try { return new URLSearchParams(hRaw); } catch(e){ return new URLSearchParams(); }})();
+    var uIn = q.get('__user') || h.get('__user') || '';
+    var dIn = q.get('__dept') || h.get('__dept') || '';
+    var qhLen = location.search.length + (hRaw ? (location.hash.length) : 0);
+    var reasonHtml = {
+      no_allowed: {
+        title: '权限门禁未初始化',
+        body: '本页未加载到权限脚本（bu_gate.js）。请联系运维检查发布包是否完整。',
+        diag: 'isAllowed is not a function'
+      },
+      no_id: {
+        title: '未注入身份',
+        body: '妙搭壳侧未把当前用户身份注入到 iframe URL。本地预览正常，线上需壳侧配合。',
+        diag: '__user 与 __dept 都为空 → ids.length===0'
+      },
+      cross_bu: {
+        title: '身份不在财务对标白名单',
+        body: '当前用户既不在常州锂源事业部、也不在集团 HQ 4 部门、也不在 2 人集团领导白名单内。',
+        diag: 'ids=' + JSON.stringify(dIn ? dIn.split(',') : []) + '，但未命中 BU_DEPT.czly / BU_DEPT.hq，且 __user="' + (uIn||'(空)') + '" 未在 __GROUP_LEADER_IDS__'
+      }
+    };
+    var r = reasonHtml[reason] || reasonHtml.no_id;
+    var sec = document.getElementById('view-finance');
+    if (sec) {
+      sec.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:calc(100vh - 120px);font-family:-apple-system,Microsoft YaHei,sans-serif;background:#f5f6fa;padding:24px"><div style="max-width:560px;text-align:left;padding:36px 40px;background:#fff;border-radius:16px;box-shadow:0 8px 30px rgba(0,0,0,.08)">'
+        + '<div style="font-size:54px;line-height:1;margin-bottom:8px">⛔</div>'
+        + '<div style="font-size:20px;font-weight:700;color:#c0392b">财务对标 · 无权限访问</div>'
+        + '<div style="margin-top:10px;font-size:13px;color:#555">本模块仅向常州锂源事业部 + 集团领导开放。其他事业部同事可通过其他 tab 查看动态、技术、项目、档案等公开竞品信息。</div>'
+        + '<div style="margin-top:18px;padding:14px 16px;background:#fff7e6;border:1px solid #ffe2a0;border-radius:8px">'
+        +   '<div style="font-size:12px;font-weight:700;color:#a36b00;letter-spacing:.04em">⚙ 诊断（看截图找运维）</div>'
+        +   '<div style="margin-top:6px;font-size:13px;color:#333"><b>' + r.title + '</b> · ' + r.body + '</div>'
+        +   '<div style="margin-top:8px;padding:8px 10px;background:#f7f7f8;border-radius:6px;font-family:ui-monospace,Consolas,monospace;font-size:11.5px;color:#444;white-space:pre-wrap;word-break:break-all">' + r.diag + '</div>'
+        +   '<div style="margin-top:8px;font-size:11.5px;color:#888">'
+        +     '当前注入 → __user=' + (uIn || '<空>') + '，__dept=' + (dIn || '<空>') + '<br>'
+        +     'URL 注入位置总长=' + qhLen + '字符（query+hash）<br>'
+        +     '调试入口：URL 加 <code style="background:#eee;padding:1px 6px;border-radius:4px">?__user=1854251564037223</code> 即可临时放行（仅自验用）'
+        +   '</div>'
+        + '</div></div></div>';
+    }
+    var tab = document.querySelector('.module-tab[data-view="finance"]');
+    if (tab) {
+      tab.style.opacity = '0.45';
+      tab.style.cursor = 'not-allowed';
+      tab.dataset.denied = '2';
+      tab.title = '财务对标 · 无权限（reason=' + reason + '）';
+    }
+    // 同时在 console 留一条，便于 DevTools 复制粘贴
+    try { console.warn('[tab04 财务对标] denied, reason=' + reason + ', __user="' + (uIn||'') + '", __dept="' + (dIn||'') + '"'); } catch(e){}
+  }
+  // 创作者调试入口：URL 加 ?__leader=1 即视为集团领导放行
+  // 与 auth_policy.js 已有 ?__simulate_bu=xxx 同款思路，仅自验用；
+  // 真实集团领导识别仍依赖妙搭壳注入 __user（待办）。
+  function isDebugLeader(){
+    try {
+      if (new URLSearchParams(location.search).get('__leader') === '1') return true;
+      if (new URLSearchParams(location.hash.split(/\#/).filter(Boolean)[0] || '').get('__leader') === '1') return true;
+    } catch(e){}
+    return false;
+  }
+  // guard 函数**始终定义**；本地放行时直接返回 true（不进鉴权）；线上返回实际判 BU 结果
+  window.__CZLY_TAB4_GUARD__ = function(){
+    if (window.__BU_GATE_ALLOW_ANON) return true;
+    // 创作者调试：URL 加 ?__leader=1 直接放行
+    if (isDebugLeader()) return true;
+    // 集团领导白名单穿透（独立于部门判断）
+    if (isGroupLeader()) return true;
+    if (typeof window.isAllowed !== 'function') { denyFinance('no_allowed'); return false; }
+    var ids = getIds();
+    if (!ids.length) { denyFinance('no_id'); return false; }
+    // 2026-09-28 收紧：保留 no_id 是 iframe 嵌入前最后一关。
+    // 注意：以下 ids 速记令牌 / isAllowed(bu, ids) 放行分支**不**会因为 ids=[] 走到——
+    // 因为上一行 ids.length===0 时已经 return false。这一行是「(防御性)再次断言」，
+    // 防止以后有人插入新代码绕过 no_id 兜底。
+    if (!ids.length) return false;
+    if (ids.indexOf('czly') >= 0 || ids.indexOf('hq') >= 0 || ids.indexOf('all') >= 0) return true;
+    if (!window.isAllowed('czly', ids)) { denyFinance('cross_bu'); return false; }
+    return true;
+  };
+  // 页面加载即判：避免首屏就嵌入 iframe 再撤掉（白屏闪烁）
+  document.addEventListener('DOMContentLoaded', function(){
+    if (!window.__CZLY_TAB4_GUARD__()) {
+      var fr = document.getElementById('financeFrame');
+      if (fr) fr.removeAttribute('src');
+    }
+  });
+})();
+</script>
+<style>
+:root{
+  --forest:#0d7255;--forest-2:#10896a;--forest-3:#0a6b4e;--signal:#b9e769;
+  --aqua:#52d7b0;--amber:#e8aa46;--red:#dc6759;--ink:#15231e;--muted:#6e7e77;
+  --bg:#eef2ef;--panel:#fbfcfb;--line:#dce5e0;--soft:#f4f7f5;
+  --shadow:0 12px 34px rgba(22,55,43,.08);--shadow-strong:0 18px 48px rgba(8,55,40,.16);
+}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;font-family:"Bahnschrift","Microsoft YaHei","PingFang SC",sans-serif;background:var(--bg);color:var(--ink)}
+body{background-image:radial-gradient(circle at 12% 4%,rgba(82,215,176,.11),transparent 26%),linear-gradient(rgba(6,63,49,.024) 1px,transparent 1px),linear-gradient(90deg,rgba(6,63,49,.024) 1px,transparent 1px);background-size:auto,32px 32px,32px 32px}
+button,select,input{font:inherit}button{cursor:pointer}a{color:inherit}
+button:focus-visible,select:focus-visible,a:focus-visible{outline:3px solid rgba(185,231,105,.55);outline-offset:2px}
+.topbar{height:58px;background:#ffffff;color:var(--ink);display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:0 24px;position:sticky;top:0;z-index:80;border-bottom:1px solid #e2e9e5;box-shadow:0 3px 14px rgba(14,58,43,.07)}
+.topbar:after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(90deg,transparent 49.9%,rgba(13,114,85,.06) 50%,transparent 50.1%);opacity:.55}
+.top-left{display:flex;align-items:center;gap:18px;z-index:1}.logo{font-size:19px;font-weight:800;letter-spacing:.02em;display:flex;align-items:center;gap:10px}.logo:before{content:"";width:24px;height:24px;border-radius:7px;background:linear-gradient(145deg,var(--signal),var(--aqua));box-shadow:inset 0 0 0 5px rgba(5,47,38,.18),0 0 20px rgba(82,215,176,.25)}
+.home-link{text-decoration:none;color:var(--muted);font-size:15px;padding-left:18px;border-left:1px solid #e2e9e5;transition:.2s}.home-link:hover{color:var(--forest)}
+.top-center{font-size:15px;font-weight:650;letter-spacing:.03em;z-index:1}
+.top-actions{display:flex;justify-content:flex-end;align-items:center;gap:8px;z-index:1}.top-actions a{text-decoration:none;font-size:14px;padding:7px 11px;border:1px solid #dbe4df;border-radius:8px;color:#5c6b64;transition:.2s}.top-actions a:hover{background:#f0f5f2;color:var(--forest);border-color:#c9d9d2}
+.module-tabs{height:60px;display:flex;align-items:center;gap:4px;background:rgba(251,252,251,.94);backdrop-filter:blur(14px);padding:0 24px;border-bottom:1px solid rgba(6,63,49,.11);position:sticky;top:58px;z-index:75;box-shadow:0 5px 18px rgba(14,58,43,.055);overflow:auto;scrollbar-width:none}
+.module-tabs::-webkit-scrollbar{display:none}.module-tab{position:relative;border:0;background:transparent;color:#60716a;font-size:15px;font-weight:650;padding:12px 15px;border-radius:10px;white-space:nowrap;display:flex;align-items:center;gap:8px;transition:background .2s,color .2s,transform .2s}
+.module-tab:before{content:"";width:6px;height:6px;border:1px solid #9bab9f;border-radius:50%;transition:.2s}.module-tab:hover{background:#edf4f0;color:var(--forest);transform:translateY(-1px)}.module-tab.active{background:#e4f1ea;color:var(--forest);box-shadow:0 3px 10px rgba(13,114,85,.10)}.module-tab.active:before{background:var(--signal);border-color:var(--signal);box-shadow:0 0 0 4px rgba(185,231,105,.13)}
+.module-tab .live-dot{display:none}.tab-spacer{flex:1}.scope-note{font-size:13px;color:#8b9992;white-space:nowrap;border:1px solid var(--line);background:#f6f8f7;padding:6px 10px;border-radius:999px}.scope-note b{color:var(--forest)}
+.view{display:none}.view.active{display:block;animation:viewIn .38s cubic-bezier(.2,.8,.2,1)}@keyframes viewIn{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:none}}
+.finance-wrap{background:var(--bg);height:calc(100vh - 118px);overflow:hidden}.finance-frame{border:0;width:100%;height:calc(100% + 38px);display:block;background:var(--bg);transform:translateY(-38px)}
+.content{max-width:1440px;margin:0 auto;padding:30px 30px 56px}
+.view-head{display:flex;align-items:flex-end;justify-content:space-between;gap:32px;margin-bottom:22px}.view-kicker{font-size:13px;color:var(--forest-3);font-weight:800;letter-spacing:.18em;text-transform:uppercase;margin-bottom:7px}.view-head h1{font-size:30px;line-height:1.1;letter-spacing:-.025em;margin:0}.view-desc{max-width:520px;font-size:15px;color:var(--muted);text-align:right;line-height:1.7}
+.status-strip{position:relative;overflow:hidden;background:#ffffff;color:var(--ink);border-radius:20px;padding:24px 26px;display:grid;grid-template-columns:1.55fr repeat(4,minmax(120px,.55fr));gap:20px;align-items:stretch;box-shadow:var(--shadow);border:1px solid #e2e9e5}
+.status-strip:before{content:"";position:absolute;inset:0;background:linear-gradient(rgba(13,114,85,.045) 1px,transparent 1px),linear-gradient(90deg,rgba(13,114,85,.045) 1px,transparent 1px);background-size:28px 28px;mask-image:linear-gradient(90deg,#000 10%,transparent 90%)}
+.status-strip:after{content:"";position:absolute;width:320px;height:320px;border:1px solid rgba(13,114,85,.12);border-radius:50%;left:-180px;top:-145px;box-shadow:0 0 0 40px rgba(13,114,85,.03),0 0 0 80px rgba(13,114,85,.025)}
+.status-title{position:relative;z-index:1;padding:2px 14px 2px 0}.status-title small{font-size:12px;letter-spacing:.18em;color:var(--forest-3)}.status-title strong{display:block;font-size:22px;margin:10px 0 8px;letter-spacing:-.015em}.status-title span{font-size:14px;line-height:1.6;color:var(--muted)}
+.scan-icon{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--amber);box-shadow:0 0 0 6px rgba(232,170,70,.13);margin-right:10px;animation:pulse 1.8s infinite}@keyframes pulse{50%{box-shadow:0 0 0 12px rgba(232,170,70,0)}}
+.status-metric{position:relative;z-index:1;border-left:1px solid #e2e9e5;padding:4px 0 4px 20px;display:flex;flex-direction:column;justify-content:center}.status-metric label{font-size:13px;color:#7d8a84}.status-metric b{display:block;font-family:"Bahnschrift","Segoe UI","Microsoft YaHei",sans-serif;font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1,"lnum" 1;font-size:34px;font-weight:750;line-height:1;margin:11px 0 8px;color:var(--forest);letter-spacing:0}.status-metric span{font-size:13px;letter-spacing:.03em;color:#93a19b}
+.grid-main{display:grid;grid-template-columns:minmax(0,1.8fr) minmax(320px,.66fr);gap:16px;margin-top:16px}.panel{background:rgba(251,252,251,.96);border-radius:16px;box-shadow:var(--shadow);border:1px solid rgba(6,63,49,.085)}
+.panel-head{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:19px 20px;border-bottom:1px solid var(--line)}.panel-title{font-size:18px;font-weight:760}.panel-sub{font-size:13px;color:#89968f;margin-top:5px}.panel-tools{display:flex;align-items:center;gap:10px}.chip{border:1px solid transparent;background:#edf2ef;color:#6b7b74;padding:7px 11px;border-radius:8px;font-size:13px;transition:.2s}.chip:hover{color:var(--forest);border-color:#cedbd4}.chip.active{background:var(--forest);color:#fff;box-shadow:0 5px 12px rgba(6,63,49,.14)}
+.filters{display:flex;gap:7px}.filters select{height:34px;min-width:112px;border:1px solid #d7e1dc;background:#fff;border-radius:8px;color:#52625b;font-size:13px;padding:0 28px 0 10px}
+.empty{min-height:390px;display:grid;place-items:center;text-align:center;position:relative;overflow:hidden;background:radial-gradient(circle at 50% 49%,rgba(82,215,176,.12),transparent 35%)}
+.radar{position:absolute;width:280px;height:280px;border-radius:50%;border:1px solid rgba(8,116,84,.12);box-shadow:0 0 0 48px rgba(8,116,84,.025),0 0 0 96px rgba(8,116,84,.018)}
+.radar:before,.radar:after{content:"";position:absolute;left:50%;top:0;bottom:0;width:1px;background:rgba(8,116,84,.1)}.radar:after{left:0;right:0;top:50%;width:auto;height:1px}.beam{position:absolute;left:50%;top:50%;width:136px;height:1px;background:linear-gradient(90deg,rgba(8,116,84,.72),transparent);transform-origin:left;animation:sweep 4s linear infinite}@keyframes sweep{to{transform:rotate(360deg)}}
+.empty-copy{position:relative;z-index:2;max-width:430px;padding:28px}.empty-mark{width:54px;height:54px;border-radius:16px;display:grid;place-items:center;margin:0 auto 14px;background:#dff1e8;color:var(--forest-3);font-size:26px;border:1px solid #cbe6d9}.empty-copy strong{font-size:17px}.empty-copy p{font-size:14px;color:var(--muted);line-height:1.75;margin:9px 0 0}
+.side-stack{display:grid;gap:16px;align-content:start}.side-panel{padding:18px 18px 8px}.side-panel h3{font-size:16px;margin:0 0 12px;display:flex;align-items:center;gap:8px}.side-panel h3:before{content:"";width:3px;height:15px;border-radius:99px;background:var(--aqua)}.source-row,.topic-row{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;padding:13px 0;border-top:1px solid #e5ebe8}.source-row:first-of-type,.topic-row:first-of-type{border-top:0;padding-top:3px}.source-row b,.topic-row b{font-size:14px}.source-row small,.topic-row small{display:block;font-size:12px;color:#89968f;margin-top:4px;font-weight:400}.state{font-size:12px;padding:5px 8px;border-radius:999px;background:#fff1d8;color:#8b6018;border:1px solid #f4dfb6}.state.ready{background:#e1f2e9;color:#27684b;border-color:#cce5d8}
+.weekly-card{padding:20px;margin-top:16px}.weekly-card h3{font-size:17px;margin:0 0 14px}.weekly-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.weekly-block{background:linear-gradient(145deg,#f6f8f7,#edf3f0);border:1px solid #e1e9e5;border-radius:12px;padding:15px;min-height:116px}.weekly-block label{font-size:12px;color:var(--forest-3);font-weight:800;letter-spacing:.05em}.weekly-block strong{display:block;font-size:15px;margin:10px 0 7px}.weekly-block p{font-size:13px;color:var(--muted);line-height:1.6;margin:0}
+.table-wrap{overflow:auto}.matrix{width:100%;border-collapse:separate;border-spacing:0;min-width:920px}.matrix th{position:sticky;top:0;background:#eaf0ed;padding:13px 14px;text-align:left;font-size:13px;color:#627169;border-bottom:1px solid #d9e3de}.matrix th:first-child{border-radius:15px 0 0 0}.matrix th:last-child{border-radius:0 15px 0 0}.matrix td{padding:16px 14px;border-top:1px solid #e7ece9;font-size:14px;vertical-align:middle}.matrix tr:first-child td{border-top:0}.matrix tbody tr:hover{background:#f3f7f5}.matrix td:first-child{font-weight:760;color:var(--forest)}.pending-cell{color:#906a24}.dash{color:#acb7b1}.icon-btn{border:1px solid #d5e1db;background:#f0f5f2;color:var(--forest);border-radius:8px;padding:7px 10px;font-size:12px;transition:.2s}.icon-btn:hover{background:var(--forest);color:#fff}
+.tech-summary,.project-summary{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:16px}.summary-card{padding:19px 19px 18px;position:relative;overflow:hidden;min-height:116px}.summary-card:before{content:"";position:absolute;left:0;top:18px;bottom:18px;width:3px;border-radius:99px;background:var(--forest-3)}.summary-card:after{content:"";position:absolute;right:-32px;top:-38px;width:100px;height:100px;border-radius:50%;border:1px solid rgba(8,116,84,.09)}.summary-card.warn:before{background:var(--amber)}.summary-card label{font-size:13px;color:#788780}.summary-card strong{display:block;font-family:"Bahnschrift","Segoe UI","Microsoft YaHei",sans-serif;font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1,"lnum" 1;font-size:32px;font-weight:750;line-height:1;margin:11px 0 7px;letter-spacing:0}.summary-card span{font-size:12px;color:#929e98}
+.project-board{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}.project-col{background:rgba(249,251,250,.92);border:1px solid #dce5e0;border-radius:14px;padding:15px;min-height:330px;box-shadow:0 8px 24px rgba(22,55,43,.045)}.project-col h3{font-size:15px;margin:0 0 14px;display:flex;justify-content:space-between}.project-col h3 span{color:#819189;background:#e9efec;padding:3px 7px;border-radius:99px}.project-col:nth-child(1){border-top:3px solid #6fa6d5}.project-col:nth-child(2){border-top:3px solid var(--amber)}.project-col:nth-child(3){border-top:3px solid var(--aqua)}.project-col:nth-child(4){border-top:3px solid var(--red)}.project-empty{height:248px;border:1px dashed #cfdad4;border-radius:10px;display:grid;place-items:center;text-align:center;color:#8a9891;font-size:13px;line-height:1.85;padding:20px;background:rgba(255,255,255,.54)}.project-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}.project-list li{border:1px solid #e3eae6;border-radius:10px;padding:10px 12px;background:#fbfcfb;font-size:12px;line-height:1.55;color:#4f5b56}.project-list li.level-P0{border-left:3px solid #d85a30}.project-list li.level-P1{border-left:3px solid #c8a002}.project-list li.level-P2{border-left:3px solid #b4b2a9}.project-list b{display:block;font-size:12.5px;color:var(--ink);margin-bottom:3px;line-height:1.4}.project-list .project-meta{display:flex;justify-content:space-between;gap:6px;font-size:11px;color:#8c9892;margin-bottom:4px}.project-list .project-meta time{font-family:"Bahnschrift",sans-serif;color:var(--forest);font-weight:600}.project-list .project-source{font-size:11px;color:#7d8a84;margin-top:4px}.project-empty-hint{padding:14px;border:1px dashed #cbd6cf;border-radius:10px;color:#8c9892;font-size:12px;text-align:center;background:#fafdfb}
+.peer-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}.price-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:14px}.price-stale{display:flex;align-items:center;gap:8px;background:#fff7e3;border:1px solid #edd7aa;color:#825d19;border-radius:10px;padding:9px 12px;font-size:12px;margin-bottom:10px}.price-stale i{width:8px;height:8px;border-radius:50%;background:#d8a239;flex:0 0 8px}[hidden]{display:none!important}.price-card{background:#fff;border:1px solid #e2e9e5;border-radius:14px;padding:14px 16px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:10px}.price-card header{display:flex;align-items:baseline;justify-content:space-between;gap:8px}.price-card .pc-kicker{font-size:10px;letter-spacing:.18em;color:var(--forest-3);font-weight:800}.price-card header b{font-size:13px;color:var(--ink)}.price-card header small{font-size:11px;color:#8c9892}.price-card .pc-main{display:grid;grid-template-columns:repeat(2,1fr);gap:8px 14px}.price-card .pc-main>div{display:flex;flex-direction:column}.price-card .pc-main label{font-size:10px;color:#7d8a84;letter-spacing:.06em}.price-card .pc-main b{font-family:"Bahnschrift","Segoe UI",sans-serif;font-size:22px;font-weight:700;color:var(--forest);font-variant-numeric:tabular-nums;line-height:1;margin:3px 0 2px}.price-card .pc-main small{font-size:11px;color:#8c9892}.price-card .pc-main b.pc-mom-pos{color:#a32d2d}.price-card .pc-main b.pc-mom-neg{color:#0F6E56}.pc-spark{width:100%;height:60px;display:block}.price-card footer{display:flex;justify-content:space-between;font-size:11px;color:#8c9892;border-top:1px solid #e8eeea;padding-top:8px;margin-top:auto}.price-card footer .dod-pos{color:#a32d2d}.price-card footer .dod-neg{color:#0F6E56}.peer-card{padding:22px;min-height:315px;position:relative;overflow:hidden;transition:transform .25s,box-shadow .25s}.peer-card:hover{transform:translateY(-5px);box-shadow:0 20px 40px rgba(7,82,54,.13)}.peer-card:after{content:"";position:absolute;width:130px;height:130px;border-radius:50%;border:1px solid #dcebe4;right:-68px;top:-72px;box-shadow:0 0 0 18px rgba(8,116,84,.025)}.peer-no{font-size:12px;color:var(--forest-3);font-weight:800;letter-spacing:.18em}.peer-card h3{font-size:22px;margin:13px 0 5px;letter-spacing:-.02em}.peer-card p{font-size:13px;color:var(--muted);margin:0}.peer-fields{display:grid;grid-template-columns:1fr 1fr;gap:13px 10px;margin-top:27px}.peer-field{border-top:1px solid #e3e9e6;padding-top:10px}.peer-field b{display:block;font-size:13px}.peer-field span{font-size:12px;color:#936d22;display:block;margin-top:5px}.peer-open{border:0;background:var(--forest);color:#fff;width:100%;margin-top:22px;border-radius:9px;padding:10px;font-size:13px;font-weight:700;transition:.2s}.peer-open:hover{background:var(--forest-3);box-shadow:0 8px 18px rgba(6,63,49,.18)}
+.drawer-bg{position:fixed;inset:0;background:rgba(10,60,45,.40);backdrop-filter:blur(3px);opacity:0;pointer-events:none;z-index:90;transition:.25s}.drawer-bg.show{opacity:1;pointer-events:auto}.drawer{position:fixed;right:0;top:0;bottom:0;width:min(470px,92vw);background:#f9fbfa;z-index:95;padding:28px;transform:translateX(104%);transition:.32s cubic-bezier(.2,.8,.2,1);box-shadow:-18px 0 54px rgba(0,0,0,.22);border-left:1px solid rgba(185,231,105,.35)}.drawer:before{content:"COMPETITOR DOSSIER";position:absolute;left:28px;top:30px;font-size:12px;letter-spacing:.18em;color:var(--forest-3);font-weight:800}.drawer.show{transform:none}.drawer-close{float:right;border:1px solid #d8e2dd;background:#eef3f0;width:34px;height:34px;border-radius:10px;color:var(--forest);font-size:19px}.drawer h2{font-size:31px;margin:62px 0 7px}.drawer p{font-size:14px;color:var(--muted)}.drawer-section{border-top:1px solid #dfe7e3;margin-top:24px;padding-top:18px}.drawer-section h3{font-size:15px}.drawer-row{display:flex;justify-content:space-between;padding:13px 14px;background:#f0f5f2;border:1px solid #e4ebe7;border-radius:10px;margin-top:8px;font-size:13px}.drawer-row span:last-child{color:#8c6721}
+.source-plan{display:grid;grid-template-columns:1.3fr .7fr;gap:16px}.source-table{width:100%;border-collapse:separate;border-spacing:0}.source-table th{background:#eaf0ed;text-align:left;padding:13px 15px;font-size:13px;color:#627169;border-bottom:1px solid #d9e3de}.source-table th:first-child{border-radius:15px 0 0 0}.source-table th:last-child{border-radius:0 15px 0 0}.source-table td{padding:16px 15px;border-top:1px solid #e7ece9;font-size:14px;line-height:1.5}.source-table tr:first-child td{border-top:0}.architecture{padding:22px}.architecture h3{font-size:17px;margin:0 0 20px}.flow{display:grid;gap:14px;position:relative}.flow:before{content:"";position:absolute;left:16px;top:18px;bottom:18px;width:1px;background:#cfddd6}.flow-step{display:grid;grid-template-columns:34px 1fr;gap:13px;align-items:start;position:relative}.flow-no{width:34px;height:34px;border-radius:10px;background:var(--forest);color:var(--signal);display:grid;place-items:center;font-family:"Bahnschrift","Segoe UI","Microsoft YaHei",sans-serif;font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1,"lnum" 1;font-size:14px;font-weight:700;box-shadow:0 5px 12px rgba(6,63,49,.15);letter-spacing:.04em}.flow-step b{font-size:14px}.flow-step p{font-size:12px;color:var(--muted);line-height:1.6;margin:5px 0 0}.footer{text-align:center;color:#89968f;font-size:12px;letter-spacing:.03em;margin-top:26px}
+@media(max-width:1100px){.topbar{grid-template-columns:auto 1fr auto}.home-link,.top-actions a:first-child{display:none}.top-center{display:block;text-align:center}.status-strip{grid-template-columns:1fr 1fr}.status-title{grid-column:1/-1}.grid-main,.source-plan{grid-template-columns:1fr}.side-stack{grid-template-columns:1fr 1fr}.peer-grid,.tech-summary,.project-summary,.project-board{grid-template-columns:repeat(2,1fr)}}
+/* CTA primary button */
+.cta-primary{display:inline-flex;align-items:center;gap:6px;margin-top:16px;padding:9px 18px;background:var(--forest);color:#fff;border:0;border-radius:9px;font-family:inherit;font-size:13px;font-weight:700;letter-spacing:.04em;cursor:pointer;transition:.2s;box-shadow:0 6px 14px rgba(6,63,49,.18)}.cta-primary:hover{background:var(--forest-3);transform:translateY(-1px);box-shadow:0 10px 22px rgba(6,63,49,.22)}
+/* Rail nav-code 弱化 (inactive 状态) */
+.module-tab:not(.active) .nav-code{background:transparent;color:#a3b0aa;border:1px solid #e0e8e4}
+@media(max-width:720px){.topbar{height:54px;padding:0 12px}.logo{font-size:16px}.logo:before{width:21px;height:21px}.home-link{display:none}.top-actions a{display:none}.top-actions a:last-child{display:block;font-size:12px;padding:6px 8px}.module-tabs{height:56px;top:54px;padding:0 10px}.module-tab{font-size:13px;padding:10px 11px}.tab-spacer,.scope-note{display:none}.finance-wrap{height:calc(100vh - 110px)}.content{padding:20px 12px 42px}.view-head{align-items:flex-start;flex-direction:column;gap:9px;margin-bottom:16px}.view-head h1{font-size:26px}.view-desc{text-align:left;font-size:13px}.status-strip{grid-template-columns:1fr 1fr;padding:19px 17px;gap:16px;border-radius:16px}.status-title{grid-column:1/-1;grid-row:auto}.status-title strong{font-size:19px}.status-metric{padding-left:13px}.status-metric:nth-of-type(2),.status-metric:nth-of-type(4){border-left:0;padding-left:0}.status-metric b{font-size:30px}.grid-main{grid-template-columns:1fr}.side-stack{grid-template-columns:1fr}.panel-head{align-items:flex-start;flex-direction:column}.panel-tools{align-items:flex-start;flex-direction:column;width:100%}.filters{width:100%}.filters select{flex:1;min-width:0}.empty{min-height:330px}.weekly-grid,.peer-grid,.tech-summary,.project-summary,.project-board{grid-template-columns:1fr}.weekly-block{min-height:0}.peer-card{min-height:0}.project-col{min-height:260px}.project-empty{height:185px}.source-plan{grid-template-columns:1fr}}
+@media(max-width:720px){.topbar{padding:0 10px;grid-template-columns:auto 1fr auto}.top-center{display:block;font-size:13px;white-space:nowrap}.logo{font-size:15px}}
+/* V3 layout: persistent intelligence rail + command-center home */
+.module-tabs{width:236px;height:auto;position:fixed;left:0;top:58px;bottom:0;z-index:70;display:flex;flex-direction:column;align-items:stretch;gap:7px;padding:24px 14px 16px;background:#f7f9f8;border:0;border-right:1px solid #e2e9e5;box-shadow:2px 0 14px rgba(14,58,43,.05);overflow-y:auto}
+.rail-caption{padding:0 12px 18px;border-bottom:1px solid #e2e9e5;margin-bottom:4px}.rail-caption span{display:block;color:#9aa8a1;font-size:11px;letter-spacing:.23em}.rail-caption b{display:block;color:var(--forest);font-size:15px;letter-spacing:.1em;margin-top:5px}
+.module-tab{width:100%;min-height:58px;justify-content:flex-start;text-align:left;color:#5f6f68;padding:10px 11px;border:1px solid transparent;border-radius:11px;gap:11px}
+.module-tab:before{display:none}.module-tab:hover{background:#edf3f0;color:var(--forest);transform:translateX(2px)}.module-tab.active{background:#e4f1ea;color:var(--forest);border-color:#cfe4d9;box-shadow:inset 3px 0 0 var(--forest),0 4px 12px rgba(13,114,85,.08)}
+.nav-code{display:grid;place-items:center;width:29px;height:29px;flex:0 0 29px;border-radius:8px;background:#eef3f1;font-family:"Bahnschrift","Segoe UI","Microsoft YaHei",sans-serif;font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1,"lnum" 1;font-size:13px;font-weight:600;color:#7d8b85;transition:.2s}.module-tab.active .nav-code{background:var(--forest);color:#fff}
+.nav-copy{display:block}.nav-copy b{display:block;font-size:15px;line-height:1.2}.nav-copy small{display:block;font-size:11px;color:#93a19b;font-weight:400;margin-top:5px;letter-spacing:.02em}.module-tab.active .nav-copy small{color:#5c8f77}
+.rail-setting{border-top:1px solid #e2e9e5;border-radius:0 0 11px 11px;padding-top:13px}.scope-note{display:block;text-align:center;background:#eef3f1;border-color:#e0e8e4;color:#8b9891;font-size:11px}.scope-note b{color:var(--forest)}
+.view{margin-left:236px;min-height:calc(100vh - 58px)}.finance-wrap{height:calc(100vh - 58px)}.intel-content{padding-top:26px}.intel-head{margin-bottom:20px}.intel-head h1{font-size:33px}
+.intel-hero{min-height:310px;display:grid;grid-template-columns:minmax(0,1.28fr) minmax(330px,.72fr);position:relative;overflow:hidden;border-radius:22px;background:linear-gradient(125deg,#f4faf7 0%,#eaf5ef 52%,#e2f1ea 100%);color:var(--ink);box-shadow:var(--shadow);border:1px solid #d8e8e0}
+.intel-hero:before{content:"";position:absolute;inset:0;background:linear-gradient(rgba(13,114,85,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(13,114,85,.04) 1px,transparent 1px);background-size:30px 30px;mask-image:linear-gradient(90deg,#000 15%,transparent 90%)}.intel-hero:after{content:"";position:absolute;width:520px;height:520px;border-radius:50%;border:1px solid rgba(13,114,85,.08);left:-300px;bottom:-360px;box-shadow:0 0 0 54px rgba(13,114,85,.02),0 0 0 108px rgba(13,114,85,.016)}
+.intel-hero-copy{position:relative;z-index:2;padding:40px 44px}.hero-label{font-size:12px;letter-spacing:.17em;color:var(--forest-3);font-weight:700}.intel-hero h2{font-size:36px;line-height:1.24;letter-spacing:-.035em;margin:19px 0 13px}.intel-hero h2 em{font-style:normal;color:var(--forest-3)}.intel-hero-copy>p{max-width:620px;color:var(--muted);font-size:14px;line-height:1.75;margin:0}
+.hero-peers{display:flex;flex-wrap:wrap;gap:7px;margin-top:26px}.hero-peer{padding:7px 10px;border:1px solid #d3e5db;border-radius:8px;background:#ffffff;font-size:12px;color:#4f615a}.hero-peer:before{content:"";display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--aqua);margin-right:7px;vertical-align:1px}
+.signal-radar{position:relative;align-self:center;justify-self:center;width:250px;height:250px;border-radius:50%;display:grid;place-items:center;z-index:2;background:radial-gradient(circle,rgba(13,114,85,.07),transparent 56%);border:1px solid rgba(13,114,85,.16)}
+.orbit{position:absolute;border:1px solid rgba(13,114,85,.14);border-radius:50%}.orbit-a{inset:18%}.orbit-b{inset:35%}.orbit-c{inset:4%}.signal-radar:before,.signal-radar:after{content:"";position:absolute;background:rgba(185,231,105,.11)}.signal-radar:before{width:1px;top:4%;bottom:4%;left:50%}.signal-radar:after{height:1px;left:4%;right:4%;top:50%}.radar-sweep{position:absolute;left:50%;top:50%;width:45%;height:1px;background:linear-gradient(90deg,rgba(13,114,85,.5),transparent);transform-origin:left;animation:sweep 4.8s linear infinite}.radar-core{position:relative;z-index:3;width:88px;height:88px;border-radius:50%;display:grid;place-content:center;text-align:center;background:#e9f5ef;border:1px solid #cfe4d9;box-shadow:0 0 30px rgba(13,114,85,.10)}.radar-core b{font-family:"Bahnschrift","Segoe UI","Microsoft YaHei",sans-serif;font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1,"lnum" 1;font-size:29px;font-weight:750;letter-spacing:0;color:var(--forest)}.radar-core small{font-size:11px;color:#6f8a7d;margin-top:3px}.radar-node{position:absolute;width:7px;height:7px;border-radius:50%;background:var(--amber);box-shadow:0 0 0 5px rgba(232,170,70,.1)}.n1{left:22%;top:30%}.n2{right:17%;top:42%}.n3{left:35%;bottom:15%}.n4{right:34%;bottom:29%}
+.intel-metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:14px 0}.intel-metrics article{min-height:100px;display:flex;align-items:center;gap:14px;padding:16px 18px;background:rgba(251,252,251,.95);border:1px solid rgba(6,63,49,.085);border-radius:14px;box-shadow:0 9px 24px rgba(22,55,43,.055)}.metric-index{font-family:"Bahnschrift","Segoe UI","Microsoft YaHei",sans-serif;font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1,"lnum" 1;font-weight:600;color:#a1aea8;font-size:14px;align-self:flex-start}.intel-metrics label{display:block;font-size:13px;color:#6f7e77}.intel-metrics b{display:block;font-family:"Bahnschrift","Segoe UI","Microsoft YaHei",sans-serif;font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1,"lnum" 1;font-size:30px;font-weight:750;line-height:1;margin:8px 0 5px;letter-spacing:0}.intel-metrics small{font-size:12px;color:#9aa49f}
+.intel-grid{display:grid;grid-template-columns:minmax(0,1.75fr) minmax(310px,.65fr);gap:14px}.event-console{overflow:hidden}.period-switch{display:flex;gap:3px}.event-empty{min-height:345px;display:grid;place-items:center;position:relative;overflow:hidden;background:linear-gradient(180deg,rgba(245,248,246,.55),rgba(250,251,250,.96))}.event-empty:before{content:"";position:absolute;inset:0;background:linear-gradient(rgba(6,63,49,.035) 1px,transparent 1px);background-size:100% 58px}
+.empty-track{position:absolute;left:34px;top:0;bottom:0;width:12px;display:flex;flex-direction:column;justify-content:space-around}.empty-track:before{content:"";position:absolute;width:1px;top:0;bottom:0;left:5px;background:#dbe4df}.empty-track span{position:relative;width:11px;height:11px;border-radius:50%;background:#edf2ef;border:2px solid #bdcbc4}.event-empty-copy{position:relative;max-width:430px;text-align:center;padding:28px}.empty-status{display:inline-block;color:var(--forest-3);background:#e6f3ed;border:1px solid #d2e8dc;border-radius:999px;padding:5px 9px;font-size:11px;letter-spacing:.13em;font-weight:800}.event-empty-copy strong{display:block;font-size:18px;margin:15px 0 8px}.event-empty-copy p{font-size:13px;color:var(--muted);line-height:1.7;margin:0}
+.intel-aside{display:grid;gap:14px;align-content:start}.coverage-panel,.source-health{padding:18px}.aside-title{padding-bottom:13px;border-bottom:1px solid #e2e9e5}.aside-title span{font-size:11px;letter-spacing:.16em;color:var(--forest-3);font-weight:800}.aside-title h3{font-size:17px;margin:5px 0 0}.coverage-row{display:grid;grid-template-columns:1fr auto;align-items:center;gap:10px;padding:13px 0;border-bottom:1px solid #e6ece9}.coverage-row:last-child{border-bottom:0;padding-bottom:0}.coverage-row b{font-size:13px}.coverage-row small{display:block;font-size:11px;color:#8c9993;margin-top:4px}.coverage-row>span{font-size:11px;color:#926a20;background:#fff2dc;border:1px solid #f0dfbf;padding:4px 7px;border-radius:99px}
+.health-line{display:grid;grid-template-columns:8px 1fr auto auto;align-items:center;gap:8px;padding:11px 0;border-bottom:1px solid #e6ece9}.health-line:last-child{border-bottom:0;padding-bottom:0}.health-line i{width:7px;height:7px;border-radius:50%;background:#c4cec9}.health-line b{font-size:12px}.health-line small{font-size:11px;color:#8b9891}.health-line span{font-size:11px;color:#8b6725}.health-line.ready i{background:var(--aqua);box-shadow:0 0 0 4px rgba(82,215,176,.12)}.health-line.ready span{color:#2f765b}
+.weekly-command{display:grid;grid-template-columns:1.2fr repeat(3,.78fr);gap:1px;margin-top:14px;border-radius:16px;overflow:hidden;background:#dfe7e3;border:1px solid #dfe7e3;box-shadow:var(--shadow)}.weekly-command>div{background:#fafcfb;padding:18px;min-height:118px}.weekly-title{background:#eef6f1!important;color:var(--ink)}.weekly-title>span{font-size:11px;color:var(--forest-3);letter-spacing:.17em;font-weight:800}.weekly-title h3{font-size:17px;margin:8px 0 5px}.weekly-title p{font-size:11px;color:#7d8a84;line-height:1.5;margin:0}.weekly-signal label{font-size:11px;color:var(--forest-3);font-weight:800}.weekly-signal strong{display:block;font-size:14px;margin:13px 0 8px}.weekly-signal small{font-size:11px;color:#8c9892;line-height:1.45}
+@media(max-width:1180px){.intel-hero{grid-template-columns:1.35fr .65fr}.signal-radar{width:220px;height:220px}.intel-grid{grid-template-columns:1fr}.intel-aside{grid-template-columns:1fr 1fr}.weekly-command{grid-template-columns:1fr 1fr}.weekly-title{grid-row:span 2}.intel-metrics{grid-template-columns:1fr 1fr}}
+@media(max-width:900px){.module-tabs{width:auto;height:70px;position:sticky;top:58px;bottom:auto;left:auto;z-index:70;flex-direction:row;align-items:center;padding:8px 14px;background:rgba(251,252,251,.96);border-right:0;border-bottom:1px solid #dce5e0;box-shadow:0 6px 18px rgba(6,47,39,.07);overflow-x:auto;overflow-y:hidden}.rail-caption,.scope-note,.nav-copy small{display:none}.module-tab,.rail-setting{width:auto;min-height:44px;color:#617069;padding:8px 11px;border:0;border-radius:9px}.module-tab:hover{background:#edf3f0;color:var(--forest);transform:none}.module-tab.active{background:#e4f1ea;color:var(--forest);border:0;box-shadow:none}.nav-code{width:24px;height:24px;flex-basis:24px;background:#e8eeeb;color:#7e8b85}.module-tab.active .nav-code{background:var(--forest);color:#fff}.nav-copy b{font-size:13px}.view{margin-left:0;min-height:calc(100vh - 128px)}.finance-wrap{height:calc(100vh - 128px)}.intel-hero{grid-template-columns:1fr minmax(250px,.58fr)}}
+@media(max-width:680px){.module-tabs{height:58px;top:54px;padding:6px 8px}.module-tab{min-height:42px;padding:7px 10px}.nav-code{display:none}.view{min-height:calc(100vh - 112px)}.finance-wrap{height:calc(100vh - 112px)}.intel-content{padding-top:18px}.intel-head h1{font-size:29px}.intel-hero{grid-template-columns:1fr;min-height:auto}.intel-hero-copy{padding:28px 24px}.intel-hero h2{font-size:29px}.signal-radar{width:210px;height:210px;margin:0 auto 28px}.intel-metrics{grid-template-columns:1fr 1fr;gap:8px}.intel-metrics article{min-height:92px;padding:13px}.metric-index{display:none}.intel-grid{grid-template-columns:1fr}.intel-aside{grid-template-columns:1fr}.panel-head{padding:16px}.weekly-command{grid-template-columns:1fr}.weekly-title{grid-row:auto}.weekly-command>div{min-height:auto}.event-empty{min-height:300px}.empty-track{left:18px}.top-actions a:last-child{display:none}.topbar{grid-template-columns:auto 1fr}.top-center{text-align:right}}
+/* Operational intelligence workspace */
+.stream-list{list-style:none;margin:14px 0 0;padding:0;display:flex;flex-direction:column;gap:10px}.stream-list li{display:grid;grid-template-columns:auto 1fr auto;gap:12px;padding:14px 16px;border-radius:12px;background:#ffffff;border:1px solid #e3eae6;box-shadow:0 2px 6px rgba(6,63,49,.04)}.stream-list li.level-P0{border-left:3px solid #d85a30}.stream-list li.level-P1{border-left:3px solid #c8a002}.stream-list li.level-P2{border-left:3px solid #b4b2a9}.stream-meta{display:flex;flex-direction:column;align-items:flex-end;gap:4px;font-size:11px;color:#7d8a84}.stream-meta time{font-family:"Bahnschrift","Segoe UI",sans-serif;font-variant-numeric:tabular-nums;color:var(--forest);font-weight:600}.stream-priority{display:inline-flex;align-items:center;gap:6px;padding:2px 8px;border-radius:999px;font-size:11px;font-weight:700}.stream-priority.P0{background:#faece7;color:#712b13}.stream-priority.P1{background:#faeeda;color:#854f0b}.stream-priority.P2{background:#f1efe8;color:#444441}.stream-priority i{width:6px;height:6px;border-radius:50%;background:currentColor}.stream-main b{display:block;font-size:14px;line-height:1.45;margin-bottom:5px;color:var(--ink)}.stream-tags{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:6px}.stream-tags span{font-size:11px;padding:1px 8px;border-radius:999px;background:#e6f1eb;color:#0c5b3c;border:1px solid #c7e1d1}.stream-tags .cat{background:#eaf3de;color:#27500a;border-color:#c0dd97}.stream-tags .src{background:#f1efe8;color:#444441;border-color:#d3d1c7;font-weight:500}.stream-summary{font-size:12px;color:#4f5b56;line-height:1.65;margin:0}.stream-source{font-size:11px;color:#8c9892;margin-top:6px}.stream-source a{color:var(--forest-3);text-decoration:none}.stream-source a:hover{text-decoration:underline}
+.ops-page{max-width:1680px;margin:0 auto;padding:24px 24px 42px}.ops-header{display:flex;align-items:flex-end;justify-content:space-between;gap:28px;margin-bottom:18px}.ops-eyebrow{font-size:11px;font-weight:800;letter-spacing:.22em;color:var(--forest-3)}.ops-header h1{font-size:30px;letter-spacing:-.025em;margin:7px 0 4px}.ops-header p{font-size:13px;color:var(--muted);margin:0}.ops-header-state{text-align:right}.ops-header-state>span{display:block;font-size:13px;color:#825d19;background:#fff0d5;border:1px solid #edd7aa;border-radius:999px;padding:7px 10px}.ops-header-state i{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--amber);margin-right:7px;box-shadow:0 0 0 4px rgba(232,170,70,.12)}.ops-header-state small{display:block;font-size:11px;color:#89958f;margin-top:6px}
+.ops-statusbar{display:grid;grid-template-columns:1.45fr repeat(4,.68fr);min-height:82px;border-radius:15px;overflow:hidden;background:#ffffff;color:var(--ink);border:1px solid #e2e9e5;box-shadow:var(--shadow);margin-bottom:14px}.ops-statusbar>div{display:flex;flex-direction:column;justify-content:center;padding:13px 17px;border-left:1px solid #e8eeea;position:relative}.ops-statusbar>div:first-child{border-left:0}.ops-statusbar label{font-size:11px;color:#7d8a84}.ops-statusbar>div>b{font-family:"Bahnschrift","Segoe UI","Microsoft YaHei",sans-serif;font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1,"lnum" 1;font-size:28px;font-weight:750;line-height:1;margin:7px 0 4px;letter-spacing:0;color:var(--forest)}.ops-statusbar small{font-size:12px;color:#93a19b}.ops-pulse{flex-direction:row!important;align-items:center!important;gap:13px;background:linear-gradient(120deg,#e9f5ef,transparent)}.ops-pulse>i{width:35px;height:35px;border-radius:50%;flex:0 0 35px;background:radial-gradient(circle,var(--amber) 0 12%,rgba(232,170,70,.15) 14% 40%,transparent 42%);border:1px solid rgba(232,170,70,.35);animation:pulseRing 2.2s ease-out infinite}.ops-pulse b{display:block;font-size:15px;margin-bottom:5px}.ops-pulse small{display:block}@keyframes pulseRing{50%{box-shadow:0 0 0 9px rgba(232,170,70,0)}}
+.ops-workspace{display:grid;grid-template-columns:230px minmax(440px,1fr) 292px;gap:12px;align-items:start}.watch-panel,.stream-panel,.brief-block{background:rgba(251,252,251,.97);border:1px solid rgba(6,63,49,.09);box-shadow:var(--shadow);border-radius:15px}.watch-panel{padding:17px;position:sticky;top:76px}.workspace-title{padding-bottom:14px;border-bottom:1px solid #e1e8e4;margin-bottom:10px}.workspace-title>span,.stream-kicker,.brief-heading>span{display:block;font-size:10px;letter-spacing:.18em;color:var(--forest-3);font-weight:800}.workspace-title h2,.stream-toolbar h2,.brief-heading h2{font-size:16px;margin:6px 0 0}.workspace-title>small{display:block;color:#8c9892;font-size:11px;margin-top:4px}.workspace-title>small b{color:var(--forest)}
+.watch-item{width:100%;display:grid;grid-template-columns:34px 1fr auto;align-items:center;gap:10px;border:1px solid transparent;background:transparent;padding:9px 7px;border-radius:10px;text-align:left;color:#56665f;transition:.18s}.watch-item:hover{background:#f0f5f2}.watch-item.active{background:#e2f0e9;border-color:#cee3d8;color:var(--forest)}.watch-avatar{width:34px;height:34px;border-radius:9px;display:grid;place-items:center;background:#e8eeeb;color:#65756e;font-family:"Bahnschrift","Segoe UI","Microsoft YaHei",sans-serif;font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1,"lnum" 1;font-size:12px;font-weight:700;letter-spacing:.04em}.watch-item.active .watch-avatar{background:var(--forest);color:var(--signal)}.watch-item b{display:block;font-size:13px}.watch-item small{display:block;color:#8a9790;font-size:10px;margin-top:4px}.watch-item>i{font-style:normal;font-size:11px;color:#9ba7a1;background:#edf1ef;border-radius:99px;padding:3px 6px}.watch-rules{border-top:1px solid #e1e8e4;margin-top:12px;padding-top:14px}.watch-rules>span{font-size:11px;color:#7b8882;font-weight:700}.watch-rules>div{display:grid;grid-template-columns:7px 1fr auto;align-items:center;gap:7px;font-size:11px;color:#63716b;padding-top:10px}.watch-rules i{width:6px;height:6px;border-radius:50%;background:#c5cfca}.watch-rules i.ready{background:var(--aqua)}.watch-rules small{font-size:10px;color:#9aa49f}
+.stream-panel{overflow:hidden;min-height:640px}.stream-toolbar{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;padding:17px 18px;border-bottom:1px solid #e1e8e4}.stream-toolbar h2 em{font-style:normal;color:var(--forest-3);margin-right:4px}.stream-actions{display:flex;align-items:center;gap:8px}.stream-date{height:38px;display:flex;align-items:center;justify-content:space-between;padding:0 18px;background:#f3f6f4;border-bottom:1px solid #e1e8e4}.stream-date span{font-size:11px;color:#86938d}.stream-date b{font-size:11px;color:#68766f;font-weight:600}.stream-empty{min-height:500px;position:relative;padding:30px 28px 28px 62px;background:linear-gradient(rgba(6,63,49,.025) 1px,transparent 1px);background-size:100% 72px}.stream-line{position:absolute;left:30px;top:0;bottom:0;width:12px;display:flex;flex-direction:column;justify-content:space-around}.stream-line:before{content:"";position:absolute;left:5px;top:0;bottom:0;width:1px;background:#d6e1db}.stream-line i{position:relative;width:11px;height:11px;border:2px solid #bdcbc4;background:#f6f8f7;border-radius:50%}.stream-empty-copy{text-align:center;max-width:500px;margin:48px auto 30px}.stream-empty-copy>span{display:inline-block;font-size:10px;letter-spacing:.16em;color:var(--forest-3);background:#e6f2ec;border:1px solid #d5e8de;border-radius:99px;padding:5px 8px}.stream-empty-copy h3{font-size:19px;margin:13px 0 8px}.stream-empty-copy p{font-size:12px;line-height:1.7;color:#7d8a84;margin:0}.event-schema{max-width:580px;margin:0 auto;border:1px dashed #cbd8d1;border-radius:12px;padding:15px;background:rgba(249,251,250,.82)}.event-schema>span{display:block;font-size:10px;letter-spacing:.08em;color:#99a49f;margin-bottom:12px}.schema-row{display:grid;grid-template-columns:8px 1fr auto;align-items:center;gap:10px}.schema-level{width:7px;height:34px;border-radius:99px;background:#c7d2cc}.schema-row b{display:block;font-size:13px;color:#56655e}.schema-row small{display:block;font-size:10px;color:#9aa49f;margin-top:4px}.schema-row time{font-size:11px;color:#9aa49f}.event-schema>p{font-size:11px;color:#86938d;margin:11px 0}.event-schema footer{display:flex;gap:16px;padding-top:10px;border-top:1px solid #e1e8e4;font-size:10px;color:#89968f}.event-schema footer span:last-child{margin-left:auto;color:var(--forest-3)}
+.brief-panel{display:grid;gap:12px}.brief-block{padding:16px}.brief-heading{display:flex;align-items:flex-end;justify-content:space-between;gap:8px;padding-bottom:12px;border-bottom:1px solid #e1e8e4}.brief-heading>span{order:2}.brief-heading h2{margin:0}.executive-brief{background:#f2f8f5;color:var(--ink);border-color:#d8e8e0}.executive-brief .brief-heading{border-color:#dce9e3}.executive-brief .brief-heading>span{color:var(--forest-3)}.brief-empty{padding:17px 0 3px}.brief-empty b{display:block;font-size:13px}.brief-empty p{font-size:11px;line-height:1.65;color:#63716b;margin:7px 0 0}.priority-count{display:flex;align-items:flex-end;gap:9px;padding:14px 0 10px}.priority-count b{font-family:"Bahnschrift","Segoe UI","Microsoft YaHei",sans-serif;font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1,"lnum" 1;font-size:32px;font-weight:750;line-height:1;letter-spacing:0}.priority-count span{font-size:11px;color:#89968f;margin-bottom:4px}.priority-scale{display:grid;grid-template-columns:repeat(5,1fr);gap:4px}.priority-scale i{height:4px;border-radius:99px;background:#e6ebe8}.topic-matrix{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:12px}.topic-matrix>div{padding:9px;background:#f1f5f3;border-radius:8px}.topic-matrix b{display:block;font-size:11px}.topic-matrix span{display:block;font-size:10px;color:#9a762b;margin-top:5px}.milestone-block p{font-size:11px;color:#7f8c86;line-height:1.65;margin:13px 0 2px}.ops-footer{text-align:center;font-size:10px;letter-spacing:.06em;color:#8d9993;margin-top:18px}
+@media(max-width:1280px){.ops-workspace{grid-template-columns:220px minmax(0,1fr)}.watch-panel{grid-column:1;grid-row:1/3}.brief-panel{grid-column:2;grid-row:1;display:grid;grid-template-columns:repeat(4,minmax(0,1fr))}.brief-block{padding:13px}.stream-panel{grid-column:2;grid-row:2}.stream-actions{align-items:flex-end;flex-direction:column}.stream-toolbar{align-items:flex-start}}
+@media(max-width:900px){.ops-page{padding:20px 16px 40px}.ops-workspace{grid-template-columns:210px minmax(0,1fr)}.brief-panel{grid-template-columns:1fr 1fr}.ops-statusbar{grid-template-columns:1.3fr 1fr 1fr}.ops-statusbar>div:nth-child(4),.ops-statusbar>div:nth-child(5){display:none}.watch-panel{top:142px}.stream-toolbar{flex-direction:column;align-items:stretch}.stream-actions{align-items:stretch}.filters select{min-width:0}}
+@media(max-width:680px){.ops-page{padding:16px 10px 34px}.ops-header{align-items:flex-start;flex-direction:column;gap:10px}.ops-header h1{font-size:26px}.ops-header-state{text-align:left}.ops-statusbar{grid-template-columns:1fr 1fr;margin-bottom:10px}.ops-pulse{grid-column:1/-1}.ops-statusbar>div:nth-child(4){display:flex}.ops-statusbar>div:nth-child(5){display:none}.ops-workspace{grid-template-columns:1fr}.watch-panel{grid-column:auto;grid-row:auto;position:static;padding:13px}.workspace-title{display:flex;align-items:center;gap:8px;padding-bottom:10px}.workspace-title>span{display:none}.workspace-title h2{margin:0}.workspace-title>small{margin-left:auto;margin-top:0}.watch-panel>button,.watch-panel>#competitorWatchlist{display:inline}.watch-item{display:inline-grid;width:calc(50% - 4px);margin:3px 1px;padding:7px 5px;grid-template-columns:30px 1fr}.watch-item>i{display:none}.watch-avatar{width:30px;height:30px}.watch-rules{display:none}.stream-panel{grid-column:auto;grid-row:auto;min-height:580px}.stream-toolbar{padding:14px}.stream-actions{gap:10px}.period-switch{width:100%}.period-switch .chip{flex:1}.filters{display:grid;grid-template-columns:1fr 1fr}.stream-empty{padding:24px 16px 22px 42px}.stream-line{left:16px}.event-schema footer{gap:8px}.brief-panel{grid-column:auto;grid-row:auto;grid-template-columns:1fr}.ops-footer{line-height:1.6}}
+.stream-tags .clu{background:#fdf3e0;color:#7a5310;border-color:#e9d3a3;font-weight:600}
+.drawer-sec-h{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.drawer-sec-h em{font-style:normal;font-size:11px;color:#7d8a84;background:#eef3f0;border:1px solid #e2e9e5;border-radius:99px;padding:2px 8px;font-variant-numeric:tabular-nums}
+.drawer-ev{border:1px solid #e4ebe7;background:#f0f5f2;border-radius:10px;padding:11px 12px;margin-top:8px}
+.drawer-ev-h{display:flex;align-items:center;flex-wrap:wrap;gap:6px;font-size:11px;color:#8c9892}
+.drawer-ev-h time{font-variant-numeric:tabular-nums;font-weight:700;color:#7d8a84}
+.drawer-cat{background:#e2f0e9;color:#0b5c3d;border-radius:99px;padding:1px 7px;font-size:10px;font-weight:600}
+.drawer-cat.clu{background:#fdf3e0;color:#7a5310}
+.drawer-ev b{display:block;font-size:13px;margin:6px 0 3px;color:#1f2d27;line-height:1.45}
+.drawer-ev p{margin:0;font-size:12px;color:#6c7a74;line-height:1.6}
+.drawer-ev a{display:inline-block;margin-top:7px;font-size:11px;color:#0b5c3d;font-weight:600}
+.drawer-empty{font-size:12px;color:#98a49e;margin:8px 0 0;line-height:1.6}
+.drawer a{color:#0b5c3d;font-weight:600}
+.peer-field .peer-field-hit{color:#0b5c3d;font-weight:700}
+/* —— LFP 档位：分组标题 / 徽章 / 判定依据 —— */
+.peer-tier-head{grid-column:1/-1;display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;padding:2px 2px 0;margin-top:8px}
+.peer-tier-head:first-child{margin-top:0}
+.peer-tier-head b{font-size:15px;color:var(--ink);position:relative;padding-left:11px}
+.peer-tier-head b:before{content:"";position:absolute;left:0;top:3px;bottom:3px;width:3px;border-radius:2px;background:var(--forest)}
+.peer-tier-head em{font-style:normal;font-size:11px;color:#7d8a84;background:#eef3f0;border:1px solid #e2e9e5;border-radius:99px;padding:1px 8px;font-variant-numeric:tabular-nums}
+.peer-tier-head small{font-size:11px;color:#93a09a}
+.peer-card-top{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.peer-tier-badge{font-size:10px;font-weight:700;border-radius:99px;padding:2px 9px;letter-spacing:.04em;white-space:nowrap}
+.peer-tier-badge.core{background:#0b5c3d;color:#fff}
+.peer-tier-badge.high{background:#e2f0e9;color:#0b5c3d;border:1px solid #c9e2d5}
+.peer-tier-badge.mid{background:#fdf3e0;color:#7a5310;border:1px solid #e9d3a3}
+.peer-tier-badge.upstream{background:#eef1f5;color:#4a5b6b;border:1px solid #d8e0e8}
+.peer-tier-badge.parent{background:#f4eef8;color:#5b3f70;border:1px solid #e2d5ec}
+.peer-card-signal-none{opacity:.62;background:#f7f8f7;border-style:dashed}
+.peer-card-signal-none:hover{opacity:.95;background:#fff}
+.peer-card-signal-none h3,.peer-card-signal-none p{color:#9aa39c}
+.peer-card-signal-none .peer-no{color:#b5bcb7}
+.peer-signal-flag{font-size:10px;font-weight:600;color:#9a6e10;background:#fff8e6;border:1px solid #ead7a3;border-radius:99px;padding:2px 8px;letter-spacing:.04em;margin-left:auto}
+.peer-note{font-size:11px;color:#8c9892;line-height:1.55;margin:13px 0 0;padding-top:10px;border-top:1px dashed #e3e9e6}
+.peer-pool-head{grid-column:1/-1;display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin:20px 0 2px;padding-bottom:9px;border-bottom:1px solid var(--line)}
+.peer-pool-head:first-child{margin-top:0}
+.peer-pool-head b{font-size:17px;color:var(--ink);position:relative;padding-left:12px}
+.peer-pool-head b:before{content:"";position:absolute;left:0;top:2px;bottom:2px;width:4px;border-radius:2px;background:var(--forest)}
+.peer-pool-head.pool-A b:before{background:#2f7fb8}
+.peer-pool-head em{font-style:normal;font-size:11px;color:#7d8a84;background:#eef3f0;border:1px solid #e2e9e5;border-radius:99px;padding:1px 8px}
+.peer-pool-head small{font-size:11px;color:#93a09a;flex-basis:100%;line-height:1.6}
+.peer-pool-badge{font-size:10px;font-weight:700;border-radius:99px;padding:2px 9px;white-space:nowrap;background:#eef3f0;color:#4a5b6b;border:1px solid #dfe7e3}
+.peer-pool-badge.A{background:#eaf3fb;color:#1f5c8b;border-color:#cfe3f5}
+.radar-panel{margin-top:16px}
+.radar-list{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.radar-item{display:flex;gap:12px;align-items:flex-start;padding:13px 15px;border:1px solid var(--line);border-radius:12px;background:#fff}
+.radar-item.is-recent{border-color:#c9e2d5;background:#fbfdfc}
+.radar-rel{font-size:10px;font-weight:700;border-radius:99px;padding:3px 9px;white-space:nowrap;flex-shrink:0}
+.radar-rel.lfp{background:#0b5c3d;color:#fff}
+.radar-rel.lfp_chain{background:#e2f0e9;color:#0b5c3d;border:1px solid #c9e2d5}
+.radar-rel.other_route{background:#eef1f5;color:#4a5b6b;border:1px solid #d8e0e8}
+.radar-rel.downstream{background:#fdf3e0;color:#7a5310;border:1px solid #e9d3a3}
+.radar-rel.other{background:#f1f2f1;color:#7d8a84;border:1px solid #e4e6e4}
+.radar-main{flex:1;min-width:0}
+.radar-head{display:flex;align-items:baseline;gap:9px;flex-wrap:wrap}
+.radar-head b{font-size:14px;color:var(--ink)}
+.radar-head em{font-style:normal;font-size:11px;color:#8b9992}
+.radar-meta{font-size:11px;color:#93a09a;margin-top:3px}
+.radar-ev{font-size:12px;color:#5f6d66;margin-top:7px;line-height:1.6;padding-left:10px;border-left:2px solid #eef3f0}
+.radar-note{font-size:11px;color:#93a09a;margin-top:4px;padding-left:10px;line-height:1.5}
+.radar-origin{font-style:normal;font-size:10px;font-weight:700;letter-spacing:.04em;border-radius:99px;padding:1px 7px;white-space:nowrap}
+.radar-origin.ann{background:#e8f3ec;color:#0b5c3d;border:1px solid #c9e2d5}
+.radar-origin.news{background:#fff4e3;color:#9a6a0a;border:1px solid #f0dcb4}
+.radar-meta{font-size:11px;color:#8b9992;background:#f7faf8;border:1px solid #eef3f0;border-radius:8px;padding:8px 11px;margin:2px 0 10px;line-height:1.6}
+.radar-empty{font-size:13px;color:#93a09a;padding:26px 4px;text-align:center}
+.watch-tier{display:flex;align-items:center;gap:6px;padding:13px 7px 4px;font-size:10px;letter-spacing:.14em;font-weight:800;color:var(--forest-3)}
+.watch-tier:first-child{padding-top:2px}
+.watch-tier em{font-style:normal;font-size:10px;letter-spacing:0;font-weight:600;color:#9aa49f;background:#eef3f0;border-radius:99px;padding:1px 6px}
+.watch-tier-sub{padding:9px 7px 3px 14px;font-size:9px;letter-spacing:.1em;color:#a3ada8;font-weight:700}
+.watch-tier-sub:first-child{padding-top:2px}
+.watch-pool-A{color:#2f7fb8}
+.drawer-note{font-size:11px;color:#7d8a84;line-height:1.5;text-align:right;max-width:62%;font-weight:600}
+#competitorWatchlist{max-height:calc(100vh - 430px);overflow-y:auto;scrollbar-width:thin}
+#competitorWatchlist::-webkit-scrollbar{width:6px}
+#competitorWatchlist::-webkit-scrollbar-thumb{background:#d7e0da;border-radius:3px}
+@media(max-width:680px){#competitorWatchlist{max-height:none;overflow:visible}}
+.stream-fold{margin:6px 0 0;font-size:11px;color:#7d8a84}
+.stream-fold>summary{cursor:pointer;color:#0c5b3c;font-weight:600;list-style:none;display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:999px;background:#eef5f1;border:1px solid #d5e6dc}
+.stream-fold>summary::-webkit-details-marker{display:none}
+.stream-fold>summary::before{content:"▸";font-size:9px;transition:transform .15s}
+.stream-fold[open]>summary::before{content:"▾"}
+.stream-fold ul{margin:6px 0 0;padding:0 0 0 14px;list-style:none;border-left:2px solid #e3eae6}
+.stream-fold li{padding:3px 0;line-height:1.5;color:#5a6660}
+.stream-fold a{color:#5a6660;text-decoration:none}
+.stream-fold a:hover{color:#0c5b3c;text-decoration:underline}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="top-left"><div class="logo">战略洞察</div><a class="home-link" href="index_v3.html">首页</a></div>
+  <div class="top-center"><span id="buTitle">常州锂源</span> · 竞品监测中心</div>
+  <div class="top-actions"><a href="strategy_hub.html">事业部导航</a><a id="formalLink" href="strategy_dashboard.html#czly">打开正式财务页</a></div>
+</header>
+<nav class="module-tabs" aria-label="事业部竞品模块">
+  <div class="rail-caption"><span>COMPETITIVE</span><b>INTELLIGENCE</b></div>
+  <button class="module-tab active" data-view="dynamic"><span class="nav-code">01</span><span class="nav-copy"><b>竞品动态</b><small>每日事件与每周复盘</small></span></button>
+  <button class="module-tab" data-view="technology"><span class="nav-code">02</span><span class="nav-copy"><b>技术与产品</b><small>路线、产品与认证</small></span></button>
+  <button class="module-tab" data-view="projects"><span class="nav-code">03</span><span class="nav-copy"><b>项目与产能</b><small>建设、投产与延期</small></span></button>
+  <button class="module-tab" data-view="finance"><span class="nav-code">04</span><span class="nav-copy"><b>财务对标</b><small>季度财务比较底稿</small></span></button>
+  <button class="module-tab" data-view="profiles"><span class="nav-code">05</span><span class="nav-copy"><b>竞品档案</b><small>单一竞品完整画像</small></span></button>
+  <button class="module-tab" data-view="radar"><span class="nav-code">06</span><span class="nav-copy"><b>新锐雷达</b><small>扫描发现与待确认</small></span></button>
+  <button class="module-tab" data-view="prices"><span class="nav-code">07</span><span class="nav-copy"><b>成本与价格</b><small>LFP · 磷酸铁 · 日度趋势</small></span></button>
+  <span class="tab-spacer"></span>
+  <button class="module-tab rail-setting" data-view="sources"><span class="nav-code">08</span><span class="nav-copy"><b>监控设置</b><small>来源、频率与核验</small></span></button>
+  <span class="scope-note">财务底稿 <b>原页保留</b></span>
+</nav>
+
+<section class="view" id="view-finance"><div class="finance-wrap"><iframe class="finance-frame" id="financeFrame" title="现有财务对标页面"></iframe></div></section>
+
+<section class="view active" id="view-dynamic"><main class="ops-page">
+  <header class="ops-header">
+    <div><span class="ops-eyebrow">COMPETITOR OPERATIONS</span><h1>竞品动态监测台</h1><p>从“看报表”切换到“处理情报”：选择竞品、查看事件、判断影响、追溯原文。</p></div>
+    <div class="ops-header-state"><span><i></i>自动扫描未启用</span><small>数据刷新：尚未配置</small></div>
+  </header>
+
+  <section class="ops-statusbar" aria-label="竞品监控状态">
+    <div class="ops-pulse" id="opsPulse"><i></i><div><b id="opsPulseTitle">情报源离线</b><small id="opsPulseSub">接入后按日扫描、按周汇总</small></div></div>
+    <div><label>今日已核验</label><b id="statToday">0</b><small>条事件</small></div>
+    <div><label>本周重点变化</label><b id="statWeek">0</b><small>重大／重要</small></div>
+    <div><label>待人工核验</label><b id="statPending">0</b><small>条线索</small></div>
+    <div><label>来源覆盖</label><b id="statSource">0/6</b><small>实时来源</small></div>
+  </section>
+
+  <section class="ops-workspace">
+    <aside class="watch-panel">
+      <div class="workspace-title"><span>WATCHLIST</span><h2>竞品观察名单</h2><small><b class="peerCount">4</b> 家跟踪公司</small></div>
+      <button class="watch-item active" data-watch-peer="全部竞品"><span class="watch-avatar">ALL</span><div><b>全部竞品</b><small>查看完整情报队列</small></div><i>0</i></button>
+      <div id="competitorWatchlist"></div>
+      <div class="watch-rules">
+        <span>监控规则</span>
+        <div><i></i>公告与经营动态<small>每日</small></div>
+        <div><i></i>项目与产能节点<small>每周</small></div>
+        <div><i class="ready"></i>财务对标底稿<small>季度</small></div>
+      </div>
+    </aside>
+
+    <section class="stream-panel">
+      <div class="stream-toolbar">
+        <div><span class="stream-kicker">INTELLIGENCE STREAM</span><h2><em id="selectedPeerLabel">全部竞品</em>事件流</h2></div>
+        <div class="stream-actions">
+          <div class="period-switch"><button class="chip active">今日</button><button class="chip">本周</button><button class="chip">近30日</button></div>
+          <div class="filters"><select aria-label="竞品公司" id="dynamicCompany"></select><select aria-label="事件类别" id="dynamicCategory"></select></div>
+        </div>
+      </div>
+      <div class="stream-date" id="streamDateBar"><span>当前筛选范围</span><b id="streamDateLabel">暂无可展示的已核验事件</b></div>
+      <div class="stream-empty" id="streamEmpty">
+        <div class="stream-line"><i></i><i></i><i></i></div>
+        <div class="stream-empty-copy" id="streamEmptyCopy"><span>EMPTY VERIFIED QUEUE</span><h3 id="streamEmptyTitle">事件数据层尚未接入</h3><p id="streamEmptyDesc">正式事件将在这里以时间线呈现，并同时显示公司、事件类别、影响级别、发生日期、摘要、原始来源及核验状态。</p><button class="cta-primary" onclick="document.querySelector('[data-view=sources]').click()">→ 进入监控设置添加来源</button></div>
+      </div>
+      <ul class="stream-list" id="streamList" hidden></ul>
+      <div class="event-schema" id="eventSchema" hidden>
+        <span>事件卡片字段结构 · 非真实事件</span>
+        <div class="schema-row"><i class="schema-level"></i><div><b>事件标题</b><small>公司 · 事件类型 · 影响等级</small></div><time>发生日期</time></div>
+        <p>事实摘要与影响判断将在核验后显示于此。</p>
+        <footer><span>原始来源</span><span>核验状态</span><span>查看详情 →</span></footer>
+      </div>
+    </section>
+
+    <aside class="brief-panel">
+      <section class="brief-block executive-brief">
+        <div class="brief-heading"><span>EXECUTIVE BRIEF</span><h2>管理层摘要</h2></div>
+        <div class="brief-empty"><b>本周尚未形成摘要</b><p>只基于已核验事实生成，不使用新闻声量代替真实变化。</p></div>
+      </section>
+      <section class="brief-block">
+        <div class="brief-heading"><span>PRIORITY QUEUE</span><h2>重点预警</h2></div>
+        <div class="priority-count"><b>0</b><span>重大／重要事件</span></div>
+        <div class="priority-scale"><i></i><i></i><i></i><i></i><i></i></div>
+      </section>
+      <section class="brief-block">
+        <div class="brief-heading"><span>TOPIC COVERAGE</span><h2>主题覆盖</h2></div>
+        <div class="topic-matrix">
+          <div><b>产能项目</b><span>待接入</span></div><div><b>客户订单</b><span>待接入</span></div>
+          <div><b>产品技术</b><span>待接入</span></div><div><b>经营业绩</b><span>待接入</span></div>
+          <div><b>战略资本</b><span>待接入</span></div><div><b>合规风险</b><span>待接入</span></div>
+        </div>
+      </section>
+      <section class="brief-block milestone-block">
+        <div class="brief-heading"><span>NEXT MILESTONE</span><h2>下一观察节点</h2></div>
+        <p>投产、财报披露、环评审批和协议到期里程碑尚未建立。</p>
+      </section>
+    </aside>
+  </section>
+  <footer class="ops-footer">测试工作台 · 当前仅展示信息架构与交互逻辑 · 未使用模拟竞品事实</footer>
+</main></section>
+
+<section class="view" id="view-technology"><main class="content">
+  <header class="view-head"><div><div class="view-kicker">TECHNOLOGY & PRODUCT</div><h1>技术与产品跟踪</h1></div><div class="view-desc">基于早报抽取的技术/产品事件时间线：高压实迭代、专利、新品与认证节点</div></header>
+  <div class="tech-summary"><article class="panel summary-card"><label>跟踪公司</label><strong class="peerCount">4</strong><span>已纳入跟踪名单</span></article><article class="panel summary-card" id="techCardTotal"><label>技术事件</label><strong>0</strong><span>近 90 日累计</span></article><article class="panel summary-card" id="techCardMonth"><label>本月新增</label><strong>0</strong><span>产品 / 专利 / 认证</span></article><article class="panel summary-card" id="techCardCert"><label>认证与量产</label><strong>0</strong><span>已核验节点</span></article></div>
+  <section class="panel"><div class="stream-toolbar"><div><span class="stream-kicker">TECH STREAM</span><h2><em id="techPeerLabel">全部竞品</em>技术事件</h2></div><div class="filters"><select aria-label="技术公司" id="techCompany"></select></div></div>
+  <ul class="stream-list" id="techList"></ul></section>
+  <footer class="footer">技术字段只在来源可核验后填入</footer>
+</main></section>
+
+<section class="view" id="view-projects"><main class="content">
+  <header class="view-head"><div><div class="view-kicker">PROJECT & CAPACITY</div><h1>项目与产能跟踪</h1></div><div class="view-desc">事件流中的项目/招标类信息按生命周期四列自动归类</div></header>
+  <div class="project-summary"><article class="panel summary-card"><label>跟踪公司</label><strong class="peerCount">4</strong><span>纳入观察名单</span></article><article class="panel summary-card" id="projCardTotal"><label>项目事件</label><strong>0</strong><span>累计纳入</span></article><article class="panel summary-card" id="projCardActive"><label>审批/建设</label><strong>0</strong><span>正在推进</span></article><article class="panel summary-card" id="projCard90"><label>未来 90 日</label><strong>0</strong><span>里程碑</span></article></div>
+  <section class="project-board">
+    <article class="project-col" data-stage="plan"><h3>规划／公告 <span>0</span></h3><ul class="project-list"></ul></article>
+    <article class="project-col" data-stage="approval"><h3>审批／建设 <span>0</span></h3><ul class="project-list"></ul></article>
+    <article class="project-col" data-stage="ramp"><h3>投产／爬坡 <span>0</span></h3><ul class="project-list"></ul></article>
+    <article class="project-col" data-stage="delay"><h3>延期／终止 <span>0</span></h3><ul class="project-list"></ul></article>
+  </section>
+  <footer class="footer">看板中的空列表示当前数据库未接入，不代表市场没有项目</footer>
+</main></section>
+
+<section class="view" id="view-profiles"><main class="content">
+  <header class="view-head"><div><div class="view-kicker">COMPETITOR PROFILE</div><h1>核心竞品档案</h1></div><div class="view-desc">把财务、项目、技术和动态集中到单一公司档案</div></header>
+  <div class="peer-grid" id="peerGrid"></div>
+  <footer class="footer">点击“打开档案”查看字段结构</footer>
+</main></section>
+
+<section class="view" id="view-radar"><main class="content">
+  <header class="view-head"><div><div class="view-kicker">DISCOVERY RADAR</div><h1>新锐雷达</h1></div><div class="view-desc">巨潮全市场关键词扫描发现的名单外公司：跨界巨头、磷化工、技术新锐 · 确认后才纳入观察池</div></header>
+  <div class="tech-summary" id="radarSummary"></div>
+  <section class="panel radar-panel">
+    <div class="stream-toolbar"><div><span class="stream-kicker">PENDING CONFIRMATION</span><h2>待确认候选 <em id="radarCount">0 家</em></h2></div>
+      <div class="filters"><select id="radarRelFilter" aria-label="相关度分档"><option value="">全部相关度</option><option value="lfp">LFP正极</option><option value="lfp_chain">LFP产业链</option><option value="other_route">其他正极路线</option><option value="downstream">下游电池</option></select><select id="radarTimeFilter" aria-label="时间范围"><option value="recent">近两年有公告</option><option value="">全部（含历史布局）</option></select></div>
+    </div>
+    <ul class="radar-list" id="radarList"></ul>
+  </section>
+  <section class="panel radar-panel">
+    <div class="stream-toolbar"><div><span class="stream-kicker">TECH SIGNALS</span><h2>技术信号 <em id="techSigCount">0 条</em></h2></div>
+      <div class="view-desc" style="font-size:11px;text-align:right">两路合并：巨潮「技术/产品」类公告（可信度高） + 新闻渠道线索（覆盖非上市中小企业，须核验）</div>
+    </div>
+    <div class="radar-meta" id="techSigNote" hidden></div>
+    <ul class="radar-list" id="techSigList"></ul>
+  </section>
+  <footer class="footer">候选来自巨潮全文检索接口的全市场关键词扫描 · 未确认 90 天后自动淘汰 · 确认纳入后用 <b>crawl_market_discovery.py --approve 公司名</b> 写入观察池 · 技术信号另由 <b>crawl_tech_radar.py</b> 从新闻渠道补充</footer>
+</main></section>
+
+<section class="view" id="view-prices"><main class="content">
+  <header class="view-head"><div><div class="view-kicker">COST & PRICE</div><h1>成本与价格监控</h1></div><div class="view-desc">磷酸铁锂动力型 / 储能型 / 磷酸铁(无水)日度价格 · 月环比 / 年同比 / 近 90 日趋势</div></header>
+  <div class="price-stale" id="priceStale" hidden><i></i>数据 <b id="priceStaleDate">—</b> · 距今 <b id="priceStaleDays">0</b> 天 · 可能偏旧</div>
+  <div class="price-grid">
+    <article class="panel price-card" data-feed="lfp_power">
+      <header><span class="pc-kicker">LFP 动力型</span><b id="lfp_power_label">—</b><small id="lfp_power_date">—</small></header>
+      <div class="pc-main"><div><label>最新价</label><b id="lfp_power_close">—</b><small>元/吨</small></div><div><label>月环比</label><b id="lfp_power_mom">—</b><small id="lfp_power_mom_lbl">vs 30 日均值</small></div><div><label>30日均值</label><b id="lfp_power_avg30">—</b><small>元/吨</small></div><div><label>30日区间</label><b id="lfp_power_range">—</b><small>最低～最高</small></div></div>
+      <svg class="pc-spark" id="lfp_power_spark" viewBox="0 0 320 60" preserveAspectRatio="none"></svg>
+      <footer><span id="lfp_power_update">—</span><span id="lfp_power_dod">—</span></footer>
+    </article>
+    <article class="panel price-card" data-feed="lfp_storage">
+      <header><span class="pc-kicker">LFP 储能型</span><b id="lfp_storage_label">—</b><small id="lfp_storage_date">—</small></header>
+      <div class="pc-main"><div><label>最新价</label><b id="lfp_storage_close">—</b><small>元/吨</small></div><div><label>月环比</label><b id="lfp_storage_mom">—</b><small id="lfp_storage_mom_lbl">vs 30 日均值</small></div><div><label>30日均值</label><b id="lfp_storage_avg30">—</b><small>元/吨</small></div><div><label>30日区间</label><b id="lfp_storage_range">—</b><small>最低～最高</small></div></div>
+      <svg class="pc-spark" id="lfp_storage_spark" viewBox="0 0 320 60" preserveAspectRatio="none"></svg>
+      <footer><span id="lfp_storage_update">—</span><span id="lfp_storage_dod">—</span></footer>
+    </article>
+    <article class="panel price-card" data-feed="iron_phosphate">
+      <header><span class="pc-kicker">磷酸铁(无水)</span><b id="iron_phosphate_label">—</b><small id="iron_phosphate_date">—</small></header>
+      <div class="pc-main"><div><label>最新价</label><b id="iron_phosphate_close">—</b><small>元/吨</small></div><div><label>月环比</label><b id="iron_phosphate_mom">—</b><small id="iron_phosphate_mom_lbl">vs 30 日均值</small></div><div><label>30日均值</label><b id="iron_phosphate_avg30">—</b><small>元/吨</small></div><div><label>年同比</label><b id="iron_phosphate_yoy">—</b><small id="iron_phosphate_yoy_lbl">vs 365 日均值</small></div></div>
+      <svg class="pc-spark" id="iron_phosphate_spark" viewBox="0 0 320 60" preserveAspectRatio="none"></svg>
+      <footer><span id="iron_phosphate_update">—</span><span id="iron_phosphate_dod">—</span></footer>
+    </article>
+  </div>
+  <footer class="footer">数据源：Mysteel · 动力型/储能型日度成交中间价；磷酸铁无水型日度中间价</footer>
+</main></section>
+
+<section class="view" id="view-sources"><main class="content">
+  <header class="view-head"><div><div class="view-kicker">MONITOR CONFIGURATION</div><h1>监控设置与更新频率</h1></div><div class="view-desc">用于定义未来自动扫描的数据范围、来源和核验流程</div></header>
+  <div class="source-plan">
+    <section class="panel table-wrap"><table class="source-table"><thead><tr><th>数据层</th><th>建议来源</th><th>频率</th><th>状态</th></tr></thead><tbody><tr><td>公告披露</td><td>交易所、公司 IR</td><td>每日</td><td><span class="state">待配置</span></td></tr><tr><td>经营动态</td><td>官网、公众号、行业媒体</td><td>每日</td><td><span class="state">待配置</span></td></tr><tr><td>项目节点</td><td>环评、公示、招投标</td><td>每周</td><td><span class="state">待配置</span></td></tr><tr><td>技术产品</td><td>产品资料、专利、认证</td><td>每月／事件触发</td><td><span class="state">待配置</span></td></tr><tr><td>财务数据</td><td>定期报告、现有底稿</td><td>每季度</td><td><span class="state ready">已录入</span></td></tr></tbody></table></section>
+    <aside class="panel architecture"><h3>信息处理链路</h3><div class="flow"><div class="flow-step"><span class="flow-no">01</span><div><b>采集</b><p>获取公开原文、发布日期、事件日期和附件。</p></div></div><div class="flow-step"><span class="flow-no">02</span><div><b>结构化</b><p>识别公司、主题、金额、产能、地点和阶段。</p></div></div><div class="flow-step"><span class="flow-no">03</span><div><b>核验</b><p>保留原始链接，由人工确认重要级别与事实口径。</p></div></div><div class="flow-step"><span class="flow-no">04</span><div><b>输出</b><p>形成日度事件流、周报摘要和项目里程碑提醒。</p></div></div></div></aside>
+  </div>
+</main></section>
+
+<div class="drawer-bg" id="drawerBg"></div><aside class="drawer" id="drawer"><button class="drawer-close" id="drawerClose" aria-label="关闭档案">×</button><div id="drawerContent"></div></aside>
+
+<script>
+(function(){
+  // 2026-09-18：单 BU 页只保留本页条目。原先这里复制了「全 9 事业部」配置表，
+  // 而下方 `configs[key]` 会拿 URL hash 查表 ⇒ 打开 `...expand.html#felt` 时
+  // cfg 取到法恩莱特条目，页头 buTitle / document.title / 主题色全被改写（本页"变成"别的 BU）。
+  // configs 全页只在下方被读取一次、无遍历，故裁剪安全。
+  var configs={
+    czly:{name:'常州锂源',industry:'磷酸铁锂',color:'#064e3b',peers:['湖南裕能','万润新能','富临精工','德方纳米']}
+  };
+  var key=(location.hash||'#czly').slice(1).split('&')[0];if(!configs[key])key='czly';var cfg=configs[key];
+  // 注入 BU 主题色
+  document.documentElement.style.setProperty('--bu-color', cfg.color);
+  document.documentElement.style.setProperty('--bu-color-soft', cfg.color + '26');
+  // 财务对标模块：固定嵌入「原版 dashboard」的 czly 纯财务页（&_fin=1 表示不要承载层，原封不动、零改动）
+  // 透传身份：把页面自身 URL 的 __dept（妙搭壳注入或访问者自带）拼到 iframe 地址栏
+  // ⚠️ 2026-09-17 15:20：finDept 解析必须上移到「任何 _fin=1 链接拼接之前」——
+  //    否则 formalLink 会拼出不带身份的地址，点开即落 !deptId 分支 403。
+  var frame=document.getElementById('financeFrame');
+  var finDept='';
+  try { finDept = new URLSearchParams(location.search).get('__dept') || ''; } catch(e){}
+  if (!finDept) {
+    try { finDept = new URLSearchParams(location.hash.split(/\#/).filter(Boolean)[0]).get('__dept') || ''; } catch(e){}
+  }
+  // 2026-09-28 兜底：与 strategy_dashboard.html L162-167 对齐。
+  // 妙搭壳把身份注入 hash（如 #dept=xxx）或 ?tier=xxx、sessionStorage 时，
+  // URL 上没有 __dept，本地展开拼出的 iframe URL 就会缺身份，
+  // 进而 strategy_dashboard 的 no_id 兜底触发 → 拒绝（09-28 修复后行为）。
+  // 此处复用 bu_gate.js 的 getCurrentDeptId() 兜底读取，让有身份的同事能正常访问。
+  if (!finDept) {
+    try {
+      if (typeof window.getCurrentDeptId === 'function') finDept = window.getCurrentDeptId() || '';
+    } catch(e){}
+  }
+  // 供抽屉内「在财务对标中查看」链接使用：该链接 target=_blank，
+  // 新标签页不共享 sessionStorage，身份只能靠 URL 自带 → 必须拼 __dept。
+  window.__EXPAND_DEPT__ = finDept;
+  var finDeptQS = finDept ? '&__dept=' + encodeURIComponent(finDept) : '';
+  // 2026-09-17 15:35 透传补充：iframe 是**独立 window**，读不到父页面的 query。
+  // 若只在外层识别身份 / 调试参数，就会出现「外层放行、内层仍 403」——
+  // 这正是「创作者加 ?__leader=1 仍看不到财务对标」的真凶，必须把 __user / __leader 一并透传。
+  var finExtraQS = (function(){
+    var qs = '', u = '';
+    try { u = new URLSearchParams(location.search).get('__user') || ''; } catch(e){}
+    if (!u) { try { u = new URLSearchParams(location.hash.split(/\#/).filter(Boolean)[0]).get('__user') || ''; } catch(e){} }
+    if (u) qs += '&__user=' + encodeURIComponent(u.trim());
+    try {
+      if (new URLSearchParams(location.search).get('__leader') === '1' ||
+          new URLSearchParams(location.hash.split(/\#/).filter(Boolean)[0]).get('__leader') === '1') {
+        qs += '&__leader=1';
+      }
+    } catch(e){}
+    return qs;
+  })();
+  document.getElementById('buTitle').textContent=cfg.name;document.getElementById('formalLink').href='strategy_dashboard.html#'+key+'&_fin=1'+finDeptQS+finExtraQS;document.title=cfg.name+' · 竞品监测中心';
+  // .peerCount 由 applyPeers() 统一写入（czly 会以真实档案公司数覆盖）
+  // DOMContentLoaded 时已判权限；若被拦截则不挂 src；若放行则挂上带身份的 src
+  var finHash = '#czly&_fin=1' + finDeptQS + finExtraQS;
+  document.addEventListener('DOMContentLoaded', function(){
+    if (window.__BU_GATE_ALLOW_ANON || (window.__CZLY_TAB4_GUARD__ && window.__CZLY_TAB4_GUARD__())) {
+      if (frame && !frame.getAttribute('src')) frame.src = 'strategy_dashboard.html' + finHash;
+    } else if (frame) {
+      frame.removeAttribute('src'); // 不挂 src，避免被拦截内容仍在后台加载
+    }
+  });
+  document.querySelectorAll('.module-tab').forEach(function(btn){btn.addEventListener('click',function(){
+    // tab 04 拦截：被拒时切换到原 tab 之外的最近 tab；不再嵌入 iframe
+    if (btn.dataset.view === 'finance' && window.__CZLY_TAB4_GUARD__ && !window.__CZLY_TAB4_GUARD__()) {
+      // 撤销激活态、保持原 tab 不动
+      btn.classList.remove('active');
+      return;
+    }
+    document.querySelectorAll('.module-tab').forEach(function(b){b.classList.remove('active')});
+    document.querySelectorAll('.view').forEach(function(v){v.classList.remove('active')});
+    btn.classList.add('active');
+    document.getElementById('view-'+btn.dataset.view).classList.add('active');
+    // 进入 finance 时按需挂 src（lazy 加载兜底）
+    if (btn.dataset.view === 'finance' && frame && !frame.getAttribute('src')) {
+      frame.src = 'strategy_dashboard.html' + finHash;
+    }
+    // 2026-09-24：切到 04 tab 时救活内层 echarts（3 个柱状图 canvas 0 宽缺陷）
+    if (btn.dataset.view === 'finance' && typeof window.__REPAINT_FINANCE__ === 'function') {
+      window.__REPAINT_FINANCE__();
+    }
+  })});
+  // 2026-09-24 修复：切到 04 tab 后救活内层 echarts。
+  // 真因：iframe 在 #view-finance{display:none} 时已挂 src（hash 模式 src 不发 load 事件），
+  //       内层 0 宽视口下 echarts.init 把 dim-chart-score/0/1 三个柱状图 canvas 宽设为 0 ⇒ 完全不渲染。
+  //       雷达图/一对一对比图能画出，是因为初始化路径带 setTimeout，恰好躲过。
+  // 修法：暴露 __REPAINT_FINANCE__，在切到 04 tab 时调用 → 对内层所有 echarts 实例三次重试 resize()。
+  //       外层 DOMContentLoaded 时若 src 已被父级挂上（即财务 tab 默认激活），也补一次。
+  // 适用 7 个 BU 承载页（与原版财务页零侵入）。
+  (function(){
+    var fr = document.getElementById('financeFrame');
+    if (!fr) return;
+    function resizeInner(){
+      try {
+        var win = fr.contentWindow; if (!win) return;
+        var E = win.echarts; if (!E) return;
+        var els = win.document.querySelectorAll('[id^="dim-chart-"], #compare-chart, #radar-chart');
+        for (var i = 0; i < els.length; i++){
+          var inst = E.getInstanceByDom(els[i]);
+          if (inst) { try { inst.resize(); } catch(e){} }
+        }
+      } catch(e){}
+    }
+    window.__REPAINT_FINANCE__ = function(){
+      setTimeout(resizeInner, 50);
+      setTimeout(resizeInner, 300);
+      setTimeout(resizeInner, 800);
+    };
+    document.addEventListener('DOMContentLoaded', function(){
+      if (fr.src) setTimeout(window.__REPAINT_FINANCE__, 800);
+    });
+  })();
+  document.querySelectorAll('.chip').forEach(function(btn){btn.addEventListener('click',function(){btn.parentElement.querySelectorAll('.chip').forEach(function(b){b.classList.remove('active')});btn.classList.add('active')})});
+  // 跟踪名单与竞品档案：默认用 cfg.peers（写死）；czly 会被 company_profiles_czly.json 覆盖为真实名单
+  var watchlist=document.getElementById('competitorWatchlist');
+  var companySelect=document.getElementById('dynamicCompany');
+  var techSelect=document.getElementById('techCompany');
+  var peerGridEl=document.getElementById('peerGrid');
+  var PEERS=cfg.peers.slice();
+  var PROFILES={};
+  // LFP 档位元信息（来自 company_profiles_czly.json 的 tier_meta / tier_order / groups）
+  var TIERS={meta:{},order:[],groups:[]};
+  var TIER_FALLBACK={core:'核心竞品',high:'重点跟踪',mid:'新进入者',other_route:'其他正极路线',upstream:'上游前驱体',parent:'集团母公司',self:'本公司'};
+  function tierOf(name){var pf=PROFILES[name];return (pf&&pf.tier)||''}
+  // 2026-09-18：兜底不再回退英文键 —— 数据缺该档位时，原写法会把 `other_route` 之类裸键直接显示给用户
+  function tierLabel(key){var m=TIERS.meta[key]||{};return m.label||TIER_FALLBACK[key]||'其他'}
+  function tierDesc(key){var m=TIERS.meta[key]||{};return m.desc||''}
+  function tierCount(key){for(var i=0;i<TIERS.groups.length;i++){if(TIERS.groups[i].key===key)return TIERS.groups[i].count}return null}
+  // 监控池：S=定向池 / A=观察池 / R=雷达池（与 LFP 档位正交：档位看相关度，池看采集强度）
+  var POOLS={meta:{},order:[],groups:[]};
+  var RADAR={candidates:[],meta:{},tech:[],techMeta:{}};
+  var POOL_FALLBACK={S:'定向池',A:'观察池',R:'雷达池'};
+  function poolOf(name){var pf=PROFILES[name];return (pf&&pf.watch)||'S'}
+  function poolLabel(k){var m=POOLS.meta[k]||{};return m.label||POOL_FALLBACK[k]||k||''}
+  function poolDesc(k){var m=POOLS.meta[k]||{};return m.desc||''}
+  function poolCount(k){for(var i=0;i<POOLS.groups.length;i++){if(POOLS.groups[i].key===k)return POOLS.groups[i].count}return null}
+  function esc(s){var m={'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'};return String(s==null?'':s).replace(/[&<>"']/g,function(c){return m[c]})}
+  function pad2(n){return (n<10?'0':'')+n}
+  function renderWatchlist(){
+    var html='',no=0;
+    var pools=POOLS.order.length?POOLS.order:['S'];
+    pools.forEach(function(pk){
+      var members=PEERS.filter(function(p){return poolOf(p)===pk});
+      if(!members.length)return;
+      var pc=poolCount(pk);
+      html+='<div class="watch-tier watch-pool-'+esc(pk)+'">'+esc(poolLabel(pk))+(pc!=null?'<em>'+pc+'</em>':'')+'</div>';
+      var curTier=null;
+      members.forEach(function(p){
+        var pf=PROFILES[p]||{};
+        var t=pf.tier||'';
+        if(t&&t!==curTier){
+          curTier=t;
+          var c=members.filter(function(x){return tierOf(x)===t}).length;
+          html+='<div class="watch-tier watch-tier-sub">'+esc(tierLabel(t))+(c?'<em>'+c+'</em>':'')+'</div>';
+        }
+        no++;
+        var sub=pf.code||tierLabel(t);
+        var n=(pf.event_total==null)?'0':pf.event_total;
+        html+='<button class="watch-item" data-watch-peer="'+esc(p)+'" title="'+esc(pf.lfp_note||'')+'">'
+          +'<span class="watch-avatar">P'+pad2(no)+'</span><div><b>'+esc(p)+'</b><small>'+esc(sub)+'</small></div><i>'+n+'</i></button>';
+      });
+    });
+    watchlist.innerHTML=html;
+  }
+  function renderCompanySelects(){
+    var cur=companySelect.value||'全部竞品';
+    var curTech=techSelect?(techSelect.value||'全部竞品'):'全部竞品';
+    var opts='<option>全部竞品</option>'+PEERS.map(function(p){return '<option>'+esc(p)+'</option>'}).join('');
+    companySelect.innerHTML=opts;
+    companySelect.value=PEERS.indexOf(cur)>=0?cur:'全部竞品';
+    if(techSelect){techSelect.innerHTML=opts;techSelect.value=PEERS.indexOf(curTech)>=0?curTech:'全部竞品'}
+  }
+  function renderPeerGrid(){
+    var html='',no=0;
+    var pools=POOLS.order.length?POOLS.order:['S'];
+    pools.forEach(function(pk){
+      var members=PEERS.filter(function(p){return poolOf(p)===pk});
+      if(!members.length)return;
+      var pc=poolCount(pk);
+      html+='<div class="peer-pool-head pool-'+esc(pk)+'"><b>'+esc(poolLabel(pk))+'</b>'
+        +(pc!=null?'<em>'+pc+' 家</em>':'')
+        +'<small>'+esc(poolDesc(pk))+'</small></div>';
+      var curTier=null;
+      members.forEach(function(p){
+        var pf=PROFILES[p]||{};
+        var t=pf.tier||'';
+        if(t&&t!==curTier){
+          curTier=t;
+          var c=members.filter(function(x){return tierOf(x)===t}).length;
+          html+='<div class="peer-tier-head"><b>'+esc(tierLabel(t))+'</b>'
+            +(c?'<em>'+c+' 家</em>':'')
+            +'<small>'+esc(tierDesc(t))+'</small></div>';
+        }
+        no++;
+        var four=[['日度动态',pf.event_total],['技术产品',pf.tech_total],['项目产能',pf.project_total],['公告披露',pf.announcement_total]];
+        var fields=four.map(function(f){
+          var has=(f[1]!=null);
+          return '<div class="peer-field"><b>'+f[0]+'</b><span'+(has&&f[1]>0?' class="peer-field-hit"':'')+'>'+(has?(f[1]+' 条'):'待接入')+'</span></div>'
+        }).join('')+'<div class="peer-field"><b>数据完备度</b><span>'+((pf.event_total>0)?'已接入':'暂无信号')+'</span></div>';
+        var meta=[pf.board_label||cfg.industry,pf.code].filter(Boolean).join(' · ');
+        var badge=t?('<span class="peer-tier-badge '+esc(t)+'">'+esc(tierLabel(t))+'</span>'):'';
+        var poolBadge=(pk!=='S')?('<span class="peer-pool-badge '+esc(pk)+'">'+esc(poolLabel(pk))+'</span>'):'';
+        var note=pf.lfp_note?('<p class="peer-note">'+esc(pf.lfp_note)+'</p>'):'';
+        var signalState=(pf.event_total>0)?'hit':'none';
+        html+='<article class="panel peer-card peer-card-signal-'+signalState+'" data-signal="'+signalState+'"><div class="peer-card-top"><div class="peer-no">PEER '+pad2(no)+'</div>'+badge+poolBadge+(signalState==='none'?'<span class="peer-signal-flag">暂无信号</span>':'')+'</div>'
+          +'<h3>'+esc(p)+'</h3><p>'+esc(meta)+'</p><div class="peer-fields">'+fields+'</div>'+note
+          +'<button class="peer-open" data-peer="'+esc(p)+'">打开竞品档案</button></article>';
+      });
+    });
+    peerGridEl.innerHTML=html;
+  }
+  var radarFilter={rel:'',time:'recent'};
+  function renderRadar(){
+    var box=document.getElementById('radarList');
+    if(!box)return;
+    var all=RADAR.candidates||[];
+    var cnt=document.getElementById('radarCount');
+    if(cnt)cnt.textContent=all.length+' 家';
+    var sum=document.getElementById('radarSummary');
+    if(sum){
+      var recent=all.filter(function(c){return c.has_recent});
+      var lfp=all.filter(function(c){return c.relevance==='lfp'});
+      var chain=all.filter(function(c){return c.relevance==='lfp_chain'});
+      sum.innerHTML=
+        '<article class="panel summary-card"><label>待确认候选</label><strong>'+all.length+'</strong><span>来自全市场扫描</span></article>'
+        +'<article class="panel summary-card"><label>近两年有公告</label><strong>'+recent.length+'</strong><span>当前活跃布局</span></article>'
+        +'<article class="panel summary-card"><label>LFP 正极 / 产业链</label><strong>'+lfp.length+' / '+chain.length+'</strong><span>最相关两档</span></article>'
+        +'<article class="panel summary-card"><label>人工闸门</label><strong>'+(RADAR.meta.ttl_days||90)+'</strong><span>天未确认自动淘汰</span></article>';
+    }
+    var list=all.filter(function(c){
+      if(radarFilter.rel&&c.relevance!==radarFilter.rel)return false;
+      if(radarFilter.time==='recent'&&!c.has_recent)return false;
+      return true;
+    });
+    if(!list.length){
+      box.innerHTML='<li class="radar-empty">当前筛选下没有候选 —— 可切换到「全部（含历史布局）」查看仅早期布局的公司。</li>';
+      return;
+    }
+    box.innerHTML=list.map(function(c){
+      var rel=c.relevance||'other';
+      var urls=c.sample_urls||[];
+      var titles=(c.sample_titles||[]).slice(0,2).map(function(t,i){
+        var u=urls[i]?' <a href="'+esc(urls[i])+'" target="_blank" rel="noopener">原文 →</a>':'';
+        return '<div class="radar-ev">'+esc(t)+u+'</div>';
+      }).join('');
+      return '<li class="radar-item'+(c.has_recent?' is-recent':'')+'">'
+        +'<span class="radar-rel '+esc(rel)+'">'+esc(c.relevance_label||rel)+'</span>'
+        +'<div class="radar-main"><div class="radar-head"><b>'+esc(c.name)+'</b>'
+        +'<em>'+esc(c.code||'')+(c.board_label?' · '+esc(c.board_label):'')+'</em></div>'
+        +'<div class="radar-meta">命中 '+esc(String(c.hit_count||0))+' 条'
+        +(c.last_date?' · 最近 '+esc(c.last_date):'')
+        +' · 首次发现 '+esc(c.first_seen||'—')
+        +' · '+(c.has_recent?'<b style="color:#0b5c3d">近期活跃</b>':'历史布局')
+        +'</div>'+titles+'</div></li>';
+    }).join('');
+  }
+  function renderTechSignals(){
+    var box=document.getElementById('techSigList');
+    if(!box)return;
+    var list=RADAR.tech||[];
+    var m=RADAR.techMeta||{};
+    var cnt=document.getElementById('techSigCount');
+    var nAnn=0,nNews=0;
+    list.forEach(function(t){if(t.origin==='news')nNews++;else nAnn++});
+    if(cnt)cnt.textContent=list.length+' 条'
+      +((nAnn||nNews)?'（公告 '+nAnn+' / 新闻 '+nNews+'）':'');
+    var cap=document.getElementById('techSigNote');
+    if(cap){
+      cap.textContent=m.note||'';
+      cap.hidden=!cap.textContent;
+    }
+    if(!list.length){
+      box.innerHTML='<li class="radar-empty">暂无技术类信号 —— 需「技术/产品」类公告命中扫描关键词，或新闻渠道脚本跑出结果。</li>';
+      return;
+    }
+    box.innerHTML=list.slice(0,50).map(function(t){
+      var isNews=t.origin==='news';
+      return '<li class="radar-item"><span class="radar-rel '+esc(t.relevance||'other')+'">'+esc(t.relevance_label||'未明确')+'</span>'
+        +'<div class="radar-main"><div class="radar-head"><b>'+esc(t.company||'—')+'</b>'
+        +'<span class="radar-origin '+(isNews?'news':'ann')+'">'+(isNews?'新闻线索':'交易所公告')+'</span>'
+        +'<em>'+esc(t.date||'')+'</em></div>'
+        +'<div class="radar-ev">'+esc(t.title||'')
+        +(t.url?' <a href="'+esc(t.url)+'" target="_blank" rel="noopener">原文 →</a>':'')+'</div>'
+        +(t.note?'<div class="radar-note">'+esc(t.note)+'</div>':'')
+        +'</div></li>';
+    }).join('');
+  }
+  function applyPeers(){
+    document.querySelectorAll('.peerCount').forEach(function(el){el.textContent=PEERS.length});
+    renderWatchlist();renderCompanySelects();renderPeerGrid();renderRadar();renderTechSignals();
+  }
+  function selectWatchPeer(name){
+    document.querySelectorAll('[data-watch-peer]').forEach(function(btn){btn.classList.toggle('active',btn.dataset.watchPeer===name)});
+    companySelect.value=name;document.getElementById('selectedPeerLabel').textContent=name;
+  }
+  function notifyPeerChanged(name){if(typeof window.__onPeerChanged==='function')window.__onPeerChanged(name)}
+  // 事件委托：watchlist 与档案卡都是动态重建的，逐个 addEventListener 会随重建失效
+  document.addEventListener('click',function(ev){
+    var t=ev.target;
+    var w=t&&t.closest?t.closest('[data-watch-peer]'):null;
+    if(w){selectWatchPeer(w.dataset.watchPeer);notifyPeerChanged(w.dataset.watchPeer);return}
+    var q=t&&t.closest?t.closest('[data-peer]'):null;
+    if(q){openDrawer(q.dataset.peer)}
+  });
+  companySelect.addEventListener('change',function(){selectWatchPeer(companySelect.value);notifyPeerChanged(companySelect.value)});
+  var rfEl=document.getElementById('radarRelFilter');
+  if(rfEl)rfEl.addEventListener('change',function(){radarFilter.rel=rfEl.value;renderRadar()});
+  var tfEl=document.getElementById('radarTimeFilter');
+  if(tfEl)tfEl.addEventListener('change',function(){radarFilter.time=tfEl.value;renderRadar()});
+  applyPeers();
+  // czly：异步加载真实竞品档案，覆盖写死名单（其他 BU 无档案文件，保持原样）
+  if(key==='czly'){
+    fetch('company_profiles_czly.json',{cache:'no-store'})
+      .then(function(r){return r.ok?r.json():null})
+      .then(function(d){
+        var cs=(d&&d.companies)||[];
+        if(!cs.length)return;
+        PROFILES={};cs.forEach(function(c){PROFILES[c.name]=c});
+        PEERS=cs.map(function(c){return c.name});
+        TIERS={meta:d.tier_meta||{},order:d.tier_order||[],groups:d.groups||[]};
+        POOLS={meta:d.pool_meta||{},order:d.pool_order||[],groups:d.pool_groups||[]};
+        RADAR={candidates:d.discovered_candidates||[],meta:d.radar_meta||{},tech:d.tech_signals||[],techMeta:d.tech_meta||{}};
+        // 按档位顺序重排，保证同一档的公司相邻（同档内保持档案文件原序）
+        var ord=TIERS.order;
+        PEERS.sort(function(a,b){
+          var ta=ord.indexOf(tierOf(a)),tb=ord.indexOf(tierOf(b));
+          if(ta<0)ta=99; if(tb<0)tb=99;
+          return ta-tb;
+        });
+        window.__COMPANY_PROFILES__=d;
+        applyPeers();
+        var sel=document.getElementById('selectedPeerLabel').textContent;
+        if(PEERS.indexOf(sel)<0){selectWatchPeer('全部竞品')}
+        notifyPeerChanged(companySelect.value);
+      })
+      .catch(function(){});
+  }
+  var drawer=document.getElementById('drawer'),drawerBg=document.getElementById('drawerBg');
+  function buildDossier(name){
+    var pf=PROFILES[name]||{};
+    var n=function(v){return (v==null?0:v)};
+    var h=[];
+    h.push('<h2>'+esc(name)+'</h2>');
+    h.push('<p>'+esc([pf.board_label,pf.code,pf.tier_label].filter(Boolean).join(' · ')||(cfg.industry+' · 竞品统一档案结构'))+'</p>');
+    h.push('<div class="drawer-section"><h3>事件概览</h3>'
+      +(pf.tier_label?'<div class="drawer-row"><span>LFP 相关度</span><span><span class="peer-tier-badge '+esc(pf.tier||'')+'">'+esc(pf.tier_label)+'</span></span></div>':'')
+      +(pf.lfp_note?'<div class="drawer-row"><span>判定依据</span><span class="drawer-note">'+esc(pf.lfp_note)+'</span></div>':'')
+      +((pf.aliases&&pf.aliases.length)?'<div class="drawer-row"><span>别名／子公司</span><span>'+esc(pf.aliases.join(' / '))+'</span></div>':'')
+      +'<div class="drawer-row"><span>事件总数</span><span>'+n(pf.event_total)+' 条</span></div>'
+      +'<div class="drawer-row"><span>公告／披露</span><span>'+n(pf.announcement_total)+' 条</span></div>'
+      +'<div class="drawer-row"><span>项目／招标</span><span>'+n(pf.project_total)+' 条</span></div>'
+      +'<div class="drawer-row"><span>技术／产品</span><span>'+n(pf.tech_total)+' 条</span></div>'
+      +'<div class="drawer-row"><span>最近事件日期</span><span>'+(pf.latest_event_date||'—')+'</span></div>'
+      +'<div class="drawer-row"><span>季度财务数据</span><span><a href="strategy_dashboard.html#czly&_fin=1&_tab=fin'+(window.__EXPAND_DEPT__?'&__dept='+encodeURIComponent(window.__EXPAND_DEPT__):'')+'" target="_blank" rel="noopener">在财务对标中查看 →</a></span></div>'
+      +(pf.disclosure_url?'<div class="drawer-row"><span>交易所披露页</span><span><a href="'+esc(pf.disclosure_url)+'" target="_blank" rel="noopener">巨潮资讯 →</a></span></div>':'')
+      +'</div>');
+    function sec(title,list,empty){
+      var items=list||[];
+      var body=items.length?items.map(function(e){
+        var cat=e.category?'<span class="drawer-cat">'+esc(e.category)+'</span>':'';
+        var clu=(e.cluster_size>1)?'<span class="drawer-cat clu">含同类 '+e.cluster_size+' 份</span>':'';
+        var sum=e.summary?'<p>'+esc(e.summary)+'</p>':'';
+        var link;
+        if(e.url){ link='<a href="'+esc(e.url)+'" target="_blank" rel="noopener">查看原文 →</a>'; }
+        else if(e.no_original){ link='<span style="color:#9aa0a6">无原文 · 数据/合成项</span>'; }
+        else { link=''; }
+        return '<div class="drawer-ev"><div class="drawer-ev-h"><time>'+esc(e.date||e.report_date||'—')+'</time>'+cat+clu+'</div>'
+          +'<b>'+esc(e.title)+'</b>'+sum+link+'</div>'
+      }).join(''):'<p class="drawer-empty">'+empty+'</p>';
+      return '<div class="drawer-section"><div class="drawer-sec-h"><h3>'+title+'</h3><em>'+items.length+' 条</em></div>'+body+'</div>';
+    }
+    h.push(sec('最近动态',pf.recent_events,'暂无事件 —— 该公司近期未在早报或公告中出现。'));
+    h.push(sec('项目与产能',pf.recent_projects,'暂无项目／招标类事件。'));
+    h.push(sec('技术与产品',pf.recent_tech,'暂无技术／产品类事件。'));
+    return h.join('');
+  }
+  function openDrawer(name){
+    document.getElementById('drawerContent').innerHTML=buildDossier(name);
+    drawer.classList.add('show');drawerBg.classList.add('show');
+  }
+  function closeDrawer(){drawer.classList.remove('show');drawerBg.classList.remove('show')}
+  document.getElementById('drawerClose').addEventListener('click',closeDrawer);drawerBg.addEventListener('click',closeDrawer);document.addEventListener('keydown',function(e){if(e.key==='Escape')closeDrawer()});
+  window.addEventListener('hashchange',function(){location.reload()});
+  // ===== 竞品动态数据接入（只读 competitor_feed_czly.json）=====
+  (function(){
+    var PERIODS={today:1,week:7,month:30};
+    // 「今日」= 最近报告日；事件发生常比报告晚 1-3 天，所以按时序对齐
+    var period='today';
+    var peerFilter='全部竞品';
+    // 事件类别筛选：'' = 全部类别；取值来自 feed 实际 category，不写死
+    var catFilter='';
+    var started=false;
+    function start(){
+      if(started)return;started=true;
+      var FEED=window.__COMPETITOR_FEED__;
+      var events=FEED&&FEED.events?FEED.events:[];
+    var events=FEED.events||[];
+    var peers=FEED.peers||[];
+    var today=FEED&&FEED.latest_report_date||new Date().toISOString().slice(0,10);
+    function parseDate(s){if(!s||typeof s!=='string')return null;return new Date(s.replace(/-/g,'/'))}
+    function daysAgo(s){var d=parseDate(s);if(!d||isNaN(d.getTime()))return Infinity;return Math.floor((parseDate(today)-d)/86400000)}
+    function inPeriod(d){var n=daysAgo(d);return n>=0&&n<=PERIODS[period]}
+    function matchesPeer(e){return peerFilter==='全部竞品'||(e.peers||[]).indexOf(peerFilter)>=0}
+    // 「今日」按报告日期（report_date）算，因事件 date 常比报告日晚 1-3 天
+    function inPeriodReport(r){var n=daysAgo(r);return n>=0&&n<=PERIODS[period]}
+    function fmtDate(s){return s.replace(/(\d{4})-(\d{2})-(\d{2})/,'$1/$2/$3')}
+    function renderRow(e){
+      var pri=e.priority||'P2';var tags=[];
+      (e.peers||[]).forEach(function(p){tags.push('<span>'+p+'</span>')});
+      tags.push('<span class="cat">'+(e.category||'')+'</span>');
+      if(e.source){tags.push('<span class="src">'+e.source+'</span>')}
+      if(e.cluster_size>1){tags.push('<span class="clu">含同类文件 '+e.cluster_size+' 份</span>')}
+      var link;
+      if(e.url){ link='<a href="'+e.url+'" target="_blank" rel="noopener">查看原文 →</a>'; }
+      else if(e.no_original){ link='<span style="color:#9aa0a6">无原文 · 数据/合成项</span>'; }
+      else { link='<span style="color:#b4b2a9">原文链接待补</span>'; }
+      var fold='';
+      if(e.cluster_folded&&e.cluster_folded.length){
+        fold='<details class="stream-fold"><summary>展开 '+e.cluster_folded.length+' 份配套文件</summary><ul>'
+          +e.cluster_folded.map(function(f){
+              return '<li>'+(f.url?'<a href="'+f.url+'" target="_blank" rel="noopener">'+f.title+'</a>':f.title)+'</li>';
+            }).join('')
+          +'</ul></details>';
+      }
+      return '<li class="level-'+pri+'">'
+        +'<div class="stream-meta"><time>'+fmtDate(e.date)+'</time><span class="stream-priority '+pri+'"><i></i>'+pri+'</span></div>'
+        +'<div class="stream-main"><b>'+e.title+'</b><div class="stream-tags">'+tags.join('')+'</div>'+(e.summary?'<p class="stream-summary">'+e.summary+'</p>':'')+fold+'</div>'
+        +'<div class="stream-source">'+link+'</div></li>';
+    }
+    function render(){
+      var pool=events.filter(function(e){return inPeriodReport(e.report_date)});
+      if(peerFilter!=='全部竞品'){pool=pool.filter(matchesPeer)}
+      if(catFilter){pool=pool.filter(function(e){return(e.category||'')===catFilter})}
+      var list=document.getElementById('streamList');
+      var empty=document.getElementById('streamEmpty');
+      var bar=document.getElementById('streamDateLabel');
+      if(pool.length){
+        list.innerHTML=pool.slice(0,160).map(renderRow).join('');
+        list.hidden=false;empty.hidden=true;
+        bar.textContent='共 '+pool.length+' 条 · 当前筛选：'+peerFilter+(catFilter?' / '+catFilter:'')+' · '+({today:'今日',week:'本周',month:'近30日'})[period];
+      }else{
+        list.innerHTML='';list.hidden=true;empty.hidden=false;
+        bar.textContent='当前筛选范围内暂无事件';
+        document.getElementById('streamEmptyTitle').textContent='当前筛选无命中';
+        document.getElementById('streamEmptyDesc').textContent='请放宽时间窗口，或改选竞品 / 事件类别。';
+      }
+    }
+    function renderStats(){
+      var todayCount=events.filter(function(e){return e.report_date===today}).length;
+      var weekList=events.filter(function(e){var n=daysAgo(e.report_date);return n>=0&&n<=7});
+      var weekBig=weekList.filter(function(e){return e.priority==='P0'}).length;
+      var pending=events.filter(function(e){return e.priority==='P0'&&!e.url&&!e.no_original}).length;
+      document.getElementById('statToday').textContent=todayCount;
+      document.getElementById('statWeek').textContent=weekBig;
+      document.getElementById('statPending').textContent=pending;
+      var src=document.getElementById('statSource');src.textContent='3/6';
+      document.getElementById('opsPulseTitle').textContent='情报源在线';
+      document.getElementById('opsPulseSub').textContent='数据：'+FEED.events.length+' 条 · 竞品相关 '+FEED.counts.peer_events+' 条';
+    }
+    // 改 watchlist 角标 = 该公司本期事件数
+    function paintWatchBadges(){
+      var bucket={};
+      events.forEach(function(e){(e.peers||[]).forEach(function(p){bucket[p]=(bucket[p]||0)+1})});
+      document.querySelectorAll('[data-watch-peer]').forEach(function(b){
+        var n=b.dataset.watchPeer;
+        var i=b.querySelector('i');
+        if(!i)return;
+        if(n==='全部竞品'){i.textContent=bucket['__all']||events.filter(function(e){return e.peers&&e.peers.length}).length}
+        else{i.textContent=bucket[n]||0}
+      });
+    }
+    // 切换周期
+    document.querySelectorAll('.stream-actions .chip').forEach(function(b){
+      b.addEventListener('click',function(){
+        document.querySelectorAll('.stream-actions .chip').forEach(function(x){x.classList.remove('active')});
+        b.classList.add('active');
+        period={'今日':'today','本周':'week','近30日':'month'}[b.textContent.trim()]||'today';
+        render();
+      });
+    });
+    // 接管 selectWatchPeer 选择 → 同步到事件流筛选
+    function bindWatchClick(){
+      document.querySelectorAll('[data-watch-peer]').forEach(function(btn){
+        btn.addEventListener('click',function(){setTimeout(function(){peerFilter=btn.dataset.watchPeer;render()},0)});
+      });
+    }
+    bindWatchClick();
+    // 改公司下拉 → 也走相同过滤
+    var companySel=document.getElementById('dynamicCompany');
+    if(companySel){companySel.addEventListener('change',function(){peerFilter=companySel.value;render();document.getElementById('selectedPeerLabel').textContent=peerFilter})}
+    // 事件类别下拉：选项从 feed 实际出现的 category 生成（带条数），空值=全部类别
+    var catSel=document.getElementById('dynamicCategory');
+    if(catSel){
+      var CAT_ORDER=['今日关注','企业动态','项目/招标','技术/产品','公告/披露','竞品动态'];
+      var catCnt={};
+      events.forEach(function(e){var c=e.category||'';if(c){catCnt[c]=(catCnt[c]||0)+1}});
+      var catList=CAT_ORDER.filter(function(c){return catCnt[c]}).concat(
+        Object.keys(catCnt).filter(function(c){return CAT_ORDER.indexOf(c)<0}).sort()
+      );
+      catSel.innerHTML='<option value="">全部类别</option>'+catList.map(function(c){
+        return '<option value="'+c+'">'+c+'（'+catCnt[c]+'）</option>';
+      }).join('');
+      catSel.addEventListener('change',function(){catFilter=catSel.value;render()});
+    }
+    renderStats();paintWatchBadges();render();
+    // ===== 02 技术与产品 =====
+    var techPeer='全部竞品';
+    function renderTech(){
+      var tech=events.filter(function(e){return e.category==='技术/产品'});
+      if(techPeer!=='全部竞品'){tech=tech.filter(function(e){return(e.peers||[]).indexOf(techPeer)>=0})}
+      var list=document.getElementById('techList');
+      if(tech.length){
+        list.innerHTML=tech.slice(0,80).map(renderRow).join('');
+        list.hidden=false;
+      }else{
+        list.innerHTML='';list.hidden=true;
+      }
+      document.getElementById('techPeerLabel').textContent=techPeer;
+      var total90=events.filter(function(e){return e.category==='技术/产品'&&daysAgo(e.report_date)<=90}).length;
+      var ym=today.slice(0,7);
+      var month=events.filter(function(e){return e.category==='技术/产品'&&e.report_date.slice(0,7)===ym}).length;
+      var cert=events.filter(function(e){return e.category==='技术/产品'&&/(量产|认证|专利|定型|发布)/.test((e.title||'')+(e.summary||''))}).length;
+      document.querySelector('#techCardTotal strong').textContent=total90;
+      document.querySelector('#techCardMonth strong').textContent=month;
+      document.querySelector('#techCardCert strong').textContent=cert;
+    }
+    var techSel=document.getElementById('techCompany');
+    if(techSel){techSel.addEventListener('change',function(){techPeer=techSel.value;renderTech()})}
+    // ===== 03 项目与产能 =====
+    function classifyStage(e){
+      var t=(e.title||'')+(e.summary||'');
+      if(/(延期|终止|暂缓|推迟|取消)/.test(t))return 'delay';
+      if(/(投产|量产|产能爬坡|点火|试生产|下线|首产|竣工|达产|爬坡)/.test(t))return 'ramp';
+      if(/(审批|环评|公示|建设|在建|开工|施工|招标|中标|封顶|主体|设备安装)/.test(t))return 'approval';
+      return 'plan';
+    }
+    function renderProjects(){
+      var pr=events.filter(function(e){return e.category==='项目/招标'});
+      if(techPeer!=='全部竞品'){pr=pr.filter(function(e){return(e.peers||[]).indexOf(techPeer)>=0})}
+      var buckets={plan:0,approval:0,ramp:0,delay:0};
+      var groups={plan:[],approval:[],ramp:[],delay:[]};
+      pr.forEach(function(e){var s=classifyStage(e);buckets[s]++;groups[s].push(e)});
+      document.querySelectorAll('.project-col').forEach(function(col){
+        var s=col.dataset.stage,ul=col.querySelector('.project-list'),hint=col.querySelector('.project-empty');
+        col.querySelector('h3 span').textContent=buckets[s];
+        var arr=groups[s].sort(function(a,b){return b.date.localeCompare(a.date)});
+        if(arr.length===0){
+          ul.innerHTML='';
+          if(!hint){hint=document.createElement('div');hint.className='project-empty-hint';hint.textContent='暂无该阶段事件';col.appendChild(hint)}
+        }else{
+          if(hint)hint.remove();
+          ul.innerHTML=arr.slice(0,40).map(function(e){
+            var pri=e.priority||'P2';
+            var tags=(e.peers||[]).map(function(p){return '<span class="stream-tag">'+p+'</span>'}).join('');
+            return '<li class="level-'+pri+'">'
+              +'<div class="project-meta"><time>'+e.date.replace(/-/g,'/')+'</time><span class="stream-priority '+pri+'"><i></i>'+pri+'</span></div>'
+              +'<b>'+e.title+'</b>'
+              +'<div class="stream-tags">'+tags+(e.source?'<span class="src">'+e.source+'</span>':'')+'</div>'
+              +'</li>';
+          }).join('');
+        }
+      });
+      var active=groups.approval.length+groups.ramp.length;
+      var upcoming=pr.filter(function(e){var n=daysAgo(e.report_date);return n>=0&&n<=90}).length;
+      document.querySelector('#projCardTotal strong').textContent=pr.length;
+      document.querySelector('#projCardActive strong').textContent=active;
+      document.querySelector('#projCard90 strong').textContent=upcoming;
+    }
+    // 初始化空列提示
+    document.querySelectorAll('.project-col').forEach(function(col){
+      if(!col.querySelector('.project-empty')){
+        var d=document.createElement('div');d.className='project-empty-hint';d.textContent='暂无该阶段事件';col.appendChild(d);
+      }
+    });
+    // 联动：watchlist / 下拉 → 同时刷新事件流、技术、项目
+    function refreshAll(){render();renderTech();renderProjects();renderPrices();}
+    // ===== 07 成本与价格 =====
+    function fmtNum(n){if(n===null||n===undefined||isNaN(n))return '—';return Number(n).toLocaleString('en-US')}
+    function fmtPct(n){if(n===null||n===undefined||isNaN(n))return '—';var v=Number(n);return (v>=0?'+':'')+v.toFixed(2)+'%'}
+    function fmtRange(lo,hi){if(lo===null||hi===null||hi===undefined||lo===undefined)return '—';return fmtNum(lo)+'～'+fmtNum(hi)}
+    function drawSpark(svg,points){
+      if(!points||points.length<2)return;
+      var w=320,h=60,pad=2;
+      var xs=points.map(function(p){return p.x});
+      var ys=points.map(function(p){return p.y});
+      var min=Math.min.apply(null,ys),max=Math.max.apply(null,ys);
+      var span=max-min||1;
+      var pts=points.map(function(p,i){var x=pad+(w-pad*2)*(i/(points.length-1));var y=h-pad-(h-pad*2)*((p.y-min)/span);return [x,y]});
+      var d='M '+pts.map(function(p){return p[0].toFixed(1)+','+p[1].toFixed(1)}).join(' L ');
+      var up=points[points.length-1].y>=points[0].y;
+      var color=up?'#a32d2d':'#0F6E56';
+      svg.innerHTML='<path d="'+d+'" fill="none" stroke="'+color+'" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>'
+        +'<circle cx="'+pts[pts.length-1][0].toFixed(1)+'" cy="'+pts[pts.length-1][1].toFixed(1)+'" r="2.5" fill="'+color+'"/>';
+    }
+    function renderPriceCard(key,s){
+      if(!s.available){return}
+      document.getElementById(key+'_label').textContent=s.label;
+      document.getElementById(key+'_date').textContent=s.latest_date||'—';
+      document.getElementById(key+'_close').textContent=fmtNum(s.latest_close);
+      var mom=document.getElementById(key+'_mom');
+      mom.textContent=fmtPct(s.mom_pct);mom.className=(s.mom_pct>0?'pc-mom-pos':'pc-mom-neg');
+      document.getElementById(key+'_avg30').textContent=fmtNum(s.avg_30);
+      var rng=document.getElementById(key+'_range');
+      if(rng){rng.textContent=fmtRange(s.low_30,s.high_30)}
+      var yoy=document.getElementById(key+'_yoy');
+      if(yoy){yoy.textContent=fmtPct(s.yoy_pct);yoy.className=(s.yoy_pct>0?'pc-mom-pos':'pc-mom-neg')}
+      document.getElementById(key+'_update').textContent='更新：'+(s.update_time||'—');
+      var dod=document.getElementById(key+'_dod');
+      var dodPct=s.change_pct_dod;
+      if(dodPct===null||dodPct===undefined){dod.textContent='日度 —'}
+      else{dod.textContent='日度 '+(dodPct>=0?'+':'')+dodPct.toFixed(2)+'%';dod.className=dodPct>=0?'dod-pos':'dod-neg'}
+      var spark=document.getElementById(key+'_spark');
+      if(s.series_recent&&s.series_recent.length){
+        var pts=s.series_recent.map(function(p){return {x:p.date,y:p.close}});
+        drawSpark(spark,pts);
+      }
+    }
+    function renderPrices(){
+      var P=window.__PRICE_FEED__;
+      if(!P||!P.available)return;
+      ['lfp_power','lfp_storage','iron_phosphate'].forEach(function(k){renderPriceCard(k,P.series[k]||{})});
+      if(!P.is_fresh){
+        var el=document.getElementById('priceStale');el.hidden=false;
+        document.getElementById('priceStaleDate').textContent=P.latest_data_date||'—';
+        var days=P.latest_data_date?(Math.floor((Date.now()-new Date(P.latest_data_date).getTime())/86400000)):0;
+        document.getElementById('priceStaleDays').textContent=days;
+      }
+    }
+    if(window.__PRICE_FEED__){renderPrices()}else{window.addEventListener('price-ready',renderPrices,{once:true})}
+    // 在原 render 与 renderTech/renderProjects 之上做统一联动
+    var _peerEl=document.getElementById('techCompany');
+    if(_peerEl){_peerEl.addEventListener('change',function(){techPeer=_peerEl.value;refreshAll()})}
+    // 主 watchlist 点击已由外层事件委托统一处理（动态重建不会失效），这里只注册联动回调
+    window.__onPeerChanged=function(name){techPeer=name;if(_peerEl)_peerEl.value=name;refreshAll()};
+    // chip 切换同样刷新技术tab
+    document.querySelectorAll('.stream-actions .chip').forEach(function(b){
+      b.addEventListener('click',function(){setTimeout(refreshAll,10)});
+    });
+    // 默认触发一次（首次渲染）
+    renderTech();renderProjects();
+    }
+    if(window.__COMPETITOR_FEED__){start()}else{window.addEventListener('feed-ready',start,{once:true})}
+  })();
+})();
+</script>
+<script>
+(function(){
+  // 加载竞品动态数据（按 fetch 顺序插入，失败时用本地兜底）
+  window.__COMPETITOR_FEED__=null;
+  fetch('competitor_feed_czly.json',{cache:'no-store'})
+    .then(function(r){return r.ok?r.json():null})
+    .then(function(d){window.__COMPETITOR_FEED__=d;window.dispatchEvent(new Event('feed-ready'))})
+    .catch(function(){window.dispatchEvent(new Event('feed-ready'))});
+})();
+(function(){
+  // 加载价格数据
+  window.__PRICE_FEED__=null;
+  function fire(){window.dispatchEvent(new Event('price-ready'))}
+  fetch('price_feed_czly.json',{cache:'no-store'})
+    .then(function(r){return r.ok?r.json():null})
+    .then(function(d){window.__PRICE_FEED__=d;fire()})
+    .catch(function(){fire()});
+})();
+</script>
+</body>
+</html>
