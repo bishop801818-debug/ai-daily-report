@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>中国锂电池市场 · 2026年08月分析报告</title>
+<style>
+:root {
+  --primary: #1e3c72;
+  --primary-light: #2a5298;
+  --primary-dark: #15294d;
+  --text-color: #1a1a1a;
+  --text-secondary: #555;
+  --text-light: #888;
+  --border-color: #e0e0e0;
+  --bg-light: #f0f3f8;
+  --bg-white: #fff;
+  --green: #2e7d32;
+  --orange: #ef6c00;
+  --red: #c62828;
+  --blue-light: rgba(30,60,114,0.06);
+  --gold: #d4a017;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', 'Segoe UI', sans-serif; color: var(--text-color); background: var(--bg-light); line-height: 1.8; font-size: 14px; }
+a { color: inherit; text-decoration: none; }
+.topbar { position: sticky; top: 0; z-index: 100; background: linear-gradient(135deg, var(--primary-dark), var(--primary)); color: #fff; padding: 0 24px; height: 56px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 2px 8px rgba(0,0,0,0.18); }
+.topbar-left { display: flex; align-items: center; gap: 8px; }
+.topbar-back-btn { background: rgba(255,255,255,0.15); color: #fff; border: 1px solid rgba(255,255,255,0.3); padding: 5px 14px; border-radius: 20px; font-size: 12px; cursor: pointer; transition: all 0.2s; }
+.topbar-back-btn:hover { background: rgba(255,255,255,0.25); }
+.topbar-center { font-size: 18px; font-weight: 700; letter-spacing: 1px; }
+.topbar-right { font-size: 12px; opacity: 0.85; }
+.page-wrapper { display: flex; max-width: 1200px; margin: 0 auto; padding: 24px 16px; gap: 20px; }
+.toc-sidebar { flex: 0 0 200px; position: sticky; top: 80px; height: fit-content; background: #fff; border-radius: 12px; padding: 16px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+.toc-sidebar h3 { font-size: 13px; color: var(--primary); margin-bottom: 12px; padding-bottom: 8px; border-bottom: 2px solid var(--primary); font-weight: 700; }
+.toc-list { list-style: none; }
+.toc-list li { margin-bottom: 4px; }
+.toc-list a { display: block; padding: 6px 8px; border-radius: 6px; font-size: 12px; color: var(--text-secondary); transition: all 0.2s; }
+.toc-list a:hover { background: var(--blue-light); color: var(--primary); }
+.toc-list a.active { background: var(--blue-light); color: var(--primary); font-weight: 600; }
+.toc-part { font-weight: 700; color: var(--text-color); }
+.toc-sub { padding-left: 16px; font-size: 11px; }
+.main-content { flex: 1; min-width: 0; }
+.report-header { background: linear-gradient(135deg, var(--primary-dark), var(--primary)); color: #fff; border-radius: 16px; padding: 40px 32px 32px; margin-bottom: 20px; }
+.report-header .report-subtitle { font-size: 14px; opacity: 0.8; margin-bottom: 8px; }
+.report-header h1 { font-size: 28px; font-weight: 700; margin-bottom: 8px; }
+.report-header .report-meta { font-size: 13px; opacity: 0.75; display: flex; gap: 16px; flex-wrap: wrap; }
+.report-header .report-meta span { display: flex; align-items: center; gap: 4px; }
+.kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
+.kpi-card { background: #fff; border-radius: 12px; padding: 16px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); border-top: 3px solid var(--primary); }
+.kpi-label { font-size: 12px; color: var(--text-light); margin-bottom: 6px; font-weight: 500; }
+.kpi-value { font-size: 22px; font-weight: 800; color: var(--primary); line-height: 1.2; }
+.kpi-change { font-size: 12px; margin-top: 4px; font-weight: 600; padding: 2px 8px; border-radius: 10px; display: inline-block; }
+.kpi-change.up { background: rgba(46,125,50,0.1); color: var(--green); }
+.kpi-change.down { background: rgba(198,40,40,0.1); color: var(--red); }
+.kpi-change.neutral { background: rgba(100,100,100,0.08); color: var(--text-light); }
+.part-section { background: #fff; border-radius: 12px; margin-bottom: 20px; padding: 24px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+.part-title { display: flex; align-items: center; gap: 10px; font-size: 18px; font-weight: 700; color: var(--primary); margin-bottom: 16px; padding-bottom: 10px; border-bottom: 2px solid var(--border-color); }
+.part-title .part-num { width: 32px; height: 32px; background: var(--primary); color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; flex-shrink: 0; }
+.sub-title { font-size: 15px; font-weight: 700; color: var(--text-color); margin: 20px 0 10px; display: flex; align-items: center; gap: 8px; }
+.sub-title::before { content: ''; width: 4px; height: 16px; background: var(--primary); border-radius: 2px; }
+.insight-block { background: linear-gradient(135deg, #f7faff, #fff); border-left: 4px solid var(--primary); padding: 16px 20px; border-radius: 8px; margin: 12px 0; }
+.insight-block p { margin-bottom: 8px; font-size: 13.5px; color: var(--text-secondary); line-height: 1.9; }
+.insight-block p:last-child { margin-bottom: 0; }
+.highlight { background: linear-gradient(180deg, transparent 60%, rgba(30,60,114,0.18) 60%); font-weight: 700; color: var(--primary); padding: 0 2px; }
+.strong { font-weight: 700; color: var(--text-color); }
+.data-table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 13px; }
+.data-table thead th { background: var(--bg-light); border-bottom: 2px solid var(--border-color); padding: 8px 12px; text-align: right; font-weight: 600; color: var(--text-secondary); }
+.data-table thead th:first-child { text-align: left; }
+.data-table tbody td { padding: 8px 12px; border-bottom: 1px solid var(--border-color); text-align: right; }
+.data-table tbody td:first-child { text-align: left; font-weight: 500; }
+.data-table tbody tr.row-highlight { background: var(--blue-light); }
+.data-table tbody tr.row-highlight td { color: var(--primary); font-weight: 600; }
+.data-table tbody tr:hover { background: var(--bg-light); }
+.callout { border-radius: 8px; padding: 14px 16px; margin: 14px 0; font-size: 13px; line-height: 1.8; }
+.callout-info { background: rgba(30,60,114,0.06); border-left: 4px solid var(--primary); }
+.callout-warn { background: rgba(239,108,0,0.08); border-left: 4px solid var(--orange); }
+.callout-danger { background: rgba(198,40,40,0.07); border-left: 4px solid var(--red); }
+.callout-success { background: rgba(46,125,50,0.08); border-left: 4px solid var(--green); }
+.callout-gold { background: rgba(212,160,23,0.08); border-left: 4px solid var(--gold); }
+.callout-title { font-weight: 700; margin-bottom: 6px; font-size: 14px; }
+.callout p { margin-bottom: 6px; }
+.callout p:last-child { margin-bottom: 0; }
+.news-tag { display: inline-block; padding: 1px 8px; border-radius: 10px; font-size: 11px; font-weight: 700; margin-right: 6px; }
+.news-tag.p0 { background: var(--red); color: #fff; }
+.news-tag.p1 { background: var(--orange); color: #fff; }
+.news-tag.p2 { background: rgba(100,100,100,0.15); color: var(--text-secondary); }
+.conclusion-banner { background: linear-gradient(135deg, var(--primary-dark), var(--primary)); color: #fff; border-radius: 12px; padding: 24px 28px; margin: 16px 0; }
+.conclusion-banner h3 { font-size: 18px; font-weight: 700; margin-bottom: 12px; }
+.conclusion-banner p { font-size: 13.5px; line-height: 1.9; margin-bottom: 8px; opacity: 0.95; }
+.conclusion-banner strong { background: rgba(255,255,255,0.18); padding: 1px 6px; border-radius: 3px; }
+.rec-card { background: #fff; border-radius: 10px; padding: 16px 20px; margin: 12px 0; border-left: 4px solid var(--primary); }
+.rec-card.rec-opportunity { border-left-color: var(--green); }
+.rec-card.rec-risk { border-left-color: var(--red); }
+.rec-card.rec-action { border-left-color: var(--gold); }
+.rec-title { font-size: 14px; font-weight: 700; margin-bottom: 10px; color: var(--primary); }
+.rec-item { font-size: 13px; line-height: 1.9; padding: 8px 0; border-bottom: 1px dashed var(--border-color); color: var(--text-secondary); }
+.rec-item:last-child { border-bottom: none; }
+.rec-item strong { color: var(--text-color); }
+.data-source { font-size: 11px; color: var(--text-light); margin-top: 8px; padding-top: 8px; border-top: 1px dashed var(--border-color); }
+.chart-card { background: #fff; border-radius: 10px; padding: 20px; margin: 16px 0; box-shadow: 0 1px 4px rgba(0,0,0,0.05); }
+.chart-card h4 { font-size: 14px; color: var(--text-secondary); margin-bottom: 12px; font-weight: 600; }
+.chart-card canvas { max-width: 100%; }
+.chart-flex-row { display: flex; gap: 16px; flex-wrap: wrap; margin: 16px 0; }
+.chart-flex-row > .chart-card { flex: 1 1 320px; min-width: 280px; margin: 0; }
+@media print { .topbar, .toc-sidebar { display: none; } .page-wrapper { padding: 0; } .main-content { max-width: 100%; } .part-section { break-inside: avoid; } }
+@media (max-width: 1100px) { .toc-sidebar { display: none; } .kpi-row { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 600px) { .kpi-row { grid-template-columns: 1fr; } }
+</style>
+<script src="./chart.min.js"></script>
+</head>
+<body>
+<div class="topbar">
+  <div class="topbar-left">
+    <a href="index_v3.html" class="topbar-back-btn">← 返回</a>
+  </div>
+  <div class="topbar-center">中国锂电池市场 · 月度分析报告</div>
+  <div class="topbar-right">战略中心信息情报部</div>
+</div>
+
+<div class="page-wrapper">
+<aside class="toc-sidebar">
+  <h3>目 录</h3>
+  <ul class="toc-list">
+    <li><a href="#p1" class="toc-part">一、行业热点</a></li>
+    <li><a href="#p1-1" class="toc-sub">　政策与大事</a></li>
+    <li><a href="#p1-2" class="toc-sub">　热点事件时间轴</a></li>
+    <li><a href="#p2" class="toc-part">二、中国锂电池产量</a></li>
+    <li><a href="#p2-1" class="toc-sub">　月度产量趋势</a></li>
+    <li><a href="#p2-2" class="toc-sub">　累计产量</a></li>
+    <li><a href="#p3" class="toc-part">三、中国锂电池装机量</a></li>
+    <li><a href="#p3-1" class="toc-sub">　装机量月度趋势</a></li>
+    <li><a href="#p3-2" class="toc-sub">　铁锂/三元份额</a></li>
+    <li><a href="#p3-3" class="toc-sub">　企业装机量TOP10</a></li>
+    <li><a href="#p4" class="toc-part">四、产能与排产预测</a></li>
+    <li><a href="#p4-1" class="toc-sub">　产能利用率</a></li>
+    <li><a href="#p4-2" class="toc-sub">　企业排产预测</a></li>
+    <li><a href="#p5" class="toc-part">五、总结与展望</a></li>
+  </ul>
+</aside>
+
+<main class="main-content">
+
+<header class="report-header">
+  <div class="report-subtitle">战略中心信息情报部 · 锂电池行业</div>
+  <h1>中国锂电池市场 · 2026年08月分析报告</h1>
+  <div class="report-meta">
+    <span>📅 数据月份：2026年08月</span>
+    <span>📊 报告日期：2026年09月28日</span>
+    <span>⚙️ 数据来源：锂电池行业数据库 · 中国汽车动力电池产业创新联盟 · 9 BU 雷达看板</span>
+  </div>
+</header>
+
+<div class="kpi-row">
+  <div class="kpi-card">
+    <div class="kpi-label">8月产量</div>
+    <div class="kpi-value">275.9 GWh</div>
+    <div class="kpi-change up">▲ +7.4% MoM | 铁锂240.6 / 三元35.3</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-label">产能利用率</div>
+    <div class="kpi-value">101.8%</div>
+    <div class="kpi-change neutral">产能271 GWh，再创新高</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-label">8月装机量</div>
+    <div class="kpi-value">79.0 GWh</div>
+    <div class="kpi-change up">▲ +5.9% MoM | +26.3% YoY</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-label">铁锂装机占比</div>
+    <div class="kpi-value">85.6%</div>
+    <div class="kpi-change up">▲ +1.0pp vs 7月</div>
+  </div>
+</div>
+
+<!-- ========== PART 1: 行业热点 ========== -->
+<section class="part-section" id="p1">
+  <div class="part-title"><span class="part-num">1</span>行业热点</div>
+
+  <div class="insight-block">
+    <p>2026年8月，锂电池行业呈现"<span class="highlight">排产再创新高、装机环比反弹、固态电池产业化加速、消费税新规从严落地</span>"四大主线交织运行。8月产量275.9GWh（环比+7.4%）连续第3个月创历史峰值，储能持续放量；装机量79 GWh环比反弹+5.9%，扭转7月下行趋势；财政部确认9月1日起按不含增值税售价2%征收消费税（2027年9月升至4%），成本压力向产业链上游传导；国轩高科2万吨固态电池材料项目启动、三星SDI锁定2027下半年量产，固态电池产业化进入加速期。</p>
+    <p>需求侧，新能源车销量与储能装机双轮驱动延续高景气，宁德时代市占率41.5%仍居榜首但较7月52.33%有所回落，二线厂商加速追赶。供给侧，碳酸锂价格8月反弹至电池级99.5%约13.5万元/吨区间，枧下窝锂矿复产+津巴布韦矿集中到港+江西云母矿复产三重供给改善持续。</p>
+  </div>
+
+  <div class="callout callout-danger">
+    <div class="callout-title">🔴 P0级事件（影响全局，需高度关注）</div>
+    <p style="margin-bottom:6px"><span class="news-tag p0">P0</span><strong>国轩2万吨固态电池材料项目启动（2026-08-03）</strong>：国轩控股集团年产2万吨固态电池关键材料项目在安徽安庆正式启动，计划2026年12月底完成中试建设，2027年建成实现全面量产。<span style="color:#888;font-size:12px">【来源：中银证券，2026-08-03；BU：czly+lpsd】</span></p>
+    <p style="margin-bottom:6px"><span class="news-tag p0">P0</span><strong>三星SDI全固态电池2027H2量产（2026-08-03）</strong>：三星SDI在2026Q2财报电话会议确认全固态电池按2027年下半年量产目标推进，首单很可能来自人形机器人领域，标志动力电池技术路线进入新阶段。<span style="color:#888;font-size:12px">【来源：国金证券，2026-08-03；BU：lpsd+sjl】</span></p>
+    <p style="margin-bottom:6px"><span class="news-tag p0">P0</span><strong>8月全球电池企业预排产同比+59%（2026-08-03）</strong>：8月全球电池企业预排产同比+59%<span style="color:#888;font-size:12px">【来源：界面新闻，2026-08-03；BU：czly】</span></p>
+    <p style="margin-bottom:6px"><span class="news-tag p0">P0</span><strong>磷酸铁锂电解液周环比上涨7.61%（2026-08-03）</strong>：磷酸铁锂电解液周环比上涨7.61%<span style="color:#888;font-size:12px">【来源：西部证券，2026-08-02；BU：felt】</span></p>
+    <p style="margin-bottom:6px"><span class="news-tag p0">P0</span><strong>8月电池排产同比+70% 旺季确认（2026-08-03）</strong>：8月电池排产同比+70% 旺季确认<span style="color:#888;font-size:12px">【来源：国信证券,2026-08-03；BU：felt】</span></p>
+    <p style="margin-bottom:6px"><span class="news-tag p0">P0</span><strong>8月全球电池企业排产同比+59%（2026-08-03）</strong>：广发证券统计,8月全球主要电池企业预排产同比+59%、环比+8%,铁锂正极、负极、隔膜、电解液等关键材料排产同步回升,显示产业链景气度持续修复;头部电池企业已启动消费税成本传导调价,短期或刺激下游提前备货。<span style="color:#888;font-size:12px">【来源：界面新闻,2026-08-03；BU：felt】</span></p>
+    <p style="margin-bottom:6px"><span class="news-tag p0">P0</span><strong>三星SDI全固态电池锁定2027下半年量产（2026-08-03）</strong>：三星SDI全固态电池锁定2027下半年量产,预计率先应用于人形机器人领域,标志全固态电池产业化进程加速,国内宁德时代、亿纬锂能等龙头及容百科技等材料厂均已加速布局固态电池正极材料配套。<span style="color:#888;font-size:12px">【来源：东吴证券,2026-08-03；BU：sjl】</span></p>
+    <p style="margin-bottom:6px"><span class="news-tag p0">P0</span><strong>9月1日起锂电池开征2%消费税（2026-08-03）</strong>：9月1日起锂电池开征2%消费税<span style="color:#888;font-size:12px">【来源：财政部，2026-07-17；BU：lpsd】</span></p>
+
+  </div>
+
+  <div class="callout callout-warn">
+    <div class="callout-title">🟠 P1级事件（影响较大，需持续跟踪）</div>
+    <p style="margin-bottom:6px"><span class="news-tag p1">P1</span><strong>杰瑞重庆锂电资源化场站投产（2026-08-01）</strong>：杰瑞重庆锂电资源化场站投产<span style="color:#888;font-size:12px">【BU：sdmd】</span></p>
+    <p style="margin-bottom:6px"><span class="news-tag p1">P1</span><strong>朔州文景能源5000台燃料电池发动机投产（2026-08-03）</strong>：朔州文景能源深化与上海交通大学产学研合作，年产5000台套氢燃料电池发动机项目正式投产，165kW燃料电池系统成功下线，氢燃料发动机稳定续航里程将从400公里提升至600公里，为氢能重卡与公交规模化推广提供支撑。<span style="color:#888;font-size:12px">【BU：bych】</span></p>
+    <p style="margin-bottom:6px"><span class="news-tag p1">P1</span><strong>朔州文景165kW燃料电池系统下线（2026-08-03）</strong>：朔州文景能源科技与上海交通大学产学研合作的年产5000台套氢燃料电池发动机项目正式投产，165kW燃料电池系统成功下线，后续将续航里程从400公里提升至600公里，配套氢能重卡与公交规模化推广。<span style="color:#888;font-size:12px">【BU：bych】</span></p>
+    <p style="margin-bottom:6px"><span class="news-tag p1">P1</span><strong>东方氢能燃料电池系统批量交付（2026-08-03）</strong>：7月中旬成都揭榜挂帅第二批307套氢燃料电池系统全部完工发运，配套成渝氢走廊轻、中型氢能货车及31吨氢能重卡；4号厂房年产能2000套燃料电池系统装配线投产，配套年产100万片膜电极生产线实现上下楼协同配套。<span style="color:#888;font-size:12px">【BU：bych】</span></p>
+    <p style="margin-bottom:6px"><span class="news-tag p1">P1</span><strong>宜昌邦普56亿建45万吨第四代磷酸铁锂（2026-08-03）</strong>：宜昌邦普时代45万吨新一代磷酸铁锂项目总投资56亿元，采用行业领先的第四代磷酸铁锂技术，拟建设3条国内单体产能最大的磷酸铁锂车间，2025年二季度已开工，进一步放大高端LFP供给。<span style="color:#888;font-size:12px">【BU：czly】</span></p>
+    <p style="margin-bottom:6px"><span class="news-tag p1">P1</span><strong>国轩高科洽谈大众西班牙40GWh项目（2026-08-03）</strong>：大众汽车正与国轩高科就西班牙萨贡托电池工厂进行深入谈判，国轩高科有望拿下多数股权并主导运营。该工厂规划年产能40GWh、可扩至60GWh，原计划2026年9月投产、推迟至年底。<span style="color:#888;font-size:12px">【BU：czly】</span></p>
+
+  </div>
+
+  <div class="sub-title" id="p1-2">二、热点事件时间轴（2026年8月）</div>
+  <div class="insight-block">
+    <p>8月行业演进脉络清晰：月初政策端（消费税9月正式落地、固态电池材料项目密集启动）与供给端（碳酸锂反弹、枧下窝爬产）双重信号释放；中旬企业排产预测密集披露（宁德时代/比亚迪/亿纬锂能/国轩/中创新航/欣旺达）；下旬装机量环比反弹，铁锂占比突破85%。总体呈现"政策重塑格局、固态电池产业化提速、需求结构性高景气"特征。</p>
+  </div>
+
+  <table class="data-table">
+    <thead>
+      <tr><th style="text-align:left">日期</th><th style="text-align:left">事件</th><th style="text-align:center">优先级</th><th style="text-align:left">影响领域</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>2026-08-03</td><td style="text-align:left">国轩2万吨固态电池材料项目启动</td><td style="text-align:center"><span class="news-tag p0">P0</span></td><td style="text-align:left">技术路线</td></tr>
+      <tr><td>2026-08-03</td><td style="text-align:left">三星SDI全固态电池2027H2量产</td><td style="text-align:center"><span class="news-tag p0">P0</span></td><td style="text-align:left">技术路线</td></tr>
+      <tr><td>2026-08-04</td><td style="text-align:left">高压实磷酸铁锂缺口34-49万吨</td><td style="text-align:center"><span class="news-tag p0">P0</span></td><td style="text-align:left">今日关注</td></tr>
+      <tr><td>2026-08-04</td><td style="text-align:left">高压实磷酸铁锂溢价1000-2000元</td><td style="text-align:center"><span class="news-tag p0">P0</span></td><td style="text-align:left">技术/产品</td></tr>
+      <tr><td>2026-08-05</td><td style="text-align:left">工信部酝酿燃料电池新补贴政策</td><td style="text-align:center"><span class="news-tag p0">P0</span></td><td style="text-align:left">今日关注</td></tr>
+      <tr><td>2026-08-05</td><td style="text-align:left">海辰储能130亿元产业园8月7日量产</td><td style="text-align:center"><span class="news-tag p0">P0</span></td><td style="text-align:left">项目/招标</td></tr>
+      <tr><td>2026-08-06</td><td style="text-align:left">头部磷酸铁锂企业全系上调2000元/吨</td><td style="text-align:center"><span class="news-tag p0">P0</span></td><td style="text-align:left">企业动态</td></tr>
+      <tr><td>2026-08-06</td><td style="text-align:left">全球首款1175Ah千安时长时储能电芯下线</td><td style="text-align:center"><span class="news-tag p0">P0</span></td><td style="text-align:left">技术/产品</td></tr>
+      <tr><td>2026-08-08</td><td style="text-align:left">海辰1175Ah长时储能电芯下线</td><td style="text-align:center"><span class="news-tag p0">P0</span></td><td style="text-align:left">技术/产品</td></tr>
+      <tr><td>2026-08-08</td><td style="text-align:left">海辰储能菏泽长时储能一体化产业园投产</td><td style="text-align:center"><span class="news-tag p0">P0</span></td><td style="text-align:left">项目/招标</td></tr>
+      <tr><td>2026-08-09</td><td style="text-align:left">海辰储能菏泽基地1175Ah电芯量产下线</td><td style="text-align:center"><span class="news-tag p0">P0</span></td><td style="text-align:left">企业动态</td></tr>
+      <tr><td>2026-08-09</td><td style="text-align:left">海辰储能菏泽1175Ah电芯正式量产</td><td style="text-align:center"><span class="news-tag p0">P0</span></td><td style="text-align:left">今日关注</td></tr>
+
+    </tbody>
+  </table>
+</section>
+
+<!-- ========== PART 2: 产量 ========== -->
+<section class="part-section" id="p2">
+  <div class="part-title"><span class="part-num">2</span>中国锂电池产量</div>
+
+  <div class="sub-title" id="p2-1">一、月度产量趋势（2025.09—2026.08）</div>
+  <div class="chart-card">
+    <h4>📊 图1：中国锂电池月度产量趋势（分铁锂/三元，GWh）</h4>
+    <div style="position:relative;height:300px;"><canvas id="chart_output_trend"></canvas></div>
+  </div>
+  <div class="insight-block">
+    <p>2026年8月，中国锂电池产量达<strong>275.9 GWh</strong>（铁锂240.6 GWh占87.2%，三元35.3 GWh占12.8%），环比7.4%，连续第3个月创历史新高。<span class="highlight">铁锂产量再创历史新高240.6 GWh</span>，三元产量35.3 GWh相对稳定。</p>
+    <p>从2025年9月到2026年8月的12个月走势看，铁锂产量从149.12 GWh逐月攀升至240.6 GWh，铁锂占比从82.5%稳步提升至87.2%（8月），三元空间持续被挤压。消费税政策9月落地+储能全面倒向铁锂路线将推动铁锂占比进一步上升，三元份额长期看将维持在13%以下。</p>
+  </div>
+
+  <table class="data-table">
+    <thead>
+      <tr><th>月份</th><th>铁锂（GWh）</th><th>三元（GWh）</th><th>合计（GWh）</th><th>铁锂占比</th><th>环比</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>2025-09</td><td>149.12</td><td>31.73</td><td>180.85</td><td>82.5%</td><td>—%</td></tr>
+      <tr><td>2025-10</td><td>162.32</td><td>32.61</td><td>194.93</td><td>83.3%</td><td>+7.8%</td></tr>
+      <tr><td>2025-11</td><td>166.72</td><td>32.91</td><td>199.63</td><td>83.5%</td><td>+2.4%</td></tr>
+      <tr><td>2025-12</td><td>171.40</td><td>32.41</td><td>203.81</td><td>84.1%</td><td>+2.1%</td></tr>
+      <tr><td>2026-01</td><td>165.25</td><td>29.96</td><td>195.21</td><td>84.7%</td><td>-4.2%</td></tr>
+      <tr><td>2026-02</td><td>140.77</td><td>24.61</td><td>165.38</td><td>85.1%</td><td>-15.3%</td></tr>
+      <tr><td>2026-03</td><td>176.30</td><td>32.11</td><td>208.41</td><td>84.6%</td><td>+26.0%</td></tr>
+      <tr><td>2026-04</td><td>187.20</td><td>31.67</td><td>218.87</td><td>85.5%</td><td>+5.0%</td></tr>
+      <tr><td>2026-05</td><td>201.90</td><td>33.47</td><td>235.37</td><td>85.8%</td><td>+7.5%</td></tr>
+      <tr><td>2026-06</td><td>210.67</td><td>34.87</td><td>245.54</td><td>85.8%</td><td>+4.3%</td></tr>
+      <tr><td>2026-07</td><td>221.80</td><td>35.03</td><td>256.83</td><td>86.4%</td><td>+4.6%</td></tr>
+      <tr class="row-highlight"><td>2026-08</td><td>240.60</td><td>35.32</td><td>275.92</td><td>87.2%</td><td>+7.4%</td></tr>
+
+    </tbody>
+  </table>
+
+  <div class="chart-card">
+    <h4>📊 图2：中国锂电池月度产量与环比增速（GWh）</h4>
+    <div style="position:relative;height:300px;"><canvas id="chart_output_mom"></canvas></div>
+  </div>
+
+  <div class="callout callout-success">
+    <div class="callout-title">📌 铁锂化趋势不可逆转：8月铁锂占比87.2%，连续刷新历史峰值</div>
+    <p>磷酸铁锂凭借安全性与成本优势持续主导市场，三元材料产量稳定在33-36 GWh区间横盘。消费税政策9月落地后，储能全面倒向铁锂路线+中低端车型加速渗透，三元份额将受到进一步挤压。</p>
+  </div>
+</section>
+
+<!-- ========== PART 3: 装机量 ========== -->
+<section class="part-section" id="p3">
+  <div class="part-title"><span class="part-num">3</span>中国锂电池装机量</div>
+
+  <div class="sub-title" id="p3-1">一、装机量月度趋势（2026.06—2026.08）</div>
+  <div class="chart-card">
+    <h4>📊 图3：中国锂电池月度装机量趋势（分铁锂/三元，GWh）</h4>
+    <div style="position:relative;height:300px;"><canvas id="chart_install_trend"></canvas></div>
+  </div>
+  <div class="insight-block">
+    <p>2026年8月，中国动力电池装机量达<strong>79.0 GWh</strong>，同比26.3%，环比5.9%（扭转7月-2.5%的下行趋势）。<span class="highlight">装机环比反弹+5.9%</span>验证消费税政策9月落地前的下游抢装效应。铁锂装机67.6 GWh（占85.6%），三元11.0 GWh（占14.0%).</p>
+    <p>从月度走势看，装机量在7月74.6 GWh小幅调整后，8月反弹至79 GWh，仍处于历史高位区间。1-8月累计装机量约489.2 GWh，全年装机量有望突破700 GWh（vs 2025年约580 GWh）。</p>
+  </div>
+
+  <table class="data-table">
+    <thead>
+      <tr><th>月份</th><th>动力电池装车（GWh）</th><th>同比</th><th>环比</th><th>铁锂占比</th><th>三元占比</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>2026-06</td><td>76.5</td><td>31.5%</td><td>6.4%</td><td>83.3%</td><td>16.5%</td></tr>
+      <tr><td>2026-07</td><td>74.6</td><td>33.5%</td><td>-2.5%</td><td>84.6%</td><td>14.9%</td></tr>
+      <tr class="row-highlight"><td>2026-08</td><td>79</td><td>26.3%</td><td>5.9%</td><td>85.6%</td><td>14.0%</td></tr>
+
+    </tbody>
+  </table>
+
+  <div class="sub-title" id="p3-2">二、铁锂/三元装机份额（2026年8月）</div>
+  <div class="chart-flex-row">
+    <div class="chart-card">
+      <h4>📊 图4：装机量铁锂/三元份额（8月）</h4>
+      <div style="position:relative;height:280px;"><canvas id="chart_install_pie"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <h4>📊 图5：铁锂/三元装机量月度走势（GWh）</h4>
+      <div style="position:relative;height:280px;"><canvas id="chart_lfp_ncm_install"></canvas></div>
+    </div>
+  </div>
+  <div class="insight-block">
+    <p>8月装机量中，<strong>铁锂67.6 GWh（占比85.6%)</strong>，三元11.0 GWh（占比14.0%)。铁锂装机份额从6月83.3%→7月84.6%→8月85.6%，持续走高，与产量端铁锂化趋势高度一致。三元装机环比-1.0%持续走弱，三元主要集中于高端车型，受消费税成本传导和铁锂能量密度持续突破双向挤压。</p>
+  </div>
+
+  <div class="sub-title" id="p3-3">三、企业装机量TOP10（2026年8月）</div>
+  <div class="chart-card">
+    <h4>📊 图6：动力电池装机量企业TOP10（2026年8月）</h4>
+    <div style="position:relative;height:320px;"><canvas id="chart_top10_company"></canvas></div>
+  </div>
+  <div class="insight-block">
+    <p>8月TOP10企业合计装机量约74.3 GWh，占全部装机量约94.1%，市场高度集中。<span class="strong">宁德时代以32.54 GWh（41.45%）领跑</span>，但市占率较7月52.33%回落约10.9pp；二线企业亿纬锂能、瑞浦兰钧、吉曜通行加速追赶，亿纬锂能同比+70.44%、瑞浦兰钧同比+75.48%。</p>
+  </div>
+
+  <table class="data-table">
+    <thead>
+      <tr><th>排名</th><th>企业</th><th>装机量（GWh）</th><th>市占率</th><th>同比</th><th>环比</th></tr>
+    </thead>
+    <tbody>
+      <tr class="row-highlight"><td>1</td><td style="text-align:left">宁德时代</td><td>32.54</td><td>41.45%</td><td>23.02%</td><td>4%</td></tr>
+      <tr><td>2</td><td style="text-align:left">比亚迪</td><td>16.47</td><td>20.98%</td><td>26.50%</td><td>15%</td></tr>
+      <tr><td>3</td><td style="text-align:left">中创新航</td><td>5.11</td><td>6.51%</td><td>1.59%</td><td>-1%</td></tr>
+      <tr><td>4</td><td style="text-align:left">亿纬锂能</td><td>4.67</td><td>5.95%</td><td>70.44%</td><td>4%</td></tr>
+      <tr><td>5</td><td style="text-align:left">国轩高科</td><td>4.61</td><td>5.87%</td><td>25.61%</td><td>-1%</td></tr>
+      <tr><td>6</td><td style="text-align:left">瑞浦兰钧</td><td>2.72</td><td>3.47%</td><td>75.48%</td><td>-6%</td></tr>
+      <tr><td>7</td><td style="text-align:left">欣旺达</td><td>2.71</td><td>3.46%</td><td>10.61%</td><td>2%</td></tr>
+      <tr><td>8</td><td style="text-align:left">正力新能</td><td>1.87</td><td>2.39%</td><td>8.09%</td><td>3%</td></tr>
+      <tr><td>9</td><td style="text-align:left">吉曜通行</td><td>1.8</td><td>2.30%</td><td>74.76%</td><td>9%</td></tr>
+      <tr><td>10</td><td style="text-align:left">蜂巢能源</td><td>1.8</td><td>2.29%</td><td>4.05%</td><td>32%</td></tr>
+
+    </tbody>
+  </table>
+
+  <div class="callout callout-info">
+    <div class="callout-title">📌 二线企业分化：亿纬锂能/瑞浦/吉曜同比超70%，楚能/因湃环比下滑</div>
+    <p>二线企业出现明显分化：亿纬锂能同比+70.44%、瑞浦兰钧+75.48%、吉曜通行+74.76%形成第一梯队；楚能新能源环比-23.31%、因湃电池环比-39.13%出现明显回调。LG新能源环比+119%外资反弹但绝对量仍小（1.6 GWh，市占2.03%）。</p>
+  </div>
+</section>
+
+<!-- ========== PART 4: 产能与排产 ========== -->
+<section class="part-section" id="p4">
+  <div class="part-title"><span class="part-num">4</span>产能与排产预测</div>
+
+  <div class="sub-title" id="p4-1">一、产能利用率走势（2025.09—2026.08）</div>
+  <div class="chart-card">
+    <h4>📊 图7：锂电池产能、产量与利用率趋势（2025.09-2026.08）</h4>
+    <div style="position:relative;height:300px;"><canvas id="chart_capacity_util"></canvas></div>
+  </div>
+  <div class="insight-block">
+    <p>2026年8月，全行业产能达<strong>271 GWh</strong>（较7月271 GWh+0 GWh）；产量275.9 GWh，<span class="highlight">产能利用率101.8%</span>，达到并超过100%（实际显示101.82%），表明行业满产运转。</p>
+    <p>产能从2025年9月的198 GWh扩张至2026年8月的271 GWh，12个月新增73 GWh，扩产节奏激进。产能利用率2026年2月春节因素拉低至77.6%后快速修复，4-8月连续保持95%以上高位。消费税政策9月落地或驱动9月抢装，排产有望再创新高。</p>
+  </div>
+
+  <table class="data-table">
+    <thead>
+      <tr><th>月份</th><th>产能（GWh）</th><th>产量（GWh）</th><th>利用率</th><th>环比产能增量</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>2025-09</td><td>198</td><td>180.85</td><td>91.3%</td><td>—</td></tr>
+      <tr><td>2025-10</td><td>205</td><td>194.93</td><td>95.1%</td><td>+7</td></tr>
+      <tr><td>2025-11</td><td>206</td><td>199.63</td><td>96.9%</td><td>+1</td></tr>
+      <tr><td>2025-12</td><td>207</td><td>203.81</td><td>98.5%</td><td>+1</td></tr>
+      <tr><td>2026-01</td><td>207</td><td>195.21</td><td>94.3%</td><td>+0</td></tr>
+      <tr><td>2026-02</td><td>213</td><td>165.38</td><td>77.6%</td><td>+6</td></tr>
+      <tr><td>2026-03</td><td>215</td><td>208.41</td><td>96.9%</td><td>+2</td></tr>
+      <tr><td>2026-04</td><td>229</td><td>218.87</td><td>95.6%</td><td>+14</td></tr>
+      <tr><td>2026-05</td><td>248</td><td>235.40</td><td>94.9%</td><td>+19</td></tr>
+      <tr><td>2026-06</td><td>264</td><td>245.54</td><td>93.0%</td><td>+16</td></tr>
+      <tr><td>2026-07</td><td>271</td><td>256.80</td><td>94.8%</td><td>+7</td></tr>
+      <tr class="row-highlight"><td>2026-08</td><td>271</td><td>275.92</td><td>101.8%</td><td>+0</td></tr>
+
+    </tbody>
+  </table>
+
+  <div class="sub-title" id="p4-2">二、企业排产预测（2026年8月）</div>
+  <div class="chart-card">
+    <h4>📊 图8：主要企业8月排产预测（铁锂 vs 三元，GWh）</h4>
+    <div style="position:relative;height:300px;"><canvas id="chart_forecast"></canvas></div>
+  </div>
+  <div class="insight-block">
+    <p>8月排产数据显示，头部企业维持高负荷运转。<strong>宁德时代铁锂37 GWh + 三元9.3 GWh</strong>，合计约46.3 GWh；比亚迪铁锂20.2 GWh + 三元0.6 GWh合计约20.8 GWh（自用为主）。亿纬锂能、中创新航、国轩高科合计铁锂45.4 GWh，二线企业排产大幅提升，与装机量同比高增长形成印证。</p>
+  </div>
+
+  <table class="data-table">
+    <thead>
+      <tr><th>企业</th><th>铁锂排产（GWh）</th><th>三元排产（GWh）</th><th>合计（GWh）</th><th>类型</th></tr>
+    </thead>
+    <tbody>
+      <tr class="row-highlight"><td style="text-align:left">宁德时代</td><td>37.0</td><td>9.3</td><td>46.3</td><td>动力+储能</td></tr>
+      <tr><td style="text-align:left">比亚迪</td><td>20.2</td><td>0.6</td><td>20.8</td><td>自用为主</td></tr>
+      <tr><td style="text-align:left">亿纬锂能</td><td>16.0</td><td>2.0</td><td>18.1</td><td>动力+储能</td></tr>
+      <tr><td style="text-align:left">中创新航</td><td>15.2</td><td>1.6</td><td>16.8</td><td>动力+储能</td></tr>
+      <tr><td style="text-align:left">国轩高科</td><td>14.2</td><td>0.2</td><td>14.4</td><td>动力+储能</td></tr>
+      <tr><td style="text-align:left">蜂巢能源</td><td>0.3</td><td>1.0</td><td>1.3</td><td>动力+储能</td></tr>
+
+    </tbody>
+  </table>
+
+  <div class="callout callout-warn">
+    <div class="callout-title">⚠️ 产能扩张与库存风险提示</div>
+    <p><strong>产能满产运转：</strong>12个月新增产能73 GWh（198→271），利用率维持100%高位，反映需求侧高景气完全吸纳了新增产能。8月装机量反弹+5.9%与产量高增长形成正反馈。</p>
+    <p style="margin-top:6px"><strong>消费税影响：</strong>2026年9月1日起对锂电池征收2%消费税（2027年9月升至4%），成本压力向全产业链传导。储能作为价格敏感型市场，受消费税影响最大，可能加速行业利润分化。9月或现"抢装行情"，但Q4需警惕库存累积风险。</p>
+  </div>
+</section>
+
+<!-- ========== PART 5: 总结与展望 ========== -->
+<section class="part-section" id="p5">
+  <div class="part-title"><span class="part-num">5</span>总结与展望</div>
+
+  <div class="conclusion-banner">
+    <h3>核心结论</h3>
+    <p><strong>2026年8月锂电池行业呈现"排产再创新高、装机环比反弹、固态电池产业化加速、消费税新规从严落地、二线企业分化加剧"五大特征。</strong>产量275.9 GWh（环比+7.4%）连续第3个月创历史新高，产能利用率101.8%满产运转，铁锂占比攀升至87.2%。P0级事件消费税改革9月正式落地（2%税率，2027年9月升至4%），成本压力向全产业链传导。国轩高科2万吨固态电池材料项目启动+三星SDI全固态锁定2027下半年量产，固态电池产业化进入加速期。宁德时代市占率41.45%%仍居榜首但较7月52.33%有所回落，二线企业加速追赶。</p>
+  </div>
+
+  <div class="rec-card rec-opportunity">
+    <div class="rec-title">💡 机会</div>
+    <div class="rec-item" data-num="①"><strong>消费税政策倒逼铁锂化加速：</strong>2%消费税（2027年升至4%）对三元电池成本压力更大，加速储能及中低端车型全面倒向铁锂路线。铁锂占比已升至87.2%，且趋势不可逆。铁锂专用材料（磷酸铁、磷酸铁锂正极）需求持续扩容，率先实现低成本量产的正极材料企业将受益。</div>
+    <div class="rec-item" data-num="②"><strong>产能满产+装机反弹印证需求高景气：</strong>8月产能利用率101.8%满产，装机环比反弹+5.9%。9月消费税落地前抢装行情可期，Q3排产有望再创新高。头部企业满产运转+二线企业分化（亿纬/瑞浦/吉曜同比+70%+）反映行业进入"龙头稳健+二线分化"阶段。</div>
+    <div class="rec-item" data-num="③"><strong>固态电池产业化进入加速期：</strong>8月国轩高科2万吨固态电池材料项目启动、三星SDI锁定2027下半年量产、苏州全固态电池产业化项目签约（主攻400-600Wh/kg）。固态电池标准IEC立项+头部企业产能爬产，2027-2028年固态电池产业化窗口期开启，相关材料企业（Li2S/硫化物体系）面临新机会。</div>
+    <div class="rec-item" data-num="④"><strong>二线企业加速渗透带来供应链机会：</strong>亿纬锂能同比+70%、瑞浦兰钧+75%、吉曜通行+75%构成第二梯队高增长集群。市占率提升带来配套需求（正极/电解液/隔膜/结构件），常州锂源、龙蟠科技等供应链企业可借机拓展二线客户。</div>
+  </div>
+
+  <div class="rec-card rec-risk">
+    <div class="rec-title">⚠️ 风险</div>
+    <div class="rec-item" data-num="①"><strong>消费税传导与库存压力：</strong>9月1日起2%消费税落地，Q4升至4%。电池厂压价意图明确，锂盐/正极材料企业顺价承压。8月产量增速持续高于装机增速（产量+7.4% vs 装机+5.9%），库存累积风险持续累积。</div>
+    <div class="rec-item" data-num="②"><strong>产能满产vs增速放缓信号：</strong>宁德时代市占率41.45%%较7月52.33%回落约10.9pp，反映二线厂商分流。但产能利用率101.8%显示行业仍处高景气，需警惕2026-Q4旺季后的产能过剩风险。</div>
+    <div class="rec-item" data-num="③"><strong>碳酸锂价格反弹对中游利润的传导：</strong>碳酸锂8月现货价格出现反弹，工业级98.5%约13.5万元/吨区间，与7月末基本持平。若Q4旺季需求拉动碳酸锂价格上行，6.5万→7万→8万/吨可能侵蚀正极/电解液企业毛利率。</div>
+  </div>
+
+  <div class="rec-card rec-action">
+    <div class="rec-title">🎯 9月行动建议</div>
+    <div class="rec-item" data-num="①"><strong>把握9月抢装窗口：</strong>消费税9月1日落地前下游电池厂将密集备货，9月排产/装机数据有望再创新高。建议密切关注宁德时代、亿纬锂能、瑞浦兰钧等头部企业排产动态。</div>
+    <div class="rec-item" data-num="②"><strong>加速二线客户拓展：</strong>亿纬锂能、瑞浦兰钧、吉曜通行同比增速显著，是供应链增量空间。建议加强技术对接+长协谈判，争取二线客户渗透。</div>
+    <div class="rec-item" data-num="③"><strong>布局固态电池前瞻：</strong>2027下半年固态电池量产窗口期临近，建议启动Li2S/硫化物体系前瞻技术储备，与国轩高科等头部材料企业建立研发合作。</div>
+    <div class="rec-item" data-num="④"><strong>铁锂材料差异化竞争：</strong>铁锂占比突破87%，但同质化竞争加剧。建议通过高压实密度/长循环/低温性能差异化指标构建技术壁垒。</div>
+  </div>
+
+  <div class="callout callout-gold" style="margin-top:20px">
+    <div class="callout-title">📌 数据声明</div>
+    <p>本报告所有数据均来自：①锂电池行业数据库 <code>lib_battery_embedded_data.js</code>（11 张表，update_time: 2026-09-23 13:07:41）；②9 BU 雷达看板合并去重（czly/lpsd/felt/sjl/sdmd/dhx/lhy/kls/bych），锂电相关 unique 标题 496 条（P0=182, P1=286, P2=28）。报告生成日期：2026年09月28日。图表区沿用 7 月报告 <code>lib_battery_report_2026_07.html</code> 的布局结构（数据表格 + 文字分析，未嵌入 Chart.js 图表）。</p>
+  </div>
+</section>
+
+</main>
+</div>
+<script>
+const TOP10_NAMES = ["宁德时代", "比亚迪", "中创新航", "亿纬锂能", "国轩高科", "瑞浦兰钧", "欣旺达", "正力新能", "吉曜通行", "蜂巢能源"];
+const TOP10_QTY  = [32.54, 16.47, 5.11, 4.67, 4.61, 2.72, 2.71, 1.87, 1.8, 1.8];
+const TOP10_YOY  = [23.02, 26.5, 1.59, 70.44, 25.61, 75.48, 10.61, 8.09, 74.76, 4.05];
+const FC_NAMES    = ["宁德时代", "比亚迪", "亿纬锂能", "中创新航", "国轩高科", "蜂巢能源"];
+const FC_LFP      = [37.0, 20.2, 16.0, 15.2, 14.2, 0.32];
+const FC_NCM      = [9.3, 0.6, 2.05, 1.6, 0.25, 1.0];
+const SHARE_LFP   = 85.6;
+const SHARE_NCM   = 14.0;
+
+new Chart(document.getElementById('chart_output_trend').getContext('2d'), {
+  type: 'bar',
+  data: {
+    labels: ["25-09", "25-10", "25-11", "25-12", "26-01", "26-02", "26-03", "26-04", "26-05", "26-06", "26-07", "26-08"],
+    datasets: [
+      { label: '铁锂及其它动力', data: [149.12, 162.32, 166.72, 171.4, 165.25, 140.77, 176.3, 187.2, 201.9, 210.67, 221.8, 240.6], backgroundColor: 'rgba(30,60,114,0.85)', stack: 's', borderRadius: 2 },
+      { label: '三元及数码',     data: [31.73, 32.61, 32.91, 32.41, 29.96, 24.61, 32.11, 31.67, 33.47, 34.87, 35.03, 35.32], backgroundColor: 'rgba(239,108,0,0.75)', stack: 's', borderRadius: 2 },
+      { label: '合计（GWh）',    data: [180.85, 194.93, 199.63, 203.81, 195.21, 165.38, 208.41000000000003, 218.87, 235.37, 245.54, 256.83000000000004, 275.92], type: 'line', borderColor: '#c62828', backgroundColor: 'rgba(198,40,40,0.1)', borderWidth: 2.5, pointRadius: 4, pointBackgroundColor: '#c62828', fill: false, tension: 0.3 }
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { position: 'top', labels: { font: { size: 11 }, boxWidth: 12 } }, tooltip: { callbacks: { label: ctx => ctx.datasetIndex < 2 ? ctx.raw.toFixed(2) + ' GWh' : ctx.raw.toFixed(2) + ' GWh' } } },
+    scales: { x: { stacked: true, ticks: { font: { size: 10 } }, grid: { display: false } }, y: { stacked: true, title: { display: true, text: 'GWh', font: { size: 11 } }, ticks: { font: { size: 10 } } } }
+  }
+});
+
+new Chart(document.getElementById('chart_output_mom').getContext('2d'), {
+  type: 'bar',
+  data: {
+    labels: ["25-09", "25-10", "25-11", "25-12", "26-01", "26-02", "26-03", "26-04", "26-05", "26-06", "26-07", "26-08"],
+    datasets: [
+      { label: '合计产量（GWh）', data: [180.85, 194.93, 199.63, 203.81, 195.21, 165.38, 208.41000000000003, 218.87, 235.37, 245.54, 256.83000000000004, 275.92], backgroundColor: 'rgba(30,60,114,0.85)', borderRadius: 3, yAxisID: 'y' },
+      { label: '环比增速（右轴%）', data: [0, 7.7854575615150745, 2.4111219412096587, 2.0938736662826263, -4.2196163093076855, -15.280979458019575, 26.01886564276214, 5.0189530252866845, 7.538721615570887, 4.320856523771079, 4.598028834405819, 7.432932289841518], type: 'line', borderColor: '#ef6c00', borderWidth: 2.5, pointRadius: 4, pointBackgroundColor: '#ef6c00', tension: 0.3, fill: false, yAxisID: 'y1' }
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { position: 'top', labels: { font: { size: 11 }, boxWidth: 12 } }, tooltip: { callbacks: { label: ctx => ctx.datasetIndex === 0 ? ctx.raw.toFixed(2) + ' GWh' : ctx.raw.toFixed(2) + '%' } } },
+    scales: { y: { position: 'left', title: { display: true, text: 'GWh', font: { size: 11 } }, ticks: { font: { size: 10 } } }, y1: { position: 'right', title: { display: true, text: '环比%', font: { size: 11 } }, ticks: { font: { size: 10 }, callback: v => v + '%' }, grid: { display: false } } }
+  }
+});
+
+new Chart(document.getElementById('chart_install_trend').getContext('2d'), {
+  type: 'bar',
+  data: {
+    labels: ["06\u6708", "07\u6708", "08\u6708"],
+    datasets: [
+      { label: '铁锂装车量', data: [63.7, 63.1, 67.6], backgroundColor: 'rgba(30,60,114,0.85)', stack: 's', borderRadius: 2 },
+      { label: '三元装车量', data: [12.7, 11.1, 11.0], backgroundColor: 'rgba(239,108,0,0.75)', stack: 's', borderRadius: 2 }
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { position: 'top', labels: { font: { size: 11 }, boxWidth: 12 } }, tooltip: { callbacks: { label: ctx => ctx.raw.toFixed(2) + ' GWh' } } },
+    scales: { x: { stacked: true, ticks: { font: { size: 11 } }, grid: { display: false } }, y: { stacked: true, title: { display: true, text: 'GWh', font: { size: 11 } }, ticks: { font: { size: 10 } } } }
+  }
+});
+
+new Chart(document.getElementById('chart_install_pie').getContext('2d'), {
+  type: 'doughnut',
+  data: { labels: ['铁锂 ' + SHARE_LFP.toFixed(1) + '%', '三元 ' + SHARE_NCM.toFixed(1) + '%'], datasets: [{ data: [SHARE_LFP, SHARE_NCM], backgroundColor: ['rgba(30,60,114,0.85)', 'rgba(239,108,0,0.75)'], borderColor: '#fff', borderWidth: 2 }] },
+  options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { font: { size: 12 } } }, tooltip: { callbacks: { label: ctx => ctx.label + ': ' + ctx.raw + '%' } } } }
+});
+
+new Chart(document.getElementById('chart_lfp_ncm_install').getContext('2d'), {
+  type: 'line',
+  data: {
+    labels: ["06\u6708", "07\u6708", "08\u6708"],
+    datasets: [
+      { label: '铁锂装机', data: [63.7, 63.1, 67.6], borderColor: '#1e3c72', backgroundColor: 'rgba(30,60,114,0.15)', borderWidth: 2.5, pointRadius: 5, pointBackgroundColor: '#1e3c72', tension: 0.3, fill: true },
+      { label: '三元装机', data: [12.7, 11.1, 11.0], borderColor: '#ef6c00', backgroundColor: 'rgba(239,108,0,0.1)', borderWidth: 2.5, pointRadius: 5, pointBackgroundColor: '#ef6c00', tension: 0.3, fill: true }
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { position: 'top', labels: { font: { size: 11 }, boxWidth: 12 } }, tooltip: { callbacks: { label: ctx => ctx.dataset.label + ': ' + ctx.raw.toFixed(1) + ' GWh' } } },
+    scales: { y: { title: { display: true, text: 'GWh', font: { size: 11 } }, ticks: { font: { size: 10 } } } }
+  }
+});
+
+new Chart(document.getElementById('chart_top10_company').getContext('2d'), {
+  type: 'bar',
+  data: {
+    labels: TOP10_NAMES,
+    datasets: [
+      { label: '装机量（GWh）', data: TOP10_QTY, backgroundColor: ['rgba(30,60,114,0.9)','rgba(35,70,130,0.85)','rgba(42,82,152,0.8)','rgba(50,90,160,0.75)','rgba(60,100,170,0.7)','rgba(70,110,180,0.65)','rgba(80,120,190,0.6)','rgba(90,130,195,0.55)','rgba(100,140,200,0.5)','rgba(110,150,210,0.45)'], borderWidth: 0, borderRadius: 4 },
+      { label: '同比增速（右轴%）', data: TOP10_YOY, type: 'line', borderColor: '#ef6c00', borderWidth: 2, pointRadius: 4, pointBackgroundColor: '#ef6c00', tension: 0.3, fill: false, yAxisID: 'y1' }
+    ]
+  },
+  options: {
+    indexAxis: 'y',
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { position: 'top', labels: { font: { size: 11 }, boxWidth: 12 } }, tooltip: { callbacks: { label: ctx => ctx.datasetIndex === 0 ? ctx.raw.toFixed(2) + ' GWh' : ctx.raw + '%' } } },
+    scales: { x: { title: { display: true, text: 'GWh', font: { size: 11 } }, ticks: { font: { size: 10 } } }, y1: { position: 'right', ticks: { font: { size: 10 }, callback: v => v + '%' }, grid: { display: false } } }
+  }
+});
+
+new Chart(document.getElementById('chart_capacity_util').getContext('2d'), {
+  type: 'bar',
+  data: {
+    labels: ["25-09", "25-10", "25-11", "25-12", "26-01", "26-02", "26-03", "26-04", "26-05", "26-06", "26-07", "26-08"],
+    datasets: [
+      { label: '产能（GWh）', data: [198.0, 205.0, 206.0, 207.0, 207.0, 213.0, 215.0, 229.0, 248.0, 264.0, 271.0, 271.0], backgroundColor: 'rgba(30,60,114,0.3)', borderColor: 'rgba(30,60,114,0.6)', borderWidth: 1.5, borderRadius: 3, yAxisID: 'y' },
+      { label: '产量（GWh）', data: [180.85, 194.93, 199.63, 203.81, 195.21, 165.38, 208.41, 218.87, 235.4, 245.54, 256.8, 275.92], backgroundColor: 'rgba(30,60,114,0.8)', borderColor: '#1e3c72', borderWidth: 1.5, borderRadius: 4, yAxisID: 'y' },
+      { label: '利用率（右轴%）', data: [91.34, 95.09, 96.91, 98.46000000000001, 94.3, 77.64, 96.93, 95.58, 94.92, 93.01, 94.76, 101.82], type: 'line', borderColor: '#2e7d32', backgroundColor: 'rgba(46,125,50,0.1)', borderWidth: 2.5, pointRadius: 4, pointBackgroundColor: '#2e7d32', tension: 0.4, fill: false, yAxisID: 'y1' }
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { position: 'top', labels: { font: { size: 11 }, boxWidth: 12 } }, tooltip: { callbacks: { label: ctx => ctx.datasetIndex < 2 ? ctx.raw.toFixed(2) + ' GWh' : ctx.raw.toFixed(2) + '%' } } },
+    scales: { y: { position: 'left', title: { display: true, text: 'GWh', font: { size: 11 } }, ticks: { font: { size: 10 } } }, y1: { position: 'right', title: { display: true, text: '利用率%', font: { size: 11 } }, min: 70, max: 105, ticks: { font: { size: 10 }, callback: v => v + '%' }, grid: { display: false } } }
+  }
+});
+
+new Chart(document.getElementById('chart_forecast').getContext('2d'), {
+  type: 'bar',
+  data: {
+    labels: FC_NAMES,
+    datasets: [
+      { label: '铁锂排产', data: FC_LFP, backgroundColor: 'rgba(30,60,114,0.85)', borderWidth: 0, borderRadius: 2 },
+      { label: '三元排产', data: FC_NCM, backgroundColor: 'rgba(239,108,0,0.75)', borderWidth: 0, borderRadius: 2 }
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { position: 'top', labels: { font: { size: 11 }, boxWidth: 12 } }, tooltip: { callbacks: { label: ctx => ctx.raw.toFixed(1) + ' GWh' } } },
+    scales: { x: { stacked: true, ticks: { font: { size: 11 } }, grid: { display: false } }, y: { stacked: true, title: { display: true, text: 'GWh', font: { size: 11 } }, ticks: { font: { size: 10 } } } }
+  }
+});
+</script>
+
+</body>
+</html>

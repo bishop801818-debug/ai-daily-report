@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>数据看板 - 锂电池回收行业数据库</title>
-<script src="embedded/recycling_embedded_data.js?v=20260831_2000" charset="UTF-8"></script>
+<script src="embedded/recycling_embedded_data.js?v=20260928_1423" charset="UTF-8"></script>
 <script src="./echarts.min.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
@@ -118,14 +118,14 @@ body{font-family:"Microsoft YaHei","PingFang SC",Arial,sans-serif;background:#f0
     <div class="chart-grid">
       <div class="chart-card full"><div class="chart-header"><div class="chart-title">黑粉月度处理量走势</div><div class="chart-sub">三元+钴酸锂 vs 磷酸铁锂 · 近28个月</div></div><div class="chart-ctn" id="c-ov-total"></div></div>
       <div class="chart-card"><div class="chart-header"><div class="chart-title">处理量结构占比趋势</div></div><div class="chart-ctn" id="c-ov-stack"></div></div>
-      <div class="chart-card"><div class="chart-header"><div class="chart-title">企业处理量 TOP10</div><div class="chart-meta">26-04</div></div><div class="chart-ctn" id="c-ov-top10"></div></div>
+      <div class="chart-card"><div class="chart-header"><div class="chart-title">企业处理量 TOP10</div><div class="chart-meta" id="meta-ov-top10">—</div></div><div class="chart-ctn" id="c-ov-top10"></div></div>
     </div>
   </div>
   <div class="tab-content" id="tab-processing">
     <div class="chart-grid">
       <div class="chart-card full"><div class="chart-header"><div class="chart-title">黑粉处理量月度走势（总计）</div><div class="chart-sub">含同比/环比变化 · 单位：吨</div></div><div class="chart-ctn" id="c-pr-total"></div></div>
       <div class="chart-card full"><div class="chart-header"><div class="chart-title">三元+钴酸锂 vs 磷酸铁锂 处理量对比</div></div><div class="chart-ctn" id="c-pr-compare"></div></div>
-      <div class="chart-card"><div class="chart-header"><div class="chart-title">最新月份企业处理量排名</div><div class="chart-meta">26-04 · 单位：吨</div></div><div class="chart-ctn" id="c-pr-rank"></div></div>
+      <div class="chart-card"><div class="chart-header"><div class="chart-title">最新月份企业处理量排名</div><div class="chart-meta" id="meta-pr-rank">— · 单位：吨</div></div><div class="chart-ctn" id="c-pr-rank"></div></div>
       <div class="chart-card"><div class="chart-header"><div class="chart-title">市场集中度（最新月份）</div><div class="chart-meta">前6大企业占比</div></div><div class="chart-ctn" id="c-pr-pie"></div></div>
     </div>
   </div>
@@ -214,13 +214,18 @@ body{font-family:"Microsoft YaHei","PingFang SC",Arial,sans-serif;background:#f0
         var f = parseFloat(s); return isNaN(f) ? null : f;
       }
 
+      function pctv(v) {
+        if (v === null || v === undefined) return null;
+        if (typeof v === 'string') { var t = v.trim(); if (!t) return null; if (t.charAt(t.length-1)==='%') { var n = parseFloat(t); return isNaN(n) ? null : n; } var m = parseFloat(t); return isNaN(m) ? null : m*100; }
+        var x = parseFloat(v); return isNaN(x) ? null : x*100;
+      }
       function aggMonthly(rows, dateCol, valCol, yoyCol, momCol) {
         var by = {};
         for (var i = 0; i < rows.length; i++) {
           var r = rows[i], ym = parseYM(r[dateCol]);
           if (!ym) continue;
           var v = fl(r[valCol]);
-          if (!by[ym]) by[ym] = { total: v, yoy: yoyCol ? fl(r[yoyCol]) : null, mom: momCol ? fl(r[momCol]) : null };
+          if (!by[ym]) by[ym] = { total: v, yoy: yoyCol ? pctv(r[yoyCol]) : null, mom: momCol ? pctv(r[momCol]) : null };
           else if (v !== null) by[ym].total = v;
         }
         return by;
@@ -290,6 +295,12 @@ body{font-family:"Microsoft YaHei","PingFang SC",Arial,sans-serif;background:#f0
       window.PIE_DATA = pie;
 
       window.LATEST_MONTH = latestEntYM;
+      (function(){
+        var _a = document.getElementById("meta-ov-top10");
+        if (_a && latestEntYM) _a.textContent = latestEntYM + " · 单位：吨";
+        var _b = document.getElementById("meta-pr-rank");
+        if (_b && latestEntYM) _b.textContent = latestEntYM + " · 单位：吨";
+      })();
       window.UPDATE_TIME  = EMBEDDED_DATA ? EMBEDDED_DATA.update_time : '';
       window.N_COMPANIES  = entLatest.length;
 

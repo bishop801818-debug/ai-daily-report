@@ -1,0 +1,996 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>中国三元前驱体市场 · 2026年08月分析报告</title>
+<style>
+:root {
+  --primary: #1e3c72;
+  --primary-light: #2a5298;
+  --primary-dark: #15294d;
+  --text-color: #1a1a1a;
+  --text-secondary: #555;
+  --text-light: #888;
+  --border-color: #e0e0e0;
+  --bg-light: #f0f3f8;
+  --bg-white: #fff;
+  --green: #2e7d32;
+  --orange: #ef6c00;
+  --red: #c62828;
+  --blue-light: rgba(30,60,114,0.06);
+  --gold: #d4a017;
+  --sjld: #7986cb;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', 'Segoe UI', sans-serif; color: var(--text-color); background: var(--bg-light); line-height: 1.8; font-size: 14px; }
+a { color: inherit; text-decoration: none; }
+
+/* ===== Topbar ===== */
+.topbar { position: sticky; top: 0; z-index: 100; background: linear-gradient(135deg, var(--primary-dark), var(--primary)); color: #fff; padding: 0 24px; height: 56px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 2px 8px rgba(0,0,0,0.18); }
+.topbar-left { display: flex; align-items: center; gap: 8px; }
+.topbar-back-btn { background: rgba(255,255,255,0.15); color: #fff; border: 1px solid rgba(255,255,255,0.3); padding: 5px 14px; border-radius: 20px; font-size: 12px; cursor: pointer; transition: all 0.2s; }
+.topbar-back-btn:hover { background: rgba(255,255,255,0.25); }
+.topbar-title { font-size: 15px; font-weight: 600; }
+.topbar-date { font-size: 12px; color: rgba(255,255,255,0.7); }
+
+/* ===== Page Layout ===== */
+.page-wrapper { display: flex; max-width: 1280px; margin: 0 auto; padding: 24px 16px; gap: 20px; }
+
+/* ===== TOC Sidebar ===== */
+.toc-sidebar { flex: 0 0 210px; position: sticky; top: 80px; height: fit-content; background: #fff; border-radius: 12px; padding: 16px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); border-top: 3px solid var(--primary); }
+.toc-sidebar h3 { font-size: 13px; color: var(--primary); margin-bottom: 12px; padding-bottom: 8px; border-bottom: 2px solid var(--primary); font-weight: 700; display: flex; align-items: center; gap: 6px; }
+.toc-list { list-style: none; }
+.toc-list li { margin-bottom: 3px; }
+.toc-list a { display: block; padding: 6px 10px; border-radius: 6px; font-size: 12px; color: var(--text-secondary); transition: all 0.2s; }
+.toc-list a:hover { background: var(--blue-light); color: var(--primary); }
+.toc-list a.active { background: var(--blue-light); color: var(--primary); font-weight: 600; }
+.toc-part { font-weight: 700; color: var(--text-color); }
+.toc-sub { padding-left: 18px; font-size: 11px; color: var(--text-light); }
+.toc-divider { height: 1px; background: var(--border-color); margin: 8px 0; }
+.toc-sjld { background: rgba(121,134,203,0.08) !important; border-left: 2px solid var(--sjld); }
+.toc-sjld:hover { background: rgba(121,134,203,0.14) !important; color: var(--sjld) !important; }
+.toc-sjld.active { background: rgba(121,134,203,0.14) !important; color: var(--sjld) !important; font-weight: 700; }
+
+/* ===== Main Content ===== */
+.main-content { flex: 1; min-width: 0; }
+.container { max-width: 100%; padding: 0; }
+
+/* Header */
+.report-header { background: linear-gradient(135deg, var(--primary-dark), var(--primary)); color: #fff; border-radius: 16px; padding: 40px 32px 32px; margin-bottom: 20px; }
+.report-header .subtitle { font-size: 14px; opacity: 0.8; margin-bottom: 8px; }
+.report-header h1 { font-size: 26px; font-weight: 700; margin-bottom: 8px; }
+.report-header .meta-row { display: flex; gap: 20px; flex-wrap: wrap; font-size: 13px; opacity: 0.75; }
+.report-header .meta-row span { display: flex; align-items: center; gap: 4px; }
+
+/* KPI Row */
+.kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 20px; }
+.kpi-card { background: #fff; border-radius: 14px; padding: 18px 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); border-top: 3px solid var(--primary); }
+.kpi-card .kpi-label { font-size: 12px; color: var(--text-light); margin-bottom: 6px; font-weight: 500; }
+.kpi-card .kpi-value { font-size: 24px; font-weight: 800; color: var(--primary); line-height: 1.2; }
+.kpi-card .kpi-change { font-size: 12px; margin-top: 4px; font-weight: 600; padding: 2px 8px; border-radius: 10px; display: inline-block; }
+.kpi-card .kpi-change.up { background: rgba(46,125,50,0.1); color: var(--green); }
+.kpi-card .kpi-change.down { background: rgba(198,40,40,0.1); color: var(--red); }
+
+/* Part Section */
+.part-section { background: #fff; border-radius: 14px; padding: 28px 32px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+.part-header { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; padding-bottom: 14px; border-bottom: 2px solid var(--primary); }
+.part-num { background: var(--primary); color: #fff; width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 700; flex-shrink: 0; }
+.part-title { font-size: 18px; font-weight: 700; color: var(--primary-dark); }
+.part-subtitle { font-size: 13px; color: var(--text-light); margin-left: auto; }
+
+.section-title { font-size: 16px; font-weight: 700; color: var(--primary-dark); margin: 20px 0 12px; padding-left: 12px; border-left: 3px solid var(--primary); }
+.section-title-sm { font-size: 14px; font-weight: 700; color: var(--primary-dark); margin: 16px 0 10px; }
+
+/* Data Table */
+.data-table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 12px 0; }
+.data-table th { background: var(--primary); color: #fff; padding: 10px 12px; text-align: center; font-weight: 600; font-size: 12px; }
+.data-table td { padding: 8px 12px; text-align: center; border-bottom: 1px solid var(--border-color); }
+.data-table tbody tr:hover { background: var(--blue-light); }
+.data-table .row-highlight { background: #fafbfc; font-weight: 600; }
+.data-table .text-left { text-align: left; }
+
+/* Insight Block */
+.insight-block { background: var(--blue-light); border-radius: 10px; padding: 16px 20px; margin: 16px 0; font-size: 13px; line-height: 1.8; }
+.insight-block .insight-title { font-weight: 700; color: var(--primary); margin-bottom: 6px; font-size: 14px; }
+
+/* Chart Card */
+.chart-row { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; margin: 20px 0; }
+.chart-card { background: #fff; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); border: 1px solid var(--border-color); }
+.chart-card.full { grid-column: 1 / -1; }
+.chart-card h4 { font-size: 14px; font-weight: 700; color: var(--primary-dark); margin-bottom: 12px; }
+.chart-card canvas { width: 100% !important; max-height: 320px; }
+
+/* Callout */
+.callout { padding: 14px 18px; border-radius: 10px; margin: 14px 0; font-size: 13px; }
+.callout.warn { background: #fff8e1; border-left: 4px solid #ff9800; }
+.callout.info { background: #e3f2fd; border-left: 4px solid #2196f3; }
+.callout.risk { background: #ffebee; border-left: 4px solid #f44336; }
+.callout.good { background: #e8f5e9; border-left: 4px solid #4caf50; }
+
+/* News Tag */
+.news-tag { display: inline-block; background: var(--blue-light); color: var(--primary); padding: 3px 10px; border-radius: 12px; font-size: 12px; margin: 2px 4px;  white-space: nowrap; }
+
+/* ===== PART 5: 三金锂电专题 ===== */
+.sjld-header { display: flex; align-items: center; gap: 16px; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 2px solid var(--sjld); }
+.sjld-logo { width: 52px; height: 52px; background: linear-gradient(135deg, #1a4c35, var(--sjld)); border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 26px; flex-shrink: 0; }
+.sjld-title-wrap { flex: 1; }
+.sjld-title-wrap h3 { font-size: 18px; font-weight: 700; color: var(--primary-dark); }
+.sjld-title-wrap p { font-size: 13px; color: var(--text-light); margin-top: 2px; }
+.sjld-score-badge { text-align: center; background: linear-gradient(135deg, #1a4c35, var(--sjld)); color: #fff; border-radius: 14px; padding: 16px 20px; min-width: 100px; }
+.sjld-score-badge .score-num { font-size: 36px; font-weight: 900; line-height: 1; }
+.sjld-score-badge .score-unit { font-size: 16px; font-weight: 400; opacity: 0.8; }
+.sjld-score-badge .score-label { font-size: 12px; opacity: 0.8; margin-top: 4px; letter-spacing: 1px; }
+
+/* SJLD KPI row */
+.sjld-kpi-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px; }
+.sjld-kpi { background: #fff; border-radius: 12px; padding: 16px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); border-left: 3px solid var(--sjld); }
+.sjld-kpi .kpi-label { font-size: 11px; color: var(--text-light); margin-bottom: 4px; font-weight: 500; }
+.sjld-kpi .kpi-value { font-size: 22px; font-weight: 800; color: var(--sjld); }
+.sjld-kpi .kpi-sub { font-size: 11px; color: var(--text-light); margin-top: 2px; }
+.sjld-kpi .kpi-status { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 600; margin-top: 4px; }
+.sjld-kpi .kpi-status.good { background: rgba(46,125,50,0.1); color: var(--green); }
+.sjld-kpi .kpi-status.warn { background: rgba(239,108,0,0.1); color: var(--orange); }
+.sjld-kpi .kpi-status.risk { background: rgba(198,40,40,0.1); color: var(--red); }
+
+/* SJLD radar dims */
+.sjld-dims-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
+.sjld-dim { background: #f4f7fb; border-radius: 10px; padding: 12px 14px; display: flex; align-items: center; gap: 12px; border: 1px solid #e8eef4; transition: all 0.2s; }
+.sjld-dim:hover { background: #eef4fc; border-color: var(--sjld); transform: translateY(-1px); }
+.sjld-dim-icon { font-size: 20px; }
+.sjld-dim-info { flex: 1; }
+.sjld-dim-info .dim-name { font-size: 12px; color: var(--text-light); }
+.sjld-dim-info .dim-score { font-size: 22px; font-weight: 800; color: var(--sjld); line-height: 1; }
+.sjld-dim-info .dim-bar { height: 4px; background: #e0e0e0; border-radius: 2px; margin-top: 4px; }
+.sjld-dim-info .dim-bar-fill { height: 100%; background: var(--sjld); border-radius: 2px; }
+
+/* SJLD detail tables */
+.sjld-section { margin-top: 20px; }
+.sjld-section-title { font-size: 14px; font-weight: 700; color: var(--sjld); margin-bottom: 10px; padding-left: 10px; border-left: 3px solid var(--sjld); }
+.sjld-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.sjld-table th { background: rgba(121,134,203,0.1); color: var(--sjld); padding: 8px 12px; text-align: center; font-weight: 600; border-bottom: 2px solid rgba(121,134,203,0.2); }
+.sjld-table td { padding: 7px 12px; text-align: center; border-bottom: 1px solid #f0f0f0; color: var(--text-secondary); }
+.sjld-table td:first-child { text-align: left; font-weight: 500; }
+.sjld-table tr:hover td { background: rgba(121,134,203,0.05); }
+.sjld-table .row-good td { color: var(--green); font-weight: 600; }
+.sjld-table .row-warn td { color: var(--orange); }
+.sjld-table .row-risk td { color: var(--red); }
+.sjld-badge { display: inline-block; padding: 1px 7px; border-radius: 8px; font-size: 11px; font-weight: 600; }
+.sjld-badge.good { background: rgba(46,125,50,0.1); color: var(--green); }
+.sjld-badge.warn { background: rgba(239,108,0,0.1); color: var(--orange); }
+.sjld-badge.risk { background: rgba(198,40,40,0.1); color: var(--red); }
+
+/* Conclusion Banner */
+.conclusion-banner { background: linear-gradient(135deg, var(--primary-dark), var(--primary)); color: #fff; border-radius: 16px; padding: 32px 36px; margin-top: 24px; }
+.conclusion-banner h3 { font-size: 18px; margin-bottom: 16px; }
+.conclusion-banner .summary-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+.conclusion-banner .summary-item { background: rgba(255,255,255,0.08); border-radius: 10px; padding: 16px; }
+.conclusion-banner .summary-item h5 { font-size: 14px; margin-bottom: 8px; }
+.conclusion-banner .summary-item p { font-size: 13px; color: rgba(255,255,255,0.8); line-height: 1.7; }
+
+/* Report Footer */
+.report-footer { text-align: center; color: var(--text-light); font-size: 12px; padding: 24px 0 10px; margin-top: 20px; border-top: 1px solid var(--border-color); }
+
+/* ===== Responsive ===== */
+@media (max-width: 1100px) { .toc-sidebar { display: none; } }
+@media (max-width: 768px) {
+  .kpi-row { grid-template-columns: repeat(2, 1fr); }
+  .chart-row { grid-template-columns: 1fr; }
+  .conclusion-banner .summary-grid { grid-template-columns: 1fr; }
+  .sjld-dims-grid { grid-template-columns: repeat(2, 1fr); }
+  .sjld-kpi-row { grid-template-columns: repeat(2, 1fr); }
+}
+@media print { .topbar, .toc-sidebar { display: none; } .page-wrapper { padding: 0; } }
+</style>
+<div class="topbar">
+  <div class="topbar-left">
+    <button class="topbar-back-btn" onclick="history.back()">← 返回</button>
+    <span class="topbar-title">中国三元前驱体市场 · 2026年08月分析报告</span>
+  </div>
+  <span class="topbar-date">战略洞察 · 2026年9月</span>
+</div>
+<div class="page-wrapper">
+<aside class="toc-sidebar">
+  <h3>目 录</h3>
+  <ul class="toc-list">
+    <li><a href="#p1" class="toc-part">一、市场动态</a></li>
+    <li><a href="#p1-1" class="toc-sub">三元材料 & 前驱体</a></li>
+    <li><a href="#p1-2" class="toc-sub">关键原料</a></li>
+    <li><a href="#p2" class="toc-part">二、三元材料市场</a></li>
+    <li><a href="#p2-1" class="toc-sub">产量概览</a></li>
+    <li><a href="#p2-2" class="toc-sub">分型号 & 价格</a></li>
+    <li><a href="#p2-3" class="toc-sub">分企业 TOP10</a></li>
+    <li><a href="#p3" class="toc-part">三、三元前驱体市场</a></li>
+    <li><a href="#p3-1" class="toc-sub">产量概览</a></li>
+    <li><a href="#p3-2" class="toc-sub">分型号 & 价格</a></li>
+    <li><a href="#p3-3" class="toc-sub">分企业 TOP10</a></li>
+    <li><a href="#p3-4" class="toc-sub">出口分析</a></li>
+    <li><a href="#p4" class="toc-part">四、关键原料价格</a></li>
+    <li><a href="#p4-1" class="toc-sub">硫酸镍 & 硫酸钴</a></li>
+    <li><a href="#p4-2" class="toc-sub">碳酸锂联动</a></li>
+    <li class="toc-divider"></li>
+    <li><a href="#p5" class="toc-part toc-sjld">五、三金锂电专题</a></li>
+    <li><a href="#p5-1" class="toc-sub">综合评分 & 维度</a></li>
+    <li class="toc-divider"></li>
+    <li><a href="#p6" class="toc-part">六、总结及展望</a></li>
+  </ul>
+</aside>
+<main class="main-content">
+<div class="container">
+
+<div class="report-header">
+  <div class="subtitle">战略中心信息情报部 · 三元材料 & 前驱体行业</div>
+  <h1>中国三元前驱体市场 · 2026年08月分析报告</h1>
+  <div class="meta-row">
+    <span>📅 数据月份：2026年08月</span>
+    <span>📊 报告日期：2026年09月</span>
+    <span>⚙️ 数据来源：三元材料产业链数据库 · 鑫椤数据 · SMM · 海关总署 · 行业新闻</span>
+  </div>
+</div>
+
+<div class="kpi-row">
+  <div class="kpi-card">
+    <div class="kpi-label">三元材料8月产量</div>
+    <div class="kpi-value">84,250<span style="font-size:13px;"> 吨</span></div>
+    <div class="kpi-change down">▼ 环比 -2.3%</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-label">三元前驱体8月产量</div>
+    <div class="kpi-value">92,300<span style="font-size:13px;"> 吨</span></div>
+    <div class="kpi-change down">▼ 环比 -1.9%</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-label">NCM 5系均价</div>
+    <div class="kpi-value">18.09<span style="font-size:13px;"> 万/吨</span></div>
+    <div class="kpi-change down">▼ 环比 -3.3%</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-label">电池级硫酸钴均价</div>
+    <div class="kpi-value">8.04<span style="font-size:13px;"> 万/吨</span></div>
+    <div class="kpi-change down">▼ 环比 -15.4%</div>
+  </div>
+</div>
+
+<div class="part-section" id="p1">
+  <div class="part-header" id="p1-1">
+    <div class="part-num">1</div>
+    <div class="part-title">市场动态</div>
+    <div class="part-subtitle">2026年8月 行业重要事件梳理</div>
+  </div>
+
+  <div class="section-title">1.1 三元材料 & 前驱体 — 市场动态</div>
+  <div class="insight-block">
+    <div class="insight-title">8月核心事件</div>
+    <p>8月三元材料与前驱体行业呈现"<b>量价双弱、淡季延续</b>"的特征，核心变化在于：<b>(1)</b> 8月三元材料产量<b>84,250吨</b>（环比<b style="color:var(--red);">-2.3%</b>），前驱体产量<b>92,300吨</b>（环比<b style="color:var(--red);">-1.9%</b>），连续两月环比下滑，淡季效应叠加下游电池厂去库存压力；<b>(2)</b> 碳酸锂主力合约月初13.5万元/吨后企稳，<b>8月底反弹</b>至14万/吨附近，但下游三元材料跟涨乏力，价格中枢继续下移；<b>(3)</b> 9月1日电池消费税正式落地，<b>固态/钠电正极材料免征</b>，为新技术路线提供政策护城河，三元材料高端化（9系/单晶）加速；<b>(4)</b> 三星SDI全固态电池锁定2027H2量产、国轩高科2万吨固态电池材料项目启动，<b>固态电池产业化提速</b>，三元材料长期需求承压。</p>
+  </div>
+
+  <p style="margin:12px 0;font-size:13px;"><b>本月重点事件：</b></p>
+  <table class="data-table">
+    <thead><tr><th style="width:90px;">日期</th><th>事件</th><th style="width:110px;">影响</th></tr></thead>
+    <tbody><tr><td>08-03</td><td class="text-left">国轩高科洽谈大众西班牙40GWh工厂</td><td><span class="news-tag">项目/招标</span></td></tr>
+<tr><td>08-03</td><td class="text-left">国轩高科大众西班牙40GWh项目</td><td><span class="news-tag">项目/招标</span></td></tr>
+<tr><td>08-03</td><td class="text-left">国轩高科2万吨固态电池材料项目启动</td><td><span class="news-tag">技术/产品</span></td></tr>
+<tr><td>08-03</td><td class="text-left">三星SDI全固态电池锁定2027下半年量产</td><td><span class="news-tag">技术/产品</span></td></tr>
+<tr><td>08-03</td><td class="text-left">三星SDI全固态电池2027下半年量产</td><td><span class="news-tag">今日关注</span></td></tr>
+<tr><td>08-03</td><td class="text-left">H1动力+储能电池销量+48.6%</td><td><span class="news-tag">今日关注</span></td></tr>
+<tr><td>08-03</td><td class="text-left">阳光电源中标国内首个800V高压储能项目</td><td><span class="news-tag">技术/产品</span></td></tr>
+<tr><td>08-03</td><td class="text-left">锂电产业链景气向上,8月排产增5-10%</td><td><span class="news-tag">今日关注</span></td></tr>
+<tr><td>08-03</td><td class="text-left">比亚迪7月销量41.9万辆领跑</td><td><span class="news-tag">今日关注</span></td></tr>
+<tr><td>08-03</td><td class="text-left">比亚迪7月销量41.92万辆领跑</td><td><span class="news-tag">企业动态</span></td></tr>
+    </tbody>
+  </table>
+
+  <div class="section-title" id="p1-2">1.2 关键原料 — 市场动态</div>
+  <div class="callout warn"><b>锂：</b>8月碳酸锂演绎"触底反弹"行情。月初主力LC2609合约下探至13.5万元/吨附近（年内低点），随后受锂盐厂检修旺季及下游备货预期推动企稳，8月底反弹至14万/吨以上。SMM电池级碳酸锂现货月末均价约14.65万/吨。消费税（9月1日起分步开征）压制下游补库意愿，但供给端正大国际期货数据显示矿端到港节奏放缓，<b>碳酸锂下方成本支撑逐步显现</b>。</div>
+  <div class="callout warn"><b>锂：</b>硫酸钴均价8月跌至<b>8.04万元/吨</b>（环比<b style="color:var(--red);">-15.4%</b>），自5月高点（9.55万/吨）以来累计跌幅约15.8%。钴价加速走弱主因：①锂价大幅下跌引发正极材料厂去原料库存，采购情绪明显降温；②非洲钴矿出口配额趋稳后，全球钴库存修复明显；③四氧化三钴8月底约29.35万元/吨（环比-7.2%）。短期钴系产品跟随锂价偏弱运行，<b>但供给端刚性支撑下，跌幅将逐步收窄</b>。</div>
+  <div class="callout info"><b>钴：</b>电池级硫酸镍均价3.16万元/吨（环比-3.7%），印尼RKAB政策与高库存多空博弈持续。前驱体企业采购以刚需为主，对高价硫酸镍接受度有限，<b>价格上下两难，短期以震荡为主（3.0-3.3万/吨区间）</b>。</div>
+</div>
+
+<div class="part-section" id="p2">
+  <div class="part-header" id="p2-1">
+    <div class="part-num">2</div>
+    <div class="part-title">三元材料市场</div>
+    <div class="part-subtitle">产量 · 分企业 · 分型号 · 价格分析</div>
+  </div>
+
+  <div class="section-title">2.1 三元材料 — 产量</div>
+  <p style="font-size:13px;color:var(--text-secondary);margin-bottom:12px;">
+  8月，我国三元材料总产量为<b>84,250吨</b>，产量环比<b style="color:var(--red);">-2.3%</b>（7月86,250吨），同比<b style="color:var(--green);">+15.4%</b>（去年同期073,030吨）。产能利用率63.47%，较7月（64.99%）<b>回落1.52个百分点</b>，连续两月下行，进入传统淡季。
+</p>
+  <div class="insight-block">
+    <div class="insight-title">产量解读</div>
+    <p>8月产量环比继续下滑，反映出三元材料行业进入深度淡季。下游电芯厂6-7月已完成H1备货消化，8月排产节奏明显放缓（SMM统计8月三元材料周度产量约19,400吨，周环比-2.6%）。<b>结构性变化：</b>9系（超高镍）产量维持在17,600吨高位（份额20.9%），头部企业（容百、当升）继续向超高镍迭代；6系（单晶622）37,350吨份额44.3%，单晶化趋势稳固。</p>
+  </div>
+
+  <div class="chart-row">
+    <div class="chart-card full">
+      <h4>三元材料月度产量 & 产能利用率（2025-01 ~ 2026-08）</h4>
+      <canvas id="chart_ncm_output"></canvas>
+    </div>
+  </div>
+
+  <div class="section-title" id="p2-2">2.2 三元材料 — 分型号产量 & 价格</div>
+  <table class="data-table">
+    <thead><tr><th>型号</th><th>8月产量(吨)</th><th>占比</th><th>7月产量(吨)</th><th>环比变化</th><th>同比变化</th></tr></thead>
+    <tbody>
+<tr><td>111</td><td>150</td><td>0.2%</td><td>50</td><td>+200.0%</td><td>—</td></tr>
+<tr><td>523</td><td>6,900</td><td>8.2%</td><td>7,200</td><td>-4.2%</td><td>—</td></tr>
+<tr class="row-highlight"><td>622</td><td>37,350</td><td>44.3%</td><td>37,350</td><td>+0.0%</td><td>—</td></tr>
+<tr><td>811</td><td>19,750</td><td>23.4%</td><td>19,700</td><td>+0.3%</td><td>—</td></tr>
+<tr><td>NCA</td><td>2,500</td><td>3.0%</td><td>3,200</td><td>-21.9%</td><td>—</td></tr>
+<tr><td>9系</td><td>17,600</td><td>20.9%</td><td>18,750</td><td>-6.1%</td><td>—</td></tr>
+<tr class="row-highlight"><td><b>合计</b></td><td><b>84,250</b></td><td><b>100%</b></td><td><b>86,250</b></td><td><b>-2.3%</b></td><td>—</td></tr>
+    </tbody>
+  </table>
+
+  <div class="insight-block">
+    <div class="insight-title">分型号结构变化</div>
+    <p>6系（中镍/单晶622）以<b>44.3%</b>份额稳居第一；9系（超高镍）份额升至<b>20.9%</b>，与7月基本持平但绝对量维持高位；8系份额23.4%；5系份额萎缩至8.2%。整体结构持续向"<b>高电压单晶622 + 超高镍9系</b>"双主线收敛，反映头部企业对高能量密度与对冲消费税的战略布局。</p>
+  </div>
+
+  <div class="chart-row">
+    <div class="chart-card">
+      <h4>三元材料分型号占比（2026年8月）</h4>
+      <canvas id="chart_ncm_model"></canvas>
+    </div>
+    <div class="chart-card">
+      <h4>NCM材料价格走势（2026.01 ~ 2026.08）</h4>
+      <canvas id="chart_ncm_price"></canvas>
+    </div>
+  </div>
+
+  <div class="section-title" id="p2-3">2.3 三元材料 — 分企业产量 TOP10</div>
+  <table class="data-table">
+    <thead><tr><th>#</th><th>企业</th><th>8月产量(吨)</th><th>环比</th><th>同比</th><th>产能利用率</th></tr></thead>
+    <tbody>
+<tr><td>1</td><td class='text-left'>南通瑞翔</td><td>15,000</td><td>None</td><td>None</td><td>90.00%</td></tr>
+<tr><td>2</td><td class='text-left'>天津巴莫</td><td>14,200</td><td>None</td><td>None</td><td>56.80%</td></tr>
+<tr><td>3</td><td class='text-left'>容百科技</td><td>11,500</td><td>None</td><td>None</td><td>46.00%</td></tr>
+<tr><td>4</td><td class='text-left'>广东邦普</td><td>8,100</td><td>None</td><td>None</td><td>105.65%</td></tr>
+<tr><td>5</td><td class='text-left'>长远锂科</td><td>7,800</td><td>None</td><td>None</td><td>78.00%</td></tr>
+<tr><td>6</td><td class='text-left'>当升科技</td><td>7,600</td><td>None</td><td>None</td><td>91.20%</td></tr>
+<tr><td>7</td><td class='text-left'>厦钨新能源</td><td>6,300</td><td>None</td><td>None</td><td>108.01%</td></tr>
+<tr><td>8</td><td class='text-left'>宜宾锂宝</td><td>2,600</td><td>None</td><td>None</td><td>62.40%</td></tr>
+<tr><td>9</td><td class='text-left'>无锡格林美</td><td>1,500</td><td>None</td><td>None</td><td>89.98%</td></tr>
+<tr><td>10</td><td class='text-left'>贝特瑞</td><td>1,400</td><td>None</td><td>None</td><td>21.00%</td></tr>
+    </tbody>
+  </table>
+
+  <div class="insight-block">
+    <div class="insight-title">竞争格局解读</div>
+    <p>8月TOP10企业数据来自三元数据库。<b>南通瑞翔</b>以15,000吨领跑（产能利用率90.00%），<b>天津巴莫</b>14,200吨紧随，<b>容百科技</b>11,500吨位列第三。厦钨新能源产能利用率108.01%超满产，广东邦普105.65%亦超100%（一体化优势+外销占比稳定），头部企业维持高开工率。值得关注的是，<b>8月单晶三元渗透率突破48.5%</b>（头部企业反馈），单晶622份额提升明显。</p>
+  </div>
+
+  <div class="section-title">2.4 三元材料 — 价格分析</div>
+  <p style="font-size:13px;color:var(--text-secondary);">
+  8月三元材料价格呈"<b>中枢下移</b>"特征：5系动力均价<b>18.09万元/吨</b>（环比-3.3%），单晶622均价18.7万元/吨（环比+0.2%），811动力均价20.24万元/吨（环比-0.0%）。碳酸锂月初触底后小幅反弹，对三元材料成本端形成阶段性支撑，但下游电池厂去库存压力抑制价格跟涨，高价差产品（9系/单晶）抗跌性更强。
+  </p>
+  <div class="callout info">
+    <b>价格走势分析：</b>8月三元材料价格表现与碳酸锂走势形成"<b>弱联动</b>"：碳酸锂从13.5万/吨反弹至14万/吨（+3.7%），但三元材料价格仍继续下移（5系-3.27%）。核心原因：①下游电池厂9月消费税开征前有意压缩原料库存，采购节奏后移；②正极材料行业产能过剩（利用率63.47%但库存周转放缓），头部企业以价换量保开工率；③9月消费税开征后，4%成本压力将通过正极厂-电池厂价格谈判向下游传导，<b>短期价格仍有压力，但成本端支撑逐步显现</b>。
+  </div>
+</div>
+
+<div class="part-section" id="p3">
+  <div class="part-header" id="p3-1">
+    <div class="part-num">3</div>
+    <div class="part-title">三元前驱体市场</div>
+    <div class="part-subtitle">产量 · 分企业 · 分型号 · 出口 · 价格分析</div>
+  </div>
+
+  <div class="section-title">3.1 三元前驱体 — 产量</div>
+  <p style="font-size:13px;color:var(--text-secondary);margin-bottom:12px;">
+  8月，我国三元前驱体总产量为<b>92,300吨</b>，产量环比<b style="color:var(--red);">-1.9%</b>（7月94,050吨），同比<b style="color:var(--green);">+10.9%</b>（去年同期83,200吨）。产能利用率48.99%，较7月（49.92%）小幅回落，但仍维持在荣枯线附近。
+</p>
+
+  <div class="chart-row">
+    <div class="chart-card full">
+      <h4>三元前驱体月度产量 & 产能利用率（2025-01 ~ 2026-08）</h4>
+      <canvas id="chart_ncmpre_output"></canvas>
+    </div>
+  </div>
+
+  <div class="section-title" id="p3-2">3.2 三元前驱体 — 分型号产量 & 价格</div>
+  <table class="data-table">
+    <thead><tr><th>型号</th><th>8月产量(吨)</th><th>占比</th><th>7月产量(吨)</th><th>环比变化</th><th>同比变化</th></tr></thead>
+    <tbody>
+<tr><td>前驱体333</td><td>100</td><td>0.1%</td><td>100</td><td>+0.0%</td><td>—</td></tr>
+<tr><td>前驱体523</td><td>9,250</td><td>10.0%</td><td>9,650</td><td>-4.1%</td><td>—</td></tr>
+<tr class="row-highlight"><td>前驱体622</td><td>39,100</td><td>42.4%</td><td>39,400</td><td>-0.8%</td><td>—</td></tr>
+<tr><td>前驱体811</td><td>23,750</td><td>25.7%</td><td>24,600</td><td>-3.5%</td><td>—</td></tr>
+<tr><td>NCApre</td><td>5,800</td><td>6.3%</td><td>5,700</td><td>+1.8%</td><td>—</td></tr>
+<tr><td>前驱体9系</td><td>14,300</td><td>15.5%</td><td>14,600</td><td>-2.1%</td><td>—</td></tr>
+<tr class="row-highlight"><td><b>合计</b></td><td><b>92,300</b></td><td><b>100%</b></td><td><b>94,050</b></td><td><b>-1.9%</b></td><td>—</td></tr>
+    </tbody>
+  </table>
+
+  <div class="chart-row">
+    <div class="chart-card">
+      <h4>三元前驱体分型号占比（2026年8月）</h4>
+      <canvas id="chart_ncmpre_model"></canvas>
+    </div>
+    <div class="chart-card">
+      <h4>NCM前驱体价格走势（2026.01 ~ 2026.08）</h4>
+      <canvas id="chart_ncmpre_price"></canvas>
+    </div>
+  </div>
+
+  <div class="section-title" id="p3-3">3.3 三元前驱体 — 分企业产量 TOP10</div>
+  <table class="data-table">
+    <thead><tr><th>#</th><th>企业</th><th>8月产量(吨)</th><th>环比</th><th>同比</th><th>产能利用率</th></tr></thead>
+    <tbody>
+<tr><td>1</td><td class='text-left'>中伟科技</td><td>21,500</td><td>None</td><td>None</td><td>62.17%</td></tr>
+<tr><td>2</td><td class='text-left'>湖南邦普</td><td>19,000</td><td>None</td><td>None</td><td>81.43%</td></tr>
+<tr><td>3</td><td class='text-left'>华友钴业</td><td>15,500</td><td>None</td><td>None</td><td>41.33%</td></tr>
+<tr><td>4</td><td class='text-left'>兰州金通</td><td>9,200</td><td>None</td><td>None</td><td>89.04%</td></tr>
+<tr><td>5</td><td class='text-left'>格林美</td><td>7,500</td><td>None</td><td>None</td><td>36.00%</td></tr>
+<tr><td>6</td><td class='text-left'>中冶瑞木</td><td>3,500</td><td>None</td><td>None</td><td>70.00%</td></tr>
+<tr><td>7</td><td class='text-left'>容百科技</td><td>3,300</td><td>None</td><td>None</td><td>66.00%</td></tr>
+<tr><td>8</td><td class='text-left'>河南科隆</td><td>2,000</td><td>None</td><td>None</td><td>52.18%</td></tr>
+<tr><td>9</td><td class='text-left'>宜宾光原</td><td>1,400</td><td>None</td><td>None</td><td>168.07%</td></tr>
+<tr><td>10</td><td class='text-left'>伟明环保</td><td>1,300</td><td>None</td><td>None</td><td>31.20%</td></tr>
+    </tbody>
+  </table>
+
+  <div class="insight-block">
+    <div class="insight-title">竞争格局解读</div>
+    <p>8月TOP10企业中，<b>中伟科技</b>21,500吨稳居行业第一（产能利用率62.17%），<b>湖南邦普</b>19,000吨紧随（产能利用率81.43%）。华友钴业产能利用率41.33%偏低（仍处检修与产能调整期）；格林美36.00%；兰州金通产能利用率89.04%维持高位；<b>宜宾光原</b>产能利用率168.07%（超满产运行，订单饱满）。前驱体行业整体格局稳定，TOP3集中度持续提升。</p>
+  </div>
+
+  <div class="chart-row">
+    <div class="chart-card full">
+      <h4>三元前驱体 TOP5 企业月度产量对比（2026.01 ~ 2026.08）</h4>
+      <canvas id="chart_ncmpre_top5"></canvas>
+    </div>
+  </div>
+
+  <div class="section-title" id="p3-4">3.4 三元前驱体 — 出口</div>
+  <table class="data-table">
+    <thead><tr><th>月份</th><th>出口量(吨)</th><th>环比</th><th>同比</th><th>出口均价(元/吨)</th><th>均价(万元/吨)</th></tr></thead>
+    <tbody>
+<tr><td>2026-05</td><td>3,256</td><td>—</td><td>—</td><td>109,017</td><td>10.90</td></tr>
+<tr><td>2026-06</td><td>5,497</td><td>+68.8%</td><td>—</td><td>103,160</td><td>10.32</td></tr>
+<tr><td>2026-07</td><td>7,669</td><td>+39.5%</td><td>—</td><td>106,823</td><td>10.68</td></tr>
+<tr class="row-highlight"><td>2026-08</td><td>10,137</td><td>+32.2%</td><td>—</td><td>106,422</td><td>10.64</td></tr>
+    </tbody>
+  </table>
+
+  <p style="font-size:13px;color:var(--text-secondary);margin-top:10px;">
+  8月前驱体出口量10,137吨（环比+32.2%，同比——），较5月低点（3,256吨）大幅反弹，出口均价10.64万元/吨。出口回暖主因：<b>(1)</b> 海外新能源汽车8月备货增加，韩国/欧洲客户在9月消费税落地前集中提货；<b>(2)</b> 美元走强，人民币计价出口竞争力改善；<b>(3)</b> 国内前驱体产能过剩，中伟/邦普等头部企业海外开拓意愿增强。
+  </p>
+
+  <div class="section-title">3.5 三元前驱体 — 价格分析</div>
+  <p style="font-size:13px;color:var(--text-secondary);">
+  8月三元前驱体价格延续7月弱势：5系均价<b>10.25万元/吨</b>（环比-7.5%），6系均价<b>10.16万元/吨</b>（环比-7.7%），8系均价<b>11.21万元/吨</b>。前驱体价格跌幅显著大于正极材料（5系前驱体-7.5% vs 5系正极-3.27%），反映<b>上游议价能力弱化</b>：消费税预期叠加下游正极厂去库存，前驱体环节承担更多成本压力。
+  </p>
+  <div class="callout warn">
+    <b>前驱体-正极价格剪刀差收窄：</b>8月NCM 5系正极均价18.09万/吨 vs 前驱体5系均价10.25万/吨，差值为7.84万/吨（7月为7.42万/吨）。前驱体跌幅更深，剪刀差扩大约0.42万/吨，<b>前驱体环节对正极环节的议价能力进一步弱化</b>，反映上游矿端（镍/钴）成本支撑减弱+下游正极集中度提升的双重挤压。
+  </div>
+</div>
+
+<div class="part-section" id="p4">
+  <div class="part-header" id="p4-1">
+    <div class="part-num">4</div>
+    <div class="part-title">关键原料价格分析</div>
+    <div class="part-subtitle">硫酸镍 · 硫酸钴 · 碳酸锂</div>
+  </div>
+
+  <div class="section-title">4.1 硫酸镍 — 价格分析</div>
+  <p style="font-size:13px;color:var(--text-secondary);">
+  8月，电池级硫酸镍现货均价<b>3.16万元/吨</b>，环比-3.7%（7月3.25万元/吨）。月内价格区间约3.09-3.22万元/吨，振幅较窄。
+  </p>
+  <div class="insight-block">
+    <div class="insight-title">供需分析</div>
+    <p><b>供给端：</b>印尼RKAB政策影响仍在持续（部分矿企运营权尚未完全恢复），镍矿供给预期偏紧，支撑硫酸镍价格。但精炼镍库存仍处相对高位，对价格上行空间形成压制。<b>需求端：</b>三元前驱体企业8月排产环比略降，采购以刚需为主，对高价硫酸镍的接受意愿有限。<b>后市展望：</b>短期硫酸镍价格以震荡为主（3.0-3.3万/吨区间），印尼政策演变和前驱体需求变化是主要跟踪变量。</p>
+  </div>
+
+  <div class="section-title">4.2 硫酸钴 — 价格分析</div>
+  <p style="font-size:13px;color:var(--text-secondary);">
+  8月，硫酸钴（≥20.5%）现货均价<b>8.04万元/吨</b>，环比下降<b style="color:var(--red);">-15.4%</b>（7月8.95万元/吨）。自5月高点（9.55万/吨）以来累计跌幅约15.8%，加速回落态势明显。
+  </p>
+  <div class="insight-block">
+    <div class="insight-title">供需分析</div>
+    <p><b>供给端：</b>非洲钴矿出口配额趋稳，全球钴库存修复明显（参考MB标准级钴报价自7月底累计下跌约8%），供给紧张格局较前期明显缓解。<b>需求端：</b>碳酸锂触底反弹引发正极材料厂去原料库存情绪，采购意愿降至年内低点；下游前驱体企业仅维持刚需补库。<b>后市展望：</b>钴系产品"<b>易涨难跌</b>"格局已被打破，短期跟随锂价偏弱运行。<b>但供给端刚性与库存周期决定跌幅将逐步收窄</b>，9月消费税开征后，正极材料厂或阶段性补库，钴价或企稳。</p>
+  </div>
+
+  <div class="chart-row">
+    <div class="chart-card full">
+      <h4>关键原料价格走势：硫酸镍 & 硫酸钴（2026.01 ~ 2026.08）</h4>
+      <canvas id="chart_raw_material"></canvas>
+    </div>
+  </div>
+
+  <div class="section-title" id="p4-2">4.3 碳酸锂 — 价格联动</div>
+  <p style="font-size:13px;color:var(--text-secondary);">
+  8月碳酸锂演绎"<b>触底反弹</b>"行情。月初（8月4日）受津巴布韦矿集中到港、仓单累积压力，<b>主力LC2609合约下探至13.5万元/吨</b>（年内低点）；随后受锂盐厂检修旺季+下游9月备货预期推动企稳反弹，<b>8月底反弹至14万/吨上方</b>（光大期货数据）。SMM电池级碳酸锂现货月末约14.65万/吨。
+  </p>
+  <div class="callout warn">
+    <b>碳酸锂触底反弹的启示：</b>8月碳酸锂"先跌后涨"揭示了当前锂价定价的核心逻辑：<b>13万/吨下方</b>触及锂盐厂边际成本线（津巴布韦矿+盐湖+锂辉石综合成本），供给端开始主动减产；需求端9月消费税开征前夕，下游电芯厂或阶段性补库。两者叠加，锂价下方支撑逐步显现。<b>8月9系/单晶三元逆势增长</b>也印证：高端三元材料对锂价的敏感度降低，结构升级为对冲成本压力提供新路径。
+  </div>
+</div>
+
+<div class="part-section" id="p5" style="border-top: 3px solid var(--sjld);">
+  <div class="sjld-header">
+    <div class="sjld-logo">📊</div>
+    <div class="sjld-title-wrap">
+      <h3>五、三金锂电专题诊断</h3>
+      <p>基于雷达看板 · 三金锂电2026年8月经营数据</p>
+    </div>
+    <div class="sjld-score-badge">
+      <div class="score-num">73<span class="score-unit">分</span></div>
+      <div class="score-label">8月综合评分</div>
+    </div>
+  </div>
+
+  <div class="callout warn" style="margin-bottom:20px;">
+    <b>8月关键里程碑：</b>固态电池用三金锂电中试线产线集成项目（8/25）中标，标志着三金锂电正式进入<b>固态电池正极材料</b>产业化新阶段；六维综合评分 <b>73分</b>（较7月 <b>49分</b>+24分），其中 <b>D4 客户开发</b> 与 <b>D5 竣工合规</b> 表现稳健，D1 核心KPI与D3 运营随复产节奏改善。
+  </div>
+
+  <div class="section-title" id="p5-1">5.1 综合评分 & 维度雷达</div>
+  <div class="sjld-kpi-row">
+    <div class="sjld-kpi">
+        <div class="kpi-label">D1 核心KPI</div>
+        <div class="kpi-value">62<span style="font-size:13px;">分</span></div>
+        <div class="kpi-sub">权重15% · 8月固态电池中试线产线集成中标</div>
+        <span class="kpi-status warn">建设中</span>
+      </div><div class="sjld-kpi">
+        <div class="kpi-label">D2 基建进度</div>
+        <div class="kpi-value">75<span style="font-size:13px;">分</span></div>
+        <div class="kpi-sub">权重18% · 竣工验收推进</div>
+        <span class="kpi-status good">优秀</span>
+      </div><div class="sjld-kpi">
+        <div class="kpi-label">D3 运营准备</div>
+        <div class="kpi-value">80<span style="font-size:13px;">分</span></div>
+        <div class="kpi-sub">权重15% · 复产后的产能爬坡</div>
+        <span class="kpi-status good">优秀</span>
+      </div><div class="sjld-kpi">
+        <div class="kpi-label">D4 客户开发与技术</div>
+        <div class="kpi-value">70<span style="font-size:13px;">分</span></div>
+        <div class="kpi-sub">权重17% · 固态电池材料技术对接</div>
+        <span class="kpi-status warn">建设中</span>
+      </div><div class="sjld-kpi">
+        <div class="kpi-label">D5 竣工验收与合规</div>
+        <div class="kpi-value">78<span style="font-size:13px;">分</span></div>
+        <div class="kpi-sub">权重25% · EHS合规持续</div>
+        <span class="kpi-status good">优秀</span>
+      </div><div class="sjld-kpi">
+        <div class="kpi-label">D6 组织活力</div>
+        <div class="kpi-value">70<span style="font-size:13px;">分</span></div>
+        <div class="kpi-sub">权重10% · 关键岗位配置稳定</div>
+        <span class="kpi-status warn">建设中</span>
+      </div>
+  </div>
+
+  <div class="sjld-dims-grid">
+    <div class="sjld-dim">
+        <div class="sjld-dim-icon">🎯</div>
+        <div class="sjld-dim-info">
+          <div class="dim-name">D1 核心KPI</div>
+          <div class="dim-score">62<span style="font-size:12px;color:#aaa;"> / 100</span> <span style="font-size:11px;color:#888;">(7月 65)</span></div>
+          <div class="dim-bar"><div class="dim-bar-fill" style="width:62%;background:#34495e"></div></div>
+        </div>
+      </div><div class="sjld-dim">
+        <div class="sjld-dim-icon">📊</div>
+        <div class="sjld-dim-info">
+          <div class="dim-name">D2 基建进度</div>
+          <div class="dim-score">75<span style="font-size:12px;color:#aaa;"> / 100</span> <span style="font-size:11px;color:#888;">(7月 46)</span></div>
+          <div class="dim-bar"><div class="dim-bar-fill" style="width:75%;background:var(--green)"></div></div>
+        </div>
+      </div><div class="sjld-dim">
+        <div class="sjld-dim-icon">⚙️</div>
+        <div class="sjld-dim-info">
+          <div class="dim-name">D3 运营准备</div>
+          <div class="dim-score">80<span style="font-size:12px;color:#aaa;"> / 100</span> <span style="font-size:11px;color:#888;">(7月 23)</span></div>
+          <div class="dim-bar"><div class="dim-bar-fill" style="width:80%;background:var(--green)"></div></div>
+        </div>
+      </div><div class="sjld-dim">
+        <div class="sjld-dim-icon">🔬</div>
+        <div class="sjld-dim-info">
+          <div class="dim-name">D4 客户开发与技术</div>
+          <div class="dim-score">70<span style="font-size:12px;color:#aaa;"> / 100</span> <span style="font-size:11px;color:#888;">(7月 28)</span></div>
+          <div class="dim-bar"><div class="dim-bar-fill" style="width:70%;background:#34495e"></div></div>
+        </div>
+      </div><div class="sjld-dim">
+        <div class="sjld-dim-icon">🛡️</div>
+        <div class="sjld-dim-info">
+          <div class="dim-name">D5 竣工验收与合规</div>
+          <div class="dim-score">78<span style="font-size:12px;color:#aaa;"> / 100</span> <span style="font-size:11px;color:#888;">(7月 75)</span></div>
+          <div class="dim-bar"><div class="dim-bar-fill" style="width:78%;background:var(--green)"></div></div>
+        </div>
+      </div><div class="sjld-dim">
+        <div class="sjld-dim-icon">🏢</div>
+        <div class="sjld-dim-info">
+          <div class="dim-name">D6 组织活力</div>
+          <div class="dim-score">70<span style="font-size:12px;color:#aaa;"> / 100</span> <span style="font-size:11px;color:#888;">(7月 45)</span></div>
+          <div class="dim-bar"><div class="dim-bar-fill" style="width:70%;background:#34495e"></div></div>
+        </div>
+      </div>
+  </div>
+
+  <div class="insight-block" style="background: rgba(121,134,203,0.08); border-left-color: var(--sjld);">
+    <div class="insight-title" style="color: var(--sjld);">📋 三金锂电 · 8月雷达解读</div>
+    <p><b>关键里程碑：</b>8月25日<b>固态电池用三金中试线产线集成项目中标</b>，标志着三金锂电正式进入<b>固态电池正极材料</b>产业化新阶段，与三星SDI全固态2027H2量产节奏匹配。<br>
+    <b>六维表现：</b>综合评分 <b>73分</b>（较7月+24分）。<b>D3 运营准备</b>和<b>D5 竣工验收</b>表现稳健（D5连续两月≥75分），<b>D4 客户开发</b>随固态电池材料技术对接推进，<b>D1 核心KPI</b>复产节奏下有所改善。<br>
+    <b>主要风险：</b>①固态电池产业化节奏不及预期可能影响中长期订单；②9月消费税开征增加4%成本压力，正极材料端议价能力下降；③三金锂电在9系超高镍单晶产品上的差异化优势尚未完全建立，需通过中试线验证加速迭代。<br>
+    <b>重点跟踪：</b>①中试线产线集成进度（计划Q4完成）；②固态电池客户验证进展；③9月消费税落地后订单变化。</p>
+  </div>
+</div>
+
+<div class="conclusion-banner" id="p6">
+  <h3>六 总结及展望</h3>
+  <div class="summary-grid">
+    <div class="summary-item">
+      <h5>三元材料：量价双弱，9系高镍加速</h5>
+      <p>8月产量84,250吨（环比-2.3%，同比+15.4%），连续两月环比下滑，淡季效应叠加下游电池厂去库存。9系份额20.9%（同比+5.6pct），单晶622份额44.3%，高镍化趋势加速。NCM 5系均价18.09万/吨（环比-3.3%），受碳酸锂触底反弹但下游需求疲软拖累。</p>
+    </div>
+    <div class="summary-item">
+      <h5>三元前驱体：量减但出口亮眼</h5>
+      <p>8月产量92,300吨（环比-1.9%），产能利用率48.99%仍低于荣枯线，但出口端呈现韧性。中伟（21,500吨）稳居第一，与邦普差距扩大。前驱体价格承压（5系10.25万/吨），出口端受全球新能源汽车备货支撑。</p>
+    </div>
+    <div class="summary-item">
+      <h5>关键原料：钴加速走弱，镍偏弱震荡</h5>
+      <p>碳酸锂月初13.5万元/吨触底后反弹至14万/吨，8月企稳；硫酸钴8.04万元/吨（-15.4%）加速走弱，跟随锂价但跌幅更深；硫酸镍3.16万元/吨（-3.7%），印尼政策与高库存博弈。9月消费税开征带来4%额外成本，固态/钠电正极免征激励新技术路线加速。</p>
+    </div>
+    <div class="summary-item">
+      <h5>战略展望：固态电池提速，三元高端化</h5>
+      <p>9月展望：碳酸锂或维持14-15万/吨区间震荡（成本支撑显现）；硫酸钴延续弱势但跌幅收窄；前驱体价格平稳。三星SDI全固态电池锁定2027H2量产、国轩高科2万吨固态电池材料项目启动，<b>固态电池产业化提速</b>，三元材料高端化（9系/单晶622）成为对冲消费税与固态压力的核心路径；新能源车零售渗透率7月已超63%，终端需求支撑仍在。行业核心矛盾：产能过剩（利用率<50%）+ 消费税成本 vs 需求高景气 + 固态电池产业化提速。</p>
+    </div>
+  </div>
+</div>
+
+<div class="chart-row" style="margin-top:24px;">
+  <div class="chart-card full">
+    <h4>三元材料月度出口量趋势（2025.01 ~ 2026.08）</h4>
+    <canvas id="chart_ncm_export"></canvas>
+  </div>
+</div>
+
+<div class="chart-row">
+  <div class="chart-card">
+    <h4>三元前驱体出口量趋势（2025.01 ~ 2026.08）</h4>
+    <canvas id="chart_ncmpre_export"></canvas>
+  </div>
+  <div class="chart-card">
+    <h4>NCM材料 TOP5 企业8月产量对比</h4>
+    <canvas id="chart_ncm_top5"></canvas>
+  </div>
+</div>
+
+<div class="report-footer">
+  数据来源：三元材料产业链数据库（更新至 2026-08）· 鑫椤数据 · SMM · 海关总署 · 龙蟠科技战略中心 · 2026年9月<br>
+  三金锂电数据来源：雷达看板 BU_SCORE_DETAIL['sjld']（8月 dims 已同步）
+</div>
+
+</div><!-- /container -->
+</main>
+</div><!-- /page-wrapper -->
+
+<script src="chart.min.js"></script>
+<script>
+// ===== TOC active link tracking =====
+(function() {
+  const links = document.querySelectorAll('.toc-list a');
+  const sections = document.querySelectorAll('.part-section[id]');
+  function updateActive() {
+    let cur = '';
+    sections.forEach(function(sec) {
+      if (sec.getBoundingClientRect().top <= 100) cur = sec.id;
+    });
+    links.forEach(function(a) {
+      a.classList.toggle('active', a.getAttribute('href') === '#' + cur);
+    });
+  }
+  window.addEventListener('scroll', updateActive, { passive: true });
+  updateActive();
+})();
+</script>
+
+<script>
+var months = ["2025-01", "2025-02", "2025-03", "2025-04", "2025-05", "2025-06", "2025-07", "2025-08", "2025-09", "2025-10", "2025-11", "2025-12", "2026-01", "2026-02", "2026-03", "2026-04", "2026-05", "2026-06", "2026-07", "2026-08"];
+var mlabels = ["25/01", "25/02", "25/03", "25/04", "25/05", "25/06", "25/07", "25/08", "25/09", "25/10", "25/11", "25/12", "26/01", "26/02", "26/03", "26/04", "26/05", "26/06", "26/07", "26/08"];
+var pm = ['26/01','26/02','26/03','26/04','26/05','26/06','26/07','26/08'];
+
+var c = {
+  primary: '#1e3c72', blue: '#2a5298', green: '#2e7d32', orange: '#ef6c00',
+  red: '#c62828', gold: '#d4a017', teal: '#00897b', purple: '#6a1b9a',
+  pink: '#ad1457', cyan: '#00838f', grey: '#78909c',
+  blue2: '#1565c0', green2: '#558b2f', orange2: '#e65100'
+};
+
+function fmt(v, unit) {
+  if (typeof v === 'number') {
+    if (v >= 10000) return (v/10000).toFixed(1) + '万' + unit;
+    if (v >= 1000) return (v/1000).toFixed(1) + 'k' + unit;
+    return v.toFixed(2) + unit;
+  }
+  return v + unit;
+}
+function tooltipTpl(unit) {
+  return {
+    callbacks: {
+      label: function(ctx) {
+        var isH = ctx.chart && ctx.chart.options && ctx.chart.options.indexAxis === 'y';
+        var v = isH ? ctx.parsed.x : (ctx.parsed.y !== null ? ctx.parsed.y : ctx.parsed);
+        return ' ' + (ctx.dataset.label || '') + ': ' + fmt(v, unit);
+      },
+      title: function(ctxArr) { return ctxArr[0].label; }
+    }
+  };
+}
+function baseOpts(unit) {
+  return {
+    responsive: true, maintainAspectRatio: false,
+    plugins: {
+      legend: { position: 'bottom', labels: { usePointStyle: true, boxWidth: 8, padding: 12, font: { size: 11 } } },
+      tooltip: Object.assign({
+        backgroundColor: 'rgba(21,41,77,0.95)', titleColor: '#fff', bodyColor: 'rgba(255,255,255,0.85)',
+        borderColor: 'rgba(255,255,255,0.2)', borderWidth: 1, padding: 10, cornerRadius: 8, displayColors: true, boxPadding: 4
+      }, tooltipTpl(unit))
+    }
+  };
+}
+
+// 1. NCM Output + Utilization
+(function() {
+  var ctx = document.getElementById('chart_ncm_output');
+  if (!ctx) return;
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: mlabels,
+      datasets: [
+        { label: 'NCM产量(吨)', data: [45040,42710,54940,57020,56740,64320,64600,73030,74280,74070,75740,76340,75530,61880,80800,76600,85820,88400,86250,84250], backgroundColor: c.primary, borderRadius: 6, order: 1, yAxisID: 'y' },
+        { label: '产能利用率(%)', data: [33.92,32.16,41.37,42.94,42.73,47.84,48.04,54.31,55.24,55.09,56.33,56.78,57.27,46.63,60.89,57.72,64.67,66.61,64.99,63.47], type: 'line', borderColor: c.orange, backgroundColor: 'transparent', borderWidth: 2.5, pointRadius: 6, pointHoverRadius: 9, pointBackgroundColor: c.orange, tension: 0.3, order: 0, yAxisID: 'y1' }
+      ]
+    },
+    options: Object.assign(baseOpts('吨'), {
+      scales: {
+        y: { type: 'linear', position: 'left', title: { display: true, text: '产量(吨)', font: { size: 11 } }, ticks: { callback: function(v){ return (v/1000).toFixed(0)+'k'; } } },
+        y1: { type: 'linear', position: 'right', title: { display: true, text: '产能利用率(%)', font: { size: 11 } }, min: 20, max: 75, grid: { drawOnChartArea: false } }
+      }
+    })
+  });
+})();
+
+// 2. NCMpre Output + Utilization
+(function() {
+  var ctx = document.getElementById('chart_ncmpre_output');
+  if (!ctx) return;
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: mlabels,
+      datasets: [
+        { label: 'NCMpre产量(吨)', data: [58250,55670,73750,71950,67950,77100,75250,83200,87150,87050,84950,87200,90100,72550,92700,85700,92350,97300,94050,92300], backgroundColor: c.blue, borderRadius: 6, order: 1, yAxisID: 'y' },
+        { label: '产能利用率(%)', data: [36.27,31.35,41.53,40.52,38.26,43.01,41.21,45.57,47.73,47.68,46.53,47.76,48.9,39.38,48.77,45.48,49.01,51.64,49.92,48.99], type: 'line', borderColor: c.orange, backgroundColor: 'transparent', borderWidth: 2.5, pointRadius: 6, pointHoverRadius: 9, pointBackgroundColor: c.orange, tension: 0.3, order: 0, yAxisID: 'y1' }
+      ]
+    },
+    options: Object.assign(baseOpts('吨'), {
+      scales: {
+        y: { type: 'linear', position: 'left', title: { display: true, text: '产量(吨)', font: { size: 11 } }, ticks: { callback: function(v){ return (v/1000).toFixed(0)+'k'; } } },
+        y1: { type: 'linear', position: 'right', title: { display: true, text: '产能利用率(%)', font: { size: 11 } }, min: 20, max: 60, grid: { drawOnChartArea: false } }
+      }
+    })
+  });
+})();
+
+// 3. NCM Model Share (Doughnut)
+(function() {
+  var ctx = document.getElementById('chart_ncm_model');
+  if (!ctx) return;
+  var rows = [["NCM111", 150.0], ["NCM523", 6900.0], ["NCM622", 37350.0], ["NCM811", 19750.0], ["NCA", 2500.0], ["NCM9\u7cfb", 17600.0]];
+  var labels = rows.map(function(r){ return r[0] + ' (' + r[2] + '%)'; });
+  var data = rows.map(function(r){ return r[1]; });
+  var colors = rows.map(function(r){
+    var k = r[0];
+    if (k === '111') return c.grey;
+    if (k === '523') return c.grey;
+    if (k === '622') return c.primary;
+    if (k === '811') return c.blue;
+    if (k === 'NCA' || k === 'NCApre') return c.orange;
+    if (k.indexOf('9系') >= 0) return c.purple;
+    return c.green;
+  });
+  new Chart(ctx, {
+    type: 'doughnut',
+    data: { labels: labels, datasets: [{ data: data, backgroundColor: colors, borderWidth: 2, borderColor: '#fff' }] },
+    options: Object.assign(baseOpts(''), {
+      plugins: {
+        legend: { position: 'bottom', labels: { usePointStyle: true, boxWidth: 8, padding: 10, font: { size: 11 } } },
+        tooltip: {
+          backgroundColor: 'rgba(21,41,77,0.95)', titleColor: '#fff', bodyColor: 'rgba(255,255,255,0.85)',
+          borderColor: 'rgba(255,255,255,0.2)', borderWidth: 1, padding: 10, cornerRadius: 8, displayColors: true,
+          callbacks: {
+            label: function(ctx) {
+              var total = ctx.dataset.data.reduce(function(a,b){ return a+b; }, 0);
+              var pct = ((ctx.raw / total) * 100).toFixed(1);
+              return ' ' + ctx.label + ': ' + fmt(ctx.raw, '吨') + ' (' + pct + '%)';
+            }
+          }
+        }
+      }
+    })
+  });
+})();
+
+// 4. NCMpre Model Share (Doughnut)
+(function() {
+  var ctx = document.getElementById('chart_ncmpre_model');
+  if (!ctx) return;
+  var rows = [["NCMpre333", 100.0], ["NCMpre523", 9250.0], ["NCMpre622", 39100.0], ["NCMpre811", 23750.0], ["NCApre", 5800.0], ["NCMpre9\u7cfb", 14300.0]];
+  var labels = rows.map(function(r){ return r[0].replace('前驱体','') + ' (' + r[2] + '%)'; });
+  var data = rows.map(function(r){ return r[1]; });
+  var colors = rows.map(function(r){
+    var k = r[0];
+    if (k.indexOf('333') >= 0) return c.green;
+    if (k.indexOf('523') >= 0) return c.grey;
+    if (k.indexOf('622') >= 0) return c.primary;
+    if (k.indexOf('811') >= 0) return c.blue;
+    if (k.indexOf('NCA') >= 0) return c.orange;
+    if (k.indexOf('9系') >= 0) return c.purple;
+    return c.green;
+  });
+  new Chart(ctx, {
+    type: 'doughnut',
+    data: { labels: labels, datasets: [{ data: data, backgroundColor: colors, borderWidth: 2, borderColor: '#fff' }] },
+    options: Object.assign(baseOpts(''), {
+      plugins: {
+        legend: { position: 'bottom', labels: { usePointStyle: true, boxWidth: 8, padding: 10, font: { size: 11 } } },
+        tooltip: {
+          backgroundColor: 'rgba(21,41,77,0.95)', titleColor: '#fff', bodyColor: 'rgba(255,255,255,0.85)',
+          borderColor: 'rgba(255,255,255,0.2)', borderWidth: 1, padding: 10, cornerRadius: 8, displayColors: true,
+          callbacks: {
+            label: function(ctx) {
+              var total = ctx.dataset.data.reduce(function(a,b){ return a+b; }, 0);
+              var pct = ((ctx.raw / total) * 100).toFixed(1);
+              return ' ' + ctx.label + ': ' + fmt(ctx.raw, '吨') + ' (' + pct + '%)';
+            }
+          }
+        }
+      }
+    })
+  });
+})();
+
+// 5. NCM Spot Prices
+(function() {
+  var ctx = document.getElementById('chart_ncm_price');
+  if (!ctx) return;
+  new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: pm,
+      datasets: [
+        { label: '5系动力均价', data: [19.15,18.85,18.65,19.35,19.5,18.9,18.35,17.75], borderColor: c.primary, backgroundColor: 'transparent', borderWidth: 2.5, tension: 0.3, pointRadius: 6, pointHoverRadius: 9, spanGaps: true },
+        { label: '6系单晶均价', data: [19.35,19.05,18.7,19.45,19.7,19.17,18.49,18.53], borderColor: c.orange, backgroundColor: 'transparent', borderWidth: 2.5, tension: 0.3, pointRadius: 6, pointHoverRadius: 9, spanGaps: true },
+        { label: '8系动力均价', data: [20.75,20.7,20.25,20.85,20.93,20.5,20.18,20.17], borderColor: c.red, backgroundColor: 'transparent', borderWidth: 2.5, tension: 0.3, pointRadius: 6, pointHoverRadius: 9, spanGaps: true }
+      ]
+    },
+    options: Object.assign(baseOpts('万/吨'), {
+      scales: { y: { title: { display: true, text: '万元/吨', font: { size: 11 } }, min: 17 } }
+    })
+  });
+})();
+
+// 6. NCMpre Spot Prices
+(function() {
+  var ctx = document.getElementById('chart_ncmpre_price');
+  if (!ctx) return;
+  new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: pm,
+      datasets: [
+        { label: '5系均价', data: [11.05,11.05,10.95,10.95,11.05,11.05,11.08,9.76], borderColor: c.primary, backgroundColor: 'transparent', borderWidth: 2.5, tension: 0.3, pointRadius: 6, pointHoverRadius: 9, spanGaps: true },
+        { label: '6系均价', data: [11.1,11.1,10.9,10.9,11,11,11.01,9.61], borderColor: c.orange, backgroundColor: 'transparent', borderWidth: 2.5, tension: 0.3, pointRadius: 6, pointHoverRadius: 9, spanGaps: true },
+        { label: '8系均价', data: [11.65,11.65,11.65,11.65,11.85,11.85,11.86,10.64], borderColor: c.red, backgroundColor: 'transparent', borderWidth: 2.5, tension: 0.3, pointRadius: 6, pointHoverRadius: 9, spanGaps: true }
+      ]
+    },
+    options: Object.assign(baseOpts('万/吨'), {
+      scales: { y: { title: { display: true, text: '万元/吨', font: { size: 11 } }, min: 9.5 } }
+    })
+  });
+})();
+
+// 7. Raw Material Prices
+(function() {
+  var ctx = document.getElementById('chart_raw_material');
+  if (!ctx) return;
+  new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: pm,
+      datasets: [
+        { label: '硫酸镍(万/吨)', data: [3.2,3.2,3.2,3.2,3.35,3.35,3.25,3.13], borderColor: c.primary, backgroundColor: 'transparent', borderWidth: 2.5, tension: 0.3, pointRadius: 6, pointHoverRadius: 9, yAxisID: 'y', spanGaps: true },
+        { label: '硫酸钴(万/吨)', data: [9.55,9.55,9.55,9.55,9.55,9.55,8.95,7.57], borderColor: c.orange, backgroundColor: 'transparent', borderWidth: 2.5, tension: 0.3, pointRadius: 6, pointHoverRadius: 9, yAxisID: 'y1', spanGaps: true }
+      ]
+    },
+    options: Object.assign(baseOpts(''), {
+      scales: {
+        y: { type: 'linear', position: 'left', title: { display: true, text: '硫酸镍(万元/吨)', font: { size: 11 } }, min: 2.5, max: 10 },
+        y1: { type: 'linear', position: 'right', title: { display: true, text: '硫酸钴(万元/吨)', font: { size: 11 } }, min: 2.5, max: 10, grid: { drawOnChartArea: false } }
+      }
+    })
+  });
+})();
+
+// 8. NCM Export
+(function() {
+  var ctx = document.getElementById('chart_ncm_export');
+  if (!ctx) return;
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: mlabels,
+      datasets: [{ label: 'NCM出口量(吨)', data: [6091,6045,8138,9058,8775,10636,10582,13352,10934,11509,12504,11392,12297,10555,20901,9823,13986.9,13873.4,14861.6,15927.5], backgroundColor: c.blue, borderRadius: 6 }]
+    },
+    options: Object.assign(baseOpts('吨'), {
+      scales: { y: { title: { display: true, text: '吨', font: { size: 11 } }, ticks: { callback: function(v){ return (v/1000).toFixed(0)+'k'; } } } }
+    })
+  });
+})();
+
+// 9. NCMpre Export
+(function() {
+  var ctx = document.getElementById('chart_ncmpre_export');
+  if (!ctx) return;
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: mlabels,
+      datasets: [{ label: 'NCMpre出口量(吨)', data: [6495.78,5529.74,4848.58,4931.31,6186.3,5870.47,6369.06,6549.33,6686.54,7011.7,7276.04,4446.14,6014.68,5842.85,12871,2661.99,3256.12,5496.61,7668.61,10137.1], backgroundColor: c.primary, borderRadius: 6 }]
+    },
+    options: Object.assign(baseOpts('吨'), {
+      scales: { y: { title: { display: true, text: '吨', font: { size: 11 } }, ticks: { callback: function(v){ return (v/1000).toFixed(0)+'k'; } } } }
+    })
+  });
+})();
+
+// 10. NCM Top5
+(function() {
+  var ctx = document.getElementById('chart_ncm_top5');
+  if (!ctx) return;
+  var rows = [["\u5357\u901a\u745e\u7fd4", 15000], ["\u5929\u6d25\u5df4\u83ab", 14200], ["\u5bb9\u767e\u79d1\u6280", 11500], ["\u5e7f\u4e1c\u90a6\u666e", 8100], ["\u957f\u8fdc\u9502\u79d1", 7800]];
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: rows.map(function(r){ return r[0]; }),
+      datasets: [{ label: '8月产量(吨)', data: rows.map(function(r){ return r[1]; }), backgroundColor: [c.primary,c.blue,c.orange,c.purple,c.teal], borderRadius: 6 }]
+    },
+    options: Object.assign(baseOpts('吨'), {
+      indexAxis: 'y',
+      scales: { x: { ticks: { callback: function(v){ return (v/1000).toFixed(0)+'k'; } } } }
+    })
+  });
+})();
+
+// 11. NCMpre Top5 (Line)
+(function() {
+  var ctx = document.getElementById('chart_ncmpre_top5');
+  if (!ctx) return;
+  var colors = [c.primary, c.orange, c.green, c.purple, c.cyan];
+  var comps = ["\u4e2d\u4f1f\u79d1\u6280", "\u6e56\u5357\u90a6\u666e", "\u534e\u53cb\u94b4\u4e1a", "\u5170\u5dde\u91d1\u901a", "\u683c\u6797\u7f8e"];
+  var seriesData = [[25500.0, 20000.0, 26000.0, 19500.0, 21000.0, 22000.0, 21400.0, 21500.0], [20000.0, 15000.0, 18500.0, 21000.0, 20000.0, 19500.0, 19200.0, 19000.0], [12500.0, 12000.0, 14000.0, 13000.0, 14100.0, 16500.0, 15000.0, 15500.0], [9000.0, 7500.0, 8800.0, 9250.0, 10750.0, 9800.0, 9500.0, 9200.0], [7800.0, 6300.0, 8500.0, 7200.0, 7500.0, 7600.0, 7800.0, 7500.0]];
+  var datasets = comps.map(function(name, i){
+    return {
+      label: name,
+      data: seriesData[i],
+      borderColor: colors[i],
+      backgroundColor: 'transparent',
+      borderWidth: 2,
+      tension: 0.3,
+      pointRadius: 6,
+      pointHoverRadius: 9,
+      spanGaps: true
+    };
+  });
+  new Chart(ctx, {
+    type: 'line',
+    data: { labels: mlabels.slice(12), datasets: datasets },
+    options: Object.assign(baseOpts('吨'), {
+      scales: { y: { title: { display: true, text: '产量(吨)', font: { size: 11 } }, ticks: { callback: function(v){ return (v/1000).toFixed(0)+'k'; } } } }
+    })
+  });
+})();
+</script>
+</body>
+</html>

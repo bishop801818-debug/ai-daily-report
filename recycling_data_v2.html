@@ -8,7 +8,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <script src="recycling_embedded_data.js?v=20260831_2000" charset="UTF-8"></script>
+    <script src="recycling_embedded_data.js?v=20260928_1423" charset="UTF-8"></script>
     <script>
         // DEBUG: verify EMBEDDED_DATA loaded correctly
         (function() {
@@ -988,6 +988,20 @@
         }
 
         function num(v) { return parseFloat(v) || 0; }
+        // --- 百分比字段自适应格式化（真值=小数比率；兼容历史 % 串）---
+        function isPctField(f) { if (typeof f !== 'string') return false; return ['环比','同比','占比','份额','利用率','变化'].some(function(k){ return f.indexOf(k) >= 0; }); }
+        function fmtPct(v, dp) {
+            dp = (dp === undefined ? 2 : dp);
+            if (v === null || v === undefined || v === '') return '-';
+            if (typeof v === 'string') {
+                const t = v.trim().replace(/\+$/, '');
+                if (t === '' || t === '-') return '-';
+                if (t.endsWith('%')) { const n = parseFloat(t.slice(0, -1)); return isNaN(n) ? '-' : n.toFixed(dp) + '%'; }
+                const m = parseFloat(t); if (isNaN(m)) return t; v = m;
+            }
+            if (typeof v !== 'number' || isNaN(v)) return '-';
+            return (v * 100).toFixed(dp) + '%';
+        }
         function pct(v) {
             if (v == null || v === '') return '-';
             let s = String(v);
@@ -1023,7 +1037,7 @@
             let rows = '';
             const showRows = sorted.slice(0, 200);
             showRows.forEach(d => {
-                rows += '<tr>' + headers.map(h => `<td>${pct(d[h])}</td>`).join('') + '</tr>';
+                rows += '<tr>' + headers.map(h => `<td>${isPctField(h) ? fmtPct(d[h]) : pct(d[h])}</td>`).join('') + '</tr>';
             });
             if (data.length > 200) rows += '<tr><td colspan="' + headers.length + '" class="loading">仅显示前200条（共' + data.length + '条）</td></tr>';
             document.getElementById('body-' + idx).innerHTML = rows;

@@ -7,7 +7,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <meta name="html-version" content="20260831_2245">
+    <meta name="html-version" content="20260928_1315">
 <style>
         /* 滚动条样式 */
         ::-webkit-scrollbar { width: 6px; height: 6px; }
@@ -1088,7 +1088,7 @@
                     <td>${formatDate(d['日期'])}</td>
                     <td>${(parseFloat(d['产量（GWh）'])||0).toFixed(2)}</td>
                     <td>${(parseFloat(d['产能（GWh）'])||0).toFixed(2)}</td>
-                    <td>${d['产能利用率'] || '-'}</td>
+                    <td>${fmtPct(d['产能利用率'])}</td>
                 </tr>
             `).join('');
             document.getElementById('lib-industry-total-body').innerHTML = html || '<tr><td colspan="4" class="loading">暂无数据</td></tr>';
@@ -1105,8 +1105,8 @@
                     <td>${d['规格'] || '-'}</td>
                     <td>${d['企业名称'] || '-'}</td>
                     <td>${(parseFloat(d['产量（GWh）'])||0).toFixed(2)}</td>
-                    <td>${d['环比'] || '-'}</td>
-                    <td>${d['同比'] || '-'}</td>
+                    <td>${fmtPct(d['环比'])}</td>
+                    <td>${fmtPct(d['同比'])}</td>
                 </tr>
             `).join('');
             document.getElementById('lib-company-spec-body').innerHTML = html || '<tr><td colspan="6" class="loading">暂无数据</td></tr>';
@@ -1127,9 +1127,9 @@
                     <td>${d['企业名称'] || '-'}</td>
                     <td>${(parseFloat(d['产量（GWh）'])||0).toFixed(2)}</td>
                     <td>${(parseFloat(d['产能（GWh）'])||0).toFixed(2)}</td>
-                    <td>${d['产能利用率'] || '-'}</td>
-                    <td>${d['环比'] || '-'}</td>
-                    <td>${d['同比'] || '-'}</td>
+                    <td>${fmtPct(d['产能利用率'])}</td>
+                    <td>${fmtPct(d['环比'])}</td>
+                    <td>${fmtPct(d['同比'])}</td>
                 </tr>
             `).join('');
             document.getElementById('lib-company-total-body').innerHTML = html || '<tr><td colspan="8" class="loading">暂无数据</td></tr>';
@@ -1164,9 +1164,9 @@
                     <td>${formatDate(d['日期'])}</td>
                     <td>${d['规格'] || '-'}</td>
                     <td>${(parseFloat(d['销量（GWh）'])||0).toFixed(2)}</td>
-                    <td>${d['当月占比（%）'] != null ? (parseFloat(d['当月占比（%）'])*100).toFixed(1)+'%' : '-'}</td>
-                    <td>${d['环比'] != null ? (parseFloat(d['环比'])*100).toFixed(1)+'%' : '-'}</td>
-                    <td>${d['同比'] != null ? (parseFloat(d['同比'])*100).toFixed(1)+'%' : '-'}</td>
+                    <td>${fmtPct(d['当月占比（%）'])}</td>
+                    <td>${fmtPct(d['环比'])}</td>
+                    <td>${fmtPct(d['同比'])}</td>
                 </tr>
             `).join('');
             document.getElementById('lib-sales-body').innerHTML = html || '<tr><td colspan="6" class="loading">暂无数据</td></tr>';
@@ -1182,9 +1182,9 @@
                     <td>${formatDate(d['日期'])}</td>
                     <td>${d['规格'] || '-'}</td>
                     <td>${(parseFloat(d['出口量'])||0).toFixed(2)}</td>
-                    <td>${d['占比'] != null ? (parseFloat(d['占比'])*100).toFixed(1)+'%' : '-'}</td>
-                    <td>${d['环比'] != null ? (parseFloat(d['环比'])*100).toFixed(1)+'%' : '-'}</td>
-                    <td>${d['同比'] != null ? (parseFloat(d['同比'])*100).toFixed(1)+'%' : '-'}</td>
+                    <td>${fmtPct(d['占比'])}</td>
+                    <td>${fmtPct(d['环比'])}</td>
+                    <td>${fmtPct(d['同比'])}</td>
                 </tr>
             `).join('');
             document.getElementById('lib-export-body').innerHTML = html || '<tr><td colspan="6" class="loading">暂无数据</td></tr>';
@@ -1218,16 +1218,16 @@
                 <tr>
                     <td>${formatDate(d['日期'])}</td>
                     <td>${(parseFloat(d['动力电池装车量'])||0).toFixed(1)}</td>
-                    <td>${d['装车量同比'] || '-'}</td>
-                    <td>${d['装车量环比'] || '-'}</td>
+                    <td>${fmtPct(d['装车量同比'])}</td>
+                    <td>${fmtPct(d['装车量环比'])}</td>
                     <td>${(parseFloat(d['三元装车量'])||0).toFixed(1)}</td>
-                    <td>${d['三元占比'] || '-'}</td>
-                    <td>${d['三元环比'] || '-'}</td>
-                    <td>${d['三元同比'] || '-'}</td>
+                    <td>${fmtPct(d['三元占比'])}</td>
+                    <td>${fmtPct(d['三元环比'])}</td>
+                    <td>${fmtPct(d['三元同比'])}</td>
                     <td>${(parseFloat(d['铁锂装车量'])||0).toFixed(1)}</td>
-                    <td>${d['铁锂占比'] || '-'}</td>
-                    <td>${d['铁锂环比'] || '-'}</td>
-                    <td>${d['铁锂同比'] || '-'}</td>
+                    <td>${fmtPct(d['铁锂占比'])}</td>
+                    <td>${fmtPct(d['铁锂环比'])}</td>
+                    <td>${fmtPct(d['铁锂同比'])}</td>
                 </tr>
             `).join('');
             document.getElementById('lib-install-body').innerHTML = html || '<tr><td colspan="12" class="loading">暂无数据</td></tr>';
@@ -1247,10 +1247,10 @@
                     <td><span class="rank-badge ${i<3?'top3':''}">${i+1}</span></td>
                     <td>${d['企业名称'] || '-'}</td>
                     <td>${(parseFloat(d['总装车量\n(GWh)'])||0).toFixed(2)}</td>
-                    <td>${d['占比'] || '-'}</td>
-                    <td>${d['同比'] || '-'}</td>
-                    <td>${d['环比'] || '-'}</td>
-                    <td>${d['与上月\n占比变化'] || '-'}</td>
+                    <td>${fmtPct(d['占比'])}</td>
+                    <td>${fmtPct(d['同比'])}</td>
+                    <td>${fmtPct(d['环比'])}</td>
+                    <td>${fmtPct(d['与上月\n占比变化'])}</td>
                 </tr>
             `).join('');
             document.getElementById('lib-install-co-body').innerHTML = html || '<tr><td colspan="8" class="loading">暂无数据</td></tr>';
@@ -1270,9 +1270,9 @@
                     <td><span class="rank-badge ${i<3?'top3':''}">${i+1}</span></td>
                     <td>${d['企业名称'] || '-'}</td>
                     <td>${(parseFloat(d['LFP装车量\n(GWh)'])||0).toFixed(2)}</td>
-                    <td>${d['LFP占比'] || '-'}</td>
-                    <td>${d['同比'] || '-'}</td>
-                    <td>${d['环比'] || '-'}</td>
+                    <td>${fmtPct(d['LFP占比'])}</td>
+                    <td>${fmtPct(d['同比'])}</td>
+                    <td>${fmtPct(d['环比'])}</td>
                 </tr>
             `).join('');
             document.getElementById('lib-install-lfp-body').innerHTML = html || '<tr><td colspan="7" class="loading">暂无数据</td></tr>';
@@ -1292,9 +1292,9 @@
                     <td><span class="rank-badge ${i<3?'top3':''}">${i+1}</span></td>
                     <td>${d['企业名称'] || '-'}</td>
                     <td>${(parseFloat((d['三元装车量\n(GWh)']||'').trim())||0).toFixed(2)}</td>
-                    <td>${d['三元占比'] || '-'}</td>
-                    <td>${d['同比'] || '-'}</td>
-                    <td>${d['环比'] || '-'}</td>
+                    <td>${fmtPct(d['三元占比'])}</td>
+                    <td>${fmtPct(d['同比'])}</td>
+                    <td>${fmtPct(d['环比'])}</td>
                 </tr>
             `).join('');
             document.getElementById('lib-install-ncm-body').innerHTML = html || '<tr><td colspan="7" class="loading">暂无数据</td></tr>';
@@ -1345,6 +1345,20 @@
         });
 
         // 格式化日期，去掉时间部分
+        // 百分比统一渲染：数据层可能是小数比率(0.16)或百分号字符串('16%')，两者都正确渲染
+        // 由 tools/check_pct_format.py 门禁保障 —— 新页面请复用本函数，勿写 (parseFloat(v)*100)
+        function fmtPct(v, dp) {
+            if (v === null || v === undefined || v === '') return '-';
+            var s = String(v).trim();
+            if (s === '') return '-';
+            if (s.charAt(s.length - 1) === '%') {
+                var n = parseFloat(s);
+                return isNaN(n) ? '-' : n.toFixed(dp === undefined ? 2 : dp) + '%';
+            }
+            var f = parseFloat(s);
+            return isNaN(f) ? '-' : (f * 100).toFixed(dp === undefined ? 2 : dp) + '%';
+        }
+
         function formatDate(dateStr) {
             if (!dateStr) return '-';
             // 处理 "2026-05-09 00:00:00" 格式，只保留日期部分

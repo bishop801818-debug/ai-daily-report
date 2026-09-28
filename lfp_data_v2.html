@@ -7,7 +7,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <meta name="html-version" content="20260922_172653">
+    <meta name="html-version" content="20260928_1418">
 <style>
         /* 滚动条样式 */
         ::-webkit-scrollbar { width: 6px; height: 6px; }
@@ -705,7 +705,7 @@
                 <button class="toolbar-btn toolbar-btn-secondary" onclick="window.location.href='database_hub.html'">
                     ← 返回数据库
                 </button>
-                <button class="toolbar-btn toolbar-btn-secondary" onclick="window.location.href='lfp_charts.html?v=20260629'">
+                <button class="toolbar-btn toolbar-btn-secondary" onclick="window.location.href='lfp_charts.html?v=20260928_1418'">
                     📈 可视化看板
                 </button>
                 <div class="toolbar-title">📊 磷酸铁锂数据库</div>
@@ -972,6 +972,20 @@
         }
 
         // 显示指定标签页
+        // --- 百分比字段自适应格式化（真值=小数比率；兼容历史 % 串）---
+        function isPctField(f) { return ['环比','同比','产能利用率','环比变化','同比变化'].indexOf(f) >= 0; }
+        function fmtPct(v, dp) {
+            dp = (dp === undefined ? 2 : dp);
+            if (v === null || v === undefined || v === '') return '-';
+            if (typeof v === 'string') {
+                const t = v.trim();
+                if (t === '' || t === '-') return '-';
+                if (t.endsWith('%')) { const n = parseFloat(t.slice(0, -1)); return isNaN(n) ? '-' : n.toFixed(dp) + '%'; }
+                const m = parseFloat(t); if (isNaN(m)) return t; v = m;
+            }
+            if (typeof v !== 'number' || isNaN(v)) return '-';
+            return (v * 100).toFixed(dp) + '%';
+        }
         function showTab(tabId, element) {
             // 隐藏所有内容区
             document.querySelectorAll('.content-section').forEach(el => el.classList.remove('active'));
@@ -1200,7 +1214,7 @@
                 </div>
                 <div class="metric-card">
                     <div class="metric-label">LFP产能利用率</div>
-                    <div class="metric-value">${latest['产能利用率'] || '-'}</div>
+                    <div class="metric-value">${fmtPct(latest['产能利用率'])}</div>
                 </div>
                 <div class="metric-card">
                     <div class="metric-label">FP月度产量（${fpLatest['月份']||'-'}）</div>
@@ -1208,7 +1222,7 @@
                 </div>
                 <div class="metric-card">
                     <div class="metric-label">FP产能利用率</div>
-                    <div class="metric-value">${fpLatest['产能利用率'] || '-'}</div>
+                    <div class="metric-value">${fmtPct(fpLatest['产能利用率'])}</div>
                 </div>
             `;
             
@@ -1217,7 +1231,7 @@
                     <td>${d['月份'] || '-'}</td>
                     <td>${(parseFloat(d['产量（吨）'])||0).toLocaleString()}</td>
                     <td>${(parseFloat(d['产能（吨）'])||0).toLocaleString()}</td>
-                    <td>${d['产能利用率'] || '-'}</td>
+                    <td>${fmtPct(d['产能利用率'])}</td>
                 </tr>
             `).join('');
             document.getElementById('lfp-industry-body').innerHTML = html;
@@ -1236,8 +1250,8 @@
                     <td>${d['企业名称'] || '-'}</td>
                     <td>${(parseFloat(d['产能'])||0).toLocaleString()}</td>
                     <td>${(parseFloat(d['产量'])||0).toLocaleString()}</td>
-                    <td>${d['产能利用率'] || '-'}</td>
-                    <td>${d['环比'] || '-'}</td>
+                    <td>${fmtPct(d['产能利用率'])}</td>
+                    <td>${fmtPct(d['环比'])}</td>
                 </tr>
             `).join('');
             document.getElementById('lfp-company-body').innerHTML = html;
@@ -1278,8 +1292,8 @@
                     <td>${d['月度'] || '-'}</td>
                     <td>${(parseFloat(d['出口量（吨）'])||0).toLocaleString()}</td>
                     <td>${d['出口均价（万元/吨）'] || '-'}</td>
-                    <td>${d['环比变化'] || '-'}</td>
-                    <td>${d['同比变化'] || '-'}</td>
+                    <td>${fmtPct(d['环比变化'])}</td>
+                    <td>${fmtPct(d['同比变化'])}</td>
                 </tr>
             `).join('');
             document.getElementById('lfp-export-body').innerHTML = html;
@@ -1353,7 +1367,7 @@
                     <td>${d['月份'] || '-'}</td>
                     <td>${(parseFloat(d['产量（吨）'])||0).toLocaleString()}</td>
                     <td>${(parseFloat(d['产能（吨）'])||0).toLocaleString()}</td>
-                    <td>${d['产能利用率'] || '-'}</td>
+                    <td>${fmtPct(d['产能利用率'])}</td>
                 </tr>
             `).join('');
             document.getElementById('fp-industry-body').innerHTML = html;
@@ -1372,8 +1386,8 @@
                     <td>${d['企业名称'] || '-'}</td>
                     <td>${(parseFloat(d['产能'])||0).toLocaleString()}</td>
                     <td>${(parseFloat(d['产量'])||0).toLocaleString()}</td>
-                    <td>${d['产能利用率'] || '-'}</td>
-                    <td>${d['环比'] || '-'}</td>
+                    <td>${fmtPct(d['产能利用率'])}</td>
+                    <td>${fmtPct(d['环比'])}</td>
                 </tr>
             `).join('');
             document.getElementById('fp-company-body').innerHTML = html;
@@ -1444,7 +1458,7 @@
                     html += `<tr>
                         <td>${date}</td>
                         <td>${r['规格'] || '-'}</td>
-                        <td>${r['密度'] || '-'}</td>
+                        <td>${r['压实密度'] || '-'}</td>
                         <td>${mkCell(r['最低价'])}</td>
                         <td>${mkCell(r['最高价'])}</td>
                         <td>${mkCell(r['均价'])}</td>
@@ -1483,9 +1497,9 @@
                         <tr>
                             <td>${date}</td>
                             <td>${d['规格'] || '-'}</td>
-                            <td>${(parseFloat(d['今日最低价格'])||0).toFixed(3)}</td>
-                            <td>${(parseFloat(d['今日最高价格'])||0).toFixed(3)}</td>
-                            <td>${(parseFloat(d['今日均价'])||0).toFixed(3)}</td>
+                            <td>${(parseFloat(d['今日最低价格（万元/吨）'])||0).toFixed(3)}</td>
+                            <td>${(parseFloat(d['今日最高价格（万元/吨）'])||0).toFixed(3)}</td>
+                            <td>${(parseFloat(d['今日均价（万元/吨）'])||0).toFixed(3)}</td>
                         </tr>
                     `;
                 });

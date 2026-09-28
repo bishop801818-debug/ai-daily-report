@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>磷酸铁锂市场月报 · 2026年08月</title>
+<script src="echarts.min.js"></script>
+<style>
+:root {
+  --primary: #1565c0;
+  --primary-light: #1976d2;
+  --primary-dark: #0d47a1;
+  --text-color: #1a1a1a;
+  --text-secondary: #555;
+  --text-light: #888;
+  --border-color: #e0e0e0;
+  --bg-light: #f8f9fc;
+  --bg-white: #fff;
+  --green: #2e7d32;
+  --orange: #ef6c00;
+  --red: #c62828;
+  --blue-light: rgba(21,101,192,0.06);
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', 'Segoe UI', sans-serif; color: var(--text-color); background: var(--bg-light); line-height: 1.8; font-size: 14px; }
+a { color: inherit; text-decoration: none; }
+.topbar { position: sticky; top: 0; z-index: 100; background: linear-gradient(135deg, var(--primary-dark), var(--primary)); color: #fff; padding: 0 24px; height: 56px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
+.topbar-left { display: flex; align-items: center; gap: 8px; }
+.topbar-back-btn { background: rgba(255,255,255,0.15); color: #fff; border: 1px solid rgba(255,255,255,0.3); padding: 5px 14px; border-radius: 20px; font-size: 12px; cursor: pointer; transition: all 0.2s; }
+.topbar-back-btn:hover { background: rgba(255,255,255,0.25); }
+.topbar-center { font-size: 18px; font-weight: 700; letter-spacing: 1px; }
+.topbar-right { font-size: 12px; opacity: 0.85; }
+.page-wrapper { display: flex; max-width: 1200px; margin: 0 auto; padding: 24px 16px; gap: 20px; }
+.toc-sidebar { flex: 0 0 200px; position: sticky; top: 80px; height: fit-content; background: #fff; border-radius: 12px; padding: 16px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+.toc-sidebar h3 { font-size: 13px; color: var(--primary); margin-bottom: 12px; padding-bottom: 8px; border-bottom: 2px solid var(--primary); font-weight: 700; }
+.toc-list { list-style: none; }
+.toc-list li { margin-bottom: 4px; }
+.toc-list a { display: block; padding: 6px 8px; border-radius: 6px; font-size: 12px; color: var(--text-secondary); transition: all 0.2s; }
+.toc-list a:hover { background: var(--blue-light); color: var(--primary); }
+.toc-list a.active { background: var(--blue-light); color: var(--primary); font-weight: 600; }
+.toc-part { font-weight: 700; color: var(--text-color); }
+.toc-sub { padding-left: 16px; font-size: 11px; }
+.main-content { flex: 1; min-width: 0; }
+.report-header { background: linear-gradient(135deg, #e3f2fd, #bbdefb); border-radius: 16px; padding: 40px 48px; margin-bottom: 24px; border: 1px solid #90caf9; }
+.report-header .report-title { font-size: 32px; font-weight: 900; color: var(--primary-dark); margin-bottom: 8px; letter-spacing: 2px; }
+.report-header .report-subtitle { font-size: 18px; color: var(--text-secondary); margin-bottom: 24px; }
+.report-meta { display: flex; gap: 24px; flex-wrap: wrap; }
+.report-meta-item { display: flex; align-items: center; gap: 8px; background: #fff; padding: 8px 16px; border-radius: 20px; font-size: 13px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+.report-meta-item .label { color: var(--text-light); }
+.report-meta-item .value { color: var(--primary); font-weight: 600; }
+.section-card { background: #fff; border-radius: 12px; padding: 28px 32px; margin-bottom: 20px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+.section-card h2 { font-size: 20px; font-weight: 800; color: var(--primary-dark); margin-bottom: 20px; padding-bottom: 12px; border-bottom: 3px solid var(--primary); display: flex; align-items: center; gap: 10px; }
+.section-card h2 .part-label { background: var(--primary); color: #fff; font-size: 12px; padding: 3px 10px; border-radius: 10px; font-weight: 700; }
+.section-card h3 { font-size: 16px; font-weight: 700; color: var(--text-color); margin: 20px 0 12px; padding-left: 12px; border-left: 4px solid var(--primary); }
+.section-card p { color: var(--text-secondary); margin-bottom: 12px; line-height: 2; font-size: 14px; }
+.section-card ul { list-style: none; margin-bottom: 16px; }
+.section-card ul li { padding: 6px 0 6px 20px; position: relative; color: var(--text-secondary); }
+.section-card ul li::before { content: ''; position: absolute; left: 0; top: 14px; width: 6px; height: 6px; background: var(--primary); border-radius: 50%; }
+.chart-card { background: #fff; border-radius: 10px; padding: 20px; margin: 16px 0; box-shadow: 0 1px 4px rgba(0,0,0,0.05); }
+.chart-card h4 { font-size: 14px; color: var(--text-secondary); margin-bottom: 12px; font-weight: 600; }
+.chart-container { width: 100%; height: 300px; }
+.kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px; }
+.kpi-card { background: linear-gradient(135deg, #e3f2fd, #bbdefb); border-radius: 12px; padding: 20px; text-align: center; border: 1px solid #90caf9; }
+.kpi-card .kpi-value { font-size: 28px; font-weight: 900; color: var(--primary-dark); }
+.kpi-card .kpi-unit { font-size: 14px; color: var(--text-secondary); }
+.kpi-card .kpi-label { font-size: 12px; color: var(--text-light); margin-top: 4px; }
+.kpi-card .kpi-change { font-size: 12px; margin-top: 4px; font-weight: 600; }
+.kpi-card .kpi-change.up { color: var(--green); }
+.kpi-card .kpi-change.down { color: var(--red); }
+.data-table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 13px; }
+.data-table th { background: var(--primary); color: #fff; padding: 10px 12px; text-align: center; font-weight: 700; }
+.data-table td { padding: 8px 12px; text-align: center; border-bottom: 1px solid var(--border-color); color: var(--text-secondary); }
+.data-table tr:nth-child(even) td { background: var(--bg-light); }
+.data-table tr:hover td { background: var(--blue-light); }
+.data-table .highlight { background: #fff3e0 !important; font-weight: 600; color: var(--orange); }
+.data-table .sub { background: #e8f5e9 !important; }
+.up { color: #2e7d32 !important; }
+.down { color: #c62828 !important; }
+.alert-box { background: #fff3e0; border-left: 4px solid var(--orange); border-radius: 8px; padding: 16px 20px; margin: 16px 0; }
+.alert-box p { margin: 0; color: #bf360c; }
+.alert-box.blue { background: #e3f2fd; border-color: var(--primary); }
+.alert-box.blue p { color: var(--primary-dark); }
+.alert-box.green { background: #e8f5e9; border-color: var(--green); }
+.alert-box.green p { color: #1b5e20; }
+.news-list { list-style: none; }
+.news-list li { padding: 12px 0; border-bottom: 1px solid var(--border-color); }
+.news-list li:last-child { border-bottom: none; }
+.news-list .news-date { font-size: 12px; color: var(--text-light); margin-right: 8px; }
+.news-list .news-tag { font-size: 11px; padding: 1px 6px; border-radius: 8px; font-weight: 600; margin-right: 8px; }
+.news-list .news-tag.policy { background: #e3f2fd; color: var(--primary); }
+.news-list .news-tag.comp { background: #fff3e0; color: #e65100; }
+.news-list .news-tag.industry { background: #e8f5e9; color: #2e7d32; }
+.news-list .news-title { color: var(--text-color); font-weight: 600; }
+.summary-box { background: linear-gradient(135deg, #1a237e, #283593); color: #fff; border-radius: 16px; padding: 32px 40px; margin: 24px 0; }
+.summary-box h3 { font-size: 18px; font-weight: 800; margin-bottom: 20px; color: #fff; border-bottom: 2px solid rgba(255,255,255,0.3); padding-bottom: 10px; }
+.summary-box ul { list-style: none; }
+.summary-box ul li { padding: 8px 0 8px 24px; position: relative; color: rgba(255,255,255,0.9); }
+.summary-box ul li::before { content: '▸'; position: absolute; left: 0; color: #90caf9; }
+.summary-box .summary-tag { font-size: 11px; padding: 1px 8px; border-radius: 10px; background: rgba(255,255,255,0.2); margin-right: 6px; }
+footer { text-align: center; padding: 24px; color: var(--text-light); font-size: 12px; }
+@media print { .topbar, .toc-sidebar { display: none; } }
+</style>
+    <script src="inline_01.js"></script>
+    <script src="bu_gate.js"></script>
+    <script>
+    (function(){
+      var ALLOWED_BU = ["czly"];
+      window.addEventListener('load', function() {
+        var deptId = (function(){
+          var m = location.search.match(/[?&]__dept=([^&]+)/);
+          if(m) return decodeURIComponent(m[1]);
+          m = location.search.match(/[?&]departmentId=([^&]+)/);
+          if(m) return decodeURIComponent(m[1]);
+          return '';
+        })();
+        if (!deptId) return;
+        var ids = (deptId||'').split(',').map(function(s){return s.trim();}).filter(Boolean);
+        var hasAccess = ALLOWED_BU.some(function(bu) {
+          return isAllowed && isAllowed(bu, ids);
+        });
+        if (!hasAccess) {
+          document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100vh;font-family:sans-serif;background:#f5f6fa"><div style="text-align:center;padding:48px;background:#fff;border-radius:16px;box-shadow:0 8px 30px rgba(0,0,0,.08)"><div style="font-size:64px;margin-bottom:12px">⛔</div><div style="font-size:22px;font-weight:700;color:#c0392b">无权限访问</div><div style="margin-top:8px;color:#888;font-size:14px">您所在的部门无权查看该报告，请联系管理员。</div></div></div>';
+        }
+      });
+    })();
+    </script>
+</head>
+<body>
+<div class="topbar">
+  <div class="topbar-left"><button class="topbar-back-btn" onclick="history.back()">← 返回</button></div>
+  <div class="topbar-center">磷酸铁锂市场月报 · 2026年08月</div>
+  <div class="topbar-right">战略中心信息情报部</div>
+</div>
+<div class="page-wrapper">
+  <div class="toc-sidebar">
+    <h3>目 录</h3>
+    <ul class="toc-list">
+      <li><a href="#p1" class="toc-part">Part 1 · 磷酸铁锂市场分析</a></li>
+      <li><a href="#p1-1" class="toc-sub">1.1 行业动态</a></li>
+      <li><a href="#p1-2" class="toc-sub">1.2 产量趋势图</a></li>
+      <li><a href="#p1-3" class="toc-sub">1.3 分企业产量</a></li>
+      <li><a href="#p1-4" class="toc-sub">1.4 竞品销量</a></li>
+      <li><a href="#p1-5" class="toc-sub">1.5 出口分析</a></li>
+      <li><a href="#p1-6" class="toc-sub">1.6 价格走势</a></li>
+      <li><a href="#p2" class="toc-part">Part 2 · 磷酸铁市场分析</a></li>
+      <li><a href="#p3" class="toc-part">Part 3 · 碳酸锂市场分析</a></li>
+      <li><a href="#p4" class="toc-part">Part 4 · 三元材料市场</a></li>
+      <li><a href="#p5" class="toc-part">Part 5 · 常州锂源专题</a></li>
+      <li><a href="#p6" class="toc-part">Part 6 · 总结及建议</a></li>
+    </ul>
+  </div>
+  <div class="main-content">
+
+    <div class="report-header">
+      <div class="report-title">磷酸铁锂市场月报</div>
+      <div class="report-subtitle">2026年8月 · 战略中心信息情报部</div>
+      <div class="report-meta">
+        <div class="report-meta-item"><span class="label">报告月份</span><span class="value">2026年08月</span></div>
+        <div class="report-meta-item"><span class="label">LFP产量</span><span class="value">56.77万吨</span></div>
+        <div class="report-meta-item"><span class="label">行业开工率</span><span class="value">83%</span></div>
+        <div class="report-meta-item"><span class="label">LFP出口</span><span class="value">10,152吨（8月）</span></div>
+        <div class="report-meta-item"><span class="label">碳酸锂均价</span><span class="value">~14.74万/吨</span></div>
+      </div>
+    </div>
+
+    <!-- PART 1 -->
+    <div class="section-card" id="p1">
+      <h2><span class="part-label">Part 1</span> 磷酸铁锂市场分析</h2>
+
+      <div id="p1-1">
+        <h3>1.1 行业动态</h3>
+        <p>2026年8月，磷酸铁锂行业延续"高端紧缺、低端过剩"的结构性分化格局。产量再创历史新高（56.77万吨，环比+2.3%），但行业平均产能利用率回落至83%（7月86%，产能增速快于产量）；碳酸锂现货月内先抑后扬（8月初14.3万→月底15.3万/吨，期货8月累涨超15%），带动LFP现货价格小幅回落（动力型均价从7月5.63万降至5.48万/吨）。政策端，<strong>9月1日起锂电池开征2%消费税</strong>落地在即，倒逼龙头提价；湖南裕能8月起全系列加工费上调2000元/吨落地；高压实磷酸铁锂缺口达34-49万吨，行业向高端产能集中。</p>
+        <div class="kpi-grid">
+          <div class="kpi-card"><div class="kpi-value">56.77<span class="kpi-unit">万吨</span></div><div class="kpi-label">LFP 8月产量</div><div class="kpi-change up">环比+2.3% | 续创历史新高</div></div>
+          <div class="kpi-card"><div class="kpi-value">83<span class="kpi-unit">%</span></div><div class="kpi-label">行业产能利用率</div><div class="kpi-change down">较7月86%回落</div></div>
+          <div class="kpi-card"><div class="kpi-value">10,152<span class="kpi-unit">吨</span></div><div class="kpi-label">LFP 8月出口量</div><div class="kpi-change down">环比-22.8% | 均价5.9万/吨</div></div>
+          <div class="kpi-card"><div class="kpi-value">37,000<span class="kpi-unit">吨</span></div><div class="kpi-label">常州锂源8月产量</div><div class="kpi-change down">环比-7% | 同比+100%（第5名）</div></div>
+        </div>
+        <div class="alert-box blue">
+          <p><strong>行业核心动态：</strong>8月产业链呈现三大特征：①<strong>产量续创新高但利用率回落</strong>——LFP产量56.77万吨（环比+2.3%），但产能增速更快致利用率降至83%，"量增质分化"特征明显；②<strong>高端结构性紧缺延续</strong>——第四代高压实产品产能缺口达34-49万吨，头部订单锁定2027H1，湖南裕能全系加工费上调2000元/吨落地；③<strong>政策与成本共振</strong>——9月1日锂电池开征2%消费税倒逼龙头提价，碳酸锂月内从14.3万回升至15.3万/吨（期货8月累涨超15%），成本端企稳支撑价格中枢上移。</p>
+        </div>
+        <ul class="news-list">
+<li><span class="news-tag comp">竞品</span><span class="news-date">2026-08-10</span><span class="news-title">亿纬锂能9月1日起部分电池提价2%</span></li>
+<li><span class="news-tag policy">政策</span><span class="news-date">2026-08-05</span><span class="news-title">9月1日起锂电池开征2%消费税</span></li>
+<li><span class="news-tag industry">行业</span><span class="news-date">2026-08-04</span><span class="news-title">高压实磷酸铁锂缺口34-49万吨</span></li>
+<li><span class="news-tag industry">行业</span><span class="news-date">2026-08-04</span><span class="news-title">碳酸锂主力2609盘中跌至13.55万</span></li>
+<li><span class="news-tag industry">行业</span><span class="news-date">2026-08-03</span><span class="news-title">8月全球电池企业预排产同比+59%</span></li>
+<li><span class="news-tag industry">行业</span><span class="news-date">2026-08-19</span><span class="news-title">苏州签约方形全固态电池产业化项目</span></li>
+<li><span class="news-tag comp">竞品</span><span class="news-date">2026-08-28</span><span class="news-title">协鑫科技乐山20万吨LFP投产</span></li>
+<li><span class="news-tag comp">竞品</span><span class="news-date">2026-08-04</span><span class="news-title">湖南裕能8月起铁锂加工费上调2000元</span></li>
+<li><span class="news-tag comp">竞品</span><span class="news-date">2026-08-08</span><span class="news-title">海辰储能全球首款1175Ah电芯量产</span></li>
+<li><span class="news-tag industry">行业</span><span class="news-date">2026-08-03</span><span class="news-title">6月磷酸铁锂出口量价齐创新高</span></li>
+<li><span class="news-tag comp">竞品</span><span class="news-date">2026-08-20</span><span class="news-title">亿纬锂能储能出货全球第二628Ah量产</span></li>
+<li><span class="news-tag comp">竞品</span><span class="news-date">2026-08-27</span><span class="news-title">天齐锂业H1营收122亿同比+153%</span></li>
+        </ul>
+      </div>
+
+      <div id="p1-2">
+        <h3>1.2 产量分析</h3>
+        <p>8月磷酸铁锂总产量达56.77万吨，产能约68.25万吨，行业平均产能利用率83%，产量续创历史新高，连续第二个月突破55万吨。环比提高约2.3%。多重驱动：①储能市场持续放量，8月锂电排产198.7GWh（同比+70%）；②9月消费税开征前的抢装备货；③高端高压实产品订单饱满，头部企业满产；④"反内卷"政策推动落后产能出清。</p>
+        <div class="chart-card">
+          <h4>📊 LFP月度产量趋势（2024-01 ~ 2026-08）</h4>
+          <div id="chart-lfp-output" class="chart-container"></div>
+          <div class="data-source" style="font-size:12px;color:#888;margin-top:8px"><span>📈 数据来源：鑫椤数据</span><span style="margin-left:16px">📊 常州锂源8月：37,000吨（第5名）</span></div>
+        </div>
+        <div class="alert-box blue">
+          <p><strong>图表解读：</strong>从趋势图可见，LFP产量自2024年以来持续攀升，从2024年初11.71万吨一路上行至2026年8月的56.77万吨，累计涨幅超3.8倍。2025年8月起行业进入高速增长通道，月度产量接连突破30万、40万、50万吨整数关口。产能利用率方面，2024年上半年维持30~50%低位，2025年末达89%峰值，2026年维持74~86%区间，8月回落至83%（产能扩张快于产量）。常州锂源（绿色虚线）产量同步快速增长，从2025年1月1.15万吨增至2026年7月3.97万吨高点，8月回落至3.70万吨（环比-7%），同比仍+100%，增速跑赢行业均值。</p>
+        </div>
+      </div>
+
+      <div id="p1-3">
+        <h3>1.3 分企业产量</h3>
+        <p>8月磷酸铁锂TOP10企业产量排名如下，湖南裕能产量继续领跑，CR3集中度约41.5%：</p>
+        <div class="chart-card">
+          <h4>📊 LFP分企业产量TOP10（2026年8月）</h4>
+          <div id="chart-company-output" class="chart-container"></div>
+          <div class="data-source" style="font-size:12px;color:#888;margin-top:8px"><span>📈 数据来源：鑫椤数据</span><span style="margin-left:16px">橙色=常州锂源</span></div>
+        </div>
+        <div class="alert-box blue">
+          <p><strong>图表解读：</strong>TOP10企业呈现"一超多强"格局：湖南裕能以14万吨的绝对优势领跑（产能利用率108%超产运行），万润新能（5.15万吨）、德方纳米（4.4万吨）、江西升华（4.2万吨）构成第二梯队。常州锂源（橙色标注，第5名）8月产量3.70万吨，环比-7%、同比+100%，产能利用率回落至59%；友山科技、万华化学、国轩高科、协鑫锂电、邦普循环分列6-10名。从产能利用率维度看，当升科技（155%）、湖南裕能（108%）、天原锂电（108%）超产运行，高端产品需求旺盛；而邦普循环（52%）、融通高科（51%）、万鹏时代（12%）开工率偏低，结构性产能闲置持续。</p>
+        </div>
+        <table class="data-table">
+          <thead><tr><th>排名</th><th>企业</th><th>产量(吨)</th><th>产能利用率</th><th>环比</th><th>同比</th></tr></thead>
+          <tbody>
+<tr><td>1</td><td><strong>湖南裕能</strong></td><td>140,000</td><td>108%</td><td>8%</td><td>40%</td></tr>
+<tr><td>2</td><td><strong>万润新能</strong></td><td>51,500</td><td>105%</td><td>3%</td><td>56%</td></tr>
+<tr><td>3</td><td><strong>德方纳米</strong></td><td>44,000</td><td>96%</td><td>1%</td><td>73%</td></tr>
+<tr><td>4</td><td><strong>江西升华</strong></td><td>42,000</td><td>96%</td><td>14%</td><td>62%</td></tr>
+<tr class="sub"><td>5</td><td><strong>常州锂源</strong></td><td>37,000</td><td>59%</td><td><span class="down">-7%</span></td><td>100%</td></tr>
+<tr><td>6</td><td><strong>友山科技</strong></td><td>25,500</td><td>63%</td><td>0%</td><td>16%</td></tr>
+<tr><td>7</td><td><strong>万华化学</strong></td><td>19,000</td><td>65%</td><td><span class="down">-14%</span></td><td>192%</td></tr>
+<tr><td>8</td><td><strong>国轩高科</strong></td><td>19,000</td><td>67%</td><td>0%</td><td>0%</td></tr>
+<tr><td>9</td><td><strong>协鑫锂电</strong></td><td>18,000</td><td>62%</td><td>20%</td><td>70%</td></tr>
+<tr><td>10</td><td><strong>邦普循环</strong></td><td>16,000</td><td>52%</td><td><span class="down">-20%</span></td><td>385%</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div id="p1-4">
+        <h3>1.4 竞品销量分析</h3>
+        <p>8月磷酸铁锂头部企业竞品流向与客户结构（按常州锂源早报/市场调研整理）：</p>
+        <table class="data-table">
+          <thead><tr><th>企业</th><th>核心客户流向</th><th>关键信息</th></tr></thead>
+          <tbody>
+<tr><td><strong>湖南裕能</strong></td><td>CATL / 欣旺达 / 瑞浦 / 楚能</td><td style="text-align:left">裕能Y9C报价22.5-23</td></tr>
+<tr><td><strong>德方纳米</strong></td><td>CATL / 欣旺达 / 瑞浦</td><td style="text-align:left">曲靖新基地要明年1季度投产，现在价格很低，8月在亿纬只有1.9w，磷酸折扣是7.5折</td></tr>
+<tr><td><strong>融通高科</strong></td><td>—</td><td style="text-align:left">现在给B供货一吨要亏1500-2000了，压力又来了</td></tr>
+<tr><td><strong>万润新能</strong></td><td>CATL / 楚能</td><td style="text-align:left">9月外购的磷酸铁一直在涨价，所以这部分做的铁锂要重新跟客户议价，所以排产没有那么高</td></tr>
+<tr><td><strong>国轩高科</strong></td><td>—</td><td style="text-align:left">新产线是要做10万吨二烧产品，之前没啥经验，所以调试比较慢，可能要12月才能出来</td></tr>
+<tr><td><strong>安达科技</strong></td><td>欣旺达 / 吉利</td><td style="text-align:left">三季度3.9-4w之间，用的铁红是很便宜的（不是协鑫用的那种），是跟铁粉掺杂用来做磷酸铁降本</td></tr>
+<tr><td><strong>泰丰先行</strong></td><td>CATL / 瑞浦</td><td style="text-align:left">现有产能15w，老的2.5万吨拆掉了（太老了，设备都漏气了）。明年计划扩产50万吨，最快明年一季度就能建成部分产线，因为厂房是现成的，只需装设备即可，此外整个园区最多能建设100万…</td></tr>
+<tr><td><strong>比亚迪</strong></td><td>—</td><td style="text-align:left">—</td></tr>
+<tr><td><strong>富临升华</strong></td><td>CATL / 吉利</td><td style="text-align:left">8月产量4w出头，9月目标是5w。二季度只赚了8000万，是因为加工费没涨动。关注海外锂资源，想布局但难找。现在关注阿尔巴尼亚、黑山地区，有些信息说那边的废弃盐湖的锂资源可开发利用</td></tr>
+<tr><td><strong>友山科技</strong></td><td>CATL / 瑞浦 / 吉利 / 楚能</td><td style="text-align:left">9月还是没法提产，回转窑太难了</td></tr>
+<tr><td><strong>丰元锂能</strong></td><td>—</td><td style="text-align:left">—</td></tr>
+<tr><td><strong>金堂时代</strong></td><td>CATL</td><td style="text-align:left">—</td></tr>
+<tr><td><strong>五矿新能</strong></td><td>—</td><td style="text-align:left">—</td></tr>
+<tr><td><strong>四川朗晟</strong></td><td>—</td><td style="text-align:left">现在亏钱所以想给B涨价，因为乾元+盈达供应的磷酸铁也是按照市场价结算的。今年会出20万吨一烧产线，其中10万吨能调整成5万吨二烧铁红的。老产线合计12万吨（之前是9.8），其中朗晟…</td></tr>
+<tr><td><strong>融捷能源</strong></td><td>—</td><td style="text-align:left">—</td></tr>
+<tr><td><strong>当升科技</strong></td><td>欣旺达 / 瑞浦 / 吉利</td><td style="text-align:left">云南基地26年扩产15万吨，27年扩产25万吨（三季度投产）；攀枝花基地明年扩产15万吨（年中投产）。海辰价格不友好，产能也不够，所以不做了。天合做的是四代品587的项目（未来需求…</td></tr>
+<tr><td><strong>湖北金泉</strong></td><td>—</td><td style="text-align:left">—</td></tr>
+<tr><td><strong>湖南鹏博</strong></td><td>—</td><td style="text-align:left">8月5万吨厂房建好了（剩余的5万也是计划今年底建成），9月开始投料验证，但采用了新的干法工艺，估计客户验证时间会久一些。此外西南地区计划扩建20万吨新基地也会在今年确定下来。</td></tr>
+<tr><td><strong>蜂巢锂白</strong></td><td>—</td><td style="text-align:left">—</td></tr>
+<tr><td><strong>协鑫锂电</strong></td><td>CATL</td><td style="text-align:left">锂源除了盛新锂能，基本上是客供。现在仁寿这边的话，一个月1万3，乐山大概5k多。乐山二期20万吨计划明年一季度建成，可能也要上回转窑。</td></tr>
+<tr><td><strong>蜀能矿产</strong></td><td>—</td><td style="text-align:left">—</td></tr>
+<tr><td><strong>邦普循环</strong></td><td>CATL</td><td style="text-align:left">从协鑫是挖了核心人员高伟等。又在猎头那发了招聘铁红技术人员的信息</td></tr>
+<tr><td><strong>中创新航</strong></td><td>—</td><td style="text-align:left">今年没有新产线出来，明年扩产30万吨</td></tr>
+<tr><td><strong>天原锂电</strong></td><td>CATL</td><td style="text-align:left">—</td></tr>
+<tr><td><strong>紫金锂元</strong></td><td>—</td><td style="text-align:left">—</td></tr>
+<tr><td><strong>川发龙蟒</strong></td><td>—</td><td style="text-align:left">—</td></tr>
+<tr><td><strong>万鹏时代</strong></td><td>—</td><td style="text-align:left">现在只有1条线在给安达代工了</td></tr>
+<tr><td><strong>金川瑞翔</strong></td><td>欣旺达 / 瑞浦 / 吉利</td><td style="text-align:left">8月双登重新供货，甘肃基地一二烧全部是加了防火涂层的回转窑，关注铁红工艺路线</td></tr>
+<tr><td><strong>雅安厦钨</strong></td><td>—</td><td style="text-align:left">—</td></tr>
+<tr><td><strong>安徽海创</strong></td><td>瑞浦</td><td style="text-align:left">—</td></tr>
+<tr><td><strong>兴发集团</strong></td><td>—</td><td style="text-align:left">—</td></tr>
+<tr><td><strong>云南盈和</strong></td><td>—</td><td style="text-align:left">—</td></tr>
+<tr><td><strong>东阳光</strong></td><td>瑞浦</td><td style="text-align:left">—</td></tr>
+<tr><td><strong>天力锂能</strong></td><td>—</td><td style="text-align:left">—</td></tr>
+<tr><td><strong>中伟新材</strong></td><td>—</td><td style="text-align:left">—</td></tr>
+<tr><td><strong>江西智锂</strong></td><td>—</td><td style="text-align:left">—</td></tr>
+<tr><td><strong>重庆特瑞</strong></td><td>—</td><td style="text-align:left">有可能给万华代工并合作建厂</td></tr>
+<tr><td><strong>宝丰储材</strong></td><td>—</td><td style="text-align:left">—</td></tr>
+<tr><td><strong>天赐材料</strong></td><td>—</td><td style="text-align:left">—</td></tr>
+<tr><td><strong>万华化学</strong></td><td>CATL / 瑞浦</td><td style="text-align:left">滨州16万吨是铁红路线，上了约50万吨回转窑产线。给蜂巢送了一点点硬壳测试料，10月份到眉山审厂</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div id="p1-5">
+        <h3>1.5 出口分析</h3>
+        <p>8月磷酸铁锂总出口量为10,151.9吨，环比-22.8%，出口均价5.9万元/吨；出口量较6月历史峰值15,380吨有所回落，但均价维持高位。从出口目的地结构看，美国仍为第一大市场（2,767吨），印尼、泰国、日本、加拿大、波兰紧随其后。</p>
+        <div class="chart-card">
+          <h4>📈 LFP月度出口量趋势（2024-01 ~ 2026-08）</h4>
+          <div id="chart-lfp-export" class="chart-container"></div>
+          <div class="data-source" style="font-size:12px;color:#888;margin-top:8px"><span>📈 数据来源：海关总署</span><span style="margin-left:16px">8月出口10,152吨，均价5.9万/吨</span></div>
+        </div>
+        <div class="alert-box blue">
+          <p><strong>图表解读：</strong>LFP出口经历从"微量"到"爆发"的根本性转变：2024年全年出口量多不足1,000吨，2025年起快速攀升，2026年6月15,380吨创历史新高，半年累计出口约5.6万吨。8月出口10,152吨（环比-22.8%），均价5.9万元/吨维持高位。从消息面看，海外LFP切换加速、欧洲及北美储能需求放量是出口增长的核心动能，但月度波动较大，需关注9月消费税对出口定价的影响。</p>
+        </div>
+        <div class="chart-card">
+          <h4>🌍 LFP出口目的地分布（2026年8月）</h4>
+          <div id="chart-export-dest" class="chart-container"></div>
+          <div class="data-source" style="font-size:12px;color:#888;margin-top:8px"><span>📈 数据来源：海关总署</span><span style="margin-left:16px">美国为最大出口市场（2,767吨），东南亚储能需求持续放量</span></div>
+        </div>
+        <div class="alert-box blue">
+          <p><strong>图表解读：</strong>8月出口目的地延续"亚洲主导、美国领先"格局。美国稳居第一大市场（2,767吨），印尼（1,554吨）、泰国（1,298吨）东南亚储能需求旺盛；日本（1,198吨）、加拿大（1,178吨）、波兰（1,109吨）高端储能市场稳步放量；越南（620吨）、韩国（166吨）等亦有一定规模。从基本面看，全球LFP储能电池新增部署占比持续提升，欧洲、北美、东南亚三大市场同步放量，出口增长动能充足。</p>
+        </div>
+      </div>
+
+      <div id="p1-6">
+        <h3>1.6 价格分析</h3>
+        <p>8月磷酸铁锂现货市场价格小幅回落整理。动力型（2.55-2.6）均价约5.48万元/吨（7月5.63万），储能型（2.55-2.6）约5.49万元/吨；高压实高端产品（2.6-2.65）约5.79万元/吨，溢价显著。碳酸锂月内先抑后扬（14.3万→15.3万）成本支撑企稳，叠加湖南裕能全系提价2000元/吨落地，价格中枢下移但高端产品议价能力凸显。</p>
+        <div class="chart-card">
+          <h4>📈 LFP现货市场价格走势（2024-01 ~ 2026-08）</h4>
+          <div id="chart-lfp-price" class="chart-container"></div>
+          <div class="data-source" style="font-size:12px;color:#888;margin-top:8px"><span>📈 数据来源：鑫椤锂电-现货市场均价</span><span style="margin-left:16px">8月动力型均价5.48万/吨</span></div>
+        </div>
+        <div class="alert-box blue">
+          <p><strong>图表解读：</strong>从价格走势图可见，LFP价格经历"V型反弹"后进入高位震荡整理阶段：2024年上半年维持4.0~4.5万/吨，下半年回落至3.2~3.5万/吨，2025年中触底后强势反弹。2026年以来进入快速上行通道，5月动力型均价达6.35万/吨高点后回落，8月降至5.48万/吨。碳酸锂月内从14.3万回升至15.3万/吨（期货8月累涨超15%）成本端企稳，但LFP价格月度均价仍小幅下移（7月5.63万→8月5.48万）；高端3代/4代产品供需紧平衡，加工费逆势上调——湖南裕能8月起全系涨价2000元/吨。</p>
+        </div>
+        <table class="data-table">
+          <thead><tr><th>类型</th><th>压实密度</th><th>均价（万元/吨）</th><th>备注</th></tr></thead>
+          <tbody>
+<tr><td>储能型</td><td>2.3-2.4 g/mAh</td><td>5.35</td><td></td></tr>
+<tr><td>储能型</td><td>2.4-2.5 g/mAh</td><td>5.49</td><td></td></tr>
+<tr><td>储能型</td><td>2.5-2.55 g/mAh</td><td>5.54</td><td></td></tr>
+<tr><td>储能型</td><td>2.55-2.6 g/mAh</td><td>5.69</td><td></td></tr>
+<tr><td>动力型</td><td>2.4-2.5 g/mAh</td><td>5.48</td><td></td></tr>
+<tr><td>动力型</td><td>2.5-2.55 g/mAh</td><td>5.52</td><td></td></tr>
+<tr><td>动力型</td><td>2.55-2.6 g/mAh</td><td>5.68</td><td></td></tr>
+<tr class="highlight"><td>动力型(高压实)</td><td>2.6-2.65 g/mAh</td><td>5.79</td><td></td></tr>
+<tr><td>回收修复型</td><td>—</td><td>4.59</td><td></td></tr>
+<tr><td>磷酸锰铁锂</td><td>极片压密≥2.2</td><td>6.43</td><td></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- PART 2 -->
+    <div class="section-card" id="p2">
+      <h2><span class="part-label">Part 2</span> 磷酸铁市场分析</h2>
+      <div class="chart-card">
+        <h4>📊 磷酸铁月度产量趋势（2024-01 ~ 2026-08）</h4>
+        <div id="chart-fp-output" class="chart-container"></div>
+        <div class="data-source" style="font-size:12px;color:#888;margin-top:8px"><span>📈 数据来源：鑫椤数据</span><span style="margin-left:16px">8月FP产量46.79万吨，产能利用率94%</span></div>
+      </div>
+      <div class="alert-box blue">
+        <p><strong>图表解读：</strong>磷酸铁产量与LFP高度同步，2024年初约9万吨/月，2025年末已攀升至35万吨/月，2026年8月达46.79万吨（产能利用率94%），续创历史新高，环比+5.7%。产能利用率从2024年初36%一路上行，2026年8月达94%历史高位，反映下游磷酸铁锂满产对原料的刚性采购需求旺盛。8月LFP产量56.77万吨对应磷酸铁需求约56.8万吨（1:1配比），FP产量46.79万吨仍存一定供需缺口，支撑FP价格维持偏强运行。</p>
+      </div>
+      <div class="chart-card">
+        <h4>📈 磷酸铁现货价格走势（2024-01 ~ 2026-08）</h4>
+        <div id="chart-fp-price" class="chart-container"></div>
+        <div class="data-source" style="font-size:12px;color:#888;margin-top:8px"><span>📈 数据来源：鑫椤锂电-现货市场均价</span><span style="margin-left:16px">8月FP均价约1.61万元/吨，较7月继续上行</span></div>
+      </div>
+      <div class="alert-box blue">
+        <p><strong>图表解读：</strong>磷酸铁价格走势呈现明显的"底部抬升"特征：2024年全年维持在1.04~1.07万/吨的低位，2025年下半年起温和上行，2025年末达1.16万/吨，2026年以来加速上涨，8月均价约1.61万元/吨（7月1.53万），较2024年初涨幅达52%。成本端，8月黄磷均价2.712万/吨（较7月2.79万继续回落）；磷矿石30%品位0.1万/吨，价格坚挺。从消息面看，万润新能9月外购磷酸铁持续涨价、需与客户重新议价，反映FP供给偏紧，价格传导顺畅。</p>
+      </div>
+      <div class="chart-card">
+        <h4>📊 磷酸盐产业链价格对比（2026年8月）</h4>
+        <div id="chart-phosphate" class="chart-container"></div>
+        <div class="data-source" style="font-size:12px;color:#888;margin-top:8px"><span>📈 数据来源：鑫椤数据</span><span style="margin-left:16px">黄磷均价2.712万/吨，磷酸湿法>热法</span></div>
+      </div>
+      <div class="alert-box blue">
+        <p><strong>图表解读：</strong>8月磷酸盐产业链呈现"黄磷回落、湿法补跌"的结构：①黄磷均价2.712万/吨（较7月回落），为整个产业链价格锚点；②磷矿石30%品位0.1万/吨，价格坚挺；③磷酸湿法0.905万/吨、热法0.883万/吨，湿法持续高于热法；④磷酸一铵工业级0.751万/吨。值得注意的是，尽管上游黄磷、磷酸价格回落，磷酸铁（FP）价格却逆势上行至1.61万/吨，反映FP自身供需偏紧（LFP满产拉动刚需），成本传导逻辑向FP端集中。</p>
+      </div>
+    </div>
+
+    <!-- PART 3 -->
+    <div class="section-card" id="p3">
+      <h2><span class="part-label">Part 3</span> 碳酸锂市场分析</h2>
+      <div class="chart-card">
+        <h4>📈 碳酸锂现货价格走势（2024-01 ~ 2026-08）</h4>
+        <div id="chart-carbonate-price" class="chart-container"></div>
+        <div class="data-source" style="font-size:12px;color:#888;margin-top:8px"><span>📈 数据来源：鑫椤数据-现货市场价（电池级99.5%矿石）</span><span style="margin-left:16px">8月均价约14.74万/吨，月内从14.3万回升至15.3万</span></div>
+      </div>
+      <div class="alert-box blue">
+        <p><strong>图表解读：</strong>碳酸锂价格走势是LFP成本端最核心的变量。2024年呈现"N型"走势，2025年上半年低位运行（6~7万/吨），2025年下半年起强势反弹，2026年1月突破15万/吨，5月达18.66万/吨历史高价区间，6月起高位回落。8月碳酸锂月均价约14.74万/吨（7月15.36万），但月内先抑后扬——8月初现货14.30万/吨，中旬起连续反弹至月底15.3万/吨，期货主力8月累涨超15%。核心驱动：①宁德时代枧下窝锂矿环评撤销扰动供给预期；②碳酸锂期货8月强势反弹；③下游8月排产198.7GWh（同比+70%）需求旺盛；④供给端锂云母、锂辉石产量增量有限。</p>
+      </div>
+      <div class="chart-card">
+        <h4>📊 碳酸锂月度产量趋势（2025-01 ~ 2026-08）</h4>
+        <div id="chart-carbonate-output" class="chart-container"></div>
+        <div class="data-source" style="font-size:12px;color:#888;margin-top:8px"><span>📈 数据来源：鑫椤数据（含电池级与工业级）</span><span style="margin-left:16px">8月产量约11.44万吨，产能利用率98.3%</span></div>
+      </div>
+      <div class="alert-box blue">
+        <p><strong>图表解读：</strong>碳酸锂产量维持高位：2025年初约6.5万吨/月，2026年已升至11万吨/月以上，产能利用率维持90%以上高位。8月产量约11.44万吨，产能利用率98.3%，创历史新高，显示供给端在高价格刺激下持续放量。结构上，盐湖端、锂辉石端进口矿增长补足缺口，云母端增量贡献显著。值得注意的是，碳酸锂价格虽从5月高点（18.66万）回落，但仍是2025年中低点（约6万/吨）的2.4倍，行业利润仍处历史高位，刺激企业维持高开工率。</p>
+      </div>
+      <div class="kpi-grid">
+          <div class="kpi-card"><div class="kpi-value">~14.74<span class="kpi-unit">万/吨</span></div><div class="kpi-label">电池级99.5%均价</div><div class="kpi-change down">月均价，月内14.3万→15.3万回升</div></div>
+          <div class="kpi-card"><div class="kpi-value">~11.44<span class="kpi-unit">万吨</span></div><div class="kpi-label">碳酸锂8月产量</div><div class="kpi-change up">历史新高</div></div>
+          <div class="kpi-card"><div class="kpi-value">~98.3<span class="kpi-unit">%</span></div><div class="kpi-label">产能利用率</div><div class="kpi-change up">高位运行</div></div>
+          <div class="kpi-card"><div class="kpi-value">15.3<span class="kpi-unit">万/吨</span></div><div class="kpi-label">8月末现货（电池级矿石）</div><div class="kpi-change up">月内反弹，期货累涨超15%</div></div>
+      </div>
+      <p>截至8月底，碳酸锂现货（电池级99.5%矿石）回升至15.3万/吨，月内从14.3万反弹；期货主力8月累涨超15%。枧下窝环评撤销+旺季排产高增+仓单去化，碳酸锂价格短期重回上行通道。</p>
+    </div>
+
+    <!-- PART 4 -->
+    <div class="section-card" id="p4">
+      <h2><span class="part-label">Part 4</span> 三元材料市场</h2>
+      <div class="chart-card">
+        <h4>📊 LFP vs NCM产量走势对比（2025-01 ~ 2026-08）</h4>
+        <div id="chart-lfp-vs-ncm" class="chart-container"></div>
+        <div class="data-source" style="font-size:12px;color:#888;margin-top:8px"><span>📈 数据来源：鑫椤数据</span><span style="margin-left:16px">8月LFP产量是NCM的约6.7倍</span></div>
+      </div>
+      <div class="alert-box blue">
+        <p><strong>图表解读：</strong>从对比图可以清晰看到LFP与NCM的"剪刀差"走势：2025年初LFP月产量约25万吨、NCM约7.55万吨（LFP约为NCM的3.3倍），此后LFP持续攀升而NCM增长相对平缓，到2026年8月LFP已达56.77万吨、NCM约8.43万吨（LFP是NCM的约6.7倍），差距进一步扩大。产能利用率方面，8月LFP 83% vs NCM约63.5%，LFP高出约20个百分点。从消息面看，LFP动力电池装车占比持续提升，比亚迪全系、特斯拉LFP车型主导，叠加储能领域LFP近乎垄断，持续挤压NCM空间。三元材料仅在高端长续航车型（800V快充、高镍811）中保留份额，结构性分化愈发明显。</p>
+      </div>
+      <h3>LFP vs NCM结构性分化</h3>
+      <div class="alert-box blue">
+        <p><strong>LFP主导地位持续强化：</strong>8月LFP产量56.77万吨（产能利用率83%），NCM产量约8.43万吨，LFP产量是NCM的约6.7倍。全球LFP储能电池新增部署占比持续提升，LFP在储能领域已形成绝对主导。从竞争格局看，LFP凭借成本优势（比NCM低约30~40%）主导储能+中低端动力市场，NCM凭借能量密度优势固守高端市场，两者长期并存但LFP份额持续扩大。</p>
+      </div>
+    </div>
+
+    <!-- PART 5 -->
+    <div class="section-card" id="p5">
+      <h2><span class="part-label">Part 5</span> 常州锂源专题诊断</h2>
+      <div class="chart-card">
+        <h4>📊 常州锂源月度产量趋势（2025-01 ~ 2026-08）</h4>
+        <div id="chart-czly-output" class="chart-container"></div>
+        <div class="data-source" style="font-size:12px;color:#888;margin-top:8px"><span>📈 数据来源：鑫椤数据 / 常州锂源运营监控部</span><span style="margin-left:16px">8月产量37,000吨，环比-7%，同比+100%</span></div>
+      </div>
+      <div class="alert-box blue">
+        <p><strong>图表解读：</strong>常州锂源产量呈现"加速成长后高位回调"态势：2025年1月产量1.15万吨，2026年7月升至3.97万吨高点（7个月累计增幅245%），8月回落至3.70万吨（环比-7%），但同比仍+100%，显著跑赢行业平均。产能利用率从7月的99%回落至8月的59%，需重点关注。行业排名从7月第4名回落至8月第5名（被江西升华4.2万吨超越）。从竞争面看，湖南裕能（14万吨，利用率108%）、万润新能（5.15万吨，105%）、德方纳米（4.4万吨，96%）持续领先，头部集中度进一步提升，锂源面临"前有标兵、后有追兵"的竞争压力。</p>
+      </div>
+      <h3>核心经营数据</h3>
+      <div class="kpi-grid">
+        <div class="kpi-card"><div class="kpi-value">37,000<span class="kpi-unit">吨</span></div><div class="kpi-label">8月产量</div><div class="kpi-change down">环比-7% | 同比+100%</div></div>
+        <div class="kpi-card"><div class="kpi-value">59<span class="kpi-unit">%</span></div><div class="kpi-label">产能利用率</div><div class="kpi-change down">较7月99%回落，需重点关注</div></div>
+        <div class="kpi-card"><div class="kpi-value">第5<span class="kpi-unit">名</span></div><div class="kpi-label">行业排名</div><div class="kpi-change down">较7月第4名回落1位</div></div>
+        <div class="kpi-card"><div class="kpi-value">+100<span class="kpi-unit">%</span></div><div class="kpi-label">产量同比</div><div class="kpi-change up">显著跑赢行业</div></div>
+      </div>
+      <h3>竞争态势分析</h3>
+      <ul>
+        <li><strong>产量高位回调：</strong>8月产量3.70万吨，环比-7%（7月3.97万吨），为年内首次环比下滑，需关注是否为阶段性调整</li>
+        <li><strong>产能利用率大幅回落：</strong>从7月99%降至8月59%，是本月最需警惕的信号，或与订单结构、检修安排相关</li>
+        <li><strong>行业排名回落：</strong>从7月第4名降至第5名（江西升华4.2万吨超越），头部竞争加剧</li>
+        <li><strong>同比仍高速增长：</strong>同比+100%，显著跑赢行业（行业同比约+61%），产能爬坡的中长期趋势未变</li>
+        <li><strong>竞争压力：</strong>湖南裕能（14万吨，利用率108%）、万润新能（5.15万吨，105%）持续领先；协鑫乐山20万吨LFP 10月底满产、万华化学四代产能释放，Q3-Q4供给竞争加剧</li>
+      </ul>
+      <h3>战略建议</h3>
+      <ul>
+        <li>优先排查8月产能利用率回落至59%的原因（订单/检修/客户结构），尽快恢复正常开工水平</li>
+        <li>聚焦高储能客户与项目，紧盯4代/5代高压实产品（缺口34-49万吨），抢占高端产能红利</li>
+        <li>动力领域集中资源推进3.5代/4代产品量产与5代产品合作导入，聚焦核心客户</li>
+        <li>把握9月消费税开征与裕能提价窗口，及时跟进调整定价策略，提升高端产品溢价</li>
+        <li>充分利用出口爆发机遇（8月均价5.9万/吨维持高位），提升高端产品出口占比，对冲国内价格波动</li>
+        <li>密切关注碳酸锂价格（8月月内14.3万→15.3万回升），优化采购策略，合理签订长单锁定成本</li>
+      </ul>
+    </div>
+
+    <!-- PART 6 -->
+    <div class="section-card" id="p6">
+      <h2><span class="part-label">Part 6</span> 总结及建议</h2>
+      <div class="summary-box">
+        <h3>核心数据汇总</h3>
+        <ul>
+          <li><span class="summary-tag">LFP产量</span>56.77万吨，产能利用率83%，续创历史新高</li>
+          <li><span class="summary-tag">LFP出口</span>10,152吨（8月），均价5.9万/吨，环比-22.8%</li>
+          <li><span class="summary-tag">LFP价格</span>动力型均价约5.48万/吨，高端高压实5.79万/吨，高位小幅回落</li>
+          <li><span class="summary-tag">碳酸锂</span>8月月均价14.74万/吨，月内14.3万→15.3万回升，期货累涨超15%</li>
+          <li><span class="summary-tag">常州锂源</span>产量37,000吨，环比-7%，同比+100%，产能利用率59%（第5名）</li>
+          <li><span class="summary-tag">行业格局</span>LFP产量是NCM的约6.7倍，铁锂路线主导地位持续强化</li>
+        </ul>
+      </div>
+      <h3>战略建议</h3>
+      <ul>
+        <li><strong>强化成本管控：</strong>碳酸锂8月月内企稳回升（14.3万→15.3万），及时调整采购策略；将碳酸锂、磷酸铁列为一级风险原料，优先签订"量价绑定"长约</li>
+        <li><strong>把握政策窗口：</strong>9月1日起锂电池开征2%消费税，叠加湖南裕能全系提价2000元/吨，验证高端产品议价能力，跟进调整定价策略</li>
+        <li><strong>警惕利用率回落：</strong>行业产能利用率降至83%，常州锂源降至59%，需优先排查并恢复开工，避免产能闲置</li>
+        <li><strong>聚焦高潜领域：</strong>紧盯储能大电芯技术迭代（海辰1175Ah、亿纬628Ah量产）与海外LFP切换，攻坚高价值储能客户与出口订单</li>
+        <li><strong>动力升级：</strong>集中资源推进3.5代/4代产品量产供应与5代产品合作导入，聚焦核心客户与优质项目</li>
+        <li><strong>关注政策动向：</strong>固态电池全球首个IEC国际标准立项、新型电力系统"十五五"规划落地，铁锂赛道长期受益</li>
+      </ul>
+      <div class="alert-box green">
+        <p><strong>9月展望：</strong>预计9月LFP产销维持高位，行业排产环比+9.2%。成本端碳酸锂月内回升（期货累涨超15%，现货15.3万/吨），成本支撑增强；需求侧9月消费税开征前抢装+储能旺季，锂电排产198.7GWh（同比+70%）延续高景气；供给端"反内卷"治理+落后产能出清，高压实高端产品（缺口34-49万吨）溢价持续。整体价格中枢有望企稳回升，高端产品结构性溢价延续，但需警惕行业整体产能利用率回落与二梯队价格竞争加剧。</p>
+      </div>
+    </div>
+
+    <footer>
+      <p>磷酸铁锂市场月报 · 2026年08月 · 战略中心信息情报部</p>
+      <p style="margin-top:4px">数据来源：鑫椤数据、常州锂源运营监控部、海关总署、广期所 · 市场消息：常州锂源8月早报 | 本报告仅供内部参考</p>
+    </footer>
+  </div>
+</div>
+<script>
+(function() {
+  var C = { primary:'#1565c0', green:'#2e7d32', orange:'#ef6c00', red:'#c62828', palette:['#1565c0','#1976d2','#0d47a1','#2e7d32','#ef6c00','#c62828','#6a1b9a','#00838f'] };
+  function baseOpt(){ return { color:C.palette, tooltip:{trigger:'axis',axisPointer:{type:'shadow'}}, grid:{left:'3%',right:'4%',bottom:'3%',top:'10%',containLabel:true}, legend:{top:0} }; }
+  function makeChart(id,opt){ var dom=document.getElementById(id); if(!dom) return; var c=echarts.init(dom); c.setOption(Object.assign({},baseOpt(),opt)); window.addEventListener('resize',function(){ c.resize(); }); window.__lfpCharts=(window.__lfpCharts||[]); window.__lfpCharts.push(c); }
+  makeChart('chart-lfp-output', {
+    xAxis:{type:'category', data:["24--01","24--02","24--03","24--04","24--05","24--06","24--07","24--08","24--09","24--10","24--11","24--12","25--01","25--02","25--03","25--04","25--05","25--06","25--07","25--08","25--09","25--10","25--11","25--12","26--01","26--02","26--03","26--04","26--05","26--06","26--07","26--08"], axisLabel:{fontSize:10}},
+    yAxis:[{type:'value', name:'产量（万吨）', axisLabel:{fontSize:10}}, {type:'value', name:'产能利用率%', axisLabel:{fontSize:10,formatter:function(v){return v+'%';}}, max:100, splitLine:{lineStyle:{type:'dashed'}}}],
+    series:[
+      {name:'LFP产量', type:'bar', data:[11.71,10.1,17.48,19.8,20.46,18.43,19.24,21.17,23.69,25.65,27.29,27.41,24.98,22.64,27.24,28.67,30.2,30.98,31.45,35.44,36.69,40.09,42.39,41.59,41.23,38.02,45.12,46.98,48.64,51.59,55.52,56.77], itemStyle:{color:'#1565c0',borderRadius:[3,3,0,0]}},
+      {name:'产能利用率', type:'line', yAxisIndex:1, data:[34,29,48,53,53,47,48,52,59,59,60,59,60,56,69,72,74,74,74,82,85,86,89,85,80,74,78,80,81,80,86,83], lineStyle:{color:'#ef6c00',width:2}, itemStyle:{color:'#ef6c00'}, smooth:true},
+      {name:'常州锂源', type:'line', yAxisIndex:0, data:[0.77,0.68,1.6,1.7,1.7,1.45,1.74,1.95,2,1.75,1.68,1.45,1.15,1.05,1,1.41,1.4,1.8,1.8,1.85,1.88,2.15,2.42,2.2,2.1,1.73,2.33,2.55,2.87,3.3,3.97,3.7], lineStyle:{color:'#2e7d32',width:2,type:'dashed'}, itemStyle:{color:'#2e7d32'}, smooth:true}
+    ]
+  });
+  makeChart('chart-company-output', {
+    xAxis:{type:'value', name:'产量（吨）', axisLabel:{fontSize:10,formatter:function(v){return (v/1000).toFixed(0)+'k';}}},
+    yAxis:{type:'category', data:["邦普循环","协鑫锂电","国轩高科","万华化学","友山科技","常州锂源","江西升华","德方纳米","万润新能","湖南裕能"], axisLabel:{fontSize:10}},
+    series:[{name:'8月产量', type:'bar', data:[16000,18000,19000,19000,25500,37000,42000,44000,51500,140000], itemStyle:{color:function(p){return p.dataIndex===4?'#ef6c00':'#1565c0';},borderRadius:[0,4,4,0]}, label:{show:true,position:'right',fontSize:10,formatter:function(p){return (p.value/1000).toFixed(0)+'k吨';}}}]
+  });
+  makeChart('chart-lfp-export', {
+    xAxis:{type:'category', data:["24--01","24--02","24--03","24--04","24--05","24--06","24--07","24--08","24--09","24--10","24--11","24--12","25--01","25--02","25--03","25--04","25--05","25--06","25--07","25--08","25--09","25--10","25--11","25--12","26--01","26--02","26--03","26--04","26--05","26--06","26--07","26--08"], axisLabel:{fontSize:10}},
+    yAxis:[{type:'value', name:'出口量（吨）', axisLabel:{fontSize:10}}, {type:'value', name:'均价（万元/吨）', axisLabel:{fontSize:10}}],
+    series:[
+      {name:'出口量', type:'bar', data:[132.7,102.1,142.5,63.6,177.4,147,163.7,262,538.4,310.5,334.4,910.9,1220.9,596.1,1367.8,1151.7,941.6,2031.5,2741.4,2000.4,3092,5476.9,7720.6,4028.7,5686.9,6530,7532.8,5898.4,7625,15380,13153.3,10151.9], itemStyle:{color:'#1565c0',borderRadius:[3,3,0,0]}},
+      {name:'出口均价', type:'line', yAxisIndex:1, data:[7.4,6,7,5.8,5.9,5.2,7.2,5,4.7,4.6,4.3,4.4,4.4,4,4.2,4.5,3.9,3.9,3.8,3.8,3.7,3.7,3.6,3.5,4.3,5,5.7,5.3,5.9,6.2,12,5.9], lineStyle:{color:'#ef6c00',width:2}, itemStyle:{color:'#ef6c00'}, smooth:true}
+    ]
+  });
+  makeChart('chart-export-dest', {
+    xAxis:{type:'category', data:["美国","印度尼西亚","泰国","日本","加拿大","波兰","越南","韩国","中国台湾","马来西亚"], axisLabel:{fontSize:10}},
+    yAxis:{type:'value', name:'出口量（吨）', axisLabel:{fontSize:10}},
+    series:[{name:'8月出口量', type:'bar', data:[2767.4,1554.4,1297.6,1197.7,1177.5,1109,620,166.2,132.7,86.4], itemStyle:{color:function(p){return p.dataIndex===0?'#ef6c00':'#1565c0';},borderRadius:[4,4,0,0]}, label:{show:true,position:'top',fontSize:9,formatter:function(p){return p.value.toFixed(0);}}}]
+  });
+  makeChart('chart-lfp-price', {
+    xAxis:{type:'category', data:["24--01","24--02","24--03","24--04","24--05","24--06","24--07","24--08","24--09","24--10","24--11","24--12","25--01","25--02","25--03","25--04","25--05","25--06","25--07","25--08","25--09","25--10","25--11","25--12","26--01","26--02","26--03","26--04","26--05","26--06","26--07","26--08"], axisLabel:{fontSize:10}},
+    yAxis:{type:'value', name:'万元/吨', axisLabel:{fontSize:10}, min:2},
+    series:[
+      {name:'动力型(2.4-2.5)', type:'line', data:[4.37,4.35,4.4,4.39,4.26,4.11,3.88,3.58,3.29,3.31,3.38,3.38,3.37,3.37,3.37,3.34,3.19,3.04,3.11,3.38,3.43,3.42,3.68,4.05,5.22,5.25,5.39,5.6,6.35,5.99,5.63,5.48], smooth:true, lineStyle:{width:2}, itemStyle:{color:'#1565c0'}},
+      {name:'储能型(2.4-2.5)', type:'line', data:[3.97,3.95,4,3.99,4.02,3.96,3.74,3.45,3.25,3.25,3.33,3.32,3.31,3.31,3.31,3.26,3.05,2.89,2.96,3.23,3.29,3.28,3.54,3.9,5.17,5.23,5.37,5.58,6.34,5.98,5.62,5.49], smooth:true, lineStyle:{width:2}, itemStyle:{color:'#2e7d32'}}
+    ]
+  });
+  makeChart('chart-fp-output', {
+    xAxis:{type:'category', data:["24--01","24--02","24--03","24--04","24--05","24--06","24--07","24--08","24--09","24--10","24--11","24--12","25--01","25--02","25--03","25--04","25--05","25--06","25--07","25--08","25--09","25--10","25--11","25--12","26--01","26--02","26--03","26--04","26--05","26--06","26--07","26--08"], axisLabel:{fontSize:10}},
+    yAxis:[{type:'value', name:'产量（万吨）', axisLabel:{fontSize:10}}, {type:'value', name:'产能利用率%', axisLabel:{fontSize:10,formatter:function(v){return v+'%';}}, max:100, splitLine:{lineStyle:{type:'dashed'}}}],
+    series:[
+      {name:'FP产量', type:'bar', data:[9.29,7.84,13.85,16.59,17.08,15.86,15.57,17.29,20.77,21.9,23.6,23.46,23.12,21.17,25.09,25.98,25.59,25.58,26.69,29.45,30.65,33.65,34.92,35.21,33.15,32.33,38.49,39.73,41.04,41.39,44.25,46.79], itemStyle:{color:'#00838f',borderRadius:[3,3,0,0]}},
+      {name:'产能利用率', type:'line', yAxisIndex:1, data:[36,32,50,57,58,54,53,59,65,66,72,70,67,61,69,71,71,71,74,80,86,89,90,88,76,75,85,87,90,89,90,94], lineStyle:{color:'#ef6c00',width:2}, itemStyle:{color:'#ef6c00'}, smooth:true}
+    ]
+  });
+  makeChart('chart-fp-price', {
+    xAxis:{type:'category', data:["24--01","24--02","24--03","24--04","24--05","24--06","24--07","24--08","24--09","24--10","24--11","24--12","25--01","25--02","25--03","25--04","25--05","25--06","25--07","25--08","25--09","25--10","25--11","25--12","26--01","26--02","26--03","26--04","26--05","26--06","26--07","26--08"], axisLabel:{fontSize:10}},
+    yAxis:{type:'value', name:'万元/吨', axisLabel:{fontSize:10}},
+    series:[{name:'FP均价', type:'line', data:[1.09,1.06,1.05,1.06,1.06,1.06,1.06,1.05,1.04,1.04,1.04,1.07,1.07,1.07,1.07,1.08,1.08,1.07,1.07,1.07,1.07,1.07,1.08,1.14,1.17,1.17,1.21,1.27,1.37,1.48,1.53,1.61], smooth:true, areaStyle:{color:{type:'linear',x:0,y:0,x2:0,y2:1,colorStops:[{offset:0,color:'rgba(0,131,143,0.3)'},{offset:1,color:'rgba(0,131,143,0.02)'}]}}, lineStyle:{width:2,color:'#00838f'}, itemStyle:{color:'#00838f'}}]
+  });
+  makeChart('chart-phosphate', {
+    xAxis:{type:'category', data:["黄磷","磷矿石(30%品位)","磷酸(热法)","磷酸(湿法)","磷酸一铵(工业级)"], axisLabel:{fontSize:10}},
+    yAxis:{type:'value', name:'万元/吨', axisLabel:{fontSize:10}},
+    series:[{name:'8月价格', type:'bar', data:[2.712,0.1,0.883,0.905,0.751], itemStyle:{color:function(p){return ['#c62828','#1976d2','#00838f','#00838f','#2e7d32'][p.dataIndex];},borderRadius:[4,4,0,0]}, label:{show:true,position:'top',fontSize:11,formatter:function(p){return p.value.toFixed(2);}}}]
+  });
+  makeChart('chart-carbonate-price', {
+    xAxis:{type:'category', data:["24--01","24--02","24--03","24--04","24--05","24--06","24--07","24--08","24--09","24--10","24--11","24--12","25--01","25--02","25--03","25--04","25--05","25--06","25--07","25--08","25--09","25--10","25--11","25--12","26--01","26--02","26--03","26--04","26--05","26--06","26--07","26--08"], axisLabel:{fontSize:10}},
+    yAxis:{type:'value', name:'万元/吨', axisLabel:{fontSize:10}, min:4},
+    series:[{name:'碳酸锂均价', type:'line', data:[9.89,9.83,11.07,11.2,10.87,9.81,8.94,7.81,7.64,7.55,7.78,7.72,7.71,7.66,7.52,7.22,6.52,6.05,6.63,7.79,7.41,7.58,8.58,10.2,15.23,15.25,15.75,16.51,18.66,16.62,15.36,14.74], smooth:true, lineStyle:{width:2,color:'#c62828'}, itemStyle:{color:'#c62828'}, areaStyle:{color:{type:'linear',x:0,y:0,x2:0,y2:1,colorStops:[{offset:0,color:'rgba(198,40,40,0.25)'},{offset:1,color:'rgba(198,40,40,0.02)'}]}}}]
+  });
+  makeChart('chart-carbonate-output', {
+    xAxis:{type:'category', data:["25--01","25--02","25--03","25--04","25--05","25--06","25--07","25--08","25--09","25--10","25--11","25--12","26--01","26--02","26--03","26--04","26--05","26--06","26--07","26--08"], axisLabel:{fontSize:10}},
+    yAxis:[{type:'value', name:'产量（万吨）', axisLabel:{fontSize:10}}, {type:'value', name:'产能利用率%', axisLabel:{fontSize:10,formatter:function(v){return v+'%';}}, max:100, splitLine:{lineStyle:{type:'dashed'}}}],
+    series:[
+      {name:'碳酸锂产量', type:'bar', data:[6.54,6.69,7.48,7.45,7.35,7.73,8.1,8.48,8.71,8.97,9.29,9.74,9.91,8.67,10.31,10.7,10.53,11.01,10.77,11.44], itemStyle:{color:'#c62828',borderRadius:[3,3,0,0]}},
+      {name:'产能利用率', type:'line', yAxisIndex:1, data:[66.4,68,76,75.7,74.6,78.5,75.9,77.6,76.8,79.1,81.3,85.3,86.4,75.6,89.9,93.3,91.8,96,92.5,98.3], lineStyle:{color:'#ef6c00',width:2}, itemStyle:{color:'#ef6c00'}, smooth:true}
+    ]
+  });
+  makeChart('chart-lfp-vs-ncm', {
+    xAxis:{type:'category', data:["25--01","25--02","25--03","25--04","25--05","25--06","25--07","25--08","25--09","25--10","25--11","25--12","26--01","26--02","26--03","26--04","26--05","26--06","26--07","26--08"], axisLabel:{fontSize:10}},
+    yAxis:{type:'value', name:'产量（万吨）', axisLabel:{fontSize:10}},
+    series:[
+      {name:'LFP', type:'bar', data:[24.98,22.64,27.24,28.67,30.2,30.98,31.45,35.44,36.69,40.09,42.39,41.59,41.23,38.02,45.12,46.98,48.64,51.59,55.52,56.77], itemStyle:{color:'#1565c0',borderRadius:[3,3,0,0]}},
+      {name:'NCM', type:'bar', data:[4.5,4.27,5.49,5.7,5.67,6.43,6.46,7.3,7.43,7.41,7.57,7.63,7.55,6.19,8.08,7.66,8.58,8.84,8.62,8.43], itemStyle:{color:'#ef6c00',borderRadius:[3,3,0,0]}}
+    ]
+  });
+  makeChart('chart-czly-output', {
+    xAxis:{type:'category', data:["25--01","25--02","25--03","25--04","25--05","25--06","25--07","25--08","25--09","25--10","25--11","25--12","26--01","26--02","26--03","26--04","26--05","26--06","26--07","26--08"], axisLabel:{fontSize:10}},
+    yAxis:{type:'value', name:'产量（吨）', axisLabel:{fontSize:10,formatter:function(v){return (v/1000).toFixed(1)+'k';}}},
+    series:[{name:'常州锂源产量', type:'bar', data:[1.15,1.05,1,1.41,1.4,1.8,1.8,1.85,1.88,2.15,2.42,2.2,2.1,1.73,2.33,2.55,2.87,3.3,3.97,3.7], itemStyle:{color:'#ef6c00',borderRadius:[4,4,0,0]}, label:{show:true,position:'top',fontSize:10,formatter:function(p){return (p.value/1000).toFixed(1)+'k';}}}]
+  });
+  var tocLinks=document.querySelectorAll('.toc-list a');
+  var sections=document.querySelectorAll('[id]');
+  window.addEventListener('scroll',function(){ var cur=''; sections.forEach(function(s){ if(s.getBoundingClientRect().top<120) cur=s.id; }); tocLinks.forEach(function(a){ a.classList.toggle('active', a.getAttribute('href')==='#'+cur); }); });
+  tocLinks.forEach(function(a){ a.addEventListener('click',function(e){ e.preventDefault(); var tg=document.querySelector(a.getAttribute('href')); if(tg) tg.scrollIntoView({behavior:'smooth',block:'start'}); }); });
+})();
+</script>
+</body>
+</html>

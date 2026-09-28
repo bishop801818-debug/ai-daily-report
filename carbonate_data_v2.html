@@ -7,7 +7,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <meta name="html-version" content="20260924_090922">
+    <meta name="html-version" content="20260928_1157">
 <style>
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: #f1f1f1; }
@@ -804,7 +804,19 @@ function exportTable(id) {
 
 function num(v) { return parseFloat(v) || 0; }
 function pct(v) { return v == null || v === '' ? '-' : String(v); }
-function capPct(v) { const n = parseFloat(v); return isNaN(n) ? '-' : (n * 100).toFixed(1) + '%'; }
+// 百分比统一渲染：兼容「小数比率 0.1834」与「百分号写法 18.34%」，固定两位小数
+function fmtPct(v, dp) {
+    if (v == null || v === '') return '-';
+    if (dp == null) dp = 2;
+    if (typeof v === 'string') {
+        const s = v.trim();
+        if (s === '') return '-';
+        if (s.charAt(s.length - 1) === '%') { const p = parseFloat(s); return isNaN(p) ? s : p.toFixed(dp) + '%'; }
+    }
+    const n = parseFloat(v);
+    return isNaN(n) ? String(v) : (n * 100).toFixed(dp) + '%';
+}
+function capPct(v) { return fmtPct(v, 2); }
 function fmtNum(v) { return num(v).toLocaleString(); }
 function fmtDate(v) { return v ? String(v).split(' ')[0] : '-'; }
 	function fmtSpec(v, len) { return typeof v === 'string' ? v.substring(0, len || 20) : String(v || '-'); }
@@ -839,7 +851,7 @@ function renderLcCompany() {
     latest.sort((a,b) => num(b['产量（吨）']) - num(a['产量（吨）']));
     let html = latest.slice(0,30).map((d,i) =>
         `<tr><td><span class="rank-badge ${i<3?'top3':''}">${i+1}</span></td><td>${pct(d['月份'])}</td><td>${d['企业名称']||'-'}</td>
-            <td>${fmtNum(d['产量（吨）'])}</td><td>${pct(d['环比'])}</td><td>${pct(d['同比'])}</td>
+            <td>${fmtNum(d['产量（吨）'])}</td><td>${fmtPct(d['环比'])}</td><td>${fmtPct(d['同比'])}</td>
             <td>${fmtNum(d['产能（吨）'])}</td><td>${capPct(d['产能利用率'])}</td></tr>`
     ).join('');
     document.getElementById('lc-company-body').innerHTML = html || '<tr><td colspan="8" class="loading">暂无数据</td></tr>';
@@ -851,7 +863,7 @@ function renderLcExport() {
     const sorted = [...data].sort((a,b) => String(b['月份']||'').localeCompare(a['月份']||''));
     let html = sorted.map(d =>
         `<tr><td>${pct(d['月份'])}</td><td>${fmtNum(d['出口量（吨）'])}</td><td>${fmtNum(d['出口金额（元）'])}</td>
-            <td>${pct(d['出口均价（万元/吨）'])}</td><td>${pct(d['环比'])}</td><td>${pct(d['同比'])}</td></tr>`
+            <td>${pct(d['出口均价（万元/吨）'])}</td><td>${fmtPct(d['环比'])}</td><td>${fmtPct(d['同比'])}</td></tr>`
     ).join('');
     document.getElementById('lc-export-body').innerHTML = html || '<tr><td colspan="6" class="loading">暂无数据</td></tr>';
 }
@@ -891,7 +903,7 @@ function renderLcImport() {
     const sorted = [...data].sort((a,b) => String(b['月份']||'').localeCompare(a['月份']||''));
     let html = sorted.map(d =>
         `<tr><td>${pct(d['月份'])}</td><td>${fmtNum(d['进口量（吨）'])}</td><td>${fmtNum(d['进口金额（元）'])}</td>
-            <td>${pct(d['进口均价（万元/吨）'])}</td><td>${pct(d['环比'])}</td><td>${pct(d['同比'])}</td></tr>`
+            <td>${pct(d['进口均价（万元/吨）'])}</td><td>${fmtPct(d['环比'])}</td><td>${fmtPct(d['同比'])}</td></tr>`
     ).join('');
     document.getElementById('lc-import-body').innerHTML = html || '<tr><td colspan="6" class="loading">暂无数据</td></tr>';
 }
@@ -935,7 +947,7 @@ function renderLhCompany() {
     latest.sort((a,b) => num(b['产量（吨）']) - num(a['产量（吨）']));
     let html = latest.slice(0,30).map((d,i) =>
         `<tr><td><span class="rank-badge ${i<3?'top3':''}">${i+1}</span></td><td>${pct(d['月份'])}</td><td>${d['企业名称']||'-'}</td>
-            <td>${fmtNum(d['产量（吨）'])}</td><td>${pct(d['环比'])}</td><td>${pct(d['同比'])}</td>
+            <td>${fmtNum(d['产量（吨）'])}</td><td>${fmtPct(d['环比'])}</td><td>${fmtPct(d['同比'])}</td>
             <td>${fmtNum(d['产能（吨）'])}</td><td>${capPct(d['产能利用率'])}</td></tr>`
     ).join('');
     document.getElementById('lh-company-body').innerHTML = html || '<tr><td colspan="8" class="loading">暂无数据</td></tr>';
@@ -947,7 +959,7 @@ function renderLhExport() {
     const sorted = [...data].sort((a,b) => String(b['日期']||'').localeCompare(a['日期']||''));
     let html = sorted.map(d =>
         `<tr><td>${fmtDate(d['日期'])}</td><td>${fmtNum(d['出口量（吨）'])}</td><td>${fmtNum(d['出口金额（元）'])}</td>
-            <td>${pct(d['出口均价（万元/吨）'])}</td><td>${pct(d['环比'])}</td><td>${pct(d['同比'])}</td></tr>`
+            <td>${pct(d['出口均价（万元/吨）'])}</td><td>${fmtPct(d['环比'])}</td><td>${fmtPct(d['同比'])}</td></tr>`
     ).join('');
     document.getElementById('lh-export-body').innerHTML = html || '<tr><td colspan="6" class="loading">暂无数据</td></tr>';
 }
@@ -987,7 +999,7 @@ function renderLhImport() {
     const sorted = [...data].sort((a,b) => String(b['月份']||'').localeCompare(a['月份']||''));
     let html = sorted.map(d =>
         `<tr><td>${pct(d['月份'])}</td><td>${fmtNum(d['进口量（吨）'])}</td><td>${fmtNum(d['进口金额（元）'])}</td>
-            <td>${pct(d['进口均价（万元/吨）'])}</td><td>${pct(d['环比'])}</td><td>${pct(d['同比'])}</td></tr>`
+            <td>${pct(d['进口均价（万元/吨）'])}</td><td>${fmtPct(d['环比'])}</td><td>${fmtPct(d['同比'])}</td></tr>`
     ).join('');
     document.getElementById('lh-import-body').innerHTML = html || '<tr><td colspan="6" class="loading">暂无数据</td></tr>';
 }
@@ -1009,7 +1021,7 @@ function renderLiImport() {
     const sorted = [...data].sort((a,b) => String(b['月份']||'').localeCompare(a['月份']||''));
     let html = sorted.map(d =>
         `<tr><td>${pct(d['月份'])}</td><td>${fmtNum(d['进口量（吨）'])}</td><td>${fmtNum(d['进口金额（元）'])}</td>
-            <td>${pct(d['进口均价（元/吨）'])}</td><td>${pct(d['环比'])}</td><td>${pct(d['同比'])}</td></tr>`
+            <td>${pct(d['进口均价（元/吨）'])}</td><td>${fmtPct(d['环比'])}</td><td>${fmtPct(d['同比'])}</td></tr>`
     ).join('');
     document.getElementById('li-import-body').innerHTML = html || '<tr><td colspan="6" class="loading">暂无数据</td></tr>';
 }
@@ -1031,7 +1043,7 @@ function renderLiExport() {
     const sorted = [...data].sort((a,b) => String(b['月份']||'').localeCompare(a['月份']||''));
     let html = sorted.map(d =>
         `<tr><td>${pct(d['月份'])}</td><td>${fmtNum(d['出口量（吨）'])}</td><td>${fmtNum(d['出口金额（元）'])}</td>
-            <td>${pct(d['出口均价（元/吨）'])}</td><td>${pct(d['环比'])}</td><td>${pct(d['同比'])}</td></tr>`
+            <td>${pct(d['出口均价（元/吨）'])}</td><td>${fmtPct(d['环比'])}</td><td>${fmtPct(d['同比'])}</td></tr>`
     ).join('');
     document.getElementById('li-export-body').innerHTML = html || '<tr><td colspan="6" class="loading">暂无数据</td></tr>';
 }

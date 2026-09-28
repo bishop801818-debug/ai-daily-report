@@ -481,7 +481,7 @@ document.getElementById('data-time').textContent = EMBEDDED_DATA.update_time || 
         document.getElementById('stat-pre-date').textContent = last['月份'] + ' | 利用率 ' + (last['产能利用率']||'—');
     }
     // NCM811 latest price
-    var ncmPrice = getTable('NCM-现货市场价');
+    var ncmPrice = getTable('NCM-现货市场价 万元吨');
     if (ncmPrice.length) {
         var last = ncmPrice[0];
         var dk = Object.keys(last)[0];
@@ -492,7 +492,7 @@ document.getElementById('data-time').textContent = EMBEDDED_DATA.update_time || 
         }
     }
     // Cobalt price
-    var rawPrice = getTable('关键原料-现货市场价');
+    var rawPrice = getTable('关键原料-现货市场价 万元吨');
     if (rawPrice.length) {
         var last = rawPrice[0];
         var dk = Object.keys(last)[0];
@@ -548,9 +548,9 @@ document.getElementById('data-time').textContent = EMBEDDED_DATA.update_time || 
     var ncmInd = getTable('NCM-行业整体产量');
     var ncmModel = getTable('NCM-分型号产量');
     var ncmCompany = getTable('NCM-分企业产量');
-    var ncmPrice = getTable('NCM-现货市场价');
-    var ncmExport = getTable('NCM-出口总量');
-    var ncmExpPartner = getTable('NCM-出口目的地');
+    var ncmPrice = getTable('NCM-现货市场价 万元吨');
+    var ncmExport = getTable('NCM-出口-总量');
+    var ncmExpPartner = getTable('NCM-出口-目的地');
 
     // ca1: NCM产量走势 (line + area, all data)
     var allMonths = ncmInd.map(fmtMonth).reverse();
@@ -704,9 +704,9 @@ document.getElementById('data-time').textContent = EMBEDDED_DATA.update_time || 
     var preInd = getTable('NCMpre-行业整体产量');
     var preModel = getTable('NCMpre-分型号产量');
     var preCompany = getTable('NCMpre-分企业产量');
-    var prePrice = getTable('NCMpre-现货市场价');
-    var preExport = getTable('NCMpre-出口总量');
-    var preExpPartner = getTable('NCMpre-出口目的地');
+    var prePrice = getTable('NCMpre-现货市场价 万元吨');
+    var preExport = getTable('NCMpre-出口-总量');
+    var preExpPartner = getTable('NCMpre-出口-目的地');
 
     // pr1: Precursor output line
     var allMonths = preInd.map(fmtMonth).reverse();
@@ -851,9 +851,9 @@ document.getElementById('data-time').textContent = EMBEDDED_DATA.update_time || 
 //  TAB 4: 关键原料
 // ============================================================
 (function() {
-    var rawPrice = getTable('关键原料-现货市场价');
+    var rawPrice = getTable('关键原料-现货市场价 万元吨');
     var coInd = getTable('四氧化三钴-行业整体产量');
-    var coPrice = getTable('四氧化三钴-现货市场价');
+    var coPrice = getTable('四氧化三钴-现货市场价 万元吨');
 
     // Stats
     if (rawPrice.length) {
