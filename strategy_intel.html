@@ -1,0 +1,873 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="html-version" content="20260905_002">
+<title>竞品情报监控</title>
+<script>
+/* ═══════════════════════════════════════════════════════
+   门禁四件套（与 strategy_hub.html L19-50 完全一致）
+   白名单：6 open_id + 6 数字 user_id + legacy 1854251564037223
+   部门白名单：总裁室 od-839a5caffe1fa682e014982a1d28fcb8
+   ═══════════════════════════════════════════════════════ */
+(function(){
+  var STRATEGY_UID_WHITELIST = ['ou_78e0dba3ff382df7c11dcd07ea2255f0','ou_12015bf9c1d120116e6a01c022051130','ou_c0d1e422fada6770cb7da5069e96abbc','ou_178a5a969ca5c2d96c105d6ecbe4add0','ou_3897e64d72af1edd4637e51d1baa4d2c','ou_64217fc9e76e95ca13a26c0c4a5b665d','7595021657568185305','7598822772604701656','7589910160420637874','7589938135119744185','7591392573697101019','7592890122870410205','1854251564037223'];
+  var STRATEGY_DEPT_WHITELIST = ['od-839a5caffe1fa682e014982a1d28fcb8'];
+  function isLocalPreview(){return location.protocol==='file:'||location.hostname==='localhost'||location.hostname==='127.0.0.1'||location.hostname==='';}
+  window.STRATEGY_UID_DECIDED=false; window.STRATEGY_UID_ALLOWED=false;
+  function clearDeny(){var el=document.getElementById('strategy_deny_overlay'); if(el&&el.parentNode)el.parentNode.removeChild(el);}
+  function deny(){var ex=document.getElementById('strategy_deny_overlay'); if(ex)return; function render(){var el=document.getElementById('strategy_deny_overlay'); if(el)return; var d=document.createElement('div'); d.id='strategy_deny_overlay'; d.style.cssText='position:fixed;inset:0;z-index:2147483647;display:flex;align-items:center;justify-content:center;background:rgba(245,246,250,.98)'; d.innerHTML='<div style="text-align:center;padding:48px;background:#fff;border-radius:16px;box-shadow:0 8px 30px rgba(0,0,0,.08)"><div style="font-size:64px;margin-bottom:12px">🔒</div><div style="font-size:22px;font-weight:700;color:#c0392b">您的账号暂无权限浏览</div><div style="margin-top:8px;color:#888;font-size:14px">请联系管理员申请竞品情报访问权限。</div>' + '<details style="margin-top:16px;text-align:left;font-size:12px;color:#666;max-width:480px;word-break:break-all;"><summary style="cursor:pointer;color:#999">排查信息（点击展开）</summary>open_id: '+(window.userInfo&&window.userInfo.open_id||'(none)')+'<br>user_id: '+(window.userInfo&&window.userInfo.user_id||'(none)')+'<br>employee_id: '+(window.userInfo&&window.userInfo.employee_id||'(none)')+'</details></div>'; (document.body||document.documentElement).appendChild(d);} if(document.body)render(); else document.addEventListener('DOMContentLoaded',render);}
+  function decide(uid, deptIds){
+    if(window.STRATEGY_UID_DECIDED && window.STRATEGY_UID_ALLOWED) return;
+    var deptOk = Array.isArray(deptIds) && deptIds.some(function(d){return STRATEGY_DEPT_WHITELIST.indexOf(d)>=0;});
+    var allowed = (STRATEGY_UID_WHITELIST.indexOf(uid)>=0)||deptOk||isLocalPreview();
+    if(window.STRATEGY_UID_DECIDED && !window.STRATEGY_UID_ALLOWED && allowed){
+      window.STRATEGY_UID_ALLOWED = true;
+      document.documentElement.style.visibility='';
+      clearDeny();
+      return;
+    }
+    if(window.STRATEGY_UID_DECIDED) return;
+    window.STRATEGY_UID_DECIDED = true;
+    window.STRATEGY_UID_ALLOWED = allowed;
+    document.documentElement.style.visibility='';
+    if(!window.STRATEGY_UID_ALLOWED) deny();
+  }
+  document.documentElement.style.visibility='hidden';
+  var s=(window.userInfo&&(window.userInfo.open_id||window.userInfo.user_id))||window.userId||(window.__context&&window.__context.user&&window.__context.user.open_id)||'';
+  if(s)decide(s);
+  window.__strategyDecide = decide;
+  window.addEventListener('message',function(e){if(e.data&&e.data.type==='RADAR_AUTH'){try{if(e.data.deptIds&&e.data.deptIds[0])sessionStorage.setItem('__dept',e.data.deptIds[0]);}catch(_){}decide(e.data.openId, e.data.deptIds);}});
+  try{if(window.parent&&window.parent!==window)window.parent.postMessage({type:'RADAR_REQUEST_AUTH'},'*');}catch(_){}
+  setTimeout(function(){decide('');},1500);
+})();
+</script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-thumb{background:#c1c1c1;border-radius:3px}
+::-webkit-scrollbar-track{background:#f1f1f1}
+body{font-family:'Microsoft YaHei','PingFang SC',Arial,sans-serif;background:#f0f2f5;min-height:100vh;color:#1a1a2e}
+
+/* ── 顶部导航（统一使用 shared_nav.css，避免本页自写样式与全局其它子页不一致） ── */
+
+/* ── 主容器 ── */
+.main{max-width:1400px;margin:0 auto;padding:24px 30px 60px}
+.page-header{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:18px}
+.page-title{font-size:22px;font-weight:700;color:#1a1a2e}
+
+/* ── 筛选条 ── */
+.filter-bar{background:#fff;border-radius:12px;padding:14px 18px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;box-shadow:0 1px 4px rgba(0,0,0,.05);margin-bottom:16px}
+.filter-label{font-size:12px;color:#888;font-weight:600}
+.filter-select,.filter-input{padding:6px 10px;border:1px solid #e0e0e0;border-radius:6px;font-size:13px;font-family:inherit;color:#1a1a2e;background:#fff;cursor:pointer;min-width:110px}
+.filter-select:focus,.filter-input:focus{outline:none;border-color:#064e3b}
+.filter-input{min-width:180px}
+
+/* ── TOP 5 重点卡片墙（高亮板块） ── */
+.top5-wrap{background:linear-gradient(120deg,#e9f6ee 0%,#f5fbf8 58%,#fbfdfb 100%);
+    border:1px solid #dcebe2;border-radius:14px;padding:15px 17px 17px;margin-bottom:20px;
+    box-shadow:0 2px 8px rgba(6,78,59,.06)}
+.top5-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:13px;gap:12px;flex-wrap:wrap}
+.top5-head .t5-h-left{display:flex;align-items:center;gap:9px;font-size:17px;font-weight:800;color:#064e3b;letter-spacing:.3px}
+.top5-head .t5-h-left::before{content:"";width:5px;height:19px;border-radius:3px;background:linear-gradient(180deg,#c8a002,#0d7a4a)}
+.top5-head .t5-h-meta{font-size:12.5px;font-weight:600;color:#5f7a6c}
+.top5-row{display:grid;grid-template-columns:repeat(5,1fr);gap:13px}
+.top5-card{background:#fff;border-radius:12px;padding:16px 17px 14px;box-shadow:0 1px 5px rgba(6,78,59,.07);
+    border-top:4px solid #cbd5cf;display:flex;flex-direction:column;gap:9px;min-height:222px;
+    cursor:pointer;transition:transform .16s,box-shadow .16s}
+.top5-card:hover{transform:translateY(-3px);box-shadow:0 10px 24px rgba(6,78,59,.16)}
+.top5-card.r1{border-top-color:#c8a002;background:linear-gradient(180deg,#fff8e3 0%,#fff 58%);
+    box-shadow:0 3px 14px rgba(200,160,2,.22)}
+.top5-card.r1:hover{box-shadow:0 12px 28px rgba(200,160,2,.32)}
+.top5-card.r2{border-top-color:#1e3c72}
+.top5-card.r3{border-top-color:#0d7a4a}
+.top5-card.r4{border-top-color:#5f8f79}
+.top5-card.r5{border-top-color:#94a8a0}
+.t5-head{display:flex;align-items:center;gap:7px;font-size:12px;color:#888}
+.t5-rank{width:24px;height:24px;border-radius:50%;background:#eef1ef;color:#5f6e64;font-size:13px;font-weight:800;
+    display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.top5-card.r1 .t5-rank{background:linear-gradient(135deg,#c8a002,#e0b81f);color:#fff;box-shadow:0 2px 6px rgba(200,160,2,.45)}
+.top5-card.r2 .t5-rank{background:#1e3c72;color:#fff}
+.top5-card.r3 .t5-rank{background:#0d7a4a;color:#fff}
+.top5-card.r4 .t5-rank{background:#5f8f79;color:#fff}
+.top5-card.r5 .t5-rank{background:#94a8a0;color:#fff}
+.t5-cat{background:#0d7a4a;color:#fff;padding:2px 9px;border-radius:9px;font-weight:700;white-space:nowrap;font-size:12px}
+.t5-date{margin-left:auto;white-space:nowrap;font-size:12px;font-weight:700;color:#6b7280}
+.t5-title{font-size:15px;font-weight:800;color:#141a24;line-height:1.42;letter-spacing:.15px;
+    display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.t5-summary{font-size:13px;color:#4b5563;line-height:1.72;
+    display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.t5-foot{margin-top:auto;display:flex;align-items:center;gap:7px;font-size:12px;color:#6b7280;
+    border-top:1px dashed #e6ebe8;padding-top:9px;overflow:hidden}
+.t5-bu{background:#1e3c72;color:#fff;padding:2px 9px;border-radius:9px;font-weight:700;white-space:nowrap;flex-shrink:0;font-size:12px}
+.t5-comp{color:#7b8794;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1;min-width:0}
+.t5-more{flex-shrink:0;color:#0d7a4a;font-weight:800;white-space:nowrap;font-size:12px}
+.top5-card:hover .t5-more{text-decoration:underline}
+.top5-card.r1 .t5-more{color:#a67c00}
+.top5-empty{grid-column:1/-1;background:#fff;border-radius:12px;padding:30px;text-align:center;color:#aaa;font-size:13px}
+
+/* ── TOP5 详情浮层（看全文） ── */
+.t5-modal{position:fixed;inset:0;z-index:2147482000;display:flex;align-items:center;justify-content:center;padding:24px}
+.t5-modal[hidden]{display:none}
+.t5-mask{position:absolute;inset:0;background:rgba(10,38,26,.58);backdrop-filter:blur(1.5px)}
+.t5-box{position:relative;background:#fff;border-radius:16px;width:100%;max-width:780px;max-height:80vh;overflow:auto;
+    padding:26px 30px 24px;box-shadow:0 24px 70px rgba(0,0,0,.3);animation:t5pop .18s ease-out}
+@keyframes t5pop{from{opacity:0;transform:translateY(10px) scale(.985)}to{opacity:1;transform:none}}
+.t5-x{position:absolute;top:14px;right:16px;width:30px;height:30px;border-radius:50%;border:0;background:#f1f4f2;
+    color:#555;font-size:18px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.t5-x:hover{background:#e4eae6;color:#111}
+.t5m-tags{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:14px}
+.t5m-rank{width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,#c8a002,#e0b81f);color:#fff;
+    font-size:14px;font-weight:800;display:flex;align-items:center;justify-content:center}
+.t5m-title{font-size:21px;font-weight:800;color:#111827;line-height:1.45;margin-bottom:15px;letter-spacing:.2px}
+.t5m-summary{font-size:14.5px;line-height:1.95;color:#374151;white-space:pre-wrap}
+.t5m-foot{margin-top:20px;padding-top:14px;border-top:1px solid #eef0f2;display:flex;justify-content:space-between;
+    align-items:center;gap:12px;flex-wrap:wrap;font-size:12.5px;color:#6b7280}
+.t5m-foot a{color:#064e3b;font-weight:800;text-decoration:none}
+.t5m-foot a:hover{text-decoration:underline}
+
+/* ── 视图切换 segmented ── */
+.scope-switch{display:inline-flex;background:#f1f5f2;border:1px solid #e0e7e3;border-radius:8px;padding:3px;gap:2px}
+.scope-switch button{background:transparent;border:0;padding:6px 14px;font:500 12px/1 -apple-system,Microsoft YaHei,sans-serif;color:#5f6e64;border-radius:6px;cursor:pointer;transition:all .15s}
+.scope-switch button:hover{color:#1a1a2e}
+.scope-switch button.active{background:#fff;color:#064e3b;box-shadow:0 1px 3px rgba(6,78,59,.18);font-weight:700}
+
+/* ── 主体两栏 ── */
+.body-row{display:grid;grid-template-columns:1.85fr 1fr;gap:16px;margin-bottom:18px}
+.section-title{font-size:15px;font-weight:700;color:#1a1a2e;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center}
+.section-title .count{font-size:12px;color:#888;font-weight:400}
+
+/* ── 事件流 ── */
+.event-list{display:flex;flex-direction:column;gap:10px;max-height:720px;overflow-y:auto;padding-right:4px}
+.event-card{background:#fff;border-radius:10px;padding:14px 16px;box-shadow:0 1px 4px rgba(0,0,0,.05);border-left:4px solid #d0d0d0;transition:all .15s;cursor:pointer}
+.event-card:hover{box-shadow:0 4px 12px rgba(0,0,0,.08);transform:translateY(-1px)}
+.event-card.high{border-left-color:#c0392b}
+.event-card.medium{border-left-color:#f39c12}
+.event-card.low{border-left-color:#95a5a6}
+.event-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;gap:8px;flex-wrap:wrap}
+.event-tags{display:flex;gap:6px;flex-wrap:wrap}
+.tag{font-size:11px;padding:2px 8px;border-radius:10px;font-weight:600;letter-spacing:.3px}
+.tag.importance-high{background:#fdecec;color:#c0392b}
+.tag.importance-medium{background:#fef3e2;color:#d68910}
+.tag.importance-low{background:#f0f0f0;color:#777}
+.tag.category{background:rgba(6,78,59,.08);color:#064e3b}
+.tag.bu{background:#1e3c72;color:#fff}
+.event-date{font-size:11px;color:#888;white-space:nowrap}
+.event-title{font-size:14px;font-weight:600;color:#1a1a2e;margin-bottom:6px;line-height:1.4}
+.event-summary{font-size:12.5px;color:#555;line-height:1.6;margin-bottom:8px}
+.event-footer{display:flex;justify-content:space-between;align-items:center;font-size:11px;color:#888;border-top:1px solid #f0f0f0;padding-top:8px}
+.event-source{display:flex;align-items:center;gap:4px}
+.event-source a{color:#064e3b;text-decoration:none;font-weight:600}
+.event-source a:hover{text-decoration:underline}
+.event-tags-row{display:flex;gap:6px;flex-wrap:wrap}
+.event-tag-chip{background:#f5f7fa;color:#666;padding:2px 8px;border-radius:8px;font-size:11px}
+.event-empty{text-align:center;padding:48px 20px;color:#aaa;font-size:13px}
+
+/* ── 热力图 ── */
+.heatmap-card{background:#fff;border-radius:12px;padding:16px;box-shadow:0 1px 4px rgba(0,0,0,.05)}
+.heatmap-table{width:100%;border-collapse:separate;border-spacing:4px;font-size:12px}
+.heatmap-table th,.heatmap-table td{padding:6px 8px;text-align:center}
+.heatmap-table th{font-weight:600;color:#555;background:#f8f9fc;border-radius:4px;white-space:nowrap;font-size:11.5px}
+.heatmap-table th.bu-label{text-align:left;color:#1a1a2e}
+.heatmap-table td.bu-label{text-align:left;font-weight:600;color:#064e3b;white-space:nowrap}
+.heatmap-cell{font-weight:600;border-radius:6px;color:#fff;transition:all .15s;cursor:pointer}
+.heatmap-cell:hover{transform:scale(1.08);box-shadow:0 2px 6px rgba(0,0,0,.15)}
+.heatmap-cell.lv0{background:#f0f0f0;color:#999}
+.heatmap-cell.lv1{background:#c8e6c9;color:#1b5e20}
+.heatmap-cell.lv2{background:#66bb6a;color:#fff}
+.heatmap-cell.lv3{background:#2e7d32;color:#fff}
+.heatmap-cell.lv4{background:#1b5e20;color:#fff}
+.heatmap-legend{display:flex;justify-content:flex-end;align-items:center;gap:6px;font-size:11px;color:#888;margin-top:8px}
+.heatmap-legend .lg{display:flex;align-items:center;gap:3px}
+.heatmap-legend .sw{width:14px;height:14px;border-radius:3px}
+
+/* ── BU × 竞品矩阵 ── */
+.matrix-card{background:#fff;border-radius:12px;padding:16px;box-shadow:0 1px 4px rgba(0,0,0,.05);overflow-x:auto}
+.matrix-table{width:100%;border-collapse:collapse;font-size:13px}
+.matrix-table th{background:#f5f7fa;padding:10px 12px;text-align:left;font-weight:600;color:#555;border-bottom:2px solid #e8ecf0;font-size:12px}
+.matrix-table td{padding:10px 12px;border-bottom:1px solid #f0f0f0}
+.matrix-table tr:last-child td{border-bottom:none}
+.matrix-table tr:hover{background:#fafbfc}
+.bu-name-cell{display:flex;align-items:center;gap:8px}
+.bu-dot{width:10px;height:10px;border-radius:50%}
+.comp-list{color:#555;font-size:12px;line-height:1.5}
+.event-count-badge{display:inline-flex;align-items:center;gap:4px;background:#f0f4ff;color:#1e3c72;padding:2px 10px;border-radius:10px;font-weight:600;font-size:12px}
+.event-count-badge.zero{background:#f0f0f0;color:#999}
+.event-count-badge .num{font-size:14px;font-weight:700}
+.high-pill{background:#fdecec;color:#c0392b;padding:2px 8px;border-radius:10px;font-weight:600;font-size:11px}
+.last-update{color:#888;font-size:11px}
+
+@media (max-width:1500px){
+    .top5-row{grid-template-columns:repeat(3,1fr)}
+}
+@media (max-width:1100px){
+    .body-row{grid-template-columns:1fr}
+    .top5-row{grid-template-columns:repeat(2,1fr)}
+}
+</style>
+</head>
+<body>
+
+<!-- 顶部导航（统一使用 shared_nav.css，与 analysis_hub/archive_v3/database_hub 等子页一致） -->
+<link rel="stylesheet" href="shared_nav.css">
+<div class="sub-topbar">
+    <a class="sub-topbar-home" href="index_v3.html">← 返回首页</a>
+    <div class="sub-topbar-title">竞品情报监控</div>
+    <div class="sub-topbar-nav">
+        <div class="sub-nav-item" onclick="window.location.href='policy_center_v4.html'"><span>政策中心</span></div>
+        <div class="sub-nav-item" onclick="window.location.href='industry_news_embedded.html'"><span>行业新闻</span></div>
+        <div class="sub-nav-item" onclick="window.location.href='archive_v3.html'"><span>历史数据</span></div>
+        <div class="sub-nav-item" onclick="window.location.href='database_hub.html'"><span>数据库</span></div>
+        <div class="sub-nav-item" onclick="window.location.href='analysis_hub.html'"><span>行业分析</span></div>
+        <div class="sub-nav-item" onclick="window.location.href='strategy_hub.html'"><span>竞品比对</span></div>
+        <div class="sub-nav-item" onclick="window.location.href='radar_hub.html'"><span>雷达看板</span></div>
+    </div>
+</div>
+
+<!-- 主容器 -->
+<div class="main">
+
+    <!-- 页面标题 -->
+    <div class="page-header">
+        <div>
+            <div class="page-title">竞品情报监控</div>
+        </div>
+        <div style="font-size:12px;color:#888;text-align:right">
+            数据更新：<span id="pageDataUpdate" style="color:#27ae60;font-weight:600">--</span>
+        </div>
+    </div>
+
+    <!-- 筛选条 -->
+    <div class="filter-bar">
+        <span class="filter-label">BU：</span>
+        <select class="filter-select" id="fBu"><option value="">全部</option></select>
+        <span class="filter-label">类别：</span>
+        <select class="filter-select" id="fCat">
+            <option value="">全部</option>
+            <option value="今日关注">今日关注</option>
+            <option value="企业动态">企业动态</option>
+            <option value="项目/招标">项目/招标</option>
+            <option value="技术/产品">技术/产品</option>
+            <option value="公告/披露">公告/披露</option>
+            <option value="竞品动态">竞品动态</option>
+        </select>
+        <span class="filter-label">重要度：</span>
+        <select class="filter-select" id="fImp">
+            <option value="">全部</option>
+            <option value="high">高</option>
+            <option value="medium">中</option>
+            <option value="low">低</option>
+        </select>
+        <span class="filter-label">时间：</span>
+        <select class="filter-select" id="fTime">
+            <option value="week">本周</option>
+            <option value="month">本月</option>
+            <option value="all">全部</option>
+        </select>
+        <input type="text" class="filter-input" id="fKw" placeholder="搜索关键词（公司/标题）">
+        <button class="filter-select" id="fReset" style="background:#f0f0f0;color:#666;cursor:pointer;border-color:#ddd">重置</button>
+    </div>
+
+    <!-- TOP 5 重点（当前口径 × 高重要度 × BU 去重；点卡片看全文） -->
+    <div class="top5-wrap">
+        <div class="top5-head">
+            <span class="t5-h-left">📌 <span id="top5Title">本周 TOP 5 重点</span></span>
+            <span class="t5-h-meta" id="top5Meta">加载中…</span>
+        </div>
+        <div class="top5-row" id="top5Row">
+            <div class="top5-empty">数据加载中…</div>
+        </div>
+    </div>
+
+    <!-- 主体两栏 -->
+    <div class="body-row">
+        <!-- 左：事件流 -->
+        <div>
+            <div class="section-title">
+                <span>事件流 <span style="color:#888;font-size:12px;font-weight:400">（按重要度+时间排序）</span></span>
+                <span class="count" id="eventCount">-- 条</span>
+            </div>
+            <div class="event-list" id="eventList"></div>
+        </div>
+
+        <!-- 右：热力图 -->
+        <div>
+            <div class="section-title">
+                <span>BU × 类别 热力图</span>
+                <div class="scope-switch" id="scopeSwitch" role="tablist" aria-label="时间范围切换">
+                    <button type="button" data-scope="week" class="active">最近 7 天</button>
+                    <button type="button" data-scope="month">最近 30 天</button>
+                    <button type="button" data-scope="all">全部</button>
+                </div>
+            </div>
+            <div class="heatmap-card">
+                <table class="heatmap-table" id="heatmapTable"></table>
+                <div class="heatmap-legend" id="heatmapLegend">
+                    <div class="lg"><span class="sw" style="background:#f0f0f0"></span>0</div>
+                    <div class="lg"><span class="sw" style="background:#c8e6c9"></span>1-2</div>
+                    <div class="lg"><span class="sw" style="background:#66bb6a"></span>3-9</div>
+                    <div class="lg"><span class="sw" style="background:#2e7d32"></span>10+</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- BU × 头部竞品 矩阵 -->
+    <div class="section-title" style="margin-top:8px">
+        <span>BU × 头部竞品 监控矩阵</span>
+        <span class="count" id="matrixMeta"></span>
+    </div>
+    <div class="matrix-card">
+        <table class="matrix-table" id="matrixTable">
+            <thead>
+                <tr>
+                    <th style="width:90px">BU</th>
+                    <th>头部竞品（4家）</th>
+                    <th style="width:100px" id="matrixPeriodHead">本周事件</th>
+                    <th style="width:90px">高重要度</th>
+                    <th style="width:120px">上次更新</th>
+                    <th style="width:80px">操作</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+</div>
+
+<!-- TOP5 详情浮层：看完整摘要 -->
+<div class="t5-modal" id="t5Modal" hidden>
+    <div class="t5-mask" data-t5close="1"></div>
+    <div class="t5-box" role="dialog" aria-modal="true" aria-label="重点事件详情">
+        <button class="t5-x" type="button" data-t5close="1" aria-label="关闭">✕</button>
+        <div id="t5ModalBody"></div>
+    </div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════════════════
+   集团竞品情报监控页 — 数据全部来自 strategy_intel_feed.json
+   （由 tools/build_strategy_intel_feed.py 聚合 9 份
+    competitor_feed_<bu>.json 生成，可定时重跑）
+   ═══════════════════════════════════════════════════════ */
+const BU_META = {
+    czly:{name:'常州锂源',short:'LFP',color:'#064e3b'},
+    lpsd:{name:'龙蟠时代',short:'Li₂CO₃',color:'#2e75b6'},
+    felt:{name:'法恩莱特',short:'电解液',color:'#7b2d8b'},
+    sdmd:{name:'山东美多',short:'回收',color:'#215732'},
+    sjl: {name:'三金锂电',short:'三元',color:'#34495e'},
+    dhx: {name:'迪克化学',short:'汽化品',color:'#16a085'},
+    lhy: {name:'润滑油事业部',short:'润滑油',color:'#c0392b'},
+    kls: {name:'可兰素',short:'车用尿素',color:'#d35400'},
+    bych:{name:'铂源催化',short:'氢催化',color:'#8e44ad'}
+};
+
+// 36 家头部竞品
+const COMPETITOR_LIST = {
+    czly: ['湖南裕能', '万润新能', '富临精工', '德方纳米'],
+    lpsd: ['赣锋锂业', '天齐锂业', '雅化集团', '永兴材料'],
+    felt: ['天赐材料', '多氟多', '新宙邦', '永太科技'],
+    sdmd: ['格林美', '华友钴业', '邦普循环', '赣州豪鹏'],
+    sjl:  ['容百科技', '当升科技', '振华新材', '长远锂科'],
+    dhx:  ['中触媒', '尤夫股份', '隆众化学', '明水化工'],
+    lhy:  ['昆仑润滑油', '长城润滑油', '统一石化', '康普顿'],
+    kls:  ['美丰化工', '四川美丰', '禾泰车用尿素', '龙蟠车用'],
+    bych: ['贵研铂业', '北方稀土', '凯立新材', '中触媒氢能']
+};
+
+/* ═══════════════════════════════════════════════════════
+   渲染逻辑
+   ═══════════════════════════════════════════════════════ */
+// 热力图类别轴 = 竞品 feed 的真实 category（2026-09-27 修正：原为 mock 的 业绩/扩产/客户/战略/新品/合规，
+// 与源数据完全不匹配导致全部塌陷到「战略」）。运行时会用 feed.category_list 覆盖此常量。
+const CATEGORY_LIST = ['今日关注', '企业动态', '项目/招标', '技术/产品', '公告/披露'];
+const $ = id => document.getElementById(id);
+const escapeHtml = s => String(s||'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+// 初始化 BU 下拉
+(function initBuSelect(){
+    const sel = $('fBu');
+    Object.entries(BU_META).forEach(([id, m]) => {
+        const opt = document.createElement('option');
+        opt.value = id; opt.textContent = m.name;
+        sel.appendChild(opt);
+    });
+})();
+
+// 事件流渲染
+function renderEvents(){
+    const kw = $('fKw').value.trim().toLowerCase();
+    const fBu = $('fBu').value;
+    const fCat = $('fCat').value;
+    const fImp = $('fImp').value;
+    const fTime = $('fTime').value;
+
+    let list = FEED.events.slice();
+
+    // 时间筛选
+    if (fTime === 'week') {
+        const now = parseDate(FEED.latest_report_date) || new Date();
+        const weekAgo = new Date(now); weekAgo.setDate(now.getDate() - 7);
+        list = list.filter(e => {
+            const d = parseDate(e.report_date || e.date);
+            return d && d >= weekAgo;
+        });
+    } else if (fTime === 'month') {
+        const now = parseDate(FEED.latest_report_date) || new Date();
+        const monthAgo = new Date(now); monthAgo.setMonth(now.getMonth() - 1);
+        list = list.filter(e => {
+            const d = parseDate(e.report_date || e.date);
+            return d && d >= monthAgo;
+        });
+    }
+
+    if (fBu) list = list.filter(e => e.bu === fBu);
+    if (fCat) list = list.filter(e => e.category === fCat);
+    if (fImp) list = list.filter(e => e.importance === fImp);
+    if (kw) list = list.filter(e =>
+        (e.title||'').toLowerCase().includes(kw) ||
+        (e.competitor||'').toLowerCase().includes(kw) ||
+        (e.summary||'').toLowerCase().includes(kw)
+    );
+
+    // 排序：高→中→低 → 日期倒序
+    const impOrder = {high:0, medium:1, low:2};
+    list.sort((a,b)=>{
+        if (impOrder[a.importance] !== impOrder[b.importance]) return impOrder[a.importance] - impOrder[b.importance];
+        const ad = parseDate(a.report_date || a.date) || 0;
+        const bd = parseDate(b.report_date || b.date) || 0;
+        return bd - ad;
+    });
+
+    const listEl = $('eventList');
+    // 把当前筛选后列表暴露给详情浮层，避免在 HTML 属性里塞整个对象
+    EVENT_STREAM_DATA = list;
+    if (!list.length) {
+        listEl.innerHTML = '<div class="event-empty">📭 当前筛选条件下无事件<br><br>试试调整筛选条件</div>';
+    } else {
+        listEl.innerHTML = list.map((e, idx) => {
+            const meta = BU_META[e.bu] || {name:e.bu, color:'#666'};
+            const link = e.source_url
+                ? ` · <a href="${escapeHtml(e.source_url)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">查看原文 →</a>`
+                : (e.source_kind === 'main' ? '' : ' · <span style="color:#9aa0a6">无原文</span>');
+            return `
+<div class="event-card ${e.importance}" onclick="openEventDetail(${idx})">
+    <div class="event-head">
+        <div class="event-tags">
+            <span class="tag importance-${e.importance}">${e.importance === 'high' ? '高' : e.importance === 'medium' ? '中' : '低'}</span>
+            <span class="tag category">${escapeHtml(e.category)}</span>
+            <span class="tag bu">${escapeHtml(meta.name)} · ${escapeHtml(e.competitor || '—')}</span>
+        </div>
+        <span class="event-date">${e.date || e.report_date}</span>
+    </div>
+    <div class="event-title">${escapeHtml(e.title)}</div>
+    <div class="event-summary">${escapeHtml(e.summary)}</div>
+    <div class="event-footer">
+        <span class="event-source">📄 ${escapeHtml(e.source)} · ${e.date || e.report_date}${link}</span>
+    </div>
+</div>`;
+        }).join('');
+    }
+
+    $('eventCount').textContent = list.length + ' 条';
+}
+
+// 事件流卡片点击：打开与 TOP5 同款的详情浮层
+function openEventDetail(idx){
+    const e = EVENT_STREAM_DATA[idx];
+    if (!e) return;
+    openTop5Detail(e);
+}
+
+// 热力图渲染
+function scopeFilteredEvents(){
+    if (currentScope === 'all') return FEED.events;
+    const days = currentScope === 'week' ? 7 : 30;
+    const now = parseDate(FEED.latest_report_date) || new Date();
+    const ago = new Date(now); ago.setDate(now.getDate() - days);
+    return FEED.events.filter(e => {
+        const d = parseDate(e.report_date || e.date);
+        return d && d >= ago;
+    });
+}
+
+function renderHeatmap(){
+    const tbl = $('heatmapTable');
+    const pool = scopeFilteredEvents();
+    const grid = {};
+    Object.keys(BU_META).forEach(bu => {
+        grid[bu] = {};
+        CATEGORY_LIST.forEach(cat => grid[bu][cat] = 0);
+    });
+    pool.forEach(e => {
+        if (grid[e.bu] && grid[e.bu][e.category] !== undefined) grid[e.bu][e.category]++;
+    });
+
+    // 自适应分级：三档窗口（7天/30天/全部）数量级差异极大（最大单格 22 / 74 / 313），
+    // 固定阈值会让大窗口全深、小窗口全浅。改为按当前视图最大单格值折算。
+    let maxV = 0;
+    Object.keys(BU_META).forEach(bu => CATEGORY_LIST.forEach(cat => {
+        if (grid[bu][cat] > maxV) maxV = grid[bu][cat];
+    }));
+    const t3 = Math.max(3, Math.ceil(maxV * 0.60));   // 深
+    const t2 = Math.max(2, Math.ceil(maxV * 0.28));   // 中
+    if (t2 >= t3) { /* 数据量极小时保证 t2 < t3 */ }
+
+    let html = '<thead><tr><th class="bu-label">BU \\ 类别</th>';
+    CATEGORY_LIST.forEach(c => html += `<th>${escapeHtml(c)}</th>`);
+    html += '</tr></thead><tbody>';
+    Object.entries(BU_META).forEach(([id, m]) => {
+        html += `<tr><td class="bu-label" style="color:${m.color}">${escapeHtml(m.name)}</td>`;
+        CATEGORY_LIST.forEach(cat => {
+            const v = grid[id][cat];
+            const lv = v >= t3 ? 'lv3' : v >= t2 ? 'lv2' : v >= 1 ? 'lv1' : 'lv0';
+            html += `<td class="heatmap-cell ${lv}" onclick="filterByBuCat('${id}','${cat}')" title="${escapeHtml(m.name)} · ${escapeHtml(cat)} (${v}条)">${v}</td>`;
+        });
+        html += '</tr>';
+    });
+    html += '</tbody>';
+    tbl.innerHTML = html;
+
+    // 图例随阈值同步刷新（否则深浅与数字对不上）
+    const lg = $('heatmapLegend');
+    if (lg) {
+        const mid = Math.max(t2, 1);
+        const hi = Math.max(t3, mid + 1);
+        lg.innerHTML =
+            `<div class="lg"><span class="sw" style="background:#f0f0f0"></span>0</div>` +
+            `<div class="lg"><span class="sw" style="background:#c8e6c9"></span>${maxV ? `1-${mid - 1}` : '—'}</div>` +
+            `<div class="lg"><span class="sw" style="background:#66bb6a"></span>${maxV ? `${mid}-${hi - 1}` : '—'}</div>` +
+            `<div class="lg"><span class="sw" style="background:#2e7d32"></span>${maxV ? `${hi}+` : '—'}</div>`;
+    }
+}
+
+// 热力图点击联动
+function filterByBuCat(bu, cat){
+    $('fBu').value = bu;
+    $('fCat').value = cat;
+    renderEvents();
+    document.querySelector('.event-list').scrollTop = 0;
+    window.scrollTo({top:document.querySelector('.event-list').offsetTop - 100, behavior:'smooth'});
+}
+
+// BU × 头部竞品 矩阵渲染
+function renderMatrix(){
+    const tbody = document.querySelector('#matrixTable tbody');
+    const now = parseDate(FEED.latest_report_date) || new Date();
+    const days = currentScope === 'week' ? 7 : currentScope === 'month' ? 30 : 36500;
+    const ago = new Date(now); ago.setDate(now.getDate() - days);
+
+    let html = '';
+    Object.entries(BU_META).forEach(([id, m]) => {
+        const evts = FEED.events.filter(e => e.bu === id);
+        const scopeEvts = evts.filter(e => {
+            const d = parseDate(e.report_date || e.date);
+            return d && d >= ago;
+        });
+        const highEvts = scopeEvts.filter(e => e.importance === 'high').length;
+        const lastUpdate = evts.length
+            ? evts.map(e => e.report_date || e.date).sort().reverse()[0]
+            : '--';
+        const comps = COMPETITOR_LIST[id] || [];
+
+        html += `<tr>
+            <td>
+                <div class="bu-name-cell">
+                    <span class="bu-dot" style="background:${m.color}"></span>
+                    <span style="font-weight:600;color:${m.color}">${escapeHtml(m.name)}</span>
+                </div>
+                <div style="font-size:11px;color:#888;margin-top:2px;padding-left:18px">${escapeHtml(m.short)}</div>
+            </td>
+            <td><div class="comp-list">${comps.map(c=>escapeHtml(c)).join(' · ')}</div></td>
+            <td><span class="event-count-badge ${scopeEvts.length===0?'zero':''}"><span class="num">${scopeEvts.length}</span> 条</span></td>
+            <td>${highEvts > 0 ? `<span class="high-pill">${highEvts} 条</span>` : '<span style="color:#aaa">—</span>'}</td>
+            <td><span class="last-update">${lastUpdate}</span></td>
+            <td><a href="#" onclick="event.preventDefault();$('fBu').value='${id}';renderEvents();window.scrollTo({top:0,behavior:'smooth'});" style="color:#064e3b;font-weight:600;text-decoration:none;font-size:12px">查看 →</a></td>
+        </tr>`;
+    });
+    tbody.innerHTML = html;
+
+    // 矩阵右侧 meta 已下线（保留空占位 span #matrixMeta，仅供后续如需回填使用）
+    const labelMap = { week: '最近 7 天', month: '最近 30 天', all: '全部时间' };
+    // 表头随口径变化（不能一直写「本周事件」）
+    const head = $('matrixPeriodHead');
+    if (head) head.textContent = labelMap[currentScope] + '事件';
+}
+
+// 顶部 meta 已下线（顶部右侧文案移除，函数保留为幂等空实现，避免外部调用报错）
+function renderTopbar(){
+    // 注：顶部统计卡（本周事件总数/高重要度/BU 覆盖/竞品覆盖/本周增量）已下线，
+    // 该位置改为「TOP 5 重点」卡片墙（见 renderTop5）；页面副标题与其他装饰性口径
+    // 文案已按需求移除，事件规模由事件流标题承载。
+
+    // 仍保留必要的派生量，供下面的「数据更新」日期显示使用
+    const total = FEED.events.length;
+    const latest = FEED.latest_report_date || '--';
+    const peers = new Set();
+    FEED.events.forEach(e => (e.peers || []).forEach(p => peers.add(p)));
+
+    // 页面头部「数据更新」从 feed 自动算
+    const pageDataUpdate = $('pageDataUpdate');
+    if (pageDataUpdate && latest !== '--') {
+        pageDataUpdate.textContent = `${latest} 周报`;
+    }
+}
+
+// 当前视图范围：week=7d / month=30d / all=全部
+let currentScope = 'week';
+
+// 类别权重：产能/投资/招标类（对竞争格局影响最大）优先，其后依次为企业动态、
+// 技术/产品、公告/披露、今日关注。权重只用于 TOP 排序，不改变源数据分类。
+const CATEGORY_WEIGHT = { '项目/招标': 5, '企业动态': 4, '技术/产品': 3, '公告/披露': 2, '今日关注': 1 };
+const SCOPE_LABEL = { week: '本周', month: '近 30 天', all: '全部' };
+
+// 当前 TOP5 命中的事件（供详情浮层取全文）
+let TOP5_PICKED = [];
+// 当前事件流筛选结果（供详情浮层按索引取事件）
+let EVENT_STREAM_DATA = [];
+
+// 「TOP 5 重点」：跟随当前口径（本周/近 30 天/全部）× 仅高重要度
+//   选条策略：① 类别权重优先（产能/投资 > 企业动态 > 技术 > 公告）→ ② 日期新者优先
+//   去重约束：同一 BU 最多 1 条、同一类别最多 2 条 → 保证 5 张卡覆盖不同事业部、
+//   不会整排都是「项目/招标」；池子不足 5 条时自动放宽约束补位。
+function renderTop5(){
+    const row = $('top5Row');
+    if (!row) return;
+
+    const winLabel = SCOPE_LABEL[currentScope] || '本周';
+    const titleEl = $('top5Title');
+    if (titleEl) titleEl.textContent = `${winLabel} TOP 5 重点`;
+
+    const pool = scopeFilteredEvents().filter(e => e.importance === 'high');
+    pool.sort((a, b) => {
+        const wa = CATEGORY_WEIGHT[a.category] || 0;
+        const wb = CATEGORY_WEIGHT[b.category] || 0;
+        if (wa !== wb) return wb - wa;
+        const ad = parseDate(a.date || a.report_date);
+        const bd = parseDate(b.date || b.report_date);
+        return (bd ? bd.getTime() : 0) - (ad ? ad.getTime() : 0);
+    });
+
+    const seenBu = new Set();
+    const catCnt = {};
+    const picked = [];
+    for (const e of pool) {
+        if (seenBu.has(e.bu)) continue;
+        if ((catCnt[e.category] || 0) >= 2) continue;
+        seenBu.add(e.bu);
+        catCnt[e.category] = (catCnt[e.category] || 0) + 1;
+        picked.push(e);
+        if (picked.length === 5) break;
+    }
+    // 兜底：BU/类别约束下不足 5 条时，放宽约束按排序补足
+    if (picked.length < 5) {
+        for (const e of pool) {
+            if (picked.indexOf(e) !== -1) continue;
+            picked.push(e);
+            if (picked.length === 5) break;
+        }
+    }
+
+    const metaEl = $('top5Meta');
+    if (metaEl) {
+        metaEl.textContent = `${winLabel}高优 ${pool.length} 条 · 覆盖 ${seenBu.size} 个 BU · 全池 ${FEED.events.length} 条`;
+    }
+
+    if (!picked.length) {
+        row.innerHTML = '<div class="top5-empty">当前口径下暂无高重要度事件</div>';
+        return;
+    }
+
+    row.innerHTML = picked.map((e, i) => {
+        const meta = BU_META[e.bu] || { name: e.bu };
+        const d = parseDate(e.date || e.report_date);
+        const ds = d ? `${d.getMonth() + 1}/${d.getDate()}` : '—';
+        // 源数据里 competitor 可能是占位符 'bu'（该条来自 BU 周报的行业段，非单一竞品）
+        const compRaw = String(e.competitor == null ? '' : e.competitor).trim();
+        const comp = /^(bu|—|-|无)$/i.test(compRaw) ? '' : compRaw;
+        const summary = String(e.summary || '').trim();
+        return `<div class="top5-card r${i + 1}" data-idx="${i}" role="button" tabindex="0"
+     title="点击查看完整摘要">
+    <div class="t5-head">
+        <span class="t5-rank">${i + 1}</span>
+        <span class="t5-cat">${escapeHtml(e.category)}</span>
+        <span class="t5-date">${ds}</span>
+    </div>
+    <div class="t5-title">${escapeHtml(e.title)}</div>
+    ${summary ? `<div class="t5-summary">${escapeHtml(summary)}</div>` : ''}
+    <div class="t5-foot">
+        <span class="t5-bu">${escapeHtml(meta.name)}</span>
+        ${comp ? `<span class="t5-comp">${escapeHtml(comp)}</span>` : ''}
+        <span class="t5-more">全文 ›</span>
+    </div>
+</div>`;
+    }).join('');
+
+    TOP5_PICKED = picked;
+}
+
+// 详情浮层：卡片摘要被 3 行截断，点卡片看完整标题+摘要+来源
+// arg 可以是 TOP5 序号，也可以是事件对象（事件流直接传入）
+function openTop5Detail(arg){
+    let e, idx;
+    if (arg && typeof arg === 'object') {
+        e = arg;
+        idx = null;
+    } else {
+        idx = arg;
+        e = TOP5_PICKED[idx];
+    }
+    if (!e) return;
+    const meta = BU_META[e.bu] || { name: e.bu };
+    const modal = $('t5Modal');
+    const body = $('t5ModalBody');
+    if (!modal || !body) return;
+
+    const dateStr = e.date || e.report_date || '—';
+    const compRaw = String(e.competitor == null ? '' : e.competitor).trim();
+    const comp = /^(bu|—|-|无)$/i.test(compRaw) ? '' : compRaw;
+    const src = String(e.source || '').trim();
+    const url = String(e.source_url || '').trim();
+    const summary = String(e.summary || '').trim();
+    const peers = (e.peers || []).filter(Boolean);
+
+    body.innerHTML = `
+<div class="t5m-tags">
+    <span class="t5m-rank">${idx != null ? idx + 1 : '·'}</span>
+    <span class="tag importance-high">高重要度</span>
+    <span class="t5-cat">${escapeHtml(e.category)}</span>
+    <span class="t5-bu">${escapeHtml(meta.name)}</span>
+    ${comp ? `<span class="tag bu">竞品：${escapeHtml(comp)}</span>` : ''}
+</div>
+<div class="t5m-title">${escapeHtml(e.title)}</div>
+<div class="t5m-summary">${summary ? escapeHtml(summary) : '（该条暂无摘要）'}</div>
+<div class="t5m-foot">
+    <span>📄 ${escapeHtml(src || '来源未标注')} · ${escapeHtml(String(dateStr))}${peers.length ? ' · 关联：' + escapeHtml(peers.join('、')) : ''}</span>
+    ${url ? `<a href="${escapeHtml(url)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">查看原文 →</a>` : ''}
+</div>`;
+
+    modal.hidden = false;
+    document.body.style.overflow = 'hidden';
+    const x = modal.querySelector('.t5-x');
+    if (x) x.focus();
+}
+
+function closeTop5Detail(){
+    const modal = $('t5Modal');
+    if (!modal || modal.hidden) return;
+    modal.hidden = true;
+    document.body.style.overflow = '';
+}
+
+// 浮层交互：点卡片打开、点遮罩/✕/Esc 关闭
+document.addEventListener('click', ev => {
+    const card = ev.target.closest && ev.target.closest('#top5Row .top5-card');
+    if (card) { openTop5Detail(parseInt(card.getAttribute('data-idx'), 10) || 0); return; }
+    const closer = ev.target.closest && ev.target.closest('[data-t5close]');
+    if (closer) closeTop5Detail();
+});
+document.addEventListener('keydown', ev => {
+    if (ev.key === 'Escape') closeTop5Detail();
+    // 键盘可达性：卡片聚焦后 Enter/Space 打开
+    if ((ev.key === 'Enter' || ev.key === ' ') && ev.target.classList &&
+        ev.target.classList.contains('top5-card')) {
+        ev.preventDefault();
+        openTop5Detail(parseInt(ev.target.getAttribute('data-idx'), 10) || 0);
+    }
+});
+
+// 日期解析（兼容 "2026-09-24"）
+function parseDate(s){
+    if(!s || typeof s !== 'string') return null;
+    var d = new Date(s.replace(/-/g, '/'));
+    return isNaN(d.getTime()) ? null : d;
+}
+
+// 事件绑定
+['fBu','fCat','fImp','fTime','fKw'].forEach(id => {
+    const el = $(id);
+    el.addEventListener('input', renderEvents);
+    el.addEventListener('change', () => {
+        // 时间下拉与热力图/矩阵的分段控件保持同一口径
+        if (id === 'fTime' && $('scopeSwitch')) {
+            currentScope = el.value;
+            document.querySelectorAll('#scopeSwitch button').forEach(b =>
+                b.classList.toggle('active', b.getAttribute('data-scope') === currentScope));
+            renderHeatmap();
+            renderMatrix();
+            renderTop5();
+        }
+        renderEvents();
+    });
+});
+$('fReset').addEventListener('click', () => {
+    ['fBu','fCat','fImp','fKw'].forEach(id => $(id).value = '');
+    $('fTime').value = 'week';
+    currentScope = 'week';
+    document.querySelectorAll('#scopeSwitch button').forEach(b =>
+        b.classList.toggle('active', b.getAttribute('data-scope') === 'week'));
+    renderEvents();
+    renderHeatmap();
+    renderMatrix();
+    renderTop5();
+});
+
+// 视图切换（热力图 + 矩阵 + TOP5 联动）
+document.querySelectorAll('#scopeSwitch button').forEach(btn => {
+    btn.addEventListener('click', () => {
+        currentScope = btn.getAttribute('data-scope');
+        document.querySelectorAll('#scopeSwitch button').forEach(b => b.classList.toggle('active', b === btn));
+        // 与事件流的时间下拉统一口径（两者取值同为 week/month/all），避免同页两个时间轴打架
+        const ft = $('fTime');
+        if (ft && ft.value !== currentScope) { ft.value = currentScope; renderEvents(); }
+        renderHeatmap();
+        renderMatrix();
+        renderTop5();
+    });
+});
+
+// 数据加载（fetch 聚合后的 strategy_intel_feed.json）
+let FEED = null;
+function start(){
+    if (!FEED) {
+        document.body.insertAdjacentHTML('beforeend',
+            '<div style="position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#fff;border-radius:12px;padding:32px 40px;box-shadow:0 8px 30px rgba(0,0,0,.15);font-family:Microsoft YaHei;text-align:center;z-index:2147483647"><div style="font-size:32px">⚠️</div><div style="margin-top:12px;font-size:16px;font-weight:700">strategy_intel_feed.json 未加载</div><div style="margin-top:8px;font-size:12px;color:#888">请确认发布包完整，或重跑 tools/build_strategy_intel_feed.py</div></div>');
+        return;
+    }
+    renderTopbar();
+    renderEvents();
+    renderHeatmap();
+    renderMatrix();
+    renderTop5();
+}
+fetch('strategy_intel_feed.json', { cache: 'no-store' })
+    .then(function(r){
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        return r.json();
+    })
+    .then(function(d){
+        // 用 FEED.bu_meta / competitor_list / category_list 同步页内常量，
+        // 这样以后改名字/颜色只需改 Python 脚本的 BU_META，HTML 不动
+        if (d.bu_meta) {
+            Object.keys(d.bu_meta).forEach(k => BU_META[k] = d.bu_meta[k]);
+        }
+        if (d.competitor_list) {
+            Object.keys(d.competitor_list).forEach(k => COMPETITOR_LIST[k] = d.competitor_list[k]);
+        }
+        if (d.category_list && d.category_list.length) {
+            // 替换 CATEGORY_LIST 内容（保持变量名）
+            CATEGORY_LIST.length = 0;
+            d.category_list.forEach(c => CATEGORY_LIST.push(c));
+        }
+        FEED = d;
+        start();
+    })
+    .catch(function(err){
+        console.error('[strategy_intel] feed fetch failed', err);
+        document.body.insertAdjacentHTML('beforeend',
+            '<div style="position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#fff;border-radius:12px;padding:32px 40px;box-shadow:0 8px 30px rgba(0,0,0,.15);font-family:Microsoft YaHei;text-align:center;z-index:2147483647;max-width:480px"><div style="font-size:32px">❌</div><div style="margin-top:12px;font-size:16px;font-weight:700">数据加载失败</div><div style="margin-top:8px;font-size:12px;color:#888">strategy_intel_feed.json 读取失败：' + escapeHtml(String(err.message || err)) + '<br><br>建议：<br>1) 确认 dist-miaoda-test/strategy_intel_feed.json 存在<br>2) 用 python -m http.server 启动，file:// 协议会被浏览器拦截 fetch<br>3) 重跑 <code>python tools/build_strategy_intel_feed.py</code></div></div>');
+    });
+</script>
+</body>
+</html>
