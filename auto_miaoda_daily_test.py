@@ -63,10 +63,10 @@ FILES = [
     "automotive_charts.html", "carbonate_charts.html",
     "electrolyte_charts.html", "lfp_charts.html",
     "lib_battery_charts.html", "recycling_charts.html", "ternary_charts.html",
-    # 雷达详情页
+    # 雷达详情页（lubricant 全站无入口引用，从 FILES 列表移除以避免排除规则被绕过）
     "radar_detail.html", "radar_detail_czly.html", "radar_detail_dkhx.html",
     "radar_detail_felt.html", "radar_detail_kelan.html", "radar_detail_lhy.html",
-    "radar_detail_lpsd.html", "radar_detail_lubricant.html", "radar_detail_sdmd.html", "radar_detail_sjld.html",
+    "radar_detail_lpsd.html", "radar_detail_sdmd.html", "radar_detail_sjld.html",
     # 数据文件
     "electrolyte_data.js", "recycling_data_v2.js", "recycling_upstream_data.js", "recycling_data_v3.js", "chemical_data.js", "recycling_gantt.js", "latest_data.js",
     "hot_news_data.json", "bu_logos.json", "lib_battery_all_data.json",
