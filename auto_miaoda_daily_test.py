@@ -103,6 +103,7 @@ _EXCLUDE_HTML = [
     r"^debug_bing_",           # Bing 搜索调试页（文件名含中文，URL-encode 后被 qa_server.js 404 卡发布，2026-09-03 新增排除；其他 debug_* 如 debug_permission.html 留在 gated_baseline 不动）
     r"^industry_news\.html$",   # 旧版，包内已有 industry_news_embedded.html
     r"^archive\.html$",         # 旧版，包内已有 archive_v3.html
+    r"^radar_detail_lubricant\.html$",  # 2026-09-29 D清理：润滑油事业部详情页全站无入口引用（hub/着陆页/门户均不指向），从 dist 出包（134KB 冗余，门禁仍生效故 ROOT 保留可恢复）
 ]
 _EXCLUDE_RE = [re.compile(p, re.I) for p in _EXCLUDE_HTML]
 def is_excluded_html(fname):
@@ -634,6 +635,24 @@ def main():
             log(f"✅ {fname} ({bu_name}竞品监测台)")
         else:
             log(f"⚠️  缺失源文件：{src}  ← {bu_name}竞品页将出现空数据")
+
+    # 4.37 复制集团竞品情报监控页（strategy_intel.html / strategy_hub.html）专用数据
+    # ⚠️ 2026-09-28 事故：strategy_intel.html 用 fetch('./strategy_intel_feed.json') 加载数据，
+    #    但 4.36 节只覆盖 competitor_feed_* 系列，漏了 strategy_intel_feed.json / strategy_insights.json，
+    #    线上页面"数据加载失败" 404 一路绿灯上线（check_completeness 只校验 .html，校验脚本也漏）。
+    # 防御：与 4.36 同样的「单引号 fetch 扫不到，必须显式声明」逻辑。
+    # ROOT 端数据由 tools/build_strategy_intel_feed.py（聚合 9 BU competitor_feed_*）维护。
+    intel_files = ["strategy_intel_feed.json", "strategy_insights.json"]
+    for fname in intel_files:
+        src = BASE + "/" + fname
+        if os.path.exists(src):
+            shutil.copy2(src, DST + "/" + fname)
+            log(f"✅ {fname} (集团竞品情报监控页)")
+        else:
+            # 比 competitor 更严：缺失即阻断发布。strategy_intel_feed 是页面唯一的
+            # 数据源，缺失等于线上 100% 失败；让 build_strategy_intel_feed.py 先生成。
+            log(f"⛔ 缺失源文件：{src}  ← 集团竞品情报监控页将 100% 404，终止构建")
+            sys.exit(2)
 
     # 4.4 复制 generated-images/ 目录（热点新闻配图）
     # 2026-09-21 改造：原"按 today 前缀"逻辑会把 hot_news_data.json 引用但 ROOT 不存在的图漏包（线上 404/灰底）。

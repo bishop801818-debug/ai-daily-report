@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>雷达看板 - 跳转中...</title>
+<script>
+(function(){
+  var RADAR_UID_WHITELIST = ['ou_78e0dba3ff382df7c11dcd07ea2255f0','ou_12015bf9c1d120116e6a01c022051130','ou_c0d1e422fada6770cb7da5069e96abbc','ou_178a5a969ca5c2d96c105d6ecbe4add0','ou_3897e64d72af1edd4637e51d1baa4d2c','ou_64217fc9e76e95ca13a26c0c4a5b665d','1854251564037223'];  // ⚠️ 2026-09-29 同步 bu_gate.js:BU_DEPT.hq（4 个总部 OD）。此前只含 1 个 OD 导致 HQ 75% 员工被误拒。
+  //   改动后必须同步雷达其他 12 个页面 + dist-miaoda-test/ 同名文件。
+  var RADAR_DEPT_WHITELIST = [
+    'od-1768efca88fb4611b75efca7140fe16b',
+    'od-42e4ca3deb8b8ee5dfb4688df273ab91',
+    'od-f509da72f04db456af9bc9351ed649ce',
+    'od-839a5caffe1fa682e014982a1d28fcb8',
+  ];
+  var RADAR_USERID_WHITELIST = ['7595021657568185305','7598822772604701656','7589910160420637874','7589938135119744185','7591392573697101019','7592890122870410205'];
+  function isLocalPreview(){return location.protocol==='file:'||location.hostname==='localhost'||location.hostname==='127.0.0.1'||location.hostname==='';}
+  window.RADAR_UID_DECIDED=false; window.RADAR_UID_ALLOWED=false;
+  function clearDeny(){var el=document.getElementById('radar_deny_overlay'); if(el&&el.parentNode)el.parentNode.removeChild(el);}
+  function deny(){var ex=document.getElementById('radar_deny_overlay'); if(ex)return; function render(){var el=document.getElementById('radar_deny_overlay'); if(el)return; var d=document.createElement('div'); d.id='radar_deny_overlay'; d.style.cssText='position:fixed;inset:0;z-index:2147483647;display:flex;align-items:center;justify-content:center;background:rgba(245,246,250,.98)'; d.innerHTML='<div style="text-align:center;padding:48px;background:#fff;border-radius:16px;box-shadow:0 8px 30px rgba(0,0,0,.08)"><div style="font-size:64px;margin-bottom:12px">\uD83D\uDD12</div><div style="font-size:22px;font-weight:700;color:#c0392b">您的账号暂无权限浏览</div><div style="margin-top:8px;color:#888;font-size:14px">请联系管理员申请雷达看板访问权限。</div></div>'; (document.body||document.documentElement).appendChild(d);} if(document.body)render(); else document.addEventListener('DOMContentLoaded',render);}
+  function decide(uid, deptIds){
+    // 已放行则保持（幂等）
+    if(window.RADAR_UID_DECIDED && window.RADAR_UID_ALLOWED) return;
+    // ⚠️ 2026-09-29 补部门通道：本页此前只接受 uid、不解析 #dept=，妙搭网关吞 query 只留 hash
+    //   → HQ 4 OD 部门身份在 #dept=<od> 形态下被误拒。补齐与 radar_detail_*.html 一致的 hash 解析。
+    if(!deptIds || !deptIds.length){
+      try{
+        var h=location.hash.match(/#(?:&)?dept=([^&]+)/);
+        if(h && h[1]){ var v=decodeURIComponent(h[1]); deptIds = (v.indexOf(',')>=0) ? v.split(',') : [v]; }
+      }catch(_){}
+    }
+    var deptOk = Array.isArray(deptIds) && deptIds.some(function(d){return RADAR_DEPT_WHITELIST.indexOf(d)>=0;});
+    var allowed = (RADAR_UID_WHITELIST.indexOf(String(uid))>=0)||(RADAR_USERID_WHITELIST.indexOf(String(uid))>=0)||deptOk||isLocalPreview();
+    // 之前若被拒（如首帧部门尚未补齐），本次部门命中则覆盖放行
+    if(window.RADAR_UID_DECIDED && !window.RADAR_UID_ALLOWED && allowed){
+      window.RADAR_UID_ALLOWED = true;
+      document.documentElement.style.visibility='';
+      clearDeny();
+      return;
+    }
+    if(window.RADAR_UID_DECIDED) return;
+    window.RADAR_UID_DECIDED = true;
+    window.RADAR_UID_ALLOWED = allowed;
+    document.documentElement.style.visibility='';
+    if(!window.RADAR_UID_ALLOWED) deny();
+  }
+  document.documentElement.style.visibility='hidden';
+  function getOpenId(){    try{var ssoRaw=localStorage.getItem('sso-user-info');if(ssoRaw){var sp=JSON.parse(ssoRaw);if(sp&&sp.open_id)return sp.open_id;}}catch(e){}    try{var uiRaw=localStorage.getItem('userInfo');if(uiRaw){var up=JSON.parse(uiRaw);if(up&&up.open_id)return up.open_id;}}catch(e){}    if(window.userInfo&&window.userInfo.open_id)return window.userInfo.open_id;    if(window.__context&&window.__context.user&&window.__context.user.open_id)return window.__context.user.open_id;    var um=location.hash.match(/[#&]uid=([^&]+)/)||location.search.match(/[?&]uid=([^&]+)/);    if(um)return decodeURIComponent(um[1]);    return '';  }  var s=getOpenId()||(window.userInfo&&window.userInfo.user_id)||window.userId||(window.__context&&window.__context.user&&window.__context.user.open_id)||'';
+  if(s)decide(s);
+  window.addEventListener('message',function(e){if(e.data&&e.data.type==='RADAR_AUTH'){window.__radar_auth_received=true;window.__radar_auth_empty=false;var _u=e.data.openId;var _usr=e.data.user;if(!_u&&_usr){_u=_usr.open_id||_usr.user_id||_usr.employee_id||_usr.union_id||'';}if(_u){if(window.__radar_auth_lock_timer){clearTimeout(window.__radar_auth_lock_timer);window.__radar_auth_lock_timer=null;}decide(_u,e.data.deptIds);}else{window.__radar_auth_empty=true;}}});
+  try{if(window.parent&&window.parent!==window)window.parent.postMessage({type:'RADAR_REQUEST_AUTH'},'*');}catch(_){}
+  window.__radar_auth_lock_timer=setTimeout(function(){if(!window.__radar_auth_received){decide('');}else if(window.__radar_auth_empty){window.__radar_auth_lock_timer=setTimeout(function(){decide('');},4000);}},1500);
+})();
+</script>
+    <style>
+        body { font-family: "Microsoft YaHei", sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; background: #f0f2f5; flex-direction: column; gap: 16px; }
+        .msg { font-size: 16px; color: #64748B; }
+        .links { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
+        .links a { padding: 8px 16px; background: #3A6A9E; color: white; text-decoration: none; border-radius: 6px; font-size: 14px; }
+        .links a:hover { background: #2a5490; }
+    </style>
+</head>
+<body>
+    <div class="msg" id="msg">正在跳转...</div>
+    <div class="links">
+        <a href="radar_detail_sdmd.html">山东美多</a>
+        <a href="radar_detail_felt.html">法恩莱特</a>
+        <a href="radar_detail_lhy.html">润滑油事业部</a>
+        <a href="radar_detail_lpsd.html">龙蟠时代</a>
+        <a href="radar_detail_sjld.html">三金锂电</a>
+        <a href="radar_detail_kls.html">可兰素</a>
+        <a href="radar_detail_czly.html">常州锂源</a>
+    </div>
+    <script>
+        (function() {
+            var params = new URLSearchParams(window.location.search);
+            // 妙搭 Serving 丢弃 ?query，但保留 #hash，故同时兼容两种写法
+            var id = params.get('id') || window.location.hash.replace('#', '') || '';
+            var dest = {
+                'sdmd': 'radar_detail_sdmd.html',
+                'felt':  'radar_detail_felt.html',
+                'lhy':   'radar_detail_lhy.html',
+                'lpsd':  'radar_detail_lpsd.html',
+                'sjld':  'radar_detail_sjld.html',
+                'kls':   'radar_detail_kelan.html',   // 可兰素专用页文件名为 kelan
+                'czly':  'radar_detail_czly.html',
+                'dkhx':  'radar_detail_dkhx.html',
+            };
+            if (dest[id]) {
+                var target = dest[id];
+                document.getElementById('msg').textContent = '正在跳转到: ' + id.toUpperCase() + '...';
+                setTimeout(function() {
+                    window.location.replace(target);
+                }, 100);
+            } else {
+                document.getElementById('msg').textContent = '未知BU: "' + id + '"，请选择：';
+            }
+        })();
+    </script>
+    <script src="assets/ai_fab_inject.js"></script>
+</body>
+</html>

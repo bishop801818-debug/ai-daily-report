@@ -6,8 +6,14 @@
     <title>山东美多 - 雷达看板</title>
 <script>
 (function(){
-  var RADAR_UID_WHITELIST = ['ou_78e0dba3ff382df7c11dcd07ea2255f0','ou_12015bf9c1d120116e6a01c022051130','ou_c0d1e422fada6770cb7da5069e96abbc','ou_178a5a969ca5c2d96c105d6ecbe4add0','ou_3897e64d72af1edd4637e51d1baa4d2c','ou_64217fc9e76e95ca13a26c0c4a5b665d','1854251564037223'].concat(['7595021657568185305','7598822772604701656','7589910160420637874','7589938135119744185','7591392573697101019','7592890122870410205']);
-  var RADAR_DEPT_WHITELIST = ['od-839a5caffe1fa682e014982a1d28fcb8'];
+  var RADAR_UID_WHITELIST = ['ou_78e0dba3ff382df7c11dcd07ea2255f0','ou_12015bf9c1d120116e6a01c022051130','ou_c0d1e422fada6770cb7da5069e96abbc','ou_178a5a969ca5c2d96c105d6ecbe4add0','ou_3897e64d72af1edd4637e51d1baa4d2c','ou_64217fc9e76e95ca13a26c0c4a5b665d','1854251564037223'].concat(['7595021657568185305','7598822772604701656','7589910160420637874','7589938135119744185','7591392573697101019','7592890122870410205']);  // ⚠️ 2026-09-29 同步 bu_gate.js:BU_DEPT.hq（4 个总部 OD）。此前只含 1 个 OD 导致 HQ 75% 员工被误拒。
+  //   改动后必须同步雷达其他 12 个页面 + dist-miaoda-test/ 同名文件。
+  var RADAR_DEPT_WHITELIST = [
+    'od-1768efca88fb4611b75efca7140fe16b',
+    'od-42e4ca3deb8b8ee5dfb4688df273ab91',
+    'od-f509da72f04db456af9bc9351ed649ce',
+    'od-839a5caffe1fa682e014982a1d28fcb8',
+  ];
   function isLocalPreview(){return location.protocol==='file:'||location.hostname==='localhost'||location.hostname==='127.0.0.1'||location.hostname==='';}
   window.RADAR_UID_DECIDED=false; window.RADAR_UID_ALLOWED=false;
   var AUTH_UID=''; var AUTH_DEPTS=[];
@@ -2972,7 +2978,8 @@ function refreshInsights() {
     kls:['od-c90e5fd524dfde6467bd59b867cfed8c'],
     bych:['od-33054981612c6dc0fbbdfbb743774d1b'],
   };
-  
+  // 2026-09-29 D清理：尾部 BU_DEPT 死代码（同 lpsd 处理）。
+  void BU_DEPT;
 })();
 </script>
     <script src="assets/ai_fab_inject.js"></script>
