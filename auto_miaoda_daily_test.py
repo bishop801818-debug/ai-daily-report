@@ -63,7 +63,7 @@ FILES = [
     "automotive_charts.html", "carbonate_charts.html",
     "electrolyte_charts.html", "lfp_charts.html",
     "lib_battery_charts.html", "recycling_charts.html", "ternary_charts.html",
-    # 雷达详情页（lubricant 全站无入口引用，从 FILES 列表移除以避免排除规则被绕过）
+    # 雷达详情页（按 BU 分发）
     "radar_detail.html", "radar_detail_czly.html", "radar_detail_dkhx.html",
     "radar_detail_felt.html", "radar_detail_kelan.html", "radar_detail_lhy.html",
     "radar_detail_lpsd.html", "radar_detail_sdmd.html", "radar_detail_sjld.html",
@@ -103,7 +103,6 @@ _EXCLUDE_HTML = [
     r"^debug_bing_",           # Bing 搜索调试页（文件名含中文，URL-encode 后被 qa_server.js 404 卡发布，2026-09-03 新增排除；其他 debug_* 如 debug_permission.html 留在 gated_baseline 不动）
     r"^industry_news\.html$",   # 旧版，包内已有 industry_news_embedded.html
     r"^archive\.html$",         # 旧版，包内已有 archive_v3.html
-    r"^radar_detail_lubricant\.html$",  # 2026-09-29 D清理：润滑油事业部详情页全站无入口引用（hub/着陆页/门户均不指向），从 dist 出包（134KB 冗余，门禁仍生效故 ROOT 保留可恢复）
 ]
 _EXCLUDE_RE = [re.compile(p, re.I) for p in _EXCLUDE_HTML]
 def is_excluded_html(fname):
