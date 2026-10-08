@@ -2,9 +2,9 @@
   "meta": {
     "description": "化工板块2026年累计涨跌幅",
     "data_source": "各产品源数据文件",
-    "update_time": "2026-09-30 12:03:58",
+    "update_time": "2026-10-08 12:05:16",
     "year": 2026,
-    "generated_at": "2026-09-30T12:03:58.310699",
+    "generated_at": "2026-10-08T12:05:16.146940",
     "generator_version": "20260616_v2"
   },
   "products": [
@@ -12,13 +12,13 @@
       "name": "尿素期货",
       "unit": "元/吨",
       "start_date": "2026-01-05",
-      "end_date": "2026-09-29",
+      "end_date": "2026-09-30",
       "start_price": 1768.0,
-      "end_price": 1748.0,
-      "change": -20.0,
-      "change_pct": -1.13,
-      "direction": "down",
-      "data_points": 180,
+      "end_price": 1768.0,
+      "change": 0.0,
+      "change_pct": 0.0,
+      "direction": "stable",
+      "data_points": 181,
       "price_series": [
         {
           "date": "2026-01-05",
@@ -739,6 +739,10 @@
         {
           "date": "2026-09-29",
           "price": 1748.0
+        },
+        {
+          "date": "2026-09-30",
+          "price": 1768.0
         }
       ]
     },
@@ -746,13 +750,13 @@
       "name": "WTI原油",
       "unit": "美元/桶",
       "start_date": "2026-01-02",
-      "end_date": "2026-09-30",
+      "end_date": "2026-10-08",
       "start_price": 57.32,
-      "end_price": 89.77,
-      "change": 32.45,
-      "change_pct": 56.61,
+      "end_price": 89.86,
+      "change": 32.54,
+      "change_pct": 56.77,
       "direction": "up",
-      "data_points": 193,
+      "data_points": 199,
       "price_series": [
         {
           "date": "2026-01-02",
@@ -1524,7 +1528,31 @@
         },
         {
           "date": "2026-09-30",
-          "price": 89.77
+          "price": 90.34
+        },
+        {
+          "date": "2026-10-01",
+          "price": 92.9
+        },
+        {
+          "date": "2026-10-02",
+          "price": 91.25
+        },
+        {
+          "date": "2026-10-05",
+          "price": 89.28
+        },
+        {
+          "date": "2026-10-06",
+          "price": 89.89
+        },
+        {
+          "date": "2026-10-07",
+          "price": 88.92
+        },
+        {
+          "date": "2026-10-08",
+          "price": 89.86
         }
       ]
     },
@@ -1532,13 +1560,13 @@
       "name": "乙二醇",
       "unit": "元/吨",
       "start_date": "2026-01-05",
-      "end_date": "2026-09-29",
+      "end_date": "2026-09-30",
       "start_price": 3732.0,
-      "end_price": 5241.0,
-      "change": 1509.0,
-      "change_pct": 40.43,
+      "end_price": 5284.0,
+      "change": 1552.0,
+      "change_pct": 41.59,
       "direction": "up",
-      "data_points": 180,
+      "data_points": 181,
       "price_series": [
         {
           "date": "2026-01-05",
@@ -2259,6 +2287,10 @@
         {
           "date": "2026-09-29",
           "price": 5241.0
+        },
+        {
+          "date": "2026-09-30",
+          "price": 5284.0
         }
       ]
     }
