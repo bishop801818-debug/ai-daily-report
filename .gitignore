@@ -26,6 +26,8 @@
 !_update_recycling_charts.py
 !_update_wti_ur_data.py
 !validate_before_deploy.py
+!validate_publish.py
+!publish_to_miaoda.py
 !no_cache_server.py
 !server_service.py
 !optimize_html.py
@@ -270,6 +272,12 @@ _aily_config.json
 !check_source_sync.py
 # Aily 知识库同步脚本（2026-07-07 新增）：JSON->Markdown 转换 + 飞书云盘同步，自动化核心依赖
 !_aily_export.py
+# lark-cli Token 管理工具（2026-10-08 新增）：假期前后避免 refresh_token 过期推送陈旧数据
+!download_feishu_docx_as_json.py
+!tools/lark_preflight.py
+!tools/lark_reauth.py
+!tools/lark_pre_holiday_reauth.py
+!tools/LARK_TOKEN_GUIDE.md
 !_aily_sync.py
 
 # ------------------------------------------
