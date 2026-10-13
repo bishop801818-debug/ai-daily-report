@@ -878,6 +878,12 @@
                 });
                 
                 html += `</div>`;
+            } else {
+                // 2026-10-13 A·止血：诚实留空——不再用硬编码假指标填充，明确提示待补充
+                html += `<div style="margin-bottom:12px;">
+                    <div style="font-size:13px;font-weight:700;color:var(--text-mid);margin-bottom:6px;">📊 核心指标</div>
+                    <div style="font-size:12px;color:var(--text-dim);font-style:italic;">该政策暂未提炼量化指标（原文未含明确数字/比例/期限，待补充政策全文后完善）</div>
+                </div>`;
             }
             
             // 3. 应对建议
