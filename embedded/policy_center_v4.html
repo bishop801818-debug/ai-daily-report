@@ -878,6 +878,12 @@
                 });
                 
                 html += `</div>`;
+            } else {
+                // 2026-10-13 A·止血：诚实留空——不再用硬编码假指标填充，明确提示待补充
+                html += `<div style="margin-bottom:12px;">
+                    <div style="font-size:13px;font-weight:700;color:var(--text-mid);margin-bottom:6px;">📊 核心指标</div>
+                    <div style="font-size:12px;color:var(--text-dim);font-style:italic;">该政策暂未提炼量化指标（原文未含明确数字/比例/期限，待补充政策全文后完善）</div>
+                </div>`;
             }
             
             // 3. 应对建议
@@ -909,6 +915,61 @@
                     });
                 }
                 
+                html += `</div>`;
+            }
+
+            // 4. AI 条款级分析（方案 B，2026-10-13 新增：llm_analysis 字段）
+            //    优先展示，这是从"模板套话"升级为"紧扣原文的条款级差异化分析"的核心区块
+            if (policy.llm_analysis) {
+                const la = policy.llm_analysis;
+                html += `<div style="margin:14px 0;padding:12px;background:var(--surface1);border-radius:8px;border:1px solid var(--line);">
+                    <div style="font-size:13px;font-weight:700;color:var(--primary);margin-bottom:8px;">🧠 AI 政策解读（基于官方原文）</div>`;
+
+                // 政策定位
+                if (la.policy_focus) {
+                    html += `<div style="font-size:12px;color:var(--text);line-height:1.6;margin-bottom:8px;"><b style="color:var(--text-mid);">定位：</b>${la.policy_focus}</div>`;
+                }
+
+                // 条款清单
+                if (la.clause_list && la.clause_list.length > 0) {
+                    html += `<div style="font-size:12px;color:var(--text-mid);font-weight:600;margin:8px 0 4px;">📜 条款清单</div>`;
+                    la.clause_list.forEach(c => {
+                        const natureTag = {'禁止':'#F44336','要求':'#FF9800','鼓励':'#4CAF50','引导':'#2196F3','标准':'#9C27B0'}[c.nature] || '#757575';
+                        html += `<div style="padding:5px 8px;border-left:3px solid ${natureTag};background:var(--surface2);border-radius:3px;margin:3px 0;font-size:12px;">
+                            <span style="padding:0 5px;color:${natureTag};font-weight:600;font-size:11px;">${c.nature||''}</span>
+                            <b>${c.object||''}</b>：${c.req||''}
+                        </div>`;
+                    });
+                }
+
+                // 量化门槛
+                if (la.quant_thresholds && la.quant_thresholds.length > 0) {
+                    html += `<div style="font-size:12px;color:var(--text-mid);font-weight:600;margin:8px 0 4px;">🎯 量化门槛</div>`;
+                    html += `<div style="padding:4px 8px;background:var(--surface2);border-radius:3px;font-size:12px;color:var(--text);">${la.quant_thresholds.join('；')}</div>`;
+                }
+
+                // 对事业部差异化影响
+                if (la.bu_impact && la.bu_impact.length > 0) {
+                    html += `<div style="font-size:12px;color:var(--text-mid);font-weight:600;margin:8px 0 4px;">🏢 对事业部影响</div>`;
+                    la.bu_impact.forEach(b => {
+                        const bIcon = {'positive':'▲','negative':'▼','neutral':'◆'}[b.direction] || '◆';
+                        const bColor = {'positive':'#E53935','negative':'#43A047','neutral':'#757575'}[b.direction] || '#757575';
+                        html += `<div style="padding:5px 8px;margin:3px 0;font-size:12px;">
+                            <span style="color:${bColor};font-weight:600;">${bIcon} ${b.bu||''}</span>
+                            <span style="color:var(--text-dim);font-size:11px;">（${b.direction||''}）</span>
+                            <div style="color:var(--text);margin-top:2px;">${b.reason||''}</div>
+                        </div>`;
+                    });
+                }
+
+                // 生命周期 + 产业链传导
+                if (la.lifecycle || la.chain_effect) {
+                    html += `<div style="font-size:12px;color:var(--text-mid);margin-top:8px;">`;
+                    if (la.lifecycle) html += `<span style="margin-right:12px;">🔄 生命周期：<b>${la.lifecycle}</b></span>`;
+                    if (la.chain_effect) html += `<div style="margin-top:3px;">🔗 产业链传导：${la.chain_effect}</div>`;
+                    html += `</div>`;
+                }
+
                 html += `</div>`;
             }
             
