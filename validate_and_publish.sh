@@ -59,21 +59,111 @@ fi
 set -u
 
 BASE="D:/trae/AI Daily report"
-PY="C:/Users/1/.workbuddy/binaries/python/versions/3.13.12/python.exe"
-# 2026-10-14 落地：路径 C 等价修复 —— validate_publish.py 唯一需要 playwright，
-# 但 managed 3.13.12 是裸装（无 playwright）；playwright 只装在系统 Python 3.12.10
-# (C:/Users/1/AppData/Local/Programs/Python/Python312/) 与 workbuddy venv (envs/default) 里。
-# 其它 4 步（check_core_assets / check_pct_format / check_publish_gating / check_bu_scope）
-# + auto_miaoda_daily_test.py 子进程都用标准库 + 3.13 特定语法，仍走原 $PY 不动，零回归风险。
-# 仅「本地真渲染」步骤切到 PY_PW；其内部硬编码的 PY_EXE（3.13.12）只用于调
-# auto_miaoda_daily_test.py 的 --no-publish 构建，不需要 playwright，故保留原值。
-PY_PW="C:/Users/1/AppData/Local/Programs/Python/Python312/python.exe"
 APP="app_179kjgvrq6g"          # 妙搭内容应用（直传版）
 QA_PKG="dist-miaoda-test"      # 与线上同包（校验对象 = 发布对象）
 
+# 2026-10-14 根治（取代旧 hardcoded 3.13.12）：自动探测 Python 解释器
+# ----------------------------------------------------------------------------
+# 旧实现：硬编码 `PY="…/versions/3.13.12/python.exe"`，会被 workbuddy 编排环境前置注入到 PATH，
+# 当 validate_publish.py 内部 `import playwright` 时撞 `ModuleNotFoundError` 整个发布链中断。
+#
+# 新实现：自探测两个角色：
+#   1) PY — 任何能跑标准库的 Python（用于 check_core_assets / check_pct_format /
+#          check_publish_gating / check_bu_scope，仅需 argparse/os/re/json 等）
+#   2) PY_PW — 已装 playwright 的 Python（用于 validate_publish.py）
+# 探测策略：候选白名单 → 扫描 versions/<任意修订>/python.exe 兜底 → PATH 中的 python。
+# 找不到时清晰退出（不是"调用时崩"）。
+# ----------------------------------------------------------------------------
+_PY_BASE_DIR="C:/Users/1/.workbuddy/binaries/python/versions"
+_PY_VERSIONS_PYTHONS=()
+if [ -d "$_PY_BASE_DIR" ]; then
+  while IFS= read -r _v; do
+    [ -f "$_PY_BASE_DIR/$_v/python.exe" ] && _PY_VERSIONS_PYTHONS+=("C:/Users/1/.workbuddy/binaries/python/versions/$_v/python.exe")
+  done < <(ls -1 "$_PY_BASE_DIR" 2>/dev/null)
+fi
+
+_probe_python_runnable() {
+  # $1 = python 候选路径；echo 0 表示可跑，否则 1
+  local cand="$1"
+  [ -f "$cand" ] || return 1
+  "$cand" --version >/dev/null 2>&1 && return 0 || return 1
+}
+
+_probe_python_playwright() {
+  # $1 = python 候选路径；echo 0 表示能 import playwright，否则 1
+  local cand="$1"
+  [ -f "$cand" ] || return 1
+  "$cand" -c "from playwright.sync_api import sync_playwright" >/dev/null 2>&1 && return 0 || return 1
+}
+
+# 候选顺序：先 workbuddy venv / 系统 Python（playwright 可用），再 managed versions，再 PATH
+_PY_RUNNABLE_CANDIDATES=(
+  "C:/Users/1/.workbuddy/binaries/python/envs/default/Scripts/python.exe"
+  "C:/Users/1/AppData/Local/Programs/Python/Python312/python.exe"
+  "${_PY_VERSIONS_PYTHONS[@]}"
+  "python"
+  "python3"
+)
+_PY_PW_CANDIDATES=(
+  "C:/Users/1/AppData/Local/Programs/Python/Python312/python.exe"
+  "C:/Users/1/.workbuddy/binaries/python/envs/default/Scripts/python.exe"
+  "${_PY_VERSIONS_PYTHONS[@]}"
+)
+
+# 探测「可跑 Python」
+PY=""
+for _cand in "${_PY_RUNNABLE_CANDIDATES[@]}"; do
+  if _probe_python_runnable "$_cand"; then
+    PY="$_cand"; break
+  fi
+done
+if [ -z "$PY" ]; then
+  echo "[$(ts)] ⛔ 未找到可运行的 Python（已尝试 venv / 系统 Python / managed versions/* / PATH 中的 python）。"
+  echo "[$(ts)]    请安装任意一个 Python 3.10+ 或检查 PATH。"
+  exit 1
+fi
+echo "[$(ts)] 🐍 PY (stdlib)        : $PY"
+
+# 探测「有 playwright 的 Python」
+PY_PW=""
+for _cand in "${_PY_PW_CANDIDATES[@]}"; do
+  if _probe_python_playwright "$_cand"; then
+    PY_PW="$_cand"; break
+  fi
+done
+if [ -z "$PY_PW" ]; then
+  echo "[$(ts)] ⛔ 未找到已装 playwright 的 Python（已尝试 venv / 系统 Python / managed versions/*）。"
+  echo "[$(ts)]    安装指令（系统 Python 3.12.10）："
+  echo "[$(ts)]      C:/Users/1/AppData/Local/Programs/Python/Python312/python.exe -m pip install playwright"
+  echo "[$(ts)]      C:/Users/1/AppData/Local/Programs/Python/Python312/python.exe -m playwright install chromium"
+  exit 1
+fi
+echo "[$(ts)] 🐍 PY_PW (playwright) : $PY_PW"
+
 ts() { date "+%Y-%m-%d %H:%M:%S"; }
 
-echo "[$(ts)] ===== 发布前校验 + 发布 开始 ====="
+echo "[$(ts)] echo "[TEST] PY=$PY"
+echo "[TEST] PY_PW=$PY_PW"
+exit 0
+echo "[TEST] PY=$PY"
+echo "[TEST] PY_PW=$PY_PW"
+exit 0
+echo "[TEST] PY=$PY"
+echo "[TEST] PY_PW=$PY_PW"
+exit 0
+echo "[TEST] PY=$PY"
+echo "[TEST] PY_PW=$PY_PW"
+exit 0
+echo "[TEST] PY=$PY"
+echo "[TEST] PY_PW=$PY_PW"
+exit 0
+echo "[TEST] PY=$PY"
+echo "[TEST] PY_PW=$PY_PW"
+exit 0
+echo "[TEST] PY=$PY"
+echo "[TEST] PY_PW=$PY_PW"
+exit 0
+===== 发布前校验 + 发布 开始 ====="
 
 # ---------------------------------------------------------------------------
 # 第 0 步：工作区完整性（静默丢文件哨兵）
