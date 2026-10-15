@@ -908,7 +908,7 @@ window.__EMBEDDED__ = {
             "items": [
               {
                 "title": "电解液价格仍存上行空间，成本滞后传导叠加旺季需求",
-                "content": "",
+                "content": "\n[时效提示：行情为T-1]",
                 "priority": "P0",
                 "source": "SMM新能源",
                 "url": "",
