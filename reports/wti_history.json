@@ -1,31 +1,22 @@
 {
   "symbol": "WTI原油期货主连",
   "contract": "CL00Y",
-  "update_time": "2026-10-28 12:01:33",
+  "update_time": "2026-10-29 12:01:51",
   "source": "AkShare-NYMEX",
-  "start_date": "1996-10-28",
-  "end_date": "2026-10-28",
+  "start_date": "1996-10-29",
+  "end_date": "2026-10-29",
   "data_points": 7691,
   "min_price": 10.72,
   "max_price": 145.33,
   "latest": {
-    "date": "2026-10-28",
-    "open": 100.19,
-    "high": 101.44,
-    "low": 99.75,
-    "close": 101.34,
+    "date": "2026-10-29",
+    "open": 101.93,
+    "high": 102.31,
+    "low": 101.28,
+    "close": 101.39,
     "volume": 0
   },
   "history": [
-    {
-      "date": "1996-10-28",
-      "open": 24.77,
-      "close": 24.85,
-      "high": 25.35,
-      "low": 24.64,
-      "volume": 0,
-      "amount": 0.0
-    },
     {
       "date": "1996-10-29",
       "open": 24.52,
@@ -69230,9 +69221,18 @@
     {
       "date": "2026-10-28",
       "open": 100.19,
-      "close": 101.34,
-      "high": 101.44,
+      "close": 101.93,
+      "high": 103.55,
       "low": 99.75,
+      "volume": 0,
+      "amount": 0.0
+    },
+    {
+      "date": "2026-10-29",
+      "open": 101.93,
+      "close": 101.39,
+      "high": 102.31,
+      "low": 101.28,
       "volume": 0,
       "amount": 0.0
     }
