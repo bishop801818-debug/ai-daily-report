@@ -1,22 +1,22 @@
 {
   "symbol": "钯期货主连",
   "contract": "PD0",
-  "update_time": "2026-11-09 12:04:18",
+  "update_time": "2026-11-10 12:02:22",
   "source": "AkShare-广期所",
   "start_date": "2025-11-27",
-  "end_date": "2026-11-06",
-  "data_points": 228,
+  "end_date": "2026-11-09",
+  "data_points": 229,
   "min_price": 219.95,
   "max_price": 578.45,
   "latest": {
-    "date": "2026-11-06",
-    "open": 241.1,
-    "high": 244.15,
-    "low": 239.7,
-    "close": 242.5,
-    "volume": 9552,
-    "hold": 7973,
-    "settle": 242.0
+    "date": "2026-11-09",
+    "open": 245.4,
+    "high": 249.2,
+    "low": 243.65,
+    "close": 244.65,
+    "volume": 6413,
+    "hold": 7486,
+    "settle": 245.75
   },
   "history": [
     {
@@ -2298,6 +2298,16 @@
       "volume": 9552,
       "hold": 7973,
       "settle": 242.0
+    },
+    {
+      "date": "2026-11-09",
+      "open": 245.4,
+      "close": 244.65,
+      "high": 249.2,
+      "low": 243.65,
+      "volume": 6413,
+      "hold": 7486,
+      "settle": 245.75
     }
   ]
 }

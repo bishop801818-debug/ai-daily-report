@@ -2,9 +2,9 @@
   "meta": {
     "description": "有色金属2026年累计涨跌幅",
     "data_source": "各产品源数据文件",
-    "update_time": "2026-11-09 12:04:19",
+    "update_time": "2026-11-10 12:02:24",
     "year": 2026,
-    "generated_at": "2026-11-09T12:04:19.856583",
+    "generated_at": "2026-11-10T12:02:24.239051",
     "generator_version": "20260616_v2"
   },
   "products": [
@@ -12,13 +12,13 @@
       "name": "铂期货主力",
       "unit": "元/克",
       "start_date": "2026-01-05",
-      "end_date": "2026-11-06",
+      "end_date": "2026-11-09",
       "start_price": 583.95,
-      "end_price": 368.05,
-      "change": -215.9,
-      "change_pct": -36.97,
+      "end_price": 375.8,
+      "change": -208.15,
+      "change_pct": -35.65,
       "direction": "down",
-      "data_points": 203,
+      "data_points": 204,
       "price_series": [
         {
           "date": "2026-01-05",
@@ -831,6 +831,10 @@
         {
           "date": "2026-11-06",
           "price": 368.05
+        },
+        {
+          "date": "2026-11-09",
+          "price": 375.8
         }
       ]
     },
@@ -838,13 +842,13 @@
       "name": "钯期货主力",
       "unit": "元/克",
       "start_date": "2026-01-05",
-      "end_date": "2026-11-06",
+      "end_date": "2026-11-09",
       "start_price": 452.85,
-      "end_price": 242.5,
-      "change": -210.35,
-      "change_pct": -46.45,
+      "end_price": 244.65,
+      "change": -208.2,
+      "change_pct": -45.98,
       "direction": "down",
-      "data_points": 203,
+      "data_points": 204,
       "price_series": [
         {
           "date": "2026-01-05",
@@ -1657,6 +1661,10 @@
         {
           "date": "2026-11-06",
           "price": 242.5
+        },
+        {
+          "date": "2026-11-09",
+          "price": 244.65
         }
       ]
     },
@@ -1664,13 +1672,13 @@
       "name": "铁矿石",
       "unit": "元/吨",
       "start_date": "2026-01-05",
-      "end_date": "2026-11-06",
+      "end_date": "2026-11-09",
       "start_price": 797.0,
       "end_price": 687.5,
       "change": -109.5,
       "change_pct": -13.74,
       "direction": "down",
-      "data_points": 203,
+      "data_points": 204,
       "price_series": [
         {
           "date": "2026-01-05",
@@ -2482,6 +2490,10 @@
         },
         {
           "date": "2026-11-06",
+          "price": 687.5
+        },
+        {
+          "date": "2026-11-09",
           "price": 687.5
         }
       ]
