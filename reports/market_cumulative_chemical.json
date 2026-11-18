@@ -2,9 +2,9 @@
   "meta": {
     "description": "化工板块2026年累计涨跌幅",
     "data_source": "各产品源数据文件",
-    "update_time": "2026-11-16 12:01:54",
+    "update_time": "2026-11-18 08:49:58",
     "year": 2026,
-    "generated_at": "2026-11-16T12:01:54.428775",
+    "generated_at": "2026-11-18T08:49:58.198213",
     "generator_version": "20260616_v2"
   },
   "products": [
@@ -12,13 +12,13 @@
       "name": "尿素期货",
       "unit": "元/吨",
       "start_date": "2026-01-05",
-      "end_date": "2026-11-13",
+      "end_date": "2026-11-17",
       "start_price": 1768.0,
-      "end_price": 1747.0,
-      "change": -21.0,
-      "change_pct": -1.19,
+      "end_price": 1709.0,
+      "change": -59.0,
+      "change_pct": -3.34,
       "direction": "down",
-      "data_points": 208,
+      "data_points": 210,
       "price_series": [
         {
           "date": "2026-01-05",
@@ -851,6 +851,14 @@
         {
           "date": "2026-11-13",
           "price": 1747.0
+        },
+        {
+          "date": "2026-11-16",
+          "price": 1733.0
+        },
+        {
+          "date": "2026-11-17",
+          "price": 1709.0
         }
       ]
     },
@@ -858,13 +866,13 @@
       "name": "WTI原油",
       "unit": "美元/桶",
       "start_date": "2026-01-02",
-      "end_date": "2026-11-16",
+      "end_date": "2026-11-18",
       "start_price": 57.32,
-      "end_price": 88.25,
-      "change": 30.93,
-      "change_pct": 53.96,
+      "end_price": 84.36,
+      "change": 27.04,
+      "change_pct": 47.17,
       "direction": "up",
-      "data_points": 226,
+      "data_points": 228,
       "price_series": [
         {
           "date": "2026-01-02",
@@ -1768,7 +1776,15 @@
         },
         {
           "date": "2026-11-16",
-          "price": 88.25
+          "price": 85.06
+        },
+        {
+          "date": "2026-11-17",
+          "price": 84.38
+        },
+        {
+          "date": "2026-11-18",
+          "price": 84.36
         }
       ]
     },
@@ -1776,13 +1792,13 @@
       "name": "乙二醇",
       "unit": "元/吨",
       "start_date": "2026-01-05",
-      "end_date": "2026-11-13",
+      "end_date": "2026-11-17",
       "start_price": 3732.0,
-      "end_price": 5197.0,
-      "change": 1465.0,
-      "change_pct": 39.26,
+      "end_price": 5052.0,
+      "change": 1320.0,
+      "change_pct": 35.37,
       "direction": "up",
-      "data_points": 208,
+      "data_points": 210,
       "price_series": [
         {
           "date": "2026-01-05",
@@ -2615,6 +2631,14 @@
         {
           "date": "2026-11-13",
           "price": 5197.0
+        },
+        {
+          "date": "2026-11-16",
+          "price": 5237.0
+        },
+        {
+          "date": "2026-11-17",
+          "price": 5052.0
         }
       ]
     }

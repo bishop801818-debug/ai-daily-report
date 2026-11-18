@@ -1,22 +1,22 @@
 {
   "symbol": "铂期货主连",
   "contract": "PT0",
-  "update_time": "2026-11-16 12:01:52",
+  "update_time": "2026-11-18 08:49:56",
   "source": "AkShare-广期所",
   "start_date": "2025-11-27",
-  "end_date": "2026-11-13",
-  "data_points": 233,
+  "end_date": "2026-11-17",
+  "data_points": 235,
   "min_price": 346.5,
   "max_price": 744.7,
   "latest": {
-    "date": "2026-11-13",
-    "open": 370.05,
-    "high": 376.45,
-    "low": 369.4,
-    "close": 371.9,
-    "volume": 5057,
-    "hold": 10790,
-    "settle": 372.75
+    "date": "2026-11-17",
+    "open": 353.0,
+    "high": 360.85,
+    "low": 353.0,
+    "close": 357.85,
+    "volume": 6236,
+    "hold": 12055,
+    "settle": 357.05
   },
   "history": [
     {
@@ -2348,6 +2348,26 @@
       "volume": 5057,
       "hold": 10790,
       "settle": 372.75
+    },
+    {
+      "date": "2026-11-16",
+      "open": 366.0,
+      "close": 361.2,
+      "high": 366.7,
+      "low": 355.6,
+      "volume": 8993,
+      "hold": 11403,
+      "settle": 360.35
+    },
+    {
+      "date": "2026-11-17",
+      "open": 353.0,
+      "close": 357.85,
+      "high": 360.85,
+      "low": 353.0,
+      "volume": 6236,
+      "hold": 12055,
+      "settle": 357.05
     }
   ]
 }
