@@ -2,9 +2,9 @@
   "meta": {
     "description": "化工板块2026年累计涨跌幅",
     "data_source": "各产品源数据文件",
-    "update_time": "2026-11-18 08:49:58",
+    "update_time": "2026-11-19 12:01:32",
     "year": 2026,
-    "generated_at": "2026-11-18T08:49:58.198213",
+    "generated_at": "2026-11-19T12:01:32.008065",
     "generator_version": "20260616_v2"
   },
   "products": [
@@ -12,13 +12,13 @@
       "name": "尿素期货",
       "unit": "元/吨",
       "start_date": "2026-01-05",
-      "end_date": "2026-11-17",
+      "end_date": "2026-11-18",
       "start_price": 1768.0,
-      "end_price": 1709.0,
-      "change": -59.0,
-      "change_pct": -3.34,
+      "end_price": 1705.0,
+      "change": -63.0,
+      "change_pct": -3.56,
       "direction": "down",
-      "data_points": 210,
+      "data_points": 211,
       "price_series": [
         {
           "date": "2026-01-05",
@@ -859,6 +859,10 @@
         {
           "date": "2026-11-17",
           "price": 1709.0
+        },
+        {
+          "date": "2026-11-18",
+          "price": 1705.0
         }
       ]
     },
@@ -866,13 +870,13 @@
       "name": "WTI原油",
       "unit": "美元/桶",
       "start_date": "2026-01-02",
-      "end_date": "2026-11-18",
+      "end_date": "2026-11-19",
       "start_price": 57.32,
-      "end_price": 84.36,
-      "change": 27.04,
-      "change_pct": 47.17,
+      "end_price": 81.98,
+      "change": 24.66,
+      "change_pct": 43.02,
       "direction": "up",
-      "data_points": 228,
+      "data_points": 229,
       "price_series": [
         {
           "date": "2026-01-02",
@@ -1784,7 +1788,11 @@
         },
         {
           "date": "2026-11-18",
-          "price": 84.36
+          "price": 81.86
+        },
+        {
+          "date": "2026-11-19",
+          "price": 81.98
         }
       ]
     },
@@ -1792,13 +1800,13 @@
       "name": "乙二醇",
       "unit": "元/吨",
       "start_date": "2026-01-05",
-      "end_date": "2026-11-17",
+      "end_date": "2026-11-18",
       "start_price": 3732.0,
-      "end_price": 5052.0,
-      "change": 1320.0,
-      "change_pct": 35.37,
+      "end_price": 4900.0,
+      "change": 1168.0,
+      "change_pct": 31.3,
       "direction": "up",
-      "data_points": 210,
+      "data_points": 211,
       "price_series": [
         {
           "date": "2026-01-05",
@@ -2639,6 +2647,10 @@
         {
           "date": "2026-11-17",
           "price": 5052.0
+        },
+        {
+          "date": "2026-11-18",
+          "price": 4900.0
         }
       ]
     }
